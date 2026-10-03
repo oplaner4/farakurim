@@ -12,6 +12,7 @@ Language of all UI copy: **Czech**. Approach: **mobile-first**.
 | `mockups/mobile-390.dc.html` | Mobile mockup, 390 px wide |
 | `mockups/tablet-834.dc.html` | Tablet mockup, 834 px wide |
 | `mockups/desktop-1440.dc.html` | Desktop mockup, fluid, content max-width 1200 px |
+| `mockups/dark/*-dark.dc.html` | The same three mockups in the dark theme (see section 10) |
 | `assets/logo-farnost-kurim.svg` | Cleaned logo (also the future favicon) |
 
 **About the mockups:** they are design-tool sources (`.dc.html`), **not runnable pages**.
@@ -217,3 +218,114 @@ must come from the exceptions data, not be hard-coded.
 
 - Oxygen woff2 (300, 400, 700), self-hosted.
 - `favicon.svg` = `assets/logo-farnost-kurim.svg`, plus a 180×180 PNG `apple-touch-icon` and a 32×32 PNG fallback.
+
+## 10. Dark theme
+
+Same layout, components and section colours; only the tokens change. The mood
+stays **friendly, not gloomy**: a deep blue-tinted night ground (never pure black),
+the four brand colours kept as fills, and lighter shades of them for text.
+Mockups: `mockups/dark/`.
+
+### Switching
+
+- Default: follow the OS with `prefers-color-scheme: dark`.
+- Manual override: a 44×44 icon button (sun/moon) in the header, before the
+  hamburger on mobile/tablet and after the nav on desktop. It sets
+  `<html data-theme="light|dark">`, saved in `localStorage`, applied by a tiny inline
+  script in `<head>` before CSS paints (no flash). `aria-label="Přepnout na tmavý režim"` /
+  `"Přepnout na světlý režim"`, `aria-pressed` reflects the dark state.
+  The mockups show it (moon in light, sun in dark); in the design tool's Play
+  mode it jumps to the other theme's artboard.
+- Set `color-scheme: light` / `color-scheme: dark` on `:root` so form controls
+  and scrollbars follow.
+
+```css
+:root { color-scheme: light; /* light tokens from section 2 */ }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { /* dark tokens */ }
+}
+:root[data-theme="dark"] { /* dark tokens (same block) */ }
+```
+
+### Dark tokens
+
+Same variable names as section 2, so components never reference raw hex.
+
+```css
+/* dark */
+:root {
+  color-scheme: dark;
+
+  /* Brand fills: unchanged */
+  --blue:    #1D71B7;  /* white text on it: 5.1:1 */
+  --green:   #2EAC66;  /* decorative only */
+  --magenta: #D60B51;  /* white text on it: 5.2:1 */
+  --orange:  #F39200;  /* text on it must be --on-orange */
+  --on-orange: #111923; /* light theme: #1B2533 */
+
+  /* Text-safe shades become LIGHTER */
+  --blue-ink:    #7DB8EE;  /* hover #A9D1F5 */
+  --green-ink:   #5FD394;
+  --magenta-ink: #FF7AA6;
+  --orange-ink:  #FFB547;  /* deeper on orange tint: #FFC266 */
+  --time:        #6AAEEA;  /* big next-mass time (light theme: --blue) */
+
+  /* Tints become dark tinted surfaces */
+  --blue-tint:    #172A40;  /* alt #1C3350, divider on tint #24405E */
+  --green-tint:   #163A2A;
+  --magenta-tint: #331824;  /* alt #40192B */
+  --orange-tint:  #33240F;  /* alt #3D2A12 */
+
+  /* Neutrals */
+  --ink:      #EEF2F7;
+  --ink-2:    #C3CCD8;
+  --muted:    #9AA6B5;
+  --line:     #2A3648;  /* lighter divider #243042 */
+  --surface:  #18212F;  /* neutral cards, footer */
+  --raised:   #1F2B3D;  /* small white blocks in light theme: date tiles, pills, Petrklíč cover */
+  --card:     #1C2738;  /* next-mass card (light: #FFFFFF) */
+  --bg:       #111923;  /* page, header */
+  --dot-on:   #7DB8EE;  /* light: #1D71B7 */
+  --dot-off:  #5A6B82;  /* light: #C9D6E3 */
+  --overlay:  rgba(17,25,35,.88);  /* carousel buttons and dot pill (light: rgba(255,255,255,.92)) */
+  --shadow:   rgba(0,0,0,.45);     /* light: rgba(29,113,183,.16), Petrklíč cover rgba(168,88,0,.18) */
+}
+```
+
+Light-theme roles that were all plain `#FFFFFF` split into three in dark:
+**`--bg`** (page, header, mobile menu), **`--card`** (next-mass card) and
+**`--raised`** (date tiles, "Právě probíhá" pill, nav pills, Petrklíč cover).
+Add `--on-orange`, `--time`, `--raised`, `--card`, `--dot-on`, `--overlay`
+and `--shadow` to the light token set too, with the light values noted above.
+
+### What stays the same
+
+- Brand fills (blue/magenta buttons and date blocks with white text, orange
+  Petrklíč button with dark text), shards, the colour stripe and the logo. The
+  logo colours read well on `--bg`; no separate dark logo is needed.
+- Layout, sizes, radii, type scale.
+
+### Contrast (checked)
+
+| Pair | Ratio |
+|---|---|
+| `--ink` on `--bg` / `--card` | 15.7 / 13.4 |
+| `--ink-2` on `--card` | 9.3 |
+| `--muted` on `--bg` / `--card` / `--surface` / `--raised` | 7.2 / 6.1 / 6.6 / 5.8 |
+| `--blue-ink` on `--bg` / `--card` / `--blue-tint` | 8.4 / 7.1 / 6.9 |
+| `--time` on `--card` | 6.3 |
+| `--green-ink` on `--bg` | 9.5 |
+| `--magenta-ink` on `--bg` / `--magenta-tint` / `--raised` | 7.2 / 6.6 / 5.8 |
+| `--orange-ink` on `--orange-tint` | 8.5 |
+| white on `--blue` / `--magenta` | 5.1 / 5.2 |
+| `--on-orange` on `--orange` | 7.5 |
+| `--dot-on` on `--overlay` | ≥ 4.8 |
+
+### Photos and images in dark
+
+- Carousel and album photos: no filter. Optionally `filter: brightness(.92)` on
+  very bright photos only; never invert.
+- News posters (often white paper): show on `--raised` with 8–12 px padding and
+  rounded corners, so a white poster reads as a card instead of a glaring hole.
+- Petrklíč cover: real cover image as is, with the dark `--shadow`.
