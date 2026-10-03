@@ -5,7 +5,7 @@ import type { NewsEvent } from "@/content/types";
 import { links } from "@/content/site";
 import { formatEventDate } from "@/lib/czech";
 import { currentNews, eventHref, eventStatus } from "@/lib/news";
-import { useToday } from "@/lib/use-now";
+import { useToday } from "@/hooks/use-now";
 import { CalendarIcon } from "@/components/ui/icons";
 import { POSTER_TINTS } from "@/components/ui/PosterPlaceholder";
 import { SectionHeading } from "@/components/ui/SectionHeading";

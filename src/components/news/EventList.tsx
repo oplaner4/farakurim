@@ -18,9 +18,9 @@ import {
   type NewsFilter,
   parsePage,
 } from "@/lib/news";
-import { useToday } from "@/lib/use-now";
+import { useToday } from "@/hooks/use-now";
 import { PAGE_PARAM } from "@/lib/query-params";
-import { useLoadMore } from "@/lib/use-load-more";
+import { useLoadMore } from "@/hooks/use-load-more";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { EventCard, eventAnchor } from "./EventCard";
 

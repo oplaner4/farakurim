@@ -1,7 +1,7 @@
 "use client";
 
 import type { MouseEvent } from "react";
-import { PAGE_PARAM, updateQueryParams } from "./query-params";
+import { PAGE_PARAM, updateQueryParams } from "@/lib/query-params";
 import { useFocusAfterChange } from "./use-focus-after-change";
 
 /**

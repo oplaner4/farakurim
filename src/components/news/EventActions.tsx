@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { IsoDate } from "@/content/types";
-import { useToday } from "@/lib/use-now";
+import { useToday } from "@/hooks/use-now";
 import { buttonLink, ButtonLink } from "@/components/ui/ButtonLink";
 import { CalendarPlusIcon, ShareIcon } from "@/components/ui/icons";
 

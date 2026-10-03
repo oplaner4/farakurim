@@ -5,7 +5,7 @@ import type { OfficeHours } from "@/content/types";
 import { capitalize, WEEKDAY_NAMES } from "@/lib/czech";
 import { officeHoursApply, officeStatus } from "@/lib/office";
 import { pragueDate } from "@/lib/prague";
-import { useNow } from "@/lib/use-now";
+import { useNow } from "@/hooks/use-now";
 import { ContactCard } from "./ContactCard";
 
 type Props = {

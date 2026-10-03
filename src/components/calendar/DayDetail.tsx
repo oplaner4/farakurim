@@ -1,7 +1,7 @@
 import { clsx } from "clsx";
 import type { IsoDate } from "@/content/types";
 import { type AgendaItem, dayHeading, itemTime } from "@/lib/agenda";
-import type { CalendarStatus } from "@/lib/use-calendar-entries";
+import type { CalendarStatus } from "@/hooks/use-calendar-entries";
 
 const KIND = { services: "Bohoslužba", events: "Akce" };
 

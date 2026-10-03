@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { PetrklicIssue } from "@/content/types";
 import { stepPage, viewerSpread } from "@/lib/petrklic";
-import { useMediaQuery } from "@/lib/use-media-query";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
 
 type Props = {

@@ -2,6 +2,7 @@
 paths:
   - "src/content/**"
   - "src/lib/**"
+  - "src/hooks/**"
   - "src/components/**"
 ---
 
@@ -11,7 +12,7 @@ paths:
 
 Server Components run **at build time**. Anything that depends on "now" (next mass, countdown, which
 news are current) is rendered with the build timestamp (`src/lib/build-time.ts`) and re-computed in the
-browser through `useNow()` / `useToday()` (`src/lib/use-now.ts`, `useSyncExternalStore`, no hydration
+browser through `useNow()` / `useToday()` (`src/hooks/use-now.ts`, `useSyncExternalStore`, no hydration
 mismatch). Client components get `renderedAt={BUILD_TIME}` as a prop; never call `Date.now()` during render.
 Accepted trade-off: content only changes on rebuild and redeploy, and visitors without JS see the
 build-time next mass.

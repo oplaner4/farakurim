@@ -101,8 +101,8 @@ src/content/       Mock content (types.ts + one file per domain): the future API
                    ohlasky.ts (weekly ohlášky) is server-only
 src/lib/           Pure logic on date-fns (prague.ts, czech.ts, masses.ts, office.ts, news.ts, calendar.ts (.ics),
                    agenda.ts (Kalendář, "Tento týden"), google-calendar.ts, service-sheet.ts (ohlášky), petrklic.ts, gallery.ts) + tests,
-                   hooks in use-*.ts (useNow, useCalendarEntries, useSnapCarousel, useLoadMore, …),
                    links.ts (tel:/Mapy.cz hrefs), query-params.ts, theme.ts
+src/hooks/         Shared React hooks, one use-*.ts per hook (useNow, useCalendarEntries, useSnapCarousel, useLoadMore, …)
 ```
 
 ## Rules

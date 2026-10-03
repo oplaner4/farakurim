@@ -3,7 +3,7 @@
 import { clsx } from "clsx";
 import type { Album } from "@/content/types";
 import { photoAlt } from "@/lib/gallery";
-import { useSnapCarousel } from "@/lib/use-snap-carousel";
+import { useSnapCarousel } from "@/hooks/use-snap-carousel";
 import { AlbumPhotoTile } from "@/components/gallery/AlbumPhotoTile";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
 

@@ -4,7 +4,7 @@ import type { NewsEvent } from "@/content/types";
 import { links } from "@/content/site";
 import type { DateBlock } from "@/lib/czech";
 import { otherEvents } from "@/lib/news";
-import { useToday } from "@/lib/use-now";
+import { useToday } from "@/hooks/use-now";
 import { ArrowRightIcon, ChevronLeftIcon } from "@/components/ui/icons";
 
 /** What a card needs; the page passes only these fields to the client. */

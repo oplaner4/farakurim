@@ -6,7 +6,7 @@ import type { Weekday } from "@/content/types";
 import { capitalize, WEEKDAY_NAMES, WEEKDAY_SHORT } from "@/lib/czech";
 import { WEEK_ORDER } from "@/lib/masses";
 import { pragueWeekday } from "@/lib/prague";
-import { useToday } from "@/lib/use-now";
+import { useToday } from "@/hooks/use-now";
 import { ChurchCard, type ChurchSchedule } from "./ChurchCard";
 
 type DayFilter = Weekday | "all";

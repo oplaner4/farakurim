@@ -2,7 +2,7 @@
 
 import { Children, useState, type ReactNode } from "react";
 import { ARCHIVE_YEARS_STEP } from "@/lib/petrklic";
-import { useFocusAfterChange } from "@/lib/use-focus-after-change";
+import { useFocusAfterChange } from "@/hooks/use-focus-after-change";
 import { buttonLink } from "@/components/ui/ButtonLink";
 
 type Props = {

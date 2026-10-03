@@ -2,7 +2,7 @@
 
 import type { NewsEvent } from "@/content/types";
 import { relativeEventLabel } from "@/lib/czech";
-import { useToday } from "@/lib/use-now";
+import { useToday } from "@/hooks/use-now";
 
 const label = "rounded-full px-2.5 py-0.75 text-13 font-bold md:px-3 md:text-14 lg:py-1";
 

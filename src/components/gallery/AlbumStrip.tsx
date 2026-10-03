@@ -3,7 +3,7 @@
 import type { Album } from "@/content/types";
 import { formatLongDate } from "@/lib/czech";
 import { albumElementId, photoAlt, photoCounter, photoCountLabel } from "@/lib/gallery";
-import { useSnapCarousel } from "@/lib/use-snap-carousel";
+import { useSnapCarousel } from "@/hooks/use-snap-carousel";
 import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
 import { AlbumPhotoTile } from "./AlbumPhotoTile";
 

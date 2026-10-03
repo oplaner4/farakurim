@@ -5,7 +5,7 @@ import { useState } from "react";
 import type { SheetDay } from "@/content/types";
 import { formatWeekdayDate } from "@/lib/czech";
 import { showWeekLabel, weekView } from "@/lib/service-sheet";
-import { useToday } from "@/lib/use-now";
+import { useToday } from "@/hooks/use-now";
 
 type Props = {
   /** Public rows only (`publicDays`), with place names instead of IDs. */
