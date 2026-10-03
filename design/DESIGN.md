@@ -1,7 +1,8 @@
 # farakurim.cz – redesign (handoff)
 
 Spec for implementing the new website of **Římskokatolická farnost Kuřim**.
-Pages designed so far: **homepage** (sections 1–10) and **Aktuality** (section 11).
+Pages designed so far: **homepage** (sections 1–10), **Aktuality** (section 11),
+**Archiv aktualit** (section 12) and **Detail akce** (section 13).
 More pages will follow. Language of all UI copy: **Czech**. Approach: **mobile-first**.
 Every page has a **light and a dark theme**.
 
@@ -14,6 +15,8 @@ Every page has a **light and a dark theme**.
 | `mockups/home/dark/` | Homepage in the dark theme (section 10) |
 | `mockups/aktuality/light/` | Aktuality page, same three sizes (section 11) |
 | `mockups/aktuality/dark/` | Aktuality page in the dark theme |
+| `mockups/archiv/{light,dark}/` | Archiv aktualit (section 12) |
+| `mockups/detail/{light,dark}/` | Detail akce, example: the jubilee mass (section 13) |
 | `assets/logo-farnost-kurim.svg` | Cleaned logo (also the future favicon) |
 
 Desktop mockups are fluid with content max-width 1200 px; mobile and tablet are
@@ -27,7 +30,8 @@ carousel, Aktuality filters). Do **not** copy their structure: they use inline
 styles everywhere and are separate files per size and theme. Production should be
 **one template per page + one shared stylesheet**, with header and footer as
 shared partials. Internal links in the mockups already use the real routes
-(`/`, `/aktuality/`); the theme toggle's `href="#"` stands for the JS toggle.
+(`/`, `/aktuality/`, `/aktuality/archiv`, and `/aktuality/slavnostni-mse-k-jubileu-800-let`
+as an example detail URL); the theme toggle's `href="#"` stands for the JS toggle.
 
 ---
 
@@ -356,12 +360,12 @@ The homepage's "Úvod" keeps the blue pill.
 3. **Featured event ("Doporučujeme")**: one pinned event.
    - Magenta-tint panel, radius 24 / 28 / 32, magenta and orange triangles top-right.
    - Poster 96×136 (mobile, beside the button) / 200×282 (tablet, left) / 236×334 (desktop, left), white with soft shadow.
-   - Eyebrow "Doporučujeme" (uppercase, magenta-ink), H2 title 26 / 32 / 44 px, date and place rows with calendar and pin icons (magenta-ink), description, magenta button "Plakát" / "Zobrazit plakát".
+   - Eyebrow "Doporučujeme" (uppercase, magenta-ink), H2 title 26 / 32 / 44 px, date and place rows with calendar and pin icons (magenta-ink), description, magenta button "Plakát" / "Zobrazit plakát" and an outline button **"Více o akci"** to the detail page.
    - The pinned event is **not repeated** in the list below. No pinned event means the panel is not rendered.
 4. **Filters and count**: see 11.3.
 5. **Grouped event list**: see 11.4 and 11.5.
 6. **"Načíst další aktuality"**: magenta outline button (52 px). Full-width on mobile, centred on larger screens. See 11.6.
-7. **"Archiv aktualit" panel**: surface background, heading, one line "Starší pozvánky a ohlédnutí za proběhlými akcemi.", link or outline button "Otevřít archiv". **The archive URL is still to be decided** (the mockup uses `/aktuality/`).
+7. **"Archiv aktualit" panel**: surface background, heading, one line "Starší pozvánky a ohlédnutí za proběhlými akcemi.", link or outline button "Otevřít archiv" to `/aktuality/archiv` (section 12).
 
 ### 11.3 Filters
 
@@ -412,7 +416,7 @@ was posted.
   - attachments: file icon in magenta-ink, label plus type in muted ("Plakát PNG", "Pozvánka PDF");
   - external links and e-mail: arrow-out icon in blue-ink.
 - **Poster thumbnail**: rendered with `object-fit: contain` on the event's tint, so portrait posters are never cropped. Dark theme: add 8–12 px padding (section 10).
-- There is **no event detail page yet**. Cards don't link anywhere except their actions. Decide whether to add a detail page before implementing.
+- The **card title is a link** to the event's detail page (section 13). Keep the attachment and link buttons as separate targets; don't make the whole card one link.
 
 ### 11.6 Paging
 
@@ -447,3 +451,100 @@ Same mapping as section 10. The new pieces map as follows:
 - chips: inactive `--surface` with `--line` border, active magenta with white text.
 
 The mockups in `mockups/aktuality/dark/` show the result.
+
+## 12. Archiv aktualit (`/aktuality/archiv`)
+
+Mockups: `mockups/archiv/`. A compact, searchable list of finished events. It
+replaces the old archive with its "Vytvořeno" dropdown and `takeCount` /
+`archived=1` parameters.
+
+### 12.1 Structure
+
+1. Breadcrumb `Úvod › Aktuality › Archiv`, H1 "Archiv aktualit" (32 / 42 / 52 px) with the magenta shard, one-line intro "Proběhlé akce, pozvánky a plakáty farnosti."
+2. **Search and year filter.** Mobile: stacked. Tablet: one surface panel with the search box and the year buttons side by side. Desktop: a **left side panel** (`flex: 1 1 280px`) next to the list (`flex: 999 1 600px`), with "Zpět na aktuality" at its bottom.
+3. Result count ("Zobrazeno 21 akcí" / "Nalezeno 3 akce", `aria-live="polite"`) and, while searching, a "Zrušit hledání" text button.
+4. **List grouped by month, newest first** ("Srpen 2026", "Červenec 2026"…; magenta-ink H2 18 / 20 / 22 px).
+5. "Načíst starší" (magenta outline) and "Zpět na aktuality".
+
+### 12.2 Search and years
+
+- `<label>` "Hledat v archivu" plus `<input type="search">` (50 px tall, radius 14, border `#7D8A9B`, which meets the 3:1 boundary contrast; magnifier icon inside on the left). Placeholder "např. pouť, koncert, Tišnov".
+- Search looks in the **title and place across all years**. While a search is active, no year is selected.
+- Year buttons: `2026 · 2025 · Starší`, each with its count in a lighter weight. Active: magenta with white text. Default: the year of the most recent archived event. Mobile: three equal-width pills. Desktop: full-width vertical list.
+- Implement as a GET form plus links: `?q=…`, `?rok=2025`, `?rok=starsi`. Without JS, the form submits. With JS, debounce about 250 ms and update the list in place.
+- Empty state: "Nic jsme nenašli. Zkuste jiné slovo nebo rok."
+
+### 12.3 Archive row
+
+Each row is **one link** to the event's detail page (the whole row is the target, at least 64 px tall).
+
+| Column | Mobile | Tablet / desktop |
+|---|---|---|
+| Date | 64 px: date bold ("3. 8.", "2.–6. 4."), time muted below | 96 / 112 px, same content |
+| Main | title (16 / 17 / 18 bold), place muted | same |
+| Attachment | under the place: file icon + "Plakát PDF" | right-aligned surface chip with icon + type |
+
+Rows are separated by a 1 px `--line` hairline. There are no images in the archive,
+to keep it fast and easy to scan.
+
+### 12.4 Paging and data
+
+20 rows per page. "Načíst starší" links to `?strana=2` and keeps `q` / `rok`.
+The archive uses the same event record as section 11.7. An event appears in the
+archive the day after its end date. A manual "archived" flag is no longer needed,
+though an admin may still hide an event.
+
+## 13. Detail akce (`/aktuality/<slug>`)
+
+Mockups: `mockups/detail/`. The example is "Slavnostní mše k jubileu 800 let".
+Section colour: magenta. The header's current item stays "Aktuality".
+
+### 13.1 Structure
+
+| Block | Mobile | Tablet | Desktop |
+|---|---|---|---|
+| Breadcrumb | `Úvod › Aktuality › <title>` | same | same |
+| Labels | "Doporučujeme" (only if pinned, magenta tint) + **relative time** ("Za 15 dní", "Zítra", "Dnes", "Proběhlo"; blue tint) | same | same |
+| H1 + lead | 32 px + 18 px lead | 44 + 20 | 56 + 22 (lead max 680 px) |
+| "Kdy a kde" panel | full width | left, beside the poster (236×334) | **right column** (`flex: 1 1 360px`), poster (460 px tall) below it |
+| O akci / Program / 800 let v datech / Přílohy | stacked | stacked | left column (`flex: 999 1 560px`), text max 700 px |
+| Další akce | 3 compact cards + "Všechny aktuality" | 2 cards in a grid | 3 cards, `auto-fit minmax(280px)` |
+
+### 13.2 "Kdy a kde" panel
+
+- Magenta-tint panel with magenta and orange triangles top-right, radius 24 / 28 / 28.
+- Rows with icons (magenta-ink): **Kdy** (label muted, value bold) and **Kde** (place bold + "Zobrazit na mapě" link to Mapy.cz with the place as a query).
+- **"Přidat do kalendáře"**: magenta filled button, 52 px. It downloads an `.ics` file (`/aktuality/<slug>.ics`) with title, start/end, place and the page URL. This is a new feature.
+- **"Sdílet"**: magenta outline button. It uses `navigator.share()` where available, and otherwise copies the URL and shows "Odkaz je zkopírovaný." (`role="status"`).
+
+### 13.3 Content blocks
+
+- **O akci**: the event's body text (rich text: paragraphs, bold, links, lists). H2 22 / 26 / 28.
+- **Program** (optional): an ordered list of rows `time | title + note`, with the time column in magenta-ink, 76 / 100 / 120 px wide.
+- **Highlight tiles** (optional, used here as "800 let v datech"): up to 3 tiles, each in one brand tint (green, blue, orange) with its shard top-right, a big number in that colour's ink and a short label. Use them only when the event really has key facts or numbers.
+- **Přílohy**: one row per file with the file icon, name and "TYPE · size".
+- **Poster**: full poster with `object-fit: contain` and a "Plakát v plné velikosti" link. Mobile: 240×340, centred.
+
+### 13.4 Data each event needs (in addition to 11.7)
+
+| Field | Notes |
+|---|---|
+| slug | URL part, generated from the title, editable |
+| lead | one sentence under the title |
+| body | rich text |
+| program[] | time text, title, note (optional) |
+| highlights[] | number/short value + label, max 3 (optional) |
+| map query | defaults to the place |
+
+Show the relative-time label from the start and end dates. After the event ends, show
+"Proběhlo", hide the calendar button, and keep the page reachable from the archive.
+
+### 13.5 SEO and sharing
+
+- `<title>`: "<Event title> – Římskokatolická farnost Kuřim".
+- Open Graph image: the poster. Description: the lead.
+- Add `schema.org/Event` JSON-LD with name, startDate, endDate, location and image.
+
+### 13.6 Dark theme
+
+The same mapping as sections 10 and 11.8. The green highlight tint `#E8F6EE` maps to `--green-tint` (`#163A2A`).

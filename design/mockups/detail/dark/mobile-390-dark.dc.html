@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<title>Slavnostní mše k jubileu 800 let – mobil, tmavý režim</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oxygen:wght@300;400;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#111923}
+a{color:#7DB8EE}a:hover{color:#A9D1F5}
+</style>
+</helmet>
+<div style="width: 390px; min-height: 2750px; box-sizing: border-box; display: flex; flex-direction: column; background: #111923; color: #EEF2F7; font-family: Oxygen, 'Segoe UI', 'Helvetica Neue', sans-serif; font-size: 16px; line-height: 1.55">
+
+  <header style="display: flex; flex-direction: column; background: #111923">
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px">
+      <a href="/" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: #EEF2F7">
+        <img src="../../../assets/logo-farnost-kurim.svg" alt="" style="width: 30px; height: 48px; display: block">
+        <span style="display: flex; flex-direction: column; line-height: 1.15">
+          <span style="font-size: 12px; color: #9AA6B5">Římskokatolická farnost</span>
+          <span style="font-size: 22px; font-weight: 700; letter-spacing: -0.01em">Kuřim</span>
+        </span>
+      </a>
+      <div style="display: flex; align-items: center; gap: 8px">
+        <a href="#" aria-label="Přepnout na světlý režim" title="Přepnout na světlý režim" style="width: 48px; height: 48px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 14px; background: #172A40; color: #7DB8EE; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"></path></svg></a>
+        <button type="button" aria-label="Otevřít menu" onClick="{{toggleMenu}}" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 14px; background: #172A40; color: #7DB8EE; cursor: pointer">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"></path></svg>
+        </button>
+      </div>
+    </div>
+    <div aria-hidden="true" style="display: flex; height: 6px">
+      <span style="flex: 3; background: #2EAC66"></span>
+      <span style="flex: 2; background: #1D71B7"></span>
+      <span style="flex: 2; background: #D60B51"></span>
+      <span style="flex: 3; background: #F39200"></span>
+    </div>
+    <sc-if value="{{menuOpen}}" hint-placeholder-val="{{ false }}">
+      <nav aria-label="Hlavní menu" style="display: flex; flex-direction: column; padding: 8px 16px 16px; background: #111923; border-bottom: 1px solid #2A3648">
+        <a href="/" style="padding: 12px 4px; font-size: 18px; color: #EEF2F7; text-decoration: none; border-bottom: 1px solid #243042">Úvod</a>
+        <a href="#" aria-current="page" style="padding: 12px 4px; font-size: 18px; font-weight: 700; color: #FF7AA6; text-decoration: none; border-bottom: 1px solid #243042">Aktuality</a>
+        <a href="https://farakurim.cz/porad_bohosluzeb/" style="padding: 12px 4px; font-size: 18px; color: #EEF2F7; text-decoration: none; border-bottom: 1px solid #243042">Bohoslužby</a>
+        <a href="https://farakurim.cz/fotogalerie" style="padding: 12px 4px; font-size: 18px; color: #EEF2F7; text-decoration: none; border-bottom: 1px solid #243042">Fotogalerie</a>
+        <a href="https://farakurim.cz/petrklic/" style="padding: 12px 4px; font-size: 18px; color: #EEF2F7; text-decoration: none; border-bottom: 1px solid #243042">Petrklíč</a>
+        <a href="https://farakurim.cz/kontakty" style="padding: 12px 4px; font-size: 18px; color: #EEF2F7; text-decoration: none">Kontakty</a>
+      </nav>
+    </sc-if>
+  </header>
+
+  <main style="display: flex; flex-direction: column; gap: 28px; padding: 20px 16px 48px">
+
+    <nav aria-label="Drobečková navigace" style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 14px; color: #9AA6B5">
+      <a href="/">Úvod</a>
+      <span aria-hidden="true">›</span>
+      <a href="/aktuality/">Aktuality</a>
+      <span aria-hidden="true">›</span>
+      <span aria-current="page">Slavnostní mše k jubileu 800 let</span>
+    </nav>
+
+    <article style="display: flex; flex-direction: column; gap: 28px">
+      <div style="display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; flex-wrap: wrap; gap: 6px">
+          <span style="padding: 3px 10px; border-radius: 999px; background: #331824; color: #FF7AA6; font-size: 13px; font-weight: 700">Doporučujeme</span>
+          <span style="padding: 3px 10px; border-radius: 999px; background: #172A40; color: #7DB8EE; font-size: 13px; font-weight: 700">{{whenLabel}}</span>
+        </div>
+        <h1 style="margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15">Slavnostní mše k jubileu 800 let</h1>
+        <p style="margin: 0; font-size: 18px; color: #C3CCD8">Kostel sv. Maří Magdalény stojí v Kuřimi od roku 1226. Oslavte s námi jeho 800. výročí.</p>
+      </div>
+
+      <section aria-label="Kdy a kde" style="position: relative; display: flex; flex-direction: column; gap: 16px; padding: 22px 20px; border-radius: 24px; background: #331824; overflow: hidden">
+        <span aria-hidden="true" style="position: absolute; top: 0; right: 0; width: 64px; height: 64px; background: #D60B51; clip-path: polygon(0 0, 100% 0, 100% 100%)"></span>
+        <div style="display: flex; gap: 12px">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF7AA6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 2px"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>
+          <span style="display: flex; flex-direction: column">
+            <span style="font-size: 13px; color: #9AA6B5">Kdy</span>
+            <strong>Neděle 18. října 2026, 9:30</strong>
+          </span>
+        </div>
+        <div style="display: flex; gap: 12px">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF7AA6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 2px"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>
+          <span style="display: flex; flex-direction: column">
+            <span style="font-size: 13px; color: #9AA6B5">Kde</span>
+            <strong>Kostel sv. Maří Magdalény, Kuřim</strong>
+            <a href="https://mapy.cz/zakladni?q=kostel%20sv.%20Mar%C3%AD%20Magdal%C3%A9ny%20Ku%C5%99im" style="font-size: 15px; font-weight: 700">Zobrazit na mapě</a>
+          </span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px; padding-top: 4px">
+          <a href="#" style="display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; border-radius: 14px; background: #D60B51; color: #FFFFFF; font-weight: 700; text-decoration: none">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4M12 13v5M9.5 15.5h5"></path></svg>
+            Přidat do kalendáře
+          </a>
+          <button type="button" onClick="{{share}}" style="display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; border-radius: 14px; border: 2px solid #D60B51; background: transparent; color: #FF7AA6; font-family: inherit; font-size: 16px; font-weight: 700; cursor: pointer">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.5"></circle><circle cx="6" cy="12" r="2.5"></circle><circle cx="18" cy="19" r="2.5"></circle><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"></path></svg>
+            Sdílet
+          </button>
+          <sc-if value="{{shared}}" hint-placeholder-val="{{ false }}">
+            <span role="status" style="font-size: 14px; text-align: center; color: #C3CCD8">Odkaz je zkopírovaný.</span>
+          </sc-if>
+        </div>
+      </section>
+
+      <div style="display: flex; flex-direction: column; gap: 10px; align-items: center">
+        <span style="width: 240px; height: 340px; border-radius: 16px; background: #40192B; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #FF7AA6">[plakát]</span>
+        <a href="https://farakurim.cz/nahrane/aktuality/6ab538eec7721.Plakát.png" style="display: flex; align-items: center; gap: 6px; min-height: 44px; font-weight: 700">Plakát v plné velikosti (PNG)</a>
+      </div>
+
+      <section aria-labelledby="o-akci-m" style="display: flex; flex-direction: column; gap: 12px">
+        <h2 id="o-akci-m" style="margin: 0; font-size: 22px; font-weight: 700">O akci</h2>
+        <p style="margin: 0">Letos slavíme 800 let od založení našeho kostela sv. Maří Magdalény. Zveme vás na slavnostní mši svatou, při které poděkujeme za všechny generace, které se v kostele modlily.</p>
+        <p style="margin: 0">Mši doprovodí zpěvem dětská schola. Po mši jste všichni srdečně zváni do misijní kavárny na faře.</p>
+      </section>
+
+      <section aria-labelledby="prog-m" style="display: flex; flex-direction: column; gap: 12px">
+        <h2 id="prog-m" style="margin: 0; font-size: 22px; font-weight: 700">Program</h2>
+        <ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column">
+          <li style="display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 12px; padding: 12px 0; border-top: 1px solid #2A3648">
+            <strong style="color: #FF7AA6">9:30</strong>
+            <span><strong>Slavnostní mše svatá</strong><br><span style="color: #C3CCD8">zpívá dětská schola</span></span>
+          </li>
+          <li style="display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 12px; padding: 12px 0; border-top: 1px solid #2A3648; border-bottom: 1px solid #2A3648">
+            <strong style="color: #FF7AA6">po mši</strong>
+            <span><strong>Misijní kavárna</strong><br><span style="color: #C3CCD8">fara, Křížkovského 55/5</span></span>
+          </li>
+        </ol>
+      </section>
+
+      <section aria-labelledby="hist-m" style="display: flex; flex-direction: column; gap: 12px">
+        <h2 id="hist-m" style="margin: 0; font-size: 22px; font-weight: 700">800 let v datech</h2>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+          <div style="position: relative; display: flex; flex-direction: column; gap: 2px; padding: 16px 12px 14px; border-radius: 16px; background: #163A2A; overflow: hidden">
+            <span aria-hidden="true" style="position: absolute; top: 0; right: 0; width: 28px; height: 28px; background: #2EAC66; clip-path: polygon(0 0, 100% 0, 100% 100%)"></span>
+            <span style="font-size: 24px; font-weight: 700; color: #5FD394">1226</span>
+            <span style="font-size: 13px; color: #C3CCD8">založení kostela</span>
+          </div>
+          <div style="position: relative; display: flex; flex-direction: column; gap: 2px; padding: 16px 12px 14px; border-radius: 16px; background: #172A40; overflow: hidden">
+            <span aria-hidden="true" style="position: absolute; top: 0; right: 0; width: 28px; height: 28px; background: #1D71B7; clip-path: polygon(0 0, 100% 0, 100% 100%)"></span>
+            <span style="font-size: 24px; font-weight: 700; color: #7DB8EE">1772</span>
+            <span style="font-size: 13px; color: #C3CCD8">benedikce</span>
+          </div>
+          <div style="position: relative; display: flex; flex-direction: column; gap: 2px; padding: 16px 12px 14px; border-radius: 16px; background: #33240F; overflow: hidden">
+            <span aria-hidden="true" style="position: absolute; top: 0; right: 0; width: 28px; height: 28px; background: #F39200; clip-path: polygon(0 0, 100% 0, 100% 100%)"></span>
+            <span style="font-size: 24px; font-weight: 700; color: #FFB547">1889</span>
+            <span style="font-size: 13px; color: #C3CCD8">konsekrace</span>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="pril-m" style="display: flex; flex-direction: column; gap: 12px">
+        <h2 id="pril-m" style="margin: 0; font-size: 22px; font-weight: 700">Přílohy</h2>
+        <a href="https://farakurim.cz/nahrane/aktuality/6ab538eec7721.Plakát.png" style="display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 0 16px; border-radius: 14px; background: #18212F; color: #EEF2F7; text-decoration: none">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF7AA6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6"></path></svg>
+          <span style="display: flex; flex-direction: column; line-height: 1.3">
+            <strong>Plakát</strong>
+            <span style="font-size: 13px; color: #9AA6B5">PNG · [velikost]</span>
+          </span>
+        </a>
+      </section>
+    </article>
+
+    <section aria-labelledby="dalsi-m" style="display: flex; flex-direction: column; gap: 12px; padding-top: 8px; border-top: 1px solid #2A3648">
+      <h2 id="dalsi-m" style="margin: 16px 0 0; font-size: 22px; font-weight: 700">Další akce</h2>
+      <a href="/aktuality/" style="display: flex; gap: 14px; align-items: center; padding: 12px; border-radius: 16px; background: #18212F; color: #EEF2F7; text-decoration: none">
+        <span style="flex: 0 0 52px; height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 12px; background: #1F2B3D; color: #FF7AA6; line-height: 1.1"><strong style="font-size: 18px">7.</strong><span style="font-size: 12px">října</span></span>
+        <span style="display: flex; flex-direction: column"><strong style="line-height: 1.3">Koláč pro hospic</strong><span style="font-size: 14px; color: #9AA6B5">Kuřim a okolí</span></span>
+      </a>
+      <a href="/aktuality/" style="display: flex; gap: 14px; align-items: center; padding: 12px; border-radius: 16px; background: #18212F; color: #EEF2F7; text-decoration: none">
+        <span style="flex: 0 0 52px; height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 12px; background: #1F2B3D; color: #FF7AA6; line-height: 1.1"><strong style="font-size: 18px">25.</strong><span style="font-size: 12px">října</span></span>
+        <span style="display: flex; flex-direction: column"><strong style="line-height: 1.3">Hubertská mše</strong><span style="font-size: 14px; color: #9AA6B5">Kuřim · 9:30</span></span>
+      </a>
+      <a href="/aktuality/" style="display: flex; gap: 14px; align-items: center; padding: 12px; border-radius: 16px; background: #18212F; color: #EEF2F7; text-decoration: none">
+        <span style="flex: 0 0 52px; height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 12px; background: #1F2B3D; color: #FF7AA6; line-height: 1.1"><strong style="font-size: 18px">19.</strong><span style="font-size: 12px">prosince</span></span>
+        <span style="display: flex; flex-direction: column"><strong style="line-height: 1.3">Farní pouť do Lukova a adventní Třebíče</strong><span style="font-size: 14px; color: #9AA6B5">Lukov a Třebíč</span></span>
+      </a>
+      <a href="/aktuality/" style="display: flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 700">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg>
+        Všechny aktuality
+      </a>
+    </section>
+  </main>
+
+  <footer style="margin-top: auto; display: flex; flex-direction: column; background: #18212F">
+    <div aria-hidden="true" style="display: flex; height: 6px">
+      <span style="flex: 3; background: #2EAC66"></span>
+      <span style="flex: 2; background: #1D71B7"></span>
+      <span style="flex: 2; background: #D60B51"></span>
+      <span style="flex: 3; background: #F39200"></span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 16px; padding: 32px 16px 40px">
+      <div style="display: flex; align-items: center; gap: 12px">
+        <img src="../../../assets/logo-farnost-kurim.svg" alt="" style="width: 25px; height: 40px; display: block">
+        <span style="font-weight: 700">Římskokatolická farnost Kuřim</span>
+      </div>
+      <span style="font-size: 14px; color: #C3CCD8">Kuřim · Moravské Knínice · Jinačovice · Česká</span>
+      <span style="font-size: 14px; color: #C3CCD8">Bankovní účet: 247704317/0300</span>
+      <a href="https://farakurim.cz/virtualni_prohlidka/" style="font-size: 14px; font-weight: 700">Virtuální prohlídka kostela</a>
+    </div>
+  </footer>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":2750}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const st = this.state || {};
+    const start = new Date(2026, 9, 18, 9, 30);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const days = Math.round((new Date(2026, 9, 18) - today) / 86400000);
+    let when = 'Proběhlo';
+    if (now < start) {
+      if (days <= 0) when = 'Dnes';
+      else if (days === 1) when = 'Zítra';
+      else if (days <= 4) when = 'Za ' + days + ' dny';
+      else when = 'Za ' + days + ' dní';
+    }
+    return {
+      menuOpen: !!st.menuOpen,
+      toggleMenu: () => this.setState({ menuOpen: !st.menuOpen }),
+      shared: !!st.shared,
+      share: () => this.setState({ shared: true }),
+      whenLabel: when
+    };
+  }
+}
+</script>
+</body>
+</html>
