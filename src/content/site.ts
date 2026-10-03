@@ -1,11 +1,13 @@
 import type { CarouselSlide } from "./types";
 
-// Subpages are not rebuilt yet, so links point to the current live site.
+// Pages not rebuilt yet point to the current live site.
 const LIVE = "https://farakurim.cz";
 
 export const links = {
   home: "/",
-  news: `${LIVE}/aktuality/`,
+  news: "/aktuality/",
+  /** The archive URL is still to be decided (design/DESIGN.md §11.2); the live site keeps it for now. */
+  newsArchive: `${LIVE}/aktuality/`,
   services: `${LIVE}/porad_bohosluzeb/`,
   gallery: `${LIVE}/fotogalerie`,
   petrklic: `${LIVE}/petrklic/`,
@@ -13,14 +15,15 @@ export const links = {
   virtualTour: `${LIVE}/virtualni_prohlidka/`,
 };
 
+/** `color` is the section colour of the page, used for the current page's nav item. */
 export const mainNav = [
-  { label: "Úvod", href: links.home },
-  { label: "Aktuality", href: links.news },
-  { label: "Bohoslužby", href: links.services },
-  { label: "Fotogalerie", href: links.gallery },
-  { label: "Petrklíč", href: links.petrklic },
-  { label: "Kontakty", href: links.contacts },
-];
+  { label: "Úvod", href: links.home, color: "blue" },
+  { label: "Aktuality", href: links.news, color: "magenta" },
+  { label: "Bohoslužby", href: links.services, color: "blue" },
+  { label: "Fotogalerie", href: links.gallery, color: "green" },
+  { label: "Petrklíč", href: links.petrklic, color: "orange" },
+  { label: "Kontakty", href: links.contacts, color: "blue" },
+] as const;
 
 export const parish = {
   name: "Římskokatolická farnost Kuřim",

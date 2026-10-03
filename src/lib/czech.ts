@@ -1,6 +1,6 @@
-import { format } from "date-fns";
+import { format, getDay, isLastDayOfMonth } from "date-fns";
 import { cs } from "date-fns/locale";
-import type { IsoDate } from "@/content/types";
+import type { IsoDate, NewsEvent } from "@/content/types";
 import { inPrague, pragueDateTime } from "./prague";
 
 const pluralRules = new Intl.PluralRules("cs");
@@ -62,4 +62,92 @@ export function formatEventDate(start: IsoDate, end?: IsoDate): EventDateParts {
     label: `${dayA} ${monthA} – ${dayB} ${monthB}`,
     isRange: true,
   };
+}
+
+/** "Říjen 2026" (nominative month name) */
+export const formatMonthYear = (date: IsoDate) => capitalize(fmt(date, "LLLL yyyy"));
+
+/** Accusative after "každý/každou/každé": "každý čtvrtek", "každou neděli" (index = `Date.getDay()`). */
+const EVERY_WEEKDAY = [
+  "každou neděli",
+  "každé pondělí",
+  "každé úterý",
+  "každou středu",
+  "každý čtvrtek",
+  "každý pátek",
+  "každou sobotu",
+];
+const ROMAN_MONTHS = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+
+const weekdayIndex = (date: IsoDate) => getDay(asDate(date), { in: inPrague });
+const isFirstOfMonth = (date: IsoDate) => date.endsWith("-01");
+const isLastOfMonth = (date: IsoDate) => isLastDayOfMonth(asDate(date), { in: inPrague });
+
+/** "neděle 25. 10. 2026" or, with `longMonth`, "neděle 18. října 2026" */
+const formatDay = (date: IsoDate, longMonth: boolean) => fmt(date, longMonth ? "EEEE d. MMMM yyyy" : "EEEE d. M. yyyy");
+
+/** "pátek 2. – neděle 4. 10. 2026", "pátek 30. 10. – neděle 1. 11. 2026" */
+function formatDayRange(start: IsoDate, end: IsoDate, longMonth: boolean): string {
+  const sameYear = start.slice(0, 4) === end.slice(0, 4);
+  const sameMonth = start.slice(0, 7) === end.slice(0, 7);
+  const from = !sameYear
+    ? formatDay(start, longMonth)
+    : sameMonth
+      ? fmt(start, "EEEE d.")
+      : fmt(start, longMonth ? "EEEE d. MMMM" : "EEEE d. M.");
+  return `${from} – ${formatDay(end, longMonth)}`;
+}
+
+export type EventWhen = {
+  /** "neděle 25. 10. 2026", "1. 10. 2026 – 29. 4. 2027, každý čtvrtek od 18:30" */
+  date: string;
+  /** Shown after the date with " · " ("9:30"); series fold their time into `date`. */
+  time?: string;
+};
+
+/**
+ * Full date text of an event (§11.5 "Meta"). `longMonth` writes month names, as in the
+ * "Doporučujeme" panel ("neděle 18. října 2026").
+ */
+export function formatEventWhen(event: NewsEvent, { longMonth = false } = {}): EventWhen {
+  const { start, end = start, time, longTerm, sessions } = event;
+  if (longTerm) {
+    const range =
+      isFirstOfMonth(start) && isLastOfMonth(end)
+        ? start.slice(0, 4) === end.slice(0, 4)
+          ? `${fmt(start, "LLLL")} – ${fmt(end, "LLLL yyyy")}`
+          : `${fmt(start, "LLLL yyyy")} – ${fmt(end, "LLLL yyyy")}`
+        : `${fmt(start, "d. M. yyyy")} – ${fmt(end, "d. M. yyyy")}`;
+    if (longTerm !== true) return { date: `${range}, ${EVERY_WEEKDAY[weekdayIndex(start)]} od ${longTerm.weeklyAt}` };
+    return { date: time ? `${range}, ${time}` : range };
+  }
+  if (sessions) {
+    return { date: `od ${formatDay(start, longMonth)}${time ? `, vždy ${time}` : ""}` };
+  }
+  return { date: end === start ? formatDay(start, longMonth) : formatDayRange(start, end, longMonth), time };
+}
+
+export type DateBlock = { top: string; bottom: string };
+
+/**
+ * The two lines of an event's date block: "7." / "října", "2.–4." / "října";
+ * weekly series "čt" / "18:30"; other long-term series "III–XI" / "2026".
+ */
+export function eventDateBlock(event: NewsEvent): DateBlock {
+  const { start, end = start, longTerm, sessions } = event;
+  if (longTerm) {
+    if (longTerm !== true) return { top: fmt(start, "EEEEEE"), bottom: longTerm.weeklyAt };
+    const months = (d: IsoDate) => ROMAN_MONTHS[Number(d.slice(5, 7)) - 1];
+    const years = start.slice(0, 4) === end.slice(0, 4) ? fmt(end, "yyyy") : `${fmt(start, "yyyy")}–${fmt(end, "yy")}`;
+    return { top: `${months(start)}–${months(end)}`, bottom: years };
+  }
+  const { days, months } = formatEventDate(start, sessions ? undefined : end);
+  return { top: days, bottom: months };
+}
+
+/** "PNG", "PDF": the upper-case extension of a file name or URL. */
+export function fileType(file: string): string {
+  const name = file.split(/[?#]/)[0];
+  const dot = name.lastIndexOf(".");
+  return dot > name.lastIndexOf("/") ? name.slice(dot + 1).toUpperCase() : "";
 }

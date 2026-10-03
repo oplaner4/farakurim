@@ -29,7 +29,7 @@ paths:
   Use `max-md:` / `max-lg:` when a style must not leak upwards (e.g. borders with `not-first:`).
   One markup per component; breakpoint layouts use `contents`, `order-*`, grid and `hidden`/`block`.
 - Custom utilities in `globals.css`: `container-page` (16/32 px gutter, max 1200 px content),
-  `grid-fit-<px>` (auto-fit columns at least N px wide, e.g. `lg:grid-fit-250`),
+  `grid-fit-<px>` (auto-fit columns at least N px wide, e.g. `lg:grid-fit-250`), `border-thin` (1.5 px),
   `shard-tl|tr|br|bl` (clip-path triangles named by their right-angle corner), `no-scrollbar`.
 - Avoid `!important` (`!`) and duplicate utilities for the same property on one element.
 - Section colours: blue = mass, Kontakty, primary actions · magenta = Aktuality · green = Fotogalerie · orange = Petrklíč.

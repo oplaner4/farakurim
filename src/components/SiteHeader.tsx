@@ -1,13 +1,35 @@
+import { clsx } from "clsx";
 import { serviceSheet } from "@/content/masses";
 import { links, mainNav } from "@/content/site";
 import { ButtonLink } from "./ButtonLink";
 import { ColorStripe } from "./ColorStripe";
 import { FileDownloadIcon } from "./icons";
 import { MenuButton } from "./MenuButton";
+import type { SectionColor } from "./SectionHeading";
 import { ThemeToggle } from "./ThemeToggle";
 
 const MENU_ID = "mobilni-menu";
 const MENU_BUTTON_ID = "mobilni-menu-tlacitko";
+
+/** The current page's item takes its section's tint and ink (design/DESIGN.md §11.1). */
+const currentStyles: Record<SectionColor, { desktop: string; menu: string }> = {
+  blue: {
+    desktop: "aria-[current=page]:bg-blue-tint aria-[current=page]:text-blue-ink",
+    menu: "aria-[current=page]:text-blue-ink md:aria-[current=page]:bg-blue-tint",
+  },
+  green: {
+    desktop: "aria-[current=page]:bg-green-tint aria-[current=page]:text-green-ink",
+    menu: "aria-[current=page]:text-green-ink md:aria-[current=page]:bg-green-tint",
+  },
+  magenta: {
+    desktop: "aria-[current=page]:bg-magenta-tint aria-[current=page]:text-magenta-ink",
+    menu: "aria-[current=page]:text-magenta-ink md:aria-[current=page]:bg-magenta-tint",
+  },
+  orange: {
+    desktop: "aria-[current=page]:bg-orange-tint aria-[current=page]:text-orange-ink",
+    menu: "aria-[current=page]:text-orange-ink md:aria-[current=page]:bg-orange-tint",
+  },
+};
 
 export function SiteHeader({ currentHref = links.home }: { currentHref?: string }) {
   const navItems = mainNav.map((item) => ({ ...item, current: item.href === currentHref }));
@@ -37,7 +59,10 @@ export function SiteHeader({ currentHref = links.home }: { currentHref?: string 
                   <a
                     href={item.href}
                     aria-current={item.current ? "page" : undefined}
-                    className="flex min-h-11 items-center rounded-12 px-3.5 text-ink no-underline hover:bg-surface hover:text-ink aria-[current=page]:bg-blue-tint aria-[current=page]:font-bold aria-[current=page]:text-blue-ink"
+                    className={clsx(
+                      "flex min-h-11 items-center rounded-12 px-3.5 text-ink no-underline hover:bg-surface hover:text-ink aria-[current=page]:font-bold",
+                      currentStyles[item.color].desktop,
+                    )}
                   >
                     {item.label}
                   </a>
@@ -69,7 +94,10 @@ export function SiteHeader({ currentHref = links.home }: { currentHref?: string 
               <a
                 href={item.href}
                 aria-current={item.current ? "page" : undefined}
-                className="block px-1 py-3 text-18 text-ink no-underline hover:text-blue-ink aria-[current=page]:font-bold aria-[current=page]:text-blue-ink md:flex md:min-h-12 md:items-center md:rounded-12 md:bg-surface md:px-4 md:py-0 md:text-17 md:hover:bg-blue-tint md:aria-[current=page]:bg-blue-tint"
+                className={clsx(
+                  "block px-1 py-3 text-18 text-ink no-underline hover:text-blue-ink aria-[current=page]:font-bold md:flex md:min-h-12 md:items-center md:rounded-12 md:bg-surface md:px-4 md:py-0 md:text-17 md:hover:bg-blue-tint",
+                  currentStyles[item.color].menu,
+                )}
               >
                 {item.label}
               </a>

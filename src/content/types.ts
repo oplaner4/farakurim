@@ -35,16 +35,46 @@ export type ServiceSheet = {
   validTo: IsoDate;
 };
 
-export type NewsItem = {
+/** A file attached to an event; the type label ("PNG", "PDF") comes from the file extension. */
+export type EventAttachment = {
+  label: string;
+  file: string;
+};
+
+/** An external link or e-mail (`mailto:`) for an event. */
+export type EventLink = {
+  label: string;
+  href: string;
+};
+
+/** One record of the Aktuality page (design/DESIGN.md §11.7). The homepage shows the nearest ones. */
+export type NewsEvent = {
   id: string;
   title: string;
-  excerpt: string;
   start: IsoDate;
   /** Last day of a multi-day event; omit for single-day events. */
   end?: IsoDate;
-  time?: ClockTime;
-  href: string;
-  image?: { src: string; alt: string };
+  /** Free text: "9:30", "18:00–20:30". */
+  time?: string;
+  place: string;
+  /** Short description, 1–2 sentences. */
+  text: string;
+  poster?: { src: string; alt: string };
+  attachments?: EventAttachment[];
+  links?: EventLink[];
+  /** Tags */
+  price?: string;
+  registrationDeadline?: IsoDate;
+  /** A series of meetings from `start` to `end`: listed by its first date with "N setkání". */
+  sessions?: number;
+  label?: string;
+  /**
+   * Long-term series, listed under "Dlouhodobé akce". `weeklyAt` means it meets every week
+   * on the weekday of `start` at that time.
+   */
+  longTerm?: true | { weeklyAt: ClockTime };
+  /** Shown in the "Doporučujeme" panel while it is not finished (at most one). */
+  pinned?: boolean;
 };
 
 export type Album = {

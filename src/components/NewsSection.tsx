@@ -1,31 +1,26 @@
 "use client";
 
 import { clsx } from "clsx";
-import type { NewsItem } from "@/content/types";
+import type { NewsEvent } from "@/content/types";
 import { links } from "@/content/site";
 import { formatEventDate } from "@/lib/czech";
-import { currentNews, isOngoing } from "@/lib/news";
+import { currentNews, eventStatus } from "@/lib/news";
 import { useToday } from "@/lib/use-now";
 import { CalendarIcon } from "./icons";
+import { POSTER_TINTS } from "./PosterPlaceholder";
 import { SectionHeading } from "./SectionHeading";
 
 /** Mobile shows the first 3 (the 4th is hidden); tablet and desktop show 4. */
 const LIMIT = 4;
-const POSTER_TINTS = [
-  "bg-magenta-tint-alt text-magenta-ink",
-  "bg-orange-tint-alt text-orange-ink-deep",
-  "bg-blue-tint-alt text-blue-ink",
-  "bg-green-tint text-green-ink",
-];
 
 type Props = {
-  items: NewsItem[];
+  events: NewsEvent[];
   renderedAt: number;
 };
 
-export function NewsSection({ items, renderedAt }: Props) {
+export function NewsSection({ events, renderedAt }: Props) {
   const today = useToday(renderedAt);
-  const visible = currentNews(items, today, LIMIT);
+  const visible = currentNews(events, today, LIMIT);
 
   if (visible.length === 0) return null;
 
@@ -42,14 +37,15 @@ export function NewsSection({ items, renderedAt }: Props) {
       />
       <ul className="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4 lg:grid-fit-250 lg:gap-5">
         {visible.map((item, i) => {
-          const date = formatEventDate(item.start, item.end);
+          // A series of meetings is listed by its first date.
+          const date = formatEventDate(item.start, item.sessions ? undefined : item.end);
           const chip = item.time ? `${date.label} · ${item.time}` : date.label;
-          const ongoing = isOngoing(item, today);
+          const ongoing = eventStatus(item, today) === "now";
           return (
             <li key={item.id} className="nth-[n+4]:hidden md:nth-[n+4]:block">
               {/* Mobile/tablet: horizontal card with a date block. Desktop: vertical card with a poster. */}
               <a
-                href={item.href}
+                href={`${links.news}#akce-${item.id}`}
                 className={clsx(
                   "group flex h-full gap-3.5 rounded-18 p-3.5 text-ink no-underline hover:text-ink md:gap-4 md:rounded-20 md:p-4",
                   "lg:flex-col lg:gap-3 lg:rounded-none lg:bg-transparent lg:p-0",
@@ -75,12 +71,12 @@ export function NewsSection({ items, renderedAt }: Props) {
                     "relative hidden h-52.5 items-center justify-center overflow-hidden rounded-24 lg:flex",
                     POSTER_TINTS[i % POSTER_TINTS.length],
                     /* Dark: posters (often white paper) sit on a raised card instead of glaring. */
-                    item.image && "dark:bg-raised dark:p-2.5",
+                    item.poster && "dark:bg-raised dark:p-2.5",
                   )}
                 >
-                  {item.image ? (
+                  {item.poster ? (
                     <img
-                      src={item.image.src}
+                      src={item.poster.src}
                       alt=""
                       className="size-full object-cover dark:rounded-16"
                       loading="lazy"
@@ -109,7 +105,7 @@ export function NewsSection({ items, renderedAt }: Props) {
                   <h3 className="text-17 leading-card font-bold underline-offset-3 group-hover:text-magenta-ink group-hover:underline md:text-18 lg:text-20">
                     {item.title}
                   </h3>
-                  <span className="text-14 text-ink-2 md:text-15 lg:text-16">{item.excerpt}</span>
+                  <span className="line-clamp-2 text-14 text-ink-2 md:text-15 lg:text-16">{item.text}</span>
                 </span>
               </a>
             </li>

@@ -42,6 +42,7 @@
   --color-on-orange: #1b2533; /* text on orange */
   --color-blue-hover: #165a93; /* primary button hover (a fill with white text, same in both themes) */
   --color-orange-hover: #e08700;
+  --color-magenta-hover: #b0083f; /* magenta button hover (white text, same in both themes) */
 
   /* Text-safe shades (≥ 4.5:1 on white) */
   --color-blue-ink: #165a93;
@@ -77,6 +78,7 @@
   --color-dot-off: #c9d6e3;
   --color-shadow: rgb(29 113 183 / 0.16);
   --color-shadow-cover: rgb(168 88 0 / 0.18);
+  --color-shadow-poster: rgb(214 11 81 / 0.12); /* Aktuality featured poster */
 
   --font-*: initial;
 
@@ -98,16 +100,21 @@
   --text-30: 1.875rem;
   --text-32: 2rem;
   --text-34: 2.125rem;
+  --text-36: 2.25rem;
   --text-40: 2.5rem;
+  --text-44: 2.75rem;
+  --text-56: 3.5rem;
   --text-64: 4rem;
   --text-76: 4.75rem;
   --text-84: 5.25rem;
 
   --leading-*: initial;
   --leading-none: 1;
+  --leading-hero: 1.05; /* desktop page title */
   --leading-display: 1.1;
   --leading-title: 1.15;
   --leading-heading: 1.2;
+  --leading-snug: 1.25;
   --leading-card: 1.3;
   --leading-normal: 1.5; /* body */
   --leading-relaxed: 1.55; /* desktop body */
@@ -116,6 +123,8 @@
   --tracking-eyebrow: 0.06em;
   --tracking-heading: -0.01em;
   --tracking-display: -0.015em;
+  --tracking-title: -0.02em; /* page titles */
+  --tracking-hero: -0.025em;
   --tracking-time: -0.03em;
 
   --radius-*: initial;
@@ -136,6 +145,8 @@
   --shadow-card-lg: 0 16px 48px var(--color-shadow);
   --shadow-cover: 0 8px 20px var(--color-shadow-cover);
   --shadow-cover-lg: 0 10px 24px var(--color-shadow-cover);
+  --shadow-poster: 0 8px 20px var(--color-shadow-poster);
+  --shadow-poster-lg: 0 10px 28px var(--color-shadow-poster);
 
   --container-page: 79rem; /* 1200px content + 2 × 32px gutter */
 }
@@ -177,6 +188,11 @@
 /* Responsive card grid: as many columns of at least N px as fit (`grid-fit-250`). */
 @utility grid-fit-* {
   grid-template-columns: repeat(auto-fit, minmax(min(calc(--value(integer) * 1px), 100%), 1fr));
+}
+
+/* 1.5px border of the Aktuality filter chips (border-* widths are whole pixels). */
+@utility border-thin {
+  border-width: 1.5px;
 }
 
 @utility no-scrollbar {
@@ -231,6 +247,7 @@
       --color-dot-off: #5a6b82;
       --color-shadow: rgb(0 0 0 / 0.45);
       --color-shadow-cover: rgb(0 0 0 / 0.45);
+      --color-shadow-poster: rgb(0 0 0 / 0.45);
     }
   }
 
