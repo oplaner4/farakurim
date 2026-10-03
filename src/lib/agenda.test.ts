@@ -5,6 +5,7 @@ import {
   agendaByDate,
   dayCellLabel,
   dayHeading,
+  daySummary,
   mergeEntries,
   monthGridRange,
   monthHeading,
@@ -12,7 +13,13 @@ import {
   parseDayParam,
   parseMonthParam,
   scheduleEntries,
+  shortWeekday,
+  splitEvents,
   weekCardLabels,
+  weekHeading,
+  weekRange,
+  weekRangeLabel,
+  weekStart,
 } from "./agenda";
 
 const places = {
@@ -191,5 +198,43 @@ describe("mergeEntries", () => {
       ],
     );
     expect(merged).toEqual([shared]);
+  });
+});
+
+describe("week calendar", () => {
+  it("runs Monday to Sunday", () => {
+    expect(weekStart("2026-10-03")).toBe("2026-09-28");
+    expect(weekStart("2026-09-28")).toBe("2026-09-28");
+    expect(weekStart("2026-10-04")).toBe("2026-09-28");
+    expect(weekRange("2026-10-03", 0)).toEqual({ from: "2026-09-28", to: "2026-10-04" });
+    expect(weekRange("2026-10-03", 2)).toEqual({ from: "2026-10-12", to: "2026-10-18" });
+    expect(weekRange("2026-10-03", -1)).toEqual({ from: "2026-09-21", to: "2026-09-27" });
+  });
+
+  it("crosses the daylight saving change", () => {
+    expect(weekRange("2026-10-24", 1)).toEqual({ from: "2026-10-26", to: "2026-11-01" });
+  });
+
+  it("names the week", () => {
+    expect(weekHeading(0, "2026-09-28")).toBe("Tento týden");
+    expect(weekHeading(1, "2026-10-05")).toBe("Příští týden");
+    expect(weekHeading(-1, "2026-09-21")).toBe("Minulý týden");
+    expect(weekHeading(2, "2026-10-12")).toBe("Týden 12. 10.");
+    expect(weekRangeLabel({ from: "2026-09-28", to: "2026-10-04" })).toBe("po 28. 9. – ne 4. 10.");
+  });
+
+  it("summarises a past day", () => {
+    const item = (calendar: "events" | "services", key: string) => ({ key, calendar, title: key });
+    expect(daySummary([item("services", "a"), item("services", "b"), item("events", "c")])).toBe("2× mše · 1 akce");
+    expect(daySummary([item("events", "a"), item("events", "b"), item("events", "c")])).toBe("3 akce");
+    expect(daySummary(Array.from({ length: 5 }, (_, i) => item("events", `${i}`)))).toBe("5 akcí");
+    expect(daySummary([])).toBe("—");
+    expect(shortWeekday("2026-09-28")).toBe("Po");
+  });
+
+  it("shows two events, or one and +N další", () => {
+    expect(splitEvents(["a", "b"])).toEqual({ shown: ["a", "b"], hidden: 0 });
+    expect(splitEvents(["a", "b", "c"])).toEqual({ shown: ["a"], hidden: 2 });
+    expect(splitEvents([])).toEqual({ shown: [], hidden: 0 });
   });
 });

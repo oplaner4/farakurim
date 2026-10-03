@@ -4,10 +4,8 @@ import { DayButton, type DayButtonProps } from "@daypicker/react";
 import { clsx } from "clsx";
 import { createContext, use } from "react";
 import type { IsoDate } from "@/content/types";
-import type { AgendaItem } from "@/lib/agenda";
+import { type AgendaItem, splitEvents } from "@/lib/agenda";
 
-/** Badge rows that fit a tablet/desktop cell above "3× mše". */
-const MAX_BADGES = 2;
 const EMPTY: AgendaItem[] = [];
 
 /** The visible days' items, read by the day buttons (DayPicker renders them). */
@@ -22,8 +20,7 @@ export function AgendaDayButton({ day, modifiers, className, ...rest }: DayButto
   const items = use(AgendaContext).get(day.isoDate) ?? EMPTY;
   const events = items.filter((i) => i.calendar === "events");
   const services = items.length - events.length;
-  const labelled = events.length > MAX_BADGES ? events.slice(0, MAX_BADGES - 1) : events;
-  const hidden = events.length - labelled.length;
+  const { shown: labelled, hidden } = splitEvents(events);
   const { selected, outside, today } = modifiers;
   // Badges keep their height: the cell's height is fixed, so they must not shrink into each other.
   const badge = clsx(

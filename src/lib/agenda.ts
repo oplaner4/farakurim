@@ -146,6 +146,47 @@ export function weekCardLabels(date: IsoDate, today: IsoDate): { label: string; 
   return { label: capitalize(fmt(date, "EEEE")), date: short };
 }
 
+/** Event rows a calendar day shows (§16.2, §4.3a): all of 1–2, else the first and "+N další". */
+const MAX_EVENT_ROWS = 2;
+
+/** The events a day shows and how many hide behind "+N další". */
+export function splitEvents<T>(events: T[]): { shown: T[]; hidden: number } {
+  const shown = events.length > MAX_EVENT_ROWS ? events.slice(0, MAX_EVENT_ROWS - 1) : events;
+  return { shown, hidden: events.length - shown.length };
+}
+
+/** Monday of the week (Czech weeks run Monday to Sunday). */
+export const weekStart = (date: IsoDate): IsoDate =>
+  pragueDate(startOfWeek(noon(date), { weekStartsOn: 1, in: inPrague }));
+
+/** Monday to Sunday of the week `offset` weeks after the one holding `today`. */
+export function weekRange(today: IsoDate, offset: number): DateRange {
+  const from = shift(weekStart(today), offset * 7);
+  return { from, to: shift(from, 6) };
+}
+
+/** Week calendar heading: "Tento týden", "Příští týden", "Minulý týden", "Týden 12. 10.". */
+export function weekHeading(offset: number, monday: IsoDate): string {
+  if (offset === 0) return "Tento týden";
+  if (offset === 1) return "Příští týden";
+  if (offset === -1) return "Minulý týden";
+  return `Týden ${fmt(monday, "d. M.")}`;
+}
+
+/** "po 28. 9. – ne 4. 10." */
+export const weekRangeLabel = ({ from, to }: DateRange) => `po ${fmt(from, "d. M.")} – ne ${fmt(to, "d. M.")}`;
+
+/** Summary of a past day's collapsed card: "2× mše · 1 akce", "3 akce", "—". */
+export function daySummary(items: AgendaItem[]): string {
+  const services = items.filter((i) => i.calendar === "services").length;
+  const events = items.length - services;
+  const parts = [services && `${services}× mše`, events && `${events} ${plural(events, ["akce", "akce", "akcí"])}`];
+  return parts.filter(Boolean).join(" · ") || "—";
+}
+
+/** Short weekday of a collapsed card: "Po". */
+export const shortWeekday = (date: IsoDate) => capitalize(fmt(date, "EEEEEE"));
+
 /** "Říjen 2026" */
 export const monthHeading = (month: IsoMonth) => capitalize(fmt(`${month}-01`, "LLLL yyyy"));
 
