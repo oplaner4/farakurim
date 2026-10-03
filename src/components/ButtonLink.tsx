@@ -1,7 +1,7 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ComponentProps } from "react";
 
-const buttonLink = cva("flex items-center justify-center font-bold no-underline", {
+export const buttonLink = cva("flex items-center justify-center font-bold no-underline", {
   variants: {
     variant: {
       primary: "bg-blue text-white hover:bg-blue-hover hover:text-white",
@@ -17,13 +17,18 @@ const buttonLink = cva("flex items-center justify-center font-bold no-underline"
       /* Header action: one line, a little smaller. */
       compact: "min-h-12 gap-2 rounded-14 px-4.5 whitespace-nowrap lg:px-5",
       /* 48px, 52px on desktop. */
-      medium: "min-h-12 gap-2 rounded-14 px-5 lg:min-h-13 lg:px-6",
+      medium: "gap-2 rounded-14 px-5 lg:px-6",
+      /* Height and width set by the caller (full-width buttons of the event detail). */
+      block: "gap-2 rounded-14",
     },
   },
   compoundVariants: [
     { variant: ["primary", "accent", "magenta"], size: "default", className: "min-h-13" },
+    { variant: ["primary", "accent", "magenta"], size: "medium", className: "min-h-12 lg:min-h-13" },
     /* The design keeps the 52px content height and adds the 2px border on top (56px). */
     { variant: ["outline", "outline-magenta"], size: "default", className: "min-h-14" },
+    /* Same for medium: 48px content + border, 52px + border on desktop. */
+    { variant: ["outline", "outline-magenta"], size: "medium", className: "min-h-13 lg:min-h-14" },
   ],
   defaultVariants: { variant: "primary", size: "default" },
 });

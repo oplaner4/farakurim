@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { SiteFooter } from "@/components/SiteFooter";
+import { SITE_URL } from "@/content/site";
 import { themeInitScript } from "@/lib/theme";
 import "./globals.css";
 
@@ -16,6 +17,7 @@ const oxygen = localFont({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: { default: "Římskokatolická farnost Kuřim", template: "%s | Římskokatolická farnost Kuřim" },
   description:
     "Farnost Kuřim, Moravské Knínice, Jinačovice a Česká: nejbližší mše svatá, pořad bohoslužeb, aktuality, fotogalerie a farní zpravodaj Petrklíč.",

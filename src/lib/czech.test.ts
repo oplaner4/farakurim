@@ -2,13 +2,16 @@ import { describe, expect, it } from "vitest";
 import {
   eventDateBlock,
   fileType,
+  formatCompactDate,
   formatDateRange,
   formatEventDate,
   formatEventWhen,
+  formatFileSize,
   formatLongDate,
   formatMonthYear,
   formatWeekdayDate,
   plural,
+  relativeEventLabel,
 } from "./czech";
 
 describe("plural", () => {
@@ -95,5 +98,39 @@ describe("event formatting", () => {
     expect(formatMonthYear("2026-10-01")).toBe("Říjen 2026");
     expect(fileType("https://farakurim.cz/nahrane/aktuality/6ab538eec7721.Plakát.png")).toBe("PNG");
     expect(fileType("https://example.cz/soubory/pozvanka")).toBe("");
+  });
+});
+
+describe("formatCompactDate", () => {
+  it("writes the archive date column", () => {
+    expect(formatCompactDate("2026-08-03")).toBe("3. 8.");
+    expect(formatCompactDate("2026-08-08", "2026-08-15")).toBe("8.–15. 8.");
+    expect(formatCompactDate("2026-07-30", "2026-08-02")).toBe("30. 7. – 2. 8.");
+  });
+});
+
+describe("relativeEventLabel", () => {
+  const at = (start: string, end?: string) => ({ id: "", title: "", place: "", text: "", start, end });
+  it("counts Prague calendar days to the start", () => {
+    expect(relativeEventLabel(at("2026-10-18"), "2026-10-03")).toBe("Za 15 dní");
+    expect(relativeEventLabel(at("2026-10-06"), "2026-10-03")).toBe("Za 3 dny");
+    // Across the change to winter time on 25. 10.
+    expect(relativeEventLabel(at("2026-10-27"), "2026-10-24")).toBe("Za 3 dny");
+    expect(relativeEventLabel(at("2026-10-04"), "2026-10-03")).toBe("Zítra");
+    expect(relativeEventLabel(at("2026-10-03"), "2026-10-03")).toBe("Dnes");
+  });
+
+  it("marks ongoing and finished events", () => {
+    expect(relativeEventLabel(at("2026-10-02", "2026-10-04"), "2026-10-04")).toBe("Právě probíhá");
+    expect(relativeEventLabel(at("2026-10-02", "2026-10-04"), "2026-10-05")).toBe("Proběhlo");
+    expect(relativeEventLabel(at("2026-10-02"), "2026-10-03")).toBe("Proběhlo");
+  });
+});
+
+describe("formatFileSize", () => {
+  it("uses kB below a megabyte and a decimal comma", () => {
+    expect(formatFileSize(340_123)).toBe("340 kB");
+    expect(formatFileSize(120)).toBe("1 kB");
+    expect(formatFileSize(1_234_567)).toBe("1,2 MB");
   });
 });

@@ -2,8 +2,9 @@
 
 # CLAUDE.md
 
-New website of **Římskokatolická farnost Kuřim** (farakurim.cz). Built so far: the **homepage** and **Aktuality**
-(`/aktuality/`, one static page per filter). Other pages follow as they are designed; until then, nav links point to the live site.
+New website of **Římskokatolická farnost Kuřim** (farakurim.cz). Built so far: the **homepage**, **Aktuality**
+(`/aktuality/`, one static page per filter), **Archiv aktualit** (`/aktuality/archiv/`, one static page per year
+button) and **Detail akce** (`/aktuality/<slug>/` plus `kalendar.ics`; shares the `[slug]` segment with the filters). Other pages follow as they are designed; until then, nav links point to the live site.
 
 ## Language convention
 
@@ -60,11 +61,11 @@ design/            Design handoff: DESIGN.md (source of truth), mockups (<page>/
 fonts-source/      Oxygen TTFs + OFL licence (input for `pnpm fonts`)
 scripts/           generate-icons.mjs, subset-fonts.sh, render-mockups.py
 public/assets/img/ logo + carousel photos pozadi/{sm,md,lg}/{1-7}.webp (served at the same URLs as the old site)
-src/app/           layout.tsx (font, metadata, skip link, footer), page.tsx (homepage), aktuality/ (+ [kdy] filter pages),
+src/app/           layout.tsx (font, metadata, skip link, footer), page.tsx (homepage), aktuality/ ([slug] filters + details, archiv/),
                    globals.css (Tailwind theme), icons
 src/components/    One component per block, styled with Tailwind utilities; ButtonLink, SectionHeading, icons shared
 src/content/       Mock content (types.ts + one file per domain): the future API boundary
-src/lib/           Pure logic on date-fns (prague.ts, czech.ts, masses.ts, news.ts) + tests, useNow / useQueryParam hooks, theme.ts
+src/lib/           Pure logic on date-fns (prague.ts, czech.ts, masses.ts, news.ts, calendar.ts) + tests, useNow / useQueryParam hooks, theme.ts
 ```
 
 ## Rules

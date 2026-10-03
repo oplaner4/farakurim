@@ -1,7 +1,7 @@
 import { clsx } from "clsx";
 import type { IsoDate, NewsEvent } from "@/content/types";
 import { eventDateBlock, fileType, formatEventWhen, formatShortDate } from "@/lib/czech";
-import type { EventStatus } from "@/lib/news";
+import { eventHref, type EventStatus } from "@/lib/news";
 import { ExternalLinkIcon, FileIcon, PinIcon } from "./icons";
 import { POSTER_TINTS, PosterPlaceholder } from "./PosterPlaceholder";
 
@@ -29,7 +29,7 @@ function eventTags(event: NewsEvent, status: EventStatus, today: IsoDate): { kin
   return tags;
 }
 
-/** Anchor of an event on the Aktuality page (the homepage links to it, "Načíst další" focuses it). */
+/** Anchor of an event on the Aktuality page ("Načíst další" focuses it). */
 export const eventAnchor = (id: string) => `akce-${id}`;
 
 type Props = {
@@ -103,7 +103,9 @@ export function EventCard({ event, status, today, index, more }: Props) {
             id={`${eventAnchor(event.id)}-nazev`}
             className="text-17 leading-card font-bold md:text-20 lg:text-24 lg:leading-snug lg:tracking-heading"
           >
-            {event.title}
+            <a href={eventHref(event)} className="text-ink no-underline hover:text-ink hover:underline">
+              {event.title}
+            </a>
           </h4>
           <p className="flex flex-col gap-1 text-14 text-ink-2 md:flex-row md:flex-wrap md:gap-x-4 md:text-15 lg:gap-x-5 lg:text-16">
             <span>{when.time ? `${when.date} · ${when.time}` : when.date}</span>

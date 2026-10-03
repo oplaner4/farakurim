@@ -1,4 +1,5 @@
 import { endOfMonth, endOfWeek } from "date-fns";
+import { links } from "@/content/site";
 import type { IsoDate, NewsEvent } from "@/content/types";
 import { inPrague, pragueDate, pragueDateTime } from "./prague";
 
@@ -28,7 +29,7 @@ export const NEWS_PAGE_SIZE = 10;
 
 export type EventStatus = "past" | "now" | "upcoming";
 
-export const eventEnd = (event: NewsEvent): IsoDate => event.end ?? event.start;
+export const eventEnd = (event: Pick<NewsEvent, "start" | "end">): IsoDate => event.end ?? event.start;
 
 /** Computed, never stored. Long-term series are never "now", they get their own group instead. */
 export function eventStatus(event: NewsEvent, today: IsoDate): EventStatus {
@@ -37,10 +38,14 @@ export function eventStatus(event: NewsEvent, today: IsoDate): EventStatus {
   return "upcoming";
 }
 
-const byStart = (a: NewsEvent, b: NewsEvent) => a.start.localeCompare(b.start);
+const byStart = (a: Pick<NewsEvent, "start">, b: Pick<NewsEvent, "start">) => a.start.localeCompare(b.start);
 
 /** Homepage: the nearest upcoming or ongoing events, without long-term series. */
-export function currentNews(events: NewsEvent[], today: IsoDate, limit: number): NewsEvent[] {
+export function currentNews<T extends Pick<NewsEvent, "start" | "end" | "longTerm">>(
+  events: T[],
+  today: IsoDate,
+  limit: number,
+): T[] {
   return events
     .filter((e) => !e.longTerm && eventEnd(e) >= today)
     .sort(byStart)
@@ -112,3 +117,101 @@ export function parsePage(value: string | null): number {
   const n = Number(value);
   return Number.isInteger(n) && n > 1 ? n : 1;
 }
+
+/** Lower case without diacritics, so "pout" finds "Pouť" and titles turn into URL parts. */
+const fold = (text: string) =>
+  text
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase();
+
+/** "Slavnostní mše k jubileu 800 let" → "slavnostni-mse-k-jubileu-800-let" */
+export const slugify = (text: string) =>
+  fold(text)
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+
+export const eventSlug = (event: NewsEvent) => event.slug ?? slugify(event.title);
+
+/** Detail page (design/DESIGN.md §13). */
+export const eventHref = (event: NewsEvent) => `${links.news}${eventSlug(event)}/`;
+
+/** The `.ics` download of "Přidat do kalendáře" (§13.2). */
+export const eventCalendarHref = (event: NewsEvent) => `${eventHref(event)}kalendar.ics`;
+
+export const findEventBySlug = (events: NewsEvent[], slug: string) => events.find((e) => eventSlug(e) === slug);
+
+/** "Další akce" on a detail page: the nearest unfinished events other than this one. */
+export const otherEvents = <T extends Pick<NewsEvent, "id" | "start" | "end" | "longTerm">>(
+  events: T[],
+  current: Pick<NewsEvent, "id">,
+  today: IsoDate,
+  limit: number,
+) =>
+  currentNews(
+    events.filter((e) => e.id !== current.id),
+    today,
+    limit,
+  );
+
+// Archive (design/DESIGN.md §12)
+
+/** Rows per "page" of the archive; "Načíst starší" shows the next batch. */
+export const ARCHIVE_PAGE_SIZE = 20;
+
+const startYear = (event: Pick<NewsEvent, "start">) => Number(event.start.slice(0, 4));
+
+/** The fields the archive works with; the client gets only these (`ArchiveItem`). */
+type Archivable = Pick<NewsEvent, "start" | "end" | "archiveHidden">;
+
+/** Finished events (from the day after the end) not hidden by an admin, newest first. */
+export function archivedEvents<T extends Archivable>(events: T[], today: IsoDate): T[] {
+  return events
+    .filter((e) => !e.archiveHidden && eventEnd(e) < today)
+    .sort((a, b) => b.start.localeCompare(a.start) || eventEnd(b).localeCompare(eventEnd(a)));
+}
+
+/** Year of the most recent archived event, the archive's default; the current year when it is empty. */
+export function latestArchiveYear(events: Archivable[], today: IsoDate): number {
+  const newest = archivedEvents(events, today)[0];
+  return newest ? startYear(newest) : Number(today.slice(0, 4));
+}
+
+/**
+ * The year buttons "2026 · 2025 · Starší". Each is a static page (`/aktuality/archiv/<slug>/`, empty slug
+ * for the default). The default also takes events of a newer year, which a visitor may see archived
+ * before the next build adds its button.
+ */
+export function archiveYears(latest: number) {
+  return [
+    { slug: "", label: String(latest), matches: (e: Archivable) => startYear(e) >= latest },
+    { slug: String(latest - 1), label: String(latest - 1), matches: (e: Archivable) => startYear(e) === latest - 1 },
+    { slug: "starsi", label: "Starší", matches: (e: Archivable) => startYear(e) < latest - 1 },
+  ];
+}
+
+export type ArchiveYear = ReturnType<typeof archiveYears>[number];
+
+/** Search in the title and place, ignoring case and diacritics. */
+export function searchEvents<T extends Pick<NewsEvent, "title" | "place">>(events: T[], query: string): T[] {
+  const words = fold(query).split(/\s+/).filter(Boolean);
+  return events.filter((e) => {
+    const haystack = fold(`${e.title} ${e.place}`);
+    return words.every((w) => haystack.includes(w));
+  });
+}
+
+/** Consecutive events of one start month ("Srpen 2026"); keeps the order of `events`. */
+export function groupByMonth<T extends Pick<NewsEvent, "start">>(events: T[]): { month: IsoDate; events: T[] }[] {
+  const groups: { month: IsoDate; events: T[] }[] = [];
+  for (const e of events) {
+    const month = `${e.start.slice(0, 7)}-01`;
+    const last = groups.at(-1);
+    if (last?.month === month) last.events.push(e);
+    else groups.push({ month, events: [e] });
+  }
+  return groups;
+}
+
+/** "/aktuality/archiv/", "/aktuality/archiv/2025/" */
+export const archiveYearHref = (slug: string) => (slug ? `${links.newsArchive}${slug}/` : links.newsArchive);

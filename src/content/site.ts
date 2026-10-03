@@ -1,13 +1,15 @@
 import type { CarouselSlide } from "./types";
 
+/** Public origin of the site: absolute URLs in metadata, JSON-LD and calendar files. */
+export const SITE_URL = "https://farakurim.cz";
+
 // Pages not rebuilt yet point to the current live site.
-const LIVE = "https://farakurim.cz";
+const LIVE = SITE_URL;
 
 export const links = {
   home: "/",
   news: "/aktuality/",
-  /** The archive URL is still to be decided (design/DESIGN.md §11.2); the live site keeps it for now. */
-  newsArchive: `${LIVE}/aktuality/`,
+  newsArchive: "/aktuality/archiv/",
   services: `${LIVE}/porad_bohosluzeb/`,
   gallery: `${LIVE}/fotogalerie`,
   petrklic: `${LIVE}/petrklic/`,

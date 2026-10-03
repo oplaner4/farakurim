@@ -1,6 +1,26 @@
 import { describe, expect, it } from "vitest";
+import { events as allEvents } from "@/content/news";
 import type { NewsEvent } from "@/content/types";
-import { currentNews, eventStatus, featuredEvent, filterEvents, groupEvents, parsePage } from "./news";
+import {
+  archivedEvents,
+  archiveYears,
+  currentNews,
+  eventHref,
+  eventSlug,
+  eventStatus,
+  featuredEvent,
+  filterEvents,
+  findEventBySlug,
+  groupByMonth,
+  groupEvents,
+  latestArchiveYear,
+  NEWS_FILTER_META,
+  NEWS_FILTERS,
+  otherEvents,
+  parsePage,
+  searchEvents,
+  slugify,
+} from "./news";
 
 const event = (id: string, start: string, end?: string, extra: Partial<NewsEvent> = {}): NewsEvent => ({
   id,
@@ -97,5 +117,97 @@ describe("parsePage", () => {
     ["1.5", 1],
   ])("%s → %i", (value, expected) => {
     expect(parsePage(value)).toBe(expected);
+  });
+});
+
+describe("slugs", () => {
+  it("turns a Czech title into a URL part, unless the event sets its own", () => {
+    expect(slugify("Slavnostní mše k jubileu 800 let")).toBe("slavnostni-mse-k-jubileu-800-let");
+    expect(slugify("Proměna farnosti – Patrik (Tchaj-wan)!")).toBe("promena-farnosti-patrik-tchaj-wan");
+    expect(eventSlug(event("x", TODAY, undefined, { title: "Hody v České", slug: "hody" }))).toBe("hody");
+  });
+
+  it("are unique and never clash with the Aktuality filter or archive pages", () => {
+    const slugs = allEvents.map(eventSlug);
+    expect(new Set(slugs).size).toBe(slugs.length);
+    const reserved = [...NEWS_FILTERS.map((f) => NEWS_FILTER_META[f].slug), "archiv"];
+    expect(slugs.filter((s) => reserved.includes(s))).toEqual([]);
+  });
+
+  it("finds an event by its slug", () => {
+    const jubilee = findEventBySlug(allEvents, "slavnostni-mse-k-jubileu-800-let");
+    expect(jubilee?.id).toBe("jubileum-800");
+    expect(eventHref(jubilee!)).toBe("/aktuality/slavnostni-mse-k-jubileu-800-let/");
+  });
+});
+
+describe("otherEvents", () => {
+  it("lists the nearest unfinished events without the current one", () => {
+    expect(ids(otherEvents(events, events[4], TODAY, 2))).toEqual(["ongoing", "soon"]);
+    expect(ids(otherEvents(events, events[2], TODAY, 2))).toEqual(["soon", "pinned"]);
+  });
+});
+
+describe("archive", () => {
+  const list = [
+    event("old", "2023-05-01"),
+    event("last-year", "2025-12-24"),
+    event("summer", "2026-08-08", "2026-08-15", { place: "Tišnov" }),
+    event("hidden", "2026-08-01", undefined, { archiveHidden: true }),
+    event("pout", "2026-06-28", undefined, { title: "Malhostovská pouť" }),
+    event("same-day-longer", "2026-06-28", "2026-06-29"),
+    ...events,
+  ];
+
+  it("takes finished, not hidden events from the day after their end, newest first", () => {
+    expect(ids(archivedEvents(list, TODAY))).toEqual([
+      "past",
+      "summer",
+      "same-day-longer",
+      "pout",
+      "long-past",
+      "last-year",
+      "old",
+    ]);
+    expect(ids(archivedEvents(list, "2026-10-05"))).toContain("ongoing");
+    expect(ids(archivedEvents(list, "2026-10-04"))).not.toContain("ongoing");
+  });
+
+  it("defaults to the year of the newest archived event", () => {
+    expect(latestArchiveYear(list, TODAY)).toBe(2026);
+    expect(latestArchiveYear([], TODAY)).toBe(2026);
+    expect(latestArchiveYear([event("x", "2025-12-24")], "2026-01-02")).toBe(2025);
+  });
+
+  it("splits the years into the default, the year before and older", () => {
+    const archived = archivedEvents(list, TODAY);
+    const years = archiveYears(2026);
+    expect(years.map((y) => [y.slug, y.label])).toEqual([
+      ["", "2026"],
+      ["2025", "2025"],
+      ["starsi", "Starší"],
+    ]);
+    expect(years.map((y) => archived.filter(y.matches).length)).toEqual([5, 1, 1]);
+    // Events of a newer year stay on the default page until a rebuild adds their button.
+    expect(archiveYears(2025)[0].matches(event("new", "2026-01-02"))).toBe(true);
+  });
+
+  it("searches the title and place without case and diacritics", () => {
+    expect(ids(searchEvents(list, "POUT"))).toEqual(["pout"]);
+    expect(ids(searchEvents(list, "tišnov"))).toEqual(["summer"]);
+    expect(ids(searchEvents(list, "malhost pouť"))).toEqual(["pout"]);
+    expect(searchEvents(list, "koncert")).toEqual([]);
+  });
+
+  it("groups consecutive events by their start month", () => {
+    const groups = groupByMonth(archivedEvents(list, TODAY));
+    expect(groups.map((g) => [g.month, ids(g.events)])).toEqual([
+      ["2026-09-01", ["past"]],
+      ["2026-08-01", ["summer"]],
+      ["2026-06-01", ["same-day-longer", "pout"]],
+      ["2026-03-01", ["long-past"]],
+      ["2025-12-01", ["last-year"]],
+      ["2023-05-01", ["old"]],
+    ]);
   });
 });

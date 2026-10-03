@@ -1,5 +1,6 @@
 import type { NewsEvent } from "@/content/types";
 import { formatEventWhen } from "@/lib/czech";
+import { eventHref } from "@/lib/news";
 import { ButtonLink } from "./ButtonLink";
 import { eventAnchor } from "./EventCard";
 import { CalendarIcon, ImageIcon, PinIcon } from "./icons";
@@ -57,25 +58,26 @@ export function FeaturedEvent({ event }: { event: NewsEvent }) {
           </span>
         </p>
         <p className="text-15 text-ink-2 max-md:basis-full md:text-16 lg:max-w-160 lg:text-18">{event.text}</p>
-        {file && (
-          <ButtonLink
-            href={file.file}
-            variant="magenta"
-            size="medium"
-            className="max-md:order-2 max-md:flex-1 max-md:self-end md:mt-auto md:self-start"
-          >
-            <ImageIcon size={18} strokeWidth={2} />
-            {/* "Zobrazit plakát" from tablet up; other labels would need a different case, so they stay as is. */}
-            {file.label === "Plakát" ? (
-              <>
-                <span className="md:hidden">Plakát</span>
-                <span className="max-md:hidden">Zobrazit plakát</span>
-              </>
-            ) : (
-              file.label
-            )}
+        {/* Mobile: a column beside the poster, "Více o akci" on top. Tablet/desktop: a row, poster first. */}
+        <div className="flex flex-1 flex-col justify-end gap-2 max-md:order-2 md:mt-auto md:flex-none md:flex-row md:flex-wrap md:justify-start md:gap-2.5">
+          <ButtonLink href={eventHref(event)} variant="outline-magenta" size="medium">
+            Více o akci
           </ButtonLink>
-        )}
+          {file && (
+            <ButtonLink href={file.file} variant="magenta" size="medium" className="md:order-first">
+              <ImageIcon size={18} strokeWidth={2} />
+              {/* "Zobrazit plakát" from tablet up; other labels would need a different case, so they stay as is. */}
+              {file.label === "Plakát" ? (
+                <>
+                  <span className="md:hidden">Plakát</span>
+                  <span className="max-md:hidden">Zobrazit plakát</span>
+                </>
+              ) : (
+                file.label
+              )}
+            </ButtonLink>
+          )}
+        </div>
       </div>
     </section>
   );

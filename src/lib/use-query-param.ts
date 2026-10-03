@@ -32,3 +32,14 @@ export function pushQueryParam(name: string, value: string) {
   window.history.pushState(null, "", url);
   listeners.forEach((l) => l());
 }
+
+/** Sets (or, with `null`, removes) parameters without a new history entry, e.g. while typing a search. */
+export function replaceQueryParams(params: Record<string, string | null>) {
+  const url = new URL(window.location.href);
+  for (const [name, value] of Object.entries(params)) {
+    if (value === null) url.searchParams.delete(name);
+    else url.searchParams.set(name, value);
+  }
+  window.history.replaceState(null, "", url);
+  listeners.forEach((l) => l());
+}

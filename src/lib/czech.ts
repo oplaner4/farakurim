@@ -1,4 +1,4 @@
-import { format, getDay, isLastDayOfMonth } from "date-fns";
+import { differenceInCalendarDays, format, getDay, isLastDayOfMonth } from "date-fns";
 import { cs } from "date-fns/locale";
 import type { IsoDate, NewsEvent } from "@/content/types";
 import { inPrague, pragueDateTime } from "./prague";
@@ -150,4 +150,32 @@ export function fileType(file: string): string {
   const name = file.split(/[?#]/)[0];
   const dot = name.lastIndexOf(".");
   return dot > name.lastIndexOf("/") ? name.slice(dot + 1).toUpperCase() : "";
+}
+
+/** Archive date column (§12.3): "3. 8.", "8.–15. 8.", "30. 7. – 2. 8." */
+export function formatCompactDate(start: IsoDate, end: IsoDate = start): string {
+  if (end === start) return formatShortDate(start);
+  if (start.slice(0, 7) === end.slice(0, 7)) return `${fmt(start, "d.")}–${formatShortDate(end)}`;
+  return `${formatShortDate(start)} – ${formatShortDate(end)}`;
+}
+
+/**
+ * Relative label of a detail page (§13.1), by Prague calendar days: "Za 15 dní", "Za 3 dny", "Zítra",
+ * "Dnes", "Právě probíhá" (multi-day and long-term events), "Proběhlo".
+ */
+export function relativeEventLabel(event: Pick<NewsEvent, "start" | "end">, today: IsoDate): string {
+  const { start, end = start } = event;
+  if (end < today) return "Proběhlo";
+  if (start <= today) return end === start ? "Dnes" : "Právě probíhá";
+  const days = differenceInCalendarDays(asDate(start), asDate(today), { in: inPrague });
+  if (days === 1) return "Zítra";
+  return `Za ${days} ${plural(days, ["den", "dny", "dní"])}`;
+}
+
+const sizeFormat = new Intl.NumberFormat("cs", { maximumFractionDigits: 1 });
+
+/** "340 kB", "1,2 MB" */
+export function formatFileSize(bytes: number): string {
+  if (bytes < 1000 * 1000) return `${sizeFormat.format(Math.max(1, Math.round(bytes / 1000)))} kB`;
+  return `${sizeFormat.format(bytes / (1000 * 1000))} MB`;
 }

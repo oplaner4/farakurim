@@ -4,7 +4,7 @@ import { clsx } from "clsx";
 import type { NewsEvent } from "@/content/types";
 import { links } from "@/content/site";
 import { formatEventDate } from "@/lib/czech";
-import { currentNews, eventStatus } from "@/lib/news";
+import { currentNews, eventHref, eventStatus } from "@/lib/news";
 import { useToday } from "@/lib/use-now";
 import { CalendarIcon } from "./icons";
 import { POSTER_TINTS } from "./PosterPlaceholder";
@@ -45,7 +45,7 @@ export function NewsSection({ events, renderedAt }: Props) {
             <li key={item.id} className="nth-[n+4]:hidden md:nth-[n+4]:block">
               {/* Mobile/tablet: horizontal card with a date block. Desktop: vertical card with a poster. */}
               <a
-                href={`${links.news}#akce-${item.id}`}
+                href={eventHref(item)}
                 className={clsx(
                   "group flex h-full gap-3.5 rounded-18 p-3.5 text-ink no-underline hover:text-ink md:gap-4 md:rounded-20 md:p-4",
                   "lg:flex-col lg:gap-3 lg:rounded-none lg:bg-transparent lg:p-0",

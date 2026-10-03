@@ -39,6 +39,8 @@ export type ServiceSheet = {
 export type EventAttachment = {
   label: string;
   file: string;
+  /** File size in bytes, shown on the detail page ("PNG · 1,2 MB"). */
+  size?: number;
 };
 
 /** An external link or e-mail (`mailto:`) for an event. */
@@ -47,9 +49,28 @@ export type EventLink = {
   href: string;
 };
 
-/** One record of the Aktuality page (design/DESIGN.md §11.7). The homepage shows the nearest ones. */
+/** A row of an event's programme: "9:30 | Slavnostní mše svatá – zpívá dětská schola". */
+export type ProgramItem = {
+  /** Free text: "9:30", "po mši". */
+  time: string;
+  title: string;
+  note?: string;
+};
+
+/** A key fact on a highlight tile: a big value and a short label ("1226" / "založení kostela"). */
+export type Highlight = {
+  value: string;
+  label: string;
+};
+
+/**
+ * One record of the Aktuality page (design/DESIGN.md §11.7) and its detail page (§13.4). The homepage shows
+ * the nearest ones; the archive (§12) lists them from the day after they end.
+ */
 export type NewsEvent = {
   id: string;
+  /** URL part of the detail page (`/aktuality/<slug>/`); generated from the title when omitted. */
+  slug?: string;
   title: string;
   start: IsoDate;
   /** Last day of a multi-day event; omit for single-day events. */
@@ -59,6 +80,18 @@ export type NewsEvent = {
   place: string;
   /** Short description, 1–2 sentences. */
   text: string;
+  /** One sentence under the detail page's title; also the page description. Defaults to `text`. */
+  lead?: string;
+  /**
+   * Detail page body as HTML (paragraphs, bold, links, lists). It is rendered as is, so the API that
+   * replaces the mock content must sanitise it. Defaults to `text` as one paragraph.
+   */
+  body?: string;
+  program?: ProgramItem[];
+  /** Up to 3 tiles under their own heading ("800 let v datech"); only for real key facts. */
+  highlights?: { title: string; items: Highlight[] };
+  /** Mapy.cz search for "Zobrazit na mapě"; defaults to `place`. */
+  mapQuery?: string;
   poster?: { src: string; alt: string };
   attachments?: EventAttachment[];
   links?: EventLink[];
@@ -75,6 +108,8 @@ export type NewsEvent = {
   longTerm?: true | { weeklyAt: ClockTime };
   /** Shown in the "Doporučujeme" panel while it is not finished (at most one). */
   pinned?: boolean;
+  /** Hidden by an admin from the archive; the detail page stays reachable by its URL. */
+  archiveHidden?: boolean;
 };
 
 export type Album = {
