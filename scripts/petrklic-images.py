@@ -1,9 +1,10 @@
 # Renders Petrklíč PDFs to WebP images for the Petrklíč pages (design/DESIGN.md §17–18).
-# Every `<id>.petrklic.pdf` in the input folder (the old site's nahrane/petrklice/) gets a cover from page 1;
-# the ids passed with --pages also get every page, for the "Listujte přímo zde" viewer.
+# Every PDF given, or every `*.pdf` in a given folder, gets a cover from page 1; its id is the file name up to the
+# first dot (`2026-2.pdf`, or `<id>.petrklic.pdf` in the old site's nahrane/petrklice/). The ids passed with
+# --pages also get every page, for the "Listujte přímo zde" viewer.
 # Prints `<id> <page count>` per PDF, for `pages` in src/content/petrklic.ts.
 # Requires pdftoppm (poppler-utils) and Pillow.
-# Usage: python3 scripts/petrklic-images.py <pdf-dir> [--pages <id> ...]
+# Usage: python3 scripts/petrklic-images.py <pdf-or-dir> ... [--pages <id> ...]
 import pathlib
 import shutil
 import subprocess
@@ -36,10 +37,13 @@ def page_count(pdf):
 def main():
   args = sys.argv[1:]
   if not args:
-    sys.exit(__doc__ or "Usage: python3 scripts/petrklic-images.py <pdf-dir> [--pages <id> ...]")
-  src = pathlib.Path(args[0])
-  with_pages = set(args[args.index("--pages") + 1:]) if "--pages" in args else set()
-  for pdf in sorted(src.glob("*.petrklic.pdf")):
+    sys.exit("Usage: python3 scripts/petrklic-images.py <pdf-or-dir> ... [--pages <id> ...]")
+  split = args.index("--pages") if "--pages" in args else len(args)
+  with_pages = set(args[split + 1:])
+  pdfs = []
+  for arg in map(pathlib.Path, args[:split]):
+    pdfs += sorted(arg.glob("*.pdf")) if arg.is_dir() else [arg]
+  for pdf in pdfs:
     pid = pdf.name.split(".")[0]
     pages = page_count(pdf)
     with tempfile.TemporaryDirectory() as tmp:

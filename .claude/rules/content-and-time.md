@@ -33,8 +33,9 @@ build-time next mass.
   `announcements[]`. A day with a `changed` mass row becomes a schedule exception (`sheetExceptions()`), so a change is
   entered once. Rows with `public: false` keep their `detail` (intentions, funeral names) off the web: the module is
   `server-only`, pages pass `publicDays()` and client components get only props, never the module.
-- Petrklíč (`content/petrklic.ts`): one record per issue, newest first; the volume is computed (`volumeOf()`), covers
-  and viewer pages are WebP files rendered from the PDFs (`pnpm petrklic`).
+- Petrklíč (`content/petrklic.ts`): one record per issue, newest first, added with `farnost-create-petrklic`; the
+  volume is computed (`volumeOf()`), the PDF is uploaded to `/uploads/petrklic/<id>.pdf`, the cover and the current
+  issue's viewer pages are WebP files rendered from it (`pnpm petrklic`).
 - Calendars (Kalendář, homepage "Tento týden"): the parish's two Google Calendars ("Mše, adorace" = `services`,
   "Události" = `events`, `parishCalendars` in `content/site.ts`) are the source, because visitors subscribe to
   them. `loadCalendarEntries()` (`content/calendar.ts`) reads them at build time with `singleEvents=true` (Google

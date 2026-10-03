@@ -1,9 +1,11 @@
 import type { PetrklicIssue } from "./types";
 
-// Mock content: the issues of the old site's archive (farakurim.cz/petrklic/archiv). In production each record
-// comes from an upload; its cover is generated from PDF page 1 (`pnpm petrklic`, scripts/petrklic-images.py).
+// The issues of the old site's archive (farakurim.cz/petrklic/archiv), plus new ones added with the
+// farnost-create-petrklic skill. The PDF is uploaded to /uploads/petrklic/<id>.pdf; the cover (and the current
+// issue's pages) are WebP images rendered from it (`pnpm petrklic`, scripts/petrklic-images.py).
 
 const IMG = "/assets/img/petrklic";
+const PDF = "https://farakurim.cz/uploads/petrklic";
 
 function issue(id: string, year: number, number: number, pageCount: number, extra: Partial<PetrklicIssue> = {}) {
   return {
@@ -11,7 +13,7 @@ function issue(id: string, year: number, number: number, pageCount: number, extr
     year,
     number,
     pageCount,
-    pdfUrl: `https://farakurim.cz/petrklic/pdf?id=${id}`,
+    pdfUrl: `${PDF}/${id}.pdf`,
     cover: `${IMG}/${id}.webp`,
     ...extra,
   } satisfies PetrklicIssue;

@@ -1,12 +1,12 @@
 ---
 name: farnost-publish-content
-description: Finish a content change on the new farakurim.cz site - stage uploaded files for the server, verify and build, check the page in a browser, commit, and hand the upload and deploy over to the user. Use at the end of farnost-create-aktualita, farnost-create-porad-bohosluzeb and farnost-create-galerie, or whenever src/content/ was edited to publish news, ohlášky or albums.
+description: Finish a content change on the new farakurim.cz site - stage uploaded files for the server, verify and build, check the page in a browser, commit, and hand the upload and deploy over to the user. Use at the end of farnost-create-aktualita, farnost-create-porad-bohosluzeb, farnost-create-galerie and farnost-create-petrklic, or whenever src/content/ was edited to publish news, ohlášky, albums or Petrklíč issues.
 ---
 
 # Publish a content change
 
 The site is a static export: content lives in `src/content/*.ts`, a change goes live only after a build and an
-upload of `out/`. Uploaded files (posters, attachments, the weekly PDF) are **not** in git or `out/`: they live on
+upload of `out/`. Uploaded files (posters, attachments, the weekly PDF, Petrklíč PDFs) are **not** in git or `out/`: they live on
 the web host under `/uploads/…` and the content links them as `https://farakurim.cz/uploads/…`.
 
 ## 1. Stage the files for the server
@@ -17,6 +17,7 @@ Files that go to the server are prepared in `uploads/` (git-ignored), which mirr
 | ---------------- | ---------------------------------- | ------------------------------------------------------- |
 | Aktuality files  | `uploads/aktuality/<file>`         | `https://farakurim.cz/uploads/aktuality/<file>`         |
 | Pořad bohoslužeb | `uploads/porady_bohosluzeb/<file>` | `https://farakurim.cz/uploads/porady_bohosluzeb/<file>` |
+| Petrklíč         | `uploads/petrklic/<id>.pdf`        | `https://farakurim.cz/uploads/petrklic/<id>.pdf`        |
 
 - File names are **ASCII, lower-case kebab-case**, prefixed with the record they belong to
   (`hody-ceska-plakat.png`, `2026-10-04-porad-bohosluzeb.pdf`). Diacritics break in some SFTP clients, and the
@@ -42,6 +43,7 @@ Do not continue on a failure; fix the content (types catch most mistakes) or rep
 | Aktualita | `/` (Aktuality block), `/aktuality/`, `/aktuality/<slug>/`, `/kalendar/` |
 | Ohlášky   | `/porad_bohosluzeb/`, `/` (next mass, "Tento týden")                     |
 | Album     | `/fotogalerie/`, `/` (album carousel)                                    |
+| Petrklíč  | `/petrklic/aktualni/`, `/petrklic/archiv/`, `/` (Petrklíč card)          |
 
 Files not uploaded yet show as broken links or images; that is expected until step 5.
 
