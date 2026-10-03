@@ -38,7 +38,7 @@ export default async function HomePage() {
           <NextMass renderedAt={BUILD_TIME} />
         </div>
         <div className="container-page">
-          <WeekCalendar entries={weekEntries} hrefs={calendarHrefs} renderedAt={BUILD_TIME} />
+          <WeekCalendar entries={weekEntries} range={weekRange} hrefs={calendarHrefs} renderedAt={BUILD_TIME} />
           <NewsSection events={upcomingNews} renderedAt={BUILD_TIME} />
           <GallerySection albums={albums} />
           <div className="grid grid-cols-1 gap-12 pt-10 pb-12 md:grid-cols-2 md:gap-4 md:py-14 lg:grid-fit-440 lg:gap-6 lg:py-20">

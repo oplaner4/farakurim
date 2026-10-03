@@ -99,6 +99,22 @@ export function agendaByDate(entries: CalendarEntry[], { from, to }: DateRange):
   return days;
 }
 
+/**
+ * Entries from several reads: the days of each later read (`range`) take its entries instead of the earlier
+ * ones. Neighbouring month grids share a week, so an entry read twice is kept once.
+ */
+export function mergeEntries(
+  initial: CalendarEntry[],
+  reads: { range: DateRange; entries: CalendarEntry[] }[],
+): CalendarEntry[] {
+  if (reads.length === 0) return initial;
+  const covered = (date: IsoDate) => reads.some(({ range }) => date >= range.from && date <= range.to);
+  const merged = new Map<string, CalendarEntry>();
+  for (const e of initial) if (!covered(e.date)) merged.set(`${e.calendar}:${e.id}`, e);
+  for (const read of reads) for (const e of read.entries) merged.set(`${e.calendar}:${e.id}`, e);
+  return [...merged.values()];
+}
+
 /** "18. října, 2 bohoslužby, 1 akce", "19. října, nic v kalendáři" */
 export function dayCellLabel(date: IsoDate, items: AgendaItem[]): string {
   const services = items.filter((i) => i.calendar === "services").length;

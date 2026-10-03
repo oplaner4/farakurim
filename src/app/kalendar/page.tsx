@@ -16,10 +16,8 @@ export const metadata: Metadata = {
 
 // The prerendered months: the previous one and the next six. Others come from Google Calendar in the browser.
 const buildMonth = pragueDate(BUILD_TIME).slice(0, 7);
-const range = {
-  from: monthGridRange(addToMonth(buildMonth, -1)).from,
-  to: monthGridRange(addToMonth(buildMonth, 6)).to,
-};
+const months = { first: addToMonth(buildMonth, -1), last: addToMonth(buildMonth, 6) };
+const range = { from: monthGridRange(months.first).from, to: monthGridRange(months.last).to };
 
 /** Kalendář (design/DESIGN.md §16). Not a menu item, so no nav item is current. */
 export default async function CalendarPage() {
@@ -37,7 +35,7 @@ export default async function CalendarPage() {
           size="standard"
           intro="Bohoslužby i farní akce na jednom místě. Klepněte na den a uvidíte program."
         />
-        <MonthCalendar entries={entries} hrefs={calendarHrefs} renderedAt={BUILD_TIME}>
+        <MonthCalendar entries={entries} months={months} hrefs={calendarHrefs} renderedAt={BUILD_TIME}>
           <SubscribePanel />
         </MonthCalendar>
         <noscript>

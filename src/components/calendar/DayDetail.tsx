@@ -1,17 +1,37 @@
 import { clsx } from "clsx";
 import type { IsoDate } from "@/content/types";
 import { type AgendaItem, dayHeading, itemTime } from "@/lib/agenda";
+import type { CalendarStatus } from "@/lib/use-calendar";
 
 const KIND = { services: "Bohoslužba", events: "Akce" };
 
 /** The selected day's programme (design/DESIGN.md §16.2, 4). */
-export function DayDetail({ date, today, items }: { date: IsoDate; today: IsoDate; items: AgendaItem[] }) {
+export function DayDetail({
+  date,
+  today,
+  items,
+  status,
+}: {
+  date: IsoDate;
+  today: IsoDate;
+  items: AgendaItem[];
+  /** The day's entries are still loading (or failed): don't claim an empty day. */
+  status: CalendarStatus;
+}) {
   return (
-    <section aria-labelledby="vybrany-den" className="flex flex-col gap-3 rounded-24 bg-surface p-4.5 md:p-5.5 lg:p-6">
+    <section
+      aria-busy={status === "loading"}
+      aria-labelledby="vybrany-den"
+      className="flex flex-col gap-3 rounded-24 bg-surface p-4.5 md:p-5.5 lg:p-6"
+    >
       <h2 id="vybrany-den" aria-live="polite" className="text-18 font-bold md:text-20 lg:text-22">
         {dayHeading(date, today)}
       </h2>
-      {items.length === 0 ? (
+      {status !== "ready" ? (
+        <p className="text-ink-2">
+          {status === "loading" ? "Načítám program…" : "Program tohoto dne se teď nepodařilo načíst."}
+        </p>
+      ) : items.length === 0 ? (
         <p className="text-ink-2">V tento den není v kalendáři nic.</p>
       ) : (
         <ul className="flex flex-col gap-2">

@@ -4,7 +4,7 @@ import { addDays } from "date-fns";
 import { clsx } from "clsx";
 import type { CalendarEntry } from "@/content/types";
 import { links } from "@/content/site";
-import { agendaByDate, itemTime, weekCardLabels } from "@/lib/agenda";
+import { agendaByDate, type DateRange, itemTime, weekCardLabels } from "@/lib/agenda";
 import { inPrague, pragueDate, pragueDateTime } from "@/lib/prague";
 import { useCalendarEntries } from "@/lib/use-calendar";
 import { useToday } from "@/lib/use-now";
@@ -15,6 +15,8 @@ const DAYS = 7;
 type Props = {
   /** Prerendered entries from the build day on; the browser re-reads Google Calendar when it has a key. */
   entries: CalendarEntry[];
+  /** The days `entries` cover. */
+  range: DateRange;
   /** Event ID → Aktuality detail page. */
   hrefs: Record<string, string>;
   renderedAt: number;
@@ -24,10 +26,11 @@ type Props = {
  * "Tento týden" (design/DESIGN.md §4.3a): today and the next six days. Each card lists the events and one
  * line with the times of the services. Mobile and tablet scroll sideways; desktop shows seven columns.
  */
-export function WeekCalendar({ entries, hrefs, renderedAt }: Props) {
+export function WeekCalendar({ entries, range: prerendered, hrefs, renderedAt }: Props) {
   const today = useToday(renderedAt);
   const range = { from: today, to: pragueDate(addDays(pragueDateTime(today, "12:00"), DAYS - 1, { in: inPrague })) };
-  const agenda = agendaByDate(useCalendarEntries(entries, range, hrefs), range);
+  const { entries: loaded, status } = useCalendarEntries({ entries, range: prerendered }, range, hrefs);
+  const agenda = agendaByDate(loaded, range);
 
   return (
     <section aria-labelledby="tento-tyden" className="flex flex-col gap-4 pt-11 md:pt-14 lg:pt-20">
@@ -42,7 +45,12 @@ export function WeekCalendar({ entries, hrefs, renderedAt }: Props) {
         aria-labelledby="tento-tyden"
         // Scrollable on mobile and tablet, so it takes keyboard focus there.
         tabIndex={0}
-        className="-mx-4 flex gap-2.5 overflow-x-auto px-4 pb-1 md:-mx-8 md:gap-3 md:px-8 lg:mx-0 lg:grid lg:grid-cols-7 lg:overflow-visible lg:px-0"
+        // Days after the prerendered ones are dimmed until Google Calendar answers.
+        aria-busy={status === "loading"}
+        className={clsx(
+          "-mx-4 flex gap-2.5 overflow-x-auto px-4 pb-1 md:-mx-8 md:gap-3 md:px-8 lg:mx-0 lg:grid lg:grid-cols-7 lg:overflow-visible lg:px-0",
+          status !== "ready" && "opacity-40",
+        )}
       >
         {[...agenda].map(([date, items], index) => {
           const { label, date: shortDate } = weekCardLabels(date, today);
@@ -84,7 +92,7 @@ export function WeekCalendar({ entries, hrefs, renderedAt }: Props) {
                   </span>
                 </span>
               )}
-              {items.length === 0 && <span className="text-14 text-muted">Bez programu</span>}
+              {items.length === 0 && status === "ready" && <span className="text-14 text-muted">Bez programu</span>}
             </li>
           );
         })}

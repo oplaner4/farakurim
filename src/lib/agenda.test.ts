@@ -5,6 +5,7 @@ import {
   agendaByDate,
   dayCellLabel,
   dayHeading,
+  mergeEntries,
   monthGridRange,
   monthHeading,
   newsEntries,
@@ -156,5 +157,39 @@ describe("query parameters", () => {
     expect(parseDayParam("2026-10-18")).toBe("2026-10-18");
     expect(parseDayParam("2026-02-30")).toBeUndefined();
     expect(parseDayParam("18. 10.")).toBeUndefined();
+  });
+});
+
+describe("mergeEntries", () => {
+  const build = [
+    entry({ id: "a", date: "2026-10-18", title: "build" }),
+    entry({ id: "b", date: "2026-11-15", title: "build" }),
+    entry({ id: "gone", date: "2026-11-20" }),
+  ];
+
+  it("keeps the build's entries until something is read", () => {
+    expect(mergeEntries(build, [])).toBe(build);
+  });
+
+  it("replaces only the days of the read range", () => {
+    const read = {
+      range: { from: "2026-10-26", to: "2026-12-06" },
+      entries: [entry({ id: "b", date: "2026-11-15", title: "live" }), entry({ id: "new", date: "2026-12-01" })],
+    };
+    const merged = mergeEntries(build, [read]);
+    // 18. 10. lies outside the read November grid, so the build's entry stays (e.g. the selected day).
+    expect(merged.map((e) => `${e.id}:${e.title}`).sort()).toEqual(["a:build", "b:live", "new:new"]);
+  });
+
+  it("keeps an entry read by two overlapping ranges once", () => {
+    const shared = entry({ id: "s", date: "2026-11-01" });
+    const merged = mergeEntries(
+      [],
+      [
+        { range: { from: "2026-09-28", to: "2026-11-01" }, entries: [shared] },
+        { range: { from: "2026-10-26", to: "2026-12-06" }, entries: [shared] },
+      ],
+    );
+    expect(merged).toEqual([shared]);
   });
 });

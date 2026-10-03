@@ -31,9 +31,11 @@ build-time next mass.
 - Calendars (Kalendář, homepage "Tento týden"): the parish's two Google Calendars ("Mše, adorace" = `services`,
   "Události" = `events`, `parishCalendars` in `content/site.ts`) are the source, because visitors subscribe to
   them. `loadCalendarEntries()` (`content/calendar.ts`) reads them at build time with `singleEvents=true` (Google
-  expands recurrences and exceptions); `useCalendarEntries()` re-reads the shown range in the browser. Without
-  `NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY` it returns mock entries generated from `regularServices` and the Aktuality
-  records. An Aktuality record links to its calendar event through `calendarEventId`. The weekly table and the
+  expands recurrences and exceptions) for the prerendered range (Kalendář: the previous month and the next six;
+  homepage: three weeks). `useCalendarEntries()` re-reads every shown range in the browser and merges it over the
+  build's entries (`mergeEntries()`); a range outside the prerendered one is dimmed with a loading or error message
+  until Google answers. Without `NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY` the entries are mock data generated from
+  `regularServices` and the Aktuality records, nothing is fetched, and paging stops at the prerendered months. An Aktuality record links to its calendar event through `calendarEventId`. The weekly table and the
   next-mass countdown still use `regularServices` / `scheduleExceptions`.
 - Office hours (`content/site.ts`): weekly slots with an optional yearly `closed` break; the live status is
   `officeStatus()` in `src/lib/office.ts`.
