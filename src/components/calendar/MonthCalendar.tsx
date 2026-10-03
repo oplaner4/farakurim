@@ -34,8 +34,11 @@ const bounded = !GOOGLE_CALENDAR_API_KEY;
 function MonthCalendarView({ entries, months, hrefs, renderedAt, children, monthParam, dayParam }: ViewProps) {
   const today = useToday(renderedAt);
   const [shown, setShown] = useState<Record<CalendarId, boolean>>({ services: true, events: true });
-  const selected = dayParam ?? today;
-  const requested = monthParam ?? selected.slice(0, 7);
+  // The URL is only read on load. Paging and selecting update this state in the same render and write the URL
+  // alongside: DayPicker keeps the keyboard focus on the moved-to day only when the month changes at once.
+  const [view, setView] = useState<{ month?: IsoMonth; day?: IsoDate }>({ month: monthParam, day: dayParam });
+  const selected = view.day ?? today;
+  const requested = view.month ?? selected.slice(0, 7);
   const { first, last } = months;
   const month = !bounded ? requested : requested < first ? first : requested > last ? last : requested;
   const range = monthGridRange(month);
@@ -56,11 +59,21 @@ function MonthCalendarView({ entries, months, hrefs, renderedAt, children, month
     [loaded, shown, selected, range.from, range.to],
   );
 
-  // Today and the current month leave the URL clean.
-  const showMonth = (next: IsoMonth) =>
-    updateQueryParams({ mesic: next === selected.slice(0, 7) ? null : next }, { replace: true });
-  const selectDay = (date: IsoDate) =>
-    updateQueryParams({ den: date === today ? null : date, mesic: null }, { replace: true });
+  // Today and the selected day's month leave the URL clean.
+  function showMonth(next: IsoMonth) {
+    const month = next === selected.slice(0, 7) ? undefined : next;
+    setView((v) => ({ ...v, month }));
+    updateQueryParams({ mesic: month ?? null }, { replace: true });
+  }
+  function selectDay(date: IsoDate) {
+    const day = date === today ? undefined : date;
+    setView({ day });
+    updateQueryParams({ den: day ?? null, mesic: null }, { replace: true });
+  }
+  function showToday() {
+    setView({});
+    updateQueryParams({ den: null, mesic: null }, { replace: true });
+  }
 
   return (
     <>
@@ -69,7 +82,7 @@ function MonthCalendarView({ entries, months, hrefs, renderedAt, children, month
         canGoBack={!bounded || month > first}
         canGoForward={!bounded || month < last}
         onShowMonth={showMonth}
-        onToday={() => updateQueryParams({ den: null, mesic: null }, { replace: true })}
+        onToday={showToday}
         shown={shown}
         onToggle={(id) => setShown((s) => ({ ...s, [id]: !s[id] }))}
       />
