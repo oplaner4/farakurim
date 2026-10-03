@@ -3,8 +3,8 @@
 # Output: <out-dir>/mockups/<page>/<light|dark>/<name>.html
 #
 # Each mockup's `renderVals()` (its script block) runs in Node with the initial state, then the
-# `{{holes}}`, <sc-for> and <sc-if> are filled from the result. Time-dependent homepage values are pinned
-# to the build data on Saturday 3. 10. 2026 (next mass: Sunday 8:00).
+# `{{holes}}`, <sc-for> and <sc-if> are filled from the result. The clock is pinned to Saturday 3. 10. 2026
+# (the calendars), and so are the time-dependent homepage values (next mass: Sunday 8:00).
 import json
 import pathlib
 import re
@@ -28,6 +28,9 @@ home_theme = {"light": {"slideBg": "#DCEBF8", "dotOn": "#1D71B7", "dotOff": "#C9
               "dark": {"slideBg": "#1C3350", "dotOn": "#7DB8EE", "dotOff": "#5A6B82"}}
 
 NODE = """
+// "Now" is Saturday 3. 10. 2026, 12:00 Prague time, for the calendars that call `new Date()`.
+const RealDate = Date;
+globalThis.Date = class extends RealDate { constructor(...a) { super(...(a.length ? a : ['2026-10-03T12:00:00+02:00'])); } static now() { return new RealDate('2026-10-03T12:00:00+02:00').getTime(); } };
 const src = require('fs').readFileSync(0, 'utf8');
 class DCLogic { constructor(props) { this.props = props; this.state = null; } setState() {} forceUpdate() {} }
 const Component = new Function('DCLogic', src + '; return Component;')(DCLogic);
