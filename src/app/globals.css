@@ -1,10 +1,30 @@
 @import "tailwindcss";
 
 /*
- * Design tokens from design/DESIGN.md §2. Tailwind's default palette, breakpoints, type scale and
+ * Design tokens from design/DESIGN.md §2 (light) and §10 (dark). Tailwind's default palette, breakpoints, type scale and
  * radii are removed so only the design's values exist. Sizes are named after their pixel value
  * (text-26, rounded-24) to read like the spec. Spacing uses Tailwind's 4px scale (p-4 = 16px).
+ *
+ * Colours are semantic: the light values live here, the dark theme redefines the same variables
+ * (see `:root` at the end), so components never need a `dark:` variant just to change a colour.
  */
+
+/*
+ * Dark theme: follows the OS unless <html data-theme="light|dark"> overrides it (set by the inline
+ * script in layout.tsx and by ThemeToggle). Use `dark:` only where the layout itself changes.
+ */
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
+}
+
 @theme {
   /* Mobile first: base = mobile, md = tablet, lg = desktop */
   --breakpoint-*: initial;
@@ -19,6 +39,8 @@
   --color-green: #2eac66; /* decorative only, never text or white-text fills */
   --color-magenta: #d60b51; /* white text OK on it */
   --color-orange: #f39200; /* dark text on it, never white */
+  --color-on-orange: #1b2533; /* text on orange */
+  --color-blue-hover: #165a93; /* primary button hover (a fill with white text, same in both themes) */
   --color-orange-hover: #e08700;
 
   /* Text-safe shades (≥ 4.5:1 on white) */
@@ -28,6 +50,7 @@
   --color-magenta-ink: #b0083f;
   --color-orange-ink: #a85800;
   --color-orange-ink-deep: #8a4b00;
+  --color-time: #1d71b7; /* big next-mass time */
 
   /* Tints */
   --color-blue-tint: #eaf3fb;
@@ -45,8 +68,15 @@
   --color-muted: #556070;
   --color-line: #e6eaf0;
   --color-line-soft: #eef1f5;
-  --color-surface: #f4f6f9;
+  --color-surface: #f4f6f9; /* neutral cards, footer */
+  --color-bg: #ffffff; /* page, header, mobile menu */
+  --color-card: #ffffff; /* next-mass card */
+  --color-raised: #ffffff; /* small blocks on tints: date tiles, pills, Petrklíč cover */
+  --color-overlay: rgb(255 255 255 / 0.92); /* carousel buttons and dot pill */
+  --color-dot-on: #1d71b7;
   --color-dot-off: #c9d6e3;
+  --color-shadow: rgb(29 113 183 / 0.16);
+  --color-shadow-cover: rgb(168 88 0 / 0.18);
 
   --font-*: initial;
 
@@ -101,11 +131,11 @@
   --radius-32: 32px;
 
   --shadow-*: initial;
-  --shadow-card: 0 12px 32px rgb(29 113 183 / 0.16);
-  --shadow-card-md: 0 16px 40px rgb(29 113 183 / 0.16);
-  --shadow-card-lg: 0 16px 48px rgb(29 113 183 / 0.16);
-  --shadow-cover: 0 8px 20px rgb(168 88 0 / 0.18);
-  --shadow-cover-lg: 0 10px 24px rgb(168 88 0 / 0.18);
+  --shadow-card: 0 12px 32px var(--color-shadow);
+  --shadow-card-md: 0 16px 40px var(--color-shadow);
+  --shadow-card-lg: 0 16px 48px var(--color-shadow);
+  --shadow-cover: 0 8px 20px var(--color-shadow-cover);
+  --shadow-cover-lg: 0 10px 24px var(--color-shadow-cover);
 
   --container-page: 79rem; /* 1200px content + 2 × 32px gutter */
 }
@@ -157,9 +187,55 @@
   }
 }
 
+/* Dark tokens (design/DESIGN.md §10): same names, so every utility follows the theme. Brand fills stay. */
 @layer base {
+  :root {
+    color-scheme: light;
+
+    @variant dark {
+      color-scheme: dark;
+
+      --color-on-orange: #111923;
+
+      /* Text-safe shades become lighter */
+      --color-blue-ink: #7db8ee;
+      --color-blue-ink-hover: #a9d1f5;
+      --color-green-ink: #5fd394;
+      --color-magenta-ink: #ff7aa6;
+      --color-orange-ink: #ffb547;
+      --color-orange-ink-deep: #ffc266;
+      --color-time: #6aaeea;
+
+      /* Tints become dark tinted surfaces */
+      --color-blue-tint: #172a40;
+      --color-blue-tint-alt: #1c3350;
+      --color-blue-line: #24405e;
+      --color-green-tint: #163a2a;
+      --color-magenta-tint: #331824;
+      --color-magenta-tint-alt: #40192b;
+      --color-orange-tint: #33240f;
+      --color-orange-tint-alt: #3d2a12;
+
+      /* Neutrals */
+      --color-ink: #eef2f7;
+      --color-ink-2: #c3ccd8;
+      --color-muted: #9aa6b5;
+      --color-line: #2a3648;
+      --color-line-soft: #243042;
+      --color-surface: #18212f;
+      --color-bg: #111923;
+      --color-card: #1c2738;
+      --color-raised: #1f2b3d;
+      --color-overlay: rgb(17 25 35 / 0.88);
+      --color-dot-on: #7db8ee;
+      --color-dot-off: #5a6b82;
+      --color-shadow: rgb(0 0 0 / 0.45);
+      --color-shadow-cover: rgb(0 0 0 / 0.45);
+    }
+  }
+
   body {
-    @apply flex min-h-screen flex-col bg-white font-sans text-16 leading-normal text-ink antialiased md:text-17 lg:leading-relaxed;
+    @apply flex min-h-screen flex-col bg-bg font-sans text-16 leading-normal text-ink antialiased md:text-17 lg:leading-relaxed;
   }
 
   a {

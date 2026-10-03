@@ -9,7 +9,7 @@ const AUTOPLAY_MS = 6000;
 const BASE = "/assets/img/pozadi";
 
 const arrowClass =
-  "pointer-events-auto flex size-11 cursor-pointer items-center justify-center rounded-full bg-white/92 text-ink hover:bg-white hover:text-blue-ink md:size-12";
+  "pointer-events-auto flex size-11 cursor-pointer items-center justify-center rounded-full bg-overlay text-ink hover:bg-bg hover:text-blue-ink md:size-12";
 
 export function HeroCarousel({ slides }: { slides: CarouselSlide[] }) {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -128,7 +128,7 @@ export function HeroCarousel({ slides }: { slides: CarouselSlide[] }) {
         >
           <ChevronLeftIcon />
         </button>
-        <div className="pointer-events-auto flex items-center gap-0.5 rounded-full bg-white/92 px-1.5 md:px-2 lg:-order-1 lg:px-2.5">
+        <div className="pointer-events-auto flex items-center gap-0.5 rounded-full bg-overlay px-1.5 md:px-2 lg:-order-1 lg:px-2.5">
           {slides.map((slide, i) => (
             <button
               key={slide.file}
@@ -138,7 +138,7 @@ export function HeroCarousel({ slides }: { slides: CarouselSlide[] }) {
               aria-current={i === active ? "true" : undefined}
               onClick={() => userGoTo(i)}
             >
-              <span className="h-2 w-2 rounded-4 bg-dot-off transition-[width,background-color] duration-250 group-hover:bg-blue-ink group-aria-[current=true]:w-6 group-aria-[current=true]:bg-blue" />
+              <span className="h-2 w-2 rounded-4 bg-dot-off transition-[width,background-color] duration-250 group-hover:bg-blue-ink group-aria-[current=true]:w-6 group-aria-[current=true]:bg-dot-on" />
             </button>
           ))}
         </div>

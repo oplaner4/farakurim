@@ -4,6 +4,7 @@ import { ButtonLink } from "./ButtonLink";
 import { ColorStripe } from "./ColorStripe";
 import { FileDownloadIcon } from "./icons";
 import { MenuButton } from "./MenuButton";
+import { ThemeToggle } from "./ThemeToggle";
 
 const MENU_ID = "mobilni-menu";
 const MENU_BUTTON_ID = "mobilni-menu-tlacitko";
@@ -12,7 +13,7 @@ export function SiteHeader({ currentHref = links.home }: { currentHref?: string 
   const navItems = mainNav.map((item) => ({ ...item, current: item.href === currentHref }));
 
   return (
-    <header className="group/header flex flex-col bg-white">
+    <header className="group/header flex flex-col bg-bg">
       <div className="container-page flex items-center justify-between gap-3 py-3 md:gap-4 md:py-4 lg:flex-wrap lg:gap-x-8 lg:py-4.5">
         <a href={links.home} className="flex items-center gap-3 text-ink no-underline hover:text-ink md:gap-3.5">
           <img
@@ -28,8 +29,8 @@ export function SiteHeader({ currentHref = links.home }: { currentHref?: string 
           </span>
         </a>
 
-        <div className="flex items-center gap-3">
-          <nav aria-label="Hlavní menu" className="hidden lg:block">
+        <div className="flex items-center gap-2 md:gap-3 lg:gap-2">
+          <nav aria-label="Hlavní menu" className="hidden lg:mr-2 lg:block">
             <ul className="flex flex-wrap items-center gap-1">
               {navItems.map((item) => (
                 <li key={item.label}>
@@ -48,6 +49,7 @@ export function SiteHeader({ currentHref = links.home }: { currentHref?: string 
             <FileDownloadIcon size={18} />
             Pořad bohoslužeb
           </ButtonLink>
+          <ThemeToggle />
           <MenuButton id={MENU_BUTTON_ID} controls={MENU_ID} />
         </div>
       </div>

@@ -7,11 +7,12 @@ paths:
 
 # Checking against the design
 
-Check every visual change in a browser (Playwright or Claude in Chrome) at **390, 834 and 1440 px**.
+Check every visual change in a browser (Playwright or Claude in Chrome) at **390, 834 and 1440 px**,
+in both themes (emulate `prefers-color-scheme: dark` for the dark mockups).
 
 The mockups are design-tool templates (`<x-dc>`, `<sc-if>`, `{{holes}}`) and cannot be opened directly.
 `pnpm mockups` renders them to `.design-preview/` and serves them at http://localhost:4174/mockups/
-(`mobile-390.html`, `tablet-834.html`, `desktop-1440.html`). Serve the build with `pnpm preview` and compare
+(`mobile-390.html`, `tablet-834.html`, `desktop-1440.html`, and the dark theme in `dark/*-dark.html`). Serve the build with `pnpm preview` and compare
 screenshots plus block positions (`getBoundingClientRect()` of each `section[aria-labelledby]`).
 
 - The mockup frames are fixed-width, so give the browser a viewport ~15 px wider for the scrollbar.

@@ -36,7 +36,7 @@ export function NextMass({ renderedAt, showCountdown = true }: Props) {
   return (
     <section
       aria-labelledby="nejblizsi-mse"
-      className="relative mx-4 -mt-11 flex flex-col gap-4.5 overflow-hidden rounded-24 bg-white px-5 py-6 shadow-card md:mx-8 md:-mt-18 md:grid md:grid-cols-2 md:gap-8 md:rounded-28 md:p-8 md:shadow-card-md lg:m-0 lg:flex lg:min-w-0 lg:grow lg:basis-95 lg:gap-5 lg:rounded-32 lg:px-8 lg:py-9 lg:shadow-card-lg"
+      className="relative mx-4 -mt-11 flex flex-col gap-4.5 overflow-hidden rounded-24 bg-card px-5 py-6 shadow-card md:mx-8 md:-mt-18 md:grid md:grid-cols-2 md:gap-8 md:rounded-28 md:p-8 md:shadow-card-md lg:m-0 lg:flex lg:min-w-0 lg:grow lg:basis-95 lg:gap-5 lg:rounded-32 lg:px-8 lg:py-9 lg:shadow-card-lg"
     >
       <span
         className="pointer-events-none absolute top-0 right-0 size-18 bg-blue shard-tr md:size-24 lg:size-26"
@@ -55,7 +55,7 @@ export function NextMass({ renderedAt, showCountdown = true }: Props) {
         {next ? (
           <div className="order-2 flex flex-col gap-0.5">
             <p className="text-18 font-bold md:text-20">{formatMassDay(next.date, now)}</p>
-            <p className="text-64 leading-none font-bold tracking-time text-blue md:text-76 lg:text-84">
+            <p className="text-64 leading-none font-bold tracking-time text-time md:text-76 lg:text-84">
               <time dateTime={isoDateTime(next.date, next.time)}>{next.time}</time>
             </p>
             <p className="mt-2 flex items-start gap-1.5 text-ink-2 md:mt-2.5">

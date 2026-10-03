@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import { themeInitScript } from "@/lib/theme";
 import "./globals.css";
 
 // Weight 300 (oxygen-latin-ext-300.woff2) is available but unused; add it here when a design needs it.
@@ -25,7 +26,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="cs" className={oxygen.variable}>
+    // The inline script may set data-theme before hydration.
+    <html lang="cs" className={oxygen.variable} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body>{children}</body>
     </html>
   );

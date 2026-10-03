@@ -17,7 +17,7 @@ export function PetrklicPanel({ issue }: { issue: PetrklicIssue }) {
       <div className="relative flex gap-4 lg:contents">
         <div
           aria-hidden="true"
-          className="relative flex h-41 shrink-0 basis-29 flex-col justify-between overflow-hidden rounded-10 bg-white p-3 shadow-cover md:h-42.5 md:basis-30 lg:row-span-2 lg:h-53 lg:rounded-12 lg:p-3.5 lg:shadow-cover-lg"
+          className="relative flex h-41 shrink-0 basis-29 flex-col justify-between overflow-hidden rounded-10 bg-raised p-3 shadow-cover md:h-42.5 md:basis-30 lg:row-span-2 lg:h-53 lg:rounded-12 lg:p-3.5 lg:shadow-cover-lg"
         >
           {issue.cover ? (
             <img src={issue.cover} alt="" className="absolute inset-0 size-full object-cover" loading="lazy" />

@@ -4,9 +4,9 @@ import type { ComponentProps } from "react";
 const buttonLink = cva("flex items-center justify-center font-bold no-underline", {
   variants: {
     variant: {
-      primary: "bg-blue text-white hover:bg-blue-ink hover:text-white",
+      primary: "bg-blue text-white hover:bg-blue-hover hover:text-white",
       /* Orange takes dark text, never white (contrast). */
-      accent: "bg-orange text-ink hover:bg-orange-hover hover:text-ink",
+      accent: "bg-orange text-on-orange hover:bg-orange-hover hover:text-on-orange",
       outline: "border-2 border-blue text-blue-ink hover:bg-blue hover:text-white",
     },
     size: {

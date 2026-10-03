@@ -61,7 +61,7 @@ export function NewsSection({ items, renderedAt }: Props) {
                   aria-hidden="true"
                   className={clsx(
                     "flex h-18 shrink-0 basis-16 flex-col items-center justify-center rounded-12 px-0.5 text-center leading-display md:h-20 md:basis-18 md:rounded-14 lg:hidden",
-                    ongoing ? "bg-magenta text-white" : "bg-white text-magenta-ink",
+                    ongoing ? "bg-magenta text-white" : "bg-raised text-magenta-ink",
                   )}
                 >
                   <span className={clsx("font-bold", date.isRange ? "text-17 md:text-19" : "text-22 md:text-24")}>
@@ -74,10 +74,17 @@ export function NewsSection({ items, renderedAt }: Props) {
                   className={clsx(
                     "relative hidden h-52.5 items-center justify-center overflow-hidden rounded-24 lg:flex",
                     POSTER_TINTS[i % POSTER_TINTS.length],
+                    /* Dark: posters (often white paper) sit on a raised card instead of glaring. */
+                    item.image && "dark:bg-raised dark:p-2.5",
                   )}
                 >
                   {item.image ? (
-                    <img src={item.image.src} alt="" className="size-full object-cover" loading="lazy" />
+                    <img
+                      src={item.image.src}
+                      alt=""
+                      className="size-full object-cover dark:rounded-16"
+                      loading="lazy"
+                    />
                   ) : (
                     <>
                       <span className="absolute right-0 bottom-0 h-16 w-24 bg-current opacity-18 shard-br" />
@@ -87,7 +94,7 @@ export function NewsSection({ items, renderedAt }: Props) {
                   <span
                     className={clsx(
                       "absolute top-3.5 left-3.5 rounded-12 px-3 py-1.5 text-14 font-bold",
-                      ongoing ? "bg-magenta text-white" : "bg-white text-magenta-ink",
+                      ongoing ? "bg-magenta text-white" : "bg-raised text-magenta-ink",
                     )}
                   >
                     {chip}
@@ -95,7 +102,7 @@ export function NewsSection({ items, renderedAt }: Props) {
                 </span>
                 <span className="flex min-w-0 flex-col items-start gap-1 lg:gap-3">
                   {ongoing && (
-                    <span className="rounded-full bg-white px-2 py-0.5 text-12 font-bold text-magenta-ink lg:bg-magenta-tint lg:px-2.5 lg:text-13">
+                    <span className="rounded-full bg-raised px-2 py-0.5 text-12 font-bold text-magenta-ink lg:bg-magenta-tint lg:px-2.5 lg:text-13">
                       Právě probíhá
                     </span>
                   )}
