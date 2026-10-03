@@ -1,7 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
-import { places, regularMasses, scheduleExceptions, serviceSheet } from "@/content/masses";
+import { places, regularServices, scheduleExceptions, serviceSheet } from "@/content/masses";
 import { links } from "@/content/site";
 import { formatDateRange, formatWeekdayDate } from "@/lib/czech";
 import { countdown, formatMassDay, upcomingMasses } from "@/lib/masses";
@@ -10,7 +10,7 @@ import { useHydrated, useNow } from "@/lib/use-now";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ArrowRightIcon, FileDownloadIcon, PinIcon } from "@/components/ui/icons";
 
-const source = { regular: regularMasses, exceptions: scheduleExceptions };
+const source = { regular: regularServices, exceptions: scheduleExceptions };
 
 /** Value for `<time dateTime>`: "2026-10-04T08:00" */
 const isoDateTime = (date: string, time: string) =>
@@ -61,7 +61,8 @@ export function NextMass({ renderedAt, showCountdown = true }: Props) {
             <p className="mt-2 flex items-start gap-1.5 text-ink-2 md:mt-2.5">
               <PinIcon size={18} className="mt-0.75 flex-none md:mt-1" />
               <span>
-                {places[next.place].name}, {places[next.place].church}
+                {places[next.place].name}
+                {places[next.place].churchShort && `, ${places[next.place].churchShort}`}
                 {next.note && <span className="text-muted"> · {next.note}</span>}
               </span>
             </p>

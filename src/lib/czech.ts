@@ -17,6 +17,12 @@ export function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+/** Nominative weekday names (index = `Date.getDay()`). */
+export const WEEKDAY_NAMES = ["neděle", "pondělí", "úterý", "středa", "čtvrtek", "pátek", "sobota"];
+
+/** "Po", "Út", … (index = `Date.getDay()`). */
+export const WEEKDAY_SHORT = ["Ne", "Po", "Út", "St", "Čt", "Pá", "So"];
+
 const asDate = (date: IsoDate) => pragueDateTime(date, "12:00");
 const fmt = (date: IsoDate, pattern: string) => format(asDate(date), pattern, { locale: cs, in: inPrague });
 

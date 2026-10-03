@@ -1,34 +1,47 @@
-import type { Place, PlaceId, RegularMass, ScheduleException, ServiceSheet } from "./types";
+import type { Place, PlaceId, RegularService, ScheduleException, ServiceSheet } from "./types";
 
 // Mock content. Replace with data from the CMS/API once the backend exists.
 
+/** In display order (design/DESIGN.md §14.3). */
 export const places: Record<PlaceId, Place> = {
-  kurim: { name: "Kuřim", church: "kostel sv. Maří Magdalény" },
-  "moravske-kninice": { name: "Moravské Knínice", church: "kostel sv. Markéty" },
+  kurim: {
+    name: "Kuřim",
+    church: "Chrám Páně sv. Maří Magdaleny",
+    churchShort: "kostel sv. Maří Magdalény",
+    color: "blue",
+    mapQuery: "kostel sv. Maří Magdalény Kuřim",
+  },
+  "moravske-kninice": {
+    name: "Moravské Knínice",
+    church: "Chrám Páně sv. Markéty",
+    churchShort: "kostel sv. Markéty",
+    color: "green",
+    mapQuery: "kostel sv. Markéty Moravské Knínice",
+  },
+  jinacovice: { name: "Jinačovice", color: "orange", mapQuery: "Jinačovice", byAgreement: true },
 };
 
-/** Regular weekly schedule (source: /porad_bohosluzeb/). Variants go to `scheduleExceptions`. */
-export const regularMasses: RegularMass[] = [
+/**
+ * Regular weekly schedule (source: /porad_bohosluzeb/). First-Friday and first-Saturday variants use `rule`;
+ * changes from the ohlášky go to `scheduleExceptions`.
+ */
+export const regularServices: RegularService[] = [
   { weekday: 1, time: "8:00", place: "kurim" },
-  { weekday: 4, time: "18:00", place: "kurim", note: "adorace od 17:30" },
-  { weekday: 5, time: "16:45", place: "kurim" },
-  { weekday: 5, time: "18:00", place: "moravske-kninice" },
+  { weekday: 4, time: "17:30", place: "kurim", title: "Adorace" },
+  { weekday: 4, time: "18:00", place: "kurim" },
+  { weekday: 5, time: "16:45", place: "kurim", rule: "not-first-in-month" },
+  { weekday: 5, time: "18:15", place: "kurim", rule: "first-in-month" },
+  { weekday: 5, time: "19:00", place: "kurim", title: "Modlitební večer", rule: "first-in-month" },
+  { weekday: 5, time: "17:00", place: "moravske-kninice", rule: "first-in-month" },
+  { weekday: 5, time: "18:00", place: "moravske-kninice", rule: "not-first-in-month" },
+  { weekday: 6, time: "8:00", place: "kurim", rule: "first-in-month" },
   { weekday: 0, time: "8:00", place: "kurim" },
-  { weekday: 0, time: "9:30", place: "kurim" },
+  { weekday: 0, time: "9:30", place: "kurim", note: "s katechezí pro děti (ve školním roce)" },
   { weekday: 0, time: "11:00", place: "moravske-kninice" },
 ];
 
-/** Days that differ from the regular schedule: first Fridays/Saturdays and changes from the ohlášky. */
+/** Days whose masses differ from the regular schedule (changes from the ohlášky, cancellations). */
 export const scheduleExceptions: ScheduleException[] = [
-  {
-    date: "2026-10-02",
-    reason: "1. pátek v měsíci",
-    masses: [
-      { time: "17:00", place: "moravske-kninice" },
-      { time: "18:15", place: "kurim" },
-    ],
-  },
-  { date: "2026-10-03", reason: "1. sobota v měsíci", masses: [{ time: "8:00", place: "kurim" }] },
   {
     date: "2026-10-04",
     reason: "změna dle ohlášek",
@@ -38,28 +51,21 @@ export const scheduleExceptions: ScheduleException[] = [
       { time: "11:00", place: "kurim" },
     ],
   },
-  {
-    date: "2026-11-06",
-    reason: "1. pátek v měsíci",
-    masses: [
-      { time: "17:00", place: "moravske-kninice" },
-      { time: "18:15", place: "kurim" },
-    ],
-  },
-  { date: "2026-11-07", reason: "1. sobota v měsíci", masses: [{ time: "8:00", place: "kurim" }] },
-  {
-    date: "2026-12-04",
-    reason: "1. pátek v měsíci",
-    masses: [
-      { time: "17:00", place: "moravske-kninice" },
-      { time: "18:15", place: "kurim" },
-    ],
-  },
-  { date: "2026-12-05", reason: "1. sobota v měsíci", masses: [{ time: "8:00", place: "kurim" }] },
 ];
 
 export const serviceSheet: ServiceSheet = {
   pdfUrl: "https://farakurim.cz/nahrane/porady_bohosluzeb/6ab9325f1b46d.porad_bohosluzeb.pdf",
   validFrom: "2026-09-27",
   validTo: "2026-10-04",
+  changes: [
+    { date: "2026-10-04", text: "druhá mše v Kuřimi až v 11:00" },
+    { date: "2026-10-04", text: "Moravské Knínice v 9:30" },
+  ],
+  confession: ["Čt 17:30 Kuřim", "Pá 16:30 Moravské Knínice", "Pá při modlitebním večeru"],
+};
+
+/** Pořad bohoslužeb §14.1 (4)–(5). */
+export const sacraments = {
+  confession: "Půl hodiny před každou mší svatou je možnost přistoupit ke svátosti smíření.",
+  baptism: "Křty bývají druhou neděli v měsíci v 9:30. Termín si domluvte na faře.",
 };

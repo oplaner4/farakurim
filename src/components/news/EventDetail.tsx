@@ -5,6 +5,7 @@ import { links, SITE_URL } from "@/content/site";
 import type { NewsEvent } from "@/content/types";
 import { BUILD_TIME } from "@/lib/build-time";
 import { capitalize, eventDateBlock, fileType, formatEventWhen, formatFileSize } from "@/lib/czech";
+import { mapHref } from "@/lib/links";
 import { eventCalendarHref, eventEnd, eventHref } from "@/lib/news";
 import { pragueDate } from "@/lib/prague";
 import { eventJsonLd, jsonLdScript } from "@/lib/structured-data";
@@ -39,8 +40,6 @@ const tiles = [
   { tile: "bg-blue-tint", shard: "bg-blue", value: "text-blue-ink" },
   { tile: "bg-orange-tint", shard: "bg-orange", value: "text-orange-ink" },
 ];
-
-const mapHref = (query: string) => `https://mapy.cz/zakladni?q=${encodeURIComponent(query)}`;
 
 /** Heading and gap of the content blocks: O akci, Program, highlights, Přílohy. */
 const block = "flex flex-col gap-3 lg:gap-3.5";

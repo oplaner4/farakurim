@@ -1,4 +1,4 @@
-import type { CarouselSlide } from "./types";
+import type { CarouselSlide, OfficeHours } from "./types";
 
 /** Public origin of the site: absolute URLs in metadata, JSON-LD and calendar files. */
 export const SITE_URL = "https://farakurim.cz";
@@ -10,10 +10,11 @@ export const links = {
   home: "/",
   news: "/aktuality/",
   newsArchive: "/aktuality/archiv/",
-  services: `${LIVE}/porad_bohosluzeb/`,
+  services: "/porad_bohosluzeb/",
   gallery: `${LIVE}/fotogalerie`,
   petrklic: `${LIVE}/petrklic/`,
-  contacts: `${LIVE}/kontakty`,
+  contacts: "/kontakty/",
+  calendar: `${LIVE}/kalendar`,
   virtualTour: `${LIVE}/virtualni_prohlidka/`,
 };
 
@@ -33,14 +34,39 @@ export const parish = {
   bankAccount: "247704317/0300",
 };
 
+const officeHours: OfficeHours[] = [
+  { weekday: 1, from: "9:00", to: "10:00" },
+  { weekday: 4, from: "19:00", to: "20:00", note: "mimo letní prázdniny", closed: { from: "07-01", to: "08-31" } },
+];
+
 export const contacts = {
   street: "Křížkovského 55/5",
-  city: "664 34 Kuřim",
-  phones: ["541 230 183", "723 661 146"],
+  postalCode: "664 34",
+  town: "Kuřim",
+  /** Mapy.cz search for the parish office. */
+  mapQuery: "Křížkovského 55/5 Kuřim",
+  /** The parish office ("Fara") and the priest's mobile. */
+  officePhone: "541 230 183",
+  mobilePhone: "723 661 146",
   email: "fara.kurim@seznam.cz",
-  officeHours: [{ time: "Po 9:00–10:00" }, { time: "Čt 19:00–20:00", note: "mimo prázdniny" }],
+  officeHours,
   officeHoursOther: "jindy dle domluvy",
 };
+
+export const priest = {
+  name: "PhDr. ThLic. Ing. Jaroslav Filka",
+  // TODO: confirm the title with the parish (design/DESIGN.md §15.1).
+  role: "duchovní správce farnosti",
+};
+
+export const socialLinks = [
+  { label: "Facebook", href: "https://www.facebook.com/groups/803449889670805" },
+  { label: "Instagram", href: "https://www.instagram.com/farnost_kurim/" },
+  { label: "Linktree", href: "https://linktr.ee/FarnostKurim" },
+] as const;
+
+/** "Náměty a chyby na webu" (Kontakty). */
+export const webmaster = { name: "Ondřej Planer", email: "oplaner4@gmail.com" };
 
 export const carouselSlides: CarouselSlide[] = [
   { file: "1.webp", alt: "Kostel sv. Maří Magdalény v Kuřimi s věží a schodištěm v zeleni" },

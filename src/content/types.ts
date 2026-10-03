@@ -4,11 +4,28 @@ export type IsoDate = string;
 /** Wall-clock time in Europe/Prague, `H:MM` or `HH:MM`. */
 export type ClockTime = string;
 
-export type PlaceId = "kurim" | "moravske-kninice";
+/** Calendar day that repeats every year, `MM-DD`. */
+export type MonthDay = string;
+
+/** 0 = neděle … 6 = sobota (same as `Date.getDay()`). */
+export type Weekday = number;
+
+export type PlaceId = "kurim" | "moravske-kninice" | "jinacovice";
+
+/** A church's colour from the logo (design/DESIGN.md §14.3): card border, map button, day names. */
+export type ChurchColor = "blue" | "green" | "orange";
 
 export type Place = {
   name: string;
-  church: string;
+  /** Full name on the schedule cards and Kontakty: "Chrám Páně sv. Maří Magdaleny". */
+  church?: string;
+  /** Short form after the place on the homepage: "kostel sv. Maří Magdalény". */
+  churchShort?: string;
+  color: ChurchColor;
+  /** Mapy.cz search. */
+  mapQuery: string;
+  /** No regular services: "Bohoslužby dle domluvy na faře." */
+  byAgreement?: boolean;
 };
 
 export type MassEntry = {
@@ -17,22 +34,50 @@ export type MassEntry = {
   note?: string;
 };
 
-export type RegularMass = MassEntry & {
-  /** 0 = neděle … 6 = sobota (same as `Date.getDay()`). */
-  weekday: number;
+/**
+ * Which weeks of the month a regular service takes place in: `first-in-month` is the first such weekday of the
+ * month ("1. pátek v měsíci"), `not-first-in-month` the others (it gives way to a first-in-month variant).
+ */
+export type ServiceRule = "every" | "first-in-month" | "not-first-in-month";
+
+/** One row of the weekly schedule (§14.4). Masses also feed the homepage "next mass". */
+export type RegularService = MassEntry & {
+  weekday: Weekday;
+  /** "Adorace", "Modlitební večer"; omitted for a mass ("Mše svatá"). Only masses count as the next mass. */
+  title?: string;
+  /** Defaults to `every`. */
+  rule?: ServiceRule;
 };
 
-/** Replaces the whole regular schedule for one day. An empty `masses` list cancels the day. */
+/** Replaces the whole regular schedule (masses) for one day. An empty `masses` list cancels the day. */
 export type ScheduleException = {
   date: IsoDate;
   masses: MassEntry[];
   reason?: string;
 };
 
+/** This week's ohlášky (§14.1 "Tento týden"). */
 export type ServiceSheet = {
   pdfUrl: string;
   validFrom: IsoDate;
   validTo: IsoDate;
+  /**
+   * "Změny tento týden", as written in the ohlášky. Display text only: the changed masses themselves are
+   * `scheduleExceptions`, which the next-mass countdown uses.
+   */
+  changes: { date: IsoDate; text: string }[];
+  /** "Svátost smíření tento týden": "Čt 17:30 Kuřim". */
+  confession: string[];
+};
+
+/** A weekly office-hours slot (§15.2). */
+export type OfficeHours = {
+  weekday: Weekday;
+  from: ClockTime;
+  to: ClockTime;
+  note?: string;
+  /** Yearly break, e.g. the summer holidays: the slot does not apply from `from` to `to` (inclusive). */
+  closed?: { from: MonthDay; to: MonthDay };
 };
 
 /** A file attached to an event; the type label ("PNG", "PDF") comes from the file extension. */

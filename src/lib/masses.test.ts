@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest";
 import type { ScheduleSource } from "./masses";
-import { countdown, formatMassDay, massesOnDate, upcomingMasses } from "./masses";
+import { countdown, formatMassDay, massesOnDate, upcomingMasses, weeklySchedule } from "./masses";
 import { pragueDateTime } from "./prague";
 
 const source: ScheduleSource = {
   regular: [
     { weekday: 1, time: "8:00", place: "kurim" },
-    { weekday: 5, time: "16:45", place: "kurim" },
+    { weekday: 4, time: "17:30", place: "kurim", title: "Adorace" },
+    { weekday: 5, time: "16:45", place: "kurim", rule: "not-first-in-month" },
+    { weekday: 5, time: "18:15", place: "kurim", rule: "first-in-month" },
     { weekday: 5, time: "18:00", place: "moravske-kninice" },
     { weekday: 0, time: "8:00", place: "kurim" },
     { weekday: 0, time: "9:30", place: "kurim" },
@@ -44,6 +46,14 @@ describe("massesOnDate", () => {
     expect(massesOnDate("2026-10-09", source).map((m) => m.time)).toEqual(["16:45", "18:00"]);
   });
 
+  it("applies first-in-month rules", () => {
+    expect(massesOnDate("2026-10-02", source).map((m) => m.time)).toEqual(["18:15", "18:00"]);
+  });
+
+  it("leaves out services that are not masses", () => {
+    expect(massesOnDate("2026-10-08", source)).toEqual([]);
+  });
+
   it("replaces the whole day with an exception", () => {
     expect(massesOnDate("2026-10-04", source)).toEqual(source.exceptions[0].masses);
   });
@@ -71,6 +81,33 @@ describe("upcomingMasses", () => {
   it("skips cancelled days and continues into the following week", () => {
     const list = upcomingMasses(at("2026-10-11", "12:00"), source, 1);
     expect(`${list[0].date} ${list[0].time}`).toBe("2026-10-16 16:45");
+  });
+});
+
+describe("weeklySchedule", () => {
+  it("lists a place's days from Monday, sorted by time, with first-in-month tags", () => {
+    expect(weeklySchedule(source.regular, "kurim")).toEqual([
+      { weekday: 1, rows: [{ time: "8:00", title: "Mše svatá" }] },
+      { weekday: 4, rows: [{ time: "17:30", title: "Adorace" }] },
+      {
+        weekday: 5,
+        rows: [
+          { time: "16:45", title: "Mše svatá" },
+          { time: "18:15", title: "Mše svatá", tag: "1. pátek v měsíci" },
+        ],
+      },
+      {
+        weekday: 0,
+        rows: [
+          { time: "8:00", title: "Mše svatá" },
+          { time: "9:30", title: "Mše svatá" },
+        ],
+      },
+    ]);
+  });
+
+  it("is empty for a place without services", () => {
+    expect(weeklySchedule(source.regular, "jinacovice")).toEqual([]);
   });
 });
 

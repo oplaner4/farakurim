@@ -1,11 +1,11 @@
 import { clsx } from "clsx";
 import type { ReactNode } from "react";
 import { contacts, links } from "@/content/site";
+import { telHref } from "@/lib/links";
 import { ButtonLink } from "@/components/ui/ButtonLink";
+import { WEEKDAY_SHORT } from "@/lib/czech";
 import { ClockIcon, MailIcon, PhoneIcon, PinIcon } from "@/components/ui/icons";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-
-const tel = (phone: string) => `tel:+420${phone.replace(/\s/g, "")}`;
 
 function Row({ icon, className, children }: { icon: ReactNode; className?: string; children: ReactNode }) {
   return (
@@ -48,13 +48,13 @@ export function ContactsPanel() {
             {contacts.street}
             <br className="md:hidden lg:inline" />
             <span className="hidden md:inline lg:hidden">, </span>
-            {contacts.city}
+            {contacts.postalCode} {contacts.town}
           </span>
         </Row>
         <Row icon={<PhoneIcon />} className="lg:order-3">
           <span className="flex flex-col md:flex-row md:flex-wrap md:gap-x-3 lg:flex-col">
-            {contacts.phones.map((phone) => (
-              <a key={phone} href={tel(phone)} className="font-bold">
+            {[contacts.officePhone, contacts.mobilePhone].map((phone) => (
+              <a key={phone} href={telHref(phone)} className="font-bold">
                 {phone}
               </a>
             ))}
@@ -69,10 +69,10 @@ export function ContactsPanel() {
           <span className="flex flex-col">
             <strong>Úřední hodiny</strong>
             <span>
-              {contacts.officeHours.map(({ time, note }, i) => (
-                <span key={time} className="block md:inline lg:block">
+              {contacts.officeHours.map(({ weekday, from, to, note }, i) => (
+                <span key={weekday} className="block md:inline lg:block">
                   {i > 0 && <span className="hidden md:inline lg:hidden">, </span>}
-                  {time}
+                  {WEEKDAY_SHORT[weekday]} {from}–{to}
                   {/* Per the design, the note shows on mobile only and "jindy dle domluvy" not on desktop. */}
                   {note && <span className="md:hidden"> ({note})</span>}
                 </span>
