@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ArchivePage } from "@/components/ArchivePage";
+import { ArchivePage } from "@/components/news/ArchivePage";
 
 export const metadata: Metadata = {
   title: "Archiv aktualit",

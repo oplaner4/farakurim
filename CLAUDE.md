@@ -63,7 +63,9 @@ scripts/           generate-icons.mjs, subset-fonts.sh, render-mockups.py
 public/assets/img/ logo + carousel photos pozadi/{sm,md,lg}/{1-7}.webp (served at the same URLs as the old site)
 src/app/           layout.tsx (font, metadata, skip link, footer), page.tsx (homepage), aktuality/ ([slug] filters + details, archiv/),
                    globals.css (Tailwind theme), icons
-src/components/    One component per block, styled with Tailwind utilities; ButtonLink, SectionHeading, icons shared
+src/components/    One component per block, styled with Tailwind utilities, grouped by where it is used:
+                   ui/ (shared primitives: ButtonLink, headings, icons, …), layout/ (header, footer and their parts),
+                   home/ (homepage blocks), news/ (Aktuality, archive, event detail). Same folder: `./X`; else `@/components/<group>/X`
 src/content/       Mock content (types.ts + one file per domain): the future API boundary
 src/lib/           Pure logic on date-fns (prague.ts, czech.ts, masses.ts, news.ts, calendar.ts) + tests, useNow hooks, query-params.ts, theme.ts
 ```

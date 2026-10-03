@@ -20,7 +20,7 @@ import {
 } from "@/lib/news";
 import { useToday } from "@/lib/use-now";
 import { updateQueryParams, useFocusAfterChange } from "@/lib/query-params";
-import { ButtonLink } from "./ButtonLink";
+import { ButtonLink } from "@/components/ui/ButtonLink";
 import { EventCard, eventAnchor } from "./EventCard";
 
 const PAGE_PARAM = "strana";

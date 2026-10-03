@@ -5,9 +5,9 @@ import { pragueDate } from "@/lib/prague";
 import { EventList } from "./EventList";
 import { FeaturedEvent } from "./FeaturedEvent";
 import { NewsArchivePanel } from "./NewsArchivePanel";
-import { PageHeading } from "./PageHeading";
-import { ShowUntil } from "./ShowUntil";
-import { SiteHeader } from "./SiteHeader";
+import { PageHeading } from "@/components/ui/PageHeading";
+import { ShowUntil } from "@/components/ui/ShowUntil";
+import { SiteHeader } from "@/components/layout/SiteHeader";
 import { links } from "@/content/site";
 
 const buildToday = pragueDate(BUILD_TIME);

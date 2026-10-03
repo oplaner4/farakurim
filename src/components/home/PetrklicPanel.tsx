@@ -1,6 +1,6 @@
 import type { PetrklicIssue } from "@/content/types";
-import { ButtonLink } from "./ButtonLink";
-import { ColorStripe } from "./ColorStripe";
+import { ButtonLink } from "@/components/ui/ButtonLink";
+import { ColorStripe } from "@/components/ui/ColorStripe";
 
 /* Mobile/tablet: cover + intro in a row, actions below. Desktop: cover spans both rows of a 2-column grid. */
 export function PetrklicPanel({ issue }: { issue: PetrklicIssue }) {

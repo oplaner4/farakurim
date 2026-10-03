@@ -1,10 +1,10 @@
 import type { NewsEvent } from "@/content/types";
 import { formatEventWhen } from "@/lib/czech";
 import { eventHref } from "@/lib/news";
-import { ButtonLink } from "./ButtonLink";
+import { ButtonLink } from "@/components/ui/ButtonLink";
 import { eventAnchor } from "./EventCard";
-import { CalendarIcon, ImageIcon, PinIcon } from "./icons";
-import { PosterPlaceholder } from "./PosterPlaceholder";
+import { CalendarIcon, ImageIcon, PinIcon } from "@/components/ui/icons";
+import { PosterPlaceholder } from "@/components/ui/PosterPlaceholder";
 
 /**
  * "Doporučujeme" panel (design/DESIGN.md §11.2). Mobile: text, then the poster beside the button

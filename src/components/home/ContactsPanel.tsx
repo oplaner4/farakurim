@@ -1,9 +1,9 @@
 import { clsx } from "clsx";
 import type { ReactNode } from "react";
 import { contacts, links } from "@/content/site";
-import { ButtonLink } from "./ButtonLink";
-import { ClockIcon, MailIcon, PhoneIcon, PinIcon } from "./icons";
-import { SectionHeading } from "./SectionHeading";
+import { ButtonLink } from "@/components/ui/ButtonLink";
+import { ClockIcon, MailIcon, PhoneIcon, PinIcon } from "@/components/ui/icons";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 
 const tel = (phone: string) => `tel:+420${phone.replace(/\s/g, "")}`;
 

@@ -1,5 +1,5 @@
 import { links, parish } from "@/content/site";
-import { ColorStripe } from "./ColorStripe";
+import { ColorStripe } from "@/components/ui/ColorStripe";
 
 export function SiteFooter() {
   return (

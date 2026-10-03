@@ -3,8 +3,8 @@
 import { useState } from "react";
 import type { IsoDate } from "@/content/types";
 import { useToday } from "@/lib/use-now";
-import { buttonLink, ButtonLink } from "./ButtonLink";
-import { CalendarPlusIcon, ShareIcon } from "./icons";
+import { buttonLink, ButtonLink } from "@/components/ui/ButtonLink";
+import { CalendarPlusIcon, ShareIcon } from "@/components/ui/icons";
 
 type Props = {
   title: string;

@@ -6,9 +6,9 @@ import { links } from "@/content/site";
 import { formatEventDate } from "@/lib/czech";
 import { currentNews, eventHref, eventStatus } from "@/lib/news";
 import { useToday } from "@/lib/use-now";
-import { CalendarIcon } from "./icons";
-import { POSTER_TINTS } from "./PosterPlaceholder";
-import { SectionHeading } from "./SectionHeading";
+import { CalendarIcon } from "@/components/ui/icons";
+import { POSTER_TINTS } from "@/components/ui/PosterPlaceholder";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 
 /** Mobile shows the first 3 (the 4th is hidden); tablet and desktop show 4. */
 const LIMIT = 4;

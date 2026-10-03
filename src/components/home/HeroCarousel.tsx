@@ -3,7 +3,7 @@
 import { clsx } from "clsx";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CarouselSlide } from "@/content/types";
-import { ChevronLeftIcon, ChevronRightIcon } from "./icons";
+import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
 
 const AUTOPLAY_MS = 6000;
 const BASE = "/assets/img/pozadi";

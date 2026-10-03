@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { EventDetail } from "@/components/EventDetail";
-import { NewsPage } from "@/components/NewsPage";
+import { EventDetail } from "@/components/news/EventDetail";
+import { NewsPage } from "@/components/news/NewsPage";
 import { events } from "@/content/news";
 import { parish } from "@/content/site";
 import { eventHref, eventSlug, filterFromSlug, findEventBySlug, NEWS_FILTER_META, NEWS_FILTERS } from "@/lib/news";

@@ -1,11 +1,11 @@
 import { clsx } from "clsx";
 import { serviceSheet } from "@/content/masses";
 import { links, mainNav } from "@/content/site";
-import { ButtonLink } from "./ButtonLink";
-import { ColorStripe } from "./ColorStripe";
-import { FileDownloadIcon } from "./icons";
+import { ButtonLink } from "@/components/ui/ButtonLink";
+import { ColorStripe } from "@/components/ui/ColorStripe";
+import { FileDownloadIcon } from "@/components/ui/icons";
 import { MenuButton } from "./MenuButton";
-import type { SectionColor } from "./SectionHeading";
+import type { SectionColor } from "@/components/ui/SectionHeading";
 import { ThemeToggle } from "./ThemeToggle";
 
 const MENU_ID = "mobilni-menu";

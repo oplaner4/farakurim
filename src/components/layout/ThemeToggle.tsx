@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import { isDarkTheme, setTheme, subscribeTheme } from "@/lib/theme";
-import { MoonIcon, SunIcon } from "./icons";
+import { MoonIcon, SunIcon } from "@/components/ui/icons";
 
 /**
  * Light/dark switch. The icon is chosen by CSS (`dark:`), so it is right before hydration;

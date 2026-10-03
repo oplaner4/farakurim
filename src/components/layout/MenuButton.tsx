@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CloseIcon, MenuIcon } from "./icons";
+import { CloseIcon, MenuIcon } from "@/components/ui/icons";
 
 /**
  * Mobile/tablet menu toggle. It only owns `aria-expanded`; the header shows the menu with a

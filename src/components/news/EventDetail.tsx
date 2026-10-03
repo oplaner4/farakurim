@@ -8,13 +8,13 @@ import { capitalize, eventDateBlock, fileType, formatEventWhen, formatFileSize }
 import { eventCalendarHref, eventEnd, eventHref } from "@/lib/news";
 import { pragueDate } from "@/lib/prague";
 import { eventJsonLd, jsonLdScript } from "@/lib/structured-data";
-import { Breadcrumbs } from "./Breadcrumbs";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { EventActions } from "./EventActions";
 import { EventDetailLabels } from "./EventDetailLabels";
-import { CalendarIcon, ExternalLinkIcon, FileIcon, PinIcon } from "./icons";
+import { CalendarIcon, ExternalLinkIcon, FileIcon, PinIcon } from "@/components/ui/icons";
 import { type MoreEventItem, MoreEvents } from "./MoreEvents";
-import { PosterPlaceholder } from "./PosterPlaceholder";
-import { SiteHeader } from "./SiteHeader";
+import { PosterPlaceholder } from "@/components/ui/PosterPlaceholder";
+import { SiteHeader } from "@/components/layout/SiteHeader";
 
 // "Další akce" filters by the visitor's date, so the client gets the events unfinished at build time,
 // as slim cards.

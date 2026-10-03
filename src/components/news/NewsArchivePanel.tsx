@@ -1,5 +1,5 @@
 import { links } from "@/content/site";
-import { ArrowRightIcon } from "./icons";
+import { ArrowRightIcon } from "@/components/ui/icons";
 
 /** "Archiv aktualit": a text link on mobile, a blue outline button from tablet up. */
 export function NewsArchivePanel() {

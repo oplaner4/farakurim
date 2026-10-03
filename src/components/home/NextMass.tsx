@@ -7,8 +7,8 @@ import { formatDateRange, formatWeekdayDate } from "@/lib/czech";
 import { countdown, formatMassDay, upcomingMasses } from "@/lib/masses";
 import { inPrague, pragueDateTime } from "@/lib/prague";
 import { useHydrated, useNow } from "@/lib/use-now";
-import { ButtonLink } from "./ButtonLink";
-import { ArrowRightIcon, FileDownloadIcon, PinIcon } from "./icons";
+import { ButtonLink } from "@/components/ui/ButtonLink";
+import { ArrowRightIcon, FileDownloadIcon, PinIcon } from "@/components/ui/icons";
 
 const source = { regular: regularMasses, exceptions: scheduleExceptions };
 

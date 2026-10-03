@@ -2,8 +2,8 @@ import { clsx } from "clsx";
 import type { Album } from "@/content/types";
 import { GALLERY_URL } from "@/content/gallery";
 import { formatLongDate } from "@/lib/czech";
-import { ImageIcon } from "./icons";
-import { SectionHeading } from "./SectionHeading";
+import { ImageIcon } from "@/components/ui/icons";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 
 const COVER_TINTS = [
   "bg-green-tint text-green-ink",

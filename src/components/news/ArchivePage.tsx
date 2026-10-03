@@ -5,8 +5,8 @@ import { fileType } from "@/lib/czech";
 import { eventHref, latestArchiveYear } from "@/lib/news";
 import { pragueDate } from "@/lib/prague";
 import { type ArchiveItem, NewsArchive } from "./NewsArchive";
-import { PageHeading } from "./PageHeading";
-import { SiteHeader } from "./SiteHeader";
+import { PageHeading } from "@/components/ui/PageHeading";
+import { SiteHeader } from "@/components/layout/SiteHeader";
 
 /** Year of the default archive page, fixed by the build (the year pages are static). */
 export const ARCHIVE_LATEST_YEAR = latestArchiveYear(events, pragueDate(BUILD_TIME));

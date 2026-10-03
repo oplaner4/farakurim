@@ -18,8 +18,8 @@ import {
 } from "@/lib/news";
 import { useToday } from "@/lib/use-now";
 import { updateQueryParams, useFocusAfterChange } from "@/lib/query-params";
-import { ButtonLink } from "./ButtonLink";
-import { ChevronLeftIcon, FileIcon, SearchIcon } from "./icons";
+import { ButtonLink } from "@/components/ui/ButtonLink";
+import { ChevronLeftIcon, FileIcon, SearchIcon } from "@/components/ui/icons";
 
 /** What a row needs; the page passes only these fields to the client. */
 export type ArchiveItem = Pick<NewsEvent, "id" | "title" | "start" | "end" | "time" | "place" | "archiveHidden"> & {

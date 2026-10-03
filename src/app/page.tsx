@@ -1,10 +1,10 @@
-import { ContactsPanel } from "@/components/ContactsPanel";
-import { GallerySection } from "@/components/GallerySection";
-import { HeroCarousel } from "@/components/HeroCarousel";
-import { NewsSection } from "@/components/NewsSection";
-import { NextMass } from "@/components/NextMass";
-import { PetrklicPanel } from "@/components/PetrklicPanel";
-import { SiteHeader } from "@/components/SiteHeader";
+import { ContactsPanel } from "@/components/home/ContactsPanel";
+import { GallerySection } from "@/components/home/GallerySection";
+import { HeroCarousel } from "@/components/home/HeroCarousel";
+import { NewsSection } from "@/components/home/NewsSection";
+import { NextMass } from "@/components/home/NextMass";
+import { PetrklicPanel } from "@/components/home/PetrklicPanel";
+import { SiteHeader } from "@/components/layout/SiteHeader";
 import { albums } from "@/content/gallery";
 import { events } from "@/content/news";
 import { latestPetrklic } from "@/content/petrklic";
