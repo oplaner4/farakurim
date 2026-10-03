@@ -21,7 +21,8 @@ export function eventJsonLd(event: NewsEvent, url: string) {
     endDate: clock?.to ? isoDateTime(start, clock.to) : end,
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     location: { "@type": "Place", name: event.place, address: event.place },
-    ...(event.poster && { image: event.poster.src }),
+    // Uploaded posters are root-relative; search engines need the full URL.
+    ...(event.poster && { image: new URL(event.poster.src, SITE_URL).href }),
     url,
     organizer: { "@type": "Organization", name: parish.name, url: SITE_URL },
   };

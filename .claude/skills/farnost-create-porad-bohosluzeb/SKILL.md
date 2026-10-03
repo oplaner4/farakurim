@@ -80,7 +80,7 @@ mkdir -p uploads/porady_bohosluzeb
 cp "<source>" "uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb.pdf"
 ```
 
-`pdfUrl` is `https://farakurim.cz/uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb.pdf`.
+`pdfUrl` is `/uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb.pdf`.
 
 ## 5. Replace the sheet
 

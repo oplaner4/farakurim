@@ -34,12 +34,12 @@ until then, nav links point to the live site.
 
 | Command                                          | What it does                                                                                                                       |
 | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm dev`                                       | Dev server at http://localhost:3000                                                                                                |
+| `pnpm dev`                                       | Dev server at http://localhost:3000 (`scripts/dev-server.mjs`: `next dev` plus `/uploads/…` from `uploads/` or the live site)      |
 | `pnpm build`                                     | Static export to `out/`                                                                                                            |
 | `pnpm test`                                      | Vitest unit tests (`src/**/*.test.ts`)                                                                                             |
 | `pnpm lint`                                      | ESLint (Next core-web-vitals + TypeScript + React hooks rules)                                                                     |
 | `pnpm format`                                    | Prettier, including Tailwind class sorting (`prettier-plugin-tailwindcss`)                                                         |
-| `pnpm preview`                                   | Serve `out/` at http://localhost:4173 (needs a prior `pnpm build`)                                                                 |
+| `pnpm preview`                                   | Serve `out/` at http://localhost:4173 (needs a prior `pnpm build`), `/uploads/…` from `uploads/` or the live site                  |
 | `pnpm mockups`                                   | Render the design mockups to static HTML and serve them at http://localhost:4174/mockups/                                          |
 | `pnpm exec tsc --noEmit`                         | Type check                                                                                                                         |
 | `pnpm icons`                                     | Regenerate `src/app/icon.png` (32 px) and `apple-icon.png` (180 px) from `src/app/icon.svg`                                        |
@@ -71,7 +71,8 @@ Content is edited in `src/content/*.ts` through project skills (ported from the 
 `gallery.ts`), `farnost-create-petrklic` (Petrklíč PDF → `petrklic.ts` + WebP pages), each finishing with
 `farnost-publish-content` (verify, commit, upload checklist).
 Uploaded files are **not** in git: they are staged in `uploads/` (git-ignored, mirrors `/uploads/` on the server),
-uploaded by hand to `/uploads/…` and linked as `https://farakurim.cz/uploads/…`. Album photos stay on Zonerama.
+uploaded by hand to `/uploads/…` and linked root-relative as `/uploads/…` (`pnpm dev` and `pnpm preview` serve them from
+the local folder, else redirect to the live site). Album photos stay on Zonerama.
 The old site's `/nahrane/` folder is not used by the new site.
 
 ## Deployment
@@ -86,7 +87,7 @@ No CI. Build locally, then upload the **contents** of `out/` over SFTP to the we
 design/            Design handoff: DESIGN.md (source of truth), mockups (<page>/<light|dark>/*.dc.html), logo
 fonts-source/      Oxygen TTFs + OFL licence (input for `pnpm fonts`)
 scripts/           generate-icons.mjs, subset-fonts.sh, render-mockups.py, petrklic-images.py, poster-webp.py,
-                   zonerama-album.py
+                   zonerama-album.py, dev-server.mjs (`pnpm dev`), preview.py (`pnpm preview`)
 public/assets/img/ logo + carousel photos pozadi/{sm,md,lg}/{1-7}.webp (served at the same URLs as the old site),
                    petrklic/<id>.webp covers and petrklic/<id>/<page>.webp viewer pages
 src/app/           layout.tsx (font, metadata, skip link, footer), page.tsx (homepage), aktuality/ ([slug] filters + details, archiv/),

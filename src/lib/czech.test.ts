@@ -96,7 +96,7 @@ describe("event formatting", () => {
 
   it("names months and file types", () => {
     expect(formatMonthYear("2026-10-01")).toBe("Říjen 2026");
-    expect(fileType("https://farakurim.cz/uploads/aktuality/6ab538eec7721.Plakát.png")).toBe("PNG");
+    expect(fileType("/uploads/aktuality/6ab538eec7721.Plakát.png")).toBe("PNG");
     expect(fileType("https://example.cz/soubory/pozvanka")).toBe("");
   });
 });

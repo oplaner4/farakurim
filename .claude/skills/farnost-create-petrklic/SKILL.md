@@ -50,13 +50,14 @@ At the top of `petrklicIssues` (newest first):
   issue("2026-3-mimoradne", 2026, 3, 12, { note: "mimořádné" }),
 ```
 
-`issue()` builds `pdfUrl` (`https://farakurim.cz/uploads/petrklic/<id>.pdf`) and `cover`; `pageImages` of the
-current issue are computed. The volume (ročník) is computed from the year.
+`issue()` builds `pdfUrl` (`/uploads/petrklic/<id>.pdf`) and `cover`; `pageImages` of the current issue are
+computed. The volume (ročník) is computed from the year.
 
 ## 5. Publish
 
 Follow **`farnost-publish-content`**; check `/petrklic/aktualni/` (cover, viewer pages, download link),
-`/petrklic/archiv/` and the homepage Petrklíč card. The download link is broken until the PDF is uploaded.
+`/petrklic/archiv/` and the homepage Petrklíč card. Locally (`pnpm dev`, `pnpm preview`) the PDF is served from
+`uploads/`.
 
 ## Common mistakes
 

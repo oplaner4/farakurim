@@ -2,7 +2,8 @@ import type { NewsEvent } from "./types";
 
 // Finished events for the archive, from the Archiv mockup (see news.ts).
 
-export const UPLOADS = "https://farakurim.cz/uploads/aktuality";
+/** Root-relative: the live site serves it from /uploads/, `pnpm preview` from the local uploads/ folder. */
+export const UPLOADS = "/uploads/aktuality";
 
 type ArchivedRow = [
   start: string,
