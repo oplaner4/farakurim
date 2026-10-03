@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { NewsEvent } from "@/content/types";
-import { eventCalendar } from "./calendar";
+import { eventCalendar, eventClock } from "./calendar";
 
 const URL = "https://farakurim.cz/aktuality/x/";
 
@@ -58,5 +58,25 @@ describe("eventCalendar", () => {
     // Seven meetings that don't fit a weekly rhythm stay one all-day span.
     const irregular = lines(eventCalendar(event({ start: "2026-10-11", end: "2026-11-15", sessions: 7 }), URL));
     expect(irregular).toContain("DTEND;VALUE=DATE:20261116");
+  });
+});
+
+describe("eventClock", () => {
+  it.each([
+    ["9:30", { from: "9:30" }],
+    ["18:00–20:30", { from: "18:00", to: "20:30" }],
+    ["18:00 - 20:30", { from: "18:00", to: "20:30" }],
+    ["18:00 – 20:30", { from: "18:00", to: "20:30" }],
+  ])("reads %s", (time, clock) => {
+    expect(eventClock(event({ time }))).toEqual(clock);
+  });
+
+  it.each(["po mši", "18.00", "od 18:00", "18:00, 20:00", ""])("leaves %j untimed", (time) => {
+    expect(eventClock(event({ time }))).toBeUndefined();
+  });
+
+  it("takes a weekly series' time over the free-text time", () => {
+    expect(eventClock(event({ time: "9:00", longTerm: { weeklyAt: "18:30" } }))).toEqual({ from: "18:30" });
+    expect(eventClock(event({ time: "9:00", longTerm: true }))).toEqual({ from: "9:00" });
   });
 });
