@@ -2,7 +2,8 @@
 
 Spec for implementing the new website of **Římskokatolická farnost Kuřim**.
 Pages designed so far: **homepage** (sections 1–10), **Aktuality** (section 11),
-**Archiv aktualit** (section 12) and **Detail akce** (section 13).
+**Archiv aktualit** (section 12), **Detail akce** (section 13), **Pořad bohoslužeb**
+(section 14) and **Kontakty** (section 15).
 More pages will follow. Language of all UI copy: **Czech**. Approach: **mobile-first**.
 Every page has a **light and a dark theme**.
 
@@ -17,6 +18,8 @@ Every page has a **light and a dark theme**.
 | `mockups/aktuality/dark/` | Aktuality page in the dark theme |
 | `mockups/archiv/{light,dark}/` | Archiv aktualit (section 12) |
 | `mockups/detail/{light,dark}/` | Detail akce, example: the jubilee mass (section 13) |
+| `mockups/porad-bohosluzeb/{light,dark}/` | Pořad bohoslužeb (section 14) |
+| `mockups/kontakty/{light,dark}/` | Kontakty (section 15) |
 | `assets/logo-farnost-kurim.svg` | Cleaned logo (also the future favicon) |
 
 Desktop mockups are fluid with content max-width 1200 px; mobile and tablet are
@@ -31,7 +34,7 @@ styles everywhere and are separate files per size and theme. Production should b
 **one template per page + one shared stylesheet**, with header and footer as
 shared partials. Internal links in the mockups already use the real routes
 (`/`, `/aktuality/`, `/aktuality/archiv`, and `/aktuality/slavnostni-mse-k-jubileu-800-let`
-as an example detail URL); the theme toggle's `href="#"` stands for the JS toggle.
+as an example detail URL, `/porad_bohosluzeb`, `/kontakty`); the theme toggle's `href="#"` stands for the JS toggle.
 
 ---
 
@@ -548,3 +551,96 @@ Show the relative-time label from the start and end dates. After the event ends,
 ### 13.6 Dark theme
 
 The same mapping as sections 10 and 11.8. The green highlight tint `#E8F6EE` maps to `--green-tint` (`#163A2A`).
+
+## 14. Pořad bohoslužeb (`/porad_bohosluzeb`)
+
+Mockups: `mockups/porad-bohosluzeb/`. Section colour: **blue**. The header's
+current item is "Bohoslužby" (blue-tint pill).
+
+### 14.1 Structure
+
+1. Breadcrumb `Úvod › Pořad bohoslužeb`, H1 (32 / 44 / 56 px) with the blue shard.
+2. **"Tento týden" panel**: blue tint, blue and green triangles top-right.
+   - Eyebrow "Tento týden", H2 "Ohlášky 27. 9. – 4. 10. 2026", blue button **"Stáhnout ohlášky (PDF)"**.
+   - **"Změny tento týden"** box (orange tint, warning icon, orange-ink heading): a bullet list of this week's deviations from the regular schedule ("**Ne 4. 10.** – druhá mše v Kuřimi až v 11:00").
+   - "Svátost smíření tento týden": one line (mobile/tablet) or a small white card (desktop).
+   - Layout: stacked on mobile; two columns on tablet; on desktop the PDF block sits left and the two boxes right.
+3. **"Pravidelné bohoslužby"**: H2, a muted note "Dnes je sobota · změny vždy v ohláškách", day filter (14.2), church cards (14.3).
+4. **Svátost smíření**: "Půl hodiny před každou mší svatou je možnost přistoupit ke svátosti smíření."
+5. **Křty**: "Křty bývají druhou neděli v měsíci v 9:30. Termín si domluvte na faře." plus a link to Kontakty.
+6. **Kalendář farnosti**: link to `/kalendar`. Mobile and tablet: outline button. Desktop: a third card beside Smíření and Křty.
+
+### 14.2 Day filter
+
+- Chips: `Celý týden · Po · Út · St · Čt · Pá · So · Ne`. Default: Celý týden.
+- Active: blue fill, white text. **Today's chip** has a blue border and `title="dnes"`.
+- Mobile: horizontally scrollable. Tablet and desktop: wrapping.
+- Filtering is client-side only (all data is on the page). Without JS, the full week shows.
+
+### 14.3 Church card
+
+- One card per church, each with its **own logo colour** as a 6 px top border:
+  - Kuřim (Chrám Páně sv. Maří Magdaleny): blue;
+  - Moravské Knínice (Chrám Páně sv. Markéty): green;
+  - Jinačovice: orange.
+- Header: place as H3, the church name in muted, and a 44 px map button on the right (church tint background, Mapy.cz link).
+- Body: one block per weekday that has services (Po → Ne). Each block has:
+  - the day name in the church's ink colour, plus a "dnes" pill in the church colour when it is today; today's block also gets the church tint as background;
+  - rows of `time (bold) | title`, with an optional muted note ("s katechezí pro děti (ve školním roce)") and an optional orange-tint tag ("1. pátek v měsíci", "1. sobota v měsíci").
+- Empty states: Jinačovice always shows "Bohoslužby dle domluvy na faře.". A church with nothing on the filtered day shows "Tento den zde není bohoslužba."
+- Grid: one column on mobile; `auto-fit, minmax(340px)` on larger screens (2 columns on tablet, 3 on desktop), `align-items: start`.
+
+### 14.4 Data
+
+| Data | Notes |
+|---|---|
+| churches[] | name, place, colour (blue/green/orange), map query |
+| regular services[] | church, weekday, time, title, note, rule: `every` / `first-in-month` |
+| this week | ohlášky PDF + its date range, list of changes (date + text), this week's confession times |
+| sacrament notes | smíření text, křty text |
+
+The homepage "next mass" countdown (section 5) uses the same regular services plus
+this week's changes. One data source feeds both pages.
+
+## 15. Kontakty (`/kontakty`)
+
+Mockups: `mockups/kontakty/`. Section colour: **blue**. The header's current item is "Kontakty".
+
+### 15.1 Blocks
+
+| Block | Content |
+|---|---|
+| **Fara** (blue tint, blue and green triangles) | eyebrow "Fara", H2 "Římskokatolická farnost Kuřim", `<address>` Křížkovského 55/5, 664 34 Kuřim; buttons **Zavolat** (`tel:+420541230183`, filled) and **Napsat e-mail** (outline); map (placeholder; production: a static map image or Mapy.cz embed, lazy-loaded) with the link "Navigovat na Mapy.cz →" |
+| **Úřední hodiny** | live **status line** (see 15.2); rows Pondělí 9:00–10:00 · Čtvrtek 19:00–20:00 (note "mimo letní prázdniny") · Jindy dle domluvy; today's row gets the blue tint |
+| **Duchovní správce** | round photo 88 px (placeholder), PhDr. ThLic. Ing. Jaroslav Filka, "duchovní správce farnosti" (**confirm the title**); `<dl>` Fara 541 230 183 · Mobil 723 661 146 · E-mail fara.kurim@seznam.cz, all as links |
+| **Naše kostely** | 3 rows, each a link to Mapy.cz: colour bar (blue/green/orange), place bold, church name muted, "Mapa →"; then "Pořad bohoslužeb →" |
+| **Podpora farnosti** (orange tint, orange triangle) | "Bankovní účet farnosti", **247704317/0300** at 24 px, button **Zkopírovat** that switches to "Zkopírováno" (Clipboard API, `aria-live`) |
+| **Sledujte nás** | Facebook, Instagram, Linktree buttons (**URLs to fill in**), then "Náměty a chyby na webu: Ondřej Planer, oplaner4@gmail.com" |
+
+### 15.2 Office status line
+
+The status is computed from the office-hours data and the current time (Europe/Prague):
+
+- inside office hours: green tint, green dot, "Kancelář je právě otevřená (do 10:00)."
+- an office day before opening: "Dnes otevřeno 9:00–10:00."
+- an office day after closing: "Dnešní úřední hodiny už skončily."
+- other days: "Dnes nejsou úřední hodiny. Zavolejte nebo napište, domluvíme se."
+
+Holidays ("mimo letní prázdniny") need a date range in the data, so the status doesn't
+claim the office is open in July and August. Render the status server-side and refresh it with JS.
+
+### 15.3 Layout
+
+| | Mobile | Tablet | Desktop |
+|---|---|---|---|
+| Order | Fara, Úřední hodiny, Duchovní správce, Kostely, Podpora, Sledujte nás | Fara full width; then Hodiny + Správce side by side; then Kostely + Podpora; Sledujte nás full width | Row 1: Fara (`flex: 999 1 560px`, map 300 px tall) with Správce + Hodiny stacked in the right column (`flex: 1 1 400px`); row 2: Kostely · Podpora · Sledujte nás (`auto-fit minmax(340px)`) |
+| Map height | 180 | 200 | 300 |
+
+Add `schema.org/Church` or `PlaceOfWorship` JSON-LD with address, phone, e-mail and
+`openingHoursSpecification`.
+
+### 15.4 Not designed yet
+
+The current site has no information about křty (beyond the date), svatby, pohřby or
+visits to the sick. If the parish wants a "S čím vám pomůžeme" section, it needs that
+copy first.
