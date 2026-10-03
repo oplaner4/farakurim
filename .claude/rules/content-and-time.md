@@ -35,8 +35,8 @@ build-time next mass.
   entered once. Rows with `public: false` keep their `detail` (intentions, funeral names) off the web: the module is
   `server-only`, pages pass `publicDays()` and client components get only props, never the module.
 - Petrklíč (`content/petrklic.ts`): one record per issue, newest first, added with `farnost-create-petrklic`; the
-  volume is computed (`volumeOf()`). The PDF, the cover and the current issue's viewer pages (WebP files rendered from
-  the PDF by `pnpm petrklic`) are uploaded to `/uploads/petrklic/` (`<id>.pdf`, `<id>.webp`, `<id>/<n>.webp`).
+  volume is computed (`volumeOf()`). Each issue is one folder uploaded to `/uploads/petrklic/<id>/`: the PDF
+  `petrklic-<id>.pdf`, `cover.webp` and the current issue's viewer `pages/<n>.webp` (rendered by `pnpm petrklic`).
 - Calendars (Kalendář, homepage "Tento týden"): the parish's two Google Calendars ("Mše, adorace" = `services`,
   "Události" = `events`, `parishCalendars` in `content/site.ts`) are the source, because visitors subscribe to
   them. `loadCalendarEntries()` (`content/calendar.ts`) reads them at build time with `singleEvents=true` (Google

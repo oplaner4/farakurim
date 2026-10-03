@@ -31,14 +31,22 @@ Wait for corrections before writing anything.
 
 ## 3. Stage the PDF and render the images
 
-```sh
-mkdir -p uploads/petrklic
-cp "<source>" "uploads/petrklic/<id>.pdf"
-pnpm petrklic "uploads/petrklic/<id>.pdf" --pages <id>   # prints "<id> <page count>"
+Each issue is one folder, uploaded as a whole to `/uploads/petrklic/<id>/`:
+
+```
+uploads/petrklic/<id>/
+├── petrklic-<id>.pdf   the download (visitors' browsers save it under this name)
+├── cover.webp          page 1
+└── pages/<n>.webp      every page, for the viewer
 ```
 
-This writes `uploads/petrklic/<id>.webp` (cover) and `uploads/petrklic/<id>/<n>.webp` (every page), next to the
-PDF. Only the current issue's pages are linked; the previous issue's page folder on the server may stay.
+```sh
+mkdir -p uploads/petrklic/<id>
+cp "<source>" "uploads/petrklic/<id>/petrklic-<id>.pdf"
+pnpm petrklic <id> --pages   # renders cover.webp and pages/, prints "<id> <page count>"
+```
+
+Only the current issue's pages are linked; the previous issue's `pages/` on the server may stay.
 
 ## 4. Add the record
 
@@ -49,20 +57,19 @@ At the top of `petrklicIssues` (newest first):
   issue("2026-3-mimoradne", 2026, 3, 12, { note: "mimořádné" }),
 ```
 
-`issue()` builds `pdfUrl` (`/uploads/petrklic/<id>.pdf`) and `cover`; `pageImages` of the current issue are
+`issue()` builds `pdfUrl` (`/uploads/petrklic/<id>/petrklic-<id>.pdf`) and `cover`; `pageImages` of the current issue are
 computed. The volume (ročník) is computed from the year.
 
 ## 5. Publish
 
 Follow **`farnost-publish-content`**; check `/petrklic/aktualni/` (cover, viewer pages, download link),
 `/petrklic/archiv/` and the homepage Petrklíč card. Locally (`pnpm dev`, `pnpm preview`) the new files are served
-from `uploads/`, older ones from the live site. Upload the whole `uploads/petrklic/` content, including the
-`<id>/` page folder.
+from `uploads/`, older ones from the live site. Upload the whole `uploads/petrklic/<id>/` folder.
 
 ## Common mistakes
 
 - Inserting the issue below the current one: the site treats `petrklicIssues[0]` as the current issue.
-- Running `pnpm petrklic` without `--pages <id>`: the viewer shows empty pages.
+- Running `pnpm petrklic` without `--pages`: the viewer shows empty pages.
 - A `pageCount` that differs from the PDF: the viewer links missing page images.
 - Committing the PDF or the images: they go only to `uploads/` and the server.
-- Uploading the PDF without the cover and the page folder: the pages show broken images.
+- Uploading only the PDF instead of the whole `<id>/` folder: the covers and the viewer show broken images.

@@ -6,18 +6,18 @@ description: Finish a content change on the new farakurim.cz site - stage upload
 # Publish a content change
 
 The site is a static export: content lives in `src/content/*.ts`, a change goes live only after a build and an
-upload of `out/`. Uploaded files (posters, attachments, the weekly PDF, Petrklíč PDFs) are **not** in git or `out/`: they live on
-the web host under `/uploads/…` and the content links them root-relative, as `/uploads/…`.
+upload of `out/`. Uploaded files (posters, attachments, the weekly PDF, Petrklíč issues) are **not** in git or
+`out/`: they live on the web host under `/uploads/…` and the content links them root-relative, as `/uploads/…`.
 
 ## 1. Stage the files for the server
 
 Files that go to the server are prepared in `uploads/` (git-ignored), which mirrors `/uploads/` on the server:
 
-| Content          | Staging path                                              | Link                                |
-| ---------------- | --------------------------------------------------------- | ----------------------------------- |
-| Aktuality files  | `uploads/aktuality/<file>`                                | `/uploads/aktuality/<file>`         |
-| Pořad bohoslužeb | `uploads/porady_bohosluzeb/<file>`                        | `/uploads/porady_bohosluzeb/<file>` |
-| Petrklíč         | `uploads/petrklic/<id>.pdf`, `<id>.webp`, `<id>/<n>.webp` | `/uploads/petrklic/<id>.pdf`, …     |
+| Content          | Staging path                                 | Link                                          |
+| ---------------- | -------------------------------------------- | --------------------------------------------- |
+| Aktuality files  | `uploads/aktuality/<file>`                   | `/uploads/aktuality/<file>`                   |
+| Pořad bohoslužeb | `uploads/porady_bohosluzeb/<file>`           | `/uploads/porady_bohosluzeb/<file>`           |
+| Petrklíč         | `uploads/petrklic/<id>/` (PDF, cover, pages) | `/uploads/petrklic/<id>/petrklic-<id>.pdf`, … |
 
 - File names are **ASCII, lower-case kebab-case**, prefixed with the record they belong to
   (`hody-ceska-plakat.png`, `2026-10-04-porad-bohosluzeb.pdf`). Diacritics break in some SFTP clients, and the

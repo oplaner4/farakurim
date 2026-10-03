@@ -32,21 +32,21 @@ until then, nav links point to the live site.
 
 ## Commands (run in this folder)
 
-| Command                                          | What it does                                                                                                                  |
-| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm dev`                                       | Dev server at http://localhost:3000 (`scripts/dev-server.mjs`: `next dev` plus `/uploads/…` from `uploads/` or the live site) |
-| `pnpm build`                                     | Static export to `out/`                                                                                                       |
-| `pnpm test`                                      | Vitest unit tests (`src/**/*.test.ts`)                                                                                        |
-| `pnpm lint`                                      | ESLint (Next core-web-vitals + TypeScript + React hooks rules)                                                                |
-| `pnpm format`                                    | Prettier, including Tailwind class sorting (`prettier-plugin-tailwindcss`)                                                    |
-| `pnpm preview`                                   | Serve `out/` at http://localhost:4173 (needs a prior `pnpm build`), `/uploads/…` from `uploads/` or the live site             |
-| `pnpm mockups`                                   | Render the design mockups to static HTML and serve them at http://localhost:4174/mockups/                                     |
-| `pnpm exec tsc --noEmit`                         | Type check                                                                                                                    |
-| `pnpm icons`                                     | Regenerate `src/app/icon.png` (32 px) and `apple-icon.png` (180 px) from `src/app/icon.svg`                                   |
-| `pnpm petrklic <pdf-or-dir>`                     | Render Petrklíč covers (and `--pages <id>` viewer pages) from PDFs to `uploads/petrklic/`, for `farnost-create-petrklic`      |
-| `python3 scripts/poster-webp.py <in> <out.webp>` | Render an event poster (PDF page 1 or image) to WebP, for `farnost-create-aktualita`                                          |
-| `python3 scripts/zonerama-album.py <album-url>`  | Read a Zonerama album (title, date, photo URLs) as JSON, for `farnost-create-galerie`                                         |
-| `pnpm fonts`                                     | Regenerate `src/fonts/*.woff2` from `fonts-source/Oxygen/*.ttf` (needs `pip install --user fonttools brotli`)                 |
+| Command                                          | What it does                                                                                                                               |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `pnpm dev`                                       | Dev server at http://localhost:3000 (`scripts/dev-server.mjs`: `next dev` plus `/uploads/…` from `uploads/` or the live site)              |
+| `pnpm build`                                     | Static export to `out/`                                                                                                                    |
+| `pnpm test`                                      | Vitest unit tests (`src/**/*.test.ts`)                                                                                                     |
+| `pnpm lint`                                      | ESLint (Next core-web-vitals + TypeScript + React hooks rules)                                                                             |
+| `pnpm format`                                    | Prettier, including Tailwind class sorting (`prettier-plugin-tailwindcss`)                                                                 |
+| `pnpm preview`                                   | Serve `out/` at http://localhost:4173 (needs a prior `pnpm build`), `/uploads/…` from `uploads/` or the live site                          |
+| `pnpm mockups`                                   | Render the design mockups to static HTML and serve them at http://localhost:4174/mockups/                                                  |
+| `pnpm exec tsc --noEmit`                         | Type check                                                                                                                                 |
+| `pnpm icons`                                     | Regenerate `src/app/icon.png` (32 px) and `apple-icon.png` (180 px) from `src/app/icon.svg`                                                |
+| `pnpm petrklic <id> [--pages]`                   | Render a Petrklíč issue's `cover.webp` (and viewer `pages/`) from `uploads/petrklic/<id>/petrklic-<id>.pdf`, for `farnost-create-petrklic` |
+| `python3 scripts/poster-webp.py <in> <out.webp>` | Render an event poster (PDF page 1 or image) to WebP, for `farnost-create-aktualita`                                                       |
+| `python3 scripts/zonerama-album.py <album-url>`  | Read a Zonerama album (title, date, photo URLs) as JSON, for `farnost-create-galerie`                                                      |
+| `pnpm fonts`                                     | Regenerate `src/fonts/*.woff2` from `fonts-source/Oxygen/*.ttf` (needs `pip install --user fonttools brotli`)                              |
 
 Before you call work done, run: `pnpm format && pnpm test && pnpm lint && pnpm exec tsc --noEmit && pnpm build`,
 then check the change in a browser at **390, 834 and 1440 px** against `design/mockups/`

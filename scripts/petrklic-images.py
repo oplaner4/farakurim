@@ -1,10 +1,12 @@
 # Renders Petrklíč PDFs to WebP images for the Petrklíč pages (design/DESIGN.md §17–18).
-# Every PDF given, or every `*.pdf` in a given folder, gets a cover from page 1; its id is the file name up to the
-# first dot (`2026-2.pdf`, or `<id>.petrklic.pdf` in the old site's nahrane/petrklice/). The ids passed with
-# --pages also get every page, for the "Listujte přímo zde" viewer.
-# Prints `<id> <page count>` per PDF, for `pages` in src/content/petrklic.ts.
+# Every issue is a folder staged for /uploads/petrklic/ on the server:
+#   uploads/petrklic/<id>/petrklic-<id>.pdf   the PDF (input)
+#   uploads/petrklic/<id>/cover.webp          page 1, for the covers
+#   uploads/petrklic/<id>/pages/<n>.webp      every page, for the "Listujte přímo zde" viewer (with --pages)
+# Issues are given by id or by folder (`2026-2`, `uploads/petrklic/2026-2/`, `uploads/petrklic/*/`).
+# Prints `<id> <page count>` per issue, for src/content/petrklic.ts.
 # Requires pdftoppm (poppler-utils) and Pillow.
-# Usage: python3 scripts/petrklic-images.py <pdf-or-dir> ... [--pages <id> ...]
+# Usage: python3 scripts/petrklic-images.py <id-or-folder> ... [--pages]
 import pathlib
 import shutil
 import subprocess
@@ -14,7 +16,7 @@ import tempfile
 from PIL import Image
 
 root = pathlib.Path(__file__).resolve().parent.parent
-out_dir = root / "uploads" / "petrklic"  # staged for /uploads/petrklic/ on the server, next to the PDFs
+issues_dir = root / "uploads" / "petrklic"
 WIDTH = 600  # 2× the largest cover and viewer page (300 px)
 
 
@@ -35,24 +37,23 @@ def page_count(pdf):
 
 
 def main():
-  args = sys.argv[1:]
+  args = [a for a in sys.argv[1:] if a != "--pages"]
+  with_pages = "--pages" in sys.argv[1:]
   if not args:
-    sys.exit("Usage: python3 scripts/petrklic-images.py <pdf-or-dir> ... [--pages <id> ...]")
-  split = args.index("--pages") if "--pages" in args else len(args)
-  with_pages = set(args[split + 1:])
-  pdfs = []
-  for arg in map(pathlib.Path, args[:split]):
-    pdfs += sorted(arg.glob("*.pdf")) if arg.is_dir() else [arg]
-  for pdf in pdfs:
-    pid = pdf.name.split(".")[0]
+    sys.exit("Usage: python3 scripts/petrklic-images.py <id-or-folder> ... [--pages]")
+  for pid in (pathlib.Path(a).name for a in args):
+    issue = issues_dir / pid
+    pdf = issue / f"petrklic-{pid}.pdf"
+    if not pdf.is_file():
+      sys.exit(f"Missing {pdf.relative_to(root)}")
     pages = page_count(pdf)
     with tempfile.TemporaryDirectory() as tmp:
       render(pdf, 1, 1, pathlib.Path(tmp))
-      shutil.move(pathlib.Path(tmp) / "1.webp", out_dir / f"{pid}.webp")
-    if pid in with_pages:
-      render(pdf, 1, pages, out_dir / pid)
+      shutil.move(pathlib.Path(tmp) / "1.webp", issue / "cover.webp")
+    if with_pages:
+      shutil.rmtree(issue / "pages", ignore_errors=True)
+      render(pdf, 1, pages, issue / "pages")
     print(pid, pages)
 
 
-out_dir.mkdir(parents=True, exist_ok=True)
 main()
