@@ -1,0 +1,120 @@
+---
+name: farnost-create-porad-bohosluzeb
+description: Publish the weekly pořad bohoslužeb (ohlášky) on the new farakurim.cz site from the parish's weekly PDF - extract the week's days, services and announcements into the ServiceSheet in src/content/ohlasky.ts, confirm with the user, stage the PDF for the server, then publish. Use whenever the user brings a new pořad bohoslužeb, rozpis bohoslužeb or ohlášky PDF.
+---
+
+# Create the pořad bohoslužeb
+
+The weekly PDF ("ROZPIS BOHOSLUŽEB V TÝDNU od … do …") becomes **structured content**: one `ServiceSheet`
+(`src/content/types.ts`) in `src/content/ohlasky.ts` that replaces the previous week. It feeds the "Tento týden"
+ohlášky, the weekly schedule, and, through its changed rows, the next-mass countdown and the schedule exceptions
+(design/DESIGN.md §14.5–14.7). Finish with **`farnost-publish-content`**.
+
+## 1. Read the PDF
+
+The user gives at least a file name; without a folder, look in `~/Downloads/`. Use both:
+
+- the `Read` tool, to see the table (which rows belong to which day and place), and
+- `pdftotext -layout <file> -`, for exact wording. In the layout text a day's date and feast sit in the middle of
+  its rows and long intentions wrap onto the next line: use the rendered page to assign them.
+
+Read the **whole** page: the announcements are the paragraphs below the table.
+
+## 2. Extract the sheet
+
+**Week**: `validFrom` / `validTo` from the heading ("od 30. 11. 2025 do 7. 12. 2025" → `2025-11-30` / `2025-12-07`).
+
+**Days** (`days[]`, one per date, in order):
+
+| Field       | How to fill it                                                                                         |
+| ----------- | ------------------------------------------------------------------------------------------------------ |
+| `date`      | ISO date of the row's "30. 11."                                                                        |
+| `feast`     | The feast in sentence case: "1. NEDĚLE ADVENTNÍ" → `"1. neděle adventní"`, `"sv. František Xaverský"`. |
+| `solemnity` | `true` for Sundays and solemnities (slavnost).                                                         |
+| `rows`      | The day's services in time order.                                                                      |
+
+**Rows** (`SheetRow`):
+
+| Field     | How to fill it                                                                                                                                   |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `time`    | `"8:00"`, `"17:30"`.                                                                                                                             |
+| `place`   | `"kurim"`, `"moravske-kninice"`, `"jinacovice"` for the parish churches (`places` in `masses.ts`); free text for anywhere else (`"Vranov"`).     |
+| `title`   | The part before " – ": `"Mše sv."`, `"Mše sv. se zpěvem scholy"`, `"Adorace"`, `"Křest"`, `"Pohřeb"`, `"Modlitební večer s Komunitou Emmanuel"`. |
+| `detail`  | The part after " – ", word for word, wrapped lines joined: `"za živé a † farníky a dobrodince naší farnosti"`.                                   |
+| `public`  | `false` when `detail` names private people (see privacy below); omit otherwise.                                                                  |
+| `mass`    | `true` for a mass in one of the parish churches. Only these count for the next mass and replace the regular schedule.                            |
+| `changed` | `true` when the mass differs from the regular schedule (below), or the PDF marks it as a change.                                                 |
+
+**Privacy** (§14.6): intentions and funerals name private people, and the web is searchable forever. Unless the
+user says otherwise, set `public: false` on rows whose `detail` names a person or family ("za Františka Vidláka…",
+"za rodinu Morávkovu", funerals, weddings, baptisms with names). Intentions for groups, the parish or causes stay
+public ("za Komunitu Emmanuel", "za pokoj a mír na Ukrajině"). The PDF itself keeps everything.
+
+**Changes**: compare the masses of each day with `regularServices` in `src/content/masses.ts` (weekday, time,
+place; `rule: "first-in-month"` rows apply on the first such weekday of the month only). A day with any `changed`
+mass replaces **all** its regular masses (`sheetExceptions()`), so list every mass of that day in `rows`, as the PDF
+does. A regular mass missing from the PDF on a day without changed masses means it is cancelled: confirm it with
+the user, then add a `scheduleExceptions` entry for that date with the day's remaining masses (`masses: []` when
+none are left) and `reason: "zrušeno dle ohlášek"`. Do not tag the remaining masses `changed`: they would show a
+false "změna" tag.
+
+**Announcements** (`announcements[]`, word for word, in the PDF's order):
+
+| Field      | How to fill it                                                                                                                                                                   |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `category` | `zmena` (changes to services), `smireni` (confession times), `pozvanka` (invitations, pilgrimages, events), `podekovani` (thanks), `info` (anything else: collections, notices). |
+| `html`     | `<p>…</p>`; key dates and times in `<strong>`; e-mails as `<a href="mailto:…">`, web addresses as links.                                                                         |
+| `newsId`   | The `id` of the matching aktualita in `src/content/news.ts`, if there is one (adds "Více v aktualitách").                                                                        |
+
+Unfinished text in the PDF ("vynesl …………. Kč") goes to the user: ask for the value, never publish the dots.
+
+## 3. Confirm with the user
+
+Show the week, a compact day-by-day list of rows (mark `changed` and hidden rows), and the announcements with
+their categories. Ask about anything uncertain: unreadable rows, the privacy of borderline intentions, cancellations.
+
+## 4. Stage the PDF
+
+```sh
+mkdir -p uploads/nahrane/porady_bohosluzeb
+cp "<source>" "uploads/nahrane/porady_bohosluzeb/<validFrom>-porad-bohosluzeb.pdf"
+```
+
+`pdfUrl` is `https://farakurim.cz/nahrane/porady_bohosluzeb/<validFrom>-porad-bohosluzeb.pdf`.
+
+## 5. Replace the sheet
+
+Rewrite `serviceSheet` in `src/content/ohlasky.ts` with the new week. Keep the module's shape: `import "server-only"`,
+the helpers (`kurimMass`, `FOR_PARISHIONERS`, add others when a phrase repeats), and the `scheduleExceptions`
+export (`...sheetExceptions(...)` first, then manual entries; the first entry for a date wins). Remove manual
+entries that are now in the past; keep future ones.
+
+```ts
+    {
+      date: "2026-10-04",
+      feast: "27. neděle v mezidobí",
+      solemnity: true,
+      rows: [
+        kurimMass("8:00", "za Jana Nováka", { public: false }),
+        { time: "9:30", place: "moravske-kninice", title: "Mše sv.", mass: true, changed: true },
+        kurimMass("11:00", "za obec Česká, její obyvatele a rodáky", { title: "Hodová mše sv.", changed: true }),
+      ],
+    },
+```
+
+## 6. Publish
+
+Follow **`farnost-publish-content`**; check `/porad_bohosluzeb/` (ohlášky, weekly schedule, "změna" tags, hidden
+intentions) and the homepage next mass. Remind the user to mirror changed or cancelled services in the "Mše,
+adorace" Google Calendar, which the Kalendář reads.
+
+## Common mistakes
+
+- Missing the announcements below the table, or summarising them: they are published word for word.
+- Assigning a row to the wrong day: the date sits in the middle of the day's rows in the layout text.
+- Leaving a wrapped intention cut in half, or splitting "Mše sv. – za …" into the wrong `title` / `detail`.
+- Publishing names of private people (`public: false` missing), or hiding harmless group intentions.
+- Marking a change on one mass but omitting the day's other masses: the day's regular masses are replaced.
+- Tagging unchanged masses `changed` to express a cancellation: use a `scheduleExceptions` entry.
+- `mass: true` on a mass outside the parish churches, or on adoration and prayer evenings.
+- Publishing placeholder dots from an unfinished PDF.

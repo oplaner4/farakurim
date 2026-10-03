@@ -1,6 +1,6 @@
 import type { Album } from "./types";
 
-// Mock content. In production: Zonerama FarnostKurim/425053, cached about 1 h, with the photo URLs of each album.
+// Albums from Zonerama FarnostKurim/425053, added with the farnost-create-galerie skill. Photos are Zonerama URLs.
 
 export const GALLERY_URL = "https://www.zonerama.com/FarnostKurim/425053";
 

@@ -46,3 +46,6 @@ next-env.d.ts
 
 # Playwright MCP logs
 /.playwright-mcp/
+
+# files staged for /nahrane/ on the server (farnost-publish-content)
+/uploads/
