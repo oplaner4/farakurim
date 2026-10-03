@@ -1,6 +1,7 @@
 import { endOfMonth, endOfWeek } from "date-fns";
 import { links } from "@/content/site";
 import type { IsoDate, NewsEvent } from "@/content/types";
+import { plural } from "./czech";
 import { inPrague, pragueDate, pragueDateTime } from "./prague";
 
 // ISO dates (`YYYY-MM-DD`) compare correctly as strings, so the date maths here stays on strings.
@@ -214,4 +215,48 @@ export function groupByMonth<T extends Pick<NewsEvent, "start">>(events: T[]): {
 }
 
 /** "/aktuality/archiv/", "/aktuality/archiv/2025/" */
+export type ArchiveListing<T> = {
+  /** Year buttons with the number of their events. */
+  years: (ArchiveYear & { count: number })[];
+  /** The page's year (ignored while searching). */
+  year: ArchiveYear & { count: number };
+  matching: T[];
+  /** Matching events by month; rows (and whole months) after the shown pages are marked `more`. */
+  groups: { month: IsoDate; more: boolean; events: { item: T; more: boolean }[] }[];
+  /** How many rows the shown pages hold. */
+  shownCount: number;
+  /** "Zobrazeno 20 akcí", "Nalezeno 3 akce" */
+  countLabel: string;
+};
+
+/**
+ * What the archive shows (§12): the year's finished events, or the search results across all years, the first
+ * `page` pages of them visible.
+ */
+export function archiveListing<T extends Archivable & Pick<NewsEvent, "id" | "title" | "place">>(
+  items: T[],
+  {
+    latest,
+    yearSlug,
+    query,
+    page,
+    today,
+  }: { latest: number; yearSlug: string; query: string; page: number; today: IsoDate },
+): ArchiveListing<T> {
+  const archived = archivedEvents(items, today);
+  const years = archiveYears(latest).map((y) => ({ ...y, count: archived.filter(y.matches).length }));
+  const year = years.find((y) => y.slug === yearSlug) ?? years[0];
+  const matching = query ? searchEvents(archived, query) : archived.filter(year.matches);
+  const shownCount = Math.min(matching.length, page * ARCHIVE_PAGE_SIZE);
+  let index = 0;
+  const groups = groupByMonth(matching).map(({ month, events }) => ({
+    month,
+    more: index >= shownCount,
+    events: events.map((item) => ({ item, more: index++ >= shownCount })),
+  }));
+  const events = (n: number) => `${n} ${plural(n, ["akce", "akce", "akcí"])}`;
+  const countLabel = query ? `Nalezeno ${events(matching.length)}` : `Zobrazeno ${events(shownCount)}`;
+  return { years, year, matching, groups, shownCount, countLabel };
+}
+
 export const archiveYearHref = (slug: string) => (slug ? `${links.newsArchive}${slug}/` : links.newsArchive);

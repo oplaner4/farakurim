@@ -4,7 +4,8 @@ import { BUILD_TIME } from "@/lib/build-time";
 import { fileType } from "@/lib/czech";
 import { eventHref, latestArchiveYear } from "@/lib/news";
 import { pragueDate } from "@/lib/prague";
-import { type ArchiveItem, NewsArchive } from "./NewsArchive";
+import type { ArchiveItem } from "./ArchiveRow";
+import { NewsArchive } from "./NewsArchive";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 

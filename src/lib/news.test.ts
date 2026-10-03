@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { events as allEvents } from "@/content/news";
 import type { NewsEvent } from "@/content/types";
 import {
+  archiveListing,
   archivedEvents,
   archiveYears,
   currentNews,
@@ -209,5 +210,37 @@ describe("archive", () => {
       ["2025-12-01", ["last-year"]],
       ["2023-05-01", ["old"]],
     ]);
+  });
+});
+
+describe("archiveListing", () => {
+  const year = (y: number, n: number) =>
+    Array.from({ length: n }, (_, i) =>
+      event(`${y}-${i}`, `${y}-0${1 + (i % 9)}-${String(10 + (i % 18)).padStart(2, "0")}`),
+    );
+  const items = [...year(2026, 25), ...year(2025, 2), event("pout", "2026-06-28", undefined, { title: "Pouť" })];
+  const listing = (o: Partial<{ yearSlug: string; query: string; page: number }>) =>
+    archiveListing(items, { latest: 2026, yearSlug: "", query: "", page: 1, today: TODAY, ...o });
+
+  it("counts the years and shows the first page of the year", () => {
+    const l = listing({});
+    expect(l.years.map((y) => y.count)).toEqual([26, 2, 0]);
+    expect([l.matching.length, l.shownCount, l.countLabel]).toEqual([26, 20, "Zobrazeno 20 akcí"]);
+  });
+
+  it("marks the rows and months after the shown pages", () => {
+    const l = listing({});
+    const rows = l.groups.flatMap((g) => g.events);
+    expect(rows.filter((r) => r.more)).toHaveLength(6);
+    // A month is hidden only when its first row is.
+    for (const g of l.groups) expect(g.more).toBe(g.events[0].more);
+    expect(listing({ page: 2 }).groups.every((g) => !g.more)).toBe(true);
+  });
+
+  it("searches across all years and names the result count", () => {
+    const l = listing({ yearSlug: "2025", query: "pout" });
+    expect(l.matching.map((e) => e.id)).toEqual(["pout"]);
+    expect(l.countLabel).toBe("Nalezeno 1 akce");
+    expect(listing({ yearSlug: "2025" }).year.label).toBe("2025");
   });
 });
