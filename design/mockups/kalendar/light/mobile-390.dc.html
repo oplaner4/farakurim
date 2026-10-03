@@ -211,8 +211,8 @@ class Component extends DCLogic {
         const nM = items.length - akce.length;
         const inM = d.getMonth() === vm;
         const isT = same(d, today), isS = same(d, sel);
-        const chips = akce.slice(0, 2).map((a) => ({ title: a.title }));
-        const more = akce.length > 2 ? '+' + (akce.length - 2) + ' další' : '';
+        const chips = akce.slice(0, akce.length > 2 ? 1 : 2).map((a) => ({ title: a.title }));
+        const more = akce.length > 2 ? '+' + (akce.length - 1) + ' další' : '';
         const parts = [];
         if (nM) parts.push(nM + (nM === 1 ? ' bohoslužba' : (nM <= 4 ? ' bohoslužby' : ' bohoslužeb')));
         if (akce.length) parts.push(akce.length + (akce.length === 1 ? ' akce' : (akce.length <= 4 ? ' akce' : ' akcí')));

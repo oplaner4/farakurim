@@ -685,7 +685,7 @@ the Bohoslužby page and other in-page links. Section colour: **blue**, with
    - two **filter toggles** (`aria-pressed`): "Mše a adorace" (blue outline, filled when on) and "Události" (magenta), both on by default.
 3. **Month grid**, weeks starting Monday, with Po–Ne headers:
    - **Mobile** (52 px cells): the day number plus up to two dots, blue for services and magenta for events.
-   - **Tablet / desktop** (104 / 118 px cells): the day number, up to 2 event labels (magenta tint, ellipsis), "+N další", and "3× mše" at the bottom in blue-ink.
+   - **Tablet / desktop** (104 / 118 px cells): the day number, at most **two badge rows** (magenta tint, ellipsis), and "3× mše" at the bottom in blue-ink. A day with more than two events shows its first event and then a **"+N další" badge** in the same style (e.g. "+2 další" for three events), so the cell never overflows. Badges don't shrink (`flex: none`).
    - Days outside the month use `--surface` and muted text. **Today** has a 2 px blue border. The **selected day** is filled blue with white text; its event labels turn white with `#8F0634` text.
    - Each cell is a `<button>` with a full `aria-label` ("18. října, 2 bohoslužby, 1 akce") and `aria-pressed` for the selected day.
 4. **Day detail** (surface panel): the heading "Dnes · Sobota 3. října" / "Zítra · …" / "Neděle 18. října". One row per item: colour bar, time ("celý den" first), title (a link when there is a detail page), "place · Bohoslužba/Akce". Empty: "V tento den není v kalendáři nic."
