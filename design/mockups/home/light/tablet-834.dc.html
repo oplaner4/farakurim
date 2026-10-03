@@ -15,7 +15,7 @@ body{margin:0;background:#FFFFFF}
 a{color:#165A93}a:hover{color:#0F3F69}
 </style>
 </helmet>
-<div style="width: 834px; min-height: 2760px; box-sizing: border-box; display: flex; flex-direction: column; background: #FFFFFF; color: #1B2533; font-family: Oxygen, 'Segoe UI', 'Helvetica Neue', sans-serif; font-size: 17px; line-height: 1.5">
+<div style="width: 834px; min-height: 3110px; box-sizing: border-box; display: flex; flex-direction: column; background: #FFFFFF; color: #1B2533; font-family: Oxygen, 'Segoe UI', 'Helvetica Neue', sans-serif; font-size: 17px; line-height: 1.5">
 
   <header style="display: flex; flex-direction: column; background: #FFFFFF">
     <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 32px">
@@ -29,7 +29,7 @@ a{color:#165A93}a:hover{color:#0F3F69}
       <div style="display: flex; align-items: center; gap: 12px">
         <a href="https://farakurim.cz/nahrane/porady_bohosluzeb/6ab9325f1b46d.porad_bohosluzeb.pdf" style="display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 18px; border-radius: 14px; background: #1D71B7; color: #FFFFFF; font-weight: 700; text-decoration: none">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6"></path><path d="M12 12v6M9 15l3 3 3-3"></path></svg>
-          Pořad bohoslužeb
+          Ohlášky
         </a>
         <a href="#" aria-label="Přepnout na tmavý režim" title="Přepnout na tmavý režim" style="width: 48px; height: 48px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 14px; background: #EAF3FB; color: #165A93; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"></path></svg></a>
         <button type="button" aria-label="Otevřít menu" onClick="{{toggleMenu}}" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 14px; background: #EAF3FB; color: #165A93; cursor: pointer">
@@ -128,6 +128,47 @@ a{color:#165A93}a:hover{color:#0F3F69}
         </div>
       </div>
     </section>
+
+    <section aria-labelledby="tyden-kal-t" style="display: flex; flex-direction: column; gap: 16px; padding: 56px 0 0">
+  <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 32px">
+    <div style="display: flex; align-items: center; gap: 12px">
+      <span aria-hidden="true" style="width: 18px; height: 26px; background: #1D71B7; clip-path: polygon(0 100%, 100% 0, 100% 100%)"></span>
+      <h2 id="tyden-kal-t" style="margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.1">Tento týden</h2>
+    </div>
+    <a href="/kalendar" style="display: flex; align-items: center; min-height: 44px; font-weight: 700">Celý kalendář</a>
+  </div>
+  <ol style="margin: 0; padding: 0 0 4px; list-style: none; display: flex; gap: 12px; overflow-x: auto; padding-left: 32px; padding-right: 32px;">
+    <sc-for list="{{week}}" as="d" hint-placeholder-count="7">
+      <li style="flex: 0 0 210px; display: flex; flex-direction: column; gap: 8px; padding: 14px; box-sizing: border-box; border-radius: 18px; border: 2px solid {{d.bd}}; background: {{d.bg}}">
+        <span style="display: flex; align-items: baseline; justify-content: space-between; gap: 6px">
+          <strong style="font-size: 16px">{{d.label}}</strong>
+          <span style="font-size: 13px; color: #556070">{{d.date}}</span>
+        </span>
+        <sc-for list="{{d.akce}}" as="a" hint-placeholder-count="1">
+          <span style="display: flex; gap: 8px">
+            <span aria-hidden="true" style="flex: none; width: 4px; border-radius: 2px; background: #D60B51"></span>
+            <span style="display: flex; flex-direction: column; min-width: 0; font-size: 14px; line-height: 1.35">
+              <span style="font-size: 12px; font-weight: 700; color: #B0083F">{{a.t}}</span>
+              <sc-if value="{{a.hasHref}}" hint-placeholder-val="{{ false }}"><a href="{{a.href}}" style="font-weight: 700">{{a.title}}</a></sc-if>
+              <sc-if value="{{a.noHref}}" hint-placeholder-val="{{ true }}"><span style="font-weight: 700">{{a.title}}</span></sc-if>
+            </span>
+          </span>
+        </sc-for>
+        <sc-if value="{{d.hasMse}}" hint-placeholder-val="{{ true }}">
+          <span style="display: flex; gap: 8px">
+            <span aria-hidden="true" style="flex: none; width: 4px; border-radius: 2px; background: #1D71B7"></span>
+            <span style="display: flex; flex-direction: column; font-size: 14px; line-height: 1.35">
+              <span style="font-size: 12px; font-weight: 700; color: #165A93">Bohoslužby</span>
+              <span>{{d.mse}}</span>
+            </span>
+          </span>
+        </sc-if>
+        <sc-if value="{{d.empty}}" hint-placeholder-val="{{ false }}"><span style="font-size: 14px; color: #556070">Bez programu</span></sc-if>
+      </li>
+    </sc-for>
+  </ol>
+</section>
+
 
     <section aria-labelledby="akt-t" style="display: flex; flex-direction: column; gap: 20px; padding: 56px 32px 8px">
       <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
@@ -288,8 +329,66 @@ a{color:#165A93}a:hover{color:#0F3F69}
   </footer>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"showCountdown":{"editor":"boolean","default":true},"$preview":{"width":834,"height":2760}}'>
+<script type="text/x-dc" data-dc-script data-props='{"showCountdown":{"editor":"boolean","default":true},"$preview":{"width":834,"height":3110}}'>
 class Component extends DCLogic {
+  calItems(d) {
+    const y = d.getFullYear(), m = d.getMonth(), day = d.getDate(), wd = d.getDay();
+    const key = y + '-' + (m + 1) + '-' + day;
+    const first = day <= 7;
+    const K = 'Kuřim', MK = 'Moravské Knínice';
+    let L = [];
+    const M = (t, title, place) => L.push({ t: t, title: title, place: place, cat: 'mse', href: '' });
+    if (wd === 1) M('8:00', 'Mše svatá', K);
+    if (wd === 4) { M('17:30', 'Adorace', K); M('18:00', 'Mše svatá', K); }
+    if (wd === 5) {
+      if (first) { M('17:00', 'Mše svatá', MK); M('18:15', 'Mše svatá', K); M('19:00', 'Modlitební večer', K); }
+      else { M('16:45', 'Mše svatá', K); M('18:00', 'Mše svatá', MK); }
+    }
+    if (wd === 6 && first) M('8:00', 'Mše svatá', K);
+    if (wd === 0) { M('8:00', 'Mše svatá', K); M('9:30', 'Mše svatá s katechezí pro děti', K); M('11:00', 'Mše svatá', MK); }
+    if (key === '2026-10-4') { L = []; M('8:00', 'Mše svatá', K); M('9:30', 'Mše svatá', MK); M('11:00', 'Mše svatá', K); }
+    const A = (t, title, place, href) => L.push({ t: t, title: title, place: place, cat: 'akce', href: href || '' });
+    const D = (yy, mm, dd) => new Date(yy, mm - 1, dd);
+    const x = new Date(y, m, day);
+    const inR = (a, b) => x >= a && x <= b;
+    if (inR(D(2026, 10, 2), D(2026, 10, 4))) A('celý den', 'Hody v České', 'Česká');
+    if (key === '2026-10-7') A('celý den', 'Koláč pro hospic', 'Kuřim a okolí');
+    if (inR(D(2026, 10, 9), D(2026, 10, 10))) A('celý den', 'Setkání lektorů Božího slova', 'Tišnov');
+    if (wd === 4 && inR(D(2026, 10, 1), D(2027, 4, 29))) A('18:30', 'Obnova v Duchu svatém', 'Brno, Lidická');
+    if (wd === 0 && inR(D(2026, 10, 11), D(2026, 11, 22))) A('18:00', 'Manželské večery', 'Tišnov');
+    if (key === '2026-10-18') { L = L.filter((i) => !(i.cat === 'mse' && i.t === '9:30')); A('9:30', 'Slavnostní mše k jubileu 800 let', K, '/aktuality/slavnostni-mse-k-jubileu-800-let'); }
+    if (key === '2026-10-25') { L = L.filter((i) => !(i.cat === 'mse' && i.t === '9:30')); A('9:30', 'Hubertská mše', K); }
+    if (key === '2026-12-19') A('celý den', 'Farní pouť do Lukova a Třebíče', 'Lukov a Třebíč');
+    const mins = (t) => { const p = t.split(':'); return p.length === 2 ? (+p[0]) * 60 + (+p[1]) : -1; };
+    L.sort((a, b) => mins(a.t) - mins(b.t));
+    return L.map((i) => Object.assign(i, {
+      bar: i.cat === 'mse' ? '#1D71B7' : '#D60B51',
+      catLabel: i.cat === 'mse' ? 'Bohoslužba' : 'Akce',
+      hasHref: !!i.href, noHref: !i.href
+    }));
+  }
+  calWeek() {
+    const now = new Date();
+    const t0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const SH = ['ne', 'po', 'út', 'st', 'čt', 'pá', 'so'];
+    const LONG = ['Neděle', 'Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek', 'Sobota'];
+    const out = [];
+    for (let k = 0; k < 7; k++) {
+      const d = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() + k);
+      const L = this.calItems(d);
+      const ms = L.filter((i) => i.cat === 'mse').map((i) => i.t);
+      const ak = L.filter((i) => i.cat === 'akce');
+      out.push({
+        label: k === 0 ? 'Dnes' : (k === 1 ? 'Zítra' : LONG[d.getDay()]),
+        date: (k <= 1 ? SH[d.getDay()] + ' ' : '') + d.getDate() + '. ' + (d.getMonth() + 1) + '.',
+        bg: k === 0 ? '#EAF3FB' : '#F4F6F9', bd: k === 0 ? '#1D71B7' : '#F4F6F9',
+        akce: ak.map((a) => ({ t: a.t, title: a.title, href: a.href, hasHref: !!a.href, noHref: !a.href })),
+        hasMse: ms.length > 0, mse: ms.join(' · '), empty: L.length === 0
+      });
+    }
+    return out;
+  }
+
   componentDidMount() { this.timer = setInterval(() => this.forceUpdate(), 20000); }
   componentWillUnmount() { clearInterval(this.timer); }
   nextMasses(count) {
@@ -347,7 +446,8 @@ class Component extends DCLogic {
       slideBg: tints[cur % 4], slideNo: cur + 1, slideLabel: 'Fotografie ' + (cur + 1) + ' / ' + n,
       prev: () => go(cur - 1), next: () => go(cur + 1), dots: dots,
       m1: m1, cd: cd, rest: rest,
-      showCountdown: this.props.showCountdown ?? true
+      showCountdown: this.props.showCountdown ?? true,
+      week: this.calWeek()
     };
   }
 }

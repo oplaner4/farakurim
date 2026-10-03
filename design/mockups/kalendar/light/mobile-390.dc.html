@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<title>Kalendář – mobil</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oxygen:wght@300;400;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FFFFFF}
+a{color:#165A93}a:hover{color:#0F3F69}
+</style>
+</helmet>
+<div style="width: 390px; min-height: 1700px; box-sizing: border-box; display: flex; flex-direction: column; background: #FFFFFF; color: #1B2533; font-family: Oxygen, 'Segoe UI', 'Helvetica Neue', sans-serif; font-size: 16px; line-height: 1.5">
+  <header style="display: flex; flex-direction: column; background: #FFFFFF">
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px">
+      <a href="/" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: #1B2533">
+        <img src="../../../assets/logo-farnost-kurim.svg" alt="" style="width: 30px; height: 48px; display: block">
+        <span style="display: flex; flex-direction: column; line-height: 1.15">
+          <span style="font-size: 12px; color: #556070">Římskokatolická farnost</span>
+          <span style="font-size: 22px; font-weight: 700; letter-spacing: -0.01em">Kuřim</span>
+        </span>
+      </a>
+      <div style="display: flex; align-items: center; gap: 8px">
+        <a href="#" aria-label="Přepnout na tmavý režim" title="Přepnout na tmavý režim" style="width: 48px; height: 48px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 14px; background: #EAF3FB; color: #165A93; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"></path></svg></a>
+        <button type="button" aria-label="Otevřít menu" onClick="{{toggleMenu}}" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 14px; background: #EAF3FB; color: #165A93; cursor: pointer">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"></path></svg>
+        </button>
+      </div>
+    </div>
+    <div aria-hidden="true" style="display: flex; height: 6px">
+      <span style="flex: 3; background: #2EAC66"></span>
+      <span style="flex: 2; background: #1D71B7"></span>
+      <span style="flex: 2; background: #D60B51"></span>
+      <span style="flex: 3; background: #F39200"></span>
+    </div>
+    <sc-if value="{{menuOpen}}" hint-placeholder-val="{{ false }}">
+      <nav aria-label="Hlavní menu" style="display: flex; flex-direction: column; padding: 8px 16px 16px; background: #FFFFFF; border-bottom: 1px solid #E6EAF0">
+        <a href="/" style="padding: 12px 4px; font-size: 18px; color: #1B2533; text-decoration: none; border-bottom: 1px solid #EEF1F5">Úvod</a>
+        <a href="/aktuality/" style="padding: 12px 4px; font-size: 18px; color: #1B2533; text-decoration: none; border-bottom: 1px solid #EEF1F5">Aktuality</a>
+        <a href="/porad_bohosluzeb" style="padding: 12px 4px; font-size: 18px; color: #1B2533; text-decoration: none; border-bottom: 1px solid #EEF1F5">Bohoslužby</a>
+        <a href="https://farakurim.cz/fotogalerie" style="padding: 12px 4px; font-size: 18px; color: #1B2533; text-decoration: none; border-bottom: 1px solid #EEF1F5">Fotogalerie</a>
+        <a href="https://farakurim.cz/petrklic/" style="padding: 12px 4px; font-size: 18px; color: #1B2533; text-decoration: none; border-bottom: 1px solid #EEF1F5">Petrklíč</a>
+        <a href="/kontakty" style="padding: 12px 4px; font-size: 18px; color: #1B2533; text-decoration: none">Kontakty</a>
+      </nav>
+    </sc-if>
+  </header>
+<main style="display: flex; flex-direction: column; gap: 24px; padding: 20px 16px 48px">
+<div style="display: flex; flex-direction: column; gap: 10px">
+<nav aria-label="Drobečková navigace" style="display: flex; align-items: center; gap: 6px; font-size: 14px; color: #556070"><a href="/">Úvod</a><span aria-hidden="true">›</span><span aria-current="page">Kalendář</span></nav>
+<div style="display: flex; align-items: center; gap: 14px"><span aria-hidden="true" style="width: 20px; height: 28px; background: #1D71B7; clip-path: polygon(0 100%, 100% 0, 100% 100%)"></span><h1 style="margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1">Kalendář</h1></div>
+<p style="margin: 0; color: #3A4656">Bohoslužby i farní akce na jednom místě. Klepněte na den a uvidíte program.</p>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 16px">
+  <div style="display: flex; align-items: center; gap: 8px">
+    <button type="button" aria-label="Předchozí měsíc" onClick="{{prev}}" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; border: 1.5px solid #E6EAF0; background: #FFFFFF; color: #1B2533; cursor: pointer">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg>
+    </button>
+    <h2 aria-live="polite" style="margin: 0; min-width: 140px; text-align: center; font-size: 18px; font-weight: 700">{{monthLabel}}</h2>
+    <button type="button" aria-label="Další měsíc" onClick="{{next}}" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; border: 1.5px solid #E6EAF0; background: #FFFFFF; color: #1B2533; cursor: pointer">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg>
+    </button>
+    <button type="button" onClick="{{toToday}}" style="min-height: 44px; padding: 0 14px; border-radius: 12px; border: 1.5px solid #E6EAF0; background: #FFFFFF; color: #165A93; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer">Dnes</button>
+  </div>
+  <div role="group" aria-label="Zobrazit" style="display: flex; flex-wrap: wrap; gap: 8px">
+    <button type="button" aria-pressed="{{fMpressed}}" onClick="{{toggleM}}" style="display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1.5px solid #1D71B7; background: {{fMbg}}; color: {{fMfg}}; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer">
+      <span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 50%; background: currentColor"></span>
+      Mše a adorace
+    </button>
+    <button type="button" aria-pressed="{{fApressed}}" onClick="{{toggleA}}" style="display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1.5px solid #D60B51; background: {{fAbg}}; color: {{fAfg}}; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer">
+      <span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 50%; background: currentColor"></span>
+      Události
+    </button>
+  </div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+  <div aria-hidden="true" style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; font-size: 13px; font-weight: 700; color: #556070; text-align: center">
+  <span>Po</span><span>Út</span><span>St</span><span>Čt</span><span>Pá</span><span>So</span><span>Ne</span>
+</div>
+  <sc-for list="{{weeks}}" as="w" hint-placeholder-count="5">
+    <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px">
+      <sc-for list="{{w.cells}}" as="c" hint-placeholder-count="7">
+        <button type="button" aria-label="{{c.aria}}" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 0; border-radius: 12px; border: {{c.bw}} solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font-family: inherit; font-size: 16px; font-weight: 700; cursor: pointer">
+          {{c.num}}
+          <span style="display: flex; gap: 3px; height: 6px">
+            <sc-if value="{{c.hasMse}}" hint-placeholder-val="{{ true }}"><span style="width: 6px; height: 6px; border-radius: 50%; background: {{c.dotM}}"></span></sc-if>
+            <sc-if value="{{c.hasAkce}}" hint-placeholder-val="{{ false }}"><span style="width: 6px; height: 6px; border-radius: 50%; background: {{c.dotA}}"></span></sc-if>
+          </span>
+        </button>
+      </sc-for>
+    </div>
+  </sc-for>
+</div>
+<section aria-labelledby="den-m" style="display: flex; flex-direction: column; gap: 12px; padding: 18px; border-radius: 24px; background: #F4F6F9">
+  <h2 id="den-m" aria-live="polite" style="margin: 0; font-size: 18px; font-weight: 700">{{dayLabel}}</h2>
+  <sc-if value="{{dayEmpty}}" hint-placeholder-val="{{ false }}">
+    <p style="margin: 0; color: #3A4656">V tento den není v kalendáři nic.</p>
+  </sc-if>
+  <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px">
+    <sc-for list="{{dayItems}}" as="i" hint-placeholder-count="3">
+      <li style="display: flex; gap: 12px; padding: 12px 14px; border-radius: 14px; background: #FFFFFF">
+        <span aria-hidden="true" style="flex: none; width: 5px; border-radius: 3px; background: {{i.bar}}"></span>
+        <span style="flex: 0 0 70px; font-weight: 700">{{i.t}}</span>
+        <span style="display: flex; flex-direction: column; min-width: 0">
+          <sc-if value="{{i.hasHref}}" hint-placeholder-val="{{ false }}"><a href="{{i.href}}" style="font-weight: 700">{{i.title}}</a></sc-if>
+          <sc-if value="{{i.noHref}}" hint-placeholder-val="{{ true }}"><span style="font-weight: 700">{{i.title}}</span></sc-if>
+          <span style="font-size: 14px; color: #556070">{{i.place}} · {{i.catLabel}}</span>
+        </span>
+      </li>
+    </sc-for>
+  </ul>
+</section>
+<section aria-labelledby="odber-m" style="position: relative; display: flex; flex-direction: column; gap: 12px; padding: 18px; border-radius: 24px; background: #EAF3FB; overflow: hidden">
+  <span aria-hidden="true" style="position: absolute; top: 0; right: 0; width: 56px; height: 56px; background: #1D71B7; clip-path: polygon(0 0, 100% 0, 100% 100%)"></span>
+  <h2 id="odber-m" style="margin: 0; padding-right: 48px; font-size: 18px; font-weight: 700">Kalendář v telefonu</h2>
+  <p style="margin: 0; color: #3A4656">Přidejte si naše kalendáře do svého telefonu nebo počítače. Změny se vám pak zobrazí samy.</p>
+  <div style="display: flex; flex-wrap: wrap; gap: 8px">
+    <a href="#" style="flex: 1 1 180px; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 14px; border-radius: 14px; background: #1D71B7; color: #FFFFFF; font-weight: 700; text-decoration: none">+ Mše a adorace</a>
+    <a href="#" style="flex: 1 1 180px; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 14px; border-radius: 14px; background: #D60B51; color: #FFFFFF; font-weight: 700; text-decoration: none">+ Události</a>
+  </div>
+  <a href="/porad_bohosluzeb" style="display: flex; align-items: center; min-height: 44px; font-weight: 700">Pravidelný pořad bohoslužeb →</a>
+</section>
+</main>
+  <footer style="margin-top: auto; display: flex; flex-direction: column; background: #F4F6F9">
+    <div aria-hidden="true" style="display: flex; height: 6px">
+      <span style="flex: 3; background: #2EAC66"></span>
+      <span style="flex: 2; background: #1D71B7"></span>
+      <span style="flex: 2; background: #D60B51"></span>
+      <span style="flex: 3; background: #F39200"></span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 16px; padding: 32px 16px 40px">
+      <div style="display: flex; align-items: center; gap: 12px">
+        <img src="../../../assets/logo-farnost-kurim.svg" alt="" style="width: 25px; height: 40px; display: block">
+        <span style="font-weight: 700">Římskokatolická farnost Kuřim</span>
+      </div>
+      <span style="font-size: 14px; color: #3A4656">Kuřim · Moravské Knínice · Jinačovice · Česká</span>
+      <span style="font-size: 14px; color: #3A4656">Bankovní účet: 247704317/0300</span>
+      <a href="https://farakurim.cz/virtualni_prohlidka/" style="font-size: 14px; font-weight: 700">Virtuální prohlídka kostela</a>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1700}}'>
+class Component extends DCLogic {
+  calItems(d) {
+    const y = d.getFullYear(), m = d.getMonth(), day = d.getDate(), wd = d.getDay();
+    const key = y + '-' + (m + 1) + '-' + day;
+    const first = day <= 7;
+    const K = 'Kuřim', MK = 'Moravské Knínice';
+    let L = [];
+    const M = (t, title, place) => L.push({ t: t, title: title, place: place, cat: 'mse', href: '' });
+    if (wd === 1) M('8:00', 'Mše svatá', K);
+    if (wd === 4) { M('17:30', 'Adorace', K); M('18:00', 'Mše svatá', K); }
+    if (wd === 5) {
+      if (first) { M('17:00', 'Mše svatá', MK); M('18:15', 'Mše svatá', K); M('19:00', 'Modlitební večer', K); }
+      else { M('16:45', 'Mše svatá', K); M('18:00', 'Mše svatá', MK); }
+    }
+    if (wd === 6 && first) M('8:00', 'Mše svatá', K);
+    if (wd === 0) { M('8:00', 'Mše svatá', K); M('9:30', 'Mše svatá s katechezí pro děti', K); M('11:00', 'Mše svatá', MK); }
+    if (key === '2026-10-4') { L = []; M('8:00', 'Mše svatá', K); M('9:30', 'Mše svatá', MK); M('11:00', 'Mše svatá', K); }
+    const A = (t, title, place, href) => L.push({ t: t, title: title, place: place, cat: 'akce', href: href || '' });
+    const D = (yy, mm, dd) => new Date(yy, mm - 1, dd);
+    const x = new Date(y, m, day);
+    const inR = (a, b) => x >= a && x <= b;
+    if (inR(D(2026, 10, 2), D(2026, 10, 4))) A('celý den', 'Hody v České', 'Česká');
+    if (key === '2026-10-7') A('celý den', 'Koláč pro hospic', 'Kuřim a okolí');
+    if (inR(D(2026, 10, 9), D(2026, 10, 10))) A('celý den', 'Setkání lektorů Božího slova', 'Tišnov');
+    if (wd === 4 && inR(D(2026, 10, 1), D(2027, 4, 29))) A('18:30', 'Obnova v Duchu svatém', 'Brno, Lidická');
+    if (wd === 0 && inR(D(2026, 10, 11), D(2026, 11, 22))) A('18:00', 'Manželské večery', 'Tišnov');
+    if (key === '2026-10-18') { L = L.filter((i) => !(i.cat === 'mse' && i.t === '9:30')); A('9:30', 'Slavnostní mše k jubileu 800 let', K, '/aktuality/slavnostni-mse-k-jubileu-800-let'); }
+    if (key === '2026-10-25') { L = L.filter((i) => !(i.cat === 'mse' && i.t === '9:30')); A('9:30', 'Hubertská mše', K); }
+    if (key === '2026-12-19') A('celý den', 'Farní pouť do Lukova a Třebíče', 'Lukov a Třebíč');
+    const mins = (t) => { const p = t.split(':'); return p.length === 2 ? (+p[0]) * 60 + (+p[1]) : -1; };
+    L.sort((a, b) => mins(a.t) - mins(b.t));
+    return L.map((i) => Object.assign(i, {
+      bar: i.cat === 'mse' ? '#1D71B7' : '#D60B51',
+      catLabel: i.cat === 'mse' ? 'Bohoslužba' : 'Akce',
+      hasHref: !!i.href, noHref: !i.href
+    }));
+  }
+
+  renderVals() {
+    const st = this.state || {};
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const vy = st.vy != null ? st.vy : today.getFullYear();
+    const vm = st.vm != null ? st.vm : today.getMonth();
+    const sel = st.sel != null ? new Date(st.sel) : today;
+    const fM = st.fM !== false, fA = st.fA !== false;
+    const CELL = '#FFFFFF';
+    const MON = ['Leden', 'Únor', 'Březen', 'Duben', 'Květen', 'Červen', 'Červenec', 'Srpen', 'Září', 'Říjen', 'Listopad', 'Prosinec'];
+    const GEN = ['ledna', 'února', 'března', 'dubna', 'května', 'června', 'července', 'srpna', 'září', 'října', 'listopadu', 'prosince'];
+    const WD = ['Neděle', 'Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek', 'Sobota'];
+    const same = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+    const filt = (L) => L.filter((i) => (i.cat === 'mse' ? fM : fA));
+    const first = new Date(vy, vm, 1);
+    const off = (first.getDay() + 6) % 7;
+    const dim = new Date(vy, vm + 1, 0).getDate();
+    const rows = Math.ceil((off + dim) / 7);
+    const weeks = [];
+    for (let w = 0; w < rows; w++) {
+      const cells = [];
+      for (let c = 0; c < 7; c++) {
+        const d = new Date(vy, vm, 1 - off + w * 7 + c);
+        const items = filt(this.calItems(d));
+        const akce = items.filter((i) => i.cat === 'akce');
+        const nM = items.length - akce.length;
+        const inM = d.getMonth() === vm;
+        const isT = same(d, today), isS = same(d, sel);
+        const chips = akce.slice(0, 2).map((a) => ({ title: a.title }));
+        const more = akce.length > 2 ? '+' + (akce.length - 2) + ' další' : '';
+        const parts = [];
+        if (nM) parts.push(nM + (nM === 1 ? ' bohoslužba' : (nM <= 4 ? ' bohoslužby' : ' bohoslužeb')));
+        if (akce.length) parts.push(akce.length + (akce.length === 1 ? ' akce' : (akce.length <= 4 ? ' akce' : ' akcí')));
+        cells.push({
+          num: String(d.getDate()), chips: chips, hasMore: !!more, more: more,
+          mseLabel: nM ? nM + '× mše' : '', hasMse: nM > 0, hasAkce: akce.length > 0,
+          aria: d.getDate() + '. ' + GEN[d.getMonth()] + (parts.length ? ', ' + parts.join(', ') : ', nic v kalendáři'),
+          pressed: isS ? 'true' : 'false', isToday: isT,
+          bg: isS ? '#1D71B7' : (inM ? CELL : '#F4F6F9'),
+          fg: isS ? '#FFFFFF' : (inM ? '#1B2533' : '#556070'),
+          bd: isT ? '#1D71B7' : '#E6EAF0',
+          bw: isT ? '2px' : '1px',
+          chipBg: isS ? '#FFFFFF' : '#FDEEF3', chipFg: isS ? '#8F0634' : '#B0083F',
+          mseFg: isS ? '#FFFFFF' : '#165A93',
+          dotM: isS ? '#FFFFFF' : '#1D71B7', dotA: isS ? '#FFFFFF' : '#D60B51',
+          pick: () => this.setState({ sel: d.getTime(), vy: d.getFullYear(), vm: d.getMonth() })
+        });
+      }
+      weeks.push({ cells: cells });
+    }
+    const dayItems = filt(this.calItems(sel));
+    const go = (dm) => { const n = new Date(vy, vm + dm, 1); this.setState({ vy: n.getFullYear(), vm: n.getMonth() }); };
+    const rel = same(sel, today) ? 'Dnes · ' : (same(sel, new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1)) ? 'Zítra · ' : '');
+    return {
+      menuOpen: !!st.menuOpen,
+      toggleMenu: () => this.setState({ menuOpen: !st.menuOpen }),
+      monthLabel: MON[vm] + ' ' + vy,
+      prev: () => go(-1), next: () => go(1),
+      toToday: () => this.setState({ vy: today.getFullYear(), vm: today.getMonth(), sel: today.getTime() }),
+      weeks: weeks,
+      dayLabel: rel + WD[sel.getDay()] + ' ' + sel.getDate() + '. ' + GEN[sel.getMonth()],
+      dayItems: dayItems, dayEmpty: dayItems.length === 0,
+      fMpressed: fM ? 'true' : 'false', fApressed: fA ? 'true' : 'false',
+      toggleM: () => this.setState({ fM: !fM }), toggleA: () => this.setState({ fA: !fA }),
+      fMbg: fM ? '#1D71B7' : CELL, fMfg: fM ? '#FFFFFF' : '#165A93',
+      fAbg: fA ? '#D60B51' : CELL, fAfg: fA ? '#FFFFFF' : '#B0083F'
+    };
+  }
+}
+</script>
+</body>
+</html>

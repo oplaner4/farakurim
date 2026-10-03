@@ -3,7 +3,8 @@
 Spec for implementing the new website of **Římskokatolická farnost Kuřim**.
 Pages designed so far: **homepage** (sections 1–10), **Aktuality** (section 11),
 **Archiv aktualit** (section 12), **Detail akce** (section 13), **Pořad bohoslužeb**
-(section 14) and **Kontakty** (section 15).
+(section 14), **Kontakty** (section 15) and **Kalendář** (section 16, plus the
+homepage week calendar in 4.3a).
 More pages will follow. Language of all UI copy: **Czech**. Approach: **mobile-first**.
 Every page has a **light and a dark theme**.
 
@@ -20,6 +21,7 @@ Every page has a **light and a dark theme**.
 | `mockups/detail/{light,dark}/` | Detail akce, example: the jubilee mass (section 13) |
 | `mockups/porad-bohosluzeb/{light,dark}/` | Pořad bohoslužeb (section 14) |
 | `mockups/kontakty/{light,dark}/` | Kontakty (section 15) |
+| `mockups/kalendar/{light,dark}/` | Kalendář (section 16) |
 | `assets/logo-farnost-kurim.svg` | Cleaned logo (also the future favicon) |
 
 Desktop mockups are fluid with content max-width 1200 px; mobile and tablet are
@@ -34,7 +36,7 @@ styles everywhere and are separate files per size and theme. Production should b
 **one template per page + one shared stylesheet**, with header and footer as
 shared partials. Internal links in the mockups already use the real routes
 (`/`, `/aktuality/`, `/aktuality/archiv`, and `/aktuality/slavnostni-mse-k-jubileu-800-let`
-as an example detail URL, `/porad_bohosluzeb`, `/kontakty`); the theme toggle's `href="#"` stands for the JS toggle.
+as an example detail URL, `/porad_bohosluzeb`, `/kontakty`, `/kalendar`); the theme toggle's `href="#"` stands for the JS toggle.
 
 ---
 
@@ -137,8 +139,8 @@ Order is the same at every breakpoint. Differences per breakpoint are noted.
 ### 4.1 Header
 - Logo (`assets/logo-farnost-kurim.svg`, ratio 421:681) with a two-line brand: small "Římskokatolická farnost" (muted) over a large bold **"Kuřim"**.
 - **Mobile:** a hamburger button (48×48, blue tint) opens a vertical menu under the stripe.
-- **Tablet:** a "Pořad bohoslužeb" blue button plus the hamburger; the menu opens as a 3-column grid of pills.
-- **Desktop:** an inline nav (Úvod · Aktuality · Bohoslužby · Fotogalerie · Petrklíč · Kontakty), the current page as a blue-tint pill with `aria-current="page"`, and a blue "Pořad bohoslužeb" button with a file-download icon.
+- **Tablet:** a blue **"Ohlášky"** button (downloads this week's PDF) plus the hamburger; the menu opens as a 3-column grid of pills.
+- **Desktop:** an inline nav (Úvod · Aktuality · Bohoslužby · Fotogalerie · Petrklíč · Kontakty), the current page as a blue-tint pill with `aria-current="page"`, and a blue **"Ohlášky"** button with a file-download icon (it downloads this week's ohlášky PDF). Nav items use `padding: 0 12px`. Kalendář is **not** a menu item: it is reached from the homepage week calendar, the Bohoslužby page and in-page links.
 
 ### 4.2 Hero carousel
 - 7 photos, **different file per breakpoint**: `/assets/img/pozadi/{sm|md|lg}/{1-7}.webp`.
@@ -152,6 +154,21 @@ Order is the same at every breakpoint. Differences per breakpoint are noted.
 - Tablet: two columns inside the card (time and button left, countdown and list right).
 - Desktop: the PDF button lives in the header; the card ends with the link "Pravidelné bohoslužby a ohlášky →".
 - The countdown can be switched off (it's an optional feature).
+
+### 4.3a "Tento týden" week calendar (blue)
+
+Placed **directly after the next-mass block and before Aktuality**. The parish
+considers the calendar essential, so it is the second thing visitors see.
+
+- Heading "Tento týden" with the blue shard (26 / 32 / 40 px) and the link "Celý kalendář" to `/kalendar`.
+- **7 day cards**, today and the next 6 days, as an ordered list. Each card has:
+  - a header: "Dnes" / "Zítra" / weekday, with the date muted on the right ("so 3. 10.", "5. 10.");
+  - **events** (Události calendar), each with a 4 px magenta bar, the time ("celý den", "18:30") in magenta-ink, and the title in bold, linked when the event has a detail page;
+  - **one compact services line** (Mše a adorace calendar): a blue bar, the label "Bohoslužby" and the times joined with " · " ("8:00 · 9:30 · 11:00");
+  - "Bez programu" when the day is empty.
+- Today's card has a blue-tint background with a 2 px blue border; other days use `--surface`.
+- Layout: mobile, a horizontal scroll row of 200 px cards (bleeds to the screen edges); tablet, the same with 210 px cards; desktop, `grid-template-columns: repeat(7, minmax(0, 1fr))`.
+- Data: the same source as the Kalendář page (16.4). Render server-side.
 
 ### 4.4 Aktuality (magenta)
 - The 3 nearest events on mobile, 4 on tablet/desktop. "Všechny aktuality" link to `/aktuality/`.
@@ -644,3 +661,58 @@ Add `schema.org/Church` or `PlaceOfWorship` JSON-LD with address, phone, e-mail 
 The current site has no information about křty (beyond the date), svatby, pohřby or
 visits to the sick. If the parish wants a "S čím vám pomůžeme" section, it needs that
 copy first.
+
+## 16. Kalendář (`/kalendar`)
+
+Mockups: `mockups/kalendar/`. Replaces the current page, which only links to two
+Google Calendars. The new page shows both calendars on the site. It is not a menu
+item (see 4.1); it is reached from the homepage week calendar ("Celý kalendář"),
+the Bohoslužby page and other in-page links. Section colour: **blue**, with
+**magenta** for events.
+
+### 16.1 Two calendars, two colours
+
+| Calendar (Google) | Colour | Shown as |
+|---|---|---|
+| **Mše, adorace** | blue `#1D71B7` | "Mše a adorace" / "Bohoslužby", counted as "3× mše" in the grid |
+| **Události** | magenta `#D60B51` | "Události" / "Akce", event titles shown as labels in the grid |
+
+### 16.2 Structure
+
+1. Breadcrumb `Úvod › Kalendář`, H1 "Kalendář", lead "Bohoslužby i farní akce na jednom místě. Klepněte na den a uvidíte program."
+2. **Toolbar**:
+   - previous/next month buttons (44 px, `aria-label`), month label as H2 (`aria-live="polite"`), and a "Dnes" button;
+   - two **filter toggles** (`aria-pressed`): "Mše a adorace" (blue outline, filled when on) and "Události" (magenta), both on by default.
+3. **Month grid**, weeks starting Monday, with Po–Ne headers:
+   - **Mobile** (52 px cells): the day number plus up to two dots, blue for services and magenta for events.
+   - **Tablet / desktop** (104 / 118 px cells): the day number, up to 2 event labels (magenta tint, ellipsis), "+N další", and "3× mše" at the bottom in blue-ink.
+   - Days outside the month use `--surface` and muted text. **Today** has a 2 px blue border. The **selected day** is filled blue with white text; its event labels turn white with `#8F0634` text.
+   - Each cell is a `<button>` with a full `aria-label` ("18. října, 2 bohoslužby, 1 akce") and `aria-pressed` for the selected day.
+4. **Day detail** (surface panel): the heading "Dnes · Sobota 3. října" / "Zítra · …" / "Neděle 18. října". One row per item: colour bar, time ("celý den" first), title (a link when there is a detail page), "place · Bohoslužba/Akce". Empty: "V tento den není v kalendáři nic."
+5. **"Kalendář v telefonu"** (blue tint): subscribe buttons "+ Mše a adorace" (blue) and "+ Události" (magenta), plus a link to the regular schedule. **The Google Calendar subscription URLs are still to be filled in.**
+
+| | Mobile | Tablet | Desktop |
+|---|---|---|---|
+| Layout | toolbar, grid, day detail, subscribe (stacked) | toolbar, grid full width, then day detail + subscribe side by side | toolbar; grid (`flex: 999 1 640px`) beside a right column (`flex: 1 1 340px`) with day detail + subscribe |
+
+### 16.3 Behaviour
+
+- Clicking a day selects it and updates the day detail. Clicking a day from the previous or next month also switches the month.
+- The filters hide or show a calendar in the grid, the day detail and the counts.
+- Without JS, render the current month and today's detail server-side. Month links use `?mesic=2026-11` and the day uses `?den=2026-10-18`, so every view has a shareable URL.
+- Keyboard: arrow keys move between days (roving tabindex), Enter selects, PageUp/PageDown change the month.
+
+### 16.4 Data
+
+- Read both Google Calendars **server-side** with the Google Calendar API (`events.list`, `singleEvents=true`, `timeMin`/`timeMax` for the visible range), and cache for about 15 minutes. One shared module feeds this page, the homepage week calendar (4.3a) and ideally the next-mass countdown (5).
+- Recurring masses should live in Google Calendar as recurring events, with one-off changes (like 4. 10.) as exceptions. The website then has nothing to hard-code.
+- The mockups generate October 2026 from the regular schedule and the Aktuality events. Things to confirm with the parish:
+  - **First Friday:** the 18:15 (Kuřim) and 17:00 (Moravské Knínice) masses are assumed to **replace** the usual Friday times.
+  - **Manželské večery:** the "7 setkání" are spread over the Sundays 11. 10. – 22. 11.
+  - **Jubilee and Hubertská masses:** both are drawn as events that replace the regular 9:30 Sunday mass.
+- An event links to its detail page (section 13) when the website has a matching Aktuality record, for example by storing the Google event ID on the record.
+
+### 16.5 Dark theme
+
+Same mapping as section 10. Cell background `--raised` (`#1F2B3D`), days outside the
+month `--surface`, selected day stays blue.
