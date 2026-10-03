@@ -1,0 +1,44 @@
+{
+  "name": "web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "lint": "eslint",
+    "test": "vitest run",
+    "icons": "node scripts/generate-icons.mjs",
+    "fonts": "scripts/subset-fonts.sh",
+    "format": "prettier --write .",
+    "preview": "python3 -m http.server -d out 4173",
+    "mockups": "python3 scripts/render-mockups.py && python3 -m http.server -d .design-preview 4174",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@date-fns/tz": "^1.5.0",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.4.0",
+    "next": "^16.3.8",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "^16.3.8",
+    "husky": "^9.1.7",
+    "postcss": "^8.5.28",
+    "prettier": "^3.9.9",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "sharp": "^0.35.5",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5",
+    "vitest": "^5.0.3"
+  },
+  "packageManager": "pnpm@10.30.3"
+}

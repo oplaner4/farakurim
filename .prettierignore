@@ -1,0 +1,7 @@
+out
+.next
+node_modules
+pnpm-lock.yaml
+design
+fonts-source
+next-env.d.ts

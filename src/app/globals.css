@@ -1,0 +1,154 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens from design/DESIGN.md §2. Tailwind's default palette, breakpoints, type scale and
+ * radii are removed so only the design's values exist. Sizes are named after their pixel value
+ * (text-26, rounded-24) to read like the spec. Spacing uses Tailwind's 4px scale (p-4 = 16px).
+ */
+@theme {
+  /* Mobile first: base = mobile, md = tablet, lg = desktop */
+  --breakpoint-*: initial;
+  --breakpoint-md: 48rem; /* 768px */
+  --breakpoint-lg: 75rem; /* 1200px */
+
+  --color-*: initial;
+  --color-white: #ffffff;
+
+  /* Brand (from logo) */
+  --color-blue: #1d71b7; /* white text OK on it */
+  --color-green: #2eac66; /* decorative only, never text or white-text fills */
+  --color-magenta: #d60b51; /* white text OK on it */
+  --color-orange: #f39200; /* dark text on it, never white */
+  --color-orange-hover: #e08700;
+
+  /* Text-safe shades (≥ 4.5:1 on white) */
+  --color-blue-ink: #165a93;
+  --color-blue-ink-hover: #0f3f69;
+  --color-green-ink: #17784a;
+  --color-magenta-ink: #b0083f;
+  --color-orange-ink: #a85800;
+  --color-orange-ink-deep: #8a4b00;
+
+  /* Tints */
+  --color-blue-tint: #eaf3fb;
+  --color-blue-tint-alt: #dcebf8;
+  --color-blue-line: #d3e4f3;
+  --color-green-tint: #ddf2e5;
+  --color-magenta-tint: #fdeef3;
+  --color-magenta-tint-alt: #fbe0ea;
+  --color-orange-tint: #fff3e0;
+  --color-orange-tint-alt: #ffebcc;
+
+  /* Neutrals */
+  --color-ink: #1b2533;
+  --color-ink-2: #3a4656;
+  --color-muted: #556070;
+  --color-line: #e6eaf0;
+  --color-line-soft: #eef1f5;
+  --color-surface: #f4f6f9;
+  --color-dot-off: #c9d6e3;
+
+  --font-*: initial;
+  --font-sans: var(--font-oxygen), "Segoe UI", "Helvetica Neue", sans-serif;
+
+  --text-*: initial;
+  --text-11: 0.6875rem;
+  --text-12: 0.75rem;
+  --text-13: 0.8125rem;
+  --text-14: 0.875rem;
+  --text-15: 0.9375rem;
+  --text-16: 1rem;
+  --text-17: 1.0625rem;
+  --text-18: 1.125rem;
+  --text-19: 1.1875rem;
+  --text-20: 1.25rem;
+  --text-22: 1.375rem;
+  --text-24: 1.5rem;
+  --text-26: 1.625rem;
+  --text-28: 1.75rem;
+  --text-30: 1.875rem;
+  --text-32: 2rem;
+  --text-34: 2.125rem;
+  --text-40: 2.5rem;
+  --text-64: 4rem;
+  --text-76: 4.75rem;
+  --text-84: 5.25rem;
+
+  --tracking-*: initial;
+  --tracking-eyebrow: 0.06em;
+  --tracking-heading: -0.01em;
+  --tracking-display: -0.015em;
+  --tracking-time: -0.03em;
+
+  --radius-*: initial;
+  --radius-4: 4px;
+  --radius-10: 10px;
+  --radius-12: 12px;
+  --radius-14: 14px;
+  --radius-16: 16px;
+  --radius-18: 18px;
+  --radius-20: 20px;
+  --radius-24: 24px;
+  --radius-28: 28px;
+  --radius-32: 32px;
+
+  --shadow-*: initial;
+  --shadow-card: 0 12px 32px rgb(29 113 183 / 0.16);
+  --shadow-card-md: 0 16px 40px rgb(29 113 183 / 0.16);
+  --shadow-card-lg: 0 16px 48px rgb(29 113 183 / 0.16);
+  --shadow-cover: 0 8px 20px rgb(168 88 0 / 0.18);
+  --shadow-cover-lg: 0 10px 24px rgb(168 88 0 / 0.18);
+
+  --container-page: 79rem; /* 1200px content + 2 × 32px gutter */
+}
+
+/* Page container: 16px gutter on mobile, 32px from tablet, content max 1200px. */
+@utility container-page {
+  width: 100%;
+  max-width: var(--container-page);
+  margin-inline: auto;
+  padding-inline: --spacing(4);
+
+  @variant md {
+    padding-inline: --spacing(8);
+  }
+}
+
+/* "Shards": right triangles from the logo facets, named by the corner with the right angle. */
+@utility shard-tl {
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+@utility shard-tr {
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+@utility shard-br {
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+@utility shard-bl {
+  clip-path: polygon(0 0, 100% 100%, 0 100%);
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer base {
+  body {
+    @apply flex min-h-screen flex-col bg-white font-sans text-16 leading-normal text-ink antialiased md:text-17 lg:leading-[1.55];
+  }
+
+  a {
+    @apply text-blue-ink underline hover:text-blue-ink-hover;
+  }
+
+  :focus-visible {
+    @apply outline-3 outline-offset-2 outline-blue;
+  }
+}
