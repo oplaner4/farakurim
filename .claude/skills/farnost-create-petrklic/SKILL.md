@@ -7,9 +7,9 @@ description: Add a new issue of the Petrklíč parish newsletter to the new fara
 
 One issue is one `PetrklicIssue` record (`src/content/types.ts`) at the top of `src/content/petrklic.ts`
 (design/DESIGN.md §17–18). The first record is the current issue (aktuální číslo): the Petrklíč page shows its
-pages in the viewer, the homepage card shows its cover. The PDF goes to the server (`/uploads/petrklic/`); the
-cover and the viewer pages are WebP images committed in `public/assets/img/petrklic/`. Finish with
-**`farnost-publish-content`**.
+pages in the viewer, the homepage card shows its cover. The PDF, its cover and the viewer pages (WebP images
+rendered from it) are staged in `uploads/petrklic/` and uploaded to `/uploads/petrklic/`; none of them is committed.
+Finish with **`farnost-publish-content`**.
 
 ## 1. Read the PDF
 
@@ -37,9 +37,8 @@ cp "<source>" "uploads/petrklic/<id>.pdf"
 pnpm petrklic "uploads/petrklic/<id>.pdf" --pages <id>   # prints "<id> <page count>"
 ```
 
-This writes `public/assets/img/petrklic/<id>.webp` (cover) and `public/assets/img/petrklic/<id>/<n>.webp` (every
-page). Only the current issue needs pages: delete the previous current issue's page folder
-(`git rm -r public/assets/img/petrklic/<previous id>/`), keep its cover.
+This writes `uploads/petrklic/<id>.webp` (cover) and `uploads/petrklic/<id>/<n>.webp` (every page), next to the
+PDF. Only the current issue's pages are linked; the previous issue's page folder on the server may stay.
 
 ## 4. Add the record
 
@@ -56,13 +55,14 @@ computed. The volume (ročník) is computed from the year.
 ## 5. Publish
 
 Follow **`farnost-publish-content`**; check `/petrklic/aktualni/` (cover, viewer pages, download link),
-`/petrklic/archiv/` and the homepage Petrklíč card. Locally (`pnpm dev`, `pnpm preview`) the PDF is served from
-`uploads/`.
+`/petrklic/archiv/` and the homepage Petrklíč card. Locally (`pnpm dev`, `pnpm preview`) the new files are served
+from `uploads/`, older ones from the live site. Upload the whole `uploads/petrklic/` content, including the
+`<id>/` page folder.
 
 ## Common mistakes
 
 - Inserting the issue below the current one: the site treats `petrklicIssues[0]` as the current issue.
 - Running `pnpm petrklic` without `--pages <id>`: the viewer shows empty pages.
-- Leaving the previous issue's page folder in `public/` (2–3 MB of unused images per issue).
 - A `pageCount` that differs from the PDF: the viewer links missing page images.
-- Committing the PDF: it goes only to `uploads/` and the server.
+- Committing the PDF or the images: they go only to `uploads/` and the server.
+- Uploading the PDF without the cover and the page folder: the pages show broken images.

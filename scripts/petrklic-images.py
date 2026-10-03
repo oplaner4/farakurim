@@ -14,7 +14,7 @@ import tempfile
 from PIL import Image
 
 root = pathlib.Path(__file__).resolve().parent.parent
-out_dir = root / "public" / "assets" / "img" / "petrklic"
+out_dir = root / "uploads" / "petrklic"  # staged for /uploads/petrklic/ on the server, next to the PDFs
 WIDTH = 600  # 2× the largest cover and viewer page (300 px)
 
 

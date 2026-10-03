@@ -1,11 +1,10 @@
 import type { PetrklicIssue } from "./types";
 
 // The issues of the old site's archive (farakurim.cz/petrklic/archiv), plus new ones added with the
-// farnost-create-petrklic skill. The PDF is uploaded to /uploads/petrklic/<id>.pdf; the cover (and the current
-// issue's pages) are WebP images rendered from it (`pnpm petrklic`, scripts/petrklic-images.py).
+// farnost-create-petrklic skill. The PDF is uploaded to /uploads/petrklic/<id>.pdf, next to the cover <id>.webp
+// and the current issue's pages <id>/<n>.webp, rendered from it (`pnpm petrklic`, scripts/petrklic-images.py).
 
-const IMG = "/assets/img/petrklic";
-const PDF = "/uploads/petrklic";
+const DIR = "/uploads/petrklic";
 
 function issue(id: string, year: number, number: number, pageCount: number, extra: Partial<PetrklicIssue> = {}) {
   return {
@@ -13,8 +12,8 @@ function issue(id: string, year: number, number: number, pageCount: number, extr
     year,
     number,
     pageCount,
-    pdfUrl: `${PDF}/${id}.pdf`,
-    cover: `${IMG}/${id}.webp`,
+    pdfUrl: `${DIR}/${id}.pdf`,
+    cover: `${DIR}/${id}.webp`,
     ...extra,
   } satisfies PetrklicIssue;
 }
@@ -111,7 +110,7 @@ export const petrklicIssues: PetrklicIssue[] = [
 
 // The current issue's pages, for the viewer.
 const [current] = petrklicIssues;
-current.pageImages = Array.from({ length: current.pageCount }, (_, i) => `${IMG}/${current.id}/${i + 1}.webp`);
+current.pageImages = Array.from({ length: current.pageCount }, (_, i) => `${DIR}/${current.id}/${i + 1}.webp`);
 
 /** Copy of the Petrklíč pages and the homepage card. */
 export const petrklicTexts = {
