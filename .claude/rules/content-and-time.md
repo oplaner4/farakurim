@@ -49,4 +49,10 @@ build-time next mass.
   `officeStatus()` in `src/lib/office.ts`.
 - Czech output: `plural()` (built on `Intl.PluralRules("cs")`), date-fns `cs` locale (genitive month names
   after a day number), `"4. 10."` short dates, `"Dnes"`/`"Zítra"` labels; see `src/lib/czech.ts`.
+- **No i18n library** (next-intl and the like) while the site is Czech-only. UI copy stays inline in the components
+  and Czech grammar stays in `src/lib/czech.ts`. **Why:** `czech.ts` is Czech grammar on date-fns, not translatable
+  strings. `plural()` is mostly called from pure `src/lib` functions, where next-intl would only wrap the same
+  `Intl.PluralRules`. Under `output: "export"` next-intl also needs explicit `locale`/`timeZone`/`now` on its provider
+  to stay static. Revisit only when a second language is planned. The real decision then is URLs: static export
+  forces a `/cs/…` prefix on every page (no locale negotiation, no localized pathnames).
 - External links to the live site sit in `content/site.ts` (`links`); swap them when the pages are rebuilt here.
