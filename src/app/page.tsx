@@ -9,7 +9,8 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { calendarHrefs, loadCalendarEntries } from "@/content/calendar";
 import { albums } from "@/content/gallery";
 import { events } from "@/content/news";
-import { latestPetrklic } from "@/content/petrklic";
+import { scheduleExceptions, serviceSheet } from "@/content/ohlasky";
+import { petrklicIssues, petrklicTexts } from "@/content/petrklic";
 import { carouselSlides, parish } from "@/content/site";
 import { BUILD_TIME } from "@/lib/build-time";
 import { addDays } from "date-fns";
@@ -35,14 +36,18 @@ export default async function HomePage() {
         {/* Mobile/tablet: full-bleed carousel with the card overlapping it. Desktop: side by side in the container. */}
         <div className="flex flex-col lg:mx-auto lg:w-full lg:max-w-page lg:flex-row lg:flex-wrap lg:gap-6 lg:px-8 lg:pt-10">
           <HeroCarousel slides={carouselSlides} />
-          <NextMass renderedAt={BUILD_TIME} />
+          <NextMass
+            renderedAt={BUILD_TIME}
+            exceptions={scheduleExceptions}
+            sheet={{ pdfUrl: serviceSheet.pdfUrl, validFrom: serviceSheet.validFrom, validTo: serviceSheet.validTo }}
+          />
         </div>
         <div className="container-page">
           <WeekCalendar entries={weekEntries} range={weekRange} hrefs={calendarHrefs} renderedAt={BUILD_TIME} />
           <NewsSection events={upcomingNews} renderedAt={BUILD_TIME} />
           <GallerySection albums={albums} />
           <div className="grid grid-cols-1 gap-12 pt-10 pb-12 md:grid-cols-2 md:gap-4 md:py-14 lg:grid-fit-440 lg:gap-6 lg:py-20">
-            <PetrklicPanel issue={latestPetrklic} />
+            <PetrklicPanel issue={petrklicIssues[0]} description={petrklicTexts.home} />
             <ContactsPanel />
           </div>
         </div>

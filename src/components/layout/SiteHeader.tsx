@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import { serviceSheet } from "@/content/masses";
+import { serviceSheet } from "@/content/ohlasky";
 import { links, mainNav } from "@/content/site";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ColorStripe } from "@/components/ui/ColorStripe";

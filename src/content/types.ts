@@ -56,18 +56,62 @@ export type ScheduleException = {
   reason?: string;
 };
 
-/** This week's ohlášky (§14.1 "Tento týden"). */
+/** Category of an announcement in the ohlášky (design/DESIGN.md §14.5); it sets the label and its colour. */
+export type AnnouncementCategory = "zmena" | "smireni" | "pozvanka" | "podekovani" | "info";
+
+/** One announcement from the ohlášky, word for word (§14.5). */
+export type Announcement = {
+  category: AnnouncementCategory;
+  /**
+   * The text as HTML (bold, links). It is rendered as is, so the API that replaces the mock content must
+   * sanitise it.
+   */
+  html: string;
+  /** ID of the related Aktuality record: adds "Více v aktualitách". */
+  newsId?: string;
+};
+
+/** A row of the weekly schedule in the ohlášky (§14.6): "8:00 | Kuřim | Mše sv. – za …". */
+export type SheetRow = {
+  time: ClockTime;
+  /** A parish church, or free text for other places ("Vranov"). */
+  place: PlaceId | (string & {});
+  /** "Mše sv.", "Adorace", "Pohřeb". */
+  title: string;
+  /** The mass intention or the name after the title: "za Komunitu Emmanuel". */
+  detail?: string;
+  /**
+   * `false` keeps `detail` off the website (only in the PDF): intentions and funerals name private people.
+   * Defaults to `true`. Which rows are public is up to the parish (§14.6).
+   */
+  public?: boolean;
+  /** A mass: it counts for the next-mass countdown and the services calendar. */
+  mass?: boolean;
+  /** Differs from the regular schedule ("změna" tag). A day with a changed mass replaces its regular masses. */
+  changed?: boolean;
+};
+
+export type SheetDay = {
+  date: IsoDate;
+  /** "27. neděle v mezidobí", "sv. Václav". */
+  feast?: string;
+  /** Sunday or solemnity: blue day name, magenta feast line. */
+  solemnity?: boolean;
+  rows: SheetRow[];
+};
+
+/**
+ * The ohlášky of one week as structured content (§14.7): the "Tento týden" panel, the weekly schedule and,
+ * through the changed rows, the schedule exceptions for the next mass and the calendar.
+ */
 export type ServiceSheet = {
+  /** Optional: the printed ohlášky. */
   pdfUrl: string;
   validFrom: IsoDate;
   validTo: IsoDate;
-  /**
-   * "Změny tento týden", as written in the ohlášky. Display text only: the changed masses themselves are
-   * `scheduleExceptions`, which the next-mass countdown uses.
-   */
-  changes: { date: IsoDate; text: string }[];
-  /** "Svátost smíření tento týden": "Čt 17:30 Kuřim". */
-  confession: string[];
+  days: SheetDay[];
+  /** In the editor's order; changes are shown first. */
+  announcements: Announcement[];
 };
 
 /** A weekly office-hours slot (§15.2). */
@@ -192,12 +236,20 @@ export type Album = {
   cover?: string;
 };
 
+/** One issue of the Petrklíč newsletter (design/DESIGN.md §18.2). The volume (ročník) is computed from `year`. */
 export type PetrklicIssue = {
-  issue: string;
-  description: string;
+  id: string;
+  year: number;
+  /** Issue number within the year: "1" in "1/2026". */
+  number: number;
+  /** Extra label for special issues: "1. část", "mimořádné". */
+  note?: string;
   pdfUrl: string;
-  archiveUrl: string;
+  /** Image of PDF page 1 (about 600 px wide, WebP); a tinted placeholder without it. */
   cover?: string;
+  pageCount: number;
+  /** Images of all pages, for the page viewer (§17.1); only the current issue needs them. */
+  pageImages?: string[];
 };
 
 export type CarouselSlide = {

@@ -5,8 +5,9 @@
 New website of **Římskokatolická farnost Kuřim** (farakurim.cz). Built so far: the **homepage**, **Aktuality**
 (`/aktuality/`, one static page per filter), **Archiv aktualit** (`/aktuality/archiv/`, one static page per year
 button), **Detail akce** (`/aktuality/<slug>/` plus `kalendar.ics`; shares the `[slug]` segment with the filters),
-**Pořad bohoslužeb** (`/porad_bohosluzeb/`), **Kontakty** (`/kontakty/`) and **Kalendář** (`/kalendar/`, also the
-homepage "Tento týden" week calendar). Other pages follow as they are designed;
+**Pořad bohoslužeb** (`/porad_bohosluzeb/`, with the ohlášky and the weekly schedule), **Kontakty** (`/kontakty/`),
+**Kalendář** (`/kalendar/`, also the homepage "Tento týden" week calendar), **Petrklíč** (`/petrklic/aktualni/`) and
+**Archiv Petrklíče** (`/petrklic/archiv/`, one static page per year link). Other pages follow as they are designed;
 until then, nav links point to the live site.
 
 ## Language convention
@@ -30,18 +31,19 @@ until then, nav links point to the live site.
 
 ## Commands (run in this folder)
 
-| Command                  | What it does                                                                                                  |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------- |
-| `pnpm dev`               | Dev server at http://localhost:3000                                                                           |
-| `pnpm build`             | Static export to `out/`                                                                                       |
-| `pnpm test`              | Vitest unit tests (`src/**/*.test.ts`)                                                                        |
-| `pnpm lint`              | ESLint (Next core-web-vitals + TypeScript + React hooks rules)                                                |
-| `pnpm format`            | Prettier, including Tailwind class sorting (`prettier-plugin-tailwindcss`)                                    |
-| `pnpm preview`           | Serve `out/` at http://localhost:4173 (needs a prior `pnpm build`)                                            |
-| `pnpm mockups`           | Render the design mockups to static HTML and serve them at http://localhost:4174/mockups/                     |
-| `pnpm exec tsc --noEmit` | Type check                                                                                                    |
-| `pnpm icons`             | Regenerate `src/app/icon.png` (32 px) and `apple-icon.png` (180 px) from `src/app/icon.svg`                   |
-| `pnpm fonts`             | Regenerate `src/fonts/*.woff2` from `fonts-source/Oxygen/*.ttf` (needs `pip install --user fonttools brotli`) |
+| Command                  | What it does                                                                                                       |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| `pnpm dev`               | Dev server at http://localhost:3000                                                                                |
+| `pnpm build`             | Static export to `out/`                                                                                            |
+| `pnpm test`              | Vitest unit tests (`src/**/*.test.ts`)                                                                             |
+| `pnpm lint`              | ESLint (Next core-web-vitals + TypeScript + React hooks rules)                                                     |
+| `pnpm format`            | Prettier, including Tailwind class sorting (`prettier-plugin-tailwindcss`)                                         |
+| `pnpm preview`           | Serve `out/` at http://localhost:4173 (needs a prior `pnpm build`)                                                 |
+| `pnpm mockups`           | Render the design mockups to static HTML and serve them at http://localhost:4174/mockups/                          |
+| `pnpm exec tsc --noEmit` | Type check                                                                                                         |
+| `pnpm icons`             | Regenerate `src/app/icon.png` (32 px) and `apple-icon.png` (180 px) from `src/app/icon.svg`                        |
+| `pnpm petrklic <dir>`    | Render Petrklíč covers (and `--pages <id>` viewer pages) from the old site's PDFs to `public/assets/img/petrklic/` |
+| `pnpm fonts`             | Regenerate `src/fonts/*.woff2` from `fonts-source/Oxygen/*.ttf` (needs `pip install --user fonttools brotli`)      |
 
 Before you call work done, run: `pnpm format && pnpm test && pnpm lint && pnpm exec tsc --noEmit && pnpm build`,
 then check the change in a browser at **390, 834 and 1440 px** against `design/mockups/`
@@ -68,18 +70,20 @@ No CI. Build locally, then upload the **contents** of `out/` over SFTP to the we
 ```
 design/            Design handoff: DESIGN.md (source of truth), mockups (<page>/<light|dark>/*.dc.html), logo
 fonts-source/      Oxygen TTFs + OFL licence (input for `pnpm fonts`)
-scripts/           generate-icons.mjs, subset-fonts.sh, render-mockups.py
-public/assets/img/ logo + carousel photos pozadi/{sm,md,lg}/{1-7}.webp (served at the same URLs as the old site)
+scripts/           generate-icons.mjs, subset-fonts.sh, render-mockups.py, petrklic-images.py
+public/assets/img/ logo + carousel photos pozadi/{sm,md,lg}/{1-7}.webp (served at the same URLs as the old site),
+                   petrklic/<id>.webp covers and petrklic/<id>/<page>.webp viewer pages
 src/app/           layout.tsx (font, metadata, skip link, footer), page.tsx (homepage), aktuality/ ([slug] filters + details, archiv/),
-                   porad_bohosluzeb/, kontakty/, kalendar/,
+                   porad_bohosluzeb/, kontakty/, kalendar/, petrklic/ (aktualni/, archiv/[rok]/),
                    globals.css (Tailwind theme), icons
 src/components/    One component per block, styled with Tailwind utilities, grouped by where it is used:
                    ui/ (shared primitives: ButtonLink, headings, icons, …), layout/ (header, footer and their parts),
                    home/ (homepage blocks), news/ (Aktuality, archive, event detail), services/ (Pořad bohoslužeb),
-                   contacts/ (Kontakty), calendar/ (Kalendář). Same folder: `./X`; else `@/components/<group>/X`
-src/content/       Mock content (types.ts + one file per domain): the future API boundary; calendar.ts reads Google Calendar
+                   contacts/ (Kontakty), calendar/ (Kalendář), petrklic/ (Petrklíč and its archive). Same folder: `./X`; else `@/components/<group>/X`
+src/content/       Mock content (types.ts + one file per domain): the future API boundary; calendar.ts reads Google Calendar;
+                   ohlasky.ts (weekly ohlášky) is server-only
 src/lib/           Pure logic on date-fns (prague.ts, czech.ts, masses.ts, office.ts, news.ts, calendar.ts (.ics),
-                   agenda.ts (Kalendář), google-calendar.ts) + tests, useNow/useCalendarEntries hooks,
+                   agenda.ts (Kalendář), google-calendar.ts, service-sheet.ts (ohlášky), petrklic.ts) + tests, useNow/useCalendarEntries hooks,
                    links.ts (tel:/Mapy.cz hrefs), query-params.ts, theme.ts
 ```
 

@@ -26,8 +26,13 @@ build-time next mass.
 - Schedule (`content/masses.ts`): `regularServices` is the weekly schedule, one data source for the homepage
   next mass and Pořad bohoslužeb. Rows without a `title` are masses (only those count as the next mass);
   first-Friday/Saturday variants use `rule: "first-in-month"` (and `"not-first-in-month"` for what they replace).
-  Changes from the ohlášky and cancellations are `scheduleExceptions` entries, which **replace the whole day**;
-  their human-readable text goes to `serviceSheet.changes`. Never hard-code those variants in logic.
+  Exceptions (`scheduleExceptions`) **replace the whole day's masses**; never hard-code those variants in logic.
+- Ohlášky (`content/ohlasky.ts`, design §14.5–14.7): one `ServiceSheet` per week with `days[].rows[]` and
+  `announcements[]`. A day with a `changed` mass row becomes a schedule exception (`sheetExceptions()`), so a change is
+  entered once. Rows with `public: false` keep their `detail` (intentions, funeral names) off the web: the module is
+  `server-only`, pages pass `publicDays()` and client components get only props, never the module.
+- Petrklíč (`content/petrklic.ts`): one record per issue, newest first; the volume is computed (`volumeOf()`), covers
+  and viewer pages are WebP files rendered from the PDFs (`pnpm petrklic`).
 - Calendars (Kalendář, homepage "Tento týden"): the parish's two Google Calendars ("Mše, adorace" = `services`,
   "Události" = `events`, `parishCalendars` in `content/site.ts`) are the source, because visitors subscribe to
   them. `loadCalendarEntries()` (`content/calendar.ts`) reads them at build time with `singleEvents=true` (Google

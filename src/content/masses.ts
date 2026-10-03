@@ -1,4 +1,4 @@
-import type { Place, PlaceId, RegularService, ScheduleException, ServiceSheet } from "./types";
+import type { Place, PlaceId, RegularService } from "./types";
 
 // Mock content. Replace with data from the CMS/API once the backend exists.
 
@@ -23,7 +23,7 @@ export const places: Record<PlaceId, Place> = {
 
 /**
  * Regular weekly schedule (source: /porad_bohosluzeb/). First-Friday and first-Saturday variants use `rule`;
- * changes from the ohlášky go to `scheduleExceptions`.
+ * changes from the ohlášky (`content/ohlasky.ts`) become `scheduleExceptions`.
  */
 export const regularServices: RegularService[] = [
   { weekday: 1, time: "8:00", place: "kurim" },
@@ -39,30 +39,6 @@ export const regularServices: RegularService[] = [
   { weekday: 0, time: "9:30", place: "kurim", note: "s katechezí pro děti (ve školním roce)" },
   { weekday: 0, time: "11:00", place: "moravske-kninice" },
 ];
-
-/** Days whose masses differ from the regular schedule (changes from the ohlášky, cancellations). */
-export const scheduleExceptions: ScheduleException[] = [
-  {
-    date: "2026-10-04",
-    reason: "změna dle ohlášek",
-    masses: [
-      { time: "8:00", place: "kurim" },
-      { time: "9:30", place: "moravske-kninice" },
-      { time: "11:00", place: "kurim" },
-    ],
-  },
-];
-
-export const serviceSheet: ServiceSheet = {
-  pdfUrl: "https://farakurim.cz/nahrane/porady_bohosluzeb/6ab9325f1b46d.porad_bohosluzeb.pdf",
-  validFrom: "2026-09-27",
-  validTo: "2026-10-04",
-  changes: [
-    { date: "2026-10-04", text: "druhá mše v Kuřimi až v 11:00" },
-    { date: "2026-10-04", text: "Moravské Knínice v 9:30" },
-  ],
-  confession: ["Čt 17:30 Kuřim", "Pá 16:30 Moravské Knínice", "Pá při modlitebním večeru"],
-};
 
 /** Pořad bohoslužeb §14.1 (4)–(5). */
 export const sacraments = {

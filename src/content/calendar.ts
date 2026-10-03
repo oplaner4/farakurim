@@ -1,7 +1,8 @@
 import { newsEntries, scheduleEntries, type DateRange } from "@/lib/agenda";
 import { fetchGoogleCalendar, toEntries } from "@/lib/google-calendar";
 import { eventHref } from "@/lib/news";
-import { places, regularServices, scheduleExceptions } from "./masses";
+import { places, regularServices } from "./masses";
+import { scheduleExceptions } from "./ohlasky";
 import { events } from "./news";
 import { GOOGLE_CALENDAR_API_KEY, parishCalendars, SITE_URL } from "./site";
 import type { CalendarEntry, CalendarId } from "./types";

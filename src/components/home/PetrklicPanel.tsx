@@ -1,9 +1,12 @@
+import { links } from "@/content/site";
 import type { PetrklicIssue } from "@/content/types";
+import { issueLabel } from "@/lib/petrklic";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ColorStripe } from "@/components/ui/ColorStripe";
 
 /* Mobile/tablet: cover + intro in a row, actions below. Desktop: cover spans both rows of a 2-column grid. */
-export function PetrklicPanel({ issue }: { issue: PetrklicIssue }) {
+export function PetrklicPanel({ issue, description }: { issue: PetrklicIssue; description: string }) {
+  const label = issueLabel(issue);
   return (
     <section
       aria-labelledby="petrklic"
@@ -25,16 +28,16 @@ export function PetrklicPanel({ issue }: { issue: PetrklicIssue }) {
             <>
               <span className="text-18 font-bold text-orange-ink lg:text-22">Petrklíč</span>
               <ColorStripe className="h-1" />
-              <span className="text-22 font-bold text-ink lg:text-26">{issue.issue}</span>
+              <span className="text-22 font-bold text-ink lg:text-26">{label}</span>
             </>
           )}
         </div>
         <div className="relative flex min-w-0 flex-col gap-1.5 lg:gap-2">
           <p className="text-13 font-bold tracking-eyebrow text-orange-ink uppercase">Farní zpravodaj</p>
           <h2 id="petrklic" className="text-24 leading-heading font-bold md:text-26 lg:text-32 lg:leading-title">
-            Petrklíč {issue.issue}
+            Petrklíč {label}
           </h2>
-          <p className="text-14 text-ink-2 md:text-15 lg:text-17">{issue.description}</p>
+          <p className="text-14 text-ink-2 md:text-15 lg:text-17">{description}</p>
         </div>
       </div>
 
@@ -43,7 +46,7 @@ export function PetrklicPanel({ issue }: { issue: PetrklicIssue }) {
           Číst Petrklíč (PDF)
         </ButtonLink>
         <a
-          href={issue.archiveUrl}
+          href={links.petrklicArchive}
           className="flex min-h-11 items-center justify-center font-bold text-orange-ink-deep hover:text-ink"
         >
           <span className="lg:hidden">Archiv starších čísel</span>

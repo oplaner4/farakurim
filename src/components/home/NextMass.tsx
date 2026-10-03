@@ -1,8 +1,9 @@
 "use client";
 
 import { format } from "date-fns";
-import { places, regularServices, scheduleExceptions, serviceSheet } from "@/content/masses";
+import { places, regularServices } from "@/content/masses";
 import { links } from "@/content/site";
+import type { ScheduleException, ServiceSheet } from "@/content/types";
 import { formatDateRange, formatWeekdayDate } from "@/lib/czech";
 import { countdown, formatMassDay, upcomingMasses } from "@/lib/masses";
 import { inPrague, pragueDateTime } from "@/lib/prague";
@@ -10,14 +11,15 @@ import { useHydrated, useNow } from "@/lib/use-now";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ArrowRightIcon, FileDownloadIcon, PinIcon } from "@/components/ui/icons";
 
-const source = { regular: regularServices, exceptions: scheduleExceptions };
-
 /** Value for `<time dateTime>`: "2026-10-04T08:00" */
 const isoDateTime = (date: string, time: string) =>
   format(pragueDateTime(date, time), "yyyy-MM-dd'T'HH:mm", { in: inPrague });
 
 type Props = {
   renderedAt: number;
+  /** From the server: the ohlášky module is server-only (non-public rows). */
+  exceptions: ScheduleException[];
+  sheet: Pick<ServiceSheet, "pdfUrl" | "validFrom" | "validTo">;
   showCountdown?: boolean;
 };
 
@@ -27,10 +29,10 @@ type Props = {
  *   their children into one column;
  * - tablet: the wrappers become two grid columns.
  */
-export function NextMass({ renderedAt, showCountdown = true }: Props) {
+export function NextMass({ renderedAt, exceptions, sheet, showCountdown = true }: Props) {
   const now = useNow(renderedAt);
   const hydrated = useHydrated();
-  const [next, ...following] = upcomingMasses(now, source, 3);
+  const [next, ...following] = upcomingMasses(now, { regular: regularServices, exceptions }, 3);
   const left = next ? countdown(next.startsAt, now) : null;
 
   return (
@@ -72,12 +74,12 @@ export function NextMass({ renderedAt, showCountdown = true }: Props) {
         )}
 
         {/* On desktop the PDF button lives in the header. */}
-        <ButtonLink href={serviceSheet.pdfUrl} className="order-5 lg:hidden">
+        <ButtonLink href={sheet.pdfUrl} className="order-5 lg:hidden">
           <FileDownloadIcon />
           Pořad bohoslužeb (PDF)
         </ButtonLink>
         <p className="order-6 -mt-2 text-center text-13 text-muted lg:hidden">
-          Ohlášky na týden {formatDateRange(serviceSheet.validFrom, serviceSheet.validTo)}
+          Ohlášky na týden {formatDateRange(sheet.validFrom, sheet.validTo)}
         </p>
       </div>
 
