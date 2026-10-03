@@ -2,8 +2,8 @@
 
 import { clsx } from "clsx";
 import Link from "next/link";
-import type { MouseEvent } from "react";
-import { flushSync } from "react-dom";
+import { useSearchParams } from "next/navigation";
+import { type MouseEvent, Suspense } from "react";
 import type { NewsEvent } from "@/content/types";
 import { links } from "@/content/site";
 import { formatMonthYear, plural } from "@/lib/czech";
@@ -19,7 +19,7 @@ import {
   parsePage,
 } from "@/lib/news";
 import { useToday } from "@/lib/use-now";
-import { pushQueryParam, useQueryParam } from "@/lib/use-query-param";
+import { updateQueryParams, useFocusAfterChange } from "@/lib/query-params";
 import { ButtonLink } from "./ButtonLink";
 import { EventCard, eventAnchor } from "./EventCard";
 
@@ -45,12 +45,28 @@ type Props = {
 
 /**
  * Filters (links to the static filter pages), count, grouped cards and paging (design/DESIGN.md §11.3–11.6).
- * Every matching card is in the HTML; the ones beyond the current page are hidden, so "Načíst další"
- * only reveals them, and without JS a <noscript> style (NewsPage) shows them all.
+ * The prerendered HTML is page 1 (the Suspense fallback); the page from `?strana=` replaces it after hydration.
  */
-export function EventList({ events, filter, renderedAt }: Props) {
+export function EventList(props: Props) {
+  return (
+    <Suspense fallback={<EventListView {...props} page={1} />}>
+      <EventListFromUrl {...props} />
+    </Suspense>
+  );
+}
+
+function EventListFromUrl(props: Props) {
+  const page = parsePage(useSearchParams().get(PAGE_PARAM));
+  return <EventListView {...props} page={page} />;
+}
+
+/**
+ * Every matching card is in the HTML; the ones beyond `page` are hidden, so "Načíst další" only reveals them,
+ * and without JS a <noscript> style (NewsPage) shows them all.
+ */
+function EventListView({ events, filter, renderedAt, page }: Props & { page: number }) {
   const today = useToday(renderedAt);
-  const page = parsePage(useQueryParam(PAGE_PARAM));
+  const focusAfterPaging = useFocusAfterChange(page);
   const groups = groupEvents(filterEvents(events, filter, today), today);
   const flat = groups.flatMap((g) => g.events);
   const position = new Map(flat.map((event, i) => [event.id, i]));
@@ -60,9 +76,8 @@ export function EventList({ events, filter, renderedAt }: Props) {
     // Let modified clicks open the link in a new tab or window.
     if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     e.preventDefault();
-    const firstNew = flat[shownCount];
-    flushSync(() => pushQueryParam(PAGE_PARAM, String(page + 1)));
-    document.getElementById(eventAnchor(firstNew.id))?.focus();
+    focusAfterPaging(eventAnchor(flat[shownCount].id));
+    updateQueryParams({ [PAGE_PARAM]: String(page + 1) });
   }
 
   return (

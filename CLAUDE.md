@@ -65,7 +65,7 @@ src/app/           layout.tsx (font, metadata, skip link, footer), page.tsx (hom
                    globals.css (Tailwind theme), icons
 src/components/    One component per block, styled with Tailwind utilities; ButtonLink, SectionHeading, icons shared
 src/content/       Mock content (types.ts + one file per domain): the future API boundary
-src/lib/           Pure logic on date-fns (prague.ts, czech.ts, masses.ts, news.ts, calendar.ts) + tests, useNow / useQueryParam hooks, theme.ts
+src/lib/           Pure logic on date-fns (prague.ts, czech.ts, masses.ts, news.ts, calendar.ts) + tests, useNow hooks, query-params.ts, theme.ts
 ```
 
 ## Rules

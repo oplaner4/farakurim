@@ -2,8 +2,8 @@
 
 import { clsx } from "clsx";
 import Link from "next/link";
-import { type ChangeEvent, type FormEvent, type MouseEvent, useEffect, useRef, useState } from "react";
-import { flushSync } from "react-dom";
+import { useSearchParams } from "next/navigation";
+import { type ChangeEvent, type FormEvent, type MouseEvent, Suspense, useEffect, useRef, useState } from "react";
 import { links } from "@/content/site";
 import type { NewsEvent } from "@/content/types";
 import { formatCompactDate, formatMonthYear, plural } from "@/lib/czech";
@@ -17,7 +17,7 @@ import {
   searchEvents,
 } from "@/lib/news";
 import { useToday } from "@/lib/use-now";
-import { pushQueryParam, replaceQueryParams, useQueryParam } from "@/lib/use-query-param";
+import { updateQueryParams, useFocusAfterChange } from "@/lib/query-params";
 import { ButtonLink } from "./ButtonLink";
 import { ChevronLeftIcon, FileIcon, SearchIcon } from "./icons";
 
@@ -76,16 +76,47 @@ type Props = {
 
 /**
  * Archiv aktualit (design/DESIGN.md §12): search, year links (static pages), count, rows grouped by month
- * and paging. Every row of the year is in the HTML; rows beyond the current page are hidden and revealed
- * by "Načíst starší" (without JS, a <noscript> style on the page shows them all and hides the search).
+ * and paging. The prerendered HTML is the year's first page without a search (the Suspense fallback);
+ * `?q=` and `?strana=` replace it after hydration.
  */
-export function NewsArchive({ items, latest, yearSlug, renderedAt }: Props) {
+export function NewsArchive(props: Props) {
+  return (
+    <Suspense fallback={<NewsArchiveView {...props} rawQuery="" page={1} />}>
+      <NewsArchiveFromUrl {...props} />
+    </Suspense>
+  );
+}
+
+function NewsArchiveFromUrl(props: Props) {
+  const params = useSearchParams();
+  return (
+    <NewsArchiveView {...props} rawQuery={params.get(QUERY_PARAM) ?? ""} page={parsePage(params.get(PAGE_PARAM))} />
+  );
+}
+
+/**
+ * Every row of the year is in the HTML; rows beyond `page` are hidden and revealed by "Načíst starší"
+ * (without JS, a <noscript> style on the page shows them all and hides the search).
+ */
+function NewsArchiveView({
+  items,
+  latest,
+  yearSlug,
+  renderedAt,
+  rawQuery,
+  page,
+}: Props & { rawQuery: string; page: number }) {
   const today = useToday(renderedAt);
-  const rawQuery = useQueryParam(QUERY_PARAM) ?? "";
   const query = rawQuery.trim();
-  const page = parsePage(useQueryParam(PAGE_PARAM));
-  // The input shows what is typed until the debounced search writes it to the URL.
+  const focusAfterPaging = useFocusAfterChange(page);
+  // The input shows what is typed until the debounced search reaches the URL; any change of the URL's
+  // query (the search itself, "Zrušit hledání", back/forward) hands the input back to it.
   const [draft, setDraft] = useState<string | null>(null);
+  const [seenQuery, setSeenQuery] = useState(rawQuery);
+  if (rawQuery !== seenQuery) {
+    setSeenQuery(rawQuery);
+    setDraft(null);
+  }
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const input = useRef<HTMLInputElement>(null);
 
@@ -104,8 +135,7 @@ export function NewsArchive({ items, latest, yearSlug, renderedAt }: Props) {
 
   function search(value: string) {
     clearTimeout(timer.current);
-    replaceQueryParams({ [QUERY_PARAM]: value || null, [PAGE_PARAM]: null });
-    setDraft(null);
+    updateQueryParams({ [QUERY_PARAM]: value || null, [PAGE_PARAM]: null }, { replace: true });
   }
 
   function onChange(e: ChangeEvent<HTMLInputElement>) {
@@ -121,6 +151,7 @@ export function NewsArchive({ items, latest, yearSlug, renderedAt }: Props) {
   }
 
   function clearSearch() {
+    setDraft("");
     search("");
     input.current?.focus();
   }
@@ -129,9 +160,8 @@ export function NewsArchive({ items, latest, yearSlug, renderedAt }: Props) {
     // Let modified clicks open the link in a new tab or window.
     if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     e.preventDefault();
-    const firstNew = matching[shownCount];
-    flushSync(() => pushQueryParam(PAGE_PARAM, String(page + 1)));
-    document.getElementById(rowAnchor(firstNew.id))?.focus();
+    focusAfterPaging(rowAnchor(matching[shownCount].id));
+    updateQueryParams({ [PAGE_PARAM]: String(page + 1) });
   }
 
   const moreHref = `?${new URLSearchParams({ ...(query && { [QUERY_PARAM]: rawQuery }), [PAGE_PARAM]: String(page + 1) })}`;
