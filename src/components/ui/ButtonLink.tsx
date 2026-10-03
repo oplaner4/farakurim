@@ -9,6 +9,8 @@ export const buttonLink = cva("flex items-center justify-center font-bold no-und
       accent: "bg-orange text-on-orange hover:bg-orange-hover hover:text-on-orange",
       /* Aktuality */
       magenta: "bg-magenta text-white hover:bg-magenta-hover hover:text-white",
+      /* Fotogalerie: white text on dark green in light, dark text on light green in dark. */
+      green: "bg-green-ink text-on-green-ink hover:bg-green-ink-hover hover:text-on-green-ink",
       outline: "border-2 border-blue text-blue-ink hover:bg-blue hover:text-white",
       "outline-magenta": "border-2 border-magenta text-magenta-ink hover:bg-magenta hover:text-white",
       /* Petrklíč: dark text on the orange hover fill. */
@@ -26,8 +28,8 @@ export const buttonLink = cva("flex items-center justify-center font-bold no-und
     },
   },
   compoundVariants: [
-    { variant: ["primary", "accent", "magenta"], size: "default", className: "min-h-13" },
-    { variant: ["primary", "accent", "magenta"], size: "medium", className: "min-h-12 lg:min-h-13" },
+    { variant: ["primary", "accent", "magenta", "green"], size: "default", className: "min-h-13" },
+    { variant: ["primary", "accent", "magenta", "green"], size: "medium", className: "min-h-12 lg:min-h-13" },
     /* The design keeps the 52px content height and adds the 2px border on top (56px). */
     { variant: ["outline", "outline-magenta", "outline-orange"], size: "default", className: "min-h-14" },
     /* Same for medium: 48px content + border, 52px + border on desktop. */

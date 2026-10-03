@@ -6,8 +6,9 @@ New website of **Římskokatolická farnost Kuřim** (farakurim.cz). Built so fa
 (`/aktuality/`, one static page per filter), **Archiv aktualit** (`/aktuality/archiv/`, one static page per year
 button), **Detail akce** (`/aktuality/<slug>/` plus `kalendar.ics`; shares the `[slug]` segment with the filters),
 **Pořad bohoslužeb** (`/porad_bohosluzeb/`, with the ohlášky and the weekly schedule), **Kontakty** (`/kontakty/`),
-**Kalendář** (`/kalendar/`, also the homepage "Tento týden" week calendar), **Petrklíč** (`/petrklic/aktualni/`) and
-**Archiv Petrklíče** (`/petrklic/archiv/`, one static page per year link). Other pages follow as they are designed;
+**Kalendář** (`/kalendar/`, also the homepage "Tento týden" week calendar), **Petrklíč** (`/petrklic/aktualni/`),
+**Archiv Petrklíče** (`/petrklic/archiv/`, one static page per year link) and **Fotogalerie** (`/fotogalerie/`, also the
+homepage album carousel). Other pages follow as they are designed;
 until then, nav links point to the live site.
 
 ## Language convention
@@ -74,16 +75,18 @@ scripts/           generate-icons.mjs, subset-fonts.sh, render-mockups.py, petrk
 public/assets/img/ logo + carousel photos pozadi/{sm,md,lg}/{1-7}.webp (served at the same URLs as the old site),
                    petrklic/<id>.webp covers and petrklic/<id>/<page>.webp viewer pages
 src/app/           layout.tsx (font, metadata, skip link, footer), page.tsx (homepage), aktuality/ ([slug] filters + details, archiv/),
-                   porad_bohosluzeb/, kontakty/, kalendar/, petrklic/ (aktualni/, archiv/[rok]/),
+                   porad_bohosluzeb/, kontakty/, kalendar/, petrklic/ (aktualni/, archiv/[rok]/), fotogalerie/,
                    globals.css (Tailwind theme), icons
 src/components/    One component per block, styled with Tailwind utilities, grouped by where it is used:
                    ui/ (shared primitives: ButtonLink, headings, icons, …), layout/ (header, footer and their parts),
                    home/ (homepage blocks), news/ (Aktuality, archive, event detail), services/ (Pořad bohoslužeb),
-                   contacts/ (Kontakty), calendar/ (Kalendář), petrklic/ (Petrklíč and its archive). Same folder: `./X`; else `@/components/<group>/X`
+                   contacts/ (Kontakty), calendar/ (Kalendář), petrklic/ (Petrklíč and its archive),
+                   gallery/ (Fotogalerie, photo tiles shared with the homepage). Same folder: `./X`; else `@/components/<group>/X`
 src/content/       Mock content (types.ts + one file per domain): the future API boundary; calendar.ts reads Google Calendar;
                    ohlasky.ts (weekly ohlášky) is server-only
 src/lib/           Pure logic on date-fns (prague.ts, czech.ts, masses.ts, office.ts, news.ts, calendar.ts (.ics),
-                   agenda.ts (Kalendář), google-calendar.ts, service-sheet.ts (ohlášky), petrklic.ts) + tests, useNow/useCalendarEntries hooks,
+                   agenda.ts (Kalendář, "Tento týden"), google-calendar.ts, service-sheet.ts (ohlášky), petrklic.ts, gallery.ts) + tests,
+                   useNow/useCalendarEntries/useSnapCarousel hooks,
                    links.ts (tel:/Mapy.cz hrefs), query-params.ts, theme.ts
 ```
 

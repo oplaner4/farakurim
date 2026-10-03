@@ -1,61 +1,82 @@
-import { clsx } from "clsx";
 import type { Album } from "@/content/types";
-import { GALLERY_URL } from "@/content/gallery";
-import { formatLongDate } from "@/lib/czech";
-import { ImageIcon } from "@/components/ui/icons";
+import { links } from "@/content/site";
+import { formatDayMonth, formatLongDate } from "@/lib/czech";
+import { albumAnchor } from "@/lib/gallery";
+import { AlbumPhotoTile } from "@/components/gallery/AlbumPhotoTile";
+import { ArrowRightIcon } from "@/components/ui/icons";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { AlbumCarousel } from "./AlbumCarousel";
 
-const COVER_TINTS = [
-  "bg-green-tint text-green-ink",
-  "bg-blue-tint-alt text-blue-ink",
-  "bg-orange-tint-alt text-orange-ink-deep",
-  "bg-magenta-tint-alt text-magenta-ink",
-];
-
+/**
+ * Fotogalerie (design/DESIGN.md §4.5): the newest album's photos in a carousel, then the next three albums as
+ * compact rows ("Další alba"), under the carousel on mobile and tablet and beside it on desktop.
+ */
 export function GallerySection({ albums }: { albums: Album[] }) {
+  const [newest, ...older] = albums;
+  if (!newest) return null;
+  const albumHref = (album: Album) => `${links.gallery}${albumAnchor(album)}`;
   return (
-    <section
-      aria-labelledby="fotogalerie"
-      className="flex flex-col gap-4 pt-10 pb-2 md:gap-5 md:pt-14 lg:gap-6 lg:pt-20 lg:pb-0"
-    >
+    <section aria-labelledby="fotogalerie" className="flex flex-col gap-4 pt-10 pb-2 md:pt-14 lg:pt-20 lg:pb-0">
       <SectionHeading
         id="fotogalerie"
         title="Fotogalerie"
         color="green"
-        link={{ href: GALLERY_URL, label: "Celá fotogalerie", shortLabel: "Celá galerie" }}
+        link={{ href: links.gallery, label: "Celá fotogalerie" }}
       />
-      {/* Mobile: full-bleed horizontal scroll row. Tablet: 2 × 2. Desktop: 4 columns. */}
-      <ul className="-mx-4 flex snap-x snap-proximity scroll-px-4 gap-3 overflow-x-auto px-4 md:mx-0 md:grid md:grid-cols-2 md:gap-x-4 md:gap-y-6 md:overflow-visible md:p-0 lg:grid-fit-250 lg:gap-5">
-        {albums.slice(0, 4).map((album, i) => (
-          <li key={album.id} className="shrink-0 basis-60 snap-start">
-            <a href={album.href} className="group flex flex-col gap-2 text-ink no-underline hover:text-ink">
-              <span
-                className={clsx(
-                  "flex h-42.5 items-center justify-center overflow-hidden rounded-18 md:h-55 md:rounded-20 lg:h-60 lg:rounded-24",
-                  COVER_TINTS[i % COVER_TINTS.length],
-                )}
-              >
-                {album.cover ? (
-                  <img
-                    src={album.cover}
-                    alt=""
-                    className="size-full object-cover transition-transform duration-300 motion-safe:group-hover:scale-103"
-                    loading="lazy"
-                  />
-                ) : (
-                  <ImageIcon size={40} />
-                )}
-              </span>
-              <time dateTime={album.date} className="text-13 text-muted md:text-14">
-                {formatLongDate(album.date)}
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-6">
+        <figure className="flex min-w-0 flex-col gap-3 lg:flex-1">
+          <AlbumCarousel album={newest} />
+          <figcaption className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <span className="flex flex-col">
+              <time dateTime={newest.date} className="text-14 text-muted">
+                {formatLongDate(newest.date)}
               </time>
-              <h3 className="text-16 leading-card font-bold underline-offset-3 group-hover:text-green-ink group-hover:underline md:text-18">
-                {album.title}
-              </h3>
+              <strong className="text-18 leading-card md:text-20 lg:text-22">{newest.title}</strong>
+            </span>
+            <a
+              href={albumHref(newest)}
+              className="inline-flex min-h-11 items-center gap-1.5 font-bold text-green-ink hover:text-ink"
+            >
+              Celé album
+              <ArrowRightIcon size={18} />
             </a>
-          </li>
-        ))}
-      </ul>
+          </figcaption>
+        </figure>
+        {older.length > 0 && (
+          <div className="flex min-w-0 flex-col gap-2.5 lg:w-85 lg:flex-none">
+            <h3 className="text-14 font-bold text-muted">Další alba</h3>
+            <ul className="flex flex-col gap-2 md:grid md:grid-cols-3 md:gap-2.5 lg:flex">
+              {older.slice(0, 3).map((album, i) => (
+                <li key={album.id}>
+                  <a
+                    href={albumHref(album)}
+                    className="group flex items-center gap-3 rounded-16 bg-surface p-2 text-ink no-underline hover:text-ink"
+                  >
+                    <span className="h-16.5 w-22 flex-none overflow-hidden rounded-10">
+                      <AlbumPhotoTile
+                        photo={album.photos?.[0]}
+                        size="small"
+                        index={i + 1}
+                        alt=""
+                        iconSize={20}
+                        shardClassName="h-6 w-8"
+                      />
+                    </span>
+                    <span className="flex min-w-0 flex-col">
+                      <time dateTime={album.date} className="text-13 text-muted">
+                        {formatDayMonth(album.date)}
+                      </time>
+                      <strong className="text-15 leading-card underline-offset-3 group-hover:text-green-ink group-hover:underline">
+                        {album.title}
+                      </strong>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </section>
   );
 }

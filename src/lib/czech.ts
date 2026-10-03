@@ -35,6 +35,9 @@ export const formatShortDate = (date: IsoDate) => fmt(date, "d. M.");
 /** "20. září 2026" (date-fns `cs` uses the genitive month name after a day number) */
 export const formatLongDate = (date: IsoDate) => fmt(date, "d. MMMM yyyy");
 
+/** "20. září" */
+export const formatDayMonth = (date: IsoDate) => fmt(date, "d. MMMM");
+
 /** "Ne 4. 10." */
 export const formatWeekdayDate = (date: IsoDate) => `${capitalize(fmt(date, "EEEEEE"))} ${formatShortDate(date)}`;
 

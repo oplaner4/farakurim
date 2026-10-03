@@ -11,7 +11,7 @@ export const links = {
   news: "/aktuality/",
   newsArchive: "/aktuality/archiv/",
   services: "/porad_bohosluzeb/",
-  gallery: `${LIVE}/fotogalerie`,
+  gallery: "/fotogalerie/",
   petrklic: "/petrklic/aktualni/",
   petrklicArchive: "/petrklic/archiv/",
   contacts: "/kontakty/",
