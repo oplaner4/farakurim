@@ -3,8 +3,9 @@
 Spec for implementing the new website of **Římskokatolická farnost Kuřim**.
 Pages designed so far: **homepage** (sections 1–10), **Aktuality** (section 11),
 **Archiv aktualit** (section 12), **Detail akce** (section 13), **Pořad bohoslužeb**
-(section 14), **Kontakty** (section 15) and **Kalendář** (section 16, plus the
-homepage week calendar in 4.3a).
+(section 14), **Kontakty** (section 15), **Kalendář** (section 16, plus the
+homepage week calendar in 4.3a), **Petrklíč** (section 17) and **Archiv Petrklíče**
+(section 18).
 More pages will follow. Language of all UI copy: **Czech**. Approach: **mobile-first**.
 Every page has a **light and a dark theme**.
 
@@ -22,6 +23,8 @@ Every page has a **light and a dark theme**.
 | `mockups/porad-bohosluzeb/{light,dark}/` | Pořad bohoslužeb (section 14) |
 | `mockups/kontakty/{light,dark}/` | Kontakty (section 15) |
 | `mockups/kalendar/{light,dark}/` | Kalendář (section 16) |
+| `mockups/petrklic/{light,dark}/` | Petrklíč – aktuální číslo (section 17) |
+| `mockups/petrklic-archiv/{light,dark}/` | Archiv Petrklíče (section 18) |
 | `assets/logo-farnost-kurim.svg` | Cleaned logo (also the future favicon) |
 
 Desktop mockups are fluid with content max-width 1200 px; mobile and tablet are
@@ -36,7 +39,7 @@ styles everywhere and are separate files per size and theme. Production should b
 **one template per page + one shared stylesheet**, with header and footer as
 shared partials. Internal links in the mockups already use the real routes
 (`/`, `/aktuality/`, `/aktuality/archiv`, and `/aktuality/slavnostni-mse-k-jubileu-800-let`
-as an example detail URL, `/porad_bohosluzeb`, `/kontakty`, `/kalendar`); the theme toggle's `href="#"` stands for the JS toggle.
+as an example detail URL, `/porad_bohosluzeb`, `/kontakty`, `/kalendar`, `/petrklic/aktualni`, `/petrklic/archiv`); the theme toggle's `href="#"` stands for the JS toggle.
 
 ---
 
@@ -577,11 +580,10 @@ current item is "Bohoslužby" (blue-tint pill).
 ### 14.1 Structure
 
 1. Breadcrumb `Úvod › Pořad bohoslužeb`, H1 (32 / 44 / 56 px) with the blue shard.
-2. **"Tento týden" panel**: blue tint, blue and green triangles top-right.
-   - Eyebrow "Tento týden", H2 "Ohlášky 27. 9. – 4. 10. 2026", blue button **"Stáhnout ohlášky (PDF)"**.
-   - **"Změny tento týden"** box (orange tint, warning icon, orange-ink heading): a bullet list of this week's deviations from the regular schedule ("**Ne 4. 10.** – druhá mše v Kuřimi až v 11:00").
-   - "Svátost smíření tento týden": one line (mobile/tablet) or a small white card (desktop).
-   - Layout: stacked on mobile; two columns on tablet; on desktop the PDF block sits left and the two boxes right.
+2. **Ohlášky panel ("Tento týden")** (blue tint, blue and green triangles top-right). See 14.5.
+   - Header row: eyebrow "Tento týden", H2 "Ohlášky 27. 9. – 4. 10. 2026" (22 / 28 / 36 px), and a blue button **"Ohlášky v PDF"** (full width on mobile, on the right on larger screens).
+   - **Announcement cards**: one column on mobile, two on tablet and desktop.
+2a. **"Rozpis bohoslužeb tento týden"** below the panel: the weekly schedule from the PDF table, as a day-by-day list. See 14.6.
 3. **"Pravidelné bohoslužby"**: H2, a muted note "Dnes je sobota · změny vždy v ohláškách", day filter (14.2), church cards (14.3).
 4. **Svátost smíření**: "Půl hodiny před každou mší svatou je možnost přistoupit ke svátosti smíření."
 5. **Křty**: "Křty bývají druhou neděli v měsíci v 9:30. Termín si domluvte na faře." plus a link to Kontakty.
@@ -618,6 +620,48 @@ current item is "Bohoslužby" (blue-tint pill).
 
 The homepage "next mass" countdown (section 5) uses the same regular services plus
 this week's changes. One data source feeds both pages.
+
+### 14.5 Ohlášky (announcements)
+
+The text that used to exist only under the table in the weekly PDF is published on
+the page, word for word.
+
+- One **white card** per announcement (radius 18, padding 18) with a **category label** (13 px pill with an icon) and the text. Key times in the text may be bold.
+- Categories (chosen by the editor), each with its own label colour:
+
+| Category | Label | Card |
+|---|---|---|
+| `zmena` – **Změna bohoslužeb** | orange tint / `#8A4B00`, warning icon | **2 px orange border**, always sorted first |
+| `smireni` – **Svátost smíření** | blue tint / blue ink, clock icon | plain |
+| `pozvanka` – **Pozvánka** | magenta tint / magenta ink, building icon | plain; optional link "Více v aktualitách →" to the related Aktuality item; e-mails in the text are `mailto:` links |
+| `podekovani` – **Poděkování** | green tint / green ink, heart icon | plain |
+| `info` – **Oznámení** (generic) | surface / ink-2 | plain |
+
+- Order: changes first, then the order the editor entered.
+
+### 14.6 Weekly schedule ("Rozpis bohoslužeb tento týden")
+
+- H2 plus a text button on the right: **"Zobrazit celý týden (+N dní)"** / **"Skrýt proběhlé dny"** (`aria-expanded`). By default **only today and the coming days are shown**; past days appear dimmed (opacity 0.6) once expanded. When the whole week has passed, everything shows.
+- A white list box with one row per day, separated by hairlines:
+  - **Day column** (64 / 100 / 140 px): "Ne 4. 10." in bold, blue for Sundays and solemnities; today gets the blue tint background and a "dnes" pill.
+  - **Feast line** (13 px bold, magenta-ink for Sundays, muted otherwise): "27. neděle v mezidobí", "sv. Václav"…
+  - **Service rows**: time (bold) | place (muted) | text ("Mše sv. – za …", "Adorace", "Pohřeb – …"). On mobile the text wraps onto its own line under time and place. Changed services get an orange **"změna"** tag.
+- **Privacy:** the PDF's mass intentions and funeral notices name private people. The mockups show `[úmysl]` / `[jméno]` instead. **The parish should decide** whether names are published on the website (searchable and indexed forever) or only in the PDF. The data model should support a "show on web" flag per row.
+
+### 14.7 Data for ohlášky
+
+Enter ohlášky as **structured content**, one record per week, instead of uploading only a PDF:
+
+| Field | Notes |
+|---|---|
+| week range | from/to dates; it drives the "Tento týden" title and the homepage note |
+| days[] | date, feast (text), Sunday/solemnity flag |
+| rows[] | day, time, place, text, `changed` flag, `public` flag |
+| announcements[] | category (14.5), text (rich text: bold, links), optional related Aktuality item |
+| pdf | optional upload, or generated from the same data |
+
+The regular-schedule exceptions (14.4), the homepage next-mass countdown and the
+calendar should all read from these rows, so a change is entered only once.
 
 ## 15. Kontakty (`/kontakty`)
 
@@ -685,7 +729,7 @@ the Bohoslužby page and other in-page links. Section colour: **blue**, with
    - two **filter toggles** (`aria-pressed`): "Mše a adorace" (blue outline, filled when on) and "Události" (magenta), both on by default.
 3. **Month grid**, weeks starting Monday, with Po–Ne headers:
    - **Mobile** (52 px cells): the day number plus up to two dots, blue for services and magenta for events.
-   - **Tablet / desktop** (104 / 118 px cells): the day number, at most **two badge rows** (magenta tint, ellipsis), and "3× mše" at the bottom in blue-ink. A day with more than two events shows its first event and then a **"+N další" badge** in the same style (e.g. "+2 další" for three events), so the cell never overflows. Badges don't shrink (`flex: none`).
+   - **Tablet / desktop** (104 / 118 px cells): the day number, event labels (magenta tint, ellipsis) and "3× mše" at the bottom in blue-ink. **Overflow rule (as implemented):** with 1–2 events, show all of them; with **3 or more**, show the first event and a **"+N další"** label styled exactly like an event label (same tint, radius and size). A cell never shows more than two labels, so all cells keep the same height. The full list is in the day detail.
    - Days outside the month use `--surface` and muted text. **Today** has a 2 px blue border. The **selected day** is filled blue with white text; its event labels turn white with `#8F0634` text.
    - Each cell is a `<button>` with a full `aria-label` ("18. října, 2 bohoslužby, 1 akce") and `aria-pressed` for the selected day.
 4. **Day detail** (surface panel): the heading "Dnes · Sobota 3. října" / "Zítra · …" / "Neděle 18. října". One row per item: colour bar, time ("celý den" first), title (a link when there is a detail page), "place · Bohoslužba/Akce". Empty: "V tento den není v kalendáři nic."
@@ -716,3 +760,51 @@ the Bohoslužby page and other in-page links. Section colour: **blue**, with
 
 Same mapping as section 10. Cell background `--raised` (`#1F2B3D`), days outside the
 month `--surface`, selected day stays blue.
+
+## 17. Petrklíč – aktuální číslo (`/petrklic/aktualni`)
+
+Mockups: `mockups/petrklic/`. Section colour: **orange**. The header's current item is
+"Petrklíč" (orange tint `#FFF3E0`, orange ink `#A85800`; dark `#33240F` / `#FFB547`).
+
+### 17.1 Structure
+
+1. Breadcrumb `Úvod › Petrklíč`, H1 "Petrklíč" with the orange shard, lead "Zpravodaj Římskokatolické farnosti Kuřim. Vychází čtyřikrát ročně."
+2. **Current issue panel** (orange tint, orange and green triangles bottom-right):
+   - **Cover** (A4 ratio, white, orange-tinted shadow): 200×283 on mobile (centred), 240×340 on tablet, 300×424 on desktop. Production: an image of PDF page 1.
+   - Eyebrow "Aktuální číslo", H2 "Petrklíč 1/2026" (30 / 40 / 56 px), "Ročník XXI · vydání 1", one-line intro.
+   - Buttons: **"Číst online"** (orange fill, dark text; opens the PDF in the browser) and **"Stáhnout PDF"** (orange outline, `download`). Full width on mobile.
+3. **"Listujte přímo zde"** (tablet and desktop only): an embedded page viewer (pdf.js or pre-rendered page images) with prev/next buttons and "Strana 1 / 16" (`aria-live`). Desktop shows a two-page spread after the cover ("Strany 2–3 / 16"); tablet shows one page. Link "Otevřít na celou obrazovku →". Mobile skips the viewer and uses "Číst online".
+4. **Předchozí čísla**: the last 4 issues as cover tiles with "4/2025 · ročník XX". Mobile: horizontal scroll of 140 px tiles. Tablet and desktop: 4 columns. Link "Celý archiv →".
+5. **Napište do Petrklíče** (blue tint): "Články a příspěvky do zpravodaje posílejte e-mailem redakci." plus a button `mailto:petrklic.kurim@gmail.com`.
+6. **Redakce** (surface): editor names as pills (Jana Kolaříková, Dáša Montagová, Eva Ryšavá, Jaroslav Filka, Martin Strašák) and "Grafika obálky: Pája Polášková".
+
+On tablet and desktop, blocks 5 and 6 sit side by side.
+
+## 18. Archiv Petrklíče (`/petrklic/archiv`)
+
+Mockups: `mockups/petrklic-archiv/`. Replaces the old table (Název / Rok / Vydání /
+Ročník / Akce, with 10/20/50/100 paging).
+
+### 18.1 Structure
+
+1. Breadcrumb `Úvod › Petrklíč › Archiv Petrklíče`, H1, lead "Všechna čísla zpravodaje ke stažení ve formátu PDF."
+2. **Year chips**: Vše · 2026 · 2025 · …, with an orange active state and dark text. Mobile: scrollable row. Implement as links `?rok=2025`.
+3. **One block per year** (newest first), separated by a hairline:
+   - Year as H2 (20 / 24 / 32 px) plus "ročník XX" muted. On desktop the year sits in a 200 px left column next to the covers; on smaller screens it sits above them.
+   - **Issue tiles** (2 columns on mobile, 4 on tablet and desktop): the cover (A4 ratio, link to read), then the label "1/2026" with an orange **"nové"** pill for the current issue, and a 44 px **download** button (`aria-label` "Stáhnout Petrklíč 1/2026 (PDF)").
+   - Placeholder covers are tinted by issue number (1 green, 2 blue, 3 orange, 4 magenta). Real covers replace them.
+4. "Načíst starší ročníky" (loads the next 5 years) and a link back to "Aktuální číslo".
+
+### 18.2 Data
+
+| Field | Notes |
+|---|---|
+| year, issue number | "1/2026" is built from these |
+| volume (ročník) | Roman numeral, or computed: year − 2005 |
+| pdf | file |
+| cover | image, generated from PDF page 1 on upload (about 600 px wide, WebP) |
+| page count | for the viewer label |
+| published at | date; the newest issue is "aktuální" |
+
+The homepage Petrklíč card (4.6) shows the newest issue's cover and links to
+`/petrklic/aktualni`. "Archiv starších čísel" links to `/petrklic/archiv`.

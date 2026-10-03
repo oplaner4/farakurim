@@ -15,7 +15,7 @@ body{margin:0;background:#111923}
 a{color:#7DB8EE}a:hover{color:#A9D1F5}
 </style>
 </helmet>
-<div style="width: 834px; min-height: 2000px; box-sizing: border-box; display: flex; flex-direction: column; background: #111923; color: #EEF2F7; font-family: Oxygen, 'Segoe UI', 'Helvetica Neue', sans-serif; font-size: 17px; line-height: 1.5">
+<div style="width: 834px; min-height: 2520px; box-sizing: border-box; display: flex; flex-direction: column; background: #111923; color: #EEF2F7; font-family: Oxygen, 'Segoe UI', 'Helvetica Neue', sans-serif; font-size: 17px; line-height: 1.5">
 
   <header style="display: flex; flex-direction: column; background: #111923">
     <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 32px">
@@ -49,7 +49,7 @@ a{color:#7DB8EE}a:hover{color:#A9D1F5}
         <a href="/aktuality/" style="display: flex; align-items: center; min-height: 48px; padding: 0 16px; border-radius: 12px; background: #18212F; color: #EEF2F7; text-decoration: none">Aktuality</a>
         <a href="#" aria-current="page" style="display: flex; align-items: center; min-height: 48px; padding: 0 16px; border-radius: 12px; background: #172A40; font-weight: 700; color: #7DB8EE; text-decoration: none">Bohoslužby</a>
         <a href="https://farakurim.cz/fotogalerie" style="display: flex; align-items: center; min-height: 48px; padding: 0 16px; border-radius: 12px; background: #18212F; color: #EEF2F7; text-decoration: none">Fotogalerie</a>
-        <a href="https://farakurim.cz/petrklic/" style="display: flex; align-items: center; min-height: 48px; padding: 0 16px; border-radius: 12px; background: #18212F; color: #EEF2F7; text-decoration: none">Petrklíč</a>
+        <a href="/petrklic/aktualni" style="display: flex; align-items: center; min-height: 48px; padding: 0 16px; border-radius: 12px; background: #18212F; color: #EEF2F7; text-decoration: none">Petrklíč</a>
         <a href="/kontakty" style="display: flex; align-items: center; min-height: 48px; padding: 0 16px; border-radius: 12px; background: #18212F; color: #EEF2F7; text-decoration: none">Kontakty</a>
       </nav>
     </sc-if>
@@ -69,34 +69,80 @@ a{color:#7DB8EE}a:hover{color:#A9D1F5}
       </div>
     </div>
 
-    <section aria-labelledby="tyden-t" style="position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; padding: 28px; border-radius: 28px; background: #172A40; overflow: hidden">
-      <span aria-hidden="true" style="position: absolute; top: 0; right: 0; width: 88px; height: 88px; background: #1D71B7; clip-path: polygon(0 0, 100% 0, 100% 100%)"></span>
-      <span aria-hidden="true" style="position: absolute; top: 0; right: 50px; width: 38px; height: 48px; background: #2EAC66; clip-path: polygon(0 0, 100% 0, 100% 100%)"></span>
-      <div style="display: flex; flex-direction: column; gap: 14px">
-        <span style="font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #7DB8EE">Tento týden</span>
-        <h2 id="tyden-t" style="margin: 0; font-size: 26px; font-weight: 700; line-height: 1.2">Ohlášky 27. 9. – 4. 10. 2026</h2>
-        <a href="https://farakurim.cz/nahrane/porady_bohosluzeb/6ab9325f1b46d.porad_bohosluzeb.pdf" style="display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; margin-top: auto; border-radius: 14px; background: #1D71B7; color: #FFFFFF; font-weight: 700; text-decoration: none">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6"></path><path d="M12 12v6M9 15l3 3 3-3"></path></svg>
-          Stáhnout ohlášky (PDF)
-        </a>
-      </div>
-      <div style="display: flex; flex-direction: column; gap: 14px; padding-top: 36px">
-        <div style="display: flex; flex-direction: column; gap: 8px; padding: 16px 18px; border-radius: 16px; background: #33240F">
-          <span style="display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; color: #FFC266">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9.5 17h-19z"></path><path d="M12 10v4M12 17.5v.5"></path></svg>
-            Změny tento týden
-          </span>
-          <ul style="margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; font-size: 16px">
-            <li><strong>Ne 4. 10.</strong> – druhá mše v Kuřimi až v 11:00</li>
-            <li><strong>Ne 4. 10.</strong> – Moravské Knínice v 9:30</li>
-          </ul>
+    <section aria-labelledby="tyden-t" style="position: relative; display: flex; flex-direction: column; gap: 20px; padding: 28px; border-radius: 28px; background: #172A40; overflow: hidden">
+  <span aria-hidden="true" style="position: absolute; top: 0; right: 0; width: 88px; height: 88px; background: #1D71B7; clip-path: polygon(0 0, 100% 0, 100% 100%)"></span>
+  <span aria-hidden="true" style="position: absolute; top: 0; right: 50px; width: 38px; height: 48px; background: #2EAC66; clip-path: polygon(0 0, 100% 0, 100% 100%)"></span>
+  <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px 24px; padding-right: 80px">
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <span style="font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #7DB8EE">Tento týden</span>
+      <h2 id="tyden-t" style="margin: 0; font-size: 28px; font-weight: 700; line-height: 1.2; letter-spacing: -0.01em">Ohlášky 27. 9. – 4. 10. 2026</h2>
+    </div>
+    <a href="https://farakurim.cz/nahrane/porady_bohosluzeb/6ab9325f1b46d.porad_bohosluzeb.pdf" style=" display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 22px; border-radius: 14px; background: #1D71B7; color: #FFFFFF; font-weight: 700; text-decoration: none">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6"></path><path d="M12 12v6M9 15l3 3 3-3"></path></svg>
+      Ohlášky v PDF
+    </a>
+  </div>
+
+  <ul style="margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+    <li style="display: flex; flex-direction: column; gap: 10px; padding: 18px; border-radius: 18px; background: #1F2B3D; border: 2px solid #F39200">
+      <span style="align-self: flex-start; display: flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; background: #33240F; color: #FFC266; font-size: 13px; font-weight: 700">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9.5 17h-19z"></path><path d="M12 10v4M12 17.5v.5"></path></svg>
+        Změna bohoslužeb
+      </span>
+      <p style="margin: 0">V sobotu 3. října jsou v obci Česká hody. V této souvislosti upozorňujeme na mimořádné změny v bohoslužbách příští neděli (4. října): v Kuřimi bude druhá mše svatá <strong>mimořádně v 11 hod</strong> a bude při ní zpívat sbor Magnificat z Lelekovic. V Moravských Knínicích mše svatá bude <strong>již v 9.30 hod</strong>.</p>
+    </li>
+    <li style="display: flex; flex-direction: column; gap: 10px; padding: 18px; border-radius: 18px; background: #1F2B3D">
+      <span style="align-self: flex-start; display: flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; background: #172A40; color: #7DB8EE; font-size: 13px; font-weight: 700">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+        Svátost smíření
+      </span>
+      <p style="margin: 0">V Kuřimi se zpovídá ve čtvrtek od 17.30 hod a v pátek při modlitebním večeru, v Moravských Knínicích v pátek od 16.30 hod.</p>
+    </li>
+    <li style="display: flex; flex-direction: column; gap: 10px; padding: 18px; border-radius: 18px; background: #1F2B3D">
+      <span style="align-self: flex-start; display: flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; background: #331824; color: #FF7AA6; font-size: 13px; font-weight: 700">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V6l8-3 8 3v14"></path><path d="M9 20v-5h6v5"></path></svg>
+        Pozvánka
+      </span>
+      <p style="margin: 0">Připravujeme farní pouť do Lukova, rodiště blahoslaveného Jana Buly, a na adventní trhy do Třebíče. Pojede se v sobotu 19. prosince, cena 300 Kč, přihláška do 10. října na <a href="mailto:poutnicimkk@seznam.cz" style="font-weight: 700">poutnicimkk@seznam.cz</a>.</p>
+      <a href="/aktuality/" style="display: flex; align-items: center; min-height: 44px; margin-top: auto; font-weight: 700; color: #FF7AA6">Více v aktualitách →</a>
+    </li>
+    <li style="display: flex; flex-direction: column; gap: 10px; padding: 18px; border-radius: 18px; background: #1F2B3D">
+      <span style="align-self: flex-start; display: flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; background: #163A2A; color: #5FD394; font-size: 13px; font-weight: 700">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"></path></svg>
+        Poděkování
+      </span>
+      <p style="margin: 0">Děkujeme všem, kdo zajišťovali mši svatou na náměstí Osvobození a farní stánek na Medových dnech. Byla to zdařilá evangelizace zpěvem, vlídným přijetím, pohoštěním a společným slavením.</p>
+    </li>
+  </ul>
+</section>
+
+<section aria-labelledby="rozpis-t" style="display: flex; flex-direction: column; gap: 14px">
+  <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 8px 16px">
+    <h2 id="rozpis-t" style="margin: 0; font-size: 26px; font-weight: 700">Rozpis bohoslužeb tento týden</h2>
+    <button type="button" onClick="{{togglePast}}" aria-expanded="{{pastExpanded}}" style="min-height: 44px; padding: 0 4px; border: 0; background: transparent; color: #7DB8EE; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer">{{pastLabel}}</button>
+  </div>
+  <div style="display: flex; flex-direction: column; border-radius: 20px; border: 1px solid #2A3648; background: #1F2B3D; overflow: hidden">
+    <sc-for list="{{weekDays}}" as="wd" hint-placeholder-count="2">
+      <div style="display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 16px; padding: 14px 20px; border-top: 1px solid #2A3648; background: {{wd.bg}}; opacity: {{wd.opacity}}">
+        <div style="display: flex; flex-direction: column; line-height: 1.25">
+          <strong style="font-size: 17px; color: {{wd.ink}}">{{wd.dow}} {{wd.date}}</strong>
+          <sc-if value="{{wd.isToday}}" hint-placeholder-val="{{ false }}"><span style="align-self: flex-start; margin-top: 4px; padding: 1px 8px; border-radius: 999px; background: #1D71B7; color: #FFFFFF; font-size: 12px; font-weight: 700">dnes</span></sc-if>
         </div>
-        <div style="display: flex; flex-direction: column; gap: 2px; font-size: 15px; color: #C3CCD8">
-          <strong style="color: #EEF2F7">Svátost smíření tento týden</strong>
-          <span>Čt 17:30 Kuřim · Pá 16:30 Moravské Knínice · Pá při modlitebním večeru</span>
+        <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0">
+          <sc-if value="{{wd.hasFeast}}" hint-placeholder-val="{{ true }}"><span style="font-size: 13px; font-weight: 700; letter-spacing: 0.03em; color: {{wd.feastInk}}">{{wd.feast}}</span></sc-if>
+          <sc-for list="{{wd.rows}}" as="r" hint-placeholder-count="2">
+            <div style="display: grid; grid-template-columns: 56px 150px minmax(0, 1fr); gap: 4px 12px; align-items: baseline">
+              <strong>{{r.time}}</strong>
+              <span style="font-size: 14px; color: #9AA6B5">{{r.place}}</span>
+              <span style="">{{r.text}} <sc-if value="{{r.changed}}" hint-placeholder-val="{{ false }}"><span style="padding: 1px 8px; border-radius: 999px; background: #33240F; color: #FFC266; font-size: 12px; font-weight: 700; white-space: nowrap">změna</span></sc-if></span>
+            </div>
+          </sc-for>
         </div>
       </div>
-    </section>
+    </sc-for>
+  </div>
+</section>
+
 
     <section aria-labelledby="pravidelne-t" style="display: flex; flex-direction: column; gap: 18px">
       <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 8px 16px">
@@ -197,7 +243,7 @@ a{color:#7DB8EE}a:hover{color:#A9D1F5}
 </div>
 
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":834,"height":2000}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":834,"height":2520}}'>
 class Component extends DCLogic {
   renderVals() {
     const st = this.state || {};
@@ -233,7 +279,35 @@ class Component extends DCLogic {
         bg: on ? '#1D71B7' : '#18212F', fg: on ? '#FFFFFF' : '#EEF2F7', bd: on ? '#1D71B7' : (isToday ? '#1D71B7' : '#2A3648'),
         title: isToday ? 'dnes' : '' };
     });
+    const U = 'Mše sv. – [úmysl]';
+    const FARNICI = 'Mše sv. – za živé a † farníky a dobrodince naší farnosti';
+    const WEEK = [
+      [2026, 9, 27, 'Ne', '26. neděle v mezidobí', true, [['8:00', 'Kuřim', U], ['9:30', 'Moravské Knínice', U], ['11:00', 'Vranov', FARNICI]]],
+      [2026, 9, 28, 'Po', 'sv. Václav', false, [['8:00', 'Kuřim', U]]],
+      [2026, 9, 29, 'Út', 'sv. archandělé Michael, Gabriel a Rafael', false, [['8:00', 'Kuřim', U]]],
+      [2026, 9, 30, 'St', 'sv. Jeroným', false, [['8:00', 'Kuřim', U]]],
+      [2026, 10, 1, 'Čt', 'sv. Terezie z Lisieux', false, [['17:30', 'Kuřim', 'Adorace'], ['18:00', 'Kuřim', U]]],
+      [2026, 10, 2, 'Pá', 'sv. andělé strážní', false, [['17:00', 'Moravské Knínice', 'Mše sv. – za pokoj a mír na Ukrajině, na Blízkém východě i celém světě'], ['18:15', 'Kuřim', 'Mše sv. – za Komunitu Emmanuel'], ['19:00', 'Kuřim', 'Modlitební večer s Komunitou Emmanuel']]],
+      [2026, 10, 3, 'So', '', false, [['8:00', 'Kuřim', FARNICI], ['10:00', 'Kuřim', 'Pohřeb – [jméno]']]],
+      [2026, 10, 4, 'Ne', '27. neděle v mezidobí', true, [['8:00', 'Kuřim', U], ['9:30', 'Moravské Knínice', U, true], ['11:00', 'Kuřim', 'Hodová mše sv. – za obec Česká, její obyvatele a rodáky', true]]]
+    ];
+    const t0 = new Date(); const tDay = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate());
+    const allDays = WEEK.map((w) => {
+      const d = new Date(w[0], w[1] - 1, w[2]);
+      const isToday = d.getTime() === tDay.getTime(), isPast = d < tDay;
+      return { dow: w[3], date: w[2] + '. ' + w[1] + '.', feast: w[4], hasFeast: !!w[4], isToday: isToday, isPast: isPast,
+        ink: w[5] ? '#7DB8EE' : '#EEF2F7', feastInk: w[5] ? '#FF7AA6' : '#9AA6B5',
+        bg: isToday ? '#172A40' : 'transparent', opacity: isPast ? '0.6' : '1',
+        rows: w[6].map((r) => ({ time: r[0], place: r[1], text: r[2], changed: !!r[3] })) };
+    });
+    const upcoming = allDays.filter((d) => !d.isPast);
+    const showPast = !!st.showPast || upcoming.length === 0;
+    const pastCount = allDays.length - upcoming.length;
     return {
+      weekDays: showPast ? allDays : upcoming,
+      togglePast: () => this.setState({ showPast: !st.showPast }),
+      pastExpanded: showPast ? 'true' : 'false',
+      pastLabel: showPast ? 'Skrýt proběhlé dny' : ('Zobrazit celý týden (+' + pastCount + (pastCount === 1 ? ' den' : (pastCount <= 4 ? ' dny' : ' dní')) + ')'),
       menuOpen: !!st.menuOpen,
       toggleMenu: () => this.setState({ menuOpen: !st.menuOpen }),
       chips: chips, churches: churches,

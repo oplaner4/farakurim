@@ -44,7 +44,7 @@ a{color:#165A93}a:hover{color:#0F3F69}
         <a href="/aktuality/" style="padding: 12px 4px; font-size: 18px; color: #1B2533; text-decoration: none; border-bottom: 1px solid #EEF1F5">Aktuality</a>
         <a href="/porad_bohosluzeb" style="padding: 12px 4px; font-size: 18px; color: #1B2533; text-decoration: none; border-bottom: 1px solid #EEF1F5">Bohoslužby</a>
         <a href="https://farakurim.cz/fotogalerie" style="padding: 12px 4px; font-size: 18px; color: #1B2533; text-decoration: none; border-bottom: 1px solid #EEF1F5">Fotogalerie</a>
-        <a href="https://farakurim.cz/petrklic/" style="padding: 12px 4px; font-size: 18px; color: #1B2533; text-decoration: none; border-bottom: 1px solid #EEF1F5">Petrklíč</a>
+        <a href="/petrklic/aktualni" style="padding: 12px 4px; font-size: 18px; color: #1B2533; text-decoration: none; border-bottom: 1px solid #EEF1F5">Petrklíč</a>
         <a href="/kontakty" style="padding: 12px 4px; font-size: 18px; color: #1B2533; text-decoration: none">Kontakty</a>
       </nav>
     </sc-if>
@@ -211,8 +211,9 @@ class Component extends DCLogic {
         const nM = items.length - akce.length;
         const inM = d.getMonth() === vm;
         const isT = same(d, today), isS = same(d, sel);
-        const chips = akce.slice(0, akce.length > 2 ? 1 : 2).map((a) => ({ title: a.title }));
-        const more = akce.length > 2 ? '+' + (akce.length - 1) + ' další' : '';
+        const shown = akce.length > 2 ? 1 : akce.length;
+        const chips = akce.slice(0, shown).map((a) => ({ title: a.title }));
+        const more = akce.length > shown ? '+' + (akce.length - shown) + ' další' : '';
         const parts = [];
         if (nM) parts.push(nM + (nM === 1 ? ' bohoslužba' : (nM <= 4 ? ' bohoslužby' : ' bohoslužeb')));
         if (akce.length) parts.push(akce.length + (akce.length === 1 ? ' akce' : (akce.length <= 4 ? ' akce' : ' akcí')));
