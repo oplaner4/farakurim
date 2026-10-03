@@ -46,6 +46,19 @@ export function massesOnDate(date: IsoDate, source: ScheduleSource): MassEntry[]
     .map(({ time, place, note }) => ({ time, place, ...(note && { note }) }));
 }
 
+/**
+ * All services of a day, masses and titled ones ("Adorace"), by time. An exception replaces the masses only;
+ * the titled services keep their regular rule.
+ */
+export function servicesOnDate(date: IsoDate, source: ScheduleSource): (MassEntry & { title?: string })[] {
+  const weekday = pragueWeekday(date);
+  const firstInMonth = Number(date.slice(8, 10)) <= 7;
+  const titled = source.regular
+    .filter((s) => s.weekday === weekday && s.title && ruleApplies(s.rule, firstInMonth))
+    .map(({ time, place, title, note }) => ({ time, place, title, ...(note && { note }) }));
+  return [...massesOnDate(date, source), ...titled].sort((a, b) => minutes(a.time) - minutes(b.time));
+}
+
 /** Monday first, as the week is printed in the ohlášky. */
 export const WEEK_ORDER: Weekday[] = [1, 2, 3, 4, 5, 6, 0];
 

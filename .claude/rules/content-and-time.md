@@ -28,6 +28,13 @@ build-time next mass.
   first-Friday/Saturday variants use `rule: "first-in-month"` (and `"not-first-in-month"` for what they replace).
   Changes from the ohlášky and cancellations are `scheduleExceptions` entries, which **replace the whole day**;
   their human-readable text goes to `serviceSheet.changes`. Never hard-code those variants in logic.
+- Calendars (Kalendář, homepage "Tento týden"): the parish's two Google Calendars ("Mše, adorace" = `services`,
+  "Události" = `events`, `parishCalendars` in `content/site.ts`) are the source, because visitors subscribe to
+  them. `loadCalendarEntries()` (`content/calendar.ts`) reads them at build time with `singleEvents=true` (Google
+  expands recurrences and exceptions); `useCalendarEntries()` re-reads the shown range in the browser. Without
+  `NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY` it returns mock entries generated from `regularServices` and the Aktuality
+  records. An Aktuality record links to its calendar event through `calendarEventId`. The weekly table and the
+  next-mass countdown still use `regularServices` / `scheduleExceptions`.
 - Office hours (`content/site.ts`): weekly slots with an optional yearly `closed` break; the live status is
   `officeStatus()` in `src/lib/office.ts`.
 - Czech output: `plural()` (built on `Intl.PluralRules("cs")`), date-fns `cs` locale (genitive month names

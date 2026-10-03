@@ -1,4 +1,4 @@
-import type { CarouselSlide, OfficeHours } from "./types";
+import type { CalendarId, CarouselSlide, OfficeHours } from "./types";
 
 /** Public origin of the site: absolute URLs in metadata, JSON-LD and calendar files. */
 export const SITE_URL = "https://farakurim.cz";
@@ -14,7 +14,7 @@ export const links = {
   gallery: `${LIVE}/fotogalerie`,
   petrklic: `${LIVE}/petrklic/`,
   contacts: "/kontakty/",
-  calendar: `${LIVE}/kalendar`,
+  calendar: "/kalendar/",
   virtualTour: `${LIVE}/virtualni_prohlidka/`,
 };
 
@@ -27,6 +27,31 @@ export const mainNav = [
   { label: "Petrklíč", href: links.petrklic, color: "orange" },
   { label: "Kontakty", href: links.contacts, color: "blue" },
 ] as const;
+
+/**
+ * The parish's public Google Calendars (design/DESIGN.md §16.1). `subscribeUrl` adds the calendar to the visitor's
+ * Google Calendar; it is the same link the old site used, so existing subscribers keep their calendars.
+ */
+export const parishCalendars: Record<CalendarId, { name: string; googleId: string; subscribeUrl: string }> = {
+  services: {
+    name: "Mše a adorace",
+    googleId: "hho1ik2s8pu7742kv6eojt0tno@group.calendar.google.com",
+    subscribeUrl:
+      "https://calendar.google.com/calendar/u/0?cid=aGhvMWlrMnM4cHU3NzQya3Y2ZW9qdDB0bm9AZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ",
+  },
+  events: {
+    name: "Události",
+    googleId: "04gtmq4vqvu2jg624uiu2o0d18@group.calendar.google.com",
+    subscribeUrl:
+      "https://calendar.google.com/calendar/u/0?cid=MDRndG1xNHZxdnUyamc2MjR1aXUybzBkMThAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ",
+  },
+};
+
+/**
+ * Browser key for the Google Calendar API, restricted to the site's referrer. Without it, the calendars are
+ * mock data generated from the schedule and Aktuality (`content/calendar.ts`).
+ */
+export const GOOGLE_CALENDAR_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY || undefined;
 
 export const parish = {
   name: "Římskokatolická farnost Kuřim",

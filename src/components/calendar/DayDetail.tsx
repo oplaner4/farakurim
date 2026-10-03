@@ -1,0 +1,44 @@
+import { clsx } from "clsx";
+import type { IsoDate } from "@/content/types";
+import { type AgendaItem, dayHeading, itemTime } from "@/lib/agenda";
+
+const KIND = { services: "Bohoslužba", events: "Akce" };
+
+/** The selected day's programme (design/DESIGN.md §16.2, 4). */
+export function DayDetail({ date, today, items }: { date: IsoDate; today: IsoDate; items: AgendaItem[] }) {
+  return (
+    <section aria-labelledby="vybrany-den" className="flex flex-col gap-3 rounded-24 bg-surface p-4.5 md:p-5.5 lg:p-6">
+      <h2 id="vybrany-den" aria-live="polite" className="text-18 font-bold md:text-20 lg:text-22">
+        {dayHeading(date, today)}
+      </h2>
+      {items.length === 0 ? (
+        <p className="text-ink-2">V tento den není v kalendáři nic.</p>
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {items.map((item) => (
+            <li key={item.key} className="flex gap-3 rounded-14 bg-raised px-3.5 py-3">
+              <span
+                aria-hidden="true"
+                className={clsx("w-1.25 flex-none rounded-4", item.calendar === "services" ? "bg-blue" : "bg-magenta")}
+              />
+              <span className="shrink-0 basis-17.5 font-bold">{itemTime(item)}</span>
+              <span className="flex min-w-0 flex-col">
+                {item.href ? (
+                  <a href={item.href} className="font-bold">
+                    {item.title}
+                  </a>
+                ) : (
+                  <span className="font-bold">{item.title}</span>
+                )}
+                <span className="text-14 text-muted">
+                  {item.place && `${item.place} · `}
+                  {KIND[item.calendar]}
+                </span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}

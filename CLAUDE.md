@@ -5,7 +5,8 @@
 New website of **Římskokatolická farnost Kuřim** (farakurim.cz). Built so far: the **homepage**, **Aktuality**
 (`/aktuality/`, one static page per filter), **Archiv aktualit** (`/aktuality/archiv/`, one static page per year
 button), **Detail akce** (`/aktuality/<slug>/` plus `kalendar.ics`; shares the `[slug]` segment with the filters),
-**Pořad bohoslužeb** (`/porad_bohosluzeb/`) and **Kontakty** (`/kontakty/`). Other pages follow as they are designed;
+**Pořad bohoslužeb** (`/porad_bohosluzeb/`), **Kontakty** (`/kontakty/`) and **Kalendář** (`/kalendar/`, also the
+homepage "Tento týden" week calendar). Other pages follow as they are designed;
 until then, nav links point to the live site.
 
 ## Language convention
@@ -51,6 +52,12 @@ then check the change in a browser at **390, 834 and 1440 px** against `design/m
 Commit messages follow **Conventional Commits** (`type(scope): subject`), checked by commitlint in the husky
 `commit-msg` hook. Use the `commit` skill (`.claude/skills/commit/SKILL.md`); never bypass the hook with `--no-verify`.
 
+## Google Calendar key
+
+`NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY` in `.env.local` (never committed) switches the calendars from mock data to the
+parish's Google Calendars, read at build time and again in the browser. It is a browser key (it ends up in the
+exported JS), so it must stay restricted to the farakurim.cz referrer and the Calendar API.
+
 ## Deployment
 
 No CI. Build locally, then upload the **contents** of `out/` over SFTP to the web root.
@@ -64,14 +71,15 @@ fonts-source/      Oxygen TTFs + OFL licence (input for `pnpm fonts`)
 scripts/           generate-icons.mjs, subset-fonts.sh, render-mockups.py
 public/assets/img/ logo + carousel photos pozadi/{sm,md,lg}/{1-7}.webp (served at the same URLs as the old site)
 src/app/           layout.tsx (font, metadata, skip link, footer), page.tsx (homepage), aktuality/ ([slug] filters + details, archiv/),
-                   porad_bohosluzeb/, kontakty/,
+                   porad_bohosluzeb/, kontakty/, kalendar/,
                    globals.css (Tailwind theme), icons
 src/components/    One component per block, styled with Tailwind utilities, grouped by where it is used:
                    ui/ (shared primitives: ButtonLink, headings, icons, …), layout/ (header, footer and their parts),
                    home/ (homepage blocks), news/ (Aktuality, archive, event detail), services/ (Pořad bohoslužeb),
-                   contacts/ (Kontakty). Same folder: `./X`; else `@/components/<group>/X`
-src/content/       Mock content (types.ts + one file per domain): the future API boundary
-src/lib/           Pure logic on date-fns (prague.ts, czech.ts, masses.ts, office.ts, news.ts, calendar.ts) + tests, useNow hooks,
+                   contacts/ (Kontakty), calendar/ (Kalendář). Same folder: `./X`; else `@/components/<group>/X`
+src/content/       Mock content (types.ts + one file per domain): the future API boundary; calendar.ts reads Google Calendar
+src/lib/           Pure logic on date-fns (prague.ts, czech.ts, masses.ts, office.ts, news.ts, calendar.ts (.ics),
+                   agenda.ts (Kalendář), google-calendar.ts) + tests, useNow/useCalendarEntries hooks,
                    links.ts (tel:/Mapy.cz hrefs), query-params.ts, theme.ts
 ```
 

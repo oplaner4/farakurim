@@ -50,6 +50,7 @@
   --color-blue-ink-hover: #0f3f69;
   --color-green-ink: #17784a;
   --color-magenta-ink: #b0083f;
+  --color-magenta-ink-deep: #8f0634; /* event labels on white chips in the selected (blue) calendar day, same in both themes */
   --color-orange-ink: #a85800;
   --color-orange-ink-deep: #8a4b00;
   --color-time: #1d71b7; /* big next-mass time */
@@ -135,6 +136,7 @@
 
   --radius-*: initial;
   --radius-4: 4px;
+  --radius-6: 6px;
   --radius-10: 10px;
   --radius-12: 12px;
   --radius-14: 14px;

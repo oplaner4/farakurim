@@ -155,6 +155,33 @@ export type NewsEvent = {
   pinned?: boolean;
   /** Hidden by an admin from the archive; the detail page stays reachable by its URL. */
   archiveHidden?: boolean;
+  /**
+   * ID of the matching event in the Události Google Calendar (for a recurring event, the series' ID), so the
+   * Kalendář links the event to this detail page (design/DESIGN.md §16.4).
+   */
+  calendarEventId?: string;
+};
+
+/** The parish's two Google Calendars (design/DESIGN.md §16.1): "Mše, adorace" and "Události". */
+export type CalendarId = "services" | "events";
+
+/**
+ * One occurrence in a parish calendar, as Google Calendar returns it with recurring events expanded
+ * (`singleEvents=true`). Exceptions and cancellations are already applied.
+ */
+export type CalendarEntry = {
+  /** Unique within its calendar (Google's instance ID). */
+  id: string;
+  calendar: CalendarId;
+  title: string;
+  date: IsoDate;
+  /** Last day of a multi-day entry (inclusive). */
+  end?: IsoDate;
+  /** Start time; omitted for all-day entries ("celý den"). */
+  time?: ClockTime;
+  place?: string;
+  /** Detail page of the matching Aktuality record. */
+  href?: string;
 };
 
 export type Album = {

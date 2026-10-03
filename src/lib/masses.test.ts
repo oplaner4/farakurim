@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ScheduleSource } from "./masses";
-import { countdown, formatMassDay, massesOnDate, upcomingMasses, weeklySchedule } from "./masses";
+import { countdown, formatMassDay, massesOnDate, servicesOnDate, upcomingMasses, weeklySchedule } from "./masses";
 import { pragueDateTime } from "./prague";
 
 const source: ScheduleSource = {
@@ -143,5 +143,16 @@ describe("countdown", () => {
 
   it("never goes negative", () => {
     expect(countdown(0, 60_000).minutes).toBe(0);
+  });
+});
+
+describe("servicesOnDate", () => {
+  it("adds titled services to the masses, by time", () => {
+    expect(servicesOnDate("2026-10-08", source)).toEqual([{ time: "17:30", place: "kurim", title: "Adorace" }]);
+  });
+
+  it("keeps titled services on a day whose masses are an exception", () => {
+    const withAdoration = { ...source, exceptions: [{ date: "2026-10-08", masses: [] }] };
+    expect(servicesOnDate("2026-10-08", withAdoration).map((s) => s.time)).toEqual(["17:30"]);
   });
 });
