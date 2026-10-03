@@ -1,6 +1,7 @@
 import { format } from "date-fns";
-import { parish, SITE_URL } from "@/content/site";
+import { contacts, parish, SITE_URL } from "@/content/site";
 import type { NewsEvent } from "@/content/types";
+import { telHref } from "./links";
 import { eventClock } from "./calendar";
 import { inPrague, pragueDateTime } from "./prague";
 
@@ -23,6 +24,34 @@ export function eventJsonLd(event: NewsEvent, url: string) {
     ...(event.poster && { image: event.poster.src }),
     url,
     organizer: { "@type": "Organization", name: parish.name, url: SITE_URL },
+  };
+}
+
+const SCHEMA_DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const hhmm = (time: string) => time.padStart(5, "0");
+
+/** schema.org/Church of the Kontakty page (design/DESIGN.md §15.3): address, phone, e-mail, office hours. */
+export function parishJsonLd(url: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Church",
+    name: parish.name,
+    url,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: contacts.street,
+      postalCode: contacts.postalCode,
+      addressLocality: contacts.town,
+      addressCountry: "CZ",
+    },
+    telephone: telHref(contacts.officePhone).slice("tel:".length),
+    email: contacts.email,
+    openingHoursSpecification: contacts.officeHours.map((slot) => ({
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: `https://schema.org/${SCHEMA_DAYS[slot.weekday]}`,
+      opens: hhmm(slot.from),
+      closes: hhmm(slot.to),
+    })),
   };
 }
 

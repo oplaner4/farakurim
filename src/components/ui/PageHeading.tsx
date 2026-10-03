@@ -11,6 +11,8 @@ const shards: Record<SectionColor, string> = {
 };
 
 const titleSizes = {
+  /* Pořad bohoslužeb, Kontakty */
+  standard: "text-32 md:text-44 lg:text-56",
   /* Aktuality */
   large: "text-36 md:text-44 lg:text-56",
   /* Archiv aktualit */

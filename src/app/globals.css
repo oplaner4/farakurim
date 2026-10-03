@@ -40,6 +40,7 @@
   --color-magenta: #d60b51; /* white text OK on it */
   --color-orange: #f39200; /* dark text on it, never white */
   --color-on-orange: #1b2533; /* text on orange */
+  --color-on-green: #1b2533; /* text on green ("dnes" pill of the Moravské Knínice card) */
   --color-blue-hover: #165a93; /* primary button hover (a fill with white text, same in both themes) */
   --color-orange-hover: #e08700;
   --color-magenta-hover: #b0083f; /* magenta button hover (white text, same in both themes) */
@@ -239,6 +240,7 @@
       color-scheme: dark;
 
       --color-on-orange: #111923;
+      --color-on-green: #111923;
 
       /* Text-safe shades become lighter */
       --color-blue-ink: #7db8ee;

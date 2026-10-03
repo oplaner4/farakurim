@@ -150,3 +150,45 @@ export const ShareIcon = (p: IconProps) => (
     <path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4" />
   </Icon>
 );
+
+export const WarningIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M12 3l9.5 17h-19z" />
+    <path d="M12 10v4M12 17.5v.5" />
+  </Icon>
+);
+
+export const CopyIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <rect x="8" y="8" width="12" height="12" rx="2" />
+    <path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3" />
+  </Icon>
+);
+
+export const FacebookIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M15 3h-2a4 4 0 0 0-4 4v3H7v4h2v7h4v-7h3l1-4h-4V7a1 1 0 0 1 1-1h2z" />
+  </Icon>
+);
+
+export const InstagramIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <rect x="3" y="3" width="18" height="18" rx="5" />
+    <circle cx="12" cy="12" r="4" />
+    <circle cx="17.5" cy="6.5" r="0.5" />
+  </Icon>
+);
+
+export const LinkIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" />
+    <path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" />
+  </Icon>
+);
+
+export const UserIcon = (p: IconProps) => (
+  <Icon strokeWidth={1.5} {...p}>
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4 21a8 8 0 0 1 16 0" />
+  </Icon>
+);
