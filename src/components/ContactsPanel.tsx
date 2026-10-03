@@ -43,7 +43,7 @@ export function ContactsPanel() {
       />
       <address className="flex flex-col rounded-24 bg-blue-tint px-5 py-2 not-italic md:gap-1 md:rounded-none md:bg-transparent md:p-0 md:text-15 lg:grid lg:grid-fit-200 lg:gap-x-6 lg:gap-y-4 lg:text-16">
         <Row icon={<PinIcon />} className="lg:order-1">
-          {/* Tablet condenses address, phones and hours to single lines (design/mockups/tablet-834). */}
+          {/* Tablet condenses address, phones and hours to single lines (design/mockups/home/light/tablet-834). */}
           <span>
             {contacts.street}
             <br className="md:hidden lg:inline" />
