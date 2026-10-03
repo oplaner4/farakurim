@@ -23,11 +23,11 @@ pnpm dev       # http://localhost:3000
 ### Google Calendar (optional)
 
 The Kalendář page and the homepage week calendar read the parish's two public Google Calendars. Without a key they
-show mock data generated from the regular mass schedule and the Aktuality records. To use the real calendars, create
-`.env.local` (never committed):
+show mock data generated from the regular mass schedule and the Aktuality records. To use the real calendars, copy the
+example file to `.env.local` (never committed) and fill in the key:
 
 ```sh
-NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY=…
+cp .env.local.example .env.local
 ```
 
 The key is read at build time and again in the browser, so it ends up in the published JavaScript. Restrict it in
