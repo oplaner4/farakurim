@@ -8,7 +8,7 @@ import type { IsoDate } from "@/content/types";
 import { type AgendaItem, dayCellLabel, type IsoMonth } from "@/lib/agenda";
 import { capitalize } from "@/lib/czech";
 import { inPrague, pragueDateTime } from "@/lib/prague";
-import type { CalendarStatus } from "@/lib/use-calendar";
+import type { CalendarStatus } from "@/lib/use-calendar-entries";
 import { AgendaContext, AgendaDayButton } from "./AgendaDayButton";
 
 const asDate = (date: IsoDate) => pragueDateTime(date, "12:00");

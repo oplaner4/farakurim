@@ -3,7 +3,7 @@
 import { clsx } from "clsx";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { type MouseEvent, Suspense } from "react";
+import { Suspense } from "react";
 import type { NewsEvent } from "@/content/types";
 import { links } from "@/content/site";
 import { formatMonthYear, plural } from "@/lib/czech";
@@ -19,11 +19,10 @@ import {
   parsePage,
 } from "@/lib/news";
 import { useToday } from "@/lib/use-now";
-import { updateQueryParams, useFocusAfterChange } from "@/lib/query-params";
+import { PAGE_PARAM } from "@/lib/query-params";
+import { useLoadMore } from "@/lib/use-load-more";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { EventCard, eventAnchor } from "./EventCard";
-
-const PAGE_PARAM = "strana";
 
 const groupHeading = (group: EventGroup) =>
   group.kind === "month"
@@ -66,19 +65,11 @@ function EventListFromUrl(props: Props) {
  */
 function EventListView({ events, filter, renderedAt, page }: Props & { page: number }) {
   const today = useToday(renderedAt);
-  const focusAfterPaging = useFocusAfterChange(page);
+  const loadMore = useLoadMore(page);
   const groups = groupEvents(filterEvents(events, filter, today), today);
   const flat = groups.flatMap((g) => g.events);
   const position = new Map(flat.map((event, i) => [event.id, i]));
   const shownCount = Math.min(flat.length, page * NEWS_PAGE_SIZE);
-
-  function loadMore(e: MouseEvent<HTMLAnchorElement>) {
-    // Let modified clicks open the link in a new tab or window.
-    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    e.preventDefault();
-    focusAfterPaging(eventAnchor(flat[shownCount].id));
-    updateQueryParams({ [PAGE_PARAM]: String(page + 1) });
-  }
 
   return (
     <section aria-labelledby="seznam-akci" className="flex flex-col gap-4 md:gap-4.5 lg:gap-5">
@@ -157,7 +148,7 @@ function EventListView({ events, filter, renderedAt, page }: Props & { page: num
         <ButtonLink
           href={`?${PAGE_PARAM}=${page + 1}`}
           variant="outline-magenta"
-          onClick={loadMore}
+          onClick={(e) => loadMore(e, eventAnchor(flat[shownCount].id))}
           data-load-more
           className="mt-2 md:self-center md:px-7 lg:mt-3 lg:px-8"
         >

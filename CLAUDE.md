@@ -76,7 +76,7 @@ public/assets/img/ logo + carousel photos pozadi/{sm,md,lg}/{1-7}.webp (served a
                    petrklic/<id>.webp covers and petrklic/<id>/<page>.webp viewer pages
 src/app/           layout.tsx (font, metadata, skip link, footer), page.tsx (homepage), aktuality/ ([slug] filters + details, archiv/),
                    porad_bohosluzeb/, kontakty/, kalendar/, petrklic/ (aktualni/, archiv/[rok]/), fotogalerie/,
-                   globals.css (Tailwind theme), icons
+                   globals.css (Tailwind theme), utilities.css (custom utilities), icons
 src/components/    One component per block, styled with Tailwind utilities, grouped by where it is used:
                    ui/ (shared primitives: ButtonLink, headings, icons, …), layout/ (header, footer and their parts),
                    home/ (homepage blocks), news/ (Aktuality, archive, event detail), services/ (Pořad bohoslužeb),
@@ -86,7 +86,7 @@ src/content/       Mock content (types.ts + one file per domain): the future API
                    ohlasky.ts (weekly ohlášky) is server-only
 src/lib/           Pure logic on date-fns (prague.ts, czech.ts, masses.ts, office.ts, news.ts, calendar.ts (.ics),
                    agenda.ts (Kalendář, "Tento týden"), google-calendar.ts, service-sheet.ts (ohlášky), petrklic.ts, gallery.ts) + tests,
-                   useNow/useCalendarEntries/useSnapCarousel hooks,
+                   hooks in use-*.ts (useNow, useCalendarEntries, useSnapCarousel, useLoadMore, …),
                    links.ts (tel:/Mapy.cz hrefs), query-params.ts, theme.ts
 ```
 
@@ -100,6 +100,7 @@ Topic rules live in `.claude/rules/` and load when you work on matching files:
 | `accessibility.md`    | Headings, labels, touch targets, reduced motion                            |
 | `content-and-time.md` | Mock content boundary, Prague dates, build time vs. `useNow`, Czech output |
 | `design-check.md`     | Comparing the build with the mockups                                       |
+| `hooks.md`            | `use` prefix only for hooks, one `use-<name>.ts` file per hook             |
 
 ## The old site
 

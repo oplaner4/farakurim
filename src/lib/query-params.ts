@@ -1,10 +1,11 @@
-"use client";
-
-import { useEffect, useRef } from "react";
-
 // Query parameters (`?strana=2`, `?q=pout`) are read with Next's `useSearchParams`. The pages are prerendered,
 // so each list reads them inside a <Suspense> whose fallback is the same list with the defaults: the static
 // HTML stays complete, and after hydration the list switches to the real URL.
+
+/** `?strana=2`: the "Načíst další" page of a list. */
+export const PAGE_PARAM = "strana";
+/** `?q=pout`: the archive search. */
+export const QUERY_PARAM = "q";
 
 /**
  * Sets parameters (`null` removes one) through the History API, which Next.js syncs with `useSearchParams`.
@@ -18,21 +19,4 @@ export function updateQueryParams(params: Record<string, string | null>, { repla
   }
   if (replace) window.history.replaceState(null, "", url);
   else window.history.pushState(null, "", url);
-}
-
-/**
- * Focuses an element once `value` has changed and rendered. Next applies a pushed URL in a transition, so
- * "Načíst další" can't focus the first new card right after the click: it calls the returned function with
- * the card's id, and the focus happens after the next render with the new page.
- */
-export function useFocusAfterChange(value: unknown): (id: string) => void {
-  const pending = useRef<string | null>(null);
-  useEffect(() => {
-    if (pending.current === null) return;
-    document.getElementById(pending.current)?.focus();
-    pending.current = null;
-  }, [value]);
-  return (id) => {
-    pending.current = id;
-  };
 }

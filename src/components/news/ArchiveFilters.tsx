@@ -3,8 +3,8 @@ import type { ChangeEvent, FormEvent, RefObject } from "react";
 import Link from "next/link";
 import { links } from "@/content/site";
 import { archiveYearHref, type ArchiveYear } from "@/lib/news";
+import { QUERY_PARAM } from "@/lib/query-params";
 import { SearchIcon } from "@/components/ui/icons";
-import { QUERY_PARAM } from "./use-archive-search";
 
 type Props = {
   /** The search field's text (`useArchiveSearch`). */

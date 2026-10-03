@@ -6,7 +6,7 @@ import { GOOGLE_CALENDAR_API_KEY } from "@/content/site";
 import type { CalendarEntry, CalendarId, IsoDate } from "@/content/types";
 import { agendaByDate, type IsoMonth, monthGridRange, parseDayParam, parseMonthParam } from "@/lib/agenda";
 import { updateQueryParams } from "@/lib/query-params";
-import { useCalendarEntries } from "@/lib/use-calendar";
+import { useCalendarEntries } from "@/lib/use-calendar-entries";
 import { useToday } from "@/lib/use-now";
 import { AgendaGrid } from "./AgendaGrid";
 import { CalendarToolbar } from "./CalendarToolbar";

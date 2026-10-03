@@ -18,7 +18,7 @@ import {
   weekRangeLabel,
 } from "@/lib/agenda";
 import { plural } from "@/lib/czech";
-import { useCalendarEntries } from "@/lib/use-calendar";
+import { useCalendarEntries } from "@/lib/use-calendar-entries";
 import { useToday } from "@/lib/use-now";
 import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
 

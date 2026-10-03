@@ -2,17 +2,18 @@
 
 import { clsx } from "clsx";
 import { useSearchParams } from "next/navigation";
-import { type MouseEvent, Suspense } from "react";
+import { Suspense } from "react";
 import { links } from "@/content/site";
 import { archiveListing, parsePage } from "@/lib/news";
-import { updateQueryParams, useFocusAfterChange } from "@/lib/query-params";
+import { PAGE_PARAM, QUERY_PARAM } from "@/lib/query-params";
+import { useLoadMore } from "@/lib/use-load-more";
 import { useToday } from "@/lib/use-now";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ChevronLeftIcon } from "@/components/ui/icons";
 import { ArchiveFilters } from "./ArchiveFilters";
 import { ArchiveResults } from "./ArchiveResults";
 import { type ArchiveItem, rowAnchor } from "./ArchiveRow";
-import { PAGE_PARAM, QUERY_PARAM, useArchiveSearch } from "./use-archive-search";
+import { useArchiveSearch } from "./use-archive-search";
 
 function BackLink({ className }: { className?: string }) {
   return (
@@ -88,7 +89,7 @@ function NewsArchiveView({
 }: Props & { rawQuery: string; page: number }) {
   const today = useToday(renderedAt);
   const query = rawQuery.trim();
-  const focusAfterPaging = useFocusAfterChange(page);
+  const loadMore = useLoadMore(page);
   const { value, inputRef, onChange, onSubmit, clear } = useArchiveSearch(rawQuery);
   const { years, year, matching, groups, shownCount, countLabel } = archiveListing(items, {
     latest,
@@ -97,14 +98,6 @@ function NewsArchiveView({
     page,
     today,
   });
-
-  function loadMore(e: MouseEvent<HTMLAnchorElement>) {
-    // Let modified clicks open the link in a new tab or window.
-    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    e.preventDefault();
-    focusAfterPaging(rowAnchor(matching[shownCount].id));
-    updateQueryParams({ [PAGE_PARAM]: String(page + 1) });
-  }
 
   const moreHref = `?${new URLSearchParams({ ...(query && { [QUERY_PARAM]: rawQuery }), [PAGE_PARAM]: String(page + 1) })}`;
   const countProps = { label: countLabel, searching: query !== "", onClear: clear };
@@ -136,7 +129,7 @@ function NewsArchiveView({
             <ButtonLink
               href={moreHref}
               variant="outline-magenta"
-              onClick={loadMore}
+              onClick={(e) => loadMore(e, rowAnchor(matching[shownCount].id))}
               data-load-more
               className="md:px-7 lg:px-8"
             >

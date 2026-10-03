@@ -1,12 +1,8 @@
 "use client";
 
 import { type ChangeEvent, type FormEvent, useEffect, useRef, useState } from "react";
-import { updateQueryParams } from "@/lib/query-params";
+import { PAGE_PARAM, QUERY_PARAM, updateQueryParams } from "@/lib/query-params";
 
-/** `?q=pout` */
-export const QUERY_PARAM = "q";
-/** `?strana=2` */
-export const PAGE_PARAM = "strana";
 const SEARCH_DELAY_MS = 250;
 
 /**
