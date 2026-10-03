@@ -7,16 +7,16 @@ description: Finish a content change on the new farakurim.cz site - stage upload
 
 The site is a static export: content lives in `src/content/*.ts`, a change goes live only after a build and an
 upload of `out/`. Uploaded files (posters, attachments, the weekly PDF) are **not** in git or `out/`: they live on
-the web host under `/nahrane/…` and the content links them as `https://farakurim.cz/nahrane/…`.
+the web host under `/uploads/…` and the content links them as `https://farakurim.cz/uploads/…`.
 
 ## 1. Stage the files for the server
 
-Files that go to the server are prepared in `uploads/` (git-ignored), which mirrors the web root:
+Files that go to the server are prepared in `uploads/` (git-ignored), which mirrors `/uploads/` on the server:
 
-| Content          | Staging path                               | Public URL                                              |
-| ---------------- | ------------------------------------------ | ------------------------------------------------------- |
-| Aktuality files  | `uploads/nahrane/aktuality/<file>`         | `https://farakurim.cz/nahrane/aktuality/<file>`         |
-| Pořad bohoslužeb | `uploads/nahrane/porady_bohosluzeb/<file>` | `https://farakurim.cz/nahrane/porady_bohosluzeb/<file>` |
+| Content          | Staging path                       | Public URL                                              |
+| ---------------- | ---------------------------------- | ------------------------------------------------------- |
+| Aktuality files  | `uploads/aktuality/<file>`         | `https://farakurim.cz/uploads/aktuality/<file>`         |
+| Pořad bohoslužeb | `uploads/porady_bohosluzeb/<file>` | `https://farakurim.cz/uploads/porady_bohosluzeb/<file>` |
 
 - File names are **ASCII, lower-case kebab-case**, prefixed with the record they belong to
   (`hody-ceska-plakat.png`, `2026-10-04-porad-bohosluzeb.pdf`). Diacritics break in some SFTP clients, and the
@@ -55,9 +55,9 @@ Never stage `uploads/` or `out/`.
 
 Claude has no access to the hosting, so finish with a short checklist for the user:
 
-1. Upload the staged files (list them with their target paths) to the web root over SFTP, keeping the folders
-   (`uploads/nahrane/aktuality/x.png` → `/nahrane/aktuality/x.png`).
-2. Upload the **contents** of `out/` to the web root. Do not delete `/nahrane/` on the server: it is not in `out/`.
+1. Upload the staged files (list them with their target paths) into `/uploads/` on the server over SFTP, keeping
+   the folders (`uploads/aktuality/x.png` → `/uploads/aktuality/x.png`).
+2. Upload the **contents** of `out/` to the web root. Do not delete `/uploads/` on the server: it is not in `out/`.
 
 When the user confirms the upload, check every new URL returns `200`
-(`curl -sI 'https://farakurim.cz/nahrane/aktuality/<file>' | head -1`), then empty `uploads/`.
+(`curl -sI 'https://farakurim.cz/uploads/aktuality/<file>' | head -1`), then empty `uploads/`.

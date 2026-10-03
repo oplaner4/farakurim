@@ -76,11 +76,11 @@ their categories. Ask about anything uncertain: unreadable rows, the privacy of 
 ## 4. Stage the PDF
 
 ```sh
-mkdir -p uploads/nahrane/porady_bohosluzeb
-cp "<source>" "uploads/nahrane/porady_bohosluzeb/<validFrom>-porad-bohosluzeb.pdf"
+mkdir -p uploads/porady_bohosluzeb
+cp "<source>" "uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb.pdf"
 ```
 
-`pdfUrl` is `https://farakurim.cz/nahrane/porady_bohosluzeb/<validFrom>-porad-bohosluzeb.pdf`.
+`pdfUrl` is `https://farakurim.cz/uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb.pdf`.
 
 ## 5. Replace the sheet
 

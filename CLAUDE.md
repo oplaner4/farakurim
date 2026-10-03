@@ -69,13 +69,14 @@ Content is edited in `src/content/*.ts` through project skills (ported from the 
 `farniWebClaudeControl`, which stays untouched): `farnost-create-aktualita` (poster/PDF → `news.ts`),
 `farnost-create-porad-bohosluzeb` (weekly PDF → `ohlasky.ts`), `farnost-create-galerie` (Zonerama album →
 `gallery.ts`), each finishing with `farnost-publish-content` (verify, commit, upload checklist).
-Uploaded files are **not** in git: they are staged in `uploads/` (git-ignored, mirrors the web root), uploaded by
-hand to `/nahrane/…` on the server and linked as `https://farakurim.cz/nahrane/…`. Album photos stay on Zonerama.
+Uploaded files are **not** in git: they are staged in `uploads/` (git-ignored, mirrors `/uploads/` on the server),
+uploaded by hand to `/uploads/…` and linked as `https://farakurim.cz/uploads/…`. Album photos stay on Zonerama.
+The old site's `/nahrane/` folder is not used by the new site.
 
 ## Deployment
 
 No CI. Build locally, then upload the **contents** of `out/` over SFTP to the web root, plus any staged files from
-`uploads/`. Never delete `/nahrane/` on the server: the uploaded files live only there.
+`uploads/` into `/uploads/`. Never delete `/uploads/` on the server: the uploaded files live only there.
 `trailingSlash: true` emits `page/index.html`, so Apache serves it without rewrite rules.
 
 ## Project structure

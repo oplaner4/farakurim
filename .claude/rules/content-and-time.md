@@ -21,7 +21,7 @@ build-time next mass.
 - All content lives in `src/content/`, typed by `src/content/types.ts`. Components and `src/lib`
   only depend on those types, so a real API or CMS can replace the files later without touching the UI.
   Aktuality, ohlášky and albums are added with the `farnost-create-*` skills (CLAUDE.md "Managing content");
-  their uploaded files are linked from the server (`https://farakurim.cz/nahrane/…`), never committed.
+  their uploaded files are linked from the server (`https://farakurim.cz/uploads/…`), never committed.
 - Dates are ISO `YYYY-MM-DD`, times `H:MM`, both **Europe/Prague wall-clock**. Use `pragueDateTime()` /
   `pragueDate()` from `src/lib/prague.ts` and pass `{ in: inPrague }` to date-fns functions;
   never use the browser's local time zone for schedule maths.

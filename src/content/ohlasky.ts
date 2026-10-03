@@ -19,7 +19,7 @@ const FOR_PARISHIONERS = "za živé a † farníky a dobrodince naší farnosti"
 
 /** This week's ohlášky (design/DESIGN.md §14.5–14.7), as the parish office would enter them. */
 export const serviceSheet: ServiceSheet = {
-  pdfUrl: "https://farakurim.cz/nahrane/porady_bohosluzeb/6ab9325f1b46d.porad_bohosluzeb.pdf",
+  pdfUrl: "https://farakurim.cz/uploads/porady_bohosluzeb/6ab9325f1b46d.porad_bohosluzeb.pdf",
   validFrom: "2026-09-27",
   validTo: "2026-10-04",
   days: [

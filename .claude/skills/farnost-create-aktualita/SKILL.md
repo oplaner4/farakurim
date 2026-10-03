@@ -64,16 +64,16 @@ Show the extracted fields (and the label) in a short list. Point out guesses: th
 ## 5. Stage the files
 
 ```sh
-mkdir -p uploads/nahrane/aktuality
-cp "<source>" "uploads/nahrane/aktuality/<id>-plakat.<ext>"
-stat -c %s "uploads/nahrane/aktuality/<id>-plakat.<ext>"   # → attachment size
+mkdir -p uploads/aktuality
+cp "<source>" "uploads/aktuality/<id>-plakat.<ext>"
+stat -c %s "uploads/aktuality/<id>-plakat.<ext>"   # → attachment size
 ```
 
 A visual source (poster, invitation, flyer) also becomes the event's poster: render it to WebP (page 1 of a PDF,
 or a scaled-down image), staged next to the original.
 
 ```sh
-python3 scripts/poster-webp.py "uploads/nahrane/aktuality/<id>-plakat.<ext>" "uploads/nahrane/aktuality/<id>-plakat.webp"
+python3 scripts/poster-webp.py "uploads/aktuality/<id>-plakat.<ext>" "uploads/aktuality/<id>-plakat.webp"
 ```
 
 Skip the poster for a text-only document (`Informace`, `Oznámení`): the page then shows the designed placeholder.
