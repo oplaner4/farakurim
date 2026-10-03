@@ -41,7 +41,7 @@ export function ContactsPanel() {
         link={{ href: links.contacts, label: "Všechny kontakty" }}
         className="md:pb-2 lg:pb-0"
       />
-      <address className="flex flex-col rounded-24 bg-blue-tint px-5 py-2 not-italic md:gap-1 md:rounded-none md:bg-transparent md:p-0 md:text-15 lg:grid lg:grid-cols-[repeat(auto-fit,minmax(min(200px,100%),1fr))] lg:gap-x-6 lg:gap-y-4 lg:text-16">
+      <address className="flex flex-col rounded-24 bg-blue-tint px-5 py-2 not-italic md:gap-1 md:rounded-none md:bg-transparent md:p-0 md:text-15 lg:grid lg:grid-fit-200 lg:gap-x-6 lg:gap-y-4 lg:text-16">
         <Row icon={<PinIcon />} className="lg:order-1">
           {/* Tablet condenses address, phones and hours to single lines (design/mockups/tablet-834). */}
           <span>

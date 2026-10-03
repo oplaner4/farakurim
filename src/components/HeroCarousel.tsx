@@ -1,5 +1,6 @@
 "use client";
 
+import { clsx } from "clsx";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CarouselSlide } from "@/content/types";
 import { ChevronLeftIcon, ChevronRightIcon } from "./icons";
@@ -64,7 +65,7 @@ export function HeroCarousel({ slides }: { slides: CarouselSlide[] }) {
 
   return (
     <section
-      className="relative isolate h-75 overflow-hidden bg-blue-tint-alt md:h-105 lg:h-135 lg:min-w-0 lg:flex-[999_1_560px] lg:rounded-32"
+      className="relative isolate h-75 overflow-hidden bg-blue-tint-alt md:h-105 lg:h-135 lg:min-w-0 lg:grow-999 lg:basis-140 lg:rounded-32"
       aria-label="Fotografie z farnosti"
       aria-roledescription="carousel"
       onPointerEnter={() => setPaused(true)}
@@ -84,7 +85,7 @@ export function HeroCarousel({ slides }: { slides: CarouselSlide[] }) {
         {slides.map((slide, i) => (
           <div
             key={slide.file}
-            className="h-full flex-[0_0_100%] snap-start snap-always"
+            className="h-full shrink-0 basis-full snap-start snap-always"
             role="group"
             aria-roledescription="snímek"
             aria-label={`${i + 1} z ${count}`}
@@ -121,7 +122,7 @@ export function HeroCarousel({ slides }: { slides: CarouselSlide[] }) {
       <div className="pointer-events-none absolute inset-x-4 bottom-15 flex items-center justify-between gap-2 md:inset-x-8 md:bottom-25 lg:inset-x-6 lg:bottom-6">
         <button
           type="button"
-          className={`${arrowClass} lg:ml-auto`}
+          className={clsx(arrowClass, "lg:ml-auto")}
           aria-label="Předchozí fotografie"
           onClick={() => userGoTo(active - 1)}
         >

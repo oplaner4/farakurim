@@ -46,7 +46,7 @@ export function SectionHeading({ id, title, color, link, compact, linkDesktopOnl
           id={id}
           className={clsx(
             "text-26 leading-normal font-bold tracking-heading",
-            compact ? "lg:text-32 lg:leading-[1.15]" : "md:text-32 lg:text-40 lg:leading-[1.1] lg:tracking-display",
+            compact ? "lg:text-32 lg:leading-title" : "md:text-32 lg:text-40 lg:leading-display lg:tracking-display",
           )}
         >
           {title}

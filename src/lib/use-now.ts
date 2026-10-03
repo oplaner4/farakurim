@@ -1,6 +1,8 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import type { IsoDate } from "@/content/types";
+import { pragueDate } from "./prague";
 
 // One shared clock for every time-dependent component. The prerendered HTML is built with the
 // build-time timestamp; after hydration React switches to the visitor's real time without a
@@ -44,6 +46,25 @@ export function useNow(renderedAt: number): number {
     () => now,
     () => renderedAt,
   );
+}
+
+// The date only changes once a day; cache it so each tick doesn't re-format it.
+let todayFor = NaN;
+let today = "";
+function getToday(): IsoDate {
+  if (todayFor !== now) {
+    todayFor = now;
+    today = pragueDate(now);
+  }
+  return today;
+}
+
+/**
+ * Today's Prague date. A derived snapshot: subscribers re-render when the date changes,
+ * not on every clock tick.
+ */
+export function useToday(renderedAt: number): IsoDate {
+  return useSyncExternalStore(subscribe, getToday, () => pragueDate(renderedAt));
 }
 
 const noopSubscribe = () => () => {};

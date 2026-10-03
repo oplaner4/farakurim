@@ -36,7 +36,7 @@ export function NextMass({ renderedAt, showCountdown = true }: Props) {
   return (
     <section
       aria-labelledby="nejblizsi-mse"
-      className="relative mx-4 -mt-11 flex flex-col gap-4.5 overflow-hidden rounded-24 bg-white px-5 py-6 shadow-card md:mx-8 md:-mt-18 md:grid md:grid-cols-2 md:gap-8 md:rounded-28 md:p-8 md:shadow-card-md lg:m-0 lg:flex lg:min-w-0 lg:flex-[1_1_380px] lg:gap-5 lg:rounded-32 lg:px-8 lg:py-9 lg:shadow-card-lg"
+      className="relative mx-4 -mt-11 flex flex-col gap-4.5 overflow-hidden rounded-24 bg-white px-5 py-6 shadow-card md:mx-8 md:-mt-18 md:grid md:grid-cols-2 md:gap-8 md:rounded-28 md:p-8 md:shadow-card-md lg:m-0 lg:flex lg:min-w-0 lg:grow lg:basis-95 lg:gap-5 lg:rounded-32 lg:px-8 lg:py-9 lg:shadow-card-lg"
     >
       <span
         className="pointer-events-none absolute top-0 right-0 size-18 bg-blue shard-tr md:size-24 lg:size-26"
@@ -99,7 +99,7 @@ export function NextMass({ renderedAt, showCountdown = true }: Props) {
                 key={label}
                 className="flex flex-col items-center rounded-14 bg-blue-tint px-1 py-2.5 md:rounded-16 md:py-3.5 lg:py-3"
               >
-                <span className="text-28 leading-[1.1] font-bold text-blue-ink tabular-nums md:text-34 lg:text-30">
+                <span className="text-28 leading-display font-bold text-blue-ink tabular-nums md:text-34 lg:text-30">
                   {value}
                 </span>
                 <span className="text-13 text-ink-2 md:text-14">{label}</span>

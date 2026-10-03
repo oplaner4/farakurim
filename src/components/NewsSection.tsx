@@ -5,8 +5,7 @@ import type { NewsItem } from "@/content/types";
 import { links } from "@/content/site";
 import { formatEventDate } from "@/lib/czech";
 import { currentNews, isOngoing } from "@/lib/news";
-import { pragueDate } from "@/lib/prague";
-import { useNow } from "@/lib/use-now";
+import { useToday } from "@/lib/use-now";
 import { CalendarIcon } from "./icons";
 import { SectionHeading } from "./SectionHeading";
 
@@ -25,7 +24,7 @@ type Props = {
 };
 
 export function NewsSection({ items, renderedAt }: Props) {
-  const today = pragueDate(useNow(renderedAt));
+  const today = useToday(renderedAt);
   const visible = currentNews(items, today, LIMIT);
 
   if (visible.length === 0) return null;
@@ -41,7 +40,7 @@ export function NewsSection({ items, renderedAt }: Props) {
         color="magenta"
         link={{ href: links.news, label: "Všechny aktuality", shortLabel: "Všechny" }}
       />
-      <ul className="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4 lg:grid-cols-[repeat(auto-fit,minmax(min(250px,100%),1fr))] lg:gap-5">
+      <ul className="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4 lg:grid-fit-250 lg:gap-5">
         {visible.map((item, i) => {
           const date = formatEventDate(item.start, item.end);
           const chip = item.time ? `${date.label} · ${item.time}` : date.label;
@@ -61,7 +60,7 @@ export function NewsSection({ items, renderedAt }: Props) {
                 <span
                   aria-hidden="true"
                   className={clsx(
-                    "flex h-18 flex-[0_0_64px] flex-col items-center justify-center rounded-12 px-0.5 text-center leading-[1.1] md:h-20 md:basis-18 md:rounded-14 lg:hidden",
+                    "flex h-18 shrink-0 basis-16 flex-col items-center justify-center rounded-12 px-0.5 text-center leading-display md:h-20 md:basis-18 md:rounded-14 lg:hidden",
                     ongoing ? "bg-magenta text-white" : "bg-white text-magenta-ink",
                   )}
                 >
@@ -100,7 +99,7 @@ export function NewsSection({ items, renderedAt }: Props) {
                       Právě probíhá
                     </span>
                   )}
-                  <h3 className="text-17 leading-[1.3] font-bold underline-offset-3 group-hover:text-magenta-ink group-hover:underline md:text-18 lg:text-20">
+                  <h3 className="text-17 leading-card font-bold underline-offset-3 group-hover:text-magenta-ink group-hover:underline md:text-18 lg:text-20">
                     {item.title}
                   </h3>
                   <span className="text-14 text-ink-2 md:text-15 lg:text-16">{item.excerpt}</span>

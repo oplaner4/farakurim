@@ -1,31 +1,18 @@
-"use client";
-
-import { clsx } from "clsx";
-import { useEffect, useState } from "react";
 import { serviceSheet } from "@/content/masses";
 import { links, mainNav } from "@/content/site";
+import { ButtonLink } from "./ButtonLink";
 import { ColorStripe } from "./ColorStripe";
-import { CloseIcon, FileDownloadIcon, MenuIcon } from "./icons";
+import { FileDownloadIcon } from "./icons";
+import { MenuButton } from "./MenuButton";
 
 const MENU_ID = "mobilni-menu";
 const MENU_BUTTON_ID = "mobilni-menu-tlacitko";
 
 export function SiteHeader({ currentHref = links.home }: { currentHref?: string }) {
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [open]);
-
   const navItems = mainNav.map((item) => ({ ...item, current: item.href === currentHref }));
 
   return (
-    <header className="flex flex-col bg-white">
+    <header className="group/header flex flex-col bg-white">
       <div className="container-page flex items-center justify-between gap-3 py-3 md:gap-4 md:py-4 lg:flex-wrap lg:gap-x-8 lg:py-4.5">
         <a href={links.home} className="flex items-center gap-3 text-ink no-underline hover:text-ink md:gap-3.5">
           <img
@@ -35,7 +22,7 @@ export function SiteHeader({ currentHref = links.home }: { currentHref?: string 
             height={681}
             className="h-12 w-7.5 md:h-13.75 md:w-8.5 lg:h-14.5 lg:w-9"
           />
-          <span className="flex flex-col leading-[1.15]">
+          <span className="flex flex-col leading-title">
             <span className="text-12 text-muted md:text-14">Římskokatolická farnost</span>
             <span className="text-22 font-bold tracking-heading md:text-26 lg:text-28">Kuřim</span>
           </span>
@@ -57,34 +44,22 @@ export function SiteHeader({ currentHref = links.home }: { currentHref?: string 
               ))}
             </ul>
           </nav>
-          <a
-            href={serviceSheet.pdfUrl}
-            className="hidden min-h-12 items-center gap-2 rounded-14 bg-blue px-4.5 font-bold whitespace-nowrap text-white no-underline hover:bg-blue-ink hover:text-white md:flex lg:px-5"
-          >
+          <ButtonLink href={serviceSheet.pdfUrl} size="compact" className="max-md:hidden">
             <FileDownloadIcon size={18} />
             Pořad bohoslužeb
-          </a>
-          <button
-            id={MENU_BUTTON_ID}
-            type="button"
-            className="flex size-12 cursor-pointer items-center justify-center rounded-14 bg-blue-tint text-blue-ink hover:bg-blue-tint-alt lg:hidden"
-            aria-expanded={open}
-            aria-controls={MENU_ID}
-            aria-label={open ? "Zavřít menu" : "Otevřít menu"}
-            onClick={() => setOpen((v) => !v)}
-          >
-            {open ? <CloseIcon size={22} /> : <MenuIcon size={22} />}
-          </button>
+          </ButtonLink>
+          <MenuButton id={MENU_BUTTON_ID} controls={MENU_ID} />
         </div>
       </div>
 
       <ColorStripe />
 
-      {/* Mobile: vertical list. Tablet: 3-column grid of pills. Desktop uses the inline nav above. */}
+      {/* Mobile: vertical list. Tablet: 3-column grid of pills. Desktop uses the inline nav above.
+          Shown while the menu button is expanded. */}
       <nav
         id={MENU_ID}
         aria-label="Hlavní menu"
-        className={clsx("border-b border-line lg:hidden", open ? "block" : "hidden")}
+        className="hidden border-b border-line max-lg:group-has-aria-expanded/header:block"
       >
         <ul className="container-page flex flex-col pt-2 pb-4 md:grid md:grid-cols-3 md:gap-2 md:py-4">
           {navItems.map((item) => (

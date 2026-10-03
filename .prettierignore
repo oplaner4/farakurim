@@ -5,3 +5,5 @@ pnpm-lock.yaml
 design
 fonts-source
 next-env.d.ts
+# Third-party skills installed by `skills` (skills-lock.json); keep them as published
+.agents
