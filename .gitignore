@@ -42,3 +42,6 @@ next-env.d.ts
 
 # rendered design mockups (pnpm mockups)
 /.design-preview/
+
+# Playwright MCP logs
+/.playwright-mcp/
