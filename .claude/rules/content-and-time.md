@@ -23,9 +23,13 @@ build-time next mass.
 - Dates are ISO `YYYY-MM-DD`, times `H:MM`, both **Europe/Prague wall-clock**. Use `pragueDateTime()` /
   `pragueDate()` from `src/lib/prague.ts` and pass `{ in: inPrague }` to date-fns functions;
   never use the browser's local time zone for schedule maths.
-- Mass schedule (`content/masses.ts`): `regularMasses` is the weekly schedule. Everything else (first Friday and
-  first Saturday variants, changes from the ohlášky, cancellations) is a `scheduleExceptions` entry, which
-  **replaces the whole day**. Never hard-code those variants in logic.
+- Schedule (`content/masses.ts`): `regularServices` is the weekly schedule, one data source for the homepage
+  next mass and Pořad bohoslužeb. Rows without a `title` are masses (only those count as the next mass);
+  first-Friday/Saturday variants use `rule: "first-in-month"` (and `"not-first-in-month"` for what they replace).
+  Changes from the ohlášky and cancellations are `scheduleExceptions` entries, which **replace the whole day**;
+  their human-readable text goes to `serviceSheet.changes`. Never hard-code those variants in logic.
+- Office hours (`content/site.ts`): weekly slots with an optional yearly `closed` break; the live status is
+  `officeStatus()` in `src/lib/office.ts`.
 - Czech output: `plural()` (built on `Intl.PluralRules("cs")`), date-fns `cs` locale (genitive month names
   after a day number), `"4. 10."` short dates, `"Dnes"`/`"Zítra"` labels; see `src/lib/czech.ts`.
 - External links to the live site sit in `content/site.ts` (`links`); swap them when the pages are rebuilt here.

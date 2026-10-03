@@ -12,7 +12,7 @@ in both themes (emulate `prefers-color-scheme: dark` for the dark mockups).
 
 The mockups are design-tool templates (`<x-dc>`, `<sc-if>`, `{{holes}}`) and cannot be opened directly.
 `pnpm mockups` renders them to `.design-preview/` and serves them at http://localhost:4174/mockups/
-(`<page>/light/mobile-390.html`, `tablet-834.html`, `desktop-1440.html`, and `<page>/dark/*-dark.html`; pages: `home`, `aktuality`, `archiv`, `detail`). Serve the build with `pnpm preview` and compare
+(`<page>/light/mobile-390.html`, `tablet-834.html`, `desktop-1440.html`, and `<page>/dark/*-dark.html`; pages: `home`, `aktuality`, `archiv`, `detail`, `porad-bohosluzeb`, `kontakty`). Serve the build with `pnpm preview` and compare
 screenshots plus block positions (`getBoundingClientRect()` of each `section[aria-labelledby]`).
 
 - The mockup frames are fixed-width, so give the browser a viewport ~15 px wider for the scrollbar.
