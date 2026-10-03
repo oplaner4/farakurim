@@ -1,26 +1,33 @@
-# farakurim.cz – homepage redesign (handoff)
+# farakurim.cz – redesign (handoff)
 
-Spec for implementing the new homepage of **Římskokatolická farnost Kuřim**.
-Scope: **homepage only**. Other pages follow once this one is approved.
-Language of all UI copy: **Czech**. Approach: **mobile-first**.
+Spec for implementing the new website of **Římskokatolická farnost Kuřim**.
+Pages designed so far: **homepage** (sections 1–10) and **Aktuality** (section 11).
+More pages will follow. Language of all UI copy: **Czech**. Approach: **mobile-first**.
+Every page has a **light and a dark theme**.
 
 ## Contents of this folder
 
 | Path | What it is |
 |---|---|
 | `DESIGN.md` | This spec, the source of truth for implementation |
-| `mockups/mobile-390.dc.html` | Mobile mockup, 390 px wide |
-| `mockups/tablet-834.dc.html` | Tablet mockup, 834 px wide |
-| `mockups/desktop-1440.dc.html` | Desktop mockup, fluid, content max-width 1200 px |
-| `mockups/dark/*-dark.dc.html` | The same three mockups in the dark theme (see section 10) |
+| `mockups/home/light/` | Homepage: `mobile-390`, `tablet-834`, `desktop-1440` |
+| `mockups/home/dark/` | Homepage in the dark theme (section 10) |
+| `mockups/aktuality/light/` | Aktuality page, same three sizes (section 11) |
+| `mockups/aktuality/dark/` | Aktuality page in the dark theme |
 | `assets/logo-farnost-kurim.svg` | Cleaned logo (also the future favicon) |
+
+Desktop mockups are fluid with content max-width 1200 px; mobile and tablet are
+drawn at a fixed 390 / 834 px.
 
 **About the mockups:** they are design-tool sources (`.dc.html`), **not runnable pages**.
 `<x-dc>`, `<sc-if>`, `<sc-for>`, `{{holes}}` and the `class Component extends DCLogic`
 script are the design tool's templating. Read them for exact values (sizes,
-colours, spacing, copy) and for the countdown/carousel logic in the script block.
-Do **not** copy their structure: they use inline styles everywhere and are three
-separate files. Production should be **one template + one stylesheet**.
+colours, spacing, copy) and for the logic in the script blocks (countdown,
+carousel, Aktuality filters). Do **not** copy their structure: they use inline
+styles everywhere and are separate files per size and theme. Production should be
+**one template per page + one shared stylesheet**, with header and footer as
+shared partials. Internal links in the mockups already use the real routes
+(`/`, `/aktuality/`); the theme toggle's `href="#"` stands for the JS toggle.
 
 ---
 
@@ -116,7 +123,7 @@ Each colour belongs to a section, consistently:
    - Petrklíč panel: an orange triangle in a bottom corner.
    - Desktop carousel: green and orange triangles in the top-left corner.
 
-## 4. Page structure
+## 4. Homepage structure
 
 Order is the same at every breakpoint. Differences per breakpoint are noted.
 
@@ -190,7 +197,7 @@ The first-Friday and first-Saturday variants, and week-specific changes from the
 ohlášky (e.g. 4. 10.: second mass in Kuřim at 11:00, Moravské Knínice at 9:30),
 must come from the exceptions data, not be hard-coded.
 
-## 6. Data sources
+## 6. Homepage data sources
 
 | Block | Source |
 |---|---|
@@ -224,7 +231,7 @@ must come from the exceptions data, not be hard-coded.
 Same layout, components and section colours; only the tokens change. The mood
 stays **friendly, not gloomy**: a deep blue-tinted night ground (never pure black),
 the four brand colours kept as fills, and lighter shades of them for text.
-Mockups: `mockups/dark/`.
+Mockups: `mockups/home/dark/` and `mockups/aktuality/dark/`.
 
 ### Switching
 
@@ -329,3 +336,114 @@ and `--shadow` to the light token set too, with the light values noted above.
 - News posters (often white paper): show on `--raised` with 8–12 px padding and
   rounded corners, so a white poster reads as a card instead of a glaring hole.
 - Petrklíč cover: real cover image as is, with the dark `--shadow`.
+
+## 11. Aktuality page (`/aktuality/`)
+
+Mockups: `mockups/aktuality/`. Uses the same tokens, header, footer, stripe and
+shards as the homepage. Section colour: **magenta**.
+
+### 11.1 Shared header rule (applies to every page)
+
+The current page's nav item uses **its section's** tint and ink with
+`aria-current="page"`: Aktuality is a magenta-tint pill with magenta-ink text
+(desktop and the tablet menu grid) and bold magenta-ink text in the mobile list.
+The homepage's "Úvod" keeps the blue pill.
+
+### 11.2 Page structure (top to bottom)
+
+1. **Breadcrumb**: `Úvod › Aktuality` (14/15 px, muted), in a `<nav aria-label="Drobečková navigace">`.
+2. **H1 "Aktuality"**: 36 / 44 / 56 px bold (mobile / tablet / desktop), magenta shard on the left (20×28 / 24×34 / 28×40).
+3. **Featured event ("Doporučujeme")**: one pinned event.
+   - Magenta-tint panel, radius 24 / 28 / 32, magenta and orange triangles top-right.
+   - Poster 96×136 (mobile, beside the button) / 200×282 (tablet, left) / 236×334 (desktop, left), white with soft shadow.
+   - Eyebrow "Doporučujeme" (uppercase, magenta-ink), H2 title 26 / 32 / 44 px, date and place rows with calendar and pin icons (magenta-ink), description, magenta button "Plakát" / "Zobrazit plakát".
+   - The pinned event is **not repeated** in the list below. No pinned event means the panel is not rendered.
+4. **Filters and count**: see 11.3.
+5. **Grouped event list**: see 11.4 and 11.5.
+6. **"Načíst další aktuality"**: magenta outline button (52 px). Full-width on mobile, centred on larger screens. See 11.6.
+7. **"Archiv aktualit" panel**: surface background, heading, one line "Starší pozvánky a ohlédnutí za proběhlými akcemi.", link or outline button "Otevřít archiv". **The archive URL is still to be decided** (the mockup uses `/aktuality/`).
+
+### 11.3 Filters
+
+Chips (single choice) replace the old "Vytvořeno", "Zobrazit prvních N" and
+"Archivované" controls. Visitors filter by **when the event happens**, not when it
+was posted.
+
+| Chip | Shows |
+|---|---|
+| **Nadcházející** (default) | everything not yet finished (end ≥ today), including ongoing and long-term |
+| Tento týden | events overlapping today … next Sunday, except long-term |
+| Tento měsíc | events overlapping the current calendar month, except long-term |
+| Dlouhodobé | long-term series only (see 11.5) |
+| Vše | everything, including finished events in a "Proběhlo" group |
+
+- Chips are 44–46 px tall pills. Active: magenta fill, white text. Inactive: surface fill, ink text, `--line` border.
+- Mobile: one horizontally scrollable row that bleeds to the screen edges. Tablet and desktop: wrapping row, with the count on the right.
+- Implement as **links** with a query parameter (e.g. `?kdy=tyden|mesic|dlouhodobe|vse`), so the filter works without JS and can be shared. JS may enhance it to swap the list without a reload. Use `aria-current="true"` on the active link (the mockups use `aria-pressed` on buttons).
+- Count: "Zobrazeno N akcí" with `aria-live="polite"`. Plural: 1 akce, 2–4 akce, 5+ akcí.
+- Empty state: "V tomto období nejsou žádné akce." in a surface panel.
+
+### 11.4 Grouping
+
+- Group by **start month**: "Říjen 2026", "Prosinec 2026"… (magenta-ink H3, 18 / 20 / 24 px, followed by a hairline). Ongoing events belong to the month they started.
+- Then **"Dlouhodobé akce"** (blue-ink heading).
+- Then **"Proběhlo"** (muted heading, only under "Vše"). Its cards are drawn at 72 % opacity with a "Proběhlo" tag.
+- Within a group, sort by start date ascending.
+
+### 11.5 Event card
+
+| Part | Mobile | Tablet | Desktop |
+|---|---|---|---|
+| Layout | date block + title/meta row, then text, tags, actions | date block · content · poster | date block · content · poster |
+| Date block | 60×68 | 72×80 | 88×96 |
+| Title (H4) | 17 | 20 | 24 |
+| Poster thumbnail | hidden (reachable through the attachment button) | 108×152 | 132×186 |
+| Card | white, `--line` border, radius 20, padding 16 | radius 24, padding 20 | radius 28, padding 24 |
+
+- **Date block**: magenta-tint fill with magenta-ink text: day(s) on top ("7.", "2.–4.") and month in the genitive below ("října", "prosince"). Filled **magenta with white text** when the event is happening now. Long-term series show the weekday and time ("čt / 18:30") or a month range ("III–XI / 2026").
+- **Tags** (13–14 px pills):
+  - `now` "Právě probíhá": magenta / white
+  - `deadline` "Přihlášky do 10. 10.": orange tint / `#8A4B00` (dark: `--orange-tint` / `#FFC266`)
+  - `info` "300 Kč", "7 setkání", "Každý týden": blue tint / blue ink
+  - `past` "Proběhlo": surface / ink-2
+- **Meta**: the full date/time text ("pátek 2. – neděle 4. 10. 2026", "neděle 25. 10. 2026 · 9:30") and the place with a pin icon.
+- **Text**: a short description (aim for 1–2 sentences, clamp to 3 lines on mobile).
+- **Actions** (44 px, surface fill, radius 12):
+  - attachments: file icon in magenta-ink, label plus type in muted ("Plakát PNG", "Pozvánka PDF");
+  - external links and e-mail: arrow-out icon in blue-ink.
+- **Poster thumbnail**: rendered with `object-fit: contain` on the event's tint, so portrait posters are never cropped. Dark theme: add 8–12 px padding (section 10).
+- There is **no event detail page yet**. Cards don't link anywhere except their actions. Decide whether to add a detail page before implementing.
+
+### 11.6 Paging
+
+10 cards per page. "Načíst další aktuality" is a real link to `?strana=2` (keeps
+the active filter). With JS it fetches and appends the next page and moves focus
+to the first new card. Hide the button on the last page.
+
+### 11.7 Data each event needs
+
+| Field | Notes |
+|---|---|
+| title | required |
+| start, end | dates; end optional (single day) |
+| time text | optional free text ("9:30", "18:00–20:30", "každý čtvrtek od 18:30") |
+| place | free text |
+| text | short description |
+| poster | image, used for thumbnail and featured panel |
+| attachments[] | label, file (type shown from extension) |
+| links[] | label, URL (http or mailto) |
+| tags | price, registration deadline (date), series count, free label |
+| long-term | boolean, or derived (e.g. a weekly series, or duration > 31 days) |
+| pinned | boolean; at most one pinned event is shown in "Doporučujeme" |
+
+"Právě probíhá" and "Proběhlo" are **computed** from start/end and today, never stored.
+
+### 11.8 Dark theme
+
+Same mapping as section 10. The new pieces map as follows:
+- featured panel: `--magenta-tint`;
+- featured poster shadow: light `rgba(214,11,81,.12)` becomes `--shadow`;
+- cards: `--raised`;
+- chips: inactive `--surface` with `--line` border, active magenta with white text.
+
+The mockups in `mockups/aktuality/dark/` show the result.

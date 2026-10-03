@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<title>Aktuality – tablet, tmavý režim</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oxygen:wght@300;400;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#111923}
+a{color:#7DB8EE}a:hover{color:#A9D1F5}
+</style>
+</helmet>
+<div style="width: 834px; min-height: 3600px; box-sizing: border-box; display: flex; flex-direction: column; background: #111923; color: #EEF2F7; font-family: Oxygen, 'Segoe UI', 'Helvetica Neue', sans-serif; font-size: 17px; line-height: 1.5">
+
+  <header style="display: flex; flex-direction: column; background: #111923">
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 32px">
+      <a href="/" style="display: flex; align-items: center; gap: 14px; text-decoration: none; color: #EEF2F7">
+        <img src="../../../assets/logo-farnost-kurim.svg" alt="" style="width: 34px; height: 55px; display: block">
+        <span style="display: flex; flex-direction: column; line-height: 1.15">
+          <span style="font-size: 14px; color: #9AA6B5">Římskokatolická farnost</span>
+          <span style="font-size: 26px; font-weight: 700; letter-spacing: -0.01em">Kuřim</span>
+        </span>
+      </a>
+      <div style="display: flex; align-items: center; gap: 12px">
+        <a href="https://farakurim.cz/nahrane/porady_bohosluzeb/6ab9325f1b46d.porad_bohosluzeb.pdf" style="display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 18px; border-radius: 14px; background: #1D71B7; color: #FFFFFF; font-weight: 700; text-decoration: none">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6"></path><path d="M12 12v6M9 15l3 3 3-3"></path></svg>
+          Pořad bohoslužeb
+        </a>
+        <a href="#" aria-label="Přepnout na světlý režim" title="Přepnout na světlý režim" style="width: 48px; height: 48px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 14px; background: #172A40; color: #7DB8EE; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"></path></svg></a>
+        <button type="button" aria-label="Otevřít menu" onClick="{{toggleMenu}}" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 14px; background: #172A40; color: #7DB8EE; cursor: pointer">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"></path></svg>
+        </button>
+      </div>
+    </div>
+    <div aria-hidden="true" style="display: flex; height: 6px">
+      <span style="flex: 3; background: #2EAC66"></span>
+      <span style="flex: 2; background: #1D71B7"></span>
+      <span style="flex: 2; background: #D60B51"></span>
+      <span style="flex: 3; background: #F39200"></span>
+    </div>
+    <sc-if value="{{menuOpen}}" hint-placeholder-val="{{ false }}">
+      <nav aria-label="Hlavní menu" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 16px 32px; background: #111923; border-bottom: 1px solid #2A3648">
+        <a href="/" style="display: flex; align-items: center; min-height: 48px; padding: 0 16px; border-radius: 12px; background: #18212F; color: #EEF2F7; text-decoration: none">Úvod</a>
+        <a href="#" aria-current="page" style="display: flex; align-items: center; min-height: 48px; padding: 0 16px; border-radius: 12px; background: #331824; font-weight: 700; color: #FF7AA6; text-decoration: none">Aktuality</a>
+        <a href="https://farakurim.cz/porad_bohosluzeb/" style="display: flex; align-items: center; min-height: 48px; padding: 0 16px; border-radius: 12px; background: #18212F; color: #EEF2F7; text-decoration: none">Bohoslužby</a>
+        <a href="https://farakurim.cz/fotogalerie" style="display: flex; align-items: center; min-height: 48px; padding: 0 16px; border-radius: 12px; background: #18212F; color: #EEF2F7; text-decoration: none">Fotogalerie</a>
+        <a href="https://farakurim.cz/petrklic/" style="display: flex; align-items: center; min-height: 48px; padding: 0 16px; border-radius: 12px; background: #18212F; color: #EEF2F7; text-decoration: none">Petrklíč</a>
+        <a href="https://farakurim.cz/kontakty" style="display: flex; align-items: center; min-height: 48px; padding: 0 16px; border-radius: 12px; background: #18212F; color: #EEF2F7; text-decoration: none">Kontakty</a>
+      </nav>
+    </sc-if>
+  </header>
+
+  <main style="display: flex; flex-direction: column; gap: 36px; padding: 28px 32px 56px">
+
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <nav aria-label="Drobečková navigace" style="display: flex; align-items: center; gap: 6px; font-size: 15px; color: #9AA6B5">
+        <a href="/">Úvod</a>
+        <span aria-hidden="true">›</span>
+        <span aria-current="page">Aktuality</span>
+      </nav>
+      <div style="display: flex; align-items: center; gap: 14px">
+        <span aria-hidden="true" style="width: 24px; height: 34px; background: #D60B51; clip-path: polygon(0 100%, 100% 0, 100% 100%)"></span>
+        <h1 style="margin: 0; font-size: 44px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1">Aktuality</h1>
+      </div>
+    </div>
+
+    <section aria-labelledby="feat-t" style="position: relative; display: flex; gap: 28px; padding: 28px; border-radius: 28px; background: #331824; overflow: hidden">
+      <span aria-hidden="true" style="position: absolute; top: 0; right: 0; width: 96px; height: 96px; background: #D60B51; clip-path: polygon(0 0, 100% 0, 100% 100%)"></span>
+      <span aria-hidden="true" style="position: absolute; top: 0; right: 56px; width: 40px; height: 52px; background: #F39200; clip-path: polygon(0 0, 100% 0, 100% 100%)"></span>
+      <span style="flex: 0 0 200px; height: 282px; border-radius: 14px; background: #1F2B3D; box-shadow: 0 8px 20px rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; font-size: 13px; color: #FF7AA6">[plakát]</span>
+      <div style="display: flex; flex-direction: column; gap: 14px; min-width: 0">
+        <span style="font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #FF7AA6">Doporučujeme</span>
+        <h2 id="feat-t" style="margin: 0; padding-right: 64px; font-size: 32px; font-weight: 700; line-height: 1.15; letter-spacing: -0.01em">Slavnostní mše k jubileu 800 let</h2>
+        <div style="display: flex; flex-direction: column; gap: 4px; font-size: 16px; color: #C3CCD8">
+          <span style="display: flex; align-items: center; gap: 8px">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF7AA6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>
+            <span><strong style="color: #EEF2F7">Neděle 18. října 2026</strong> · 9:30</span>
+          </span>
+          <span style="display: flex; align-items: center; gap: 8px">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF7AA6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>
+            <span>Kuřim, kostel sv. Maří Magdalény</span>
+          </span>
+        </div>
+        <p style="margin: 0; color: #C3CCD8">Zveme vás na slavnostní mši k jubileu 800 let kostela sv. Maří Magdalény, založeného roku 1226. Po mši je připraveno pohoštění.</p>
+        <a href="https://farakurim.cz/nahrane/aktuality/6ab538eec7721.Plakát.png" style="align-self: flex-start; display: flex; align-items: center; gap: 8px; min-height: 48px; margin-top: auto; padding: 0 20px; border-radius: 14px; background: #D60B51; color: #FFFFFF; font-weight: 700; text-decoration: none">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"></rect><circle cx="9" cy="10" r="2"></circle><path d="M21 17l-5-5-9 8"></path></svg>
+          Zobrazit plakát
+        </a>
+      </div>
+    </section>
+
+    <section aria-labelledby="list-t" style="display: flex; flex-direction: column; gap: 18px">
+      <h2 id="list-t" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Seznam akcí</h2>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+        <div role="group" aria-label="Filtr akcí" style="display: flex; flex-wrap: wrap; gap: 8px">
+          <sc-for list="{{chips}}" as="c" hint-placeholder-count="5">
+            <button type="button" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="flex: none; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 1.5px solid {{c.bd}}; background: {{c.bg}}; color: {{c.fg}}; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer">{{c.label}}</button>
+          </sc-for>
+        </div>
+        <span aria-live="polite" style="font-size: 15px; color: #9AA6B5">{{countLabel}}</span>
+      </div>
+
+      <sc-if value="{{isEmpty}}" hint-placeholder-val="{{ false }}">
+        <div style="padding: 40px 24px; border-radius: 24px; background: #18212F; text-align: center; color: #C3CCD8">V tomto období nejsou žádné akce.</div>
+      </sc-if>
+
+      <sc-for list="{{groups}}" as="g" hint-placeholder-count="3">
+        <div style="display: flex; flex-direction: column; gap: 14px; padding-top: 10px">
+          <div style="display: flex; align-items: center; gap: 14px">
+            <h3 style="margin: 0; font-size: 20px; font-weight: 700; color: {{g.color}}">{{g.label}}</h3>
+            <span aria-hidden="true" style="flex: 1; height: 1px; background: #2A3648"></span>
+          </div>
+          <sc-for list="{{g.items}}" as="it" hint-placeholder-count="3">
+            <article style="display: flex; gap: 20px; padding: 20px; border-radius: 24px; background: #1F2B3D; border: 1px solid #2A3648; opacity: {{it.opacity}}">
+              <span style="flex: 0 0 72px; height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 14px; background: {{it.dateBg}}; color: {{it.dateFg}}; line-height: 1.1; text-align: center">
+                <span style="font-size: 19px; font-weight: 700">{{it.d1}}</span>
+                <span style="font-size: 13px">{{it.d2}}</span>
+              </span>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0">
+                <div style="display: flex; flex-wrap: wrap; gap: 6px">
+                  <sc-for list="{{it.tags}}" as="t" hint-placeholder-count="1">
+                    <span style="padding: 3px 10px; border-radius: 999px; background: {{t.bg}}; color: {{t.fg}}; font-size: 13px; font-weight: 700">{{t.label}}</span>
+                  </sc-for>
+                </div>
+                <h4 style="margin: 0; font-size: 20px; font-weight: 700; line-height: 1.3">{{it.title}}</h4>
+                <span style="display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 15px; color: #C3CCD8">
+                  <span>{{it.when}}</span>
+                  <span style="display: flex; align-items: center; gap: 6px; color: #9AA6B5">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>
+                    {{it.place}}
+                  </span>
+                </span>
+                <p style="margin: 0; font-size: 16px; color: #C3CCD8">{{it.text}}</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; padding-top: 4px">
+                  <sc-for list="{{it.files}}" as="fl" hint-placeholder-count="1">
+                    <a href="{{fl.href}}" style="display: flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border-radius: 12px; background: #18212F; color: #EEF2F7; font-size: 15px; font-weight: 700; text-decoration: none">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF7AA6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6"></path></svg>
+                      {{fl.label}} <span style="font-weight: 400; color: #9AA6B5">{{fl.type}}</span>
+                    </a>
+                  </sc-for>
+                  <sc-for list="{{it.links}}" as="ln" hint-placeholder-count="0">
+                    <a href="{{ln.href}}" style="display: flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border-radius: 12px; background: #18212F; color: #EEF2F7; font-size: 15px; font-weight: 700; text-decoration: none">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7DB8EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg>
+                      {{ln.label}}
+                    </a>
+                  </sc-for>
+                </div>
+              </div>
+              <span style="flex: 0 0 108px; height: 152px; border-radius: 12px; background: {{it.tint}}; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #C3CCD8">[plakát]</span>
+            </article>
+          </sc-for>
+        </div>
+      </sc-for>
+
+      <a href="#" style="align-self: center; display: flex; align-items: center; justify-content: center; min-height: 52px; margin-top: 8px; padding: 0 28px; border-radius: 14px; border: 2px solid #D60B51; color: #FF7AA6; font-weight: 700; text-decoration: none">Načíst další aktuality</a>
+    </section>
+
+    <section aria-labelledby="arch-t" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding: 24px 28px; border-radius: 28px; background: #18212F">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <h2 id="arch-t" style="margin: 0; font-size: 22px; font-weight: 700">Archiv aktualit</h2>
+        <p style="margin: 0; font-size: 16px; color: #C3CCD8">Starší pozvánky a ohlédnutí za proběhlými akcemi.</p>
+      </div>
+      <a href="https://farakurim.cz/aktuality/" style="display: flex; align-items: center; min-height: 48px; padding: 0 20px; border-radius: 14px; border: 2px solid #1D71B7; color: #7DB8EE; font-weight: 700; text-decoration: none">Otevřít archiv</a>
+    </section>
+  </main>
+
+  <footer style="margin-top: auto; display: flex; flex-direction: column; background: #18212F">
+    <div aria-hidden="true" style="display: flex; height: 6px">
+      <span style="flex: 3; background: #2EAC66"></span>
+      <span style="flex: 2; background: #1D71B7"></span>
+      <span style="flex: 2; background: #D60B51"></span>
+      <span style="flex: 3; background: #F39200"></span>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 32px; padding: 32px 32px 40px">
+      <div style="display: flex; align-items: center; gap: 12px">
+        <img src="../../../assets/logo-farnost-kurim.svg" alt="" style="width: 25px; height: 40px; display: block">
+        <span style="display: flex; flex-direction: column">
+          <span style="font-weight: 700">Římskokatolická farnost Kuřim</span>
+          <span style="font-size: 14px; color: #C3CCD8">Kuřim · Moravské Knínice · Jinačovice · Česká</span>
+        </span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 2px; font-size: 14px">
+        <span style="color: #C3CCD8">Bankovní účet: 247704317/0300</span>
+        <a href="https://farakurim.cz/virtualni_prohlidka/" style="font-weight: 700">Virtuální prohlídka kostela</a>
+      </div>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":834,"height":3600}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const st = this.state || {};
+    const f = st.filter || 'upcoming';
+    const U = 'https://farakurim.cz/nahrane/aktuality/';
+    const A = 'https://farakurim.cz/aktuality/';
+    const ITEMS = [
+      { g: 'oct', title: 'Hody v České', d1: '2.–4.', d2: 'října', when: 'pátek 2. – neděle 4. 10. 2026', place: 'Česká',
+        text: 'Srdečně zveme na tradiční hody v České – stavění máje, průvod a koncert.', now: true, week: true, month: true, tint: '#40192B',
+        tags: [['Právě probíhá', 'now']], files: [['Plakát', 'PNG', U + '6abcdf48ca24c.Plakát.png']], links: [] },
+      { g: 'oct', title: 'Koláč pro hospic', d1: '7.', d2: 'října', when: 'středa 7. 10. 2026', place: 'Kuřim a okolí',
+        text: 'Podpořte svým darem Domácí hospic Porta Vitae. Přispět můžete také online.', week: true, month: true, tint: '#3D2A12',
+        tags: [], files: [['Plakát', 'PNG', U + '6ab932eedf2ab.Plakát.png']], links: [['Koláč pro hospic', 'https://tisnov.charita.cz/kolac-pro-hospic']] },
+      { g: 'oct', title: 'Děkanátní setkání lektorů Božího slova', d1: '9.–10.', d2: 'října', when: 'pátek 9. – sobota 10. 10. 2026', place: 'Tišnov',
+        text: 'Setkání lektorů Božího slova tišnovského děkanství. Provází MgA. Martina Pavlíková.', week: true, month: true, tint: '#1C3350',
+        tags: [], files: [['Pozvánka', 'PNG', A]], links: [] },
+      { g: 'oct', title: 'Manželské večery pro Tišnov a okolí', d1: '11.', d2: 'října', when: 'od neděle 11. 10. 2026, vždy 18:00–20:30', place: 'Tišnov',
+        text: 'Sedm nedělních setkání pro posílení vašeho vztahu.', month: true, tint: '#163A2A',
+        tags: [['7 setkání', 'info']], files: [['Plakát', 'PDF', A]], links: [] },
+      { g: 'oct', title: 'Hubertská mše', d1: '25.', d2: 'října', when: 'neděle 25. 10. 2026 · 9:30', place: 'Kuřim',
+        text: 'Mši pořádají Lesy města Brna, a. s.', month: true, tint: '#163A2A',
+        tags: [], files: [['Pozvánka', 'PDF', A]], links: [] },
+      { g: 'dec', title: 'Farní pouť do Lukova a adventní Třebíče', d1: '19.', d2: 'prosince', when: 'sobota 19. 12. 2026', place: 'Lukov a Třebíč',
+        text: 'Pouť do Lukova u Moravských Budějovic, rodiště blahoslaveného Jana Buly, a na adventní Třebíč. Cena 300 Kč.', tint: '#3D2A12',
+        tags: [['Přihlášky do 10. 10.', 'deadline'], ['300 Kč', 'info']], files: [['Plakát', 'PNG', U + '6ab933039e92d.Plakát.png']], links: [['poutnicimkk@seznam.cz', 'mailto:poutnicimkk@seznam.cz']] },
+      { g: 'long', title: 'Obnova v Duchu svatém', d1: 'čt', d2: '18:30', when: '1. 10. 2026 – 29. 4. 2027, každý čtvrtek od 18:30', place: 'Brno, Lidická',
+        text: 'Seminář obnovy v Duchu svatém.', long: true, tint: '#1C3350',
+        tags: [['Každý týden', 'info']], files: [['Pozvánka', 'PNG', U + '6a40e5b1026d7.Pozvánka3.png']], links: [['emmanuel.cz', 'https://www.emmanuel.cz/obnova/']] },
+      { g: 'long', title: 'Seminář Otcovo srdce', d1: 'III–XI', d2: '2026', when: 'březen – listopad 2026', place: 'dle programu',
+        text: 'Seminář, který vám pomůže objevit lásku a dobrotu Nebeského Otce.', long: true, tint: '#40192B',
+        tags: [], files: [['Informace', 'PDF', A]], links: [] },
+      { g: 'past', title: 'Setkání prvokomunikantů s biskupem Pavlem', d1: '1.', d2: 'října', when: 'čtvrtek 1. 10. 2026 · 9:00–14:30', place: 'Brno, Petrov',
+        text: 'Setkání prvokomunikantů s otcem biskupem Pavlem na Petrově v Brně.', past: true, tint: '#18212F',
+        tags: [['Proběhlo', 'past']], files: [['Plakát', 'PNG', U + '6aa647e209023.Plakát.png']], links: [] }
+    ];
+    const TAG = { now: ['#D60B51', '#FFFFFF'], deadline: ['#33240F', '#FFC266'], info: ['#172A40', '#7DB8EE'], past: ['#18212F', '#C3CCD8'] };
+    const match = (it) => f === 'all' ? true : f === 'upcoming' ? !it.past : f === 'week' ? !!it.week : f === 'month' ? !!it.month : !!it.long;
+    const deco = (it) => ({
+      title: it.title, d1: it.d1, d2: it.d2, when: it.when, place: it.place, text: it.text, tint: it.tint,
+      dateBg: it.now ? '#D60B51' : '#331824', dateFg: it.now ? '#FFFFFF' : '#FF7AA6', opacity: it.past ? '0.72' : '1',
+      tags: it.tags.map((t) => ({ label: t[0], bg: TAG[t[1]][0], fg: TAG[t[1]][1] })),
+      files: it.files.map((x) => ({ label: x[0], type: x[1], href: x[2] })),
+      links: it.links.map((x) => ({ label: x[0], href: x[1] }))
+    });
+    const GROUPS = [['oct', 'Říjen 2026', '#FF7AA6'], ['dec', 'Prosinec 2026', '#FF7AA6'], ['long', 'Dlouhodobé akce', '#7DB8EE'], ['past', 'Proběhlo', '#9AA6B5']];
+    const shown = ITEMS.filter(match);
+    const groups = GROUPS.map((g) => ({ label: g[1], color: g[2], items: shown.filter((it) => it.g === g[0]).map(deco) })).filter((g) => g.items.length);
+    const FILTERS = [['upcoming', 'Nadcházející'], ['week', 'Tento týden'], ['month', 'Tento měsíc'], ['long', 'Dlouhodobé'], ['all', 'Vše']];
+    const chips = FILTERS.map((x) => {
+      const on = x[0] === f;
+      return { label: x[1], pressed: on ? 'true' : 'false', pick: () => this.setState({ filter: x[0] }),
+        bg: on ? '#D60B51' : '#18212F', fg: on ? '#FFFFFF' : '#EEF2F7', bd: on ? '#D60B51' : '#2A3648' };
+    });
+    const n = shown.length;
+    const word = n === 1 ? 'akce' : (n >= 2 && n <= 4 ? 'akce' : 'akcí');
+    return {
+      menuOpen: !!st.menuOpen,
+      toggleMenu: () => this.setState({ menuOpen: !st.menuOpen }),
+      chips: chips, groups: groups, isEmpty: n === 0,
+      countLabel: 'Zobrazeno ' + n + ' ' + word
+    };
+  }
+}
+</script>
+</body>
+</html>
