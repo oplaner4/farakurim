@@ -4,8 +4,8 @@ Spec for implementing the new website of **Římskokatolická farnost Kuřim**.
 Pages designed so far: **homepage** (sections 1–10), **Aktuality** (section 11),
 **Archiv aktualit** (section 12), **Detail akce** (section 13), **Pořad bohoslužeb**
 (section 14), **Kontakty** (section 15), **Kalendář** (section 16, plus the
-homepage week calendar in 4.3a), **Petrklíč** (section 17) and **Archiv Petrklíče**
-(section 18).
+homepage week calendar in 4.3a), **Petrklíč** (section 17), **Archiv Petrklíče**
+(section 18) and **Fotogalerie** (section 19, plus the homepage carousel in 4.5).
 More pages will follow. Language of all UI copy: **Czech**. Approach: **mobile-first**.
 Every page has a **light and a dark theme**.
 
@@ -25,6 +25,7 @@ Every page has a **light and a dark theme**.
 | `mockups/kalendar/{light,dark}/` | Kalendář (section 16) |
 | `mockups/petrklic/{light,dark}/` | Petrklíč – aktuální číslo (section 17) |
 | `mockups/petrklic-archiv/{light,dark}/` | Archiv Petrklíče (section 18) |
+| `mockups/fotogalerie/{light,dark}/` | Fotogalerie (section 19) |
 | `assets/logo-farnost-kurim.svg` | Cleaned logo (also the future favicon) |
 
 Desktop mockups are fluid with content max-width 1200 px; mobile and tablet are
@@ -39,7 +40,7 @@ styles everywhere and are separate files per size and theme. Production should b
 **one template per page + one shared stylesheet**, with header and footer as
 shared partials. Internal links in the mockups already use the real routes
 (`/`, `/aktuality/`, `/aktuality/archiv`, and `/aktuality/slavnostni-mse-k-jubileu-800-let`
-as an example detail URL, `/porad_bohosluzeb`, `/kontakty`, `/kalendar`, `/petrklic/aktualni`, `/petrklic/archiv`); the theme toggle's `href="#"` stands for the JS toggle.
+as an example detail URL, `/porad_bohosluzeb`, `/kontakty`, `/kalendar`, `/petrklic/aktualni`, `/petrklic/archiv`, `/fotogalerie`); the theme toggle's `href="#"` stands for the JS toggle.
 
 ---
 
@@ -163,15 +164,21 @@ Order is the same at every breakpoint. Differences per breakpoint are noted.
 Placed **directly after the next-mass block and before Aktuality**. The parish
 considers the calendar essential, so it is the second thing visitors see.
 
-- Heading "Tento týden" with the blue shard (26 / 32 / 40 px) and the link "Celý kalendář" to `/kalendar`.
-- **7 day cards**, today and the next 6 days, as an ordered list. Each card has:
-  - a header: "Dnes" / "Zítra" / weekday, with the date muted on the right ("so 3. 10.", "5. 10.");
-  - **events** (Události calendar), each with a 4 px magenta bar, the time ("celý den", "18:30") in magenta-ink, and the title in bold, linked when the event has a detail page;
-  - **one compact services line** (Mše a adorace calendar): a blue bar, the label "Bohoslužby" and the times joined with " · " ("8:00 · 9:30 · 11:00");
+- **Header:** H2 "Tento týden" with the blue shard (26 / 32 / 40 px) and, under it, the muted range "po 28. 9. – ne 4. 10.". On the right: two 44 px buttons **"Předchozí týden" / "Další týden"** (chevrons, `aria-label`) and the link "Celý kalendář" to `/kalendar`. Navigating changes the title to "Příští týden" / "Minulý týden" / "Týden 12. 10." (the H2 is `aria-live="polite"`). Without JS the buttons can be links `?tyden=2026-W41`.
+- **The week runs Monday → Sunday** (Czech convention), never "today + 6 days". 7 day cards in an ordered list.
+- Each **upcoming day** card (today and later):
+  - header: "Dnes" / "Zítra" / weekday in bold, the date muted on the right ("so 3. 10.", "5. 10.");
+  - **events** (Události calendar): 4 px magenta bar, time ("celý den", "18:30") in magenta-ink, title in bold, linked when the event has a detail page. **Titles are clamped to 2 lines** (`-webkit-line-clamp: 2`, full title stays in the DOM / `title` attribute);
+  - **overflow rule – the same as the Kalendář grid (16.2):** with 1–2 events show all of them; with **3 or more** show the first event and a **"+N další"** badge (magenta tint `#FDEEF3`, magenta-ink, radius 6, 13 px bold) that links to `/kalendar` with that day selected (`/kalendar?den=2026-10-04`). So a card holds at most two event rows and the row of cards keeps an even height however busy a day is;
+  - **one compact services line** (Mše a adorace calendar): blue bar, label "Bohoslužby", times joined with " · " ("8:00 · 9:30 · 11:00");
   - "Bez programu" when the day is empty.
-- Today's card has a blue-tint background with a 2 px blue border; other days use `--surface`.
-- Layout: mobile, a horizontal scroll row of 200 px cards (bleeds to the screen edges); tablet, the same with 210 px cards; desktop, `grid-template-columns: repeat(7, minmax(0, 1fr))`.
-- Data: the same source as the Kalendář page (16.4). Render server-side.
+- Today: blue-tint background with a 2 px blue border. Other days: `--surface`.
+- **Past days of the current week:**
+  - **Mobile / tablet:** collapsed to **narrow 76 px cards** at opacity 0.55: short weekday ("Po"), date, and a summary ("2× mše · 1 akce" or "—"). This keeps today in view on the first screen without scrolling the row. Also scroll the row so that today is the first fully visible card (`scrollIntoView({inline: 'start'})` on load) as a safety net.
+  - **Desktop:** full cards in the 7-column grid at opacity 0.55.
+  - In other weeks (prev/next) all days are full cards; a past week is fully dimmed.
+- Layout: mobile, a horizontal scroll row of 200 px cards (bleeds to the screen edges, 16 px inner padding); tablet, the same with 210 px cards and 32 px padding; desktop, `grid-template-columns: repeat(7, minmax(0, 1fr))`, gap 12.
+- Data: the same source as the Kalendář page (16.4). Render server-side; the week navigation can fetch `/kalendar/tyden?od=YYYY-MM-DD` (HTML fragment or JSON).
 
 ### 4.4 Aktuality (magenta)
 - The 3 nearest events on mobile, 4 on tablet/desktop. "Všechny aktuality" link to `/aktuality/`.
@@ -179,9 +186,13 @@ considers the calendar essential, so it is the second thing visitors see.
 - **Desktop:** vertical cards with a poster image (210 px tall, rounded 24) and a date chip overlaid top-left, then title and excerpt. `repeat(auto-fit, minmax(min(250px,100%),1fr))`.
 - "Právě probíhá" pill when today falls between the event's start and end. The highlighted card uses the magenta tint background.
 
-### 4.5 Fotogalerie (green)
-- The 4 newest albums: photo, date (muted), title. Link "Celá fotogalerie".
-- Mobile: horizontal scroll row of 240 px cards. Tablet: 2×2 grid (photo 220). Desktop: 4 columns (photo 240).
+### 4.5 Fotogalerie (green) – carousel of the newest album
+
+- Header: H2 "Fotogalerie" with the green shard, link "Celá fotogalerie" to `/fotogalerie`.
+- **Stage** (`role="region" aria-roledescription="carousel"`, label "Fotografie z alba …"): the photos of the **newest album** one at a time. Ratio 4:3 on mobile, 16:9 on tablet, 16:10 on desktop; radius 20 / 24 / 28. 48 px round prev/next buttons (white 92 %, dark icon) at the sides, and a counter pill "3 / 12" bottom-right (`aria-live="polite"`). Swipe on touch; arrow keys when focused. No autoplay.
+- Caption under the stage: the date (muted), album title (bold), link "Celé album →".
+- **"Další alba"**: the next 3 albums as compact rows (88×66 thumbnail, date, title), on `--surface`, radius 16. Mobile/tablet: under the stage. Desktop: a column beside the stage (stage `flex: 999 1 640px`, list `flex: 1 1 340px`).
+- Photos load lazily except the first; use the Zonerama `sm`/`md` image sizes via `srcset`.
 
 ### 4.6 Petrklíč (orange) and Kontakty (blue)
 - Mobile: two stacked blocks. Tablet: side by side (2 columns). Desktop: `auto-fit, minmax(min(440px,100%),1fr)`.
@@ -230,7 +241,7 @@ must come from the exceptions data, not be hard-coded.
 |---|---|
 | Pořad bohoslužeb PDF | latest uploaded file in `nahrane/porady_bohosluzeb/` (current: `6ab9325f1b46d.porad_bohosluzeb.pdf`), plus its date range for the caption |
 | Aktuality | existing news records: upcoming or ongoing (end ≥ today), sorted by start date; poster image from `nahrane/aktuality/` |
-| Fotogalerie | Zonerama `FarnostKurim/425053`, cached server-side (about 1 h), with album title, date, cover |
+| Fotogalerie | Zonerama `FarnostKurim/425053`, cached server-side (about 1 h): albums with title, date, photo count and photo URLs (the newest album's photos feed the carousel) |
 | Petrklíč | newest issue record, `petrklic/pdf?id=…`; cover thumbnail generated from PDF page 1 on upload |
 | Kontakty | Křížkovského 55/5, 664 34 Kuřim · 541 230 183 · 723 661 146 · fara.kurim@seznam.cz · Po 9:00–10:00, Čt 19:00–20:00 (mimo letní prázdniny), jindy dle domluvy |
 | Footer | bank account 247704317/0300 · `/virtualni_prohlidka/` |
@@ -808,3 +819,37 @@ Ročník / Akce, with 10/20/50/100 paging).
 
 The homepage Petrklíč card (4.6) shows the newest issue's cover and links to
 `/petrklic/aktualni`. "Archiv starších čísel" links to `/petrklic/archiv`.
+
+## 19. Fotogalerie (`/fotogalerie`)
+
+Mockups: `mockups/fotogalerie/`. Section colour: **green**. The header's current item is
+"Fotogalerie" (green tint `#E8F6EE`, green ink `#17784A`; dark `#163A2A` / `#5FD394`).
+
+### 19.1 Structure
+
+1. Breadcrumb `Úvod › Fotogalerie`, H1 "Fotogalerie" with the green shard, lead "Fotografie z farních akcí. Starší alba najdete na Zonerama."
+2. **One block per album** (newest first), separated by a hairline:
+   - date as a green-tint pill, H2 album title (22 / 24 / 28 px), "12 fotografií" muted, and the link "Otevřít album →" on the right (Zonerama album URL).
+   - a **photo strip carousel**: 1 photo visible on mobile, 2 on tablet, 3 on desktop (4:3, radius 16–20). Under it: prev/next 48 px round outline buttons and the counter "1–3 / 12" (`aria-live`). The arrows move by one page and wrap around. Each photo links to the album.
+   - Implement as a scroll-snap track (`scroll-snap-type: x mandatory`) with the buttons scrolling by one page width; it then also works by swipe.
+3. **"Další alba"** panel (green tint, green corner triangle): "Všechna starší alba farnosti jsou na Zonerama." and a green button **"Více fotogalerií na Zonerama"** with an external-link icon. In the light theme the button is `#17784A` with white text; in dark it is `#5FD394` with **dark text `#111923`** (never white on light green).
+
+Show the 4–6 newest albums on the page; older ones live on Zonerama.
+
+### 19.2 Data
+
+| Field | Notes |
+|---|---|
+| album title, date | from Zonerama, cached about 1 h |
+| photo count | for "12 fotografií" and the counter |
+| photos | URLs in two sizes (thumbnail for the strip, larger for a later lightbox) and alt text (album title + "fotografie N") |
+| album URL | Zonerama link for "Otevřít album" |
+
+A lightbox (full-screen viewer with prev/next, Esc to close, focus trap) is optional;
+the mockups link photos to the album on Zonerama instead.
+
+### 19.3 Dark theme
+
+Same token mapping as section 10. Placeholder tints become dark tints; the
+Zonerama button uses dark text as noted above.
+

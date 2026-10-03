@@ -43,7 +43,7 @@ a{color:#165A93}a:hover{color:#0F3F69}
         <a href="/" style="padding: 12px 4px; font-size: 18px; color: #1B2533; text-decoration: none; border-bottom: 1px solid #EEF1F5">Úvod</a>
         <a href="/aktuality/" style="padding: 12px 4px; font-size: 18px; color: #1B2533; text-decoration: none; border-bottom: 1px solid #EEF1F5">Aktuality</a>
         <a href="/porad_bohosluzeb" style="padding: 12px 4px; font-size: 18px; color: #1B2533; text-decoration: none; border-bottom: 1px solid #EEF1F5">Bohoslužby</a>
-        <a href="https://farakurim.cz/fotogalerie" style="padding: 12px 4px; font-size: 18px; color: #1B2533; text-decoration: none; border-bottom: 1px solid #EEF1F5">Fotogalerie</a>
+        <a href="/fotogalerie" style="padding: 12px 4px; font-size: 18px; color: #1B2533; text-decoration: none; border-bottom: 1px solid #EEF1F5">Fotogalerie</a>
         <a href="/petrklic/aktualni" style="padding: 12px 4px; font-size: 18px; color: #1B2533; text-decoration: none; border-bottom: 1px solid #EEF1F5">Petrklíč</a>
         <a href="/kontakty" style="padding: 12px 4px; font-size: 18px; color: #1B2533; text-decoration: none">Kontakty</a>
       </nav>
@@ -167,6 +167,7 @@ class Component extends DCLogic {
     const x = new Date(y, m, day);
     const inR = (a, b) => x >= a && x <= b;
     if (inR(D(2026, 10, 2), D(2026, 10, 4))) A('celý den', 'Hody v České', 'Česká');
+    if (key === '2026-10-4') { A('12:00', 'Farní kavárna po mši', 'Fara Kuřim'); A('15:00', 'Požehnání zvířat ke svátku sv. Františka', 'Farní zahrada'); }
     if (key === '2026-10-7') A('celý den', 'Koláč pro hospic', 'Kuřim a okolí');
     if (inR(D(2026, 10, 9), D(2026, 10, 10))) A('celý den', 'Setkání lektorů Božího slova', 'Tišnov');
     if (wd === 4 && inR(D(2026, 10, 1), D(2027, 4, 29))) A('18:30', 'Obnova v Duchu svatém', 'Brno, Lidická');
