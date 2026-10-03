@@ -60,7 +60,7 @@ export function SiteHeader({ currentHref = links.home }: { currentHref?: string 
                     href={item.href}
                     aria-current={item.current ? "page" : undefined}
                     className={clsx(
-                      "flex min-h-11 items-center rounded-12 px-3.5 text-ink no-underline hover:bg-surface hover:text-ink aria-[current=page]:font-bold",
+                      "flex min-h-11 items-center rounded-12 px-3 text-ink no-underline hover:bg-surface hover:text-ink aria-[current=page]:font-bold",
                       currentStyles[item.color].desktop,
                     )}
                   >
@@ -72,7 +72,7 @@ export function SiteHeader({ currentHref = links.home }: { currentHref?: string 
           </nav>
           <ButtonLink href={serviceSheet.pdfUrl} size="compact" className="max-md:hidden">
             <FileDownloadIcon size={18} />
-            Pořad bohoslužeb
+            Ohlášky
           </ButtonLink>
           <ThemeToggle />
           <MenuButton id={MENU_BUTTON_ID} controls={MENU_ID} />
