@@ -80,7 +80,8 @@ The old site's `/nahrane/` folder is not used by the new site.
 No CI. Build locally, then deploy with the `farnost-deploy` skill: rsync over SSH (`farakurim_cz@91.239.200.63`) of
 `uploads/` into `/2026.farakurim.cz/uploads/` and the **contents** of `out/` into `/2026.farakurim.cz/` (served at
 http://2026.farakurim.cz/), after a dry run and the user's explicit yes. `/farakurim.cz/` is the live old PHP site:
-never deploy there. Never delete `/uploads/` on the server: the uploaded files live only there.
+never deploy there. Never delete `/uploads/` or `/virtualni_prohlidka/` (the old site's tour, linked from the footer)
+on the server: they live only there. `public/.htaccess` serves `404.html` (`src/app/not-found.tsx`) for missing URLs.
 `trailingSlash: true` emits `page/index.html`, so Apache serves it without rewrite rules.
 
 ## Project structure

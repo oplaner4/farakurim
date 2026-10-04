@@ -1,6 +1,7 @@
 // `pnpm dev`: the Next dev server (Turbopack, hot reload) behind a custom server
 // (node_modules/next/dist/docs/01-app/02-guides/custom-server.md) that also answers /uploads/… like the web host:
 // files staged in the local uploads/ folder are served from there, anything else is redirected to the live site.
+// /virtualni_prohlidka/ (on the server only, not in the build) is redirected to the live site too.
 // Only `pnpm dev` uses it; `pnpm build` stays a plain static export. `pnpm preview` does the same in scripts/preview.py.
 import { createServer } from "node:http";
 import { fileURLToPath } from "node:url";
@@ -8,6 +9,7 @@ import next from "next";
 import sirv from "sirv";
 
 const PREFIX = "/uploads/";
+const TOUR = "/virtualni_prohlidka/";
 const LIVE = "https://farakurim.cz";
 const port = Number(process.env.PORT) || 3000;
 const hostname = "localhost";
@@ -21,6 +23,11 @@ await app.prepare();
 
 const server = createServer((req, res) => {
   const url = req.url ?? "/";
+  if (url.startsWith(TOUR)) {
+    res.writeHead(302, { Location: LIVE + url });
+    res.end();
+    return;
+  }
   if (!url.startsWith(PREFIX)) return handle(req, res);
   // sirv looks the path up inside uploads/, so it gets the URL without the /uploads prefix.
   req.url = url.slice(PREFIX.length - 1);

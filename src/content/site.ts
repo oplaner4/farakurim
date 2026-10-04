@@ -3,9 +3,6 @@ import type { CalendarId, CarouselSlide, OfficeHours } from "./types";
 /** Public origin of the site: absolute URLs in metadata, JSON-LD and calendar files. */
 export const SITE_URL = "https://farakurim.cz";
 
-// Pages not rebuilt yet point to the current live site.
-const LIVE = SITE_URL;
-
 export const links = {
   home: "/",
   news: "/aktuality/",
@@ -16,7 +13,8 @@ export const links = {
   petrklicArchive: "/petrklic/archiv/",
   contacts: "/kontakty/",
   calendar: "/kalendar/",
-  virtualTour: `${LIVE}/virtualni_prohlidka/`,
+  /** Lapentor tour copied from the old site; it lives only on the server (see farnost-deploy). */
+  virtualTour: "/virtualni_prohlidka/",
 };
 
 /** `color` is the section colour of the page, used for the current page's nav item. */

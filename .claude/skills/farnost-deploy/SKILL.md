@@ -14,12 +14,21 @@ both ends. The new site lives in its own web root until it replaces the old one:
 | Web root (new site)    | `/2026.farakurim.cz/`, served at http://2026.farakurim.cz/    |
 | Live old site (PHP)    | `/farakurim.cz/`: **never** deploy there, `--delete` wipes it |
 | Uploaded files on host | `/2026.farakurim.cz/uploads/`, mirrored locally by `uploads/` |
+| Virtual tour           | `/2026.farakurim.cz/virtualni_prohlidka/`, on the server only |
 
 The subdomain has no TLS certificate yet, so check it over `http://`. Switching the new site to `/farakurim.cz/`
 is a separate decision: it changes this skill (and the `LIVE` URL in `scripts/preview.py` and
 `scripts/dev-server.mjs`).
 
+Two folders in the web root are **not** in `out/` and must survive every deploy, so both `out/` commands exclude
+them: `/uploads/` and `/virtualni_prohlidka/` (the old site's Lapentor tour, 553 MB of PHP + panoramas, linked from
+the footer). Never sync `out/` without both excludes.
+
 ## 1. Preconditions
+
+- `/2026.farakurim.cz/virtualni_prohlidka/` exists on the server (`ssh farakurim_cz@91.239.200.63 'ls
+/2026.farakurim.cz/virtualni_prohlidka/index.php'`). If not, offer the one-time copy in
+  [Virtual tour setup](#virtual-tour-setup) first; the deploy itself works without it, only the footer link 404s.
 
 - `out/` comes from a fresh `pnpm build` of the current commit with `.env.local` in place (without the key the
   calendars ship mock data). When in doubt, rebuild.
@@ -32,14 +41,15 @@ Run both from the repo root, `-n` only shows what would happen:
 ```sh
 rsync -azn --itemize-changes --ignore-existing --chmod=D755,F644 \
   uploads/ farakurim_cz@91.239.200.63:/2026.farakurim.cz/uploads/
-rsync -azn --itemize-changes --delete --exclude=/uploads/ --chmod=D755,F644 \
+rsync -azn --itemize-changes --delete --exclude=/uploads/ --exclude=/virtualni_prohlidka/ --chmod=D755,F644 \
   out/ farakurim_cz@91.239.200.63:/2026.farakurim.cz/
 ```
 
 - `uploads/`: `--ignore-existing` and no `--delete`, so files already on the server are never overwritten or
   removed. The server's `/uploads/` is the only copy of earlier uploads.
-- `out/`: `--delete` keeps the web root equal to the build (stale pages and old `_next/` chunks go), and
-  `--exclude=/uploads/` protects the uploaded files from it.
+- `out/`: `--delete` keeps the web root equal to the build (stale pages and old `_next/` chunks go); the two
+  excludes protect the uploaded files and the virtual tour from it. `out/.htaccess` (from `public/`) makes Apache
+  serve `404.html` for missing URLs.
 
 Summarise the dry run for the user in one short block: the new uploads (paths), and for `out/` the number of
 files sent and **every** file to be deleted (lines starting with `*deleting`). Hidden noise: `.d..t......` lines
@@ -60,7 +70,7 @@ The same two commands without `-n`, **uploads first**, so no deployed page links
 ```sh
 rsync -az --ignore-existing --chmod=D755,F644 \
   uploads/ farakurim_cz@91.239.200.63:/2026.farakurim.cz/uploads/
-rsync -az --delete --exclude=/uploads/ --chmod=D755,F644 \
+rsync -az --delete --exclude=/uploads/ --exclude=/virtualni_prohlidka/ --chmod=D755,F644 \
   out/ farakurim_cz@91.239.200.63:/2026.farakurim.cz/
 ```
 
@@ -71,7 +81,21 @@ On an error, report rsync's output and stop; rerunning is safe (rsync only sends
 ```sh
 curl -sI http://2026.farakurim.cz/ | head -1
 curl -sI 'http://2026.farakurim.cz/uploads/<path>' | head -1   # each new upload
+curl -s -o /dev/null -w '%{http_code}\n' http://2026.farakurim.cz/neexistuje/   # 404, the Czech 404 page
+curl -sI http://2026.farakurim.cz/virtualni_prohlidka/ | head -1
 ```
 
-Every URL returns `200`; also check the changed pages (e.g. `/aktuality/<slug>/`). Report the result in one line.
-Leave `uploads/` as it is: `--ignore-existing` skips what is already on the server.
+Every URL returns `200` (except the `404` check); also check the changed pages (e.g. `/aktuality/<slug>/`). Report
+the result in one line. Leave `uploads/` as it is: `--ignore-existing` skips what is already on the server.
+
+## Virtual tour setup
+
+One time only, when the tour is missing on the server. It copies the old site's folder on the server, so nothing is uploaded:
+
+```sh
+ssh farakurim_cz@91.239.200.63 'cp -a /farakurim.cz/virtualni_prohlidka /2026.farakurim.cz/'
+```
+
+Ask the user before running it, like a deploy. The tour is a self-contained PHP app (`index.php` reads `db.json`, no
+database) that builds its URLs from the request, so it runs unchanged on any host. Do not edit its files; its
+`.htaccess` sends misses to `/errors/404`, which ends on the site's 404 page.
