@@ -92,7 +92,8 @@ fonts-source/      Oxygen TTFs + OFL licence (input for `pnpm fonts`)
 scripts/           generate-icons.mjs, subset-fonts.sh, render-mockups.py, petrklic-images.py, poster-webp.py,
                    zonerama-album.py, dev-server.mjs (`pnpm dev`), preview.py (`pnpm preview`)
 public/assets/img/ logo + carousel photos pozadi/{sm,md,lg}/{1-7}.webp (served at the same URLs as the old site)
-src/app/           layout.tsx (font, metadata, skip link, footer), page.tsx (homepage), aktuality/ ([slug] filters + details, archiv/),
+src/app/           layout.tsx (font, metadata, skip link, footer), page.tsx (homepage), sitemap.ts + robots.ts, not-found.tsx (404),
+                   aktuality/ ([slug] filters + details, archiv/),
                    porad_bohosluzeb/, kontakty/, kalendar/, petrklic/ (aktualni/, archiv/[rok]/), fotogalerie/,
                    globals.css (Tailwind theme), utilities.css (custom utilities), icons
 src/components/    One component per block, styled with Tailwind utilities, grouped by where it is used:
