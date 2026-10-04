@@ -82,21 +82,267 @@ export const albums: Album[] = [
     title: "Stánek farnosti na Medovém dni",
     date: "2026-09-20",
     href: album(16472585),
-    photoCount: 12,
+    photoCount: 13,
+    photos: [
+      {
+        small: "https://eu.zonerama.com/photos/671495497_800x450_18.jpg",
+        large: "https://eu.zonerama.com/photos/671495497_1600x900_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/671495498_800x450_18.jpg",
+        large: "https://eu.zonerama.com/photos/671495498_1600x900_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/671495500_800x450_18.jpg",
+        large: "https://eu.zonerama.com/photos/671495500_1600x900_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/671493146_800x450_18.jpg",
+        large: "https://eu.zonerama.com/photos/671493146_1600x900_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/671493130_800x450_18.jpg",
+        large: "https://eu.zonerama.com/photos/671493130_1600x900_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/671493131_800x450_18.jpg",
+        large: "https://eu.zonerama.com/photos/671493131_1600x900_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/671493127_800x450_18.jpg",
+        large: "https://eu.zonerama.com/photos/671493127_1600x900_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/671493123_800x450_18.jpg",
+        large: "https://eu.zonerama.com/photos/671493123_1600x900_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/671493124_800x450_18.jpg",
+        large: "https://eu.zonerama.com/photos/671493124_1600x900_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/671493126_800x450_18.jpg",
+        large: "https://eu.zonerama.com/photos/671493126_1600x900_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/671493128_800x450_18.jpg",
+        large: "https://eu.zonerama.com/photos/671493128_1600x900_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/671508060_800x450_18.jpg",
+        large: "https://eu.zonerama.com/photos/671508060_1600x900_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/671508061_800x450_18.jpg",
+        large: "https://eu.zonerama.com/photos/671508061_1600x900_18.jpg",
+      },
+    ],
   },
   {
     id: "pozehnani-namesti",
     title: "Mše s požehnáním náměstí Osvobození",
     date: "2026-09-20",
     href: album(16472577),
-    photoCount: 18,
+    photoCount: 15,
+    photos: [
+      {
+        small: "https://eu.zonerama.com/photos/670890112_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/670890112_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/670890113_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/670890113_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/670890109_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/670890109_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/670890108_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/670890108_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/670890118_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/670890118_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/670890122_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/670890122_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/670890115_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/670890115_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/670890121_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/670890121_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/670890126_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/670890126_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/670890123_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/670890123_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/670890125_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/670890125_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/670890128_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/670890128_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/670890130_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/670890130_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/670890129_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/670890129_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/670890132_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/670890132_1600x1067_18.jpg",
+      },
+    ],
   },
-  { id: "den-mensin", title: "Den národnostních menšin", date: "2026-09-13", href: album(16351900), photoCount: 9 },
+  {
+    id: "den-mensin",
+    title: "Den národnostních menšin",
+    date: "2026-09-13",
+    href: album(16351900),
+    photoCount: 15,
+    photos: [
+      {
+        small: "https://eu.zonerama.com/photos/668251787_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/668251787_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/668251791_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/668251791_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/668251790_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/668251790_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/668251794_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/668251794_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/668251784_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/668251784_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/668251773_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/668251773_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/668251771_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/668251771_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/668251764_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/668251764_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/668251765_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/668251765_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/668251763_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/668251763_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/668251758_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/668251758_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/668251754_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/668251754_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/668251750_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/668251750_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/668251741_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/668251741_1600x1067_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/668251739_800x533_18.jpg",
+        large: "https://eu.zonerama.com/photos/668251739_1600x1067_18.jpg",
+      },
+    ],
+  },
   {
     id: "pout-vranov",
     title: "Pouť Sedmiradostnou cestou na Vranov",
     date: "2026-08-30",
     href: album(16128406),
-    photoCount: 24,
+    photoCount: 15,
+    photos: [
+      {
+        small: "https://eu.zonerama.com/photos/662362616_800x534_18.jpg",
+        large: "https://eu.zonerama.com/photos/662362616_1600x1068_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/662362590_800x534_18.jpg",
+        large: "https://eu.zonerama.com/photos/662362590_1600x1068_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/662362587_800x534_18.jpg",
+        large: "https://eu.zonerama.com/photos/662362587_1600x1068_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/662362586_800x534_18.jpg",
+        large: "https://eu.zonerama.com/photos/662362586_1600x1068_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/662362540_800x534_18.jpg",
+        large: "https://eu.zonerama.com/photos/662362540_1600x1068_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/662362532_800x534_18.jpg",
+        large: "https://eu.zonerama.com/photos/662362532_1600x1068_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/662362525_800x534_18.jpg",
+        large: "https://eu.zonerama.com/photos/662362525_1600x1068_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/662362611_800x534_18.jpg",
+        large: "https://eu.zonerama.com/photos/662362611_1600x1068_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/662362607_800x534_18.jpg",
+        large: "https://eu.zonerama.com/photos/662362607_1600x1068_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/662362613_800x534_18.jpg",
+        large: "https://eu.zonerama.com/photos/662362613_1600x1068_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/662362600_800x534_18.jpg",
+        large: "https://eu.zonerama.com/photos/662362600_1600x1068_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/662362602_800x534_18.jpg",
+        large: "https://eu.zonerama.com/photos/662362602_1600x1068_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/662362580_800x534_18.jpg",
+        large: "https://eu.zonerama.com/photos/662362580_1600x1068_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/662362568_800x534_18.jpg",
+        large: "https://eu.zonerama.com/photos/662362568_1600x1068_18.jpg",
+      },
+      {
+        small: "https://eu.zonerama.com/photos/662362558_800x534_18.jpg",
+        large: "https://eu.zonerama.com/photos/662362558_1600x1068_18.jpg",
+      },
+    ],
   },
 ];
