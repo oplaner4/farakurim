@@ -5,7 +5,7 @@ Pages designed so far: **homepage** (sections 1–10), **Aktuality** (section 11
 **Archiv aktualit** (section 12), **Detail akce** (section 13), **Pořad bohoslužeb**
 (section 14), **Kontakty** (section 15), **Kalendář** (section 16, plus the
 homepage week calendar in 4.3a), **Petrklíč** (section 17), **Archiv Petrklíče**
-(section 18) and **Fotogalerie** (section 19, plus the homepage carousel in 4.5).
+(section 18) **Fotogalerie** (section 19, plus the homepage carousel in 4.5), and the **"Více" menu and sitemap footer** shared by every page (section 20).
 More pages will follow. Language of all UI copy: **Czech**. Approach: **mobile-first**.
 Every page has a **light and a dark theme**.
 
@@ -26,6 +26,7 @@ Every page has a **light and a dark theme**.
 | `mockups/petrklic/{light,dark}/` | Petrklíč – aktuální číslo (section 17) |
 | `mockups/petrklic-archiv/{light,dark}/` | Archiv Petrklíče (section 18) |
 | `mockups/fotogalerie/{light,dark}/` | Fotogalerie (section 19) |
+| `mockups/menu/{light,dark}/` | Homepage with the "Více" menu open (section 20) |
 | `assets/logo-farnost-kurim.svg` | Cleaned logo (also the future favicon) |
 
 Desktop mockups are fluid with content max-width 1200 px; mobile and tablet are
@@ -170,7 +171,7 @@ considers the calendar essential, so it is the second thing visitors see.
   - header: "Dnes" / "Zítra" / weekday in bold, the date muted on the right ("so 3. 10.", "5. 10.");
   - **events** (Události calendar): 4 px magenta bar, time ("celý den", "18:30") in magenta-ink, title in bold, linked when the event has a detail page. **Titles are clamped to 2 lines** (`-webkit-line-clamp: 2`, full title stays in the DOM / `title` attribute);
   - **overflow rule – the same as the Kalendář grid (16.2):** with 1–2 events show all of them; with **3 or more** show the first event and a **"+N další"** badge (magenta tint `#FDEEF3`, magenta-ink, radius 6, 13 px bold) that links to `/kalendar` with that day selected (`/kalendar?den=2026-10-04`). So a card holds at most two event rows and the row of cards keeps an even height however busy a day is;
-  - **one compact services line** (Mše a adorace calendar): blue bar, label "Bohoslužby", times joined with " · " ("8:00 · 9:30 · 11:00");
+  - **one compact services line** (Bohoslužby calendar): blue bar, label "Bohoslužby", times joined with " · " ("8:00 · 9:30 · 11:00");
   - "Bez programu" when the day is empty.
 - Today: blue-tint background with a 2 px blue border. Other days: `--surface`.
 - **Past days of the current week:**
@@ -200,6 +201,8 @@ considers the calendar essential, so it is the second thing visitors see.
 - **Kontakty:** blue-tint panel with icon rows: address, phones, email, úřední hodiny. Outline button or link "Všechny kontakty" to `/kontakty`. Desktop shows the rows in a 2-column grid.
 
 ### 4.7 Footer
+
+**Superseded by the sitemap footer in section 20.**
 - Stripe on top, surface background. Logo plus "Římskokatolická farnost Kuřim", the line "Kuřim · Moravské Knínice · Jinačovice · Česká", bank account, link "Virtuální prohlídka kostela".
 
 ## 5. Behaviour
@@ -729,7 +732,7 @@ the Bohoslužby page and other in-page links. Section colour: **blue**, with
 
 | Calendar (Google) | Colour | Shown as |
 |---|---|---|
-| **Mše, adorace** | blue `#1D71B7` | "Mše a adorace" / "Bohoslužby", counted as "3× mše" in the grid |
+| **Bohoslužby** (masses, adoration) | blue `#1D71B7` | calendar name "Bohoslužby", counted as "3× mše" in the grid |
 | **Události** | magenta `#D60B51` | "Události" / "Akce", event titles shown as labels in the grid |
 
 ### 16.2 Structure
@@ -737,14 +740,14 @@ the Bohoslužby page and other in-page links. Section colour: **blue**, with
 1. Breadcrumb `Úvod › Kalendář`, H1 "Kalendář", lead "Bohoslužby i farní akce na jednom místě. Klepněte na den a uvidíte program."
 2. **Toolbar**:
    - previous/next month buttons (44 px, `aria-label`), month label as H2 (`aria-live="polite"`), and a "Dnes" button;
-   - two **filter toggles** (`aria-pressed`): "Mše a adorace" (blue outline, filled when on) and "Události" (magenta), both on by default.
+   - two **filter toggles** (`aria-pressed`): "Bohoslužby" (blue outline, filled when on) and "Události" (magenta), both on by default.
 3. **Month grid**, weeks starting Monday, with Po–Ne headers:
    - **Mobile** (52 px cells): the day number plus up to two dots, blue for services and magenta for events.
    - **Tablet / desktop** (104 / 118 px cells): the day number, event labels (magenta tint, ellipsis) and "3× mše" at the bottom in blue-ink. **Overflow rule (as implemented):** with 1–2 events, show all of them; with **3 or more**, show the first event and a **"+N další"** label styled exactly like an event label (same tint, radius and size). A cell never shows more than two labels, so all cells keep the same height. The full list is in the day detail.
    - Days outside the month use `--surface` and muted text. **Today** has a 2 px blue border. The **selected day** is filled blue with white text; its event labels turn white with `#8F0634` text.
    - Each cell is a `<button>` with a full `aria-label` ("18. října, 2 bohoslužby, 1 akce") and `aria-pressed` for the selected day.
 4. **Day detail** (surface panel): the heading "Dnes · Sobota 3. října" / "Zítra · …" / "Neděle 18. října". One row per item: colour bar, time ("celý den" first), title (a link when there is a detail page), "place · Bohoslužba/Akce". Empty: "V tento den není v kalendáři nic."
-5. **"Kalendář v telefonu"** (blue tint): subscribe buttons "+ Mše a adorace" (blue) and "+ Události" (magenta), plus a link to the regular schedule. **The Google Calendar subscription URLs are still to be filled in.**
+5. **"Kalendář v telefonu"** (blue tint): subscribe buttons "+ Bohoslužby" (blue) and "+ Události" (magenta), plus a link to the regular schedule. **The Google Calendar subscription URLs are still to be filled in.**
 
 | | Mobile | Tablet | Desktop |
 |---|---|---|---|
@@ -852,4 +855,60 @@ the mockups link photos to the album on Zonerama instead.
 
 Same token mapping as section 10. Placeholder tints become dark tints; the
 Zonerama button uses dark text as noted above.
+
+## 20. Secondary navigation ("Více" menu) and sitemap footer
+
+Replaces the old site's sidebar, which listed about 30 pages on every page. The
+new design has **no permanent sidebar**. Secondary pages are reached in three places:
+the **"Více" menu** in the header, the **sitemap footer** on every page, and in-page links.
+
+### 20.1 Groups (shared by the menu and the footer)
+
+The old sidebar groups were regrouped. The old "Úvod" group duplicated the main menu,
+and Historie, Pastorační rada and Společenství mladých each held only 1–2 links.
+
+| Group (shard colour) | Links |
+|---|---|
+| **Farnost** (blue) | Kalendář `/kalendar` · Finanční podpora `/financni_podpora/aktualne` · Pastorační rada – členové `/pastoracni_rada/clenove` · Zápisy pastorační rady `/pastoracni_rada/zapisy` · Kronika farnosti `/kronika_prehled_udalosti` · Kněží – rodáci `/knezi_rodaci` · Odkazy `/odkazy` |
+| **Život ve farnosti** (green) | Schola `/schola` · Chrámový sbor `/chramovy_sbor` · Katecheze pro děti `/katecheze_pro_deti/pravidelne` · Výuka náboženství `/vyuka_nabozenstvi` · Společenství mladých `/spolecenstvi_mladych/setkavani` · Seznam aktivit `/aktivity` |
+| **Farní tábor** (magenta) | Tábor 2026 `/farni_tabor/2026` (the current year, automatic) · O táboru · Vedoucí · Kontakt · Ročníky |
+| **Petrklíč a archivy** (orange) | Petrklíč – aktuální číslo `/petrklic/aktualni` · Archiv Petrklíče `/petrklic/archiv` · Archiv aktualit `/aktuality/archiv` |
+
+The main menu items (Úvod, Aktuality, Bohoslužby, Fotogalerie, Petrklíč, Kontakty)
+are not repeated in the groups. Keep the groups in **one data structure** (config or CMS)
+that both the menu and the footer render from.
+Group headings: a 12×16 shard in the group colour plus the bold name. Links use body
+text colour, 40 px rows in the menu and 36 px in the footer.
+
+### 20.2 "Více" menu
+
+- **Desktop:** a text button **"Více"** with the hamburger icon, after "Kontakty" and before
+  the "Ohlášky" button (`aria-expanded`, `aria-controls="vice-menu"`, blue-tint background when open).
+  It opens a **full-width panel** under the header stripe: white, 1 px bottom border,
+  4 group columns at content width, padding 28 / 36 px. Production: an overlay over the page
+  (`position: absolute`, with a subtle shadow). Close on Esc, on a click outside and on a second click;
+  return focus to the button. (The mockups push content down only because they are static.)
+- **Tablet:** the existing hamburger drawer (main items as a 3-column grid of tiles) gets the
+  4 groups in 4 columns under a hairline.
+- **Mobile:** the drawer lists the main items, then the label "DALŠÍ STRÁNKY" and the 4 groups as
+  **accordions** (`<details>/<summary>`: 52 px row, shard + name, chevron that rotates when open).
+  All accordions are collapsed by default; the one containing the current page is open.
+- The hamburger button gets `aria-expanded` as well.
+- **Current page:** mark the link with `aria-current="page"` and the group's ink colour, bold.
+
+### 20.3 Sitemap footer (every page)
+
+- Stripe on top, `--surface` background, as before.
+- **Brand block:** logo + "Římskokatolická farnost Kuřim", the address "Křížkovského 55/5, 664 34 Kuřim",
+  "Obce farnosti:" with links to Kuřim, Moravské Knínice, Jinačovice and Česká (the municipal websites),
+  the bank account, and links to "Virtuální prohlídka kostela" and "Vira.cz".
+- **Sitemap** (`<nav aria-label="Mapa webu">`) with the 4 groups:
+  desktop, brand block left (1.25 fr) + 4 columns (3.75 fr), gap 48;
+  tablet, brand block above + 4 columns; mobile, brand block above + the groups as **accordions**
+  (same component as the drawer).
+- Bottom line (13 px, muted): "© 2026 Římskokatolická farnost Kuřim" and the link "Kontakty a úřední hodiny".
+
+### 20.4 Dark theme
+
+Same token mapping as section 10. The open "Více" button uses the dark blue tint `#172A40`.
 

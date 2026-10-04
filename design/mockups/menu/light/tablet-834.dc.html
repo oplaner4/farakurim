@@ -2,7 +2,7 @@
 <html lang="cs">
 <head>
 <meta charset="utf-8">
-<title>Farnost Kuřim – tablet</title>
+<title>Menu otevřené – tablet</title>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -15,7 +15,7 @@ body{margin:0;background:#FFFFFF}
 a{color:#165A93}a:hover{color:#0F3F69}summary::-webkit-details-marker{display:none}details[open]>summary .chev{transform:rotate(180deg)}
 </style>
 </helmet>
-<div style="width: 834px; min-height: 3680px; box-sizing: border-box; display: flex; flex-direction: column; background: #FFFFFF; color: #1B2533; font-family: Oxygen, 'Segoe UI', 'Helvetica Neue', sans-serif; font-size: 17px; line-height: 1.5">
+<div style="width: 834px; min-height: 3160px; box-sizing: border-box; display: flex; flex-direction: column; background: #FFFFFF; color: #1B2533; font-family: Oxygen, 'Segoe UI', 'Helvetica Neue', sans-serif; font-size: 17px; line-height: 1.5">
 
   <header style="display: flex; flex-direction: column; background: #FFFFFF">
     <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 32px">
@@ -358,7 +358,7 @@ a{color:#165A93}a:hover{color:#0F3F69}summary::-webkit-details-marker{display:no
   </footer>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"showCountdown":{"editor":"boolean","default":true},"$preview":{"width":834,"height":3680}}'>
+<script type="text/x-dc" data-dc-script data-props='{"showCountdown":{"editor":"boolean","default":true},"$preview":{"width":834,"height":950}}'>
 class Component extends DCLogic {
   calItems(d) {
     const y = d.getFullYear(), m = d.getMonth(), day = d.getDate(), wd = d.getDay();
@@ -490,9 +490,9 @@ class Component extends DCLogic {
     }
     const rest = res.list.slice(1).map((r) => ({ day: short[r.t.getDay()] + ' ' + r.t.getDate() + '. ' + (r.t.getMonth() + 1) + '.', time: hm(r.t), place: r.place }));
     return {
-      menuOpen: !!st.menuOpen,
-      toggleMenu: () => this.setState({ menuOpen: !st.menuOpen }),
-      menuExp: st.menuOpen ? 'true' : 'false', menuBtnBg: st.menuOpen ? '#EAF3FB' : 'transparent',
+      menuOpen: st.menuOpen !== false,
+      toggleMenu: () => this.setState({ menuOpen: st.menuOpen === false }),
+      menuExp: st.menuOpen !== false ? 'true' : 'false', menuBtnBg: st.menuOpen !== false ? '#EAF3FB' : 'transparent',
       slideBg: tints[cur % 4], slideNo: cur + 1, slideLabel: 'Fotografie ' + (cur + 1) + ' / ' + n,
       prev: () => go(cur - 1), next: () => go(cur + 1), dots: dots,
       m1: m1, cd: cd, rest: rest,
