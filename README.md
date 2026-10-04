@@ -83,5 +83,6 @@ public/         Static assets served as is
 
 ## Deployment
 
-There is no CI. Build locally (with `.env.local` in place) and upload the **contents** of `out/` over SFTP to the
-web root. `trailingSlash: true` produces `page/index.html`, so Apache serves the pages without rewrite rules.
+There is no CI. Build locally (with `.env.local` in place) and upload `uploads/` into `/uploads/` and the
+**contents** of `out/` to the web root with rsync over SSH (the `farnost-deploy` skill has the commands; for now the
+web root is `/2026.farakurim.cz/`). `trailingSlash: true` produces `page/index.html`, so Apache serves the pages without rewrite rules.

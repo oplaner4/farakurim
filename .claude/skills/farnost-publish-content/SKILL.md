@@ -1,6 +1,6 @@
 ---
 name: farnost-publish-content
-description: Finish a content change on the new farakurim.cz site - stage uploaded files for the server, verify and build, check the page in a browser, commit, and hand the upload and deploy over to the user. Use at the end of farnost-create-aktualita, farnost-create-porad-bohosluzeb, farnost-create-galerie and farnost-create-petrklic, or whenever src/content/ was edited to publish news, ohlášky, albums or Petrklíč issues.
+description: Finish a content change on the new farakurim.cz site - stage uploaded files for the server, verify and build, check the page in a browser, commit, and deploy after the user confirms. Use at the end of farnost-create-aktualita, farnost-create-porad-bohosluzeb, farnost-create-galerie and farnost-create-petrklic, or whenever src/content/ was edited to publish news, ohlášky, albums or Petrklíč issues.
 ---
 
 # Publish a content change
@@ -23,7 +23,7 @@ Files that go to the server are prepared in `uploads/` (git-ignored), which mirr
   (`hody-ceska-plakat.png`, `2026-10-04-porad-bohosluzeb.pdf`). Diacritics break in some SFTP clients, and the
   prefix keeps names unique without the old site's random ids.
 - Never overwrite a file that is already on the server under the same name: pick a new name instead
-  (`curl -sI <url>` returns `404` for a free name).
+  (`curl -sI http://2026.farakurim.cz/uploads/<path>` returns `404` for a free name).
 
 ## 2. Verify
 
@@ -54,13 +54,7 @@ Use the `commit` skill with the `content` scope, e.g. `feat(content): add the Ho
 `feat(content): publish the ohlášky for 4.–11. 10. 2026`, `feat(content): add the Medový den album`.
 Never stage `uploads/` or `out/`.
 
-## 5. Hand over the upload and deploy
+## 5. Deploy
 
-Claude has no access to the hosting, so finish with a short checklist for the user:
-
-1. Upload the staged files (list them with their target paths) into `/uploads/` on the server over SFTP, keeping
-   the folders (`uploads/aktuality/x.png` → `/uploads/aktuality/x.png`).
-2. Upload the **contents** of `out/` to the web root. Do not delete `/uploads/` on the server: it is not in `out/`.
-
-When the user confirms the upload, check every new URL returns `200`
-(`curl -sI 'https://farakurim.cz/uploads/aktuality/<file>' | head -1`), then empty `uploads/`.
+Run the `farnost-deploy` skill: it dry-runs the upload of `uploads/` and `out/` to http://2026.farakurim.cz/, asks
+the user to confirm, deploys and checks the new URLs. Do not deploy without the user's explicit yes.

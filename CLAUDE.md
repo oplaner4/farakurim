@@ -69,16 +69,18 @@ Content is edited in `src/content/*.ts` through project skills (ported from the 
 `farniWebClaudeControl`, which stays untouched): `farnost-create-aktualita` (poster/PDF → `news.ts`),
 `farnost-create-porad-bohosluzeb` (weekly PDF → `ohlasky.ts`), `farnost-create-galerie` (Zonerama album →
 `gallery.ts`), `farnost-create-petrklic` (Petrklíč PDF → `petrklic.ts`), each finishing with
-`farnost-publish-content` (verify, commit, upload checklist).
+`farnost-publish-content` (verify, commit, deploy via `farnost-deploy`).
 Uploaded files are **not** in git: they are staged in `uploads/` (git-ignored, mirrors `/uploads/` on the server),
-uploaded by hand to `/uploads/…` and linked root-relative as `/uploads/…` (`pnpm dev` and `pnpm preview` serve them from
+deployed to `/uploads/…` by `farnost-deploy` and linked root-relative as `/uploads/…` (`pnpm dev` and `pnpm preview` serve them from
 the local folder, else redirect to the live site). Album photos stay on Zonerama.
 The old site's `/nahrane/` folder is not used by the new site.
 
 ## Deployment
 
-No CI. Build locally, then upload the **contents** of `out/` over SFTP to the web root, plus any staged files from
-`uploads/` into `/uploads/`. Never delete `/uploads/` on the server: the uploaded files live only there.
+No CI. Build locally, then deploy with the `farnost-deploy` skill: rsync over SSH (`farakurim_cz@91.239.200.63`) of
+`uploads/` into `/2026.farakurim.cz/uploads/` and the **contents** of `out/` into `/2026.farakurim.cz/` (served at
+http://2026.farakurim.cz/), after a dry run and the user's explicit yes. `/farakurim.cz/` is the live old PHP site:
+never deploy there. Never delete `/uploads/` on the server: the uploaded files live only there.
 `trailingSlash: true` emits `page/index.html`, so Apache serves it without rewrite rules.
 
 ## Project structure
