@@ -52,10 +52,12 @@ export function FeaturedEvent({ event }: { event: NewsEvent }) {
               {when.time && ` · ${when.time}`}
             </span>
           </span>
-          <span className="flex items-center gap-2">
-            <PinIcon size={18} className="shrink-0 text-magenta-ink lg:size-5" />
-            {event.place}
-          </span>
+          {event.place && (
+            <span className="flex items-center gap-2">
+              <PinIcon size={18} className="shrink-0 text-magenta-ink lg:size-5" />
+              {event.place}
+            </span>
+          )}
         </p>
         <p className="text-15 text-ink-2 max-md:basis-full md:text-16 lg:max-w-160 lg:text-18">{event.text}</p>
         {/* Mobile: a column beside the poster, "Více o akci" on top. Tablet/desktop: a row, poster first. */}

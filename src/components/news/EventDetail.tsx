@@ -44,8 +44,12 @@ export function EventDetail({ event }: { event: NewsEvent }) {
   const url = `${SITE_URL}${eventHref(event)}`;
   const attachments = event.attachments ?? [];
   const eventLinks = event.links ?? [];
-  const posterFile = attachments.find((a) => a.label === "Plakát");
-  const posterHref = event.poster?.src ?? posterFile?.file;
+  // The full-size link opens the poster's original (same name as the WebP), else the "Plakát" attachment.
+  const posterBase = event.poster?.src.replace(/\.webp$/, ".");
+  const posterFile =
+    attachments.find((a) => posterBase && a.file.startsWith(posterBase)) ??
+    attachments.find((a) => a.label === "Plakát");
+  const posterHref = posterFile?.file ?? event.poster?.src;
 
   return (
     <>

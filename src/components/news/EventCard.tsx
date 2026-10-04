@@ -110,10 +110,12 @@ export function EventCard({ event, status, today, index, more }: Props) {
           </h4>
           <p className="flex flex-col gap-1 text-14 text-ink-2 md:flex-row md:flex-wrap md:gap-x-4 md:text-15 lg:gap-x-5 lg:text-16">
             <span>{when.time ? `${when.date} · ${when.time}` : when.date}</span>
-            <span className="flex items-center gap-1.5 text-muted">
-              <PinIcon size={15} className="shrink-0" />
-              {event.place}
-            </span>
+            {event.place && (
+              <span className="flex items-center gap-1.5 text-muted">
+                <PinIcon size={15} className="shrink-0" />
+                {event.place}
+              </span>
+            )}
           </p>
         </div>
 

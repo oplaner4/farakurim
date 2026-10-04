@@ -197,7 +197,7 @@ export type ArchiveYear = ReturnType<typeof archiveYears>[number];
 export function searchEvents<T extends Pick<NewsEvent, "title" | "place">>(events: T[], query: string): T[] {
   const words = fold(query).split(/\s+/).filter(Boolean);
   return events.filter((e) => {
-    const haystack = fold(`${e.title} ${e.place}`);
+    const haystack = fold(`${e.title} ${e.place ?? ""}`);
     return words.every((w) => haystack.includes(w));
   });
 }

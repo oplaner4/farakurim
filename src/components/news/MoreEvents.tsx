@@ -63,7 +63,7 @@ export function MoreEvents({
               <span className="flex min-w-0 flex-col">
                 <strong className="leading-card">{item.title}</strong>
                 <span className="text-14 text-muted lg:text-15">
-                  {item.time ? `${item.place} · ${item.time}` : item.place}
+                  {[item.place, item.time].filter(Boolean).join(" · ")}
                 </span>
               </span>
             </a>

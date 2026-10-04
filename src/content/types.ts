@@ -172,7 +172,8 @@ export type NewsEvent = {
   end?: IsoDate;
   /** Free text: "9:30", "18:00–20:30". */
   time?: string;
-  place: string;
+  /** Omitted for announcements without a venue (letters, online broadcasts). */
+  place?: string;
   /** Short description, 1–2 sentences. */
   text: string;
   /** One sentence under the detail page's title; also the page description. Defaults to `text`. */

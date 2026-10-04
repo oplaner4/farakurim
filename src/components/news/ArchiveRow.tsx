@@ -26,7 +26,7 @@ export function ArchiveRow({ item }: { item: ArchiveItem }) {
       </span>
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
         <span className="text-16 leading-card font-bold md:text-17 lg:text-18">{item.title}</span>
-        <span className="text-13 text-muted md:text-14 lg:text-15">{item.place}</span>
+        {item.place && <span className="text-13 text-muted md:text-14 lg:text-15">{item.place}</span>}
       </span>
       {/* Mobile: under the place (indented by the date column). Tablet/desktop: a chip on the right. */}
       {item.file && (

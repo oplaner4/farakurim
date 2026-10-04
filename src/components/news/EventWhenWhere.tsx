@@ -31,16 +31,18 @@ export function EventWhenWhere({ event }: { event: NewsEvent }) {
           </strong>
         </span>
       </p>
-      <p className="flex gap-3 lg:gap-3.5">
-        <PinIcon size={22} className="mt-0.5 shrink-0 text-magenta-ink lg:size-6" />
-        <span className="flex flex-col items-start">
-          <span className="text-13 text-muted md:text-14">Kde</span>
-          <strong>{event.place}</strong>
-          <a href={mapHref(event.mapQuery ?? event.place)} {...NEW_TAB} className="text-15 font-bold lg:text-16">
-            Zobrazit na mapě
-          </a>
-        </span>
-      </p>
+      {event.place && (
+        <p className="flex gap-3 lg:gap-3.5">
+          <PinIcon size={22} className="mt-0.5 shrink-0 text-magenta-ink lg:size-6" />
+          <span className="flex flex-col items-start">
+            <span className="text-13 text-muted md:text-14">Kde</span>
+            <strong>{event.place}</strong>
+            <a href={mapHref(event.mapQuery ?? event.place)} {...NEW_TAB} className="text-15 font-bold lg:text-16">
+              Zobrazit na mapě
+            </a>
+          </span>
+        </p>
+      )}
       <EventActions
         title={event.title}
         end={eventEnd(event)}

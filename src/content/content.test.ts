@@ -25,7 +25,7 @@ const duplicates = (values: unknown[]) => values.filter((v, i) => values.indexOf
 /** Every adjacent pair is in order (`ordered(a, b)` true), so the list is sorted. */
 const isSorted = <T>(list: T[], ordered: (a: T, b: T) => boolean) =>
   list.every((item, i) => i === 0 || ordered(list[i - 1], item));
-const UPLOAD = /^\/uploads\/[^\s]+\.(pdf|png|jpe?g|webp)$/;
+const UPLOAD = /^\/uploads\/[^\s]+\.(pdf|png|jpe?g|webp|mp3)$/;
 
 describe("Aktuality (news.ts, news-archive.ts)", () => {
   it.each(events.map((e) => [e.id, e] as const))("%s has valid dates", (_, e) => {
