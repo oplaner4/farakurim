@@ -127,6 +127,7 @@
   --leading-card: 1.3;
   --leading-compact: 1.4; /* "Kdy a kde" panel */
   --leading-normal: 1.5; /* body */
+  --leading-verse: 1.45; /* "Slovo na dnešek" */
   --leading-relaxed: 1.55; /* desktop body */
   --leading-loose: 1.6; /* event detail text from tablet up */
 

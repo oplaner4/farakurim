@@ -8,6 +8,7 @@ import "./globals.css";
 // Weight 300 (oxygen-latin-ext-300.woff2) is available but unused; add it here when a design needs it.
 const oxygen = localFont({
   src: [
+    { path: "../fonts/oxygen-latin-ext-300.woff2", weight: "300", style: "normal" },
     { path: "../fonts/oxygen-latin-ext-400.woff2", weight: "400", style: "normal" },
     { path: "../fonts/oxygen-latin-ext-700.woff2", weight: "700", style: "normal" },
   ],

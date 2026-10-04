@@ -1,15 +1,21 @@
 import { Fragment } from "react";
+import { loadBibleQuote } from "@/content/bible-quote";
 import { BUILD_YEAR, contacts, links, parish } from "@/content/site";
 import { NEW_TAB } from "@/lib/links";
 import { ColorStripe } from "@/components/ui/ColorStripe";
+import { BibleQuoteCard } from "./BibleQuoteCard";
 import { NavGroupAccordions } from "./NavGroupAccordions";
 import { NavGroupColumns } from "./NavGroupColumns";
 
-/** Sitemap footer on every page (design/DESIGN.md §20.3): the parish block and the "Více" groups. */
-export function SiteFooter() {
+/** Sitemap footer on every page (design/DESIGN.md §20.3): "Slovo na dnešek", the parish block and the "Více" groups. */
+export async function SiteFooter() {
+  const quote = await loadBibleQuote();
   return (
     <footer className="mt-auto bg-surface">
       <ColorStripe />
+      <div className="container-page pt-7 md:pt-8 lg:pt-10">
+        <BibleQuoteCard quote={quote} />
+      </div>
       <div className="container-page flex flex-col gap-6 pt-8 pb-5 md:gap-8 md:pt-9 md:pb-7 lg:grid lg:grid-cols-[minmax(0,1.25fr)_minmax(0,3.75fr)] lg:gap-12 lg:pt-11 lg:pb-8">
         <div className="flex min-w-0 flex-col gap-2.5 text-14 text-ink-2">
           <div className="flex items-center gap-3 text-16 text-ink md:text-17">
@@ -31,12 +37,9 @@ export function SiteFooter() {
             ))}
           </span>
           <span>Bankovní účet: {parish.bankAccount}</span>
-          <span className="flex flex-wrap gap-x-4 gap-y-1 font-bold">
-            <a href={links.virtualTour}>Virtuální prohlídka kostela</a>
-            <a href={links.viraCz} {...NEW_TAB}>
-              Vira.cz
-            </a>
-          </span>
+          <a href={links.virtualTour} className="self-start font-bold">
+            Virtuální prohlídka kostela
+          </a>
         </div>
         <nav aria-label="Mapa webu">
           <NavGroupAccordions className="md:hidden" />

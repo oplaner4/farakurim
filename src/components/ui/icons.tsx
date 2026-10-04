@@ -43,6 +43,13 @@ export const ExternalLinkIcon = (p: IconProps) => (
   </Icon>
 );
 
+export const BookIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z" />
+    <path d="M4 19V5M8 7h7" />
+  </Icon>
+);
+
 export const PinIcon = (p: IconProps) => (
   <Icon {...p}>
     <path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" />

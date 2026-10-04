@@ -8,8 +8,8 @@ button), **Detail akce** (`/aktuality/<slug>/` plus `kalendar.ics`; shares the `
 **Pořad bohoslužeb** (`/porad_bohosluzeb/`, with the ohlášky and the weekly schedule), **Kontakty** (`/kontakty/`),
 **Kalendář** (`/kalendar/`, also the homepage "Tento týden" week calendar), **Petrklíč** (`/petrklic/aktualni/`),
 **Archiv Petrklíče** (`/petrklic/archiv/`, one static page per year link) and **Fotogalerie** (`/fotogalerie/`, also the
-homepage album carousel). Every page shares the header with the "Více" menu and the sitemap footer (DESIGN.md §20,
-groups in `navGroups`). Other pages follow as they are designed; until then, nav links point to the live site.
+homepage album carousel). Every page shares the header with the "Více" menu and the sitemap footer with the
+"Slovo na dnešek" verse from vira.cz (DESIGN.md §20, groups in `navGroups`). Other pages follow as they are designed; until then, nav links point to the live site.
 
 ## Language convention
 
@@ -27,6 +27,8 @@ groups in `navGroups`). Other pages follow as they are designed; until then, nav
   Node server is off the table: route handlers reading the request, server actions, `cookies()`/`headers()`,
   rewrites/redirects/headers in config, ISR, proxy/middleware, and `next/image` optimization.
   Check `node_modules/next/dist/docs/01-app/02-guides/static-exports.md` before using a Next feature.
+  The one server-side piece is `public/biblicky-citat.php`, a PHP proxy for the vira.cz verse (vira.cz sends no
+  CORS headers): it caches the day's verse in `/cache/` on the server and the footer reads it as JSON.
 - Server Components run **at build time**; anything that depends on "now" is re-computed in the browser
   (details in `.claude/rules/content-and-time.md`).
 
@@ -80,8 +82,8 @@ The old site's `/nahrane/` folder is not used by the new site.
 No CI. Build locally, then deploy with the `farnost-deploy` skill: rsync over SSH (`farakurim_cz@91.239.200.63`) of
 `uploads/` into `/2026.farakurim.cz/uploads/` and the **contents** of `out/` into `/2026.farakurim.cz/` (served at
 http://2026.farakurim.cz/), after a dry run and the user's explicit yes. `/farakurim.cz/` is the live old PHP site:
-never deploy there. Never delete `/uploads/` or `/virtualni_prohlidka/` (the old site's tour, linked from the footer)
-on the server: they live only there. `public/.htaccess` serves `404.html` (`src/app/not-found.tsx`) for missing URLs.
+never deploy there. Never delete `/uploads/`, `/virtualni_prohlidka/` (the old site's tour, linked from the footer) or `/cache/` (the
+last vira.cz verse) on the server: they live only there. `public/.htaccess` serves `404.html` (`src/app/not-found.tsx`) for missing URLs.
 `trailingSlash: true` emits `page/index.html`, so Apache serves it without rewrite rules.
 
 ## Project structure
@@ -101,11 +103,13 @@ src/components/    One component per block, styled with Tailwind utilities, grou
                    home/ (homepage blocks), news/ (Aktuality, archive, event detail), services/ (Pořad bohoslužeb),
                    contacts/ (Kontakty), calendar/ (Kalendář), petrklic/ (Petrklíč and its archive),
                    gallery/ (Fotogalerie, photo tiles shared with the homepage). Same folder: `./X`; else `@/components/<group>/X`
-src/content/       Content (types.ts + one file per domain): the future API boundary; calendar.ts reads Google Calendar;
+src/content/       Content (types.ts + one file per domain): the future API boundary; calendar.ts reads Google Calendar,
+                   bible-quote.ts the vira.cz verse at build time;
                    news-archive/ holds the 2019–2025 aktuality migrated from the old site (one file per year);
                    ohlasky.ts (weekly ohlášky) is server-only
 src/lib/           Pure logic on date-fns (prague.ts, czech.ts, masses.ts, office.ts, news.ts, calendar.ts (.ics),
-                   agenda.ts (Kalendář, "Tento týden"), google-calendar.ts, service-sheet.ts (ohlášky), petrklic.ts, gallery.ts) + tests,
+                   agenda.ts (Kalendář, "Tento týden"), google-calendar.ts, service-sheet.ts (ohlášky), petrklic.ts, gallery.ts,
+                   bible-quote.ts (vira.cz verse)) + tests,
                    links.ts (tel:/Mapy.cz hrefs), query-params.ts, theme.ts
 src/hooks/         Shared React hooks, one use-*.ts per hook (useNow, useCalendarEntries, useSnapCarousel, useLoadMore, …)
 ```

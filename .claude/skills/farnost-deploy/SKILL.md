@@ -15,14 +15,16 @@ both ends. The new site lives in its own web root until it replaces the old one:
 | Live old site (PHP)    | `/farakurim.cz/`: **never** deploy there, `--delete` wipes it |
 | Uploaded files on host | `/2026.farakurim.cz/uploads/`, mirrored locally by `uploads/` |
 | Virtual tour           | `/2026.farakurim.cz/virtualni_prohlidka/`, on the server only |
+| Bible quote cache      | `/2026.farakurim.cz/cache/`, written by `biblicky-citat.php`  |
 
 The subdomain has no TLS certificate yet, so check it over `http://`. Switching the new site to `/farakurim.cz/`
 is a separate decision: it changes this skill (and the `LIVE` URL in `scripts/preview.py` and
 `scripts/dev-server.mjs`).
 
-Two folders in the web root are **not** in `out/` and must survive every deploy, so both `out/` commands exclude
-them: `/uploads/` and `/virtualni_prohlidka/` (the old site's Lapentor tour, 553 MB of PHP + panoramas, linked from
-the footer). Never sync `out/` without both excludes.
+Three folders in the web root are **not** in `out/` and must survive every deploy, so both `out/` commands exclude
+them: `/uploads/`, `/virtualni_prohlidka/` (the old site's Lapentor tour, 553 MB of PHP + panoramas, linked from
+the footer) and `/cache/` (the last "Slovo na dnešek" verse, its fallback while vira.cz is down). Never sync `out/`
+without all three excludes.
 
 ## 1. Preconditions
 
@@ -41,7 +43,7 @@ Run both from the repo root, `-n` only shows what would happen:
 ```sh
 rsync -azn --itemize-changes --ignore-existing --chmod=D755,F644 \
   uploads/ farakurim_cz@91.239.200.63:/2026.farakurim.cz/uploads/
-rsync -azn --itemize-changes --delete --exclude=/uploads/ --exclude=/virtualni_prohlidka/ --chmod=D755,F644 \
+rsync -azn --itemize-changes --delete --exclude=/uploads/ --exclude=/virtualni_prohlidka/ --exclude=/cache/ --chmod=D755,F644 \
   out/ farakurim_cz@91.239.200.63:/2026.farakurim.cz/
 ```
 
@@ -70,7 +72,7 @@ The same two commands without `-n`, **uploads first**, so no deployed page links
 ```sh
 rsync -az --ignore-existing --chmod=D755,F644 \
   uploads/ farakurim_cz@91.239.200.63:/2026.farakurim.cz/uploads/
-rsync -az --delete --exclude=/uploads/ --exclude=/virtualni_prohlidka/ --chmod=D755,F644 \
+rsync -az --delete --exclude=/uploads/ --exclude=/virtualni_prohlidka/ --exclude=/cache/ --chmod=D755,F644 \
   out/ farakurim_cz@91.239.200.63:/2026.farakurim.cz/
 ```
 
