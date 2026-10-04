@@ -3,6 +3,7 @@
 import type { Album } from "@/content/types";
 import { formatLongDate } from "@/lib/czech";
 import { albumElementId, photoAlt, photoCounter, photoCountLabel } from "@/lib/gallery";
+import { externalLinkAttrs } from "@/lib/links";
 import { useSnapCarousel } from "@/hooks/use-snap-carousel";
 import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
 import { AlbumPhotoTile } from "./AlbumPhotoTile";
@@ -45,6 +46,7 @@ export function AlbumStrip({ album, position }: Props) {
         </div>
         <a
           href={album.href}
+          {...externalLinkAttrs(album.href)}
           className="inline-flex min-h-11 items-center gap-1.5 font-bold text-green-ink hover:text-ink"
         >
           Otevřít album
@@ -69,7 +71,11 @@ export function AlbumStrip({ album, position }: Props) {
         >
           {Array.from({ length: count }, (_, i) => (
             <li key={i} className="shrink-0 basis-full snap-start px-1.5 md:basis-1/2 md:px-1.75 lg:basis-1/3 lg:px-2">
-              <a href={album.href} className="block aspect-4/3 overflow-hidden rounded-18 lg:rounded-20">
+              <a
+                href={album.href}
+                {...externalLinkAttrs(album.href)}
+                className="block aspect-4/3 overflow-hidden rounded-18 lg:rounded-20"
+              >
                 <AlbumPhotoTile
                   photo={album.photos?.[i]}
                   size="small"

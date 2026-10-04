@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { EventAttachment, EventLink } from "@/content/types";
 import { fileType, formatFileSize } from "@/lib/czech";
+import { externalLinkAttrs } from "@/lib/links";
 import { ExternalLinkIcon, FileIcon } from "@/components/ui/icons";
 import { DetailBlock } from "./DetailBlock";
 
@@ -11,6 +12,7 @@ function FileRow({ href, label, detail, icon }: FileRowProps) {
     <li>
       <a
         href={href}
+        {...externalLinkAttrs(href)}
         className="flex min-h-14 items-center gap-3 rounded-14 bg-surface px-4 text-ink no-underline hover:bg-magenta-tint hover:text-ink md:px-4.5 lg:min-h-15 lg:gap-3.5 lg:rounded-16 lg:px-5"
       >
         {icon}
@@ -33,6 +35,7 @@ export function EventFiles({ attachments, links }: { attachments: EventAttachmen
           <FileRow
             key={a.file}
             href={a.file}
+            {...externalLinkAttrs(a.file)}
             label={a.label}
             detail={a.size ? `${fileType(a.file)} · ${formatFileSize(a.size)}` : fileType(a.file)}
             icon={<FileIcon size={20} className="shrink-0 text-magenta-ink lg:size-5.5" />}
@@ -42,6 +45,7 @@ export function EventFiles({ attachments, links }: { attachments: EventAttachmen
           <FileRow
             key={l.href}
             href={l.href}
+            {...externalLinkAttrs(l.href)}
             label={l.label}
             detail={l.href.startsWith("mailto:") ? "E-mail" : new URL(l.href).hostname}
             icon={<ExternalLinkIcon size={20} className="shrink-0 text-blue-ink lg:size-5.5" />}

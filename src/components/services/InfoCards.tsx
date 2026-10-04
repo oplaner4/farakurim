@@ -1,6 +1,7 @@
 import { clsx } from "clsx";
 import type { ReactNode } from "react";
 import { links } from "@/content/site";
+import { externalLinkAttrs } from "@/lib/links";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ArrowRightIcon, CalendarIcon } from "@/components/ui/icons";
 
@@ -25,7 +26,7 @@ function InfoCard({ id, title, children, desktopOnly }: CardProps) {
 
 function ArrowLink({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <a href={href} className="flex min-h-11 items-center gap-1.5 self-start font-bold">
+    <a href={href} {...externalLinkAttrs(href)} className="flex min-h-11 items-center gap-1.5 self-start font-bold">
       {children}
       <ArrowRightIcon size={18} />
     </a>

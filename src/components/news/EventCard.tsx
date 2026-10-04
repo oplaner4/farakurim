@@ -2,6 +2,7 @@ import { clsx } from "clsx";
 import type { IsoDate, NewsEvent } from "@/content/types";
 import { eventDateBlock, fileType, formatEventWhen, formatShortDate } from "@/lib/czech";
 import { eventHref, type EventStatus } from "@/lib/news";
+import { externalLinkAttrs } from "@/lib/links";
 import { ExternalLinkIcon, FileIcon, PinIcon } from "@/components/ui/icons";
 import { POSTER_TINTS, PosterPlaceholder } from "@/components/ui/PosterPlaceholder";
 
@@ -126,6 +127,7 @@ export function EventCard({ event, status, today, index, more }: Props) {
               <li key={action.href}>
                 <a
                   href={action.href}
+                  {...externalLinkAttrs(action.href)}
                   className={clsx(
                     "flex min-h-11 items-center gap-1.5 rounded-12 bg-surface px-3.5 text-14 font-bold text-ink no-underline hover:text-ink md:text-15 lg:px-4",
                     action.type === undefined ? "hover:bg-blue-tint" : "hover:bg-magenta-tint",

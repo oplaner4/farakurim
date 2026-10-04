@@ -116,6 +116,7 @@ Topic rules live in `.claude/rules/` and load when you work on matching files:
 | `content-and-time.md` | Mock content boundary, Prague dates, build time vs. `useNow`, Czech output |
 | `design-check.md`     | Comparing the build with the mockups                                       |
 | `hooks.md`            | `use` prefix only for hooks, one `use-<name>.ts` file per hook             |
+| `links.md`            | External links open in a new tab (`src/lib/links.ts` helpers)              |
 
 ## The old site
 

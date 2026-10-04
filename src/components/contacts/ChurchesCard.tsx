@@ -2,7 +2,7 @@ import { clsx } from "clsx";
 import { places } from "@/content/masses";
 import { links } from "@/content/site";
 import type { ChurchColor } from "@/content/types";
-import { mapHref } from "@/lib/links";
+import { mapHref, NEW_TAB } from "@/lib/links";
 import { ArrowRightIcon } from "@/components/ui/icons";
 import { ContactCard } from "./ContactCard";
 
@@ -17,6 +17,7 @@ export function ChurchesCard() {
           <li key={place.name} className="border-t border-line last:border-b">
             <a
               href={mapHref(place.mapQuery)}
+              {...NEW_TAB}
               className="flex min-h-18 items-center gap-3.5 py-2 text-ink no-underline hover:text-ink"
             >
               <span aria-hidden="true" className={clsx("h-9 w-3 flex-none rounded-4", bars[place.color])} />

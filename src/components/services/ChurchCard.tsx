@@ -2,6 +2,7 @@ import { clsx } from "clsx";
 import type { ChurchColor, PlaceId, Weekday } from "@/content/types";
 import { capitalize, WEEKDAY_NAMES } from "@/lib/czech";
 import type { ScheduleDay } from "@/lib/masses";
+import { NEW_TAB } from "@/lib/links";
 import { PinIcon } from "@/components/ui/icons";
 
 /** What a card needs; the page passes only these fields to the client. */
@@ -40,6 +41,7 @@ export function ChurchCard({ church, days, today }: Props) {
         </div>
         <a
           href={church.mapHref}
+          {...NEW_TAB}
           aria-label={`Mapa: ${church.place}`}
           className={clsx("flex size-11 flex-none items-center justify-center rounded-12", color.tint, color.ink)}
         >

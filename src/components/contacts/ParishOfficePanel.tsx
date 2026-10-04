@@ -1,6 +1,6 @@
 import { clsx } from "clsx";
 import { contacts, parish } from "@/content/site";
-import { mapHref, telHref } from "@/lib/links";
+import { mapHref, NEW_TAB, telHref } from "@/lib/links";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ArrowRightIcon, MailIcon, PhoneIcon, PinIcon } from "@/components/ui/icons";
 
@@ -38,7 +38,7 @@ export function ParishOfficePanel({ className }: { className?: string }) {
         </ButtonLink>
       </div>
       {/* A designed stand-in until there is a static map image (or a lazy-loaded Mapy.cz embed). */}
-      <a href={mapHref(contacts.mapQuery)} className="flex flex-col no-underline">
+      <a href={mapHref(contacts.mapQuery)} {...NEW_TAB} className="flex flex-col no-underline">
         <span
           aria-hidden="true"
           className="flex h-45 items-center justify-center gap-2 rounded-18 bg-blue-tint-alt text-14 text-blue-ink md:h-50 lg:h-75"

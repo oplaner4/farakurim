@@ -1,4 +1,5 @@
 import { clsx } from "clsx";
+import { externalLinkAttrs } from "@/lib/links";
 import { ArrowRightIcon } from "./icons";
 
 export type SectionColor = "blue" | "green" | "magenta" | "orange";
@@ -55,6 +56,7 @@ export function SectionHeading({ id, title, color, link, compact, linkDesktopOnl
       {link && (
         <a
           href={link.href}
+          {...externalLinkAttrs(link.href)}
           className={clsx(
             "min-h-11 items-center gap-1.5 text-right font-bold hover:text-ink",
             linkDesktopOnly ? "hidden lg:inline-flex" : "inline-flex",

@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 import { socialLinks, webmaster } from "@/content/site";
+import { externalLinkAttrs } from "@/lib/links";
 import { FacebookIcon, InstagramIcon, LinkIcon } from "@/components/ui/icons";
 import { ContactCard } from "./ContactCard";
 
@@ -22,6 +23,7 @@ export function SocialCard({ className }: { className?: string }) {
             <li key={label}>
               <a
                 href={href}
+                {...externalLinkAttrs(href)}
                 className="flex min-h-12 items-center gap-2 rounded-12 bg-raised px-4 font-bold text-ink no-underline hover:text-blue-ink"
               >
                 <Icon size={18} className={color} />

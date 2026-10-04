@@ -3,6 +3,7 @@ import { links, SITE_URL } from "@/content/site";
 import type { NewsEvent } from "@/content/types";
 import { BUILD_TIME } from "@/lib/build-time";
 import { eventDateBlock } from "@/lib/czech";
+import { withExternalLinkTargets } from "@/lib/links";
 import { eventEnd, eventHref } from "@/lib/news";
 import { pragueDate } from "@/lib/prague";
 import { eventJsonLd, jsonLdScript } from "@/lib/structured-data";
@@ -90,7 +91,10 @@ export function EventDetail({ event }: { event: NewsEvent }) {
               <DetailBlock id="o-akci" title="O akci" className="lg:max-w-175">
                 {/* Trusted HTML from the content source (see `NewsEvent.body`). */}
                 {event.body ? (
-                  <div className="rich-text" dangerouslySetInnerHTML={{ __html: event.body }} />
+                  <div
+                    className="rich-text"
+                    dangerouslySetInnerHTML={{ __html: withExternalLinkTargets(event.body) }}
+                  />
                 ) : (
                   <p>{event.text}</p>
                 )}

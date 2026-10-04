@@ -1,7 +1,7 @@
 import type { NewsEvent } from "@/content/types";
 import { BUILD_TIME } from "@/lib/build-time";
 import { capitalize, formatEventWhen } from "@/lib/czech";
-import { mapHref } from "@/lib/links";
+import { mapHref, NEW_TAB } from "@/lib/links";
 import { eventCalendarHref, eventEnd } from "@/lib/news";
 import { CalendarIcon, PinIcon } from "@/components/ui/icons";
 import { EventActions } from "./EventActions";
@@ -36,7 +36,7 @@ export function EventWhenWhere({ event }: { event: NewsEvent }) {
         <span className="flex flex-col items-start">
           <span className="text-13 text-muted md:text-14">Kde</span>
           <strong>{event.place}</strong>
-          <a href={mapHref(event.mapQuery ?? event.place)} className="text-15 font-bold lg:text-16">
+          <a href={mapHref(event.mapQuery ?? event.place)} {...NEW_TAB} className="text-15 font-bold lg:text-16">
             Zobrazit na mapě
           </a>
         </span>

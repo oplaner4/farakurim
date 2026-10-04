@@ -2,6 +2,7 @@ import { clsx } from "clsx";
 import type { ReactNode } from "react";
 import type { Announcement, AnnouncementCategory, ServiceSheet } from "@/content/types";
 import { formatDateRange } from "@/lib/czech";
+import { withExternalLinkTargets } from "@/lib/links";
 import { sortAnnouncements } from "@/lib/service-sheet";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import {
@@ -101,7 +102,10 @@ function AnnouncementCard({ item, href }: { item: Announcement; href?: string })
         {category.label}
       </span>
       {/* The editor's HTML (bold, links); the API must sanitise it. */}
-      <div className="rich-text [&_a]:font-bold" dangerouslySetInnerHTML={{ __html: item.html }} />
+      <div
+        className="rich-text [&_a]:font-bold"
+        dangerouslySetInnerHTML={{ __html: withExternalLinkTargets(item.html) }}
+      />
       {href && (
         <a
           href={href}
