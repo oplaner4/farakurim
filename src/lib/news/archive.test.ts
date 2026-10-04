@@ -105,7 +105,7 @@ describe("archiveListing", () => {
   it("searches across all years and names the result count", () => {
     const l = listing({ yearSlug: "2025", query: "pout" });
     expect(l.matching.map((e) => e.id)).toEqual(["pout"]);
-    expect(l.countLabel).toBe("Nalezeno 1 akce");
+    expect(l.countLabel).toBe("Nalezena jedna akce");
     expect(listing({ yearSlug: "2025" }).year.label).toBe("2025");
   });
 });

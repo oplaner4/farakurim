@@ -27,7 +27,7 @@ function BackLink({ className }: { className?: string }) {
 
 type CountProps = { label: string; searching: boolean; onClear: () => void; className: string };
 
-/** "Zobrazeno 21 akcí" and, while searching, "Zrušit hledání". Rendered once per layout, the other is hidden. */
+/** "Zobrazeno 21 akcí" (or "Nalezeny 3 akce") and, while searching, "Zrušit hledání". Rendered once per layout, the other is hidden. */
 function ResultCount({ label, searching, onClear, className }: CountProps) {
   return (
     <div className={clsx("flex min-h-7 items-center justify-between gap-2", className)}>

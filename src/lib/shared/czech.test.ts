@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  eventCount,
   eventDateBlock,
   fileType,
   formatCompactDate,
@@ -13,6 +14,21 @@ import {
   plural,
   relativeEventLabel,
 } from "./czech";
+
+describe("eventCount", () => {
+  it.each([
+    ["Nalezen", 1, undefined, "Nalezena jedna akce"],
+    ["Nalezen", 2, undefined, "Nalezeny 2 akce"],
+    ["Nalezen", 4, undefined, "Nalezeny 4 akce"],
+    ["Nalezen", 5, undefined, "Nalezeno 5 akcí"],
+    ["Nalezen", 0, undefined, "Nalezeno 0 akcí"],
+    ["Zobrazen", 3, undefined, "Zobrazeny 3 akce"],
+    ["Zobrazen", 21, undefined, "Zobrazeno 21 akcí"],
+    ["Zobrazen", 20, 34, "Zobrazeno 20 z 34 akcí"],
+  ] as const)("%s %i (z %s) → %s", (verb, n, of, expected) => {
+    expect(eventCount(verb, n, of)).toBe(expected);
+  });
+});
 
 describe("plural", () => {
   const forms: [string, string, string] = ["den", "dny", "dní"];

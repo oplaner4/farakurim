@@ -21,6 +21,16 @@ export function plural(n: number, [one, few, other]: [one: string, few: string, 
   return other;
 }
 
+/**
+ * "Nalezena jedna akce", "Nalezeny 3 akce", "Nalezeno 5 akcí": the participle agrees with the number and one is
+ * written out. With `of`, a part of a longer list: "Zobrazeno 20 z 34 akcí".
+ */
+export function eventCount(verb: "Nalezen" | "Zobrazen", n: number, of?: number): string {
+  const participle = verb + plural(n, ["a", "y", "o"]);
+  if (of !== undefined) return `${participle} ${n} z ${of} akcí`;
+  return `${participle} ${n === 1 ? "jedna" : n} ${plural(n, ["akce", "akce", "akcí"])}`;
+}
+
 export function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }

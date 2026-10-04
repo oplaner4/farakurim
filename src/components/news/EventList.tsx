@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import type { NewsEvent } from "@/content/types/news";
 import { links } from "@/content/site";
-import { formatMonthYear, plural } from "@/lib/shared/czech";
+import { eventCount, formatMonthYear } from "@/lib/shared/czech";
 import {
   type EventGroup,
   eventStatus,
@@ -104,7 +104,7 @@ function EventListView({ events, filter, renderedAt, page }: Props & { page: num
           </ul>
         </nav>
         <p aria-live="polite" className="text-14 text-muted md:text-15">
-          Zobrazeno {shownCount} {plural(shownCount, ["akce", "akce", "akcí"])}
+          {eventCount("Zobrazen", shownCount)}
         </p>
       </div>
 

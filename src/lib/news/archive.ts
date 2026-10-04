@@ -1,7 +1,7 @@
 import { links } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import type { IsoDate } from "@/content/types/shared";
-import { fold, plural } from "@/lib/shared/czech";
+import { eventCount, fold } from "@/lib/shared/czech";
 import { eventEnd } from "./events";
 
 // Archiv aktualit (design/DESIGN.md §12): finished events by year, searched and paged in the browser.
@@ -76,7 +76,7 @@ export type ArchiveListing<T> = {
   groups: { month: IsoDate; more: boolean; events: { item: T; more: boolean }[] }[];
   /** How many rows the shown pages hold. */
   shownCount: number;
-  /** "Zobrazeno 20 z 34 akcí", "Zobrazeno 21 akcí", "Nalezeno 3 akce" */
+  /** "Zobrazeno 20 z 34 akcí", "Zobrazeno 21 akcí", "Nalezeny 3 akce" */
   countLabel: string;
 };
 
@@ -109,10 +109,8 @@ export function archiveListing<T extends Archivable & Pick<NewsEvent, "id" | "ti
     more: row >= shownCount,
     events: events.map((item) => ({ item, more: row++ >= shownCount })),
   }));
-  const events = (n: number) => `${n} ${plural(n, ["akce", "akce", "akcí"])}`;
   const total = matching.length;
-  const shown = shownCount < total ? `${shownCount} z ${events(total)}` : events(total);
-  const countLabel = `${query ? "Nalezeno" : "Zobrazeno"} ${shown}`;
+  const countLabel = eventCount(query ? "Nalezen" : "Zobrazen", shownCount, shownCount < total ? total : undefined);
   const previous = query ? undefined : years[index + 1];
   return { years, year, previous, matching, groups, shownCount, countLabel };
 }
