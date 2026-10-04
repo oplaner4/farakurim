@@ -101,7 +101,8 @@ src/components/    One component per block, styled with Tailwind utilities, grou
                    home/ (homepage blocks), news/ (Aktuality, archive, event detail), services/ (Pořad bohoslužeb),
                    contacts/ (Kontakty), calendar/ (Kalendář), petrklic/ (Petrklíč and its archive),
                    gallery/ (Fotogalerie, photo tiles shared with the homepage). Same folder: `./X`; else `@/components/<group>/X`
-src/content/       Mock content (types.ts + one file per domain): the future API boundary; calendar.ts reads Google Calendar;
+src/content/       Content (types.ts + one file per domain): the future API boundary; calendar.ts reads Google Calendar;
+                   news-archive/ holds the 2019–2025 aktuality migrated from the old site (one file per year);
                    ohlasky.ts (weekly ohlášky) is server-only
 src/lib/           Pure logic on date-fns (prague.ts, czech.ts, masses.ts, office.ts, news.ts, calendar.ts (.ics),
                    agenda.ts (Kalendář, "Tento týden"), google-calendar.ts, service-sheet.ts (ohlášky), petrklic.ts, gallery.ts) + tests,

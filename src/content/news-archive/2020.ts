@@ -634,6 +634,13 @@ export const events2020: NewsEvent[] = [
     text: "Každou adventní neděli je pro děti připraven příběh, ve kterém se posuneme vždy o kousek blíže k Betlému.",
   },
   {
+    id: "petrklic-2020-2",
+    title: "Vánoční Petrklíč 2/2020",
+    start: "2020-12-19",
+    text: "Právě vyšlo nové, vánoční vydání farního časopisu Petrklíč.",
+    attachments: [{ label: "Petrklíč 2/2020", file: "/uploads/petrklic/2020-2/petrklic-2020-2.pdf", size: 917356 }],
+  },
+  {
     id: "adorace-pred-vanoci-2020",
     title: "Adorace před Vánoci",
     start: "2020-12-20",
@@ -668,13 +675,6 @@ export const events2020: NewsEvent[] = [
         size: 136783,
       },
     ],
-  },
-  {
-    id: "petrklic-2020-2",
-    title: "Vánoční Petrklíč 2/2020",
-    start: "2020-12-19",
-    text: "Právě vyšlo nové, vánoční vydání farního časopisu Petrklíč.",
-    attachments: [{ label: "Petrklíč 2/2020", file: "/uploads/petrklic/2020-2/petrklic-2020-2.pdf", size: 917356 }],
   },
   {
     id: "betlemske-svetlo-2020",

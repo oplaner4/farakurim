@@ -137,7 +137,7 @@ describe("slugs", () => {
 
   it("finds an event by its slug", () => {
     const jubilee = findEventBySlug(allEvents, "slavnostni-mse-k-jubileu-800-let");
-    expect(jubilee?.id).toBe("jubileum-800");
+    expect(jubilee?.id).toBe("jubileum-800-2026");
     expect(eventHref(jubilee!)).toBe("/aktuality/slavnostni-mse-k-jubileu-800-let/");
   });
 });

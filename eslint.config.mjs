@@ -9,6 +9,8 @@ const eslintConfig = defineConfig([
     rules: {
       // Static export has no image optimizer, and the carousel needs <picture> art direction.
       "@next/next/no-img-element": "off",
+      // `const { body, ...rest } = event` drops fields before they are passed to a client component.
+      "@typescript-eslint/no-unused-vars": ["warn", { ignoreRestSiblings: true }],
     },
   },
   // Override default ignores of eslint-config-next.

@@ -9,11 +9,15 @@ import { PageHeading } from "@/components/ui/PageHeading";
 import { ShowUntil } from "@/components/ui/ShowUntil";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { links } from "@/content/site";
+import type { NewsEvent } from "@/content/types";
 
 const buildToday = pragueDate(BUILD_TIME);
 const featured = featuredEvent(events, buildToday);
+// The cards don't show the detail page's fields, so they stay off the client (the archive holds hundreds of events).
+const card = ({ body, lead, program, highlights, mapQuery, ...rest }: NewsEvent): NewsEvent => rest;
+const all = events.map(card);
 // Finished events only show under "Vše"; the other filters don't need them on the client.
-const unfinished = events.filter((e) => eventEnd(e) >= buildToday);
+const unfinished = all.filter((e) => eventEnd(e) >= buildToday);
 
 /** The Aktuality page (design/DESIGN.md §11), prerendered once per filter. */
 export function NewsPage({ filter }: { filter: NewsFilter }) {
@@ -30,7 +34,7 @@ export function NewsPage({ filter }: { filter: NewsFilter }) {
             <FeaturedEvent event={featured} />
           </ShowUntil>
         )}
-        <EventList events={filter === "all" ? events : unfinished} filter={filter} renderedAt={BUILD_TIME} />
+        <EventList events={filter === "all" ? all : unfinished} filter={filter} renderedAt={BUILD_TIME} />
         {/* Without JS, every card is shown and there is nothing to load. */}
         <noscript>
           <style>{"[data-more]{display:flex}[data-load-more]{display:none}"}</style>

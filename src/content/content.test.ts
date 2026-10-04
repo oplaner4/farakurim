@@ -27,7 +27,7 @@ const isSorted = <T>(list: T[], ordered: (a: T, b: T) => boolean) =>
   list.every((item, i) => i === 0 || ordered(list[i - 1], item));
 const UPLOAD = /^\/uploads\/[^\s]+\.(pdf|png|jpe?g|webp|mp3)$/;
 
-describe("Aktuality (news.ts, news-archive.ts)", () => {
+describe("Aktuality (news.ts, news-archive/)", () => {
   it.each(events.map((e) => [e.id, e] as const))("%s has valid dates", (_, e) => {
     expect(isIsoDate(e.start), `start ${e.start}`).toBe(true);
     if (e.end !== undefined) {
