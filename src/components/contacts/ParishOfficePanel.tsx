@@ -2,9 +2,10 @@ import { clsx } from "clsx";
 import { contacts, parish } from "@/content/site";
 import { mapHref, NEW_TAB, telHref } from "@/lib/links";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { ArrowRightIcon, MailIcon, PhoneIcon, PinIcon } from "@/components/ui/icons";
+import { ArrowRightIcon, MailIcon, PhoneIcon } from "@/components/ui/icons";
+import { OfficeMap } from "./OfficeMap";
 
-/** "Fara" (design/DESIGN.md §15.1): address, call and e-mail buttons, and the map link. */
+/** "Fara" (design/DESIGN.md §15.1): address, call and e-mail buttons, the map and the map link. */
 export function ParishOfficePanel({ className }: { className?: string }) {
   return (
     <section
@@ -37,20 +38,13 @@ export function ParishOfficePanel({ className }: { className?: string }) {
           Napsat e-mail
         </ButtonLink>
       </div>
-      {/* A designed stand-in until there is a static map image (or a lazy-loaded Mapy.cz embed). */}
-      <a href={mapHref(contacts.mapQuery)} {...NEW_TAB} className="flex flex-col no-underline">
-        <span
-          aria-hidden="true"
-          className="flex h-45 items-center justify-center gap-2 rounded-18 bg-blue-tint-alt text-14 text-blue-ink md:h-50 lg:h-75"
-        >
-          <PinIcon />
-          {contacts.street}
-        </span>
-        <span className="flex min-h-11 items-center gap-1.5 font-bold underline">
+      <div className="flex flex-col">
+        <OfficeMap />
+        <a href={mapHref(contacts.mapQuery)} {...NEW_TAB} className="flex min-h-11 items-center gap-1.5 font-bold">
           Navigovat na Mapy.cz
           <ArrowRightIcon size={18} />
-        </span>
-      </a>
+        </a>
+      </div>
     </section>
   );
 }

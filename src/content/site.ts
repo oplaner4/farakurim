@@ -35,7 +35,7 @@ export const mainNav = [
  */
 export const parishCalendars: Record<CalendarId, { name: string; googleId: string; subscribeUrl: string }> = {
   services: {
-    name: "Mše a adorace",
+    name: "Bohoslužby",
     googleId: "hho1ik2s8pu7742kv6eojt0tno@group.calendar.google.com",
     subscribeUrl:
       "https://calendar.google.com/calendar/u/0?cid=aGhvMWlrMnM4cHU3NzQya3Y2ZW9qdDB0bm9AZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ",
@@ -71,6 +71,8 @@ export const contacts = {
   town: "Kuřim",
   /** Mapy.cz search for the parish office. */
   mapQuery: "Křížkovského 55/5 Kuřim",
+  /** Mapy.com embed of the parish office (the share link mapy.com/s/lamepuvozu, resolved to Czech). */
+  mapEmbed: "https://mapy.com/cs/turisticka?l=0&source=addr&id=11101983&x=16.5264040&y=49.2965974&z=17&frame=1",
   /** The parish office ("Fara") and the priest's mobile. */
   officePhone: "541 230 183",
   mobilePhone: "723 661 146",
