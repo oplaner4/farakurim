@@ -4,9 +4,9 @@ import type { IsoDate } from "./shared";
 
 /** One photo of an album, in the two sizes Zonerama serves (design/DESIGN.md §19.2). */
 export type AlbumPhoto = {
-  /** Thumbnail for the album strips and the "Další alba" rows. */
+  /** Thumbnail for the album strips, the "Další alba" rows and the lightbox thumbnails. */
   small: string;
-  /** Larger size for the homepage carousel (and a later lightbox). */
+  /** Larger size (about 1600 px) for the homepage carousel and the lightbox. */
   large: string;
 };
 

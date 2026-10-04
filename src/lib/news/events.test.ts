@@ -13,6 +13,7 @@ import {
   NEWS_FILTERS,
   otherEvents,
   parsePage,
+  posterAlt,
   slugify,
 } from "./events";
 import { event, events, ids, TODAY } from "./test-fixtures";
@@ -115,5 +116,15 @@ describe("otherEvents", () => {
   it("lists the nearest unfinished events without the current one", () => {
     expect(ids(otherEvents(events, events[4], TODAY, 2))).toEqual(["ongoing", "soon"]);
     expect(ids(otherEvents(events, events[2], TODAY, 2))).toEqual(["soon", "pinned"]);
+  });
+});
+
+describe("posterAlt", () => {
+  it("names the event, its date, time and place", () => {
+    const base = { id: "x", title: "Farní den", start: "2026-10-18", text: "" };
+    expect(posterAlt({ ...base, time: "9:30", place: "farní zahrada" })).toBe(
+      "Plakát: Farní den, neděle 18. října 2026 v 9:30, farní zahrada",
+    );
+    expect(posterAlt(base)).toBe("Plakát: Farní den, neděle 18. října 2026");
   });
 });

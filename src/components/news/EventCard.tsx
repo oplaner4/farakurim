@@ -2,10 +2,12 @@ import { clsx } from "clsx";
 import type { NewsEvent } from "@/content/types/news";
 import type { IsoDate } from "@/content/types/shared";
 import { eventDateBlock, fileType, formatEventWhen, formatShortDate } from "@/lib/shared/czech";
-import { eventHref, type EventStatus } from "@/lib/news/events";
+import { eventHref, type EventStatus, posterAlt } from "@/lib/news/events";
+import { isImageFile } from "@/lib/shared/lightbox";
 import { externalLinkAttrs } from "@/lib/shared/links";
 import { ExternalLinkIcon, FileIcon, PinIcon } from "@/components/ui/icons";
 import { POSTER_TINTS, PosterPlaceholder } from "@/components/ui/PosterPlaceholder";
+import { PosterLink } from "./PosterLink";
 
 type TagKind = "now" | "deadline" | "info" | "past";
 
@@ -126,16 +128,13 @@ export function EventCard({ event, status, today, index, more }: Props) {
 
         {actions.length > 0 && (
           <ul className="flex flex-wrap gap-2 max-md:order-2 max-md:basis-full md:pt-1">
-            {actions.map((action) => (
-              <li key={action.href}>
-                <a
-                  href={action.href}
-                  {...externalLinkAttrs(action.href)}
-                  className={clsx(
-                    "flex min-h-11 items-center gap-1.5 rounded-12 bg-surface px-3.5 text-14 font-bold text-ink no-underline hover:text-ink md:text-15 lg:px-4",
-                    action.type === undefined ? "hover:bg-blue-tint" : "hover:bg-magenta-tint",
-                  )}
-                >
+            {actions.map((action, k) => {
+              const className = clsx(
+                "flex min-h-11 items-center gap-1.5 rounded-12 bg-surface px-3.5 text-14 font-bold text-ink no-underline hover:text-ink md:text-15 lg:px-4",
+                action.type === undefined ? "hover:bg-blue-tint" : "hover:bg-magenta-tint",
+              );
+              const content = (
+                <>
                   {action.type === undefined ? (
                     <ExternalLinkIcon size={16} className="shrink-0 text-blue-ink" />
                   ) : (
@@ -143,9 +142,29 @@ export function EventCard({ event, status, today, index, more }: Props) {
                   )}
                   {action.label}
                   {action.type && <span className="font-normal text-muted">{action.type}</span>}
-                </a>
-              </li>
-            ))}
+                </>
+              );
+              return (
+                <li key={action.href}>
+                  {/* An image (a poster) opens in the lightbox (§21), anything else as a link. */}
+                  {action.type && isImageFile(action.href) ? (
+                    <PosterLink
+                      href={action.href}
+                      hashId={k === 0 ? `plakat-${event.id}` : `plakat-${event.id}-${k + 1}`}
+                      title={event.title}
+                      alt={posterAlt(event)}
+                      className={className}
+                    >
+                      {content}
+                    </PosterLink>
+                  ) : (
+                    <a href={action.href} {...externalLinkAttrs(action.href)} className={className}>
+                      {content}
+                    </a>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>

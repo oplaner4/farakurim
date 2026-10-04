@@ -27,3 +27,7 @@ export const withExternalLinkTargets = (html: string) =>
       ? `<a ${before}href="${href}"${after} target="_blank" rel="noopener noreferrer">`
       : tag,
   );
+
+/** A click that should follow the link as usual (new tab or window, download) instead of opening a lightbox. */
+export const isModifiedClick = (e: Pick<MouseEvent, "button" | "metaKey" | "ctrlKey" | "shiftKey" | "altKey">) =>
+  e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey;

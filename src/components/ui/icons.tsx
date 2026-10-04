@@ -155,6 +155,13 @@ export const SearchIcon = (p: IconProps) => (
   </Icon>
 );
 
+export const ZoomInIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <circle cx="11" cy="11" r="7" />
+    <path d="M20 20l-4-4M11 8v6M8 11h6" />
+  </Icon>
+);
+
 export const ShareIcon = (p: IconProps) => (
   <Icon {...p}>
     <circle cx="18" cy="5" r="2.5" />

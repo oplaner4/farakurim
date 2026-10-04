@@ -1,12 +1,26 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import type { Album } from "@/content/types/gallery";
 import { formatLongDate } from "@/lib/shared/czech";
-import { albumElementId, photoAlt, photoCounter, photoCountLabel } from "@/lib/gallery/albums";
-import { externalLinkAttrs } from "@/lib/shared/links";
+import {
+  albumElementId,
+  photoAlt,
+  photoCounter,
+  photoCountLabel,
+  photoFromHash,
+  photoHash,
+} from "@/lib/gallery/albums";
+import { externalLinkAttrs, isModifiedClick } from "@/lib/shared/links";
+import { clearHash, pushHash, replaceHash } from "@/lib/shared/location-hash";
+import { useLocationHash } from "@/hooks/use-location-hash";
 import { useSnapCarousel } from "@/hooks/use-snap-carousel";
 import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
 import { AlbumPhotoTile } from "./AlbumPhotoTile";
+
+// The lightbox library loads with the first photo opened (or hovered).
+const loadLightbox = () => import("./PhotoLightbox");
+const PhotoLightbox = dynamic(() => loadLightbox().then((m) => m.PhotoLightbox), { ssr: false });
 
 const arrowClass =
   "flex size-12 flex-none cursor-pointer items-center justify-center rounded-full border-thin border-line bg-raised text-ink hover:border-green-ink hover:text-green-ink";
@@ -19,12 +33,14 @@ type Props = {
 
 /**
  * One album of the Fotogalerie page (design/DESIGN.md §19.1): date, title, photo count and a link to Zonerama, then
- * a strip of 1 / 2 / 3 photos per screen that the arrows page through (wrapping around). Each photo opens the album.
+ * a strip of 1 / 2 / 3 photos per screen that the arrows page through (wrapping around). Each photo opens the
+ * lightbox at that photo (§21, `#album-<id>-foto-3`); without JS it links to the album on Zonerama.
  */
 export function AlbumStrip({ album, position }: Props) {
   const count = album.photoCount;
   const { trackRef, view, onScroll, onKeyDown, prev, next } = useSnapCarousel<HTMLUListElement>(count);
   const id = albumElementId(album);
+  const open = photoFromHash(album, useLocationHash());
   return (
     <section
       id={id}
@@ -75,6 +91,12 @@ export function AlbumStrip({ album, position }: Props) {
                 href={album.href}
                 {...externalLinkAttrs(album.href)}
                 className="block aspect-4/3 overflow-hidden rounded-18 lg:rounded-20"
+                onPointerEnter={loadLightbox}
+                onClick={(e) => {
+                  if (isModifiedClick(e)) return;
+                  e.preventDefault();
+                  pushHash(photoHash(album, i + 1));
+                }}
               >
                 <AlbumPhotoTile
                   photo={album.photos?.[i]}
@@ -110,6 +132,15 @@ export function AlbumStrip({ album, position }: Props) {
           </button>
         </div>
       </div>
+      {open !== null && (
+        <PhotoLightbox
+          album={album}
+          index={open}
+          position={position}
+          onView={(i) => replaceHash(photoHash(album, i + 1))}
+          onClose={clearHash}
+        />
+      )}
     </section>
   );
 }

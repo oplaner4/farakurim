@@ -26,7 +26,8 @@
     "next": "^16.3.8",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "yet-another-react-lightbox": "^3.32.2"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.3",

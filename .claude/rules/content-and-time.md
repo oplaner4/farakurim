@@ -55,7 +55,9 @@ build-time next mass.
   next-mass countdown still use `regularServices` / `scheduleExceptions`.
 - Fotogalerie (`content/gallery.ts`): Zonerama albums, newest first, with `photoCount` and optional `photos`
   (`small`/`large` URLs). The mock data has no photos, so the strips and the homepage carousel show `photoCount`
-  designed placeholders; alt texts are computed (`photoAlt()` in `src/lib/gallery/albums.ts`).
+  designed placeholders; alt texts are computed (`photoAlt()` in `src/lib/gallery/albums.ts`). A photo opens the
+  lightbox (DESIGN.md §21) at `#album-<id>-foto-N`; an event poster that is an image opens it at `#plakat` (detail page)
+  or `#plakat-<event id>` (Aktuality), a PDF poster opens in the browser.
 - Office hours (`content/site.ts`): weekly slots with an optional yearly `closed` break; the live status is
   `officeStatus()` in `src/lib/contacts/office-hours.ts`.
 - Czech output: `plural()` (built on `Intl.PluralRules("cs")`), date-fns `cs` locale (genitive month names

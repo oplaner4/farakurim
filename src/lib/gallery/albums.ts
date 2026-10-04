@@ -19,3 +19,14 @@ export const albumElementId = (album: Pick<Album, "id">) => `album-${album.id}`;
 
 /** Link fragment of the album's block: "#album-den-mensin". */
 export const albumAnchor = (album: Pick<Album, "id">) => `#${albumElementId(album)}`;
+
+/** Hash of the album's N-th photo (1-based) open in the lightbox: "#album-den-mensin-foto-3". */
+export const photoHash = (album: Pick<Album, "id">, n: number) => `#${albumElementId(album)}-foto-${n}`;
+
+/** The photo (0-based) a hash opens in this album's lightbox, or `null` when it is not one of its photos. */
+export function photoFromHash(album: Pick<Album, "id" | "photoCount">, hash: string): number | null {
+  const prefix = `#${albumElementId(album)}-foto-`;
+  if (!hash.startsWith(prefix)) return null;
+  const n = Number(hash.slice(prefix.length));
+  return Number.isInteger(n) && n >= 1 && n <= album.photoCount ? n - 1 : null;
+}

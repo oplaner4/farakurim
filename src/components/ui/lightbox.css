@@ -1,0 +1,49 @@
+/*
+ * yet-another-react-lightbox, restyled for design/DESIGN.md §21. The library positions the image inside each
+ * slide's padding, so the padding keeps the image clear of our top bar, side buttons and bottom bar (rendered by
+ * `render.controls` over the slides).
+ */
+@reference "../../app/globals.css";
+@import "yet-another-react-lightbox/styles.css";
+
+.lightbox {
+  --yarl__color_backdrop: --alpha(var(--color-lightbox) / 96%);
+  --yarl__portal_zindex: 100;
+  font-family: var(--font-sans);
+}
+
+.lightbox .yarl__slide_image {
+  border-radius: var(--radius-4);
+}
+
+/* Photos: top bar 72 / 80 / 88 px; bottom: arrows + hint, caption, caption + thumbnails; side arrows from tablet. */
+.lightbox-photo .yarl__slide {
+  padding: --spacing(18) 0 --spacing(34);
+
+  @variant md {
+    padding: --spacing(20) --spacing(24) --spacing(18);
+  }
+
+  @variant lg {
+    padding: --spacing(22) --spacing(28) --spacing(33);
+  }
+}
+
+.lightbox-photo .yarl__slide_image {
+  @variant md {
+    border-radius: var(--radius-8);
+  }
+}
+
+/* Posters: the top bar, then the zoom toolbar with its hint at the bottom. */
+.lightbox-poster .yarl__slide {
+  padding: --spacing(20) --spacing(3) --spacing(32);
+
+  @variant md {
+    padding: --spacing(22) --spacing(6) --spacing(31);
+  }
+
+  @variant lg {
+    padding: --spacing(24) --spacing(6) --spacing(31);
+  }
+}

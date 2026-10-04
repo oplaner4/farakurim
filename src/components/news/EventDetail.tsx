@@ -4,7 +4,7 @@ import type { NewsEvent } from "@/content/types/news";
 import { BUILD_TIME } from "@/lib/shared/build-time";
 import { eventDateBlock } from "@/lib/shared/czech";
 import { withExternalLinkTargets } from "@/lib/shared/links";
-import { eventEnd, eventHref } from "@/lib/news/events";
+import { eventEnd, eventHref, posterAlt } from "@/lib/news/events";
 import { pragueDate } from "@/lib/shared/prague";
 import { eventJsonLd, jsonLdScript } from "@/lib/shared/structured-data";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
@@ -114,7 +114,9 @@ export function EventDetail({ event }: { event: NewsEvent }) {
           <div className="flex min-w-0 flex-col gap-7 max-lg:order-1 md:flex-row md:gap-6 lg:shrink lg:grow lg:basis-90 lg:flex-col">
             <EventWhenWhere event={event} />
 
-            {posterHref && <EventPoster poster={event.poster} href={posterHref} />}
+            {posterHref && (
+              <EventPoster poster={event.poster} href={posterHref} title={event.title} alt={posterAlt(event)} />
+            )}
           </div>
         </article>
 

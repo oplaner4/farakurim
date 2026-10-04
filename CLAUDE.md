@@ -8,7 +8,7 @@ button), **Detail akce** (`/aktuality/<slug>/` plus `kalendar.ics`; shares the `
 **Pořad bohoslužeb** (`/porad_bohosluzeb/`, with the ohlášky and the weekly schedule), **Kontakty** (`/kontakty/`),
 **Kalendář** (`/kalendar/`, also the homepage "Tento týden" week calendar), **Petrklíč** (`/petrklic/aktualni/`),
 **Archiv Petrklíče** (`/petrklic/archiv/`, one static page per year link) and **Fotogalerie** (`/fotogalerie/`, also the
-homepage album carousel). Every page shares the header with the "Více" menu and the sitemap footer with the
+homepage album carousel; its photos and the event posters open the shared **lightbox**, DESIGN.md §21). Every page shares the header with the "Více" menu and the sitemap footer with the
 "Slovo na dnešek" verse from vira.cz (DESIGN.md §20, groups in `navGroups`). Other pages follow as they are designed; until then, nav links point to the live site.
 
 ## Language convention
@@ -19,7 +19,8 @@ homepage album carousel). Every page shares the header with the "Více" menu and
 ## Stack and the static-export constraint
 
 - Next.js 16 (App Router) + React 19 + TypeScript, **pnpm only** (never npm/yarn).
-- Styling: **Tailwind CSS v4**. Dates: **date-fns v4 + `@date-fns/tz`**.
+- Styling: **Tailwind CSS v4**. Dates: **date-fns v4 + `@date-fns/tz`**. Lightbox: **yet-another-react-lightbox**
+  (loaded on first use, restyled in `src/components/ui/lightbox.css`; the URL hash opens and closes it).
   Prefer an established library over hand-written helpers; check it with context7 first.
 - Dependencies use caret ranges (`^x.y.z`) so `pnpm update` picks up minor and patch releases.
 - `output: "export"` in `next.config.ts`: `pnpm build` writes plain HTML/CSS/JS to `out/`.
@@ -110,7 +111,7 @@ src/content/       Content, one file per domain, typed by types/<group>.ts: the 
 src/lib/           Pure logic on date-fns + tests, by group (structure.md): shared/ (prague, czech, build-time, links,
                    query-params, theme, structured-data), news/ (events, archive, ics), services/ (masses, service-sheet),
                    contacts/ (office-hours), calendar/ (agenda, google-calendar), petrklic/ (issues), gallery/ (albums),
-                   layout/ (bible-quote)
+                   layout/ (bible-quote); shared/lightbox.ts + location-hash.ts (the lightbox's zoom steps and URL hash)
 src/hooks/         Every React hook, one use-*.ts per hook (useNow, useCalendarEntries, useLoadMore, useTodaysQuote, …)
 ```
 

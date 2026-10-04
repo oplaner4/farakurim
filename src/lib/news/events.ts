@@ -2,7 +2,7 @@ import { endOfMonth, endOfWeek } from "date-fns";
 import { links } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import type { IsoDate } from "@/content/types/shared";
-import { fold } from "@/lib/shared/czech";
+import { fold, formatEventWhen } from "@/lib/shared/czech";
 import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
 
 // ISO dates (`YYYY-MM-DD`) compare correctly as strings, so the date maths here stays on strings.
@@ -148,3 +148,14 @@ export const otherEvents = <T extends Pick<NewsEvent, "id" | "start" | "end" | "
     today,
     limit,
   );
+
+/**
+ * Alt text of a poster in the lightbox (design/DESIGN.md §21.3), which is often the only source of the details:
+ * "Plakát: Farní den, neděle 18. října 2026 v 9:30, farní zahrada".
+ */
+export function posterAlt(event: NewsEvent): string {
+  const when = formatEventWhen(event, { longMonth: true });
+  return [`Plakát: ${event.title}`, when.time ? `${when.date} v ${when.time}` : when.date, event.place]
+    .filter(Boolean)
+    .join(", ");
+}

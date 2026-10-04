@@ -1,10 +1,12 @@
 import type { NewsEvent } from "@/content/types/news";
 import { formatEventWhen } from "@/lib/shared/czech";
-import { eventHref } from "@/lib/news/events";
-import { ButtonLink } from "@/components/ui/ButtonLink";
+import { eventHref, posterAlt } from "@/lib/news/events";
+import { isImageFile } from "@/lib/shared/lightbox";
+import { ButtonLink, buttonLink } from "@/components/ui/ButtonLink";
 import { eventAnchor } from "./EventCard";
 import { CalendarIcon, ImageIcon, PinIcon } from "@/components/ui/icons";
 import { PosterPlaceholder } from "@/components/ui/PosterPlaceholder";
+import { PosterLink } from "./PosterLink";
 
 /**
  * "Doporučujeme" panel (design/DESIGN.md §11.2). Mobile: text, then the poster beside the button
@@ -13,6 +15,20 @@ import { PosterPlaceholder } from "@/components/ui/PosterPlaceholder";
 export function FeaturedEvent({ event }: { event: NewsEvent }) {
   const when = formatEventWhen(event, { longMonth: true });
   const file = event.attachments?.[0];
+  const fileButtonContent = file && (
+    <>
+      <ImageIcon size={18} strokeWidth={2} />
+      {/* "Zobrazit plakát" from tablet up; other labels would need a different case, so they stay as is. */}
+      {file.label === "Plakát" ? (
+        <>
+          <span className="md:hidden">Plakát</span>
+          <span className="max-md:hidden">Zobrazit plakát</span>
+        </>
+      ) : (
+        file.label
+      )}
+    </>
+  );
 
   return (
     <section
@@ -65,20 +81,22 @@ export function FeaturedEvent({ event }: { event: NewsEvent }) {
           <ButtonLink href={eventHref(event)} variant="outline-magenta" size="medium">
             Více o akci
           </ButtonLink>
-          {file && (
-            <ButtonLink href={file.file} variant="magenta" size="medium" className="md:order-first">
-              <ImageIcon size={18} strokeWidth={2} />
-              {/* "Zobrazit plakát" from tablet up; other labels would need a different case, so they stay as is. */}
-              {file.label === "Plakát" ? (
-                <>
-                  <span className="md:hidden">Plakát</span>
-                  <span className="max-md:hidden">Zobrazit plakát</span>
-                </>
-              ) : (
-                file.label
-              )}
-            </ButtonLink>
-          )}
+          {file &&
+            (isImageFile(file.file) ? (
+              <PosterLink
+                href={file.file}
+                hashId="plakat-doporucujeme"
+                title={event.title}
+                alt={posterAlt(event)}
+                className={buttonLink({ variant: "magenta", size: "medium", className: "md:order-first" })}
+              >
+                {fileButtonContent}
+              </PosterLink>
+            ) : (
+              <ButtonLink href={file.file} variant="magenta" size="medium" className="md:order-first">
+                {fileButtonContent}
+              </ButtonLink>
+            ))}
         </div>
       </div>
     </section>

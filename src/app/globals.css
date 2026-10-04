@@ -87,6 +87,13 @@
   --color-shadow-page: rgb(27 37 51 / 0.12); /* Petrklíč pages and archive covers */
   --color-field-line: #7d8a9b; /* text input border, 3:1 on both backgrounds (same in both themes) */
 
+  /* Lightbox (design/DESIGN.md §21): near-black with white text, the same in both themes. */
+  --color-lightbox: #0b1118;
+  --color-lightbox-ink-2: #c3ccd8; /* album title, caption */
+  --color-lightbox-hint: #9aa6b5; /* gesture hints */
+  --color-lightbox-button: rgb(255 255 255 / 0.14);
+  --color-lightbox-button-hover: rgb(255 255 255 / 0.26);
+
   --font-*: initial;
 
   --text-*: initial;
@@ -144,6 +151,7 @@
   --radius-*: initial;
   --radius-4: 4px;
   --radius-6: 6px;
+  --radius-8: 8px;
   --radius-10: 10px;
   --radius-12: 12px;
   --radius-14: 14px;
