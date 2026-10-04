@@ -1,4 +1,5 @@
 import { clsx } from "clsx";
+import { parishCalendars } from "@/content/site";
 import type { CalendarId } from "@/content/types";
 import { addToMonth, type IsoMonth, monthHeading } from "@/lib/agenda";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
@@ -6,14 +7,10 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
 const toolbarButton =
   "flex min-h-11 cursor-pointer items-center justify-center rounded-12 border-thin border-line bg-raised font-bold hover:bg-surface disabled:cursor-default disabled:opacity-40 disabled:hover:bg-raised";
 
-const FILTERS: { id: CalendarId; label: string; on: string; off: string }[] = [
-  { id: "services", label: "Mše a adorace", on: "border-blue bg-blue text-white", off: "border-blue text-blue-ink" },
-  {
-    id: "events",
-    label: "Události",
-    on: "border-magenta bg-magenta text-white",
-    off: "border-magenta text-magenta-ink",
-  },
+/** The filter colours; the labels are the calendars' names (`parishCalendars`). */
+const FILTERS: { id: CalendarId; on: string; off: string }[] = [
+  { id: "services", on: "border-blue bg-blue text-white", off: "border-blue text-blue-ink" },
+  { id: "events", on: "border-magenta bg-magenta text-white", off: "border-magenta text-magenta-ink" },
 ];
 
 type Props = {
@@ -83,7 +80,7 @@ export function CalendarToolbar({ month, canGoBack, canGoForward, onShowMonth, o
             )}
           >
             <span aria-hidden="true" className="size-2.5 rounded-full bg-current" />
-            {filter.label}
+            {parishCalendars[filter.id].name}
           </button>
         ))}
       </div>

@@ -212,7 +212,7 @@ export type NewsEvent = {
   calendarEventId?: string;
 };
 
-/** The parish's two Google Calendars (design/DESIGN.md §16.1): "Mše, adorace" and "Události". */
+/** The parish's two Google Calendars (design/DESIGN.md §16.1): "Bohoslužby" and "Události" (names in `parishCalendars`). */
 export type CalendarId = "services" | "events";
 
 /**

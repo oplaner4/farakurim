@@ -196,7 +196,7 @@ export const itemTime = (item: AgendaItem) => item.time ?? "celý den";
 // Mock calendars, generated the way the mockups generate October 2026 (§16.4), until the Google Calendars
 // are read with an API key.
 
-/** "Mše, adorace" occurrences from the regular schedule and its exceptions. */
+/** "Bohoslužby" occurrences from the regular schedule and its exceptions. */
 export function scheduleEntries(
   source: ScheduleSource,
   places: Record<PlaceId, Place>,
