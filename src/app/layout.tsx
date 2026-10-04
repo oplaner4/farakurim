@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SITE_URL } from "@/content/site";
 import { themeInitScript } from "@/lib/shared/theme";
-import "./globals.css";
+import "@/styles/globals.css";
 
 // Weight 300 (oxygen-latin-ext-300.woff2) is available but unused; add it here when a design needs it.
 const oxygen = localFont({

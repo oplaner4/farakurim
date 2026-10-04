@@ -1,9 +1,9 @@
 /*
  * yet-another-react-lightbox, restyled for design/DESIGN.md §21. The library positions the image inside each
  * slide's padding, so the padding keeps the image clear of our top bar, side buttons and bottom bar (rendered by
- * `render.controls` over the slides).
+ * `render.controls` over the slides). Imported by the lightbox component, so it loads with the lightbox.
  */
-@reference "../../app/globals.css";
+@reference "./globals.css";
 @import "yet-another-react-lightbox/styles.css";
 
 .lightbox {

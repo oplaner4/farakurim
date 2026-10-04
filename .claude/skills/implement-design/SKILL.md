@@ -20,7 +20,7 @@ header/footer links in every existing mockup. Work through the phases in order a
 4. Read each new mockup at all three sizes (`awk '/<main/,/<\/main>/' <file>` keeps it short, and
    `grep -v '<path\|<svg'` drops icon noise) plus its `class Component` script: it holds the logic
    (filters, live status) and the sample data. Diff light vs dark to get the dark colours, then map every
-   hex to an existing token in `src/app/globals.css` (white cards in light → `raised` in dark, etc.).
+   hex to an existing token in `src/styles/globals.css` (white cards in light → `raised` in dark, etc.).
 5. Before coding, list for yourself: routes, data model changes (`src/content/types/<group>.ts`), pure logic for
    `src/lib/<group>/` (with tests), server vs client components (client only for "now", state or browser APIs),
    and anything the spec leaves open. Ask the user only about choices that change what you build.

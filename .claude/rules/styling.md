@@ -2,6 +2,7 @@
 paths:
   - "src/components/**"
   - "src/app/**"
+  - "src/styles/**"
 ---
 
 # Styling and design rules
@@ -10,7 +11,7 @@ paths:
   never copy their structure (inline styles, three separate files).
 - Tailwind CSS v4 utilities in the components. Class names: `clsx`; component variants:
   `class-variance-authority` (`cva`, see `ButtonLink`).
-- Tokens live in the `@theme` block of `src/app/globals.css`. Tailwind's default palette, breakpoints,
+- Tokens live in the `@theme` block of `src/styles/globals.css`. Tailwind's default palette, breakpoints,
   type scale, radii and shadows are **removed**, so only design values exist:
   colours `blue`, `blue-ink`, `magenta-tint`, `ink-2`, `muted`, …; sizes named by pixels (`text-26`,
   `rounded-24`, `shadow-card`); line heights by role (`leading-display` 1.1 … `leading-relaxed` 1.55);
@@ -28,9 +29,12 @@ paths:
 - **Mobile-first breakpoints:** no prefix = mobile, `md:` = tablet (≥ 768 px), `lg:` = desktop (≥ 1200 px).
   Use `max-md:` / `max-lg:` when a style must not leak upwards (e.g. borders with `not-first:`).
   One markup per component; breakpoint layouts use `contents`, `order-*`, grid and `hidden`/`block`.
-- Custom utilities in `src/app/utilities.css` (imported by `globals.css`): `container-page` (16/32 px gutter, max 1200 px content),
+- Custom utilities in `src/styles/utilities.css` (imported by `globals.css`): `container-page` (16/32 px gutter, max 1200 px content),
   `grid-fit-<px>` (auto-fit columns at least N px wide, e.g. `lg:grid-fit-250`), `border-thin` (1.5 px),
   `shard-tl|tr|br|bl` (clip-path triangles named by their right-angle corner), `no-scrollbar`, `rich-text`.
+- **Every stylesheet lives in `src/styles/`**: `globals.css` (theme, imported by `layout.tsx`), `utilities.css` and
+  CSS a library needs restyled (`lightbox.css`, imported by the component that uses it so it loads with it; it
+  `@reference`s `globals.css` for the tokens and breakpoints). No CSS files next to components or pages.
 - Avoid `!important` (`!`) and duplicate utilities for the same property on one element.
 - Section colours: blue = mass, Kontakty, primary actions · magenta = Aktuality · green = Fotogalerie · orange = Petrklíč.
 - Contrast: coloured **text** uses the `*-ink` shades. Never white text on green or orange

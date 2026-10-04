@@ -5,7 +5,7 @@ import { clsx } from "clsx";
 import type { ComponentProps, ReactNode, Ref, RefObject } from "react";
 import YetAnotherLightbox, { type LightboxExternalProps, useController } from "yet-another-react-lightbox";
 import { CloseIcon } from "./icons";
-import "./lightbox.css";
+import "@/styles/lightbox.css";
 
 /** The round translucent buttons of the lightbox (design/DESIGN.md §21.1): close 48 px, prev/next 56 px. */
 export const lightboxButton = cva(
@@ -28,7 +28,7 @@ export const lightboxButton = cva(
 type ShellProps = Omit<LightboxExternalProps, "open" | "labels" | "className"> & {
   /** `aria-label` of the dialog: "Fotografie z alba …", "Plakát: …". */
   label: string;
-  /** `lightbox-photo` or `lightbox-poster`: the slide padding in lightbox.css. */
+  /** `lightbox-photo` or `lightbox-poster`: the slide padding in src/styles/lightbox.css. */
   variant: "photo" | "poster";
   /** Moves the focus to the close button once the lightbox has opened. */
   closeRef: RefObject<HTMLButtonElement | null>;

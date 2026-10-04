@@ -1,5 +1,7 @@
 // The URL hash of an open lightbox (`#album-pout-foto-3`, `#plakat`): the browser's back button closes it and a
-// link can open it. `useLocationHash()` reads it; these helpers change it through the History API, which fires no
+// link can open it. Next.js has no hook for the hash (`usePathname` and `useSearchParams` leave it out, and
+// `router.push("#…")` scrolls to the element), and its docs point to the native History API, which the router keeps
+// in sync. `useLocationHash()` reads it; these helpers change it with `pushState` / `replaceState`, which fire no
 // `hashchange`, so they announce the change with their own event.
 
 /** Fired after the helpers below change the hash. */

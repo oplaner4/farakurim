@@ -20,7 +20,7 @@ homepage album carousel; its photos and the event posters open the shared **ligh
 
 - Next.js 16 (App Router) + React 19 + TypeScript, **pnpm only** (never npm/yarn).
 - Styling: **Tailwind CSS v4**. Dates: **date-fns v4 + `@date-fns/tz`**. Lightbox: **yet-another-react-lightbox**
-  (loaded on first use, restyled in `src/components/ui/lightbox.css`; the URL hash opens and closes it).
+  (loaded on first use, restyled in `src/styles/lightbox.css`; the URL hash opens and closes it).
   Prefer an established library over hand-written helpers; check it with context7 first.
 - Dependencies use caret ranges (`^x.y.z`) so `pnpm update` picks up minor and patch releases.
 - `output: "export"` in `next.config.ts`: `pnpm build` writes plain HTML/CSS/JS to `out/`.
@@ -98,7 +98,8 @@ public/assets/img/ logo + carousel photos pozadi/{sm,md,lg}/{1-7}.webp (served a
 src/app/           layout.tsx (font, metadata, skip link, footer), page.tsx (homepage), sitemap.ts + robots.ts, not-found.tsx (404),
                    aktuality/ ([slug] filters + details, archiv/),
                    porad_bohosluzeb/, kontakty/, kalendar/, petrklic/ (aktualni/, archiv/[rok]/), fotogalerie/,
-                   globals.css (Tailwind theme), utilities.css (custom utilities), icons
+                   icons
+src/styles/        globals.css (Tailwind theme), utilities.css (custom utilities), lightbox.css (the lightbox library restyled)
 src/components/    One component per block, styled with Tailwind utilities, grouped by where it is used:
                    ui/ (shared primitives: ButtonLink, headings, icons, …), layout/ (header, footer and their parts),
                    home/ (homepage blocks), news/ (Aktuality, archive, event detail), services/ (Pořad bohoslužeb),

@@ -79,7 +79,8 @@ Then compare the change with the mockups in a browser at 390, 834 and 1440 px, i
 
 ```
 design/              Design handoff: DESIGN.md (the spec) and mockups per page, size and theme
-src/app/             Pages (one folder per route), globals.css (Tailwind theme tokens), sitemap and 404
+src/app/             Pages (one folder per route), sitemap and 404
+src/styles/          globals.css (Tailwind theme tokens), utilities.css, lightbox.css
 src/components/      One component per block, by group: ui/, layout/, home/, news/, services/, contacts/,
                      calendar/, petrklic/, gallery/
 src/hooks/           Every React hook, one use-<name>.ts each
@@ -105,7 +106,7 @@ deployed to `/uploads/…` and linked root-relative. Album photos stay on Zonera
 ## Conventions
 
 - UI copy is **Czech**; code, comments and commit messages are **English**.
-- Styling uses Tailwind CSS v4 with the design tokens in `src/app/globals.css` only (no hex or arbitrary values).
+- Styling uses Tailwind CSS v4 with the design tokens in `src/styles/globals.css` only (no hex or arbitrary values).
 - Everything must work as a static export: no route handlers reading the request, server actions, middleware,
   ISR or `next/image` optimisation.
 - Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat(news): …`), checked by
