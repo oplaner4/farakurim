@@ -1,29 +1,36 @@
 import { clsx } from "clsx";
-import { places } from "@/content/masses";
+import { parishChurches } from "@/content/masses";
 import { links } from "@/content/site";
-import type { ChurchColor } from "@/content/types";
+import type { ParishChurch } from "@/content/types";
 import { mapHref, NEW_TAB } from "@/lib/links";
 import { ArrowRightIcon } from "@/components/ui/icons";
 import { ContactCard } from "./ContactCard";
 
-const bars: Record<ChurchColor, string> = { blue: "bg-blue", green: "bg-green", orange: "bg-orange" };
+const bars: Record<ParishChurch["color"], string> = {
+  blue: "bg-blue",
+  green: "bg-green",
+  orange: "bg-orange",
+  magenta: "bg-magenta",
+};
 
-/** "Naše kostely" (§15.1): each row links to Mapy.cz. */
+/** "Kostely a kaple" (§15.1): one row per village, each a link to Mapy.cz. */
 export function ChurchesCard() {
   return (
-    <ContactCard id="nase-kostely" title="Naše kostely">
+    <ContactCard id="kostely-a-kaple" title="Kostely a kaple">
       <ul>
-        {Object.values(places).map((place) => (
-          <li key={place.name} className="border-t border-line last:border-b">
+        {parishChurches.map((church) => (
+          <li key={church.village} className="border-t border-line last:border-b">
             <a
-              href={mapHref(place.mapQuery)}
+              href={mapHref(church.mapQuery)}
               {...NEW_TAB}
               className="flex min-h-18 items-center gap-3.5 py-2 text-ink no-underline hover:text-ink"
             >
-              <span aria-hidden="true" className={clsx("h-9 w-3 flex-none rounded-4", bars[place.color])} />
+              <span aria-hidden="true" className={clsx("h-9 w-3 flex-none rounded-4", bars[church.color])} />
               <span className="flex flex-1 flex-col leading-card">
-                <strong>{place.name}</strong>
-                <span className="text-14 text-muted">{place.church ?? "bohoslužby dle domluvy"}</span>
+                <strong>{church.village}</strong>
+                <span className="text-14 text-muted">
+                  {church.note ? `${church.building} · ${church.note}` : church.building}
+                </span>
               </span>
               <span className="flex items-center gap-1 text-14 font-bold text-blue-ink">
                 Mapa

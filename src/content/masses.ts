@@ -1,4 +1,4 @@
-import type { Place, PlaceId, RegularService } from "./types";
+import type { ParishChurch, Place, PlaceId, RegularService } from "./types";
 
 // Mock content. Replace with data from the CMS/API once the backend exists.
 
@@ -20,6 +20,27 @@ export const places: Record<PlaceId, Place> = {
   },
   jinacovice: { name: "Jinačovice", color: "orange", mapQuery: "Jinačovice", byAgreement: true },
 };
+
+/** The churches of `places` plus the chapels, one per village of the parish, in display order. */
+export const parishChurches: ParishChurch[] = [
+  ...(["kurim", "moravske-kninice"] as const).map((id) => {
+    const { name, church = "", color, mapQuery } = places[id];
+    return { village: name, building: church, color, mapQuery };
+  }),
+  {
+    village: "Jinačovice",
+    building: "Kaple sv. Máří Magdaleny",
+    note: "bohoslužby dle domluvy",
+    color: "orange",
+    mapQuery: "kaple sv. Máří Magdaleny Jinačovice",
+  },
+  {
+    village: "Česká",
+    building: "Kaple Panny Marie Růžencové",
+    color: "magenta",
+    mapQuery: "kaple Panny Marie Růžencové Česká",
+  },
+];
 
 /**
  * Regular weekly schedule (source: /porad_bohosluzeb/). First-Friday and first-Saturday variants use `rule`;

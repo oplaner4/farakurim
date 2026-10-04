@@ -28,6 +28,28 @@ export type Place = {
   byAgreement?: boolean;
 };
 
+/** "Slovo na dnešek" (design/DESIGN.md §20.5): the day's verse from the vira.cz widget. */
+export type BibleQuote = {
+  /** The day it belongs to; empty for the fallback verse. */
+  date: IsoDate | "";
+  text: string;
+  /** "Fp 4,7" */
+  reference: string;
+};
+
+/** A church or chapel of one of the parish's villages ("Kostely a kaple" on Kontakty, design/DESIGN.md §15.1). */
+export type ParishChurch = {
+  village: string;
+  /** "Chrám Páně sv. Maří Magdaleny", "Kaple Panny Marie Růžencové" */
+  building: string;
+  /** "bohoslužby dle domluvy" */
+  note?: string;
+  /** Bar colour: the place's colour, magenta for Česká. */
+  color: ChurchColor | "magenta";
+  /** Mapy.cz search. */
+  mapQuery: string;
+};
+
 /** A service in a parish church: a mass, or a mass-like service when it has a `title`. */
 export type ServiceEntry = {
   time: ClockTime;

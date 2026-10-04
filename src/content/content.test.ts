@@ -2,11 +2,11 @@ import { isMatch } from "date-fns";
 import { describe, expect, it, vi } from "vitest";
 import { eventClock } from "@/lib/calendar";
 import { albums } from "./gallery";
-import { places, regularServices } from "./masses";
+import { parishChurches, places, regularServices } from "./masses";
 import { events } from "./news";
 import { scheduleExceptions, serviceSheet } from "./ohlasky";
 import { petrklicIssues } from "./petrklic";
-import { contacts } from "./site";
+import { contacts, parish } from "./site";
 
 // Checks on the content the farnost-create-* skills write from posters and PDFs: a typo there does not break the
 // build, it quietly shows the wrong thing (an event without its time, a missing poster, a misplaced album).
@@ -136,6 +136,13 @@ describe("Pořad bohoslužeb (masses.ts, ohlasky.ts)", () => {
       expect(minutes(slot.to)).toBeGreaterThan(minutes(slot.from));
       if (slot.closed) expect(isMonthDay(slot.closed.from) && isMonthDay(slot.closed.to)).toBe(true);
     }
+  });
+});
+
+describe("Kostely a kaple (masses.ts)", () => {
+  it("has one church or chapel per village of the parish, in the footer's order", () => {
+    expect(parishChurches.map((c) => c.village)).toEqual(parish.villages.map((v) => v.name));
+    for (const c of parishChurches) expect(c.building, c.village).not.toBe("");
   });
 });
 
