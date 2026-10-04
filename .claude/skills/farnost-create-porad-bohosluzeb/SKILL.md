@@ -41,14 +41,13 @@ Read the **whole** page: the announcements are the paragraphs below the table.
 | `place`   | `"kurim"`, `"moravske-kninice"`, `"jinacovice"` for the parish churches (`places` in `masses.ts`); free text for anywhere else (`"Vranov"`).     |
 | `title`   | The part before " – ": `"Mše sv."`, `"Mše sv. se zpěvem scholy"`, `"Adorace"`, `"Křest"`, `"Pohřeb"`, `"Modlitební večer s Komunitou Emmanuel"`. |
 | `detail`  | The part after " – ", word for word, wrapped lines joined: `"za živé a † farníky a dobrodince naší farnosti"`.                                   |
-| `public`  | `false` when `detail` names private people (see privacy below); omit otherwise.                                                                  |
+| `public`  | Omit (public). `false` only when the user asks to keep a row's `detail` off the web (see privacy below).                                         |
 | `mass`    | `true` for a mass in one of the parish churches. Only these count for the next mass and replace the regular schedule.                            |
 | `changed` | `true` when the mass differs from the regular schedule (below), or the PDF marks it as a change.                                                 |
 
-**Privacy** (§14.6): intentions and funerals name private people, and the web is searchable forever. Unless the
-user says otherwise, set `public: false` on rows whose `detail` names a person or family ("za Františka Vidláka…",
-"za rodinu Morávkovu", funerals, weddings, baptisms with names). Intentions for groups, the parish or causes stay
-public ("za Komunitu Emmanuel", "za pokoj a mír na Ukrajině"). The PDF itself keeps everything.
+**Privacy** (§14.6): the parish decided to publish the intentions word for word, names included, because the
+linked PDF is public anyway. Set `public: false` only on a row the user asks to hide (e.g. a family asked to keep
+its intention off the web); that row's `detail` then stays in the PDF only.
 
 **Changes**: compare the masses of each day with `regularServices` in `src/content/masses.ts` (weekday, time,
 place; `rule: "first-in-month"` rows apply on the first such weekday of the month only). A day with any `changed`
@@ -70,8 +69,8 @@ Unfinished text in the PDF ("vynesl …………. Kč") goes to the user: ask fo
 
 ## 3. Confirm with the user
 
-Show the week, a compact day-by-day list of rows (mark `changed` and hidden rows), and the announcements with
-their categories. Ask about anything uncertain: unreadable rows, the privacy of borderline intentions, cancellations.
+Show the week, a compact day-by-day list of rows (mark `changed` rows), and the announcements with
+their categories. Ask about anything uncertain: unreadable rows, cancellations.
 
 ## 4. Stage the PDF
 
@@ -95,7 +94,7 @@ entries that are now in the past; keep future ones.
       feast: "27. neděle v mezidobí",
       solemnity: true,
       rows: [
-        kurimMass("8:00", "za Jana Nováka", { public: false }),
+        kurimMass("8:00", "za Jana Nováka"),
         { time: "9:30", place: "moravske-kninice", title: "Mše sv.", mass: true, changed: true },
         kurimMass("11:00", "za obec Česká, její obyvatele a rodáky", { title: "Hodová mše sv.", changed: true }),
       ],
@@ -113,7 +112,7 @@ adorace" Google Calendar, which the Kalendář reads.
 - Missing the announcements below the table, or summarising them: they are published word for word.
 - Assigning a row to the wrong day: the date sits in the middle of the day's rows in the layout text.
 - Leaving a wrapped intention cut in half, or splitting "Mše sv. – za …" into the wrong `title` / `detail`.
-- Publishing names of private people (`public: false` missing), or hiding harmless group intentions.
+- Hiding intentions with names (`public: false`) without the user asking: they are published as in the PDF.
 - Marking a change on one mass but omitting the day's other masses: the day's regular masses are replaced.
 - Tagging unchanged masses `changed` to express a cancellation: use a `scheduleExceptions` entry.
 - `mass: true` on a mass outside the parish churches, or on adoration and prayer evenings.
