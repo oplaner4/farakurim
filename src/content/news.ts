@@ -71,6 +71,21 @@ export const events: NewsEvent[] = [
     sessions: 7,
   },
   {
+    id: "adoracni-den-2026",
+    title: "Adorační den kuřimské farnosti",
+    start: "2026-10-12",
+    time: "13:00–18:00",
+    place: "Kuřim, kostel sv. Maří Magdalény",
+    mapQuery: "kostel sv. Maří Magdalény Kuřim",
+    text: "Zveme všechny farníky k adoraci v kuřimském kostele – přijít můžete kdykoliv od 13 do 18 hodin.",
+    lead: "Přijďte se zastavit před Nejsvětější svátostí – na chvíli, nebo na celé odpoledne.",
+    program: [
+      { time: "13:00", title: "Začátek adorace" },
+      { time: "17:30", title: "Společná modlitba růžence" },
+      { time: "18:00", title: "Závěrečné požehnání celé farnosti" },
+    ],
+  },
+  {
     id: "hubertska-mse",
     title: "Hubertská mše",
     start: "2026-10-25",
