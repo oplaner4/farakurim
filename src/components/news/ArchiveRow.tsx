@@ -9,7 +9,7 @@ export type ArchiveItem = Pick<NewsEvent, "id" | "title" | "start" | "end" | "ti
   file?: { label: string; type: string };
 };
 
-/** Anchor of a row: "Načíst starší" moves the focus to the first new one. */
+/** Anchor of a row: "Načíst další" moves the focus to the first new one. */
 export const rowAnchor = (id: string) => `archiv-${id}`;
 
 /** The whole row is one link to the detail page (§12.3). */

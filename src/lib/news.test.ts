@@ -3,9 +3,8 @@ import { events as allEvents } from "@/content/news";
 import type { NewsEvent } from "@/content/types";
 import {
   archiveListing,
-  archivePage,
-  archivePages,
   archivedEvents,
+  archiveYearList,
   archiveYears,
   currentNews,
   eventHref,
@@ -16,8 +15,6 @@ import {
   findEventBySlug,
   groupByMonth,
   groupEvents,
-  latestArchiveYear,
-  oldestArchiveYear,
   NEWS_FILTER_META,
   NEWS_FILTERS,
   otherEvents,
@@ -177,44 +174,24 @@ describe("archive", () => {
     expect(ids(archivedEvents(list, "2026-10-04"))).not.toContain("ongoing");
   });
 
-  it("defaults to the year of the newest archived event", () => {
-    expect(latestArchiveYear(list, TODAY)).toBe(2026);
-    expect(latestArchiveYear([], TODAY)).toBe(2026);
-    expect(latestArchiveYear([event("x", "2025-12-24")], "2026-01-02")).toBe(2025);
+  it("lists the years with an archived event, newest first", () => {
+    expect(archiveYearList(list, TODAY)).toEqual([2026, 2025, 2023]);
+    expect(archiveYearList([], TODAY)).toEqual([2026]);
+    expect(archiveYearList([event("x", "2025-12-24")], "2026-01-02")).toEqual([2025]);
   });
 
-  it("splits the years into the default, the year before and older", () => {
+  it("gives every year a button, the newest as the default", () => {
     const archived = archivedEvents(list, TODAY);
-    const years = archiveYears(2026);
+    const years = archiveYears([2026, 2025, 2023]);
     expect(years.map((y) => [y.slug, y.label])).toEqual([
       ["", "2026"],
       ["2025", "2025"],
-      ["starsi", "Starší"],
+      ["2023", "2023"],
     ]);
     expect(years.map((y) => archived.filter(y.matches).length)).toEqual([5, 1, 1]);
     // Events of a newer year stay on the default page until a rebuild adds their button.
-    expect(archiveYears(2025)[0].matches(event("new", "2026-01-02"))).toBe(true);
-  });
-
-  it("has a page for every year from the oldest archived event, older years under Starší", () => {
-    expect(oldestArchiveYear(list, TODAY, 2026)).toBe(2023);
-    expect(oldestArchiveYear([], TODAY, 2026)).toBe(2026);
-    expect(archivePages(2026, 2023).map((p) => [p.slug, p.button])).toEqual([
-      ["", ""],
-      ["2025", "2025"],
-      ["starsi", "starsi"],
-      ["2024", "starsi"],
-      ["2023", "starsi"],
-    ]);
-    expect(archivePages(2026, 2026).map((p) => p.slug)).toEqual(["", "2025", "starsi"]);
-    const archived = archivedEvents(list, TODAY);
-    expect(ids(archived.filter(archivePage(2026, "2023").matches))).toEqual(["old"]);
-    expect(archived.filter(archivePage(2026, "2024").matches)).toEqual([]);
-    // After New Year's rebuild, 2025 keeps its URL, now under "Starší".
-    expect(archivePage(2027, "2025").button).toBe("starsi");
-    expect(ids(archived.filter(archivePage(2027, "2025").matches))).toEqual(["last-year"]);
-    // Unknown slugs, and years with a button or newer, fall back to the default.
-    for (const slug of ["x", "2026", "2030"]) expect(archivePage(2026, slug).slug).toBe("");
+    expect(archiveYears([2025])[0].matches(event("new", "2026-01-02"))).toBe(true);
+    expect(archiveYears([2026, 2025])[1].matches(event("new", "2026-01-02"))).toBe(false);
   });
 
   it("searches the title and place without case and diacritics", () => {
@@ -242,14 +219,15 @@ describe("archiveListing", () => {
     Array.from({ length: n }, (_, i) =>
       event(`${y}-${i}`, `${y}-0${1 + (i % 9)}-${String(10 + (i % 18)).padStart(2, "0")}`),
     );
-  const items = [...year(2026, 25), ...year(2025, 2), event("pout", "2026-06-28", undefined, { title: "Pouť" })];
+  const items = [...year(2026, 15), ...year(2025, 2), event("pout", "2026-06-28", undefined, { title: "Pouť" })];
   const listing = (o: Partial<{ yearSlug: string; query: string; page: number }>) =>
-    archiveListing(items, { latest: 2026, yearSlug: "", query: "", page: 1, today: TODAY, ...o });
+    archiveListing(items, { years: [2026, 2025], yearSlug: "", query: "", page: 1, today: TODAY, ...o });
 
-  it("counts the years and shows the first page of the year", () => {
+  it("counts the years and shows the first 10 events of the year", () => {
     const l = listing({});
-    expect(l.years.map((y) => y.count)).toEqual([26, 2, 0]);
-    expect([l.matching.length, l.shownCount, l.countLabel]).toEqual([26, 20, "Zobrazeno 20 akcí"]);
+    expect(l.years.map((y) => y.count)).toEqual([16, 2]);
+    expect([l.matching.length, l.shownCount, l.countLabel]).toEqual([16, 10, "Zobrazeno 10 z 16 akcí"]);
+    expect(listing({ page: 2 }).countLabel).toBe("Zobrazeno 16 akcí");
   });
 
   it("marks the rows and months after the shown pages", () => {
@@ -259,6 +237,16 @@ describe("archiveListing", () => {
     // A month is hidden only when its first row is.
     for (const g of l.groups) expect(g.more).toBe(g.events[0].more);
     expect(listing({ page: 2 }).groups.every((g) => !g.more)).toBe(true);
+  });
+
+  it("offers the year before, except on the oldest year and while searching", () => {
+    expect(listing({}).previous?.slug).toBe("2025");
+    expect(listing({ yearSlug: "2025" }).previous).toBeUndefined();
+    expect(listing({ query: "pout" }).previous).toBeUndefined();
+  });
+
+  it("falls back to the newest year for an unknown slug", () => {
+    expect(listing({ yearSlug: "starsi" }).year.slug).toBe("");
   });
 
   it("searches across all years and names the result count", () => {

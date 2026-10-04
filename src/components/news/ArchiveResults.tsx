@@ -5,7 +5,7 @@ import { type ArchiveItem, ArchiveRow } from "./ArchiveRow";
 
 /**
  * Archive rows grouped by month (§12.3). Every row is in the HTML; rows after the shown pages are hidden
- * (`data-more`) until "Načíst starší", and a <noscript> style shows them all without JS.
+ * (`data-more`) until "Načíst další", and a <noscript> style shows them all without JS.
  */
 export function ArchiveResults({ groups }: { groups: ArchiveListing<ArchiveItem>["groups"] }) {
   return groups.length === 0 ? (

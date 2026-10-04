@@ -2,17 +2,15 @@ import { events } from "@/content/news";
 import { links } from "@/content/site";
 import { BUILD_TIME } from "@/lib/build-time";
 import { fileType } from "@/lib/czech";
-import { eventHref, latestArchiveYear, oldestArchiveYear } from "@/lib/news";
+import { archiveYearList, eventHref } from "@/lib/news";
 import { pragueDate } from "@/lib/prague";
 import type { ArchiveItem } from "./ArchiveRow";
 import { NewsArchive } from "./NewsArchive";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 
-/** Year of the default archive page, fixed by the build (the year pages are static). */
-export const ARCHIVE_LATEST_YEAR = latestArchiveYear(events, pragueDate(BUILD_TIME));
-/** Year of the oldest archived event: every year from it up has a page (`archivePages`). */
-export const ARCHIVE_OLDEST_YEAR = oldestArchiveYear(events, pragueDate(BUILD_TIME), ARCHIVE_LATEST_YEAR);
+/** The year buttons (newest first), fixed by the build: each is a static page. */
+export const ARCHIVE_YEARS = archiveYearList(events, pragueDate(BUILD_TIME));
 
 // Only the fields of a row go to the client. Unfinished events are included: they move into the
 // archive in the visitor's browser the day after they end.
@@ -48,11 +46,13 @@ export function ArchivePage({ yearSlug }: { yearSlug: string }) {
           size="medium"
           color="magenta"
         />
-        <NewsArchive items={items} latest={ARCHIVE_LATEST_YEAR} yearSlug={yearSlug} renderedAt={BUILD_TIME} />
-        {/* Without JS, every row is shown, and the search (which filters in the browser) is hidden. */}
+        <NewsArchive items={items} years={ARCHIVE_YEARS} yearSlug={yearSlug} renderedAt={BUILD_TIME} />
+        {/* Without JS, every row and "Rok 2025" are shown, and the search (which filters in the browser) is hidden. */}
         <noscript>
           <style>
-            {"[data-more]{display:flex;flex-direction:column}[data-load-more],[data-js-only]{display:none}"}
+            {
+              "[data-more]{display:flex;flex-direction:column}[data-after-more]{display:flex}[data-load-more],[data-js-only]{display:none}"
+            }
           </style>
         </noscript>
       </main>

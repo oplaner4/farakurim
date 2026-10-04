@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { ARCHIVE_LATEST_YEAR } from "@/components/news/ArchivePage";
+import { ARCHIVE_YEARS } from "@/components/news/ArchivePage";
 import { PETRKLIC_YEARS } from "@/components/petrklic/ArchivePage";
 import { events } from "@/content/news";
 import { links, SITE_URL } from "@/content/site";
@@ -7,8 +7,7 @@ import { archiveYears, archiveYearHref, eventHref } from "@/lib/news";
 import { archiveYearHref as petrklicYearHref } from "@/lib/petrklic";
 
 // `/sitemap.xml`, written by `next build` like the pages. Every indexable page, as absolute URLs on SITE_URL.
-// The Aktuality filter pages (`/aktuality/tyden/`, …) are left out: they re-list the events of `/aktuality/`. So are
-// the archive's pages of single years older than its buttons (`archivePages`): they re-list part of "Starší".
+// The Aktuality filter pages (`/aktuality/tyden/`, …) are left out: they re-list the events of `/aktuality/`.
 export const dynamic = "force-static";
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -16,7 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     links.home,
     links.news,
     ...events.map(eventHref),
-    ...archiveYears(ARCHIVE_LATEST_YEAR).map((y) => archiveYearHref(y.slug)),
+    ...archiveYears(ARCHIVE_YEARS).map((y) => archiveYearHref(y.slug)),
     links.services,
     links.calendar,
     links.gallery,

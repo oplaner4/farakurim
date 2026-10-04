@@ -157,8 +157,8 @@ export const otherEvents = <T extends Pick<NewsEvent, "id" | "start" | "end" | "
 
 // Archive (design/DESIGN.md §12)
 
-/** Rows per "page" of the archive; "Načíst starší" shows the next batch. */
-export const ARCHIVE_PAGE_SIZE = 20;
+/** Rows per "page" of the archive; "Načíst další" shows the next batch. */
+export const ARCHIVE_PAGE_SIZE = 10;
 
 const startYear = (event: Pick<NewsEvent, "start">) => Number(event.start.slice(0, 4));
 
@@ -172,59 +172,26 @@ export function archivedEvents<T extends Archivable>(events: T[], today: IsoDate
     .sort((a, b) => b.start.localeCompare(a.start) || eventEnd(b).localeCompare(eventEnd(a)));
 }
 
-/** Year of the most recent archived event, the archive's default; the current year when it is empty. */
-export function latestArchiveYear(events: Archivable[], today: IsoDate): number {
-  const newest = archivedEvents(events, today)[0];
-  return newest ? startYear(newest) : Number(today.slice(0, 4));
+/** Years with an archived event, newest first (§12.2); the current year when the archive is empty. */
+export function archiveYearList(events: Archivable[], today: IsoDate): number[] {
+  const years = [...new Set(archivedEvents(events, today).map(startYear))];
+  return years.length > 0 ? years : [Number(today.slice(0, 4))];
 }
 
 /**
- * The year buttons "2026 · 2025 · Starší". Each is a static page (`/aktuality/archiv/<slug>/`, empty slug
- * for the default). The default also takes events of a newer year, which a visitor may see archived
+ * The year buttons "2026 · 2025 · … · 2019", each a static page (`/aktuality/archiv/<slug>/`, empty slug for
+ * the newest, the default). The default also takes events of a newer year, which a visitor may see archived
  * before the next build adds its button.
  */
-export function archiveYears(latest: number) {
-  return [
-    { slug: "", label: String(latest), matches: (e: Archivable) => startYear(e) >= latest },
-    { slug: String(latest - 1), label: String(latest - 1), matches: (e: Archivable) => startYear(e) === latest - 1 },
-    { slug: "starsi", label: "Starší", matches: (e: Archivable) => startYear(e) < latest - 1 },
-  ];
+export function archiveYears(years: number[]) {
+  return years.map((year, i) => ({
+    slug: i === 0 ? "" : String(year),
+    label: String(year),
+    matches: (e: Archivable) => (i === 0 ? startYear(e) >= year : startYear(e) === year),
+  }));
 }
 
 export type ArchiveYear = ReturnType<typeof archiveYears>[number];
-
-/** Start year of the oldest archived event; `latest` when the archive is empty. */
-export function oldestArchiveYear(events: Archivable[], today: IsoDate, latest: number): number {
-  const oldest = archivedEvents(events, today).at(-1);
-  return oldest ? startYear(oldest) : latest;
-}
-
-/** An archive page: what it lists and which year button (`button`, its slug) it lights up. */
-export type ArchivePageYear = ArchiveYear & { button: string };
-
-/**
- * The page of a year slug: a year button, or a year older than the buttons, which lights up "Starší". Unknown
- * slugs fall back to the default.
- */
-export function archivePage(latest: number, slug: string): ArchivePageYear {
-  const years = archiveYears(latest);
-  const button = years.find((y) => y.slug === slug);
-  if (button) return { ...button, button: button.slug };
-  const year = Number(slug);
-  if (Number.isInteger(year) && year < latest - 1) {
-    return { slug, label: slug, matches: (e: Archivable) => startYear(e) === year, button: "starsi" };
-  }
-  return { ...years[0], button: years[0].slug };
-}
-
-/**
- * Every archive page: the year buttons plus one page per year older than them (down to `oldest`), so a year's
- * URL (`/aktuality/archiv/2025/`) keeps working after a new year moves it into "Starší".
- */
-export function archivePages(latest: number, oldest: number): ArchivePageYear[] {
-  const older = Array.from({ length: Math.max(0, latest - 1 - oldest) }, (_, i) => String(latest - 2 - i));
-  return [...archiveYears(latest).map((y) => y.slug), ...older].map((slug) => archivePage(latest, slug));
-}
 
 /** Search in the title and place, ignoring case and diacritics. */
 export function searchEvents<T extends Pick<NewsEvent, "title" | "place">>(events: T[], query: string): T[] {
@@ -252,13 +219,15 @@ export type ArchiveListing<T> = {
   /** Year buttons with the number of their events. */
   years: (ArchiveYear & { count: number })[];
   /** The page's year (ignored while searching). */
-  year: ArchivePageYear;
+  year: ArchiveYear & { count: number };
+  /** The year before, offered as "Rok 2025" once the page's year is fully shown; none while searching. */
+  previous?: ArchiveYear;
   matching: T[];
   /** Matching events by month; rows (and whole months) after the shown pages are marked `more`. */
   groups: { month: IsoDate; more: boolean; events: { item: T; more: boolean }[] }[];
   /** How many rows the shown pages hold. */
   shownCount: number;
-  /** "Zobrazeno 20 akcí", "Nalezeno 3 akce" */
+  /** "Zobrazeno 10 z 21 akcí", "Zobrazeno 21 akcí", "Nalezeno 3 akce" */
   countLabel: string;
 };
 
@@ -269,27 +238,34 @@ export type ArchiveListing<T> = {
 export function archiveListing<T extends Archivable & Pick<NewsEvent, "id" | "title" | "place">>(
   items: T[],
   {
-    latest,
+    years: yearList,
     yearSlug,
     query,
     page,
     today,
-  }: { latest: number; yearSlug: string; query: string; page: number; today: IsoDate },
+  }: { years: number[]; yearSlug: string; query: string; page: number; today: IsoDate },
 ): ArchiveListing<T> {
   const archived = archivedEvents(items, today);
-  const years = archiveYears(latest).map((y) => ({ ...y, count: archived.filter(y.matches).length }));
-  const year = archivePage(latest, yearSlug);
+  const years = archiveYears(yearList).map((y) => ({ ...y, count: archived.filter(y.matches).length }));
+  const index = Math.max(
+    0,
+    years.findIndex((y) => y.slug === yearSlug),
+  );
+  const year = years[index];
   const matching = query ? searchEvents(archived, query) : archived.filter(year.matches);
   const shownCount = Math.min(matching.length, page * ARCHIVE_PAGE_SIZE);
-  let index = 0;
+  let row = 0;
   const groups = groupByMonth(matching).map(({ month, events }) => ({
     month,
-    more: index >= shownCount,
-    events: events.map((item) => ({ item, more: index++ >= shownCount })),
+    more: row >= shownCount,
+    events: events.map((item) => ({ item, more: row++ >= shownCount })),
   }));
   const events = (n: number) => `${n} ${plural(n, ["akce", "akce", "akcí"])}`;
-  const countLabel = query ? `Nalezeno ${events(matching.length)}` : `Zobrazeno ${events(shownCount)}`;
-  return { years, year, matching, groups, shownCount, countLabel };
+  const total = matching.length;
+  const shown = shownCount < total ? `${shownCount} z ${events(total)}` : events(total);
+  const countLabel = `${query ? "Nalezeno" : "Zobrazeno"} ${shown}`;
+  const previous = query ? undefined : years[index + 1];
+  return { years, year, previous, matching, groups, shownCount, countLabel };
 }
 
 export const archiveYearHref = (slug: string) => (slug ? `${links.newsArchive}${slug}/` : links.newsArchive);

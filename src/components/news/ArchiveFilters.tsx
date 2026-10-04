@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import type { ChangeEvent, FormEvent, RefObject } from "react";
+import { type ChangeEvent, type FormEvent, type RefObject, useEffect, useRef } from "react";
 import Link from "next/link";
 import { links } from "@/content/site";
 import { archiveYearHref, type ArchiveYear } from "@/lib/news";
@@ -19,9 +19,20 @@ type Props = {
 
 /**
  * Archive search and year links (§12.2). The search needs JS; the year links are static pages.
- * Mobile: stacked. Tablet: search beside the years. Desktop: stacked in the side panel.
+ * Mobile: stacked, the years in one scrolling row. Tablet: search beside the wrapping years. Desktop: stacked in
+ * the side panel, the years as a vertical list.
  */
 export function ArchiveFilters({ value, inputRef, onChange, onSubmit, years, activeSlug }: Props) {
+  const yearsRef = useRef<HTMLUListElement>(null);
+
+  // Mobile: bring the active year into the scrolling row (an older year sits off screen to the right).
+  useEffect(() => {
+    const list = yearsRef.current;
+    const active = list?.querySelector<HTMLElement>("[aria-current]");
+    if (!list || !active || list.scrollWidth <= list.clientWidth) return;
+    list.scrollLeft = active.offsetLeft - (list.clientWidth - active.offsetWidth) / 2;
+  }, [activeSlug]);
+
   return (
     <div className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-end md:gap-4 lg:flex-col lg:items-stretch lg:gap-6">
       <form
@@ -53,11 +64,14 @@ export function ArchiveFilters({ value, inputRef, onChange, onSubmit, years, act
         <span id="archiv-rok" className="text-15 font-bold max-lg:sr-only">
           Rok
         </span>
-        <ul className="flex gap-2 lg:flex-col lg:gap-1.5">
+        <ul
+          ref={yearsRef}
+          className="relative -mx-4 no-scrollbar flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:p-0 lg:flex-col lg:gap-1.5"
+        >
           {years.map((y) => {
             const active = y.slug === activeSlug;
             return (
-              <li key={y.slug} className="max-md:flex-1">
+              <li key={y.slug} className="flex-none">
                 <Link
                   href={archiveYearHref(y.slug)}
                   scroll={false}

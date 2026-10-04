@@ -4,12 +4,12 @@ import { clsx } from "clsx";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { links } from "@/content/site";
-import { archiveListing, parsePage } from "@/lib/news";
+import { archiveListing, archiveYearHref, parsePage } from "@/lib/news";
 import { PAGE_PARAM, QUERY_PARAM } from "@/lib/query-params";
 import { useLoadMore } from "@/hooks/use-load-more";
 import { useToday } from "@/hooks/use-now";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { ChevronLeftIcon } from "@/components/ui/icons";
+import { ArrowRightIcon, ChevronLeftIcon } from "@/components/ui/icons";
 import { ArchiveFilters } from "./ArchiveFilters";
 import { ArchiveResults } from "./ArchiveResults";
 import { type ArchiveItem, rowAnchor } from "./ArchiveRow";
@@ -46,10 +46,13 @@ function ResultCount({ label, searching, onClear, className }: CountProps) {
   );
 }
 
+/** The list column, where "Rok 2025" lands. */
+const LIST_ID = "vypis";
+
 type Props = {
   items: ArchiveItem[];
-  /** Year of the default page (`archiveYears`), fixed at build time. */
-  latest: number;
+  /** Years of the year buttons, newest first (`archiveYearList`), fixed at build time. */
+  years: number[];
   /** This page's year button. */
   yearSlug: string;
   renderedAt: number;
@@ -76,12 +79,12 @@ function NewsArchiveFromUrl(props: Props) {
 }
 
 /**
- * Every row of the year is in the HTML; rows beyond `page` are hidden and revealed by "Načíst starší"
+ * Every row of the year is in the HTML; rows beyond `page` are hidden and revealed by "Načíst další"
  * (without JS, a <noscript> style on the page shows them all and hides the search).
  */
 function NewsArchiveView({
   items,
-  latest,
+  years: yearList,
   yearSlug,
   renderedAt,
   rawQuery,
@@ -91,8 +94,8 @@ function NewsArchiveView({
   const query = rawQuery.trim();
   const loadMore = useLoadMore(page);
   const { value, inputRef, onChange, onSubmit, clear } = useArchiveSearch(rawQuery);
-  const { years, year, matching, groups, shownCount, countLabel } = archiveListing(items, {
-    latest,
+  const { years, year, previous, matching, groups, shownCount, countLabel } = archiveListing(items, {
+    years: yearList,
     yearSlug,
     query,
     page,
@@ -112,17 +115,21 @@ function NewsArchiveView({
           onChange={onChange}
           onSubmit={onSubmit}
           years={years}
-          activeSlug={query ? undefined : year.button}
+          activeSlug={query ? undefined : year.slug}
         />
         <ResultCount {...countProps} className="lg:hidden" />
         <BackLink className="max-lg:hidden" />
       </div>
 
-      <div className="flex min-w-0 flex-col gap-6 md:gap-8 lg:shrink lg:grow-999 lg:basis-150 lg:gap-7">
+      <div
+        id={LIST_ID}
+        className="flex min-w-0 scroll-mt-4 flex-col gap-6 md:gap-8 lg:shrink lg:grow-999 lg:basis-150 lg:gap-7"
+      >
         <ResultCount {...countProps} className="max-lg:hidden" />
         <ArchiveResults groups={groups} />
 
-        {/* Mobile: "Načíst starší", then back. Tablet: back on the left, the button on the right.
+        {/* "Načíst další", or once the year is fully shown "Rok 2025", which opens the year before at the top
+            of its list. Mobile: the button, then back. Tablet: back on the left, the button on the right.
             Desktop: the button centred (back is in the side panel). */}
         <div className="flex flex-col gap-6 md:flex-row-reverse md:flex-wrap md:items-center md:justify-between md:gap-4 lg:justify-center">
           {shownCount < matching.length && (
@@ -133,7 +140,18 @@ function NewsArchiveView({
               data-load-more
               className="md:px-7 lg:px-8"
             >
-              Načíst starší
+              Načíst další
+            </ButtonLink>
+          )}
+          {previous && (
+            <ButtonLink
+              href={`${archiveYearHref(previous.slug)}#${LIST_ID}`}
+              variant="outline-magenta"
+              data-after-more={shownCount < matching.length || undefined}
+              className={clsx("md:px-7 lg:px-8", shownCount < matching.length && "hidden")}
+            >
+              Rok {previous.label}
+              <ArrowRightIcon size={18} />
             </ButtonLink>
           )}
           <BackLink className="lg:hidden" />
