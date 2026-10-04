@@ -7,7 +7,8 @@ import { archiveYears, archiveYearHref, eventHref } from "@/lib/news";
 import { archiveYearHref as petrklicYearHref } from "@/lib/petrklic";
 
 // `/sitemap.xml`, written by `next build` like the pages. Every indexable page, as absolute URLs on SITE_URL.
-// The Aktuality filter pages (`/aktuality/tyden/`, …) are left out: they re-list the events of `/aktuality/`.
+// The Aktuality filter pages (`/aktuality/tyden/`, …) are left out: they re-list the events of `/aktuality/`. So are
+// the archive's pages of single years older than its buttons (`archivePages`): they re-list part of "Starší".
 export const dynamic = "force-static";
 
 export default function sitemap(): MetadataRoute.Sitemap {

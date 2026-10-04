@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ARCHIVE_LATEST_YEAR, ArchivePage } from "@/components/news/ArchivePage";
-import { archiveYears } from "@/lib/news";
+import { ARCHIVE_LATEST_YEAR, ARCHIVE_OLDEST_YEAR, ArchivePage } from "@/components/news/ArchivePage";
+import { archivePages } from "@/lib/news";
 
-// Static export: only the year buttons other than the default have a page.
+// Static export: the year buttons other than the default, plus every older year (so its URL outlives its button).
 export const dynamicParams = false;
 
-const years = archiveYears(ARCHIVE_LATEST_YEAR).filter((y) => y.slug !== "");
+const years = archivePages(ARCHIVE_LATEST_YEAR, ARCHIVE_OLDEST_YEAR).filter((y) => y.slug !== "");
 
 export function generateStaticParams() {
   return years.map((y) => ({ rok: y.slug }));

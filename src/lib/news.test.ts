@@ -3,6 +3,8 @@ import { events as allEvents } from "@/content/news";
 import type { NewsEvent } from "@/content/types";
 import {
   archiveListing,
+  archivePage,
+  archivePages,
   archivedEvents,
   archiveYears,
   currentNews,
@@ -15,6 +17,7 @@ import {
   groupByMonth,
   groupEvents,
   latestArchiveYear,
+  oldestArchiveYear,
   NEWS_FILTER_META,
   NEWS_FILTERS,
   otherEvents,
@@ -191,6 +194,27 @@ describe("archive", () => {
     expect(years.map((y) => archived.filter(y.matches).length)).toEqual([5, 1, 1]);
     // Events of a newer year stay on the default page until a rebuild adds their button.
     expect(archiveYears(2025)[0].matches(event("new", "2026-01-02"))).toBe(true);
+  });
+
+  it("has a page for every year from the oldest archived event, older years under Starší", () => {
+    expect(oldestArchiveYear(list, TODAY, 2026)).toBe(2023);
+    expect(oldestArchiveYear([], TODAY, 2026)).toBe(2026);
+    expect(archivePages(2026, 2023).map((p) => [p.slug, p.button])).toEqual([
+      ["", ""],
+      ["2025", "2025"],
+      ["starsi", "starsi"],
+      ["2024", "starsi"],
+      ["2023", "starsi"],
+    ]);
+    expect(archivePages(2026, 2026).map((p) => p.slug)).toEqual(["", "2025", "starsi"]);
+    const archived = archivedEvents(list, TODAY);
+    expect(ids(archived.filter(archivePage(2026, "2023").matches))).toEqual(["old"]);
+    expect(archived.filter(archivePage(2026, "2024").matches)).toEqual([]);
+    // After New Year's rebuild, 2025 keeps its URL, now under "Starší".
+    expect(archivePage(2027, "2025").button).toBe("starsi");
+    expect(ids(archived.filter(archivePage(2027, "2025").matches))).toEqual(["last-year"]);
+    // Unknown slugs, and years with a button or newer, fall back to the default.
+    for (const slug of ["x", "2026", "2030"]) expect(archivePage(2026, slug).slug).toBe("");
   });
 
   it("searches the title and place without case and diacritics", () => {

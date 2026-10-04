@@ -193,6 +193,39 @@ export function archiveYears(latest: number) {
 
 export type ArchiveYear = ReturnType<typeof archiveYears>[number];
 
+/** Start year of the oldest archived event; `latest` when the archive is empty. */
+export function oldestArchiveYear(events: Archivable[], today: IsoDate, latest: number): number {
+  const oldest = archivedEvents(events, today).at(-1);
+  return oldest ? startYear(oldest) : latest;
+}
+
+/** An archive page: what it lists and which year button (`button`, its slug) it lights up. */
+export type ArchivePageYear = ArchiveYear & { button: string };
+
+/**
+ * The page of a year slug: a year button, or a year older than the buttons, which lights up "Starší". Unknown
+ * slugs fall back to the default.
+ */
+export function archivePage(latest: number, slug: string): ArchivePageYear {
+  const years = archiveYears(latest);
+  const button = years.find((y) => y.slug === slug);
+  if (button) return { ...button, button: button.slug };
+  const year = Number(slug);
+  if (Number.isInteger(year) && year < latest - 1) {
+    return { slug, label: slug, matches: (e: Archivable) => startYear(e) === year, button: "starsi" };
+  }
+  return { ...years[0], button: years[0].slug };
+}
+
+/**
+ * Every archive page: the year buttons plus one page per year older than them (down to `oldest`), so a year's
+ * URL (`/aktuality/archiv/2025/`) keeps working after a new year moves it into "Starší".
+ */
+export function archivePages(latest: number, oldest: number): ArchivePageYear[] {
+  const older = Array.from({ length: Math.max(0, latest - 1 - oldest) }, (_, i) => String(latest - 2 - i));
+  return [...archiveYears(latest).map((y) => y.slug), ...older].map((slug) => archivePage(latest, slug));
+}
+
 /** Search in the title and place, ignoring case and diacritics. */
 export function searchEvents<T extends Pick<NewsEvent, "title" | "place">>(events: T[], query: string): T[] {
   const words = fold(query).split(/\s+/).filter(Boolean);
@@ -219,7 +252,7 @@ export type ArchiveListing<T> = {
   /** Year buttons with the number of their events. */
   years: (ArchiveYear & { count: number })[];
   /** The page's year (ignored while searching). */
-  year: ArchiveYear & { count: number };
+  year: ArchivePageYear;
   matching: T[];
   /** Matching events by month; rows (and whole months) after the shown pages are marked `more`. */
   groups: { month: IsoDate; more: boolean; events: { item: T; more: boolean }[] }[];
@@ -245,7 +278,7 @@ export function archiveListing<T extends Archivable & Pick<NewsEvent, "id" | "ti
 ): ArchiveListing<T> {
   const archived = archivedEvents(items, today);
   const years = archiveYears(latest).map((y) => ({ ...y, count: archived.filter(y.matches).length }));
-  const year = years.find((y) => y.slug === yearSlug) ?? years[0];
+  const year = archivePage(latest, yearSlug);
   const matching = query ? searchEvents(archived, query) : archived.filter(year.matches);
   const shownCount = Math.min(matching.length, page * ARCHIVE_PAGE_SIZE);
   let index = 0;

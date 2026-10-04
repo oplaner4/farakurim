@@ -2,7 +2,7 @@ import { events } from "@/content/news";
 import { links } from "@/content/site";
 import { BUILD_TIME } from "@/lib/build-time";
 import { fileType } from "@/lib/czech";
-import { eventHref, latestArchiveYear } from "@/lib/news";
+import { eventHref, latestArchiveYear, oldestArchiveYear } from "@/lib/news";
 import { pragueDate } from "@/lib/prague";
 import type { ArchiveItem } from "./ArchiveRow";
 import { NewsArchive } from "./NewsArchive";
@@ -11,6 +11,8 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 
 /** Year of the default archive page, fixed by the build (the year pages are static). */
 export const ARCHIVE_LATEST_YEAR = latestArchiveYear(events, pragueDate(BUILD_TIME));
+/** Year of the oldest archived event: every year from it up has a page (`archivePages`). */
+export const ARCHIVE_OLDEST_YEAR = oldestArchiveYear(events, pragueDate(BUILD_TIME), ARCHIVE_LATEST_YEAR);
 
 // Only the fields of a row go to the client. Unfinished events are included: they move into the
 // archive in the visitor's browser the day after they end.

@@ -112,7 +112,7 @@ function NewsArchiveView({
           onChange={onChange}
           onSubmit={onSubmit}
           years={years}
-          activeSlug={query ? undefined : year.slug}
+          activeSlug={query ? undefined : year.button}
         />
         <ResultCount {...countProps} className="lg:hidden" />
         <BackLink className="max-lg:hidden" />
