@@ -95,6 +95,9 @@ describe("Pořad bohoslužeb (masses.ts, ohlasky.ts)", () => {
     expect(validFrom <= validTo).toBe(true);
     expect(isSorted(days, (a, b) => a.date < b.date)).toBe(true);
     expect(days.every((d) => d.date >= validFrom && d.date <= validTo)).toBe(true);
+    // During the week only the sheet's masses count, so a missing day would have none.
+    const week = scheduleExceptions.filter((x) => x.date >= validFrom && x.date <= validTo).map((x) => x.date);
+    expect(days.map((d) => d.date)).toEqual(week);
     expect(serviceSheet.pdfUrl).toMatch(UPLOAD);
   });
 

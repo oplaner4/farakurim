@@ -101,8 +101,8 @@ export const serviceSheet: ServiceSheet = {
 };
 
 /**
- * Days whose masses differ from the regular schedule: the changed days of the ohlášky first, then
- * cancellations or changes outside this week's ohlášky (the first entry for a date wins).
+ * Days whose masses differ from the regular schedule: every day of this week's ohlášky first (only its masses count),
+ * then cancellations or changes after this week (the first entry for a date wins).
  */
 export const scheduleExceptions: ScheduleException[] = [
   ...sheetExceptions(serviceSheet, Object.keys(places) as PlaceId[]),

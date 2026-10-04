@@ -7,7 +7,7 @@ description: Publish the weekly pořad bohoslužeb (ohlášky) on the new faraku
 
 The weekly PDF ("ROZPIS BOHOSLUŽEB V TÝDNU od … do …") becomes **structured content**: one `ServiceSheet`
 (`src/content/types.ts`) in `src/content/ohlasky.ts` that replaces the previous week. It feeds the "Tento týden"
-ohlášky, the weekly schedule, and, through its changed rows, the next-mass countdown and the schedule exceptions
+ohlášky, the weekly schedule, and, for every day of its week, the next-mass countdown and the schedule exceptions
 (design/DESIGN.md §14.5–14.7). Finish with **`farnost-publish-content`**.
 
 ## 1. Read the PDF
@@ -42,20 +42,21 @@ Read the **whole** page: the announcements are the paragraphs below the table.
 | `title`   | The part before " – ": `"Mše sv."`, `"Mše sv. se zpěvem scholy"`, `"Adorace"`, `"Křest"`, `"Pohřeb"`, `"Modlitební večer s Komunitou Emmanuel"`. |
 | `detail`  | The part after " – ", word for word, wrapped lines joined: `"za živé a † farníky a dobrodince naší farnosti"`.                                   |
 | `public`  | Omit (public). `false` only when the user asks to keep a row's `detail` off the web (see privacy below).                                         |
-| `mass`    | `true` for a mass in one of the parish churches. Only these count for the next mass and replace the regular schedule.                            |
-| `changed` | `true` when the mass differs from the regular schedule (below), or the PDF marks it as a change.                                                 |
+| `mass`    | `true` for a mass in one of the parish churches. During the sheet's week only these count for the next mass.                                     |
+| `changed` | `true` when the mass differs from the regular schedule (below), or the PDF marks it as a change. Only adds the "změna" tag.                      |
 
 **Privacy** (§14.6): the parish decided to publish the intentions word for word, names included, because the
 linked PDF is public anyway. Set `public: false` only on a row the user asks to hide (e.g. a family asked to keep
 its intention off the web); that row's `detail` then stays in the PDF only.
 
+**The sheet drives the week**: for every date from `validFrom` to `validTo`, the day's `mass` rows are its only
+masses (`sheetExceptions()`); the regular schedule is never mixed in, and applies again only after the week. So
+enter **every day of the week** with all its rows, as the PDF does: a missing mass is a cancelled mass, a missing
+day has no masses. A cancellation needs no manual `scheduleExceptions` entry; mention it to the user.
+
 **Changes**: compare the masses of each day with `regularServices` in `src/content/masses.ts` (weekday, time,
-place; `rule: "first-in-month"` rows apply on the first such weekday of the month only). A day with any `changed`
-mass replaces **all** its regular masses (`sheetExceptions()`), so list every mass of that day in `rows`, as the PDF
-does. A regular mass missing from the PDF on a day without changed masses means it is cancelled: confirm it with
-the user, then add a `scheduleExceptions` entry for that date with the day's remaining masses (`masses: []` when
-none are left) and `reason: "zrušeno dle ohlášek"`. Do not tag the remaining masses `changed`: they would show a
-false "změna" tag.
+place; `rule: "first-in-month"` rows apply on the first such weekday of the month only) and set `changed` on a mass
+that is not there. A mass on a weekday without any regular mass (e.g. a Tuesday morning mass) is not a change.
 
 **Announcements** (`announcements[]`, word for word, in the PDF's order):
 
@@ -85,8 +86,8 @@ cp "<source>" "uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb.pdf"
 
 Rewrite `serviceSheet` in `src/content/ohlasky.ts` with the new week. Keep the module's shape: `import "server-only"`,
 the helpers (`kurimMass`, `FOR_PARISHIONERS`, add others when a phrase repeats), and the `scheduleExceptions`
-export (`...sheetExceptions(...)` first, then manual entries; the first entry for a date wins). Remove manual
-entries that are now in the past; keep future ones.
+export (`...sheetExceptions(...)` first, then manual entries for dates after the week, such as an announced
+cancellation; the first entry for a date wins). Remove manual entries that are now covered by the sheet or past.
 
 ```ts
     {
@@ -113,7 +114,7 @@ adorace" Google Calendar, which the Kalendář reads.
 - Assigning a row to the wrong day: the date sits in the middle of the day's rows in the layout text.
 - Leaving a wrapped intention cut in half, or splitting "Mše sv. – za …" into the wrong `title` / `detail`.
 - Hiding intentions with names (`public: false`) without the user asking: they are published as in the PDF.
-- Marking a change on one mass but omitting the day's other masses: the day's regular masses are replaced.
-- Tagging unchanged masses `changed` to express a cancellation: use a `scheduleExceptions` entry.
+- Leaving out a day or a mass of the week: during the sheet's week, what is not in `rows` does not take place.
+- Tagging unchanged masses `changed` to express a cancellation: leaving the mass out is enough.
 - `mass: true` on a mass outside the parish churches, or on adoration and prayer evenings.
 - Publishing placeholder dots from an unfinished PDF.

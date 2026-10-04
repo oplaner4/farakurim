@@ -87,7 +87,7 @@ export type SheetRow = {
   public?: boolean;
   /** A mass: it counts for the next-mass countdown and the services calendar. */
   mass?: boolean;
-  /** Differs from the regular schedule ("změna" tag). A day with a changed mass replaces its regular masses. */
+  /** Differs from the regular schedule: shows the "změna" tag (the sheet's masses replace the regular ones anyway). */
   changed?: boolean;
 };
 

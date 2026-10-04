@@ -23,7 +23,7 @@ export const places: Record<PlaceId, Place> = {
 
 /**
  * Regular weekly schedule (source: /porad_bohosluzeb/). First-Friday and first-Saturday variants use `rule`;
- * changes from the ohlášky (`content/ohlasky.ts`) become `scheduleExceptions`.
+ * the days of the current ohlášky (`content/ohlasky.ts`) replace it through `scheduleExceptions`.
  */
 export const regularServices: RegularService[] = [
   { weekday: 1, time: "8:00", place: "kurim" },

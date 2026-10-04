@@ -1,5 +1,7 @@
+import { eachDayOfInterval } from "date-fns";
 import type { Announcement, IsoDate, PlaceId, ScheduleException, ServiceSheet, SheetDay } from "@/content/types";
 import { plural } from "./czech";
+import { inPrague, pragueDate, pragueDateTime } from "./prague";
 
 // The weekly ohlášky as structured content (design/DESIGN.md §14.5–14.7).
 
@@ -7,17 +9,26 @@ const isPlaceId = (place: string, places: readonly PlaceId[]): place is PlaceId 
   (places as readonly string[]).includes(place);
 
 /**
- * Schedule exceptions from the ohlášky: a day with a changed mass replaces its regular masses with the day's
- * masses at the parish churches, so a change is entered only once.
+ * Schedule exceptions from the ohlášky: every day of the sheet's week gets exactly the masses its rows list at the
+ * parish churches, never the regular schedule, so a change or a cancellation is entered only once. Days after the
+ * week fall back to the regular schedule.
  */
-export function sheetExceptions(sheet: Pick<ServiceSheet, "days">, places: readonly PlaceId[]): ScheduleException[] {
-  return sheet.days
-    .filter((day) => day.rows.some((r) => r.mass && r.changed))
-    .map((day) => ({
-      date: day.date,
-      reason: "změna dle ohlášek",
-      masses: day.rows.flatMap((r) => (r.mass && isPlaceId(r.place, places) ? [{ time: r.time, place: r.place }] : [])),
-    }));
+export function sheetExceptions(
+  sheet: Pick<ServiceSheet, "days" | "validFrom" | "validTo">,
+  places: readonly PlaceId[],
+): ScheduleException[] {
+  return eachDayOfInterval(
+    { start: pragueDateTime(sheet.validFrom, "12:00"), end: pragueDateTime(sheet.validTo, "12:00") },
+    { in: inPrague },
+  ).map((day) => {
+    const date = pragueDate(day);
+    const rows = sheet.days.find((d) => d.date === date)?.rows ?? [];
+    return {
+      date,
+      reason: "dle ohlášek",
+      masses: rows.flatMap((r) => (r.mass && isPlaceId(r.place, places) ? [{ time: r.time, place: r.place }] : [])),
+    };
+  });
 }
 
 /** Changes first, the rest in the editor's order (§14.5). */

@@ -34,10 +34,11 @@ build-time next mass.
   first-Friday/Saturday variants use `rule: "first-in-month"` (and `"not-first-in-month"` for what they replace).
   Exceptions (`scheduleExceptions`) **replace the whole day's masses**; never hard-code those variants in logic.
 - Ohlášky (`content/ohlasky.ts`, design §14.5–14.7): one `ServiceSheet` per week with `days[].rows[]` and
-  `announcements[]`. A day with a `changed` mass row becomes a schedule exception (`sheetExceptions()`), so a change is
-  entered once. Intentions are published word for word, names included (the parish's decision: the PDF is public too).
-  A row the user asks to hide gets `public: false`, which keeps its `detail` off the web: the module is `server-only`,
-  pages pass `publicDays()` and client components get only props, never the module.
+  `announcements[]`. For every day from `validFrom` to `validTo` the sheet's mass rows are the day's only masses
+  (`sheetExceptions()`), never combined with `regularServices`; after the week the regular schedule applies. `changed`
+  only adds the "změna" tag. Intentions are published word for word, names included (the parish's decision: the PDF
+  is public too). A row the user asks to hide gets `public: false`, which keeps its `detail` off the web: the module
+  is `server-only`, pages pass `publicDays()` and client components get only props, never the module.
 - Petrklíč (`content/petrklic.ts`): one record per issue, newest first, added with `farnost-create-petrklic`; the
   volume is computed (`volumeOf()`). Each issue is one folder uploaded to `/uploads/petrklic/<id>/`: the PDF
   `petrklic-<id>.pdf`, `cover.webp` and the current issue's viewer `pages/<n>.webp` (rendered by `pnpm petrklic`).

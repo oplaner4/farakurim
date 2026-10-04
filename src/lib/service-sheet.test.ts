@@ -23,17 +23,27 @@ const days: SheetDay[] = [
 ];
 
 describe("sheetExceptions", () => {
-  it("replaces only days with a changed mass, with the masses at parish churches", () => {
-    expect(sheetExceptions({ days }, ["kurim", "moravske-kninice"])).toEqual([
+  const sheet = { validFrom: "2026-10-02", validTo: "2026-10-05", days };
+  const result = sheetExceptions(sheet, ["kurim", "moravske-kninice"]);
+
+  it("replaces every day of the week with the masses at parish churches, changed or not", () => {
+    expect(result.slice(0, 3)).toEqual([
+      { date: "2026-10-02", reason: "dle ohlášek", masses: [{ time: "18:15", place: "kurim" }] },
+      { date: "2026-10-03", reason: "dle ohlášek", masses: [{ time: "8:00", place: "kurim" }] },
       {
         date: "2026-10-04",
-        reason: "změna dle ohlášek",
+        reason: "dle ohlášek",
         masses: [
           { time: "8:00", place: "kurim" },
           { time: "9:30", place: "moravske-kninice" },
         ],
       },
     ]);
+  });
+
+  it("leaves a day of the week without rows without masses", () => {
+    expect(result[3]).toEqual({ date: "2026-10-05", reason: "dle ohlášek", masses: [] });
+    expect(result).toHaveLength(4);
   });
 });
 
