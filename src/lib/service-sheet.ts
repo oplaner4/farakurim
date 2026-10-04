@@ -9,8 +9,8 @@ const isPlaceId = (place: string, places: readonly PlaceId[]): place is PlaceId 
   (places as readonly string[]).includes(place);
 
 /**
- * Schedule exceptions from the ohlášky: every day of the sheet's week gets exactly the masses its rows list at the
- * parish churches, never the regular schedule, so a change or a cancellation is entered only once. Days after the
+ * Schedule exceptions from the ohlášky: every day of the sheet's week gets exactly the masses and mass-like services
+ * its rows list at the parish churches, never the regular schedule, so a change or a cancellation is entered only once. Days after the
  * week fall back to the regular schedule.
  */
 export function sheetExceptions(
@@ -26,7 +26,12 @@ export function sheetExceptions(
     return {
       date,
       reason: "dle ohlášek",
-      masses: rows.flatMap((r) => (r.mass && isPlaceId(r.place, places) ? [{ time: r.time, place: r.place }] : [])),
+      services: rows.flatMap((r) => {
+        if (!isPlaceId(r.place, places)) return [];
+        if (r.mass) return [{ time: r.time, place: r.place }];
+        if (r.service) return [{ time: r.time, place: r.place, title: r.title }];
+        return [];
+      }),
     };
   });
 }

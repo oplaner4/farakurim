@@ -5,7 +5,7 @@ import { places, regularServices } from "@/content/masses";
 import { links } from "@/content/site";
 import type { ScheduleException, ServiceSheet } from "@/content/types";
 import { formatDateRange, formatWeekdayDate } from "@/lib/czech";
-import { countdown, formatMassDay, upcomingMasses } from "@/lib/masses";
+import { countdown, formatMassDay, upcomingServices } from "@/lib/masses";
 import { inPrague, pragueDateTime } from "@/lib/prague";
 import { useHydrated, useNow } from "@/hooks/use-now";
 import { ButtonLink } from "@/components/ui/ButtonLink";
@@ -32,8 +32,10 @@ type Props = {
 export function NextMass({ renderedAt, exceptions, sheet, showCountdown = true }: Props) {
   const now = useNow(renderedAt);
   const hydrated = useHydrated();
-  const [next, ...following] = upcomingMasses(now, { regular: regularServices, exceptions }, 3);
+  const [next, ...following] = upcomingServices(now, { regular: regularServices, exceptions }, 3);
   const left = next ? countdown(next.startsAt, now) : null;
+  // A mass is the usual case; adoration or "Velikonoční obřady" are "bohoslužba".
+  const isMass = !next?.title;
 
   return (
     <section
@@ -51,7 +53,7 @@ export function NextMass({ renderedAt, exceptions, sheet, showCountdown = true }
 
       <div className="contents md:flex md:flex-col md:gap-4 lg:contents">
         <h2 id="nejblizsi-mse" className="order-1 text-14 font-bold tracking-eyebrow text-blue-ink uppercase">
-          Nejbližší mše svatá
+          {isMass ? "Nejbližší mše svatá" : "Nejbližší bohoslužba"}
         </h2>
 
         {next ? (
@@ -60,6 +62,7 @@ export function NextMass({ renderedAt, exceptions, sheet, showCountdown = true }
             <p className="text-64 leading-none font-bold tracking-time text-time md:text-76 lg:text-84">
               <time dateTime={isoDateTime(next.date, next.time)}>{next.time}</time>
             </p>
+            {next.title && <p className="mt-2 text-18 font-bold md:mt-2.5 md:text-20">{next.title}</p>}
             <p className="mt-2 flex items-start gap-1.5 text-ink-2 md:mt-2.5">
               <PinIcon size={18} className="mt-0.75 flex-none md:mt-1" />
               <span>
@@ -88,7 +91,7 @@ export function NextMass({ renderedAt, exceptions, sheet, showCountdown = true }
           // The prerendered countdown would be stale: keep its space, show it once hydrated.
           <div
             role="group"
-            aria-label="Odpočet do začátku mše"
+            aria-label={isMass ? "Odpočet do začátku mše" : "Odpočet do začátku bohoslužby"}
             aria-hidden={!hydrated}
             data-ready={hydrated}
             className="order-3 grid grid-cols-3 gap-2 transition-opacity duration-300 data-[ready=false]:invisible data-[ready=false]:opacity-0 md:gap-2.5"
@@ -123,7 +126,10 @@ export function NextMass({ renderedAt, exceptions, sheet, showCountdown = true }
                   <time className="min-w-12 font-bold" dateTime={isoDateTime(m.date, m.time)}>
                     {m.time}
                   </time>
-                  <span className="text-14 text-ink-2 md:text-15">{places[m.place].name}</span>
+                  <span className="text-14 text-ink-2 md:text-15">
+                    {places[m.place].name}
+                    {m.title && <span className="text-muted"> · {m.title}</span>}
+                  </span>
                 </li>
               ))}
             </ul>

@@ -2,20 +2,22 @@ import { addDays, differenceInCalendarDays } from "date-fns";
 import type {
   ClockTime,
   IsoDate,
-  MassEntry,
   PlaceId,
   RegularService,
   ScheduleException,
+  ServiceEntry,
   ServiceRule,
   Weekday,
 } from "@/content/types";
 import { capitalize, formatShortDate, plural, WEEKDAY_NAMES, weekdayName } from "./czech";
 import { inPrague, pragueDate, pragueDateTime, pragueWeekday } from "./prague";
 
-export type UpcomingMass = {
+export type UpcomingService = {
   date: IsoDate;
   time: string;
   place: PlaceId;
+  /** Omitted for a mass. */
+  title?: string;
   note?: string;
   /** UTC timestamp (ms) of the start. */
   startsAt: number;
@@ -35,28 +37,19 @@ function ruleApplies(rule: ServiceRule = "every", firstInMonth: boolean): boolea
   return true;
 }
 
-/** The masses of a day: an exception replaces the whole day, otherwise the regular masses whose rule applies. */
-export function massesOnDate(date: IsoDate, source: ScheduleSource): MassEntry[] {
+/**
+ * All services of a day, masses and titled ones ("Adorace"), by time: an exception replaces the whole day,
+ * otherwise the regular services whose rule applies.
+ */
+export function servicesOnDate(date: IsoDate, source: ScheduleSource): ServiceEntry[] {
   const exception = source.exceptions.find((e) => e.date === date);
-  if (exception) return exception.masses;
+  if (exception) return exception.services;
   const weekday = pragueWeekday(date);
   const firstInMonth = Number(date.slice(8, 10)) <= 7;
   return source.regular
-    .filter((s) => s.weekday === weekday && !s.title && ruleApplies(s.rule, firstInMonth))
-    .map(({ time, place, note }) => ({ time, place, ...(note && { note }) }));
-}
-
-/**
- * All services of a day, masses and titled ones ("Adorace"), by time. An exception replaces the masses only;
- * the titled services keep their regular rule.
- */
-export function servicesOnDate(date: IsoDate, source: ScheduleSource): (MassEntry & { title?: string })[] {
-  const weekday = pragueWeekday(date);
-  const firstInMonth = Number(date.slice(8, 10)) <= 7;
-  const titled = source.regular
-    .filter((s) => s.weekday === weekday && s.title && ruleApplies(s.rule, firstInMonth))
-    .map(({ time, place, title, note }) => ({ time, place, title, ...(note && { note }) }));
-  return [...massesOnDate(date, source), ...titled].sort((a, b) => minutes(a.time) - minutes(b.time));
+    .filter((s) => s.weekday === weekday && ruleApplies(s.rule, firstInMonth))
+    .map(({ time, place, title, note }) => ({ time, place, ...(title && { title }), ...(note && { note }) }))
+    .sort((a, b) => minutes(a.time) - minutes(b.time));
 }
 
 /** Monday first, as the week is printed in the ohlášky. */
@@ -93,12 +86,12 @@ export function weeklySchedule(services: RegularService[], place: PlaceId): Sche
   })).filter((day) => day.rows.length > 0);
 }
 
-/** The next `count` masses that start after `now`, in chronological order. */
-export function upcomingMasses(now: number, source: ScheduleSource, count: number): UpcomingMass[] {
-  const result: UpcomingMass[] = [];
+/** The next `count` services (masses and titled ones) that start after `now`, in chronological order. */
+export function upcomingServices(now: number, source: ScheduleSource, count: number): UpcomingService[] {
+  const result: UpcomingService[] = [];
   for (let k = 0; k < LOOKAHEAD_DAYS && result.length < count; k++) {
     const date = pragueDate(addDays(now, k, { in: inPrague }));
-    const day = massesOnDate(date, source)
+    const day = servicesOnDate(date, source)
       .map((m) => ({ ...m, date, startsAt: pragueDateTime(date, m.time).getTime() }))
       .filter((m) => m.startsAt > now)
       .sort((a, b) => a.startsAt - b.startsAt);

@@ -30,13 +30,15 @@ build-time next mass.
   `pragueDate()` from `src/lib/prague.ts` and pass `{ in: inPrague }` to date-fns functions;
   never use the browser's local time zone for schedule maths.
 - Schedule (`content/masses.ts`): `regularServices` is the weekly schedule, one data source for the homepage
-  next mass and Pořad bohoslužeb. Rows without a `title` are masses (only those count as the next mass);
-  first-Friday/Saturday variants use `rule: "first-in-month"` (and `"not-first-in-month"` for what they replace).
-  Exceptions (`scheduleExceptions`) **replace the whole day's masses**; never hard-code those variants in logic.
+  next mass and Pořad bohoslužeb. Rows without a `title` are masses; titled rows ("Adorace") are mass-like services.
+  Both count for the homepage countdown, which says "Nejbližší mše svatá" for a mass and "Nejbližší bohoslužba" with
+  the title otherwise. First-Friday/Saturday variants use `rule: "first-in-month"` (and `"not-first-in-month"` for
+  what they replace). Exceptions (`scheduleExceptions`) **replace the whole day's services**, titled ones included;
+  never hard-code those variants in logic.
 - Ohlášky (`content/ohlasky.ts`, design §14.5–14.7): one `ServiceSheet` per week with `days[].rows[]` and
-  `announcements[]`. For every day from `validFrom` to `validTo` the sheet's mass rows are the day's only masses
-  (`sheetExceptions()`), never combined with `regularServices`; after the week the regular schedule applies. `changed`
-  only adds the "změna" tag. Intentions are published word for word, names included (the parish's decision: the PDF
+  `announcements[]`. For every day from `validFrom` to `validTo` the sheet's `mass` and `service` rows (adoration,
+  "Velikonoční obřady"; never funerals, baptisms, weddings) are the day's only services (`sheetExceptions()`), never
+  combined with `regularServices`; after the week the regular schedule applies. `changed` only adds the "změna" tag. Intentions are published word for word, names included (the parish's decision: the PDF
   is public too). A row the user asks to hide gets `public: false`, which keeps its `detail` off the web: the module
   is `server-only`, pages pass `publicDays()` and client components get only props, never the module.
 - Petrklíč (`content/petrklic.ts`): one record per issue, newest first, added with `farnost-create-petrklic`; the

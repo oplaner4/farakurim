@@ -28,9 +28,12 @@ export type Place = {
   byAgreement?: boolean;
 };
 
-export type MassEntry = {
+/** A service in a parish church: a mass, or a mass-like service when it has a `title`. */
+export type ServiceEntry = {
   time: ClockTime;
   place: PlaceId;
+  /** "Adorace", "Velikonoční obřady"; omitted for a mass ("Mše svatá"). */
+  title?: string;
   note?: string;
 };
 
@@ -40,19 +43,17 @@ export type MassEntry = {
  */
 export type ServiceRule = "every" | "first-in-month" | "not-first-in-month";
 
-/** One row of the weekly schedule (§14.4). Masses also feed the homepage "next mass". */
-export type RegularService = MassEntry & {
+/** One row of the weekly schedule (§14.4). Every row also feeds the homepage "next service". */
+export type RegularService = ServiceEntry & {
   weekday: Weekday;
-  /** "Adorace", "Modlitební večer"; omitted for a mass ("Mše svatá"). Only masses count as the next mass. */
-  title?: string;
   /** Defaults to `every`. */
   rule?: ServiceRule;
 };
 
-/** Replaces the whole regular schedule (masses) for one day. An empty `masses` list cancels the day. */
+/** Replaces the whole regular schedule (masses and other services) for one day. An empty list cancels the day. */
 export type ScheduleException = {
   date: IsoDate;
-  masses: MassEntry[];
+  services: ServiceEntry[];
   reason?: string;
 };
 
@@ -87,6 +88,11 @@ export type SheetRow = {
   public?: boolean;
   /** A mass: it counts for the next-mass countdown and the services calendar. */
   mass?: boolean;
+  /**
+   * A mass-like public service (adoration, "Velikonoční obřady"): it counts for the countdown as the next
+   * "bohoslužba". Never for funerals, baptisms or weddings.
+   */
+  service?: boolean;
   /** Differs from the regular schedule: shows the "změna" tag (the sheet's masses replace the regular ones anyway). */
   changed?: boolean;
 };

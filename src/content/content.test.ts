@@ -124,7 +124,7 @@ describe("Pořad bohoslužeb (masses.ts, ohlasky.ts)", () => {
     for (const x of scheduleExceptions) {
       expect(isIsoDate(x.date), x.date).toBe(true);
       expect(
-        x.masses.every((m) => isClock(m.time) && isPlaceId(m.place)),
+        x.services.every((m) => isClock(m.time) && isPlaceId(m.place)),
         x.date,
       ).toBe(true);
     }

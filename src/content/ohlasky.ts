@@ -46,7 +46,7 @@ export const serviceSheet: ServiceSheet = {
     {
       date: "2026-10-08",
       rows: [
-        { time: "17:30", place: "kurim", title: "Adorace" },
+        { time: "17:30", place: "kurim", title: "Adorace", service: true },
         kurimMass("18:00", "za uzdravení bratrských vztahů a obnovení důvěry"),
       ],
     },

@@ -35,24 +35,25 @@ Read the **whole** page: the announcements are the paragraphs below the table.
 
 **Rows** (`SheetRow`):
 
-| Field     | How to fill it                                                                                                                                   |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `time`    | `"8:00"`, `"17:30"`.                                                                                                                             |
-| `place`   | `"kurim"`, `"moravske-kninice"`, `"jinacovice"` for the parish churches (`places` in `masses.ts`); free text for anywhere else (`"Vranov"`).     |
-| `title`   | The part before " – ": `"Mše sv."`, `"Mše sv. se zpěvem scholy"`, `"Adorace"`, `"Křest"`, `"Pohřeb"`, `"Modlitební večer s Komunitou Emmanuel"`. |
-| `detail`  | The part after " – ", word for word, wrapped lines joined: `"za živé a † farníky a dobrodince naší farnosti"`.                                   |
-| `public`  | Omit (public). `false` only when the user asks to keep a row's `detail` off the web (see privacy below).                                         |
-| `mass`    | `true` for a mass in one of the parish churches. During the sheet's week only these count for the next mass.                                     |
-| `changed` | `true` when the mass differs from the regular schedule (below), or the PDF marks it as a change. Only adds the "změna" tag.                      |
+| Field     | How to fill it                                                                                                                                    |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `time`    | `"8:00"`, `"17:30"`.                                                                                                                              |
+| `place`   | `"kurim"`, `"moravske-kninice"`, `"jinacovice"` for the parish churches (`places` in `masses.ts`); free text for anywhere else (`"Vranov"`).      |
+| `title`   | The part before " – ": `"Mše sv."`, `"Mše sv. se zpěvem scholy"`, `"Adorace"`, `"Křest"`, `"Pohřeb"`, `"Modlitební večer s Komunitou Emmanuel"`.  |
+| `detail`  | The part after " – ", word for word, wrapped lines joined: `"za živé a † farníky a dobrodince naší farnosti"`.                                    |
+| `public`  | Omit (public). `false` only when the user asks to keep a row's `detail` off the web (see privacy below).                                          |
+| `mass`    | `true` for a mass in one of the parish churches. The countdown shows it as "Nejbližší mše svatá".                                                 |
+| `service` | `true` for a mass-like public service in a parish church: adoration, "Velikonoční obřady", a vigil without mass. Shown as "Nejbližší bohoslužba". |
+| `changed` | `true` when the mass differs from the regular schedule (below), or the PDF marks it as a change. Only adds the "změna" tag.                       |
 
 **Privacy** (§14.6): the parish decided to publish the intentions word for word, names included, because the
 linked PDF is public anyway. Set `public: false` only on a row the user asks to hide (e.g. a family asked to keep
 its intention off the web); that row's `detail` then stays in the PDF only.
 
-**The sheet drives the week**: for every date from `validFrom` to `validTo`, the day's `mass` rows are its only
-masses (`sheetExceptions()`); the regular schedule is never mixed in, and applies again only after the week. So
-enter **every day of the week** with all its rows, as the PDF does: a missing mass is a cancelled mass, a missing
-day has no masses. A cancellation needs no manual `scheduleExceptions` entry; mention it to the user.
+**The sheet drives the week**: for every date from `validFrom` to `validTo`, the day's `mass` and `service` rows are
+its only services (`sheetExceptions()`); the regular schedule is never mixed in, and applies again only after the
+week. So enter **every day of the week** with all its rows, as the PDF does: a missing mass is a cancelled mass, a
+missing day has no services. A cancellation needs no manual `scheduleExceptions` entry; mention it to the user.
 
 **Changes**: compare the masses of each day with `regularServices` in `src/content/masses.ts` (weekday, time,
 place; `rule: "first-in-month"` rows apply on the first such weekday of the month only) and set `changed` on a mass
@@ -116,5 +117,6 @@ adorace" Google Calendar, which the Kalendář reads.
 - Hiding intentions with names (`public: false`) without the user asking: they are published as in the PDF.
 - Leaving out a day or a mass of the week: during the sheet's week, what is not in `rows` does not take place.
 - Tagging unchanged masses `changed` to express a cancellation: leaving the mass out is enough.
-- `mass: true` on a mass outside the parish churches, or on adoration and prayer evenings.
+- `mass: true` on a mass outside the parish churches, or on adoration (that is `service: true`).
+- `service: true` on a funeral, baptism or wedding: personal events never count for the countdown.
 - Publishing placeholder dots from an unfinished PDF.

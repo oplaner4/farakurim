@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ScheduleSource } from "./masses";
-import { countdown, formatMassDay, massesOnDate, servicesOnDate, upcomingMasses, weeklySchedule } from "./masses";
+import { countdown, formatMassDay, servicesOnDate, upcomingServices, weeklySchedule } from "./masses";
 import { pragueDateTime } from "./prague";
 
 const source: ScheduleSource = {
@@ -17,13 +17,14 @@ const source: ScheduleSource = {
   exceptions: [
     {
       date: "2026-10-04",
-      masses: [
+      services: [
         { time: "8:00", place: "kurim" },
         { time: "9:30", place: "moravske-kninice" },
         { time: "11:00", place: "kurim" },
+        { time: "15:00", place: "kurim", title: "Velikonoční obřady" },
       ],
     },
-    { date: "2026-10-12", masses: [] },
+    { date: "2026-10-12", services: [] },
   ],
 };
 
@@ -41,46 +42,54 @@ describe("pragueDateTime", () => {
   });
 });
 
-describe("massesOnDate", () => {
+describe("servicesOnDate", () => {
   it("returns the regular schedule for a normal day", () => {
-    expect(massesOnDate("2026-10-09", source).map((m) => m.time)).toEqual(["16:45", "18:00"]);
+    expect(servicesOnDate("2026-10-09", source).map((m) => m.time)).toEqual(["16:45", "18:00"]);
   });
 
   it("applies first-in-month rules", () => {
-    expect(massesOnDate("2026-10-02", source).map((m) => m.time)).toEqual(["18:15", "18:00"]);
+    expect(servicesOnDate("2026-10-02", source).map((m) => m.time)).toEqual(["18:00", "18:15"]);
   });
 
-  it("leaves out services that are not masses", () => {
-    expect(massesOnDate("2026-10-08", source)).toEqual([]);
+  it("includes titled services, by time", () => {
+    expect(servicesOnDate("2026-10-08", source)).toEqual([{ time: "17:30", place: "kurim", title: "Adorace" }]);
   });
 
-  it("replaces the whole day with an exception", () => {
-    expect(massesOnDate("2026-10-04", source)).toEqual(source.exceptions[0].masses);
+  it("replaces the whole day with an exception, titled services included", () => {
+    expect(servicesOnDate("2026-10-04", source)).toEqual(source.exceptions[0].services);
+    const cancelled = { ...source, exceptions: [{ date: "2026-10-08", services: [] }] };
+    expect(servicesOnDate("2026-10-08", cancelled)).toEqual([]);
   });
 
-  it("cancels the day when the exception has no masses", () => {
-    expect(massesOnDate("2026-10-12", source)).toEqual([]);
+  it("cancels the day when the exception has no services", () => {
+    expect(servicesOnDate("2026-10-12", source)).toEqual([]);
   });
 });
 
-describe("upcomingMasses", () => {
-  it("returns the next masses after now, with exceptions applied", () => {
-    const list = upcomingMasses(at("2026-10-03", "12:00"), source, 3);
-    expect(list.map((m) => `${m.date} ${m.time} ${m.place}`)).toEqual([
-      "2026-10-04 8:00 kurim",
-      "2026-10-04 9:30 moravske-kninice",
-      "2026-10-04 11:00 kurim",
+describe("upcomingServices", () => {
+  it("returns the next services after now, with exceptions applied", () => {
+    const list = upcomingServices(at("2026-10-03", "12:00"), source, 4);
+    expect(list.map((m) => `${m.date} ${m.time} ${m.place} ${m.title ?? "mše"}`)).toEqual([
+      "2026-10-04 8:00 kurim mše",
+      "2026-10-04 9:30 moravske-kninice mše",
+      "2026-10-04 11:00 kurim mše",
+      "2026-10-04 15:00 kurim Velikonoční obřady",
     ]);
   });
 
-  it("skips a mass that has already started", () => {
-    const list = upcomingMasses(at("2026-10-04", "8:00"), source, 1);
+  it("counts titled services such as the adoration", () => {
+    const list = upcomingServices(at("2026-10-08", "12:00"), source, 1);
+    expect(list[0]).toMatchObject({ time: "17:30", title: "Adorace" });
+  });
+
+  it("skips a service that has already started", () => {
+    const list = upcomingServices(at("2026-10-04", "8:00"), source, 1);
     expect(list[0].time).toBe("9:30");
   });
 
   it("skips cancelled days and continues into the following week", () => {
-    const list = upcomingMasses(at("2026-10-11", "12:00"), source, 1);
-    expect(`${list[0].date} ${list[0].time}`).toBe("2026-10-16 16:45");
+    const list = upcomingServices(at("2026-10-11", "12:00"), source, 1);
+    expect(`${list[0].date} ${list[0].time}`).toBe("2026-10-15 17:30");
   });
 });
 
@@ -143,16 +152,5 @@ describe("countdown", () => {
 
   it("never goes negative", () => {
     expect(countdown(0, 60_000).minutes).toBe(0);
-  });
-});
-
-describe("servicesOnDate", () => {
-  it("adds titled services to the masses, by time", () => {
-    expect(servicesOnDate("2026-10-08", source)).toEqual([{ time: "17:30", place: "kurim", title: "Adorace" }]);
-  });
-
-  it("keeps titled services on a day whose masses are an exception", () => {
-    const withAdoration = { ...source, exceptions: [{ date: "2026-10-08", masses: [] }] };
-    expect(servicesOnDate("2026-10-08", withAdoration).map((s) => s.time)).toEqual(["17:30"]);
   });
 });

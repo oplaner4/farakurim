@@ -17,7 +17,8 @@ const days: SheetDay[] = [
       { time: "8:00", place: "kurim", title: "Mše sv.", mass: true },
       { time: "9:30", place: "moravske-kninice", title: "Mše sv.", mass: true, changed: true },
       { time: "11:00", place: "Vranov", title: "Mše sv.", mass: true },
-      { time: "15:00", place: "kurim", title: "Adorace", changed: true },
+      { time: "15:00", place: "kurim", title: "Adorace", service: true },
+      { time: "16:00", place: "kurim", title: "Křest", detail: "[jméno]" },
     ],
   },
 ];
@@ -26,23 +27,24 @@ describe("sheetExceptions", () => {
   const sheet = { validFrom: "2026-10-02", validTo: "2026-10-05", days };
   const result = sheetExceptions(sheet, ["kurim", "moravske-kninice"]);
 
-  it("replaces every day of the week with the masses at parish churches, changed or not", () => {
+  it("replaces every day of the week with its masses and services at parish churches", () => {
     expect(result.slice(0, 3)).toEqual([
-      { date: "2026-10-02", reason: "dle ohlášek", masses: [{ time: "18:15", place: "kurim" }] },
-      { date: "2026-10-03", reason: "dle ohlášek", masses: [{ time: "8:00", place: "kurim" }] },
+      { date: "2026-10-02", reason: "dle ohlášek", services: [{ time: "18:15", place: "kurim" }] },
+      { date: "2026-10-03", reason: "dle ohlášek", services: [{ time: "8:00", place: "kurim" }] },
       {
         date: "2026-10-04",
         reason: "dle ohlášek",
-        masses: [
+        services: [
           { time: "8:00", place: "kurim" },
           { time: "9:30", place: "moravske-kninice" },
+          { time: "15:00", place: "kurim", title: "Adorace" },
         ],
       },
     ]);
   });
 
   it("leaves a day of the week without rows without masses", () => {
-    expect(result[3]).toEqual({ date: "2026-10-05", reason: "dle ohlášek", masses: [] });
+    expect(result[3]).toEqual({ date: "2026-10-05", reason: "dle ohlášek", services: [] });
     expect(result).toHaveLength(4);
   });
 });
