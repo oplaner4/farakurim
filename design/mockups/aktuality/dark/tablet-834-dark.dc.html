@@ -264,13 +264,13 @@ class Component extends DCLogic {
         bg: on ? '#D60B51' : '#18212F', fg: on ? '#FFFFFF' : '#EEF2F7', bd: on ? '#D60B51' : '#2A3648' };
     });
     const n = shown.length;
-    const word = n === 1 ? 'akce' : (n >= 2 && n <= 4 ? 'akce' : 'akcí');
+    const cnt = (verb, k) => k === 1 ? verb + 'a jedna akce' : (k >= 2 && k <= 4 ? verb + 'y ' + k + ' akce' : verb + 'o ' + k + ' akcí');
     return {
       menuOpen: !!st.menuOpen,
       toggleMenu: () => this.setState({ menuOpen: !st.menuOpen }),
       menuExp: st.menuOpen ? 'true' : 'false', menuBtnBg: st.menuOpen ? '#172A40' : 'transparent',
       chips: chips, groups: groups, isEmpty: n === 0,
-      countLabel: 'Zobrazeno ' + n + ' ' + word
+      countLabel: cnt('Zobrazen', n)
     };
   }
 }

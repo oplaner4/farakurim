@@ -26,6 +26,7 @@ Every page has a **light and a dark theme**.
 | `mockups/petrklic/{light,dark}/` | Petrklíč – aktuální číslo (section 17) |
 | `mockups/petrklic-archiv/{light,dark}/` | Archiv Petrklíče (section 18) |
 | `mockups/fotogalerie/{light,dark}/` | Fotogalerie (section 19) |
+| `mockups/lightbox-foto/{light,dark}/`, `mockups/lightbox-plakat/{light,dark}/` | The lightbox, open, for a photo and for a poster (section 21) |
 | `mockups/menu/{light,dark}/` | Homepage with the "Více" menu open (section 20) |
 | `assets/logo-farnost-kurim.svg` | Cleaned logo (also the future favicon) |
 
@@ -421,7 +422,7 @@ was posted.
 - Chips are 44–46 px tall pills. Active: magenta fill, white text. Inactive: surface fill, ink text, `--line` border.
 - Mobile: one horizontally scrollable row that bleeds to the screen edges. Tablet and desktop: wrapping row, with the count on the right.
 - Implement as **links** with a query parameter (e.g. `?kdy=tyden|mesic|dlouhodobe|vse`), so the filter works without JS and can be shared. JS may enhance it to swap the list without a reload. Use `aria-current="true"` on the active link (the mockups use `aria-pressed` on buttons).
-- Count: "Zobrazeno N akcí" with `aria-live="polite"`. Plural: 1 akce, 2–4 akce, 5+ akcí.
+- Count with `aria-live="polite"`, Czech plural agreement on both verb and noun: **"Zobrazena jedna akce"**, **"Zobrazeny 2 akce"** (2–4), **"Zobrazeno 5 akcí"** (0 and 5+).
 - Empty state: "V tomto období nejsou žádné akce." in a surface panel.
 
 ### 11.4 Grouping
@@ -499,7 +500,7 @@ replaces the old archive with its "Vytvořeno" dropdown and `takeCount` /
 
 1. Breadcrumb `Úvod › Aktuality › Archiv`, H1 "Archiv aktualit" (32 / 42 / 52 px) with the magenta shard, one-line intro "Proběhlé akce, pozvánky a plakáty farnosti."
 2. **Search and year filter.** Mobile: stacked. Tablet: one surface panel with the search box and the year buttons side by side. Desktop: a **left side panel** (`flex: 1 1 280px`) next to the list (`flex: 999 1 600px`), with "Zpět na aktuality" at its bottom.
-3. Result count ("Zobrazeno 21 akcí" / "Nalezeno 3 akce", `aria-live="polite"`) and, while searching, a "Zrušit hledání" text button.
+3. Result count ("Zobrazeno 21 akcí"; search: "Nalezena jedna akce" / "Nalezeny 3 akce" (2–4) / "Nalezeno 5 akcí" (0 and 5+); the same forms with "Zobrazen-", `aria-live="polite"`) and, while searching, a "Zrušit hledání" text button.
 4. **List grouped by month, newest first** ("Srpen 2026", "Červenec 2026"…; magenta-ink H2 18 / 20 / 22 px).
 5. "Načíst starší" (magenta outline) and "Zpět na aktuality".
 
@@ -531,11 +532,11 @@ to keep it fast and easy to scan.
 
 ### 12.4 Paging and data
 
-A year shows its **first 10 events** (newest first, grouped by month) and the count line says
-"Zobrazeno 10 z 21 akcí". Under the list:
-- **"Načíst další"** (magenta outline button) appends the next 10 events of the same year (`?rok=2026&strana=2`, keeps `q`).
+A year shows its **first 20 events** (newest first, grouped by month) and the count line says
+"Zobrazeno 20 z 25 akcí" (while more are left; the genitive "akcí" is always used after "z"). Under the list:
+- **"Načíst další"** (magenta outline button) appends the next 20 events of the same year (`?rok=2026&strana=2`, keeps `q`).
 - Once the whole year is loaded, the button is replaced by **"Rok 2025 →"**, which opens the previous year from its start (`?rok=2025`) and scrolls to the top of the list. It is not shown on the oldest year (2019).
-- Search results across all years page the same way (10 at a time with "Načíst další"); the year button is not shown during a search.
+- Search results across all years page the same way (20 at a time with "Načíst další"); the year button is not shown during a search.
 - Changing the year or the search text resets the paging.
 The archive uses the same event record as section 11.7. An event appears in the
 archive the day after its end date. A manual "archived" flag is no longer needed,
@@ -570,7 +571,7 @@ Section colour: magenta. The header's current item stays "Aktuality".
 - **Program** (optional): an ordered list of rows `time | title + note`, with the time column in magenta-ink, 76 / 100 / 120 px wide.
 - **Highlight tiles** (optional, used here as "800 let v datech"): up to 3 tiles, each in one brand tint (green, blue, orange) with its shard top-right, a big number in that colour's ink and a short label. Use them only when the event really has key facts or numbers.
 - **Přílohy**: one row per file with the file icon, name and "TYPE · size".
-- **Poster**: full poster with `object-fit: contain` and a "Plakát v plné velikosti" link. Mobile: 240×340, centred.
+- **Poster**: full poster with `object-fit: contain`, a round magnifier badge bottom-right, and the whole poster is a button that opens the **poster lightbox** (section 21). Under it: "Stáhnout plakát (PNG)" (`download`). Mobile: 240×340, centred. A PDF poster opens in the browser instead.
 
 ### 13.4 Data each event needs (in addition to 11.7)
 
@@ -843,7 +844,7 @@ Mockups: `mockups/fotogalerie/`. Section colour: **green**. The header's current
 1. Breadcrumb `Úvod › Fotogalerie`, H1 "Fotogalerie" with the green shard, lead "Fotografie z farních akcí. Starší alba najdete na Zonerama."
 2. **One block per album** (newest first), separated by a hairline:
    - date as a green-tint pill, H2 album title (22 / 24 / 28 px), "12 fotografií" muted, and the link "Otevřít album →" on the right (Zonerama album URL).
-   - a **photo strip carousel**: 1 photo visible on mobile, 2 on tablet, 3 on desktop (4:3, radius 16–20). Under it: prev/next 48 px round outline buttons and the counter "1–3 / 12" (`aria-live`). The arrows move by one page and wrap around. Each photo links to the album.
+   - a **photo strip carousel**: 1 photo visible on mobile, 2 on tablet, 3 on desktop (4:3, radius 16–20). Under it: prev/next 48 px round outline buttons and the counter "1–3 / 12" (`aria-live`). The arrows move by one page and wrap around. Each photo opens the **photo lightbox** (section 21) at that photo; "Otevřít album →" still links to Zonerama.
    - Implement as a scroll-snap track (`scroll-snap-type: x mandatory`) with the buttons scrolling by one page width; it then also works by swipe.
 3. **"Další alba"** panel (green tint, green corner triangle): "Všechna starší alba farnosti jsou na Zonerama." and a green button **"Více fotogalerií na Zonerama"** with an external-link icon. In the light theme the button is `#17784A` with white text; in dark it is `#5FD394` with **dark text `#111923`** (never white on light green).
 
@@ -855,11 +856,10 @@ Show the 4–6 newest albums on the page; older ones live on Zonerama.
 |---|---|
 | album title, date | from Zonerama, cached about 1 h |
 | photo count | for "12 fotografií" and the counter |
-| photos | URLs in two sizes (thumbnail for the strip, larger for a later lightbox) and alt text (album title + "fotografie N") |
+| photos | URLs in two sizes (thumbnail for the strip and lightbox thumbnails, large – about 1600 px – for the lightbox) and alt text (album title + "fotografie N") |
 | album URL | Zonerama link for "Otevřít album" |
 
-A lightbox (full-screen viewer with prev/next, Esc to close, focus trap) is optional;
-the mockups link photos to the album on Zonerama instead.
+Photos open in the lightbox described in section 21.
 
 ### 19.3 Dark theme
 
@@ -951,3 +951,40 @@ footer on every page**, so it is visible everywhere without competing with page 
 - Cleaner alternative: parse the fetched HTML on the server and render our own markup (`figure` › `blockquote` + `figcaption` › `cite` + link), keeping the www.vira.cz link.
 - The `?bg=1` parameter (dark background variant) is not needed: our CSS handles the dark theme.
 - The response is UTF-8 by default.
+
+## 21. Lightbox (photos and posters)
+
+One shared full-screen viewer, used in two places:
+- **Fotogalerie** (section 19): tapping a photo in an album strip opens that album at that photo.
+- **Event posters**: the poster on Detail akce (13.3) and **image** attachments ("Plakát JPG/PNG") in Aktuality and Archiv aktualit. PDF attachments keep opening in the browser's PDF viewer.
+Not used for the homepage carousels.
+
+Mockups: `mockups/lightbox-foto/` and `mockups/lightbox-plakat/` (the open state at 390×844, 834×1112 and 1440×900).
+Production: a native `<dialog>` opened with `showModal()`, over the page.
+
+### 21.1 Look (the same in the light and dark theme)
+- Background `#0B1118` (near-black, about 96 % opaque over the page), white text, secondary text `#C3CCD8`, hints `#9AA6B5`.
+- Round translucent buttons (`rgba(255,255,255,0.14)`, white icon): close 48 px, prev/next 56 px.
+- **Top bar:** counter "3 / 12" (bold, `aria-live`) and the album title (muted, one line, ellipsis) on the left; on the right the **close** button ("Zavřít (Esc)"), and for photos "Album na Zonerama ↗" (desktop/tablet: a pill with text; mobile: an icon button).
+- **Stage:** the image fitted with `object-fit: contain` (max 1040 px wide on desktop, 760 on tablet, full width on mobile).
+
+### 21.2 Photos
+- Desktop / tablet: prev/next buttons on the sides of the image; under it the caption "20. září 2026 · album title". Desktop adds a **thumbnail strip** (72×54, the current one with a white 2 px border, the others at 60 % opacity), centred on the current photo.
+- Mobile: the image spans the width; under it a row "‹  date  ›" with 56 px buttons and the hint "Přejeďte prstem pro další fotografii".
+- Navigation: buttons, ← / → keys, swipe; it wraps around at both ends. Preload the next and previous image.
+- Update the URL hash (`#foto-3`) so the back button closes the lightbox and a link can open a specific photo.
+
+### 21.3 Posters
+- Top bar: "Plakát" and the event title; close button.
+- Stage scrolls when zoomed (`overflow: auto`, drag to pan on desktop).
+- Bottom toolbar: **−**, a zoom label button ("Celý" = fit to screen; then "150 %", "200 %", "300 %"; clicking it resets), **+**, and a white **"Stáhnout (PNG)"** button (`download`).
+- Hints: mobile/tablet "Přibližte dvěma prsty nebo dvojitým klepnutím"; desktop "Kolečko myši nebo +/− přiblíží, tažením posunete".
+- Pinch-zoom and double-tap must work on touch devices (do not block them with `touch-action: none` on the image).
+- `alt` of the poster: the event title, date, time and place (the poster is often the only source of this info).
+
+### 21.4 Accessibility and behaviour
+- `role="dialog"`, `aria-modal="true"`, `aria-label` ("Fotografie z alba …" / "Plakát: …"). Focus moves to the close button on open, is trapped inside, and returns to the photo/poster that opened it.
+- Close with Esc, the close button, the browser back button, and a click on the dark background outside the image.
+- Lock page scroll while open. Under `prefers-reduced-motion`, no slide or zoom animations.
+- Without JS, photos link to the album on Zonerama and posters to the image file, so nothing is lost.
+

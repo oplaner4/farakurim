@@ -182,7 +182,7 @@ a{color:#165A93}a:hover{color:#0F3F69}summary::-webkit-details-marker{display:no
 </div>
 
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2770}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3270}}'>
 class Component extends DCLogic {
   renderVals() {
     const st = this.state || {};
@@ -221,7 +221,7 @@ class Component extends DCLogic {
       ['2023', 'Červen 2023', '17. 6.', '14:00', 'Farní den', 'Kuřim, farní zahrada', 'Plakát PNG']
     ];
     const shown = R.filter((r) => q ? (r[4] + ' ' + r[5]).toLowerCase().indexOf(q) !== -1 : r[0] === year);
-    const PAGE = 10, lim = st.lim || PAGE, total = shown.length;
+    const PAGE = 20, lim = st.lim || PAGE, total = shown.length;
     const page = shown.slice(0, lim);
     const order = [];
     page.forEach((r) => { if (order.indexOf(r[1]) === -1) order.push(r[1]); });
@@ -237,19 +237,19 @@ class Component extends DCLogic {
         bg: on ? '#D60B51' : '#F4F6F9', fg: on ? '#FFFFFF' : '#1B2533', bd: on ? '#D60B51' : '#E6EAF0', sub: on ? '#FFFFFF' : '#556070' };
     });
     const n = shown.length;
-    const word = n === 1 ? 'akce' : (n >= 2 && n <= 4 ? 'akce' : 'akcí');
+    const cnt = (verb, k) => k === 1 ? verb + 'a jedna akce' : (k >= 2 && k <= 4 ? verb + 'y ' + k + ' akce' : verb + 'o ' + k + ' akcí');
     return {
       menuOpen: !!st.menuOpen,
       toggleMenu: () => this.setState({ menuOpen: !st.menuOpen }),
       menuExp: st.menuOpen ? 'true' : 'false', menuBtnBg: st.menuOpen ? '#EAF3FB' : 'transparent',
       q: st.q || '',
-      onSearch: (e) => this.setState({ q: e.target.value, lim: 10 }),
-      clearSearch: () => this.setState({ q: '', lim: 10 }),
+      onSearch: (e) => this.setState({ q: e.target.value, lim: 20 }),
+      clearSearch: () => this.setState({ q: '', lim: 20 }),
       searching: !!q,
       years: years, groups: groups, isEmpty: n === 0,
       hasMore: total > lim, loadMore: () => this.setState({ lim: lim + PAGE }),
       showOlder: total <= lim && !!older, olderLabel: 'Rok ' + older, goOlder: () => this.setState({ year: older, q: '', lim: PAGE }),
-      countLabel: (q ? 'Nalezeno ' : 'Zobrazeno ') + (total > lim ? lim + ' z ' : '') + n + ' ' + word
+      countLabel: total > lim ? 'Zobrazeno ' + lim + ' z ' + n + ' akcí' : cnt(q ? 'Nalezen' : 'Zobrazen', n)
     };
   }
 }

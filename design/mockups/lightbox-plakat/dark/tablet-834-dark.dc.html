@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<title>Lightbox – plakát – tablet, tmavý režim</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oxygen:wght@300;400;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B1118}
+a{color:#FFFFFF}
+</style>
+</helmet>
+<div role="dialog" aria-modal="true" aria-label="Plakát: Slavnostní mše k jubileu 800 let" style="width: 834px; height: 1112px; box-sizing: border-box; display: flex; flex-direction: column; background: #0B1118; color: #FFFFFF; font-family: Oxygen, 'Segoe UI', 'Helvetica Neue', sans-serif; font-size: 16px; line-height: 1.5; overflow: hidden">
+  <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 24px">
+    <div style="display: flex; flex-direction: column; min-width: 0; line-height: 1.3">
+      <span style="font-size: 15px; font-weight: 700">Plakát</span>
+      <span style="font-size: 14px; color: #C3CCD8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Slavnostní mše k jubileu 800 let</span>
+    </div>
+    <a href="/aktuality/slavnostni-mse-k-jubileu-800-let" aria-label="Zavřít (Esc)" style="flex: none; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 50%; background: rgba(255,255,255,0.14); color: #FFFFFF; cursor: pointer; text-decoration: none"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></a>
+  </div>
+  <div style="flex: 1; min-height: 0; overflow: auto; display: flex; padding: 8px 24px">
+    <div role="img" aria-label="Plakát: Slavnostní mše k jubileu 800 let, 18. října 2026 v 9:30, kostel sv. Maří Magdalény v Kuřimi" style="flex: none; margin: auto; width: {{pw}}px; height: {{ph}}px; border-radius: 4px; background: #FBE0EA; display: flex; align-items: center; justify-content: center; color: #B0083F; font-size: 15px; font-weight: 700">[plakát – plná velikost]</div>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 14px 16px 24px">
+    <div style="display: flex; align-items: center; gap: 10px">
+      <button type="button" aria-label="Oddálit" onClick="{{zoomOut}}" style="display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; border: 0; border-radius: 50%; background: rgba(255,255,255,0.14); color: #FFFFFF; font-family: inherit; font-size: 24px; font-weight: 700; cursor: pointer">−</button>
+      <button type="button" onClick="{{zoomReset}}" aria-label="Velikost podle obrazovky" style="min-width: 72px; min-height: 48px; border: 0; border-radius: 999px; background: rgba(255,255,255,0.14); color: #FFFFFF; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer">{{zoomLabel}}</button>
+      <button type="button" aria-label="Přiblížit" onClick="{{zoomIn}}" style="display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; border: 0; border-radius: 50%; background: rgba(255,255,255,0.14); color: #FFFFFF; font-family: inherit; font-size: 24px; font-weight: 700; cursor: pointer">+</button>
+      <a href="https://farakurim.cz/nahrane/aktuality/6ab538eec7721.Plakát.png" download style="display: flex; align-items: center; gap: 8px; min-height: 48px; margin-left: 6px; padding: 0 18px; border-radius: 999px; background: #FFFFFF; color: #0B1118; font-size: 15px; font-weight: 700; text-decoration: none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg>Stáhnout (PNG)</a>
+    </div>
+    <span style="font-size: 13px; color: #9AA6B5">Přibližte dvěma prsty nebo dvojitým klepnutím</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":834,"height":1112}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const st = this.state || {};
+    const Z = [1, 1.5, 2, 3], z = st.z || 0;
+    const set = (k) => this.setState({ z: Math.max(0, Math.min(Z.length - 1, k)) });
+    return {
+      pw: Math.round(560 * Z[z]), ph: Math.round(792 * Z[z]),
+      zoomLabel: z === 0 ? 'Celý' : Math.round(Z[z] * 100) + ' %',
+      zoomIn: () => set(z + 1), zoomOut: () => set(z - 1), zoomReset: () => set(0)
+    };
+  }
+}
+</script>
+</body>
+</html>
