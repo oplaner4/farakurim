@@ -66,4 +66,5 @@ build-time next mass.
   `Intl.PluralRules`. Under `output: "export"` next-intl also needs explicit `locale`/`timeZone`/`now` on its provider
   to stay static. Revisit only when a second language is planned. The real decision then is URLs: static export
   forces a `/cs/…` prefix on every page (no locale negotiation, no localized pathnames).
-- External links to the live site sit in `content/site.ts` (`links`); swap them when the pages are rebuilt here.
+- External links to the live site sit in `content/site.ts` (`links` and the "Více" menu / footer groups `navGroups`);
+  swap them when the pages are rebuilt here. "Tábor <year>" and the footer © follow `BUILD_YEAR`.

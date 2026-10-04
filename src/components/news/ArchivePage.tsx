@@ -33,7 +33,7 @@ const items: ArchiveItem[] = events.map((e) => {
 export function ArchivePage({ yearSlug }: { yearSlug: string }) {
   return (
     <>
-      <SiteHeader currentHref={links.news} />
+      <SiteHeader currentHref={links.news} pageHref={links.newsArchive} />
       <main
         id="obsah"
         className="container-page flex flex-col gap-6 pt-5 pb-12 md:gap-8 md:pt-7 md:pb-14 lg:gap-10 lg:pt-9 lg:pb-20"

@@ -8,8 +8,8 @@ button), **Detail akce** (`/aktuality/<slug>/` plus `kalendar.ics`; shares the `
 **Pořad bohoslužeb** (`/porad_bohosluzeb/`, with the ohlášky and the weekly schedule), **Kontakty** (`/kontakty/`),
 **Kalendář** (`/kalendar/`, also the homepage "Tento týden" week calendar), **Petrklíč** (`/petrklic/aktualni/`),
 **Archiv Petrklíče** (`/petrklic/archiv/`, one static page per year link) and **Fotogalerie** (`/fotogalerie/`, also the
-homepage album carousel). Other pages follow as they are designed;
-until then, nav links point to the live site.
+homepage album carousel). Every page shares the header with the "Více" menu and the sitemap footer (DESIGN.md §20,
+groups in `navGroups`). Other pages follow as they are designed; until then, nav links point to the live site.
 
 ## Language convention
 

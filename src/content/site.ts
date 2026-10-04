@@ -1,3 +1,5 @@
+import { BUILD_TIME } from "@/lib/build-time";
+import { pragueDate } from "@/lib/prague";
 import type { CalendarId, CarouselSlide, OfficeHours } from "./types";
 
 /** Public origin of the site: absolute URLs in metadata, JSON-LD and calendar files. */
@@ -15,6 +17,7 @@ export const links = {
   calendar: "/kalendar/",
   /** Lapentor tour copied from the old site; it lives only on the server (see farnost-deploy). */
   virtualTour: "/virtualni_prohlidka/",
+  viraCz: "https://www.vira.cz/",
 };
 
 /** `color` is the section colour of the page, used for the current page's nav item. */
@@ -26,6 +29,66 @@ export const mainNav = [
   { label: "Petrklíč", href: links.petrklic, color: "orange" },
   { label: "Kontakty", href: links.contacts, color: "blue" },
 ] as const;
+
+/** The old PHP site, still live at farakurim.cz: pages not yet rebuilt are linked there. */
+const OLD_SITE_URL = "https://farakurim.cz";
+
+/** Year of the build in Prague: the current Farní tábor and the footer copyright. */
+export const BUILD_YEAR = Number(pragueDate(BUILD_TIME).slice(0, 4));
+
+/**
+ * Secondary pages, grouped for the "Více" menu and the sitemap footer (design/DESIGN.md §20.1). `color` is the
+ * group's shard colour; the main menu items are not repeated here.
+ */
+export const navGroups = [
+  {
+    title: "Farnost",
+    color: "blue",
+    links: [
+      { label: "Kalendář", href: links.calendar },
+      { label: "Finanční podpora", href: `${OLD_SITE_URL}/financni_podpora/aktualne` },
+      { label: "Pastorační rada – členové", href: `${OLD_SITE_URL}/pastoracni_rada/clenove` },
+      { label: "Zápisy pastorační rady", href: `${OLD_SITE_URL}/pastoracni_rada/zapisy` },
+      { label: "Kronika farnosti", href: `${OLD_SITE_URL}/kronika_prehled_udalosti` },
+      { label: "Kněží – rodáci", href: `${OLD_SITE_URL}/knezi_rodaci` },
+      { label: "Odkazy", href: `${OLD_SITE_URL}/odkazy` },
+    ],
+  },
+  {
+    title: "Život ve farnosti",
+    color: "green",
+    links: [
+      { label: "Schola", href: `${OLD_SITE_URL}/schola` },
+      { label: "Chrámový sbor", href: `${OLD_SITE_URL}/chramovy_sbor` },
+      { label: "Katecheze pro děti", href: `${OLD_SITE_URL}/katecheze_pro_deti/pravidelne` },
+      { label: "Výuka náboženství", href: `${OLD_SITE_URL}/vyuka_nabozenstvi` },
+      { label: "Společenství mladých", href: `${OLD_SITE_URL}/spolecenstvi_mladych/setkavani` },
+      { label: "Seznam aktivit", href: `${OLD_SITE_URL}/aktivity` },
+    ],
+  },
+  {
+    title: "Farní tábor",
+    color: "magenta",
+    links: [
+      { label: `Tábor ${BUILD_YEAR}`, href: `${OLD_SITE_URL}/farni_tabor/${BUILD_YEAR}` },
+      { label: "O táboru", href: `${OLD_SITE_URL}/farni_tabor/informace` },
+      { label: "Vedoucí", href: `${OLD_SITE_URL}/farni_tabor/vedouci` },
+      { label: "Kontakt", href: `${OLD_SITE_URL}/farni_tabor/kontakt` },
+      { label: "Ročníky", href: `${OLD_SITE_URL}/farni_tabor/rocniky` },
+    ],
+  },
+  {
+    title: "Petrklíč a archivy",
+    color: "orange",
+    links: [
+      { label: "Petrklíč – aktuální číslo", href: links.petrklic },
+      { label: "Archiv Petrklíče", href: links.petrklicArchive },
+      { label: "Archiv aktualit", href: links.newsArchive },
+    ],
+  },
+] as const;
+
+export type NavGroup = (typeof navGroups)[number];
 
 /**
  * The parish's public Google Calendars (design/DESIGN.md §16.1). `subscribeUrl` adds the calendar to the visitor's
@@ -54,7 +117,13 @@ export const GOOGLE_CALENDAR_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_A
 
 export const parish = {
   name: "Římskokatolická farnost Kuřim",
-  villages: ["Kuřim", "Moravské Knínice", "Jinačovice", "Česká"],
+  /** The municipalities of the parish, linked to their websites in the footer. */
+  villages: [
+    { name: "Kuřim", href: "https://www.kurim.cz/" },
+    { name: "Moravské Knínice", href: "https://www.moravskekninice.cz/" },
+    { name: "Jinačovice", href: "https://www.obecjinacovice.cz/" },
+    { name: "Česká", href: "https://www.ceska.cz/" },
+  ],
   bankAccount: "247704317/0300",
 };
 

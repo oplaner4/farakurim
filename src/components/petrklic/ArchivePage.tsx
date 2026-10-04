@@ -20,7 +20,7 @@ export function ArchivePage({ year }: { year?: number }) {
   const blocks = shown.map((y) => <ArchiveYearBlock key={y.year} year={y} currentId={currentId} />);
   return (
     <>
-      <SiteHeader currentHref={links.petrklic} />
+      <SiteHeader currentHref={links.petrklic} pageHref={links.petrklicArchive} />
       <main
         id="obsah"
         className="container-page flex flex-col gap-7 pt-5 pb-12 md:gap-9 md:pt-7 md:pb-14 lg:gap-12 lg:pt-9 lg:pb-20"

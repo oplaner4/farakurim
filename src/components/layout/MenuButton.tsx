@@ -1,23 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use } from "react";
 import { CloseIcon, MenuIcon } from "@/components/ui/icons";
+import { HeaderMenuContext } from "./HeaderMenu";
 
 /**
- * Mobile/tablet menu toggle. It only owns `aria-expanded`; the header shows the menu with a
- * `group-has-aria-expanded` selector, so the rest of the header stays a server component.
+ * Opens the header menu (design/DESIGN.md §20.2): the hamburger on mobile/tablet, the "Více" text button on
+ * desktop. Both control the same menu through `HeaderMenu`.
  */
-export function MenuButton({ id, controls }: { id: string; controls: string }) {
-  const [open, setOpen] = useState(false);
+export function MenuButton({ id, controls, variant }: { id: string; controls: string; variant: "hamburger" | "more" }) {
+  const { open, toggle } = use(HeaderMenuContext);
 
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [open]);
+  if (variant === "more") {
+    return (
+      <button
+        id={id}
+        type="button"
+        className="flex min-h-11 cursor-pointer items-center gap-2 rounded-12 px-3 text-ink hover:bg-surface aria-expanded:bg-blue-tint"
+        aria-expanded={open}
+        aria-controls={controls}
+        onClick={(e) => toggle(e.currentTarget)}
+      >
+        <MenuIcon />
+        Více
+      </button>
+    );
+  }
 
   return (
     <button
@@ -27,7 +35,7 @@ export function MenuButton({ id, controls }: { id: string; controls: string }) {
       aria-expanded={open}
       aria-controls={controls}
       aria-label={open ? "Zavřít menu" : "Otevřít menu"}
-      onClick={() => setOpen((v) => !v)}
+      onClick={(e) => toggle(e.currentTarget)}
     >
       {open ? <CloseIcon size={22} /> : <MenuIcon size={22} />}
     </button>

@@ -133,6 +133,7 @@
   --tracking-*: initial;
   --tracking-eyebrow: 0.06em;
   --tracking-label: 0.03em; /* feast line in the weekly schedule */
+  --tracking-caps: 0.04em; /* "Další stránky" label in the mobile menu */
   --tracking-heading: -0.01em;
   --tracking-display: -0.015em;
   --tracking-title: -0.02em; /* page titles */
@@ -162,6 +163,7 @@
   --shadow-poster-lg: 0 10px 28px var(--color-shadow-poster);
   --shadow-cover-xl: 0 14px 32px var(--color-shadow-cover); /* Petrklíč current issue */
   --shadow-page: 0 6px 18px var(--color-shadow-page);
+  --shadow-menu: 0 16px 32px var(--color-shadow-page); /* desktop "Více" panel over the page */
 
   --aspect-a4: 1 / 1.414; /* Petrklíč covers and pages */
 
@@ -231,6 +233,11 @@
 
   a {
     @apply text-blue-ink underline hover:text-blue-ink-hover;
+  }
+
+  /* Accordions (<details>) draw their own chevron. */
+  summary::-webkit-details-marker {
+    display: none;
   }
 
   :focus-visible {
