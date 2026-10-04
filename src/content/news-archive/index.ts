@@ -1,4 +1,4 @@
-import type { NewsEvent } from "../types";
+import type { NewsEvent } from "@/content/types/news";
 import { events2019 } from "./2019";
 import { events2020 } from "./2020";
 import { events2021 } from "./2021";

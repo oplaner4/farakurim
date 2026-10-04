@@ -1,5 +1,5 @@
 import { contacts, priest } from "@/content/site";
-import { telHref } from "@/lib/links";
+import { telHref } from "@/lib/shared/links";
 import { UserIcon } from "@/components/ui/icons";
 import { ContactCard } from "./ContactCard";
 

@@ -1,4 +1,4 @@
-import type { PetrklicIssue } from "./types";
+import type { PetrklicIssue } from "@/content/types/petrklic";
 
 // The issues of the old site's archive (farakurim.cz/petrklic/archiv), plus new ones added with the
 // farnost-create-petrklic skill. Each issue is a folder /uploads/petrklic/<id>/ with the PDF petrklic-<id>.pdf

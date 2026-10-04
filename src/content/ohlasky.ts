@@ -1,7 +1,7 @@
 import "server-only";
-import { sheetExceptions } from "@/lib/service-sheet";
+import { sheetExceptions } from "@/lib/services/service-sheet";
 import { places } from "./masses";
-import type { PlaceId, ScheduleException, ServiceSheet, SheetRow } from "./types";
+import type { PlaceId, ScheduleException, ServiceSheet, SheetRow } from "@/content/types/services";
 
 // Mock content: this week's ohlášky. Server-only: rows marked not public must never reach a client bundle, so client
 // components get what they need as props (`scheduleExceptions`, the PDF link), never this module.

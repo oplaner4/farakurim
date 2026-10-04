@@ -1,6 +1,6 @@
 import { clsx } from "clsx";
-import type { PetrklicIssue } from "@/content/types";
-import { issueLabel, type PetrklicYear } from "@/lib/petrklic";
+import type { PetrklicIssue } from "@/content/types/petrklic";
+import { issueLabel, type PetrklicYear } from "@/lib/petrklic/issues";
 import { DownloadIcon } from "@/components/ui/icons";
 import { PetrklicCover } from "./PetrklicCover";
 

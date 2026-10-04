@@ -3,9 +3,10 @@
 import { useSearchParams } from "next/navigation";
 import { type ReactNode, Suspense, useMemo, useState } from "react";
 import { GOOGLE_CALENDAR_API_KEY } from "@/content/site";
-import type { CalendarEntry, CalendarId, IsoDate } from "@/content/types";
-import { agendaByDate, type IsoMonth, monthGridRange, parseDayParam, parseMonthParam } from "@/lib/agenda";
-import { updateQueryParams } from "@/lib/query-params";
+import type { CalendarEntry, CalendarId } from "@/content/types/calendar";
+import type { IsoDate } from "@/content/types/shared";
+import { agendaByDate, type IsoMonth, monthGridRange, parseDayParam, parseMonthParam } from "@/lib/calendar/agenda";
+import { updateQueryParams } from "@/lib/shared/query-params";
 import { useCalendarEntries } from "@/hooks/use-calendar-entries";
 import { useToday } from "@/hooks/use-now";
 import { AgendaGrid } from "./AgendaGrid";

@@ -1,7 +1,7 @@
-import { BUILD_TIME } from "@/lib/build-time";
-import { parseViraQuote, VIRA_QUOTE_URL } from "@/lib/bible-quote";
-import { pragueDate } from "@/lib/prague";
-import type { BibleQuote } from "./types";
+import { BUILD_TIME } from "@/lib/shared/build-time";
+import { parseViraQuote, VIRA_QUOTE_URL } from "@/lib/layout/bible-quote";
+import { pragueDate } from "@/lib/shared/prague";
+import type { BibleQuote } from "@/content/types/layout";
 
 // "Slovo na dnešek" (design/DESIGN.md §20.5), read at build time; the browser asks `/biblicky-citat.php` for a
 // newer day's verse.

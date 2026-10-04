@@ -1,9 +1,9 @@
 import { clsx } from "clsx";
 import type { ReactNode } from "react";
-import type { Announcement, AnnouncementCategory, ServiceSheet } from "@/content/types";
-import { formatDateRange } from "@/lib/czech";
-import { withExternalLinkTargets } from "@/lib/links";
-import { sortAnnouncements } from "@/lib/service-sheet";
+import type { Announcement, AnnouncementCategory, ServiceSheet } from "@/content/types/services";
+import { formatDateRange } from "@/lib/shared/czech";
+import { withExternalLinkTargets } from "@/lib/shared/links";
+import { sortAnnouncements } from "@/lib/services/service-sheet";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import {
   ArrowRightIcon,

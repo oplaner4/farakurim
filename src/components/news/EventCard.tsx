@@ -1,8 +1,9 @@
 import { clsx } from "clsx";
-import type { IsoDate, NewsEvent } from "@/content/types";
-import { eventDateBlock, fileType, formatEventWhen, formatShortDate } from "@/lib/czech";
-import { eventHref, type EventStatus } from "@/lib/news";
-import { externalLinkAttrs } from "@/lib/links";
+import type { NewsEvent } from "@/content/types/news";
+import type { IsoDate } from "@/content/types/shared";
+import { eventDateBlock, fileType, formatEventWhen, formatShortDate } from "@/lib/shared/czech";
+import { eventHref, type EventStatus } from "@/lib/news/events";
+import { externalLinkAttrs } from "@/lib/shared/links";
 import { ExternalLinkIcon, FileIcon, PinIcon } from "@/components/ui/icons";
 import { POSTER_TINTS, PosterPlaceholder } from "@/components/ui/PosterPlaceholder";
 

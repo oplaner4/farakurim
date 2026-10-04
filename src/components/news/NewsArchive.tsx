@@ -4,8 +4,9 @@ import { clsx } from "clsx";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { links } from "@/content/site";
-import { archiveListing, archiveYearHref, parsePage } from "@/lib/news";
-import { PAGE_PARAM, QUERY_PARAM } from "@/lib/query-params";
+import { archiveListing, archiveYearHref } from "@/lib/news/archive";
+import { parsePage } from "@/lib/news/events";
+import { PAGE_PARAM, QUERY_PARAM } from "@/lib/shared/query-params";
 import { useLoadMore } from "@/hooks/use-load-more";
 import { useToday } from "@/hooks/use-now";
 import { ButtonLink } from "@/components/ui/ButtonLink";
@@ -13,7 +14,7 @@ import { ArrowRightIcon, ChevronLeftIcon } from "@/components/ui/icons";
 import { ArchiveFilters } from "./ArchiveFilters";
 import { ArchiveResults } from "./ArchiveResults";
 import { type ArchiveItem, rowAnchor } from "./ArchiveRow";
-import { useArchiveSearch } from "./use-archive-search";
+import { useArchiveSearch } from "@/hooks/use-archive-search";
 
 function BackLink({ className }: { className?: string }) {
   return (

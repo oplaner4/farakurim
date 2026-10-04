@@ -1,8 +1,8 @@
 "use client";
 
 import { clsx } from "clsx";
-import type { Album } from "@/content/types";
-import { photoAlt } from "@/lib/gallery";
+import type { Album } from "@/content/types/gallery";
+import { photoAlt } from "@/lib/gallery/albums";
 import { useSnapCarousel } from "@/hooks/use-snap-carousel";
 import { AlbumPhotoTile } from "@/components/gallery/AlbumPhotoTile";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";

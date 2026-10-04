@@ -4,7 +4,14 @@ import { EventDetail } from "@/components/news/EventDetail";
 import { NewsPage } from "@/components/news/NewsPage";
 import { events } from "@/content/news";
 import { parish } from "@/content/site";
-import { eventHref, eventSlug, filterFromSlug, findEventBySlug, NEWS_FILTER_META, NEWS_FILTERS } from "@/lib/news";
+import {
+  eventHref,
+  eventSlug,
+  filterFromSlug,
+  findEventBySlug,
+  NEWS_FILTER_META,
+  NEWS_FILTERS,
+} from "@/lib/news/events";
 
 // One segment serves both the Aktuality filter pages (`/aktuality/tyden/`) and the event detail pages
 // (`/aktuality/<event slug>/`); a test keeps the slugs apart. Static export: only the listed pages exist.

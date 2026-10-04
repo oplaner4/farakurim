@@ -10,12 +10,12 @@ import { places, regularServices, sacraments } from "@/content/masses";
 import { serviceSheet } from "@/content/ohlasky";
 import { events } from "@/content/news";
 import { links } from "@/content/site";
-import type { PlaceId } from "@/content/types";
-import { BUILD_TIME } from "@/lib/build-time";
-import { mapHref } from "@/lib/links";
-import { weeklySchedule } from "@/lib/masses";
-import { eventHref } from "@/lib/news";
-import { publicDays } from "@/lib/service-sheet";
+import type { PlaceId } from "@/content/types/services";
+import { BUILD_TIME } from "@/lib/shared/build-time";
+import { mapHref } from "@/lib/shared/links";
+import { weeklySchedule } from "@/lib/services/masses";
+import { eventHref } from "@/lib/news/events";
+import { publicDays } from "@/lib/services/service-sheet";
 
 export const metadata: Metadata = {
   title: "Pořad bohoslužeb",

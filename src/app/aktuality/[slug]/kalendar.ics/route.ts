@@ -1,7 +1,7 @@
 import { events } from "@/content/news";
 import { SITE_URL } from "@/content/site";
-import { eventCalendar } from "@/lib/calendar";
-import { eventHref, eventSlug, findEventBySlug } from "@/lib/news";
+import { eventCalendar } from "@/lib/news/ics";
+import { eventHref, eventSlug, findEventBySlug } from "@/lib/news/events";
 
 // "Přidat do kalendáře": a static `/aktuality/<slug>/kalendar.ics` per event, written by `next build`.
 export const dynamic = "force-static";

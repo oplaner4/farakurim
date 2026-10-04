@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import { loadBibleQuote } from "@/content/bible-quote";
 import { BUILD_YEAR, contacts, links, parish } from "@/content/site";
-import { NEW_TAB } from "@/lib/links";
+import { NEW_TAB } from "@/lib/shared/links";
 import { ColorStripe } from "@/components/ui/ColorStripe";
 import { BibleQuoteCard } from "./BibleQuoteCard";
 import { NavGroupAccordions } from "./NavGroupAccordions";

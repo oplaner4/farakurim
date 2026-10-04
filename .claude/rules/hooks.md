@@ -13,5 +13,7 @@ paths:
   together (`use-now.ts`: `useNow`, `useToday`, `useHydrated`).
 - A hook file exports only hooks and the types of their signatures. Constants and plain functions that other code
   also uses go into a regular module (`PAGE_PARAM`, `QUERY_PARAM` and `updateQueryParams` in `query-params.ts`).
-- Shared hooks go in `src/hooks/`; a hook used by one component group sits next to it
-  (`components/news/use-archive-search.ts`). Hook files start with `"use client"`.
+- **Every hook lives in `src/hooks/`**, also one that only one component uses (`use-archive-search.ts`,
+  `use-todays-quote.ts`); never next to a component, in `src/lib` or in `src/content`. **Why:** one place to find
+  them, and the folders stay one kind each (components render, `lib` is pure logic, hooks hold state and effects).
+  Hook files start with `"use client"`.

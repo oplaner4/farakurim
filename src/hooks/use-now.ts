@@ -1,8 +1,8 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import type { IsoDate } from "@/content/types";
-import { pragueDate } from "@/lib/prague";
+import type { IsoDate } from "@/content/types/shared";
+import { pragueDate } from "@/lib/shared/prague";
 
 // One shared clock for every time-dependent component. The prerendered HTML is built with the
 // build-time timestamp; after hydration React switches to the visitor's real time without a

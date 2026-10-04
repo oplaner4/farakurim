@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { IsoDate } from "@/content/types";
+import type { IsoDate } from "@/content/types/shared";
 import { useToday } from "@/hooks/use-now";
 import { buttonLink, ButtonLink } from "@/components/ui/ButtonLink";
 import { CalendarPlusIcon, ShareIcon } from "@/components/ui/icons";

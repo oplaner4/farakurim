@@ -1,6 +1,6 @@
 import { isMatch } from "date-fns";
 import { describe, expect, it, vi } from "vitest";
-import { eventClock } from "@/lib/calendar";
+import { eventClock } from "@/lib/news/ics";
 import { albums } from "./gallery";
 import { parishChurches, places, regularServices } from "./masses";
 import { events } from "./news";

@@ -1,4 +1,5 @@
-import type { ParishChurch, Place, PlaceId, RegularService } from "./types";
+import type { ParishChurch } from "@/content/types/contacts";
+import type { Place, PlaceId, RegularService } from "@/content/types/services";
 
 // Mock content. Replace with data from the CMS/API once the backend exists.
 

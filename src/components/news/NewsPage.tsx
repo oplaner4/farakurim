@@ -1,7 +1,7 @@
 import { events } from "@/content/news";
-import { BUILD_TIME } from "@/lib/build-time";
-import { eventEnd, featuredEvent, type NewsFilter } from "@/lib/news";
-import { pragueDate } from "@/lib/prague";
+import { BUILD_TIME } from "@/lib/shared/build-time";
+import { eventEnd, featuredEvent, type NewsFilter } from "@/lib/news/events";
+import { pragueDate } from "@/lib/shared/prague";
 import { EventList } from "./EventList";
 import { FeaturedEvent } from "./FeaturedEvent";
 import { NewsArchivePanel } from "./NewsArchivePanel";
@@ -9,7 +9,7 @@ import { PageHeading } from "@/components/ui/PageHeading";
 import { ShowUntil } from "@/components/ui/ShowUntil";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { links } from "@/content/site";
-import type { NewsEvent } from "@/content/types";
+import type { NewsEvent } from "@/content/types/news";
 
 const buildToday = pragueDate(BUILD_TIME);
 const featured = featuredEvent(events, buildToday);

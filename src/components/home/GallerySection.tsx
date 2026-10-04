@@ -1,7 +1,7 @@
-import type { Album } from "@/content/types";
+import type { Album } from "@/content/types/gallery";
 import { links } from "@/content/site";
-import { formatDayMonth, formatLongDate } from "@/lib/czech";
-import { albumAnchor } from "@/lib/gallery";
+import { formatDayMonth, formatLongDate } from "@/lib/shared/czech";
+import { albumAnchor } from "@/lib/gallery/albums";
 import { AlbumPhotoTile } from "@/components/gallery/AlbumPhotoTile";
 import { ArrowRightIcon } from "@/components/ui/icons";
 import { SectionHeading } from "@/components/ui/SectionHeading";

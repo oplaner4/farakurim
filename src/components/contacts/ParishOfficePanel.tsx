@@ -1,6 +1,6 @@
 import { clsx } from "clsx";
 import { contacts, parish } from "@/content/site";
-import { mapHref, NEW_TAB, telHref } from "@/lib/links";
+import { mapHref, NEW_TAB, telHref } from "@/lib/shared/links";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ArrowRightIcon, MailIcon, PhoneIcon } from "@/components/ui/icons";
 import { OfficeMap } from "./OfficeMap";

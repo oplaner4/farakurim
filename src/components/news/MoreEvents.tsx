@@ -1,9 +1,9 @@
 "use client";
 
-import type { NewsEvent } from "@/content/types";
+import type { NewsEvent } from "@/content/types/news";
 import { links } from "@/content/site";
-import type { DateBlock } from "@/lib/czech";
-import { otherEvents } from "@/lib/news";
+import type { DateBlock } from "@/lib/shared/czech";
+import { otherEvents } from "@/lib/news/events";
 import { useToday } from "@/hooks/use-now";
 import { ArrowRightIcon, ChevronLeftIcon } from "@/components/ui/icons";
 

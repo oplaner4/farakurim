@@ -1,10 +1,10 @@
 "use client";
 
-import type { BibleQuote } from "@/content/types";
+import type { BibleQuote } from "@/content/types/layout";
 import { links } from "@/content/site";
-import { NEW_TAB } from "@/lib/links";
+import { NEW_TAB } from "@/lib/shared/links";
 import { BookIcon, ExternalLinkIcon } from "@/components/ui/icons";
-import { useTodaysQuote } from "./use-todays-quote";
+import { useTodaysQuote } from "@/hooks/use-todays-quote";
 
 /**
  * "Slovo na dnešek" (design/DESIGN.md §20.5) at the top of the footer: the day's verse from vira.cz. The

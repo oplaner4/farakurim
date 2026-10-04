@@ -2,10 +2,10 @@
 
 import { clsx } from "clsx";
 import { useState } from "react";
-import type { Weekday } from "@/content/types";
-import { capitalize, WEEKDAY_NAMES, WEEKDAY_SHORT } from "@/lib/czech";
-import { WEEK_ORDER } from "@/lib/masses";
-import { pragueWeekday } from "@/lib/prague";
+import type { Weekday } from "@/content/types/shared";
+import { capitalize, WEEKDAY_NAMES, WEEKDAY_SHORT } from "@/lib/shared/czech";
+import { WEEK_ORDER } from "@/lib/services/masses";
+import { pragueWeekday } from "@/lib/shared/prague";
 import { useToday } from "@/hooks/use-now";
 import { ChurchCard, type ChurchSchedule } from "./ChurchCard";
 

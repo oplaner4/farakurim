@@ -2,9 +2,9 @@
 
 import { clsx } from "clsx";
 import { useState } from "react";
-import type { SheetDay } from "@/content/types";
-import { formatWeekdayDate } from "@/lib/czech";
-import { showWeekLabel, weekView } from "@/lib/service-sheet";
+import type { SheetDay } from "@/content/types/services";
+import { formatWeekdayDate } from "@/lib/shared/czech";
+import { showWeekLabel, weekView } from "@/lib/services/service-sheet";
 import { useToday } from "@/hooks/use-now";
 
 type Props = {

@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ComponentProps } from "react";
-import { externalLinkAttrs } from "@/lib/links";
+import { externalLinkAttrs } from "@/lib/shared/links";
 
 export const buttonLink = cva("flex items-center justify-center font-bold no-underline", {
   variants: {

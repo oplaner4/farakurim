@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import { externalLinkAttrs } from "@/lib/links";
+import { externalLinkAttrs } from "@/lib/shared/links";
 import { ArrowRightIcon } from "./icons";
 
 export type SectionColor = "blue" | "green" | "magenta" | "orange";

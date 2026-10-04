@@ -5,9 +5,9 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { calendarHrefs, loadCalendarEntries } from "@/content/calendar";
 import { links } from "@/content/site";
-import { BUILD_TIME } from "@/lib/build-time";
-import { addToMonth, monthGridRange } from "@/lib/agenda";
-import { pragueDate } from "@/lib/prague";
+import { BUILD_TIME } from "@/lib/shared/build-time";
+import { addToMonth, monthGridRange } from "@/lib/calendar/agenda";
+import { pragueDate } from "@/lib/shared/prague";
 
 export const metadata: Metadata = {
   title: "Kalendář",

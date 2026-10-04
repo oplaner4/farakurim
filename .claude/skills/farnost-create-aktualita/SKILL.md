@@ -5,7 +5,7 @@ description: Add a new aktualita (event) to the new farakurim.cz site from a pos
 
 # Create an aktualita
 
-Read the file, extract one event as a `NewsEvent` (`src/content/types.ts`), confirm it with the user, add it to
+Read the file, extract one event as a `NewsEvent` (`src/content/types/news.ts`), confirm it with the user, add it to
 `src/content/news.ts`, stage its files, then finish with **`farnost-publish-content`**. The fields and how they are
 shown are specified in `design/DESIGN.md` §11.7 and §13.4.
 

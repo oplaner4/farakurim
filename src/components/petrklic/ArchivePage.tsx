@@ -3,7 +3,7 @@ import { PageHeading } from "@/components/ui/PageHeading";
 import { ChevronLeftIcon } from "@/components/ui/icons";
 import { petrklicIssues } from "@/content/petrklic";
 import { links } from "@/content/site";
-import { groupByYear } from "@/lib/petrklic";
+import { groupByYear } from "@/lib/petrklic/issues";
 import { ArchiveYearBlock } from "./ArchiveYearBlock";
 import { ArchiveYearLinks } from "./ArchiveYearLinks";
 import { ArchiveYears } from "./ArchiveYears";

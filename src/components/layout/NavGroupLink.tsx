@@ -1,6 +1,6 @@
 import { clsx } from "clsx";
 import type { ReactNode } from "react";
-import { externalLinkAttrs } from "@/lib/links";
+import { externalLinkAttrs } from "@/lib/shared/links";
 import type { SectionColor } from "@/components/ui/SectionHeading";
 
 const currentColors: Record<SectionColor, string> = {

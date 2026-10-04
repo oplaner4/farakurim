@@ -4,9 +4,9 @@ import { clsx } from "clsx";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import type { NewsEvent } from "@/content/types";
+import type { NewsEvent } from "@/content/types/news";
 import { links } from "@/content/site";
-import { formatMonthYear, plural } from "@/lib/czech";
+import { formatMonthYear, plural } from "@/lib/shared/czech";
 import {
   type EventGroup,
   eventStatus,
@@ -17,9 +17,9 @@ import {
   NEWS_PAGE_SIZE,
   type NewsFilter,
   parsePage,
-} from "@/lib/news";
+} from "@/lib/news/events";
 import { useToday } from "@/hooks/use-now";
-import { PAGE_PARAM } from "@/lib/query-params";
+import { PAGE_PARAM } from "@/lib/shared/query-params";
 import { useLoadMore } from "@/hooks/use-load-more";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { EventCard, eventAnchor } from "./EventCard";

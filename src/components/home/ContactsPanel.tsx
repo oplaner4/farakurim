@@ -1,9 +1,9 @@
 import { clsx } from "clsx";
 import type { ReactNode } from "react";
 import { contacts, links } from "@/content/site";
-import { telHref } from "@/lib/links";
+import { telHref } from "@/lib/shared/links";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { WEEKDAY_SHORT } from "@/lib/czech";
+import { WEEKDAY_SHORT } from "@/lib/shared/czech";
 import { ClockIcon, MailIcon, PhoneIcon, PinIcon } from "@/components/ui/icons";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 

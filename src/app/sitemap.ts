@@ -3,8 +3,9 @@ import { ARCHIVE_YEARS } from "@/components/news/ArchivePage";
 import { PETRKLIC_YEARS } from "@/components/petrklic/ArchivePage";
 import { events } from "@/content/news";
 import { links, SITE_URL } from "@/content/site";
-import { archiveYears, archiveYearHref, eventHref } from "@/lib/news";
-import { archiveYearHref as petrklicYearHref } from "@/lib/petrklic";
+import { archiveYears, archiveYearHref } from "@/lib/news/archive";
+import { eventHref } from "@/lib/news/events";
+import { archiveYearHref as petrklicYearHref } from "@/lib/petrklic/issues";
 
 // `/sitemap.xml`, written by `next build` like the pages. Every indexable page, as absolute URLs on SITE_URL.
 // The Aktuality filter pages (`/aktuality/tyden/`, …) are left out: they re-list the events of `/aktuality/`.

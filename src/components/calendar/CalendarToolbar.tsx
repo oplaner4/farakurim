@@ -1,7 +1,7 @@
 import { clsx } from "clsx";
 import { parishCalendars } from "@/content/site";
-import type { CalendarId } from "@/content/types";
-import { addToMonth, type IsoMonth, monthHeading } from "@/lib/agenda";
+import type { CalendarId } from "@/content/types/calendar";
+import { addToMonth, type IsoMonth, monthHeading } from "@/lib/calendar/agenda";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
 
 const toolbarButton =

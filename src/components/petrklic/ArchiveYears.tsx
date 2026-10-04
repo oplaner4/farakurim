@@ -1,7 +1,7 @@
 "use client";
 
 import { Children, useState, type ReactNode } from "react";
-import { ARCHIVE_YEARS_STEP } from "@/lib/petrklic";
+import { ARCHIVE_YEARS_STEP } from "@/lib/petrklic/issues";
 import { useFocusAfterChange } from "@/hooks/use-focus-after-change";
 import { buttonLink } from "@/components/ui/ButtonLink";
 

@@ -1,11 +1,11 @@
-import { newsEntries, scheduleEntries, type DateRange } from "@/lib/agenda";
-import { fetchGoogleCalendar, toEntries } from "@/lib/google-calendar";
-import { eventHref } from "@/lib/news";
+import { newsEntries, scheduleEntries, type DateRange } from "@/lib/calendar/agenda";
+import { fetchGoogleCalendar, toEntries } from "@/lib/calendar/google-calendar";
+import { eventHref } from "@/lib/news/events";
 import { places, regularServices } from "./masses";
 import { scheduleExceptions } from "./ohlasky";
 import { events } from "./news";
 import { GOOGLE_CALENDAR_API_KEY, parishCalendars, SITE_URL } from "./site";
-import type { CalendarEntry, CalendarId } from "./types";
+import type { CalendarEntry, CalendarId } from "@/content/types/calendar";
 
 // The two parish calendars (design/DESIGN.md §16.4), read at build time. Server-only: it imports all Aktuality.
 

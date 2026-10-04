@@ -3,10 +3,10 @@
 import { format } from "date-fns";
 import { places, regularServices } from "@/content/masses";
 import { links } from "@/content/site";
-import type { ScheduleException, ServiceSheet } from "@/content/types";
-import { formatDateRange, formatWeekdayDate } from "@/lib/czech";
-import { countdown, formatMassDay, upcomingServices } from "@/lib/masses";
-import { inPrague, pragueDateTime } from "@/lib/prague";
+import type { ScheduleException, ServiceSheet } from "@/content/types/services";
+import { formatDateRange, formatWeekdayDate } from "@/lib/shared/czech";
+import { countdown, formatMassDay, upcomingServices } from "@/lib/services/masses";
+import { inPrague, pragueDateTime } from "@/lib/shared/prague";
 import { useHydrated, useNow } from "@/hooks/use-now";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ArrowRightIcon, FileDownloadIcon, PinIcon } from "@/components/ui/icons";

@@ -1,6 +1,6 @@
 import { clsx } from "clsx";
-import type { PetrklicIssue } from "@/content/types";
-import { issueLabel } from "@/lib/petrklic";
+import type { PetrklicIssue } from "@/content/types/petrklic";
+import { issueLabel } from "@/lib/petrklic/issues";
 
 /* Placeholder tints by issue number (design/DESIGN.md §18.1): 1 green, 2 blue, 3 orange, 4 magenta. */
 const tints = [

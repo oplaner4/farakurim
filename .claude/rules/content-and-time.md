@@ -11,7 +11,7 @@ paths:
 ## Time-dependent rendering
 
 Server Components run **at build time**. Anything that depends on "now" (next mass, countdown, which
-news are current) is rendered with the build timestamp (`src/lib/build-time.ts`) and re-computed in the
+news are current) is rendered with the build timestamp (`src/lib/shared/build-time.ts`) and re-computed in the
 browser through `useNow()` / `useToday()` (`src/hooks/use-now.ts`, `useSyncExternalStore`, no hydration
 mismatch). Client components get `renderedAt={BUILD_TIME}` as a prop; never call `Date.now()` during render.
 Accepted trade-off: content only changes on rebuild and redeploy, and visitors without JS see the
@@ -19,7 +19,7 @@ build-time next mass.
 
 ## Content and data
 
-- All content lives in `src/content/`, typed by `src/content/types.ts`. Components and `src/lib`
+- All content lives in `src/content/`, typed by `src/content/types/` (one file per domain, `structure.md`). Components and `src/lib`
   only depend on those types, so a real API or CMS can replace the files later without touching the UI.
   `src/content/content.test.ts` checks the data itself (valid dates and times, unique IDs, order, `/uploads/` links);
   extend it when a content type gains a rule a typo could break.
@@ -27,7 +27,7 @@ build-time next mass.
   their uploaded files are linked root-relative (`/uploads/…`, absolute only where a URL leaves the page, e.g.
   JSON-LD), never committed.
 - Dates are ISO `YYYY-MM-DD`, times `H:MM`, both **Europe/Prague wall-clock**. Use `pragueDateTime()` /
-  `pragueDate()` from `src/lib/prague.ts` and pass `{ in: inPrague }` to date-fns functions;
+  `pragueDate()` from `src/lib/shared/prague.ts` and pass `{ in: inPrague }` to date-fns functions;
   never use the browser's local time zone for schedule maths.
 - Schedule (`content/masses.ts`): `regularServices` is the weekly schedule, one data source for the homepage
   next mass and Pořad bohoslužeb. Rows without a `title` are masses; titled rows ("Adorace") are mass-like services.
@@ -55,13 +55,13 @@ build-time next mass.
   next-mass countdown still use `regularServices` / `scheduleExceptions`.
 - Fotogalerie (`content/gallery.ts`): Zonerama albums, newest first, with `photoCount` and optional `photos`
   (`small`/`large` URLs). The mock data has no photos, so the strips and the homepage carousel show `photoCount`
-  designed placeholders; alt texts are computed (`photoAlt()` in `src/lib/gallery.ts`).
+  designed placeholders; alt texts are computed (`photoAlt()` in `src/lib/gallery/albums.ts`).
 - Office hours (`content/site.ts`): weekly slots with an optional yearly `closed` break; the live status is
-  `officeStatus()` in `src/lib/office.ts`.
+  `officeStatus()` in `src/lib/contacts/office-hours.ts`.
 - Czech output: `plural()` (built on `Intl.PluralRules("cs")`), date-fns `cs` locale (genitive month names
-  after a day number), `"4. 10."` short dates, `"Dnes"`/`"Zítra"` labels; see `src/lib/czech.ts`.
+  after a day number), `"4. 10."` short dates, `"Dnes"`/`"Zítra"` labels; see `src/lib/shared/czech.ts`.
 - **No i18n library** (next-intl and the like) while the site is Czech-only. UI copy stays inline in the components
-  and Czech grammar stays in `src/lib/czech.ts`. **Why:** `czech.ts` is Czech grammar on date-fns, not translatable
+  and Czech grammar stays in `src/lib/shared/czech.ts`. **Why:** `czech.ts` is Czech grammar on date-fns, not translatable
   strings. `plural()` is mostly called from pure `src/lib` functions, where next-intl would only wrap the same
   `Intl.PluralRules`. Under `output: "export"` next-intl also needs explicit `locale`/`timeZone`/`now` on its provider
   to stay static. Revisit only when a second language is planned. The real decision then is URLs: static export

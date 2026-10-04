@@ -8,8 +8,8 @@ import { SupportCard } from "@/components/contacts/SupportCard";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { contacts, links, SITE_URL } from "@/content/site";
-import { BUILD_TIME } from "@/lib/build-time";
-import { jsonLdScript, parishJsonLd } from "@/lib/structured-data";
+import { BUILD_TIME } from "@/lib/shared/build-time";
+import { jsonLdScript, parishJsonLd } from "@/lib/shared/structured-data";
 
 export const metadata: Metadata = {
   title: "Kontakty",

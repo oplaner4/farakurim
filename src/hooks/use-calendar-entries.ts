@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { CalendarEntry, CalendarId } from "@/content/types";
+import type { CalendarEntry, CalendarId } from "@/content/types/calendar";
 import { GOOGLE_CALENDAR_API_KEY, parishCalendars } from "@/content/site";
-import { type DateRange, mergeEntries } from "@/lib/agenda";
-import { fetchGoogleCalendar, toEntries } from "@/lib/google-calendar";
+import { type DateRange, mergeEntries } from "@/lib/calendar/agenda";
+import { fetchGoogleCalendar, toEntries } from "@/lib/calendar/google-calendar";
 
 // The prerendered calendars hold the entries of the build's date range. With an API key, the browser re-reads
 // every range it shows from Google Calendar, so changes appear without a redeploy. Read ranges replace the

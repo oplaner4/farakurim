@@ -103,15 +103,15 @@ src/components/    One component per block, styled with Tailwind utilities, grou
                    home/ (homepage blocks), news/ (Aktuality, archive, event detail), services/ (Pořad bohoslužeb),
                    contacts/ (Kontakty), calendar/ (Kalendář), petrklic/ (Petrklíč and its archive),
                    gallery/ (Fotogalerie, photo tiles shared with the homepage). Same folder: `./X`; else `@/components/<group>/X`
-src/content/       Content (types.ts + one file per domain): the future API boundary; calendar.ts reads Google Calendar,
+src/content/       Content, one file per domain, typed by types/<group>.ts: the future API boundary; calendar.ts reads Google Calendar,
                    bible-quote.ts the vira.cz verse at build time;
                    news-archive/ holds the 2019–2025 aktuality migrated from the old site (one file per year);
                    ohlasky.ts (weekly ohlášky) is server-only
-src/lib/           Pure logic on date-fns (prague.ts, czech.ts, masses.ts, office.ts, news.ts, calendar.ts (.ics),
-                   agenda.ts (Kalendář, "Tento týden"), google-calendar.ts, service-sheet.ts (ohlášky), petrklic.ts, gallery.ts,
-                   bible-quote.ts (vira.cz verse)) + tests,
-                   links.ts (tel:/Mapy.cz hrefs), query-params.ts, theme.ts
-src/hooks/         Shared React hooks, one use-*.ts per hook (useNow, useCalendarEntries, useSnapCarousel, useLoadMore, …)
+src/lib/           Pure logic on date-fns + tests, by group (structure.md): shared/ (prague, czech, build-time, links,
+                   query-params, theme, structured-data), news/ (events, archive, ics), services/ (masses, service-sheet),
+                   contacts/ (office-hours), calendar/ (agenda, google-calendar), petrklic/ (issues), gallery/ (albums),
+                   layout/ (bible-quote)
+src/hooks/         Every React hook, one use-*.ts per hook (useNow, useCalendarEntries, useLoadMore, useTodaysQuote, …)
 ```
 
 ## Rules
@@ -125,7 +125,8 @@ Topic rules live in `.claude/rules/` and load when you work on matching files:
 | `content-and-time.md` | Mock content boundary, Prague dates, build time vs. `useNow`, Czech output |
 | `design-check.md`     | Comparing the build with the mockups                                       |
 | `hooks.md`            | `use` prefix only for hooks, one `use-<name>.ts` file per hook             |
-| `links.md`            | External links open in a new tab (`src/lib/links.ts` helpers)              |
+| `links.md`            | External links open in a new tab (`src/lib/shared/links.ts` helpers)       |
+| `structure.md`        | Where code goes: components, hooks, `lib` and content types by domain      |
 
 ## The old site
 

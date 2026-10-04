@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import type { AlbumPhoto } from "@/content/types";
+import type { AlbumPhoto } from "@/content/types/gallery";
 import { PosterPlaceholder } from "@/components/ui/PosterPlaceholder";
 
 /** Placeholder tints, cycled by photo position (text colour drives the icon and the shard). */

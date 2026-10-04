@@ -2,8 +2,8 @@ import { clsx } from "clsx";
 import { type ChangeEvent, type FormEvent, type RefObject, useEffect, useRef } from "react";
 import Link from "next/link";
 import { links } from "@/content/site";
-import { archiveYearHref, type ArchiveYear } from "@/lib/news";
-import { QUERY_PARAM } from "@/lib/query-params";
+import { archiveYearHref, type ArchiveYear } from "@/lib/news/archive";
+import { QUERY_PARAM } from "@/lib/shared/query-params";
 import { SearchIcon } from "@/components/ui/icons";
 
 type Props = {

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
-import type { EventAttachment, EventLink } from "@/content/types";
-import { fileType, formatFileSize } from "@/lib/czech";
-import { externalLinkAttrs } from "@/lib/links";
+import type { EventAttachment, EventLink } from "@/content/types/news";
+import { fileType, formatFileSize } from "@/lib/shared/czech";
+import { externalLinkAttrs } from "@/lib/shared/links";
 import { ExternalLinkIcon, FileIcon } from "@/components/ui/icons";
 import { DetailBlock } from "./DetailBlock";
 

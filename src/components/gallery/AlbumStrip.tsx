@@ -1,9 +1,9 @@
 "use client";
 
-import type { Album } from "@/content/types";
-import { formatLongDate } from "@/lib/czech";
-import { albumElementId, photoAlt, photoCounter, photoCountLabel } from "@/lib/gallery";
-import { externalLinkAttrs } from "@/lib/links";
+import type { Album } from "@/content/types/gallery";
+import { formatLongDate } from "@/lib/shared/czech";
+import { albumElementId, photoAlt, photoCounter, photoCountLabel } from "@/lib/gallery/albums";
+import { externalLinkAttrs } from "@/lib/shared/links";
 import { useSnapCarousel } from "@/hooks/use-snap-carousel";
 import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
 import { AlbumPhotoTile } from "./AlbumPhotoTile";

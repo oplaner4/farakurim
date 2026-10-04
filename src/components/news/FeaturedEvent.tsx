@@ -1,6 +1,6 @@
-import type { NewsEvent } from "@/content/types";
-import { formatEventWhen } from "@/lib/czech";
-import { eventHref } from "@/lib/news";
+import type { NewsEvent } from "@/content/types/news";
+import { formatEventWhen } from "@/lib/shared/czech";
+import { eventHref } from "@/lib/news/events";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { eventAnchor } from "./EventCard";
 import { CalendarIcon, ImageIcon, PinIcon } from "@/components/ui/icons";

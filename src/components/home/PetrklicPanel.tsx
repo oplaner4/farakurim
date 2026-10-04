@@ -1,6 +1,6 @@
 import { links } from "@/content/site";
-import type { PetrklicIssue } from "@/content/types";
-import { issueLabel } from "@/lib/petrklic";
+import type { PetrklicIssue } from "@/content/types/petrklic";
+import { issueLabel } from "@/lib/petrklic/issues";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ColorStripe } from "@/components/ui/ColorStripe";
 

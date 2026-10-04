@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import type { PetrklicIssue } from "@/content/types";
-import { stepPage, viewerSpread } from "@/lib/petrklic";
+import type { PetrklicIssue } from "@/content/types/petrklic";
+import { stepPage, viewerSpread } from "@/lib/petrklic/issues";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
 

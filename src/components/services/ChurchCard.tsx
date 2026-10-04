@@ -1,8 +1,9 @@
 import { clsx } from "clsx";
-import type { ChurchColor, PlaceId, Weekday } from "@/content/types";
-import { capitalize, WEEKDAY_NAMES } from "@/lib/czech";
-import type { ScheduleDay } from "@/lib/masses";
-import { NEW_TAB } from "@/lib/links";
+import type { ChurchColor, PlaceId } from "@/content/types/services";
+import type { Weekday } from "@/content/types/shared";
+import { capitalize, WEEKDAY_NAMES } from "@/lib/shared/czech";
+import type { ScheduleDay } from "@/lib/services/masses";
+import { NEW_TAB } from "@/lib/shared/links";
 import { PinIcon } from "@/components/ui/icons";
 
 /** What a card needs; the page passes only these fields to the client. */

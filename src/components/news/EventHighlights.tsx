@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import type { NewsEvent } from "@/content/types";
+import type { NewsEvent } from "@/content/types/news";
 import { DetailBlock } from "./DetailBlock";
 
 /** Highlight tiles cycle through the brand tints (§13.3). */

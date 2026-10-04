@@ -1,6 +1,6 @@
 import { clsx } from "clsx";
-import type { NewsEvent } from "@/content/types";
-import { fileType } from "@/lib/czech";
+import type { NewsEvent } from "@/content/types/news";
+import { fileType } from "@/lib/shared/czech";
 import { PosterPlaceholder } from "@/components/ui/PosterPlaceholder";
 
 /**

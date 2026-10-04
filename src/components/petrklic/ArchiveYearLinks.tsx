@@ -1,6 +1,6 @@
 import { clsx } from "clsx";
 import Link from "next/link";
-import { archiveYearHref } from "@/lib/petrklic";
+import { archiveYearHref } from "@/lib/petrklic/issues";
 
 type Props = {
   years: number[];

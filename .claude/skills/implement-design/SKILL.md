@@ -21,8 +21,8 @@ header/footer links in every existing mockup. Work through the phases in order a
    `grep -v '<path\|<svg'` drops icon noise) plus its `class Component` script: it holds the logic
    (filters, live status) and the sample data. Diff light vs dark to get the dark colours, then map every
    hex to an existing token in `src/app/globals.css` (white cards in light → `raised` in dark, etc.).
-5. Before coding, list for yourself: routes, data model changes (`src/content/types.ts`), pure logic for
-   `src/lib` (with tests), server vs client components (client only for "now", state or browser APIs),
+5. Before coding, list for yourself: routes, data model changes (`src/content/types/<group>.ts`), pure logic for
+   `src/lib/<group>/` (with tests), server vs client components (client only for "now", state or browser APIs),
    and anything the spec leaves open. Ask the user only about choices that change what you build.
 
 ## 2. Commit the design handoff
@@ -40,10 +40,10 @@ handoff separate from the implementation in the history.
 Load the **`tailwind-design-system`** and **`vercel-react-best-practices`** skills (Skill tool) before
 writing components, and follow the project rules (`.claude/rules/*.md`, loaded per path):
 
-- Content stays mock data behind `src/content/types.ts`; one data source per concept (e.g. the regular
+- Content stays mock data behind `src/content/types/`; one data source per concept (e.g. the regular
   schedule feeds both the homepage and Pořad bohoslužeb). Update `.claude/rules/content-and-time.md` when
   the data model changes.
-- Pure date/logic in `src/lib/*.ts` with Vitest tests (Prague time, `pragueWeekday`, `useNow`/`useToday`
+- Pure date/logic in `src/lib/<group>/*.ts` with Vitest tests (`.claude/rules/structure.md`) (Prague time, `pragueWeekday`, `useNow`/`useToday`
   for anything depending on "now"; client components get `renderedAt={BUILD_TIME}`).
 - Components in `src/components/<group>/`, one per block, one markup for all breakpoints (`contents`,
   `order-*`, grid, `max-*`), tokens only (no hex, no arbitrary values; add a token in both themes if needed),

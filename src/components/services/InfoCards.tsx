@@ -1,7 +1,7 @@
 import { clsx } from "clsx";
 import type { ReactNode } from "react";
 import { links } from "@/content/site";
-import { externalLinkAttrs } from "@/lib/links";
+import { externalLinkAttrs } from "@/lib/shared/links";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ArrowRightIcon, CalendarIcon } from "@/components/ui/icons";
 

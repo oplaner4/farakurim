@@ -1,10 +1,10 @@
 "use client";
 
 import { clsx } from "clsx";
-import type { OfficeHours } from "@/content/types";
-import { capitalize, WEEKDAY_NAMES } from "@/lib/czech";
-import { officeHoursApply, officeStatus } from "@/lib/office";
-import { pragueDate } from "@/lib/prague";
+import type { OfficeHours } from "@/content/types/contacts";
+import { capitalize, WEEKDAY_NAMES } from "@/lib/shared/czech";
+import { officeHoursApply, officeStatus } from "@/lib/contacts/office-hours";
+import { pragueDate } from "@/lib/shared/prague";
 import { useNow } from "@/hooks/use-now";
 import { ContactCard } from "./ContactCard";
 

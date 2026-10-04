@@ -1,6 +1,6 @@
 import { clsx } from "clsx";
-import { formatMonthYear } from "@/lib/czech";
-import type { ArchiveListing } from "@/lib/news";
+import { formatMonthYear } from "@/lib/shared/czech";
+import type { ArchiveListing } from "@/lib/news/archive";
 import { type ArchiveItem, ArchiveRow } from "./ArchiveRow";
 
 /**

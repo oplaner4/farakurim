@@ -1,10 +1,10 @@
 "use client";
 
 import { clsx } from "clsx";
-import type { NewsEvent } from "@/content/types";
+import type { NewsEvent } from "@/content/types/news";
 import { links } from "@/content/site";
-import { formatEventDate } from "@/lib/czech";
-import { currentNews, eventHref, eventStatus } from "@/lib/news";
+import { formatEventDate } from "@/lib/shared/czech";
+import { currentNews, eventHref, eventStatus } from "@/lib/news/events";
 import { useToday } from "@/hooks/use-now";
 import { CalendarIcon } from "@/components/ui/icons";
 import { POSTER_TINTS } from "@/components/ui/PosterPlaceholder";

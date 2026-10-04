@@ -1,4 +1,4 @@
-import type { Album } from "./types";
+import type { Album } from "@/content/types/gallery";
 
 // Albums from Zonerama FarnostKurim/425053, added with the farnost-create-galerie skill. Photos are Zonerama URLs.
 

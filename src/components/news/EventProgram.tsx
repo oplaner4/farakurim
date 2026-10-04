@@ -1,4 +1,4 @@
-import type { ProgramItem } from "@/content/types";
+import type { ProgramItem } from "@/content/types/news";
 import { DetailBlock } from "./DetailBlock";
 
 /** "Program" of the event detail: time and title rows. */

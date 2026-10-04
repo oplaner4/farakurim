@@ -1,4 +1,4 @@
-import type { NewsEvent } from "../types";
+import type { NewsEvent } from "@/content/types/news";
 import { UPLOADS } from "./uploads";
 
 export const events2025: NewsEvent[] = [

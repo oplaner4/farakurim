@@ -7,7 +7,7 @@ import { PreviousIssues } from "@/components/petrklic/PreviousIssues";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { petrklicEditorial, petrklicIssues, petrklicTexts } from "@/content/petrklic";
 import { links } from "@/content/site";
-import { issueLabel } from "@/lib/petrklic";
+import { issueLabel } from "@/lib/petrklic/issues";
 
 const [current, ...previous] = petrklicIssues;
 

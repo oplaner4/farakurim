@@ -1,6 +1,8 @@
-import { BUILD_TIME } from "@/lib/build-time";
-import { pragueDate } from "@/lib/prague";
-import type { CalendarId, CarouselSlide, OfficeHours } from "./types";
+import { BUILD_TIME } from "@/lib/shared/build-time";
+import { pragueDate } from "@/lib/shared/prague";
+import type { CalendarId } from "@/content/types/calendar";
+import type { OfficeHours } from "@/content/types/contacts";
+import type { CarouselSlide } from "@/content/types/home";
 
 /** Public origin of the site: absolute URLs in metadata, JSON-LD and calendar files. */
 export const SITE_URL = "https://farakurim.cz";

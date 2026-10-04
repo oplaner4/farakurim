@@ -1,9 +1,10 @@
 import { events } from "@/content/news";
 import { links } from "@/content/site";
-import { BUILD_TIME } from "@/lib/build-time";
-import { fileType } from "@/lib/czech";
-import { archiveYearList, eventHref } from "@/lib/news";
-import { pragueDate } from "@/lib/prague";
+import { BUILD_TIME } from "@/lib/shared/build-time";
+import { fileType } from "@/lib/shared/czech";
+import { archiveYearList } from "@/lib/news/archive";
+import { eventHref } from "@/lib/news/events";
+import { pragueDate } from "@/lib/shared/prague";
 import type { ArchiveItem } from "./ArchiveRow";
 import { NewsArchive } from "./NewsArchive";
 import { PageHeading } from "@/components/ui/PageHeading";

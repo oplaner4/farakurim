@@ -1,5 +1,5 @@
 import { archivedEvents, UPLOADS } from "./news-archive";
-import type { NewsEvent } from "./types";
+import type { NewsEvent } from "@/content/types/news";
 
 // This year's aktuality, added with the farnost-create-aktualita skill (the first ones migrated from the old site's
 // database). Earlier years are in news-archive/.

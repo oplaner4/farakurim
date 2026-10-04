@@ -2,7 +2,8 @@
 
 import { clsx } from "clsx";
 import { useEffect, useRef, useState } from "react";
-import type { CalendarEntry, IsoDate } from "@/content/types";
+import type { CalendarEntry } from "@/content/types/calendar";
+import type { IsoDate } from "@/content/types/shared";
 import { GOOGLE_CALENDAR_API_KEY, links } from "@/content/site";
 import {
   type AgendaItem,
@@ -16,8 +17,8 @@ import {
   weekHeading,
   weekRange,
   weekRangeLabel,
-} from "@/lib/agenda";
-import { plural } from "@/lib/czech";
+} from "@/lib/calendar/agenda";
+import { plural } from "@/lib/shared/czech";
 import { useCalendarEntries } from "@/hooks/use-calendar-entries";
 import { useToday } from "@/hooks/use-now";
 import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";

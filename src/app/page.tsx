@@ -12,10 +12,10 @@ import { events } from "@/content/news";
 import { scheduleExceptions, serviceSheet } from "@/content/ohlasky";
 import { petrklicIssues, petrklicTexts } from "@/content/petrklic";
 import { carouselSlides, parish } from "@/content/site";
-import { BUILD_TIME } from "@/lib/build-time";
-import { currentNews } from "@/lib/news";
-import { weekRange } from "@/lib/agenda";
-import { pragueDate } from "@/lib/prague";
+import { BUILD_TIME } from "@/lib/shared/build-time";
+import { currentNews } from "@/lib/news/events";
+import { weekRange } from "@/lib/calendar/agenda";
+import { pragueDate } from "@/lib/shared/prague";
 
 const buildDay = pragueDate(BUILD_TIME);
 

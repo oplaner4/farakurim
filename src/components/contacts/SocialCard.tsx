@@ -1,6 +1,6 @@
 import type { ComponentType } from "react";
 import { socialLinks, webmaster } from "@/content/site";
-import { externalLinkAttrs } from "@/lib/links";
+import { externalLinkAttrs } from "@/lib/shared/links";
 import { FacebookIcon, InstagramIcon, LinkIcon } from "@/components/ui/icons";
 import { ContactCard } from "./ContactCard";
 

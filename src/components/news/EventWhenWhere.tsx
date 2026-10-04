@@ -1,8 +1,8 @@
-import type { NewsEvent } from "@/content/types";
-import { BUILD_TIME } from "@/lib/build-time";
-import { capitalize, formatEventWhen } from "@/lib/czech";
-import { mapHref, NEW_TAB } from "@/lib/links";
-import { eventCalendarHref, eventEnd } from "@/lib/news";
+import type { NewsEvent } from "@/content/types/news";
+import { BUILD_TIME } from "@/lib/shared/build-time";
+import { capitalize, formatEventWhen } from "@/lib/shared/czech";
+import { mapHref, NEW_TAB } from "@/lib/shared/links";
+import { eventCalendarHref, eventEnd } from "@/lib/news/events";
 import { CalendarIcon, PinIcon } from "@/components/ui/icons";
 import { EventActions } from "./EventActions";
 

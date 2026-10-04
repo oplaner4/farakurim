@@ -1,8 +1,8 @@
 import { clsx } from "clsx";
 import { parishChurches } from "@/content/masses";
 import { links } from "@/content/site";
-import type { ParishChurch } from "@/content/types";
-import { mapHref, NEW_TAB } from "@/lib/links";
+import type { ParishChurch } from "@/content/types/contacts";
+import { mapHref, NEW_TAB } from "@/lib/shared/links";
 import { ArrowRightIcon } from "@/components/ui/icons";
 import { ContactCard } from "./ContactCard";
 

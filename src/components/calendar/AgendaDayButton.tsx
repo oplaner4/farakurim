@@ -3,8 +3,8 @@
 import { DayButton, type DayButtonProps } from "@daypicker/react";
 import { clsx } from "clsx";
 import { createContext, use } from "react";
-import type { IsoDate } from "@/content/types";
-import { type AgendaItem, splitEvents } from "@/lib/agenda";
+import type { IsoDate } from "@/content/types/shared";
+import { type AgendaItem, splitEvents } from "@/lib/calendar/agenda";
 
 const EMPTY: AgendaItem[] = [];
 

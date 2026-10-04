@@ -6,7 +6,7 @@ description: Add a photo album to the Fotogalerie of the new farakurim.cz site f
 # Create a gallery album
 
 The photos stay on Zonerama: the site links Zonerama's image URLs, so nothing is downloaded or uploaded. An album is
-one `Album` record (`src/content/types.ts`) in `src/content/gallery.ts` (design/DESIGN.md §19.2). Finish with
+one `Album` record (`src/content/types/gallery.ts`) in `src/content/gallery.ts` (design/DESIGN.md §19.2). Finish with
 **`farnost-publish-content`** (no files to stage).
 
 ## 1. Check the URL

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ARCHIVE_YEARS, ArchivePage } from "@/components/news/ArchivePage";
-import { archiveYears } from "@/lib/news";
+import { archiveYears } from "@/lib/news/archive";
 
 // Static export: every year button other than the default (the newest year) has a page.
 export const dynamicParams = false;

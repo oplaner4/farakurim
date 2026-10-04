@@ -6,7 +6,7 @@ description: Publish the weekly pořad bohoslužeb (ohlášky) on the new faraku
 # Create the pořad bohoslužeb
 
 The weekly PDF ("ROZPIS BOHOSLUŽEB V TÝDNU od … do …") becomes **structured content**: one `ServiceSheet`
-(`src/content/types.ts`) in `src/content/ohlasky.ts` that replaces the previous week. It feeds the "Tento týden"
+(`src/content/types/services.ts`) in `src/content/ohlasky.ts` that replaces the previous week. It feeds the "Tento týden"
 ohlášky, the weekly schedule, and, for every day of its week, the next-mass countdown and the schedule exceptions
 (design/DESIGN.md §14.5–14.7). Finish with **`farnost-publish-content`**.
 

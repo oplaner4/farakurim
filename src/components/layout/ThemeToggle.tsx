@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { isDarkTheme, setTheme, subscribeTheme } from "@/lib/theme";
+import { isDarkTheme, setTheme, subscribeTheme } from "@/lib/shared/theme";
 import { MoonIcon, SunIcon } from "@/components/ui/icons";
 
 /**

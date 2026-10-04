@@ -1,5 +1,5 @@
-import type { NewsEvent } from "@/content/types";
-import { formatCompactDate } from "@/lib/czech";
+import type { NewsEvent } from "@/content/types/news";
+import { formatCompactDate } from "@/lib/shared/czech";
 import { FileIcon } from "@/components/ui/icons";
 
 /** What a row needs; the page passes only these fields to the client. */

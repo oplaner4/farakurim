@@ -21,7 +21,7 @@ paths:
   variables in the `:root { @variant dark { … } }` block of `globals.css`. Components therefore use plain
   utilities (`bg-card`, `text-ink`) and never `dark:` just to swap a colour; keep `dark:` for real layout
   differences (e.g. news posters on a raised card). The `dark` variant matches the OS preference unless
-  `<html data-theme="light|dark">` overrides it (inline script in `layout.tsx`, `ThemeToggle`, `src/lib/theme.ts`).
+  `<html data-theme="light|dark">` overrides it (inline script in `layout.tsx`, `ThemeToggle`, `src/lib/shared/theme.ts`).
   Former plain-white roles are split: `bg` (page, header, menu), `card` (next-mass card), `raised`
   (date tiles, pills, Petrklíč cover); also `on-orange`, `time`, `overlay`, `dot-on`, `shadow`.
   A new colour token needs both a light value in `@theme` and a dark value.
