@@ -507,8 +507,13 @@ replaces the old archive with its "Vytvořeno" dropdown and `takeCount` /
 
 - `<label>` "Hledat v archivu" plus `<input type="search">` (50 px tall, radius 14, border `#7D8A9B`, which meets the 3:1 boundary contrast; magnifier icon inside on the left). Placeholder "např. pouť, koncert, Tišnov".
 - Search looks in the **title and place across all years**. While a search is active, no year is selected.
-- Year buttons: `2026 · 2025 · Starší`, each with its count in a lighter weight. Active: magenta with white text. Default: the year of the most recent archived event. Mobile: three equal-width pills. Desktop: full-width vertical list.
-- Implement as a GET form plus links: `?q=…`, `?rok=2025`, `?rok=starsi`. Without JS, the form submits. With JS, debounce about 250 ms and update the list in place.
+- **All years are visible** as year buttons, from the newest down to **2019** (where the archive starts), each with its count in a lighter weight ("2024 25"). There is no "Starší" bucket and no hidden years. Active: magenta with white text. Default: the year of the most recent archived event.
+  - Mobile: one **horizontally scrolling row** of pills that bleeds to the screen edges (scroll the active pill into view on load).
+  - Tablet: pills that wrap onto a second row.
+  - Desktop: a full-width vertical list in the sidebar.
+- **One year per view:** picking a year shows exactly that year, grouped by month.
+- Generate the year list from the data (years with at least one archived event).
+- Implement as a GET form plus links: `?q=…`, `?rok=2025`, `?rok=2021`. Without JS, the form submits. With JS, debounce about 250 ms and update the list in place.
 - Empty state: "Nic jsme nenašli. Zkuste jiné slovo nebo rok."
 
 ### 12.3 Archive row
@@ -526,7 +531,12 @@ to keep it fast and easy to scan.
 
 ### 12.4 Paging and data
 
-20 rows per page. "Načíst starší" links to `?strana=2` and keeps `q` / `rok`.
+A year shows its **first 10 events** (newest first, grouped by month) and the count line says
+"Zobrazeno 10 z 21 akcí". Under the list:
+- **"Načíst další"** (magenta outline button) appends the next 10 events of the same year (`?rok=2026&strana=2`, keeps `q`).
+- Once the whole year is loaded, the button is replaced by **"Rok 2025 →"**, which opens the previous year from its start (`?rok=2025`) and scrolls to the top of the list. It is not shown on the oldest year (2019).
+- Search results across all years page the same way (10 at a time with "Načíst další"); the year button is not shown during a search.
+- Changing the year or the search text resets the paging.
 The archive uses the same event record as section 11.7. An event appears in the
 archive the day after its end date. A manual "archived" flag is no longer needed,
 though an admin may still hide an event.
@@ -688,7 +698,7 @@ Mockups: `mockups/kontakty/`. Section colour: **blue**. The header's current ite
 | **Fara** (blue tint, blue and green triangles) | eyebrow "Fara", H2 "Římskokatolická farnost Kuřim", `<address>` Křížkovského 55/5, 664 34 Kuřim; buttons **Zavolat** (`tel:+420541230183`, filled) and **Napsat e-mail** (outline); map (placeholder; production: a static map image or Mapy.cz embed, lazy-loaded) with the link "Navigovat na Mapy.cz →" |
 | **Úřední hodiny** | live **status line** (see 15.2); rows Pondělí 9:00–10:00 · Čtvrtek 19:00–20:00 (note "mimo letní prázdniny") · Jindy dle domluvy; today's row gets the blue tint |
 | **Duchovní správce** | round photo 88 px (placeholder), PhDr. ThLic. Ing. Jaroslav Filka, "duchovní správce farnosti" (**confirm the title**); `<dl>` Fara 541 230 183 · Mobil 723 661 146 · E-mail fara.kurim@seznam.cz, all as links |
-| **Naše kostely** | 3 rows, each a link to Mapy.cz: colour bar (blue/green/orange), place bold, church name muted, "Mapa →"; then "Pořad bohoslužeb →" |
+| **Kostely a kaple** | 4 rows, one per village of the parish, each a link to Mapy.cz: colour bar (Kuřim blue, Moravské Knínice green, Jinačovice orange, Česká magenta), village bold, building muted, "Mapa →"; then "Pořad bohoslužeb →". Kuřim: kostel sv. Maří Magdaleny; Moravské Knínice: kostel sv. Markéty; Jinačovice: **kaple sv. Máří Magdaleny** (bohoslužby dle domluvy); Česká: **kaple Panny Marie Růžencové**. |
 | **Podpora farnosti** (orange tint, orange triangle) | "Bankovní účet farnosti", **247704317/0300** at 24 px, button **Zkopírovat** that switches to "Zkopírováno" (Clipboard API, `aria-live`) |
 | **Sledujte nás** | Facebook, Instagram, Linktree buttons (**URLs to fill in**), then "Náměty a chyby na webu: Ondřej Planer, oplaner4@gmail.com" |
 
@@ -899,9 +909,10 @@ text colour, 40 px rows in the menu and 36 px in the footer.
 ### 20.3 Sitemap footer (every page)
 
 - Stripe on top, `--surface` background, as before.
+- Directly under the stripe: the **"Slovo na dnešek" quote card** (20.5).
 - **Brand block:** logo + "Římskokatolická farnost Kuřim", the address "Křížkovského 55/5, 664 34 Kuřim",
   "Obce farnosti:" with links to Kuřim, Moravské Knínice, Jinačovice and Česká (the municipal websites),
-  the bank account, and links to "Virtuální prohlídka kostela" and "Vira.cz".
+  the bank account, and the link "Virtuální prohlídka kostela". (Vira.cz is linked from the quote card, 20.5.)
 - **Sitemap** (`<nav aria-label="Mapa webu">`) with the 4 groups:
   desktop, brand block left (1.25 fr) + 4 columns (3.75 fr), gap 48;
   tablet, brand block above + 4 columns; mobile, brand block above + the groups as **accordions**
@@ -912,3 +923,31 @@ text colour, 40 px rows in the menu and 36 px in the footer.
 
 Same token mapping as section 10. The open "Více" button uses the dark blue tint `#172A40`.
 
+### 20.5 "Slovo na dnešek" (Bible quote)
+
+Replaces the Bible quote at the bottom of the old sidebar. It sits at the **top of the
+footer on every page**, so it is visible everywhere without competing with page content.
+
+**Look**
+- A white card (`--raised` in dark), radius 24, a green corner triangle top-right. Padding 24/20 (mobile), 28/32 (tablet), 32/48 (desktop). Desktop: at content width.
+- Label row: book icon + "SLOVO NA DNEŠEK" (13 px, bold, uppercase, green ink `#17784A`).
+- The verse: Oxygen **300**, 19 / 22 / 26 px, line height 1.45, max-width 820 px.
+- Under it: the reference (bold, green ink, e.g. "Žalm 118,24") and on the right the link **"Zdroj: www.vira.cz"** with an external-link icon.
+- The mockups use Žalm 118,24 as a sample.
+
+**Source: the vira.cz widget** ([documentation](https://www.vira.cz/servis-pro-vas/sluzby-pro-webmastery/zobrazeni-biblickeho-citatu))
+- Free; the verse **changes daily**. Attribution to **www.vira.cz** with a link is a **condition of use**, which is why the card shows "Zdroj: www.vira.cz".
+- Use the **server-side** variant (the one vira.cz recommends): fetch `https://www.vira.cz/biblicky-citat.php` on the server, **cache it until midnight**, and fall back to the last cached verse if vira.cz is down. Do not use the JS or iframe variant (third-party script, layout shift, iframe can't be styled).
+- **Do not load their stylesheet** (`/styly/biblicky-citat.css`). Style the returned HTML with our CSS through its IDs:
+
+| vira.cz element | Our role |
+|---|---|
+| `#biblicky-citat` | the card wrapper (`figure`) |
+| `#biblicky-citat-na-dnesni-den` | the label row (replace the text with "Slovo na dnešek" or hide it and use ours) |
+| `#biblicky-citat-text` | the verse (style as the blockquote above) |
+| `#biblicky-citat-citace` | the reference (bold, green ink) |
+| `#biblicky-citat-odkaz` | the attribution link to www.vira.cz (keep it visible) |
+
+- Cleaner alternative: parse the fetched HTML on the server and render our own markup (`figure` › `blockquote` + `figcaption` › `cite` + link), keeping the www.vira.cz link.
+- The `?bg=1` parameter (dark background variant) is not needed: our CSS handles the dark theme.
+- The response is UTF-8 by default.
