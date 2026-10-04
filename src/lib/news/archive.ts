@@ -7,7 +7,7 @@ import { eventEnd } from "./events";
 // Archiv aktualit (design/DESIGN.md §12): finished events by year, searched and paged in the browser.
 
 /** Rows per "page" of the archive; "Načíst další" shows the next batch. */
-export const ARCHIVE_PAGE_SIZE = 10;
+export const ARCHIVE_PAGE_SIZE = 20;
 
 const startYear = (event: Pick<NewsEvent, "start">) => Number(event.start.slice(0, 4));
 
@@ -76,7 +76,7 @@ export type ArchiveListing<T> = {
   groups: { month: IsoDate; more: boolean; events: { item: T; more: boolean }[] }[];
   /** How many rows the shown pages hold. */
   shownCount: number;
-  /** "Zobrazeno 10 z 21 akcí", "Zobrazeno 21 akcí", "Nalezeno 3 akce" */
+  /** "Zobrazeno 20 z 34 akcí", "Zobrazeno 21 akcí", "Nalezeno 3 akce" */
   countLabel: string;
 };
 

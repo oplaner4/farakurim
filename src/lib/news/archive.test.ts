@@ -72,15 +72,15 @@ describe("archiveListing", () => {
     Array.from({ length: n }, (_, i) =>
       event(`${y}-${i}`, `${y}-0${1 + (i % 9)}-${String(10 + (i % 18)).padStart(2, "0")}`),
     );
-  const items = [...year(2026, 15), ...year(2025, 2), event("pout", "2026-06-28", undefined, { title: "Pouť" })];
+  const items = [...year(2026, 25), ...year(2025, 2), event("pout", "2026-06-28", undefined, { title: "Pouť" })];
   const listing = (o: Partial<{ yearSlug: string; query: string; page: number }>) =>
     archiveListing(items, { years: [2026, 2025], yearSlug: "", query: "", page: 1, today: TODAY, ...o });
 
-  it("counts the years and shows the first 10 events of the year", () => {
+  it("counts the years and shows the first 20 events of the year", () => {
     const l = listing({});
-    expect(l.years.map((y) => y.count)).toEqual([16, 2]);
-    expect([l.matching.length, l.shownCount, l.countLabel]).toEqual([16, 10, "Zobrazeno 10 z 16 akcí"]);
-    expect(listing({ page: 2 }).countLabel).toBe("Zobrazeno 16 akcí");
+    expect(l.years.map((y) => y.count)).toEqual([26, 2]);
+    expect([l.matching.length, l.shownCount, l.countLabel]).toEqual([26, 20, "Zobrazeno 20 z 26 akcí"]);
+    expect(listing({ page: 2 }).countLabel).toBe("Zobrazeno 26 akcí");
   });
 
   it("marks the rows and months after the shown pages", () => {
