@@ -1,8 +1,8 @@
 import { clsx } from "clsx";
 import { navGroups } from "@/content/site";
-import { externalLinkAttrs } from "@/lib/links";
 import { ChevronDownIcon } from "@/components/ui/icons";
-import { groupStyles } from "./nav-group-styles";
+import { GroupShard } from "./GroupShard";
+import { NavGroupLink } from "./NavGroupLink";
 
 /**
  * The secondary-page groups as collapsible `<details>` on mobile (design/DESIGN.md §20.2–20.3), used by the
@@ -28,7 +28,7 @@ export function NavGroupAccordions({
         >
           <summary className="flex min-h-13 cursor-pointer list-none items-center justify-between gap-2.5 px-1 text-17 font-bold">
             <span className="flex items-center gap-2.5">
-              <span aria-hidden="true" className={clsx("h-4 w-3 flex-none shard-br", groupStyles[group.color].shard)} />
+              <GroupShard color={group.color} />
               {group.title}
             </span>
             <ChevronDownIcon className="flex-none transition-transform group-open/accordion:rotate-180 motion-reduce:transition-none" />
@@ -36,17 +36,14 @@ export function NavGroupAccordions({
           <ul className="flex flex-col pr-1 pb-3 pl-6.5">
             {group.links.map((item) => (
               <li key={item.href}>
-                <a
+                <NavGroupLink
                   href={item.href}
-                  aria-current={item.href === currentHref ? "page" : undefined}
-                  className={clsx(
-                    "flex min-h-11 items-center text-16 text-ink no-underline hover:text-blue-ink aria-[current=page]:font-bold",
-                    groupStyles[group.color].current,
-                  )}
-                  {...externalLinkAttrs(item.href)}
+                  color={group.color}
+                  currentHref={currentHref}
+                  className="min-h-11 text-16"
                 >
                   {item.label}
-                </a>
+                </NavGroupLink>
               </li>
             ))}
           </ul>
