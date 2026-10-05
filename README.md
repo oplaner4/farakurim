@@ -14,7 +14,7 @@ shares the header with the "Více" menu and the sitemap footer with the "Slovo n
 
 - **Node.js ≥ 20.9** (required by Next.js 16)
 - **pnpm 10** (`corepack enable` picks up the version in `package.json`). Do not use npm or yarn.
-- **Python 3** for `pnpm preview`, `pnpm mockups` and the content scripts; `pnpm petrklic` and
+- **Python 3** for `pnpm preview`, `pnpm mockups` and the content scripts; `pnpm petrklic`, `pnpm stage` and
   `scripts/poster-webp.py` also need Pillow and `pdftoppm` (poppler-utils)
 - Optional: `pip install --user fonttools brotli` to regenerate the web fonts (`pnpm fonts`), and PHP to try
   `public/biblicky-citat.php` locally (`php -S`)
@@ -61,24 +61,25 @@ PHP, so they show the build's verse. The "Zdroj: www.vira.cz" link is vira.cz's 
 
 ## Commands
 
-| Command                                          | What it does                                                                                                                    |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm dev`                                       | Dev server at http://localhost:3000 (`scripts/dev-server.mjs`: `next dev` plus `/uploads/…` from `uploads/` or the live site)   |
-| `pnpm build`                                     | Static export to `out/`                                                                                                         |
-| `pnpm preview`                                   | Serve `out/` at http://localhost:4173 (run `pnpm build` first), `/uploads/…` from `uploads/` or the live site                   |
-| `pnpm release [--yes] [--major]`                 | Publish the site: upload new `uploads/`, bump, tag and push (see Deployment); asks first unless `--yes`                         |
-| `pnpm test`                                      | Vitest unit tests (`src/**/*.test.ts`)                                                                                          |
-| `pnpm lint`                                      | ESLint (Next core-web-vitals + TypeScript + React hooks rules)                                                                  |
-| `pnpm exec tsc --noEmit`                         | Type check                                                                                                                      |
-| `pnpm format`                                    | Prettier, including Tailwind class sorting (`prettier-plugin-tailwindcss`)                                                      |
-| `pnpm mockups`                                   | Render the design mockups and serve them at http://localhost:4174/mockups/                                                      |
-| `pnpm icons`                                     | Regenerate `src/app/icon.png` (32 px) and `apple-icon.png` (180 px) from `src/app/icon.svg`                                     |
-| `pnpm fonts`                                     | Build `src/fonts/farnost-sans-*.woff2` (Oxygen with fixed `ť ď ľ Ľ`) from `fonts-source/Oxygen/*.ttf` (needs fonttools, brotli) |
-| `pnpm petrklic <id> [--pages]`                   | Render a Petrklíč issue's `cover.webp` (and viewer `pages/`) from `uploads/petrklic/<id>/petrklic-<id>.pdf`                     |
-| `python3 scripts/poster-webp.py <in> <out.webp>` | Render an event poster (PDF page 1 or image) to WebP                                                                            |
-| `python3 scripts/zonerama-album.py <album-url>`  | Read a Zonerama album (title, date, photo URLs) as JSON                                                                         |
+| Command                                             | What it does                                                                                                                    |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm dev`                                          | Dev server at http://localhost:3000 (`scripts/dev-server.mjs`: `next dev` plus `/uploads/…` from `uploads/` or the live site)   |
+| `pnpm build`                                        | Static export to `out/`                                                                                                         |
+| `pnpm preview`                                      | Serve `out/` at http://localhost:4173 (run `pnpm build` first), `/uploads/…` from `uploads/` or the live site                   |
+| `pnpm release [--yes] [--major]`                    | Publish the site: upload new `uploads/`, bump, tag and push (see Deployment); asks first unless `--yes`                         |
+| `pnpm test`                                         | Vitest unit tests (`src/**/*.test.ts`)                                                                                          |
+| `pnpm lint`                                         | ESLint (Next core-web-vitals + TypeScript + React hooks rules)                                                                  |
+| `pnpm exec tsc --noEmit`                            | Type check                                                                                                                      |
+| `pnpm format`                                       | Prettier, including Tailwind class sorting (`prettier-plugin-tailwindcss`)                                                      |
+| `pnpm mockups`                                      | Render the design mockups and serve them at http://localhost:4174/mockups/                                                      |
+| `pnpm icons`                                        | Regenerate `src/app/icon.png` (32 px) and `apple-icon.png` (180 px) from `src/app/icon.svg`                                     |
+| `pnpm fonts`                                        | Build `src/fonts/farnost-sans-*.woff2` (Oxygen with fixed `ť ď ľ Ľ`) from `fonts-source/Oxygen/*.ttf` (needs fonttools, brotli) |
+| `pnpm petrklic <id> [--pages]`                      | Render a Petrklíč issue's `cover.webp` (and viewer `pages/`) from `uploads/petrklic/<id>/petrklic-<id>.pdf`                     |
+| `python3 scripts/poster-webp.py <in> <out.webp>`    | Render an event poster (PDF page 1 or image) to WebP                                                                            |
+| `python3 scripts/zonerama-album.py <album-url>`     | Read a Zonerama album (title, date, photo counts) as JSON; `--write` adds it to `gallery.ts`                                    |
+| `pnpm stage aktualita\|porad\|petrklic … [--check]` | Stage an aktualita file, the weekly PDF or a Petrklíč issue in `uploads/` and print its lines for `src/content/`                |
 
-The last three are used by the content skills (`farnost-create-petrklic`, `-aktualita`, `-galerie`).
+The last four are used by the content skills (`farnost-create-petrklic`, `-aktualita`, `-galerie`, `-porad-bohosluzeb`).
 
 Before you commit, run the full check:
 

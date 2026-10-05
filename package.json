@@ -10,6 +10,7 @@
     "icons": "node scripts/generate-icons.mjs",
     "fonts": "python3 scripts/build-fonts.py",
     "petrklic": "python3 scripts/petrklic-images.py",
+    "stage": "python3 scripts/stage-upload.py",
     "format": "prettier --write .",
     "preview": "python3 scripts/preview.py 4173",
     "release": "scripts/release.sh",
