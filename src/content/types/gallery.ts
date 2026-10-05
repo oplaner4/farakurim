@@ -10,14 +10,24 @@ export type AlbumPhoto = {
   large: string;
 };
 
-/** A Zonerama album (design/DESIGN.md §19.2). The alt text of a photo is "<title>, fotografie N". */
-export type Album = {
-  id: string;
+/**
+ * Photos the lightbox shows (design/DESIGN.md §21.2): an album, or the photos of a group page, which have no date
+ * and no album on Zonerama.
+ */
+export type PhotoSet = {
   title: string;
-  date: IsoDate;
-  /** The album on Zonerama ("Otevřít album"). */
-  href: string;
+  date?: IsoDate;
+  /** The album on Zonerama ("Album na Zonerama" in the lightbox). */
+  href?: string;
   photoCount: number;
   /** Omitted in the mock data: the strips then show `photoCount` designed placeholders. */
   photos?: AlbumPhoto[];
+};
+
+/** A Zonerama album (design/DESIGN.md §19.2). The alt text of a photo is "<title>, fotografie N". */
+export type Album = PhotoSet & {
+  id: string;
+  date: IsoDate;
+  /** The album on Zonerama ("Otevřít album"). */
+  href: string;
 };

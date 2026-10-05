@@ -3,7 +3,7 @@
 import { clsx } from "clsx";
 import { type RefObject, useRef } from "react";
 import { useController, useLightboxState, type RenderSlideProps } from "yet-another-react-lightbox";
-import type { Album } from "@/content/types/gallery";
+import type { PhotoSet } from "@/content/types/gallery";
 import { photoAlt } from "@/lib/gallery/albums";
 import { formatLongDate } from "@/lib/shared/czech";
 import { thumbStart } from "@/lib/shared/lightbox";
@@ -22,7 +22,7 @@ import { AlbumPhotoTile } from "./AlbumPhotoTile";
 const THUMBS = 9;
 
 type Props = {
-  album: Album;
+  album: PhotoSet;
   /** The photo to show, 0-based. */
   index: number;
   /** Shifts the placeholder tints like the album's strip. */
@@ -33,7 +33,8 @@ type Props = {
 
 /**
  * The photo lightbox (design/DESIGN.md §21.2): the album's large photos with prev/next (wrapping around, also by
- * swipe and the arrow keys), the date and title, and on desktop a strip of thumbnails.
+ * swipe and the arrow keys), the date and title, and on desktop a strip of thumbnails. A group page's photos have
+ * no date and no Zonerama album, so those parts are left out.
  */
 export function PhotoLightbox({ album, index, position, onView, onClose }: Props) {
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -64,7 +65,7 @@ export function PhotoLightbox({ album, index, position, onView, onClose }: Props
   return (
     <LightboxShell
       variant="photo"
-      label={`Fotografie z alba ${album.title}`}
+      label={album.date ? `Fotografie z alba ${album.title}` : `Fotografie: ${album.title}`}
       closeRef={closeRef}
       slides={slides}
       index={index}
@@ -82,13 +83,13 @@ export function PhotoLightbox({ album, index, position, onView, onClose }: Props
   );
 }
 
-type ControlsProps = { album: Album; position: number; closeRef: RefObject<HTMLButtonElement | null> };
+type ControlsProps = { album: PhotoSet; position: number; closeRef: RefObject<HTMLButtonElement | null> };
 
 function PhotoControls({ album, position, closeRef }: ControlsProps) {
   const { currentIndex } = useLightboxState();
   const { prev, next } = useController();
   const count = album.photoCount;
-  const date = formatLongDate(album.date);
+  const date = album.date && formatLongDate(album.date);
   const go = (k: number) => {
     if (k > currentIndex) next({ count: k - currentIndex });
     else if (k < currentIndex) prev({ count: currentIndex - k });
@@ -114,15 +115,17 @@ function PhotoControls({ album, position, closeRef }: ControlsProps) {
         title={album.title}
         closeRef={closeRef}
         actions={
-          <a
-            href={album.href}
-            {...NEW_TAB}
-            aria-label="Otevřít album na Zonerama (nové okno)"
-            className={clsx(lightboxButton({ size: "pill" }), "max-md:size-12 max-md:p-0")}
-          >
-            <span className="max-md:hidden">Album na Zonerama</span>
-            <ExternalLinkIcon size={18} />
-          </a>
+          album.href && (
+            <a
+              href={album.href}
+              {...NEW_TAB}
+              aria-label="Otevřít album na Zonerama (nové okno)"
+              className={clsx(lightboxButton({ size: "pill" }), "max-md:size-12 max-md:p-0")}
+            >
+              <span className="max-md:hidden">Album na Zonerama</span>
+              <ExternalLinkIcon size={18} />
+            </a>
+          )
         }
       />
 
@@ -134,11 +137,11 @@ function PhotoControls({ album, position, closeRef }: ControlsProps) {
 
       <div className="flex flex-col gap-3.5 px-4 pt-4 pb-7 max-md:mt-auto md:px-6 md:pb-8 lg:px-8 lg:pb-6">
         <p className="text-center text-15 text-lightbox-ink-2 max-md:hidden">
-          {date} · {album.title}
+          {date ? `${date} · ${album.title}` : album.title}
         </p>
         <div className="flex items-center justify-between gap-3 md:hidden">
           {prevButton("")}
-          <span className="text-14 text-lightbox-ink-2">{date}</span>
+          <span className="text-14 text-lightbox-ink-2">{date ?? album.title}</span>
           {nextButton("")}
         </div>
         <p className="text-center text-13 text-lightbox-hint md:hidden">Přejeďte prstem pro další fotografii</p>

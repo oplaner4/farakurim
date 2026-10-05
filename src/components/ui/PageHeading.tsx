@@ -1,4 +1,5 @@
 import { clsx } from "clsx";
+import type { ReactNode } from "react";
 import { links } from "@/content/site";
 import { Breadcrumbs, type Crumb } from "./Breadcrumbs";
 import type { SectionColor } from "./SectionHeading";
@@ -29,13 +30,16 @@ type Props = {
   /** One line under the title. */
   intro?: string;
   size?: keyof typeof titleSizes;
+  /** A hero photo between the breadcrumb and the title (the group pages). */
+  media?: ReactNode;
 };
 
 /** Breadcrumb "Úvod › … › <page>", the page's visible <h1> with a shard in the section colour and an intro. */
-export function PageHeading({ title, color, parents = [], crumb = title, intro, size = "large" }: Props) {
+export function PageHeading({ title, color, parents = [], crumb = title, intro, size = "large", media }: Props) {
   return (
-    <div className="flex flex-col gap-2 md:gap-2.5 lg:gap-3">
+    <div className={clsx("flex flex-col", media ? "gap-3.5" : "gap-2 md:gap-2.5 lg:gap-3")}>
       <Breadcrumbs parents={[{ label: "Úvod", href: links.home }, ...parents]} current={crumb} />
+      {media}
       <div className="flex items-center gap-3 md:gap-3.5 lg:gap-4">
         <span
           aria-hidden="true"

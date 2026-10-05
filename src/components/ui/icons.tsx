@@ -95,6 +95,19 @@ export const ChevronDownIcon = (p: IconProps) => (
   </Icon>
 );
 
+export const ArrowLeftIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M19 12H5M11 18l-6-6 6-6" />
+  </Icon>
+);
+
+/** The play triangle of a video thumbnail, filled. */
+export const PlayIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M8 5.5v13l10.5-6.5z" fill="currentColor" />
+  </Icon>
+);
+
 export const ArrowRightIcon = (p: IconProps) => (
   <Icon {...p}>
     <path d="M5 12h14M13 6l6 6-6 6" />
