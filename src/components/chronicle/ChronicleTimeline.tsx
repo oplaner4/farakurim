@@ -1,6 +1,6 @@
 import { clsx } from "clsx";
 import type { ChronicleEra } from "@/content/types/chronicle";
-import { byYear } from "@/lib/chronicle/entries";
+import { byYear, formatYears } from "@/lib/chronicle/entries";
 import { externalLinkAttrs } from "@/lib/shared/links";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
@@ -15,17 +15,17 @@ export function ChronicleTimeline({ era, hidden }: { era: ChronicleEra; hidden?:
       <SectionHeading id={headingId} title={era.title} color="blue" small className="mb-2" />
       <ol className="flex flex-col">
         {byYear(era.entries).map((entry) => (
-          <li key={entry.year} className="flex items-start">
+          <li key={formatYears(entry)} className="flex items-start">
             <span
               className={clsx(
                 "w-23 shrink-0 py-3 text-right leading-snug font-bold whitespace-nowrap md:w-32.5 lg:w-37.5",
                 !entry.milestone && "text-18",
                 // A milestone span ("1766–1772") is a little smaller on mobile, so it fits the 92px column.
                 entry.milestone && "text-blue-ink md:text-24",
-                entry.milestone && (entry.year.includes("–") ? "text-20" : "text-24"),
+                entry.milestone && (entry.until ? "text-20" : "text-24"),
               )}
             >
-              {entry.year}
+              {formatYears(entry)}
             </span>
             {/* The line runs through every row; the dot sits on it, ringed with the page colour. */}
             <span aria-hidden="true" className="relative flex w-7 shrink-0 justify-center self-stretch">

@@ -236,15 +236,14 @@ describe("Starší projekty (support-archive.ts)", () => {
 describe("Kronika farnosti (chronicle.ts)", () => {
   const entries = chronicle.flatMap((era) => era.entries);
 
-  it("writes the years as 1226 or 1766–1772 (en dash), in order", () => {
-    expect(entries.filter((e) => !/^\d{4}(–\d{4})?$/.test(e.year)).map((e) => e.year)).toEqual([]);
-    for (const era of chronicle) {
-      const years = era.entries.map((e) => Number.parseInt(e.year, 10));
+  it("has whole years, spans ending after they start, in order", () => {
+    const wrong = entries.filter((e) => !Number.isInteger(e.year) || (e.until !== undefined && e.until <= e.year));
+    expect(wrong).toEqual([]);
+    for (const era of chronicle)
       expect(
-        isSorted(years, (a, b) => a <= b),
+        isSorted(era.entries, (a, b) => a.year <= b.year),
         era.id,
       ).toBe(true);
-    }
     expect(duplicates(chronicle.map((era) => era.id))).toEqual([]);
   });
 });

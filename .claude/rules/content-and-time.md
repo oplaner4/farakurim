@@ -65,8 +65,9 @@ build-time next mass.
 - Starší projekty (`content/support-archive.ts`, design §28): the yearly accounts of the finished projects, newest
   year first, `null` where a value was not recorded ("—"); the totals and the "Dokončeno · 2019–2025" span are
   computed (`src/lib/support/past-projects.ts`).
-- Kronika (`content/chronicle.ts`, design §26): eras of entries with a `year` ("1226" or "1766–1772") and the old
-  chronicle's wording; `milestone` highlights an entry. The timeline sorts by year (`byYear()`).
+- Kronika (`content/chronicle.ts`, design §26): eras of entries with a `year` and, for a span, `until` (1766–1772
+  is `year: 1766, until: 1772`) and the old chronicle's wording; `milestone` highlights an entry. The timeline sorts
+  them (`byYear()`) and writes the years (`formatYears()`).
 - Seznam aktivit (`content/activities.ts`, §25): groups of activities with names-only contacts (GDPR); "hledáme" in
   `contacts` marks an activity looking for help (`seeksHelp()`), `href` links its own page. Výuka náboženství
   (`content/religious-education.ts`, §24): the school year, one timetable per school, the form and rules under
