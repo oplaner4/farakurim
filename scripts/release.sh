@@ -5,7 +5,7 @@
 #
 # Usage: pnpm release            preview, then ask y/N (without a terminal it only previews)
 #        pnpm release --yes      release without asking (an agent passes it only after the user's yes)
-#        pnpm release --major    a major version (e.g. the switch to /farakurim.cz/); combines with --yes
+#        pnpm release --major    a major version (e.g. a redesign); combines with --yes
 #
 # The version follows the Conventional Commits since the last tag: minor when a feat outside the content scope is
 # among them, patch otherwise. A failed run is fixed in a new commit and released again; never move a pushed tag.
@@ -64,7 +64,7 @@ if ! $yes; then
     echo "Preview only. Run \`pnpm release --yes\` after the user's yes."
     exit 0
   fi
-  read -r -p "Publish v$next to http://2026.farakurim.cz/? [y/N] " answer
+  read -r -p "Publish v$next to https://farakurim.cz/? [y/N] " answer
   [[ "$answer" =~ ^[yY]$ ]] || { echo "Nothing was published."; exit 0; }
 fi
 

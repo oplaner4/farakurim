@@ -1,5 +1,5 @@
 # Verifies every push and pull request. Pushing a release tag (vX.Y.Z, made by `pnpm release`) also deploys the
-# built site (out/) to http://2026.farakurim.cz/; pushes to main are only a backup,
+# built site (out/) to https://farakurim.cz/; pushes to main are only a backup,
 # and the main push of a release commit is skipped because its tag run checks the same commit.
 # Pushes and pull requests that only change docs (Markdown, design/, agent skills and rules) do not run; path filters
 # do not apply to tags, so a release always runs every check, including Prettier on the Markdown.
@@ -101,7 +101,7 @@ jobs:
       cancel-in-progress: false
     environment:
       name: Production
-      url: http://2026.farakurim.cz/
+      url: https://farakurim.cz/
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

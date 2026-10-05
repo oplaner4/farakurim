@@ -137,8 +137,8 @@ deployed to `/uploads/…` and linked root-relative. Album photos stay on Zonera
 
 GitHub Actions (`.github/workflows/build-and-deploy.yml`) checks and builds every push and pull request; pushes to `main` are
 only a backup. A **release** deploys: pushing a tag `vX.Y.Z` that matches `version` in `package.json` and points to a
-commit on `main` uploads the **contents** of `out/` to the web root with rsync over SSH (for now
-`/2026.farakurim.cz/`, served at http://2026.farakurim.cz/). Make releases with `pnpm release` (`scripts/release.sh`,
+commit on `main` uploads the **contents** of `out/` to the web root with rsync over SSH (`/farakurim.cz/`, served at
+https://farakurim.cz/; the old PHP site is backed up in `/stary.farakurim.cz/`). Make releases with `pnpm release` (`scripts/release.sh`,
 from a clean `main`): it shows the commits, the version and the new uploads, asks, then uploads `uploads/`, bumps the
 version (`pnpm version`: commit and tag) and pushes `main` with the tag. The server details (SSH target, web root,
 rsync flags, verify checks) live in `scripts/deploy.sh`, which the workflow's deploy job runs too. The workflow reads `DEPLOY_SSH_KEY` (secret) and `DEPLOY_KNOWN_HOSTS` from the `Production` environment and

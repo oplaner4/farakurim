@@ -9,12 +9,12 @@
 #        scripts/deploy.sh out [--dry-run]       sync out/ to the web root (--delete, server-only folders excluded)
 #        scripts/deploy.sh verify [path…]        check the live site (and each given path, e.g. /uploads/x.pdf)
 #
-# /farakurim.cz/ on the server is the live old PHP site: never point WEB_ROOT there while it is, --delete wipes it.
+# The old PHP site that lived in /farakurim.cz/ is backed up in /stary.farakurim.cz/ (outside WEB_ROOT, never synced).
 set -euo pipefail
 
 SSH_TARGET=farakurim_cz@91.239.200.63
-WEB_ROOT=/2026.farakurim.cz
-SITE=http://2026.farakurim.cz # no TLS certificate on the subdomain yet
+WEB_ROOT=/farakurim.cz
+SITE=https://farakurim.cz
 # Not in out/ and only on the server: uploaded files, the old site's virtual tour, the last vira.cz verse.
 SERVER_ONLY=(/uploads/ /virtualni_prohlidka/ /cache/)
 

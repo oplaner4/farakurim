@@ -63,7 +63,7 @@ What an agent must never get wrong:
 - Pushing a release tag `vX.Y.Z` **publishes the site** (GitHub Actions deploys `out/`; pushes to `main` are only a
   backup), and so does uploading `uploads/`: ask the user for an explicit yes before either. Preview with
   `pnpm release`, and run `pnpm release --yes` only after that yes.
-- `/farakurim.cz/` on the server is the live old PHP site: never deploy there.
+- `/stary.farakurim.cz/` on the server is the backup of the old PHP site: never deploy there or delete it.
 - Never delete `/uploads/`, `/virtualni_prohlidka/` or `/cache/` on the server: they live only there.
 - The SSH target, web root, rsync flags, server-only folders and verify checks live only in `scripts/deploy.sh`
   (used by `pnpm release` and the workflow's deploy job): change them there.

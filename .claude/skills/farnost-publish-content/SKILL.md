@@ -52,6 +52,6 @@ Never stage `uploads/` or `out/`.
 
 Run the `farnost-release` skill: `pnpm release` previews the commits, the version and the staged uploads, and after the
 user's yes `pnpm release --yes` uploads them, bumps the version, tags the release and pushes `main` with the tag; GitHub Actions then checks, builds and deploys `out/` to
-http://2026.farakurim.cz/. If the run fails (a check, or a linked upload missing on the server), fix it in a new
+https://farakurim.cz/. If the run fails (a check, or a linked upload missing on the server), fix it in a new
 commit and release again with a new version. Do not upload, tag or push without the user's explicit yes. When the
 user only wants a backup, push `main` without a release.
