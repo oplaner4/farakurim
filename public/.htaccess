@@ -6,5 +6,8 @@ ErrorDocument 404 /404.html
 RedirectMatch 301 ^/schola/?$ /aktivity/schola/
 RedirectMatch 301 ^/chramovy_sbor/?$ /aktivity/chramovy_sbor/
 RedirectMatch 301 ^/spolecenstvi_mladych(/setkavani)?/?$ /aktivity/spolecenstvi_mladych/
-RedirectMatch 301 ^/katecheze_pro_deti(/pravidelne)?/?$ /aktivity/katecheze_pro_deti/
-RedirectMatch 301 ^/katecheze_pro_deti/mimoradne/(.+?)/?$ /aktivity/katecheze_pro_deti/mimoradne/$1/
+# The old katecheze pages also answered with .php; mimoradne/ and the season folders opened their rozcestník.
+RedirectMatch 301 ^/katecheze_pro_deti(/pravidelne)?(\.php)?/?$ /aktivity/katecheze_pro_deti/
+RedirectMatch 301 ^/katecheze_pro_deti/mimoradne(/index)?(\.php)?/?$ /aktivity/katecheze_pro_deti/mimoradne/rozcestnik/
+RedirectMatch 301 ^/katecheze_pro_deti/mimoradne/(adventni_doba|postni_doba|vanocni_doba)(/index)?(\.php)?/?$ /aktivity/katecheze_pro_deti/mimoradne/$1/rozcestnik/
+RedirectMatch 301 ^/katecheze_pro_deti/mimoradne/(.+?)(\.php)?/?$ /aktivity/katecheze_pro_deti/mimoradne/$1/
