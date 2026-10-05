@@ -12,6 +12,7 @@
     "petrklic": "python3 scripts/petrklic-images.py",
     "format": "prettier --write .",
     "preview": "python3 scripts/preview.py 4173",
+    "release": "scripts/release.sh",
     "mockups": "python3 scripts/render-mockups.py && python3 -m http.server -d .design-preview 4174",
     "prepare": "husky"
   },

@@ -66,6 +66,7 @@ PHP, so they show the build's verse. The "Zdroj: www.vira.cz" link is vira.cz's 
 | `pnpm dev`                                       | Dev server at http://localhost:3000 (`scripts/dev-server.mjs`: `next dev` plus `/uploads/…` from `uploads/` or the live site)   |
 | `pnpm build`                                     | Static export to `out/`                                                                                                         |
 | `pnpm preview`                                   | Serve `out/` at http://localhost:4173 (run `pnpm build` first), `/uploads/…` from `uploads/` or the live site                   |
+| `pnpm release [--yes] [--major]`                 | Publish the site: upload new `uploads/`, bump, tag and push (see Deployment); asks first unless `--yes`                         |
 | `pnpm test`                                      | Vitest unit tests (`src/**/*.test.ts`)                                                                                          |
 | `pnpm lint`                                      | ESLint (Next core-web-vitals + TypeScript + React hooks rules)                                                                  |
 | `pnpm exec tsc --noEmit`                         | Type check                                                                                                                      |
@@ -105,7 +106,7 @@ src/content/         Content, one file per domain (mock data and build-time fetc
 src/content/types/   The content types, one file per domain
 public/              Static assets served as is (logo, carousel photos at the old site's URLs), plus .htaccess and
                      biblicky-citat.php
-scripts/             Dev and preview servers, icon, font, mockup and content tooling
+scripts/             Dev and preview servers, release and deploy, icon, font, mockup and content tooling
 fonts-source/        Original Oxygen TTFs and their OFL licence (input for `pnpm fonts`)
 .github/workflows/   build-and-deploy.yml: check, build and deploy (see Deployment)
 uploads/             Uploaded files (posters, PDFs, Petrklíč, group photos) staged for the server; git-ignored
@@ -136,11 +137,12 @@ deployed to `/uploads/…` and linked root-relative. Album photos stay on Zonera
 GitHub Actions (`.github/workflows/build-and-deploy.yml`) checks and builds every push and pull request; pushes to `main` are
 only a backup. A **release** deploys: pushing a tag `vX.Y.Z` that matches `version` in `package.json` and points to a
 commit on `main` uploads the **contents** of `out/` to the web root with rsync over SSH (for now
-`/2026.farakurim.cz/`, served at http://2026.farakurim.cz/). Make releases with
-`pnpm version <patch|minor|major> -m "chore(release): v%s"` (it bumps, commits and tags; needs a clean tree), then
-`git push origin main --follow-tags`. The workflow reads `DEPLOY_SSH_KEY` (secret) and `DEPLOY_KNOWN_HOSTS` from the `Production` environment and
-the repository variables `GOOGLE_CALENDAR_API_KEY`, `MATOMO_URL` and `MATOMO_SITE_ID` (the build job has no environment). Uploaded files are not in git, so upload new files from `uploads/` into `/uploads/`
-yourself before the release (the `farnost-deploy` skill has the commands): the workflow stops if the build links a file
+`/2026.farakurim.cz/`, served at http://2026.farakurim.cz/). Make releases with `pnpm release` (`scripts/release.sh`,
+from a clean `main`): it shows the commits, the version and the new uploads, asks, then uploads `uploads/`, bumps the
+version (`pnpm version`: commit and tag) and pushes `main` with the tag. The server details (SSH target, web root,
+rsync flags, verify checks) live in `scripts/deploy.sh`, which the workflow's deploy job runs too. The workflow reads `DEPLOY_SSH_KEY` (secret) and `DEPLOY_KNOWN_HOSTS` from the `Production` environment and
+the repository variables `GOOGLE_CALENDAR_API_KEY`, `MATOMO_URL` and `MATOMO_SITE_ID` (the build job has no environment). Uploaded files are not in git, so `pnpm release` uploads the new files from `uploads/` into `/uploads/`
+before it tags: the workflow stops if the build links a file
 that is not on the server yet (set the `Production` variable `CHECK_UPLOADS` to `false` to skip that check). The sync deletes files that are no longer in
 `out/`, except three folders that live only on the server: `/uploads/`, `/virtualni_prohlidka/` (the old site's
 virtual tour) and `/cache/` (the last vira.cz verse). `trailingSlash: true` produces `page/index.html`, so Apache

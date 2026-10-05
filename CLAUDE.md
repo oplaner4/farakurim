@@ -56,16 +56,17 @@ and linked root-relative as `/uploads/…`. Album photos stay on Zonerama. The o
 
 ## Deployment
 
-How it works is in [README.md § Deployment](README.md#deployment); the steps are in the `farnost-deploy` skill.
+How it works is in [README.md § Deployment](README.md#deployment); `pnpm release` (`scripts/release.sh`) releases, and
+the `farnost-deploy` skill says how an agent runs it.
 What an agent must never get wrong:
 
 - Pushing a release tag `vX.Y.Z` **publishes the site** (GitHub Actions deploys `out/`; pushes to `main` are only a
-  backup), and so does uploading `uploads/`: ask the user for an explicit yes before either. Releases are made by the
-  `farnost-deploy` skill from a clean tree (`pnpm version` bumps `package.json`, commits and tags).
+  backup), and so does uploading `uploads/`: ask the user for an explicit yes before either. Preview with
+  `pnpm release`, and run `pnpm release --yes` only after that yes.
 - `/farakurim.cz/` on the server is the live old PHP site: never deploy there.
 - Never delete `/uploads/`, `/virtualni_prohlidka/` or `/cache/` on the server: they live only there.
-- **Keep `.github/workflows/build-and-deploy.yml` and the `farnost-deploy` skill in sync:** the SSH target, web root, rsync
-  flags, the three excludes and the verify checks live in both, so a change to one is a change to the other.
+- The SSH target, web root, rsync flags, server-only folders and verify checks live only in `scripts/deploy.sh`
+  (used by `pnpm release` and the workflow's deploy job): change them there.
 
 ## Rules
 
