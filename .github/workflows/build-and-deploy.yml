@@ -116,7 +116,14 @@ jobs:
           printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
 
       - name: Check that every linked upload is on the server
+        env:
+          # On unless the Production environment sets CHECK_UPLOADS to false.
+          CHECK_UPLOADS: ${{ vars.CHECK_UPLOADS }}
         run: |
+          if [ "$CHECK_UPLOADS" = "false" ]; then
+            echo "::warning::CHECK_UPLOADS is false: the linked uploads were not checked on the server."
+            exit 0
+          fi
           grep -rhoE '/uploads/[A-Za-z0-9._/%-]+\.[A-Za-z0-9]+' out | sort -u > linked.txt
           ssh "$SSH_TARGET" "cd $WEB_ROOT && find uploads -type f" | sed 's|^|/|' | sort -u > on-server.txt
           comm -23 linked.txt on-server.txt > missing.txt

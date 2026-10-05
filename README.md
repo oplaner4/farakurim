@@ -129,7 +129,7 @@ commit on `main` uploads the **contents** of `out/` to the web root with rsync o
 `git push origin main --follow-tags`. The workflow reads `DEPLOY_SSH_KEY` (secret) and `DEPLOY_KNOWN_HOSTS` from the `Production` environment and
 the repository variable `GOOGLE_CALENDAR_API_KEY` (the build job has no environment). Uploaded files are not in git, so upload new files from `uploads/` into `/uploads/`
 yourself before the release (the `farnost-deploy` skill has the commands): the workflow stops if the build links a file
-that is not on the server yet. The sync deletes files that are no longer in
+that is not on the server yet (set the `Production` variable `CHECK_UPLOADS` to `false` to skip that check). The sync deletes files that are no longer in
 `out/`, except three folders that live only on the server: `/uploads/`, `/virtualni_prohlidka/` (the old site's
 virtual tour) and `/cache/` (the last vira.cz verse). `trailingSlash: true` produces `page/index.html`, so Apache
 serves the pages without rewrite rules; `public/.htaccess` serves `404.html` for missing URLs.

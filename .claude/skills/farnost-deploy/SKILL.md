@@ -50,9 +50,10 @@ A failed run (a check, a missing upload) is fixed in a new commit and released w
 reuse a pushed tag.
 
 The deploy job reads the `Production` environment: `DEPLOY_SSH_KEY` (secret, a private key the server accepts) and
-`DEPLOY_KNOWN_HOSTS` (the server's line from `ssh-keygen -F 91.239.200.63`, fingerprint checked). The build job has
-no environment, so `GOOGLE_CALENDAR_API_KEY` is a repository variable (it is public in the built JS anyway). Deploying
-`out/` locally with the commands below still works, as a fallback when Actions is down.
+`DEPLOY_KNOWN_HOSTS` (the server's line from `ssh-keygen -F 91.239.200.63`, fingerprint checked), and the optional
+variable `CHECK_UPLOADS`: `false` skips the linked-uploads check (with a warning); unset or anything else keeps it on.
+The build job has no environment, so `GOOGLE_CALENDAR_API_KEY` is a repository variable (it is public in the built JS
+anyway). Deploying `out/` locally with the commands below still works, as a fallback when Actions is down.
 
 **Keep the workflow and this skill in sync.** Both hold the SSH target, the web root, the `out/` rsync flags with
 its three excludes and the verify checks. When you change one (a new server-only folder, the switch to
