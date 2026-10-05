@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { ThemeProvider } from "next-themes";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { QueryProvider } from "@/components/layout/QueryProvider";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SITE_URL } from "@/content/site";
 import "@/styles/globals.css";
@@ -48,8 +49,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             Přejít na obsah
           </a>
           {/* Each page renders <SiteHeader> (it marks the current page) and <main id="obsah">. */}
-          <NuqsAdapter>{children}</NuqsAdapter>
-          <SiteFooter />
+          <QueryProvider>
+            <NuqsAdapter>{children}</NuqsAdapter>
+            <SiteFooter />
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>
