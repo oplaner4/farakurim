@@ -33,14 +33,17 @@ type Props = {
 
 /**
  * One album of the Fotogalerie page (design/DESIGN.md §19.1): date, title, photo count and a link to Zonerama, then
- * a strip of 1 / 2 / 3 photos per screen that the arrows page through (wrapping around). Each photo opens the
+ * a strip of 1 / 2 / 3 photos per screen that the arrows page through (wrapping around) and that turns a page every
+ * few seconds until the visitor takes over (not while the lightbox is open). Each photo opens the
  * lightbox at that photo (§21, `#album-<id>-foto-3`); without JS it links to the album on Zonerama.
  */
 export function AlbumStrip({ album, position }: Props) {
   const count = album.photoCount;
-  const { trackRef, view, onScroll, onKeyDown, prev, next } = useSnapCarousel<HTMLUListElement>(count);
   const id = albumElementId(album);
   const open = photoFromHash(album, useLocationHash());
+  const { view, regionProps, trackProps, prev, next } = useSnapCarousel<HTMLUListElement>(count, {
+    paused: open !== null,
+  });
   return (
     <section
       id={id}
@@ -74,16 +77,15 @@ export function AlbumStrip({ album, position }: Props) {
         aria-roledescription="carousel"
         aria-label={`Fotografie z alba ${album.title}`}
         className="flex flex-col gap-2.5"
-        onKeyDown={onKeyDown}
+        {...regionProps}
       >
         {/* The gaps are the items' padding, so a page is exactly the track's width. */}
         <ul
-          ref={trackRef}
+          {...trackProps}
           // Focusable, so the arrow keys work without reaching for the buttons.
           tabIndex={0}
           aria-label="Fotografie"
           className="-mx-1.5 no-scrollbar flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain motion-safe:scroll-smooth md:-mx-1.75 lg:-mx-2"
-          onScroll={onScroll}
         >
           {Array.from({ length: count }, (_, i) => (
             <li key={i} className="shrink-0 basis-full snap-start px-1.5 md:basis-1/2 md:px-1.75 lg:basis-1/3 lg:px-2">

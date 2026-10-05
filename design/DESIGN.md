@@ -191,7 +191,7 @@ considers the calendar essential, so it is the second thing visitors see.
 ### 4.5 Fotogalerie (green) – carousel of the newest album
 
 - Header: H2 "Fotogalerie" with the green shard, link "Celá fotogalerie" to `/fotogalerie`.
-- **Stage** (`role="region" aria-roledescription="carousel"`, label "Fotografie z alba …"): the photos of the **newest album** one at a time. Ratio 4:3 on mobile, 16:9 on tablet, 16:10 on desktop; radius 20 / 24 / 28. 48 px round prev/next buttons (white 92 %, dark icon) at the sides, and a counter pill "3 / 12" bottom-right (`aria-live="polite"`). Swipe on touch; arrow keys when focused. No autoplay.
+- **Stage** (`role="region" aria-roledescription="carousel"`, label "Fotografie z alba …"): the photos of the **newest album** one at a time. Ratio 4:3 on mobile, 16:9 on tablet, 16:10 on desktop; radius 20 / 24 / 28. 48 px round prev/next buttons (white 92 %, dark icon) at the sides, and a counter pill "3 / 12" bottom-right (`aria-live="polite"`). Swipe on touch; arrow keys when focused. Autoplay: the next photo every 6 s (wrapping around), with the rules in section 5.
 - Caption under the stage: the date (muted), album title (bold), link "Celé album →".
 - **"Další alba"**: the next 3 albums as compact rows (88×66 thumbnail, date, title), on `--surface`, radius 16. Mobile/tablet: under the stage. Desktop: a column beside the stage (stage `flex: 999 1 640px`, list `flex: 1 1 340px`).
 - Photos load lazily except the first; use the Zonerama `sm`/`md` image sizes via `srcset`.
@@ -212,7 +212,7 @@ considers the calendar essential, so it is the second thing visitors see.
 - Prefer a CSS scroll-snap track (`overflow-x:auto; scroll-snap-type:x mandatory`) plus small vanilla JS for arrows, dots and optional autoplay.
 - `<picture>` per slide: `lg` at `(min-width:1200px)`, `md` at `(min-width:768px)`, and `sm` as the `<img>` fallback.
 - Slide 1 `fetchpriority="high"`, others `loading="lazy"`. Meaningful `alt` per photo.
-- Autoplay (if any) pauses on hover and focus, and is off under `prefers-reduced-motion`.
+- Autoplay (every carousel, 6 s) pauses on hover and focus and while the carousel is off screen, stops for good once the visitor swipes or uses the arrows, dots or arrow keys, and is off under `prefers-reduced-motion`.
 - Buttons have `aria-label` ("Předchozí fotografie", "Další fotografie", "Fotografie N"); the active dot has `aria-current="true"`.
 
 ### Next mass and countdown
@@ -844,7 +844,7 @@ Mockups: `mockups/fotogalerie/`. Section colour: **green**. The header's current
 1. Breadcrumb `Úvod › Fotogalerie`, H1 "Fotogalerie" with the green shard, lead "Fotografie z farních akcí. Starší alba najdete na Zonerama."
 2. **One block per album** (newest first), separated by a hairline:
    - date as a green-tint pill, H2 album title (22 / 24 / 28 px), "12 fotografií" muted, and the link "Otevřít album →" on the right (Zonerama album URL).
-   - a **photo strip carousel**: 1 photo visible on mobile, 2 on tablet, 3 on desktop (4:3, radius 16–20). Under it: prev/next 48 px round outline buttons and the counter "1–3 / 12" (`aria-live`). The arrows move by one page and wrap around. Each photo opens the **photo lightbox** (section 21) at that photo; "Otevřít album →" still links to Zonerama.
+   - a **photo strip carousel**: 1 photo visible on mobile, 2 on tablet, 3 on desktop (4:3, radius 16–20). Under it: prev/next 48 px round outline buttons and the counter "1–3 / 12" (`aria-live`). The arrows move by one page and wrap around; autoplay turns a page every 6 s while the strip is on screen and the lightbox is closed (rules in section 5). Each photo opens the **photo lightbox** (section 21) at that photo; "Otevřít album →" still links to Zonerama.
    - Implement as a scroll-snap track (`scroll-snap-type: x mandatory`) with the buttons scrolling by one page width; it then also works by swipe.
 3. **"Další alba"** panel (green tint, green corner triangle): "Všechna starší alba farnosti jsou na Zonerama." and a green button **"Více fotogalerií na Zonerama"** with an external-link icon. In the light theme the button is `#17784A` with white text; in dark it is `#5FD394` with **dark text `#111923`** (never white on light green).
 

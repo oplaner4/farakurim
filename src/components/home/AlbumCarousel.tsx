@@ -12,26 +12,25 @@ const arrowClass =
 
 /**
  * The newest album's photos one at a time (design/DESIGN.md §4.5): swipe, the arrows (wrapping around) or the
- * arrow keys, and a "3 / 12" counter. No autoplay.
+ * arrow keys, and a "3 / 12" counter. Turns a photo every few seconds until the visitor takes over.
  */
 export function AlbumCarousel({ album }: { album: Album }) {
   const count = album.photoCount;
-  const { trackRef, view, onScroll, onKeyDown, prev, next } = useSnapCarousel<HTMLUListElement>(count);
+  const { view, regionProps, trackProps, prev, next } = useSnapCarousel<HTMLUListElement>(count);
   return (
     <div
       role="region"
       aria-roledescription="carousel"
       aria-label={`Fotografie z alba ${album.title}`}
       className="relative overflow-hidden rounded-20 md:rounded-24 lg:rounded-28"
-      onKeyDown={onKeyDown}
+      {...regionProps}
     >
       <ul
-        ref={trackRef}
+        {...trackProps}
         // Focusable, so the arrow keys work without reaching for the buttons.
         tabIndex={0}
         aria-label="Fotografie"
         className="no-scrollbar flex aspect-4/3 snap-x snap-mandatory overflow-x-auto overscroll-x-contain motion-safe:scroll-smooth md:aspect-16/9 lg:aspect-16/10"
-        onScroll={onScroll}
       >
         {Array.from({ length: count }, (_, i) => (
           <li
