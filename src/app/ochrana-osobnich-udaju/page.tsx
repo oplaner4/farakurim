@@ -8,7 +8,7 @@ const lead = "Jak web farnosti zachází s údaji návštěvníků.";
 
 export const metadata: Metadata = {
   title: "Ochrana osobních údajů",
-  description: `${lead} Anonymní statistika návštěvnosti bez cookies na vlastním serveru farnosti.`,
+  description: `${lead} Anonymní statistika návštěvnosti bez cookies na hostingu farnosti.`,
 };
 
 /** Privacy page (no mockup yet): statistics, browser storage and the third-party services the site loads. */
@@ -34,7 +34,7 @@ export default function PrivacyPage() {
           <SectionHeading id="statistika" title="Statistika návštěvnosti" color="blue" small />
           <div className="rich-text text-15 text-ink-2">
             <p>
-              Abychom věděli, které stránky čtete a co stahujete, počítáme návštěvy nástrojem Matomo. Běží na serveru
+              Abychom věděli, které stránky čtete a co stahujete, počítáme návštěvy nástrojem Matomo. Běží na hostingu
               farnosti, data nikomu nepředáváme.
             </p>
             <ul>
@@ -48,7 +48,8 @@ export default function PrivacyPage() {
         <section aria-labelledby="prohlizec" className="flex max-w-170 flex-col gap-4">
           <SectionHeading id="prohlizec" title="Co se ukládá ve vašem prohlížeči" color="blue" small />
           <p className="text-15 text-ink-2">
-            Jen zvolený barevný režim (světlý nebo tmavý), aby zůstal stejný i při další návštěvě. Nikam se neodesílá.
+            Tento web sám ukládá jen zvolený barevný režim (světlý nebo tmavý), aby zůstal stejný i při další návštěvě.
+            Nikam se neodesílá.
           </p>
         </section>
 
@@ -64,7 +65,7 @@ export default function PrivacyPage() {
                 <strong>Google</strong> – události v kalendářích (Google Kalendář),
               </li>
               <li>
-                <strong>Zonerama</strong> – fotografie ve Fotogalerii,
+                <strong>Zonerama</strong> – fotografie z alb na úvodní stránce a ve Fotogalerii,
               </li>
               <li>
                 <strong>Mapy.com</strong> – mapa na stránce Kontakty,
@@ -73,6 +74,10 @@ export default function PrivacyPage() {
                 <strong>YouTube</strong> – videa, a to až když je spustíte.
               </li>
             </ul>
+            <p>
+              Vložená mapa a přehrávač videa mohou ve vašem prohlížeči ukládat vlastní údaje podle pravidel těchto
+              služeb.
+            </p>
           </div>
         </section>
       </main>
