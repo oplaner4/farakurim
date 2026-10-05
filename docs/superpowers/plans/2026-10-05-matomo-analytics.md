@@ -74,7 +74,8 @@ This produces the URL and the **site ID** that Tasks 2 and 4 need. Tasks 1–3 c
 - [ ] **Step 0.9:** _Administration → System → General settings_: _Archive reports when viewed from the browser_
       **yes**. _Administration → Websites → Manage → Farnost Kuřim_: excluded parameters — none needed; excluded IPs —
       add your home/parish IPs if you want to skip your own visits.
-- [ ] **Step 0.10:** _Administration → Privacy → … → Disable visits log and visitor profile_: **on** (in Matomo 5 this
+- [ ] **Step 0.10:** _Administration → System → General settings_, section _Live_: "Disable visits log & visitor
+      profile" **on**.
 - [ ] **Step 0.11:** In GitHub → repository → _Settings → Secrets and variables → Actions → Variables_, add
       repository variables `MATOMO_URL` = `https://statistiky.farakurim.cz` and `MATOMO_SITE_ID` = the ID from 0.5.
 
