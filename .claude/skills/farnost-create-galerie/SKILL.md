@@ -20,45 +20,30 @@ It must be an album: `https://eu.zonerama.com/FarnostKurim/Album/<albumId>`. The
 python3 scripts/zonerama-album.py "https://eu.zonerama.com/FarnostKurim/Album/<albumId>"
 ```
 
-It prints JSON with the title (sentence case, without Zonerama's `YYYY_MM_DD` prefix), the date from that prefix,
-and up to 15 photos as `{ small, large }` URLs (800 and 1600 px wide). The photos share the album's most common
-landscape aspect ratio, because the strips crop every photo to 4:3: one shape keeps the crops consistent, and
-portraits would lose most of the picture. `total` / `inRatio` say how many photos the album has and how many fit.
+It prints JSON with the proposed `id` (ASCII kebab-case from the title), the title (sentence case, without
+Zonerama's `YYYY_MM_DD` prefix), the date from that prefix, and the photo counts. It picks up to 15 photos of the
+album's most common landscape aspect ratio, because the strips crop every photo to 4:3: one shape keeps the crops
+consistent, and portraits would lose most of the picture. `total` / `inRatio` / `photos` say how many photos the
+album has, how many fit and how many it takes.
 
 If the title had no date prefix, `date` is empty: ask the user for the date of the event.
 
 ## 3. Confirm with the user
 
-Show the title (fix the wording if Zonerama's is a working name, e.g. lower-case or abbreviated), the date, and
-"N of M photos (ratio 1.5)". Ask before continuing if fewer than 6 photos fit: the user may prefer another album.
+Show the title (fix the wording if Zonerama's is a working name, e.g. lower-case or abbreviated), the date, the id
+and "N of M photos (ratio 1.5)". Ask before continuing if fewer than 6 photos fit: the user may prefer another album.
 
 ## 4. Add the record
 
-Add the album at the top of `albums` in `src/content/gallery.ts` (newest first, by `date`):
-
-```ts
-  {
-    id: "pout-vranov",
-    title: "Pouť Sedmiradostnou cestou na Vranov",
-    date: "2026-08-30",
-    href: album(16128406),
-    photoCount: 15,
-    photos: [
-      {
-        small: "https://eu.zonerama.com/photos/662362616_800x534_18.jpg",
-        large: "https://eu.zonerama.com/photos/662362616_1600x1068_18.jpg",
-      },
-      // …
-    ],
-  },
+```sh
+python3 scripts/zonerama-album.py "<album URL>" --write --title "<title>" --date <YYYY-MM-DD> --id <id>
 ```
 
-- `id`: ASCII kebab-case from the title, unique in the file (it is the block's anchor `#album-<id>`).
-- `href`: the `album()` helper with the album number.
-- `photoCount` **equals `photos.length`**: the strips render `photoCount` tiles and fill the missing ones with
-  placeholders.
-- The page shows the 6 newest albums and the homepage the 4 newest; remove records beyond the 6th, older albums
-  stay reachable on Zonerama.
+Pass the confirmed values (each only when it differs from the JSON). It adds the `Album` record to `albums` in
+`src/content/gallery.ts` in date order (newest first), with `href: album(<n>)`, `photoCount` equal to the photos
+and the `{ small, large }` URLs (800 and 1600 px wide), keeps the 6 newest albums (the page shows 6, the homepage 4;
+older ones stay on Zonerama) and formats the file. It refuses an id or album already in the file. Do not edit the
+photo URLs by hand.
 
 ## 5. Publish
 
@@ -68,6 +53,6 @@ homepage album carousel.
 ## Common mistakes
 
 - Using the profile or tab URL instead of the album URL (the script refuses it).
-- Setting `photoCount` to the album's total on Zonerama: the extra tiles become placeholders.
-- Inserting the album out of date order: the homepage shows `albums[0]` as the newest.
+- Writing the record by hand instead of `--write`: `photoCount` must equal `photos.length` and the albums stay in
+  date order (the homepage shows `albums[0]` as the newest).
 - Downloading photos or hosting them on the server: the URLs point at Zonerama.

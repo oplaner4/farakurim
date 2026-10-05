@@ -41,20 +41,25 @@ Write the text from the source, in Czech; do not invent facts. Leave out what th
 | `pinned`               | Only when the user asks for "Doporučujeme". At most one: remove `pinned` from the previous event.                                                                                       |
 | `calendarEventId`      | Ask whether the event is in the "Události" Google Calendar; if the user gives its event ID, set it (links the calendar entry to the detail page).                                       |
 
-## 3. Name the files
+## 3. Pick the label
 
-The source file is attached under one of these labels (the label is shown on the page; the file name is ASCII):
+The source file is attached under one of these labels (shown on the page; the script names the file
+`<id>-<label in ASCII>.<ext>`):
 
-| Label       | When                                      | File name              |
-| ----------- | ----------------------------------------- | ---------------------- |
-| `Plakát`    | Poster or visual flyer                    | `<id>-plakat.<ext>`    |
-| `Pozvánka`  | Invitation to a specific event            | `<id>-pozvanka.<ext>`  |
-| `Program`   | Schedule or order of proceedings          | `<id>-program.<ext>`   |
-| `Leták`     | Handout-style flyer                       | `<id>-letak.<ext>`     |
-| `Informace` | General information                       | `<id>-informace.<ext>` |
-| `Oznámení`  | Plain announcement without strong visuals | `<id>-oznameni.<ext>`  |
+| Label       | When                                      |
+| ----------- | ----------------------------------------- |
+| `Plakát`    | Poster or visual flyer                    |
+| `Pozvánka`  | Invitation to a specific event            |
+| `Program`   | Schedule or order of proceedings          |
+| `Leták`     | Handout-style flyer                       |
+| `Informace` | General information                       |
+| `Oznámení`  | Plain announcement without strong visuals |
 
-Allowed: images, PDF, audio, video. If the file is over 10 MB, ask the user for a smaller one.
+Check the name before confirming (it refuses a taken name, a bad id or label, and files over 10 MB):
+
+```sh
+pnpm stage aktualita "<source>" <id> <label> --title "<title>" --check
+```
 
 ## 4. Confirm with the user
 
@@ -63,26 +68,16 @@ Show the extracted fields (and the label) in a short list. Point out guesses: th
 
 ## 5. Stage the files
 
-```sh
-mkdir -p uploads/aktuality
-cp "<source>" "uploads/aktuality/<id>-plakat.<ext>"
-stat -c %s "uploads/aktuality/<id>-plakat.<ext>"   # → attachment size
-```
-
-A visual source (poster, invitation, flyer) also becomes the event's poster: render it to WebP (page 1 of a PDF,
-or a scaled-down image), staged next to the original.
-
-```sh
-python3 scripts/poster-webp.py "uploads/aktuality/<id>-plakat.<ext>" "uploads/aktuality/<id>-plakat.webp"
-```
-
-Skip the poster for a text-only document (`Informace`, `Oznámení`): the page then shows the designed placeholder.
+Run the same command without `--check`. It copies the file to `uploads/aktuality/` and, for `Plakát`, `Pozvánka`
+and `Leták`, renders the poster WebP next to it (`--poster` / `--no-poster` overrides that; a text-only document
+gets the designed placeholder). It prints the `poster` and `attachments` lines for the record, with the size.
 
 ## 6. Add the record
 
 Add the event to the file of its **start month**, `src/content/news/<year>/<MM>.ts` (`2026/10.ts` for an event
 starting in October 2026), in start-date order; a multi-day event goes by its `start`. Use the `UPLOADS` constant
-for file URLs (`import { UPLOADS } from "../uploads";`, add it if the file lacks it):
+for file URLs (`import { UPLOADS } from "../uploads";`, add it if the file lacks it); paste the lines `pnpm stage`
+printed:
 
 ```ts
   {
@@ -116,6 +111,5 @@ the Kalendář.
 - Copying the poster's capitals into `title`, or its whole text into `body`: keep `text` short and `body` brief.
 - Putting URLs or e-mails into `text`/`body` instead of `links`.
 - Guessing a year or end date silently: say it in the confirmation.
-- File names with diacritics or spaces, or the label missing from the attachment.
-- Pointing `poster.src` at a PDF (it must be the WebP) or forgetting the attachment `size`.
+- Staging (without `--check`) before the user confirms: an abandoned file would go out with the next release.
 - Pinning a second event without unpinning the first.

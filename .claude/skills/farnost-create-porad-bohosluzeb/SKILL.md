@@ -20,9 +20,15 @@ The user gives at least a file name; without a folder, look in `~/Downloads/`. U
 
 Read the **whole** page: the announcements are the paragraphs below the table.
 
+Get the week and its dates (it refuses a week already on the server; a corrected PDF of it takes `--rev 2`):
+
+```sh
+pnpm stage porad "<source>" --check
+```
+
 ## 2. Extract the sheet
 
-**Week**: `validFrom` / `validTo` from the heading ("od 30. 11. 2025 do 7. 12. 2025" → `2025-11-30` / `2025-12-07`).
+**Week**: `validFrom` / `validTo` as `--check` printed them from the heading, with every date of the week.
 
 **Days** (`days[]`, one per date, in order):
 
@@ -44,7 +50,7 @@ Read the **whole** page: the announcements are the paragraphs below the table.
 | `public`  | Omit (public). `false` only when the user asks to keep a row's `detail` off the web (see privacy below).                                                                                      |
 | `mass`    | `true` for a mass in one of the parish churches. The countdown shows it as "Nejbližší mše svatá".                                                                                             |
 | `service` | `true` for a mass-like public service in a parish church: adoration, a prayer evening ("Modlitební večer", with adoration and praise), "Velikonoční obřady". Shown as "Nejbližší bohoslužba". |
-| `changed` | `true` when the mass differs from the regular schedule (below), or the PDF marks it as a change. Only adds the "změna" tag.                                                                   |
+| `changed` | Omit: masses outside the regular schedule are tagged "změna" automatically. `true` only for a change the PDF marks that the schedule cannot tell.                                             |
 
 **Privacy** (§14.6): the parish decided to publish the intentions word for word, names included, because the
 linked PDF is public anyway. Set `public: false` only on a row the user asks to hide (e.g. a family asked to keep
@@ -55,9 +61,8 @@ its only services (`sheetExceptions()`); the regular schedule is never mixed in,
 week. So enter **every day of the week** with all its rows, as the PDF does: a missing mass is a cancelled mass, a
 missing day has no services. A cancellation needs no manual `scheduleExceptions` entry; mention it to the user.
 
-**Changes**: compare the masses of each day with `regularServices` in `src/content/masses.ts` (weekday, time,
-place; `rule: "first-in-month"` rows apply on the first such weekday of the month only) and set `changed` on a mass
-that is not there. A mass on a weekday without any regular mass (e.g. a Tuesday morning mass) is not a change.
+**Changes**: the "změna" tag is computed (`markChanges()`): a mass whose time and place are not in `regularServices`
+for that date is a change, except on a weekday without any regular mass (e.g. a Tuesday morning mass).
 
 **Announcements** (`announcements[]`, word for word, in the PDF's order):
 
@@ -71,17 +76,13 @@ Unfinished text in the PDF ("vynesl …………. Kč") goes to the user: ask fo
 
 ## 3. Confirm with the user
 
-Show the week, a compact day-by-day list of rows (mark `changed` rows), and the announcements with
+Show the week, a compact day-by-day list of rows, and the announcements with
 their categories. Ask about anything uncertain: unreadable rows, cancellations.
 
 ## 4. Stage the PDF
 
-```sh
-mkdir -p uploads/porady_bohosluzeb
-cp "<source>" "uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb.pdf"
-```
-
-`pdfUrl` is `/uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb.pdf`.
+Run the command from step 1 without `--check`; it copies the PDF to `uploads/porady_bohosluzeb/` and prints the
+`pdfUrl`, `validFrom` and `validTo` lines.
 
 ## 5. Replace the sheet
 
@@ -97,8 +98,8 @@ cancellation; the first entry for a date wins). Remove manual entries that are n
       solemnity: true,
       rows: [
         kurimMass("8:00", "za Jana Nováka"),
-        { time: "9:30", place: "moravske-kninice", title: "Mše sv.", mass: true, changed: true },
-        kurimMass("11:00", "za obec Česká, její obyvatele a rodáky", { title: "Hodová mše sv.", changed: true }),
+        { time: "9:30", place: "moravske-kninice", title: "Mše sv.", mass: true },
+        kurimMass("11:00", "za obec Česká, její obyvatele a rodáky", { title: "Hodová mše sv." }),
       ],
     },
 ```
@@ -116,7 +117,8 @@ adorace" Google Calendar, which the Kalendář reads.
 - Leaving a wrapped intention cut in half, or splitting "Mše sv. – za …" into the wrong `title` / `detail`.
 - Hiding intentions with names (`public: false`) without the user asking: they are published as in the PDF.
 - Leaving out a day or a mass of the week: during the sheet's week, what is not in `rows` does not take place.
-- Tagging unchanged masses `changed` to express a cancellation: leaving the mass out is enough.
+- Setting `changed` by hand on a mass outside the regular schedule (it is computed), or to express a cancellation:
+  leaving the mass out is enough.
 - `mass: true` on a mass outside the parish churches, or on adoration (that is `service: true`).
 - `service: true` on a funeral, baptism or wedding: personal events never count for the countdown.
 - Publishing placeholder dots from an unfinished PDF.

@@ -22,11 +22,11 @@ Files that go to the server are prepared in `uploads/` (git-ignored), which mirr
 | Pořad bohoslužeb | `uploads/porady_bohosluzeb/<file>`           | `/uploads/porady_bohosluzeb/<file>`           |
 | Petrklíč         | `uploads/petrklic/<id>/` (PDF, cover, pages) | `/uploads/petrklic/<id>/petrklic-<id>.pdf`, … |
 
-- File names are **ASCII, lower-case kebab-case**, prefixed with the record they belong to
-  (`hody-ceska-plakat.png`, `2026-10-04-porad-bohosluzeb.pdf`). Diacritics break in some SFTP clients, and the
-  prefix keeps names unique without the old site's random ids.
-- Never overwrite a file that is already on the server under the same name: pick a new name instead
-  (`curl -sI http://2026.farakurim.cz/uploads/<path>` returns `404` for a free name).
+`pnpm stage aktualita|porad|petrklic` (`scripts/stage-upload.py`) stages them: it names a file in **ASCII,
+lower-case kebab-case**, prefixed with its record (`hody-ceska-plakat.png`, `2026-10-04-porad-bohosluzeb.pdf`), and
+refuses a name already on the server, since files there are never overwritten. Diacritics break in some SFTP
+clients, and the prefix keeps names unique without the old site's random ids. Stage files by hand only for content
+the script does not cover, following the same rules.
 
 ## 2. Check in the browser
 
