@@ -1,6 +1,8 @@
 # Verifies every push and pull request. Pushing a release tag (vX.Y.Z, made by the farnost-deploy skill with
 # `pnpm version`) also deploys the built site (out/) to http://2026.farakurim.cz/; pushes to main are only a backup,
 # and the main push of a release commit is skipped because its tag run checks the same commit.
+# Pushes and pull requests that only change docs (Markdown, design/, agent skills and rules) do not run; path filters
+# do not apply to tags, so a release always runs every check, including Prettier on the Markdown.
 # Uploaded files (/uploads/) are not in git: they are still uploaded from a local uploads/ folder (farnost-deploy),
 # and the deploy stops if the build links a file that is not on the server yet.
 # The runner image and the actions are pinned (actions by commit SHA, updated by Dependabot), so a release only
@@ -13,7 +15,13 @@ on:
   push:
     branches: [main]
     tags: ["v*"]
+    paths-ignore: &docs-only
+      - "**.md"
+      - "design/**"
+      - ".claude/**"
+      - ".agents/**"
   pull_request:
+    paths-ignore: *docs-only
 
 concurrency:
   group: ci-${{ github.ref }}
