@@ -90,6 +90,8 @@ export type GroupLink = {
 export type GroupPage = GroupLink & {
   /** One sentence under the H1. */
   tagline: string;
+  /** The meta description; the tagline when omitted. */
+  description?: string;
   /** The wide photo under the breadcrumb; it opens the lightbox as the first of the page's photos. */
   hero?: { src: string; alt: string; /** 480 px square, for the lightbox's thumbnails. */ small: string };
   /** "O nás": paragraphs of plain text. */

@@ -2,8 +2,9 @@ import { contacts, links, OLD_SITE_URL } from "./site";
 import type { GroupLink, GroupPage } from "./types/activities";
 
 /*
- * The group pages (design/DESIGN.md §27). Schola is rebuilt from the old site's /schola; the other groups still
- * link there until they get their page (add a GroupPage and a route like src/app/schola/page.tsx).
+ * The group pages (design/DESIGN.md §27), served at /aktivity/<id>/ by src/app/aktivity/[skupina]/. Schola is
+ * rebuilt from the old site's /schola; the other groups still link there until they get their page: add a
+ * GroupPage to `groupPages` with `href: /aktivity/<id>/` (and its link in site.ts `navGroups`).
  * Photos and video thumbnails are uploaded to /uploads/skupiny/<group>/.
  */
 
@@ -17,6 +18,8 @@ export const schola: GroupPage = {
   note: "1× měsíčně při dětské mši",
   href: links.schola,
   tagline: "Jsme parta dětí, mladých i dospělých, které spojuje radost ze zpěvu, hudby a společného prožívání víry.",
+  description:
+    "Jsme parta dětí, mladých i dospělých, které spojuje radost ze zpěvu, hudby a společného prožívání víry. Zpíváme při dětských mších v Kuřimi; přidat se může každý, kdo rád zpívá nebo hraje.",
   hero: {
     src: `${UPLOADS}/schola-uvod.webp`,
     small: `${UPLOADS}/schola-uvod-nahled.webp`,
@@ -65,6 +68,9 @@ export const schola: GroupPage = {
     ],
   },
 };
+
+/** The groups with a page here, one route each. */
+export const groupPages: GroupPage[] = [schola];
 
 /** "Další skupiny": every group with a page here or on the old site. */
 export const groupLinks: GroupLink[] = [

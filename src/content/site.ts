@@ -22,7 +22,8 @@ export const links = {
   religiousEducation: "/vyuka_nabozenstvi/",
   activities: "/aktivity/",
   chronicle: "/kronika_prehled_udalosti/",
-  schola: "/schola/",
+  /** Group pages live under Seznam aktivit (`/aktivity/<group id>/`), like their breadcrumb. */
+  schola: "/aktivity/schola/",
   webLinks: "/odkazy/",
   /** Lapentor tour copied from the old site; it lives only on the server (see farnost-deploy). */
   virtualTour: "/virtualni_prohlidka/",

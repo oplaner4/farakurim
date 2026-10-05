@@ -1,3 +1,6 @@
 # Apache on the web host: serve the static export's 404 page for every missing URL. The /virtualni_prohlidka/
 # tour redirects its misses to /errors/404, which does not exist, so they end here too.
 ErrorDocument 404 /404.html
+
+# Group pages moved under Seznam aktivit (/aktivity/<group>/); the old site and its links use /schola.
+RedirectMatch 301 ^/schola/?$ /aktivity/schola/

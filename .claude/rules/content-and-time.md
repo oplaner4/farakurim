@@ -72,7 +72,8 @@ build-time next mass.
   `contacts` marks an activity looking for help (`seeksHelp()`), `href` links its own page. Výuka náboženství
   (`content/religious-education.ts`, §24): the school year, one timetable per school, the form and rules under
   `/uploads/vyuka-nabozenstvi/` and the contact; update it each September.
-- Group pages (`content/groups.ts`, §27): one `GroupPage` per group (Schola so far, route `src/app/schola/`), every
+- Group pages (`content/groups.ts`, §27): one `GroupPage` per group (Schola so far), served at `/aktivity/<id>/`
+  by `src/app/aktivity/[skupina]/` like its breadcrumb (`public/.htaccess` redirects the old `/schola`), every
   block optional; photos and video thumbnails are uploaded to `/uploads/skupiny/<group>/` (WebP, `small` 480 px
   square, `large` ≤ 1600 px). The hero and the photos share one lightbox at `#foto-N` (the hero is
   `#foto-1`, `groupPhotoSet()`). Videos play from youtube-nocookie.com only after a click. `groupLinks` feeds "Další

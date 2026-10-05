@@ -4,13 +4,13 @@ import { eventClock } from "@/lib/news/ics";
 import { activityGroups } from "./activities";
 import { chronicle } from "./chronicle";
 import { albums } from "./gallery";
-import { groupLinks, schola } from "./groups";
+import { groupLinks, groupPages, schola } from "./groups";
 import { parishChurches, places, regularServices } from "./masses";
 import { events } from "./news";
 import { scheduleExceptions, serviceSheet } from "./ohlasky";
 import { petrklicIssues } from "./petrklic";
 import { religiousEducation } from "./religious-education";
-import { contacts, parish } from "./site";
+import { contacts, links, parish } from "./site";
 import { support } from "./support";
 import { pastProjects } from "./support-archive";
 import { linkGroups } from "./web-links";
@@ -262,6 +262,11 @@ describe("Seznam aktivit a skupiny (activities.ts, groups.ts)", () => {
     ];
     expect(files.filter((f) => !UPLOAD.test(f))).toEqual([]);
     expect(duplicates(groupLinks.map((g) => g.id))).toEqual([]);
+  });
+
+  it("serves each group page under Seznam aktivit at its id", () => {
+    // The route src/app/aktivity/[skupina]/ builds /aktivity/<id>/; a different href would link to a 404.
+    expect(groupPages.filter((g) => g.href !== `${links.activities}${g.id}/`).map((g) => g.id)).toEqual([]);
   });
 });
 
