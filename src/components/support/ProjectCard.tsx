@@ -57,7 +57,11 @@ export function ProjectCard({ project }: { project: SupportProject }) {
           aria-valuetext={`${formatCzk(raised)} z ${formatCzk(project.budget)}`}
           className="h-3 overflow-hidden rounded-6 bg-surface"
         >
-          <span className="block h-full rounded-6 bg-orange" style={{ width: `${bar * 100}%` }} />
+          {/* Fills from the left when the page loads, with motion allowed (§5): the width is inline, so it scales. */}
+          <span
+            className="block h-full origin-left rounded-6 bg-orange motion-safe:transition-transform motion-safe:duration-700 motion-safe:ease-out motion-safe:starting:scale-x-0"
+            style={{ width: `${bar * 100}%` }}
+          />
         </div>
       </div>
       <dl className="grid grid-cols-2 gap-x-4 gap-y-2.5 text-15">

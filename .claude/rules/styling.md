@@ -38,6 +38,11 @@ paths:
   CSS a library needs restyled (`lightbox.css`, imported by the component that uses it so it loads with it; it
   `@reference`s `globals.css` for the tokens and breakpoints). No CSS files next to components or pages.
 - Avoid `!important` (`!`) and duplicate utilities for the same property on one element.
+- **Motion** (DESIGN.md §5 "Motion"): links, buttons and `<summary>` already fade their colours (a base rule in
+  `globals.css`), so don't add `transition-colors` to them; add it only to a child that changes colour with its
+  link (`group-hover:`). Movement (translate, scale, height, width) is always `motion-safe:`, uses the duration
+  scale (`duration-200`/`300`) and `ease-out`, and one element gets one `transition-*` (combine:
+  `transition-[opacity,scale]`). Entry animations use `starting:` (`@starting-style`), not JS.
 - Section colours: blue = mass, Kontakty, primary actions · magenta = Aktuality · green = Fotogalerie · orange = Petrklíč.
 - Contrast: coloured **text** uses the `*-ink` shades. Never white text on green or orange
   (the orange button has dark text).

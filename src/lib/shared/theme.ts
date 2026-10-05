@@ -37,7 +37,11 @@ export function subscribeTheme(onChange: () => void): () => void {
 }
 
 export function setTheme(theme: Theme): void {
-  document.documentElement.dataset.theme = theme;
+  const root = document.documentElement;
+  // Every colour changes at once: the links' and buttons' colour fade (globals.css) is off for two frames.
+  root.dataset.themeSwitching = "";
+  root.dataset.theme = theme;
+  requestAnimationFrame(() => requestAnimationFrame(() => delete root.dataset.themeSwitching));
   try {
     localStorage.setItem(THEME_STORAGE_KEY, theme);
   } catch {

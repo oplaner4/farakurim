@@ -1,5 +1,8 @@
+"use client";
+
 import { clsx } from "clsx";
 import type { AlbumPhoto } from "@/content/types/gallery";
+import { useFadeInOnLoad } from "@/hooks/use-fade-in-on-load";
 import { PosterPlaceholder } from "@/components/ui/PosterPlaceholder";
 
 /** Placeholder tints, cycled by photo position (text colour drives the icon and the shard). */
@@ -22,19 +25,27 @@ type Props = {
   iconSize: number;
   /** Size of the placeholder's corner shard. */
   shardClassName: string;
+  /** Extra classes, e.g. the hover zoom of a photo that opens (`motion-safe:group-hover:scale-103`). */
   className?: string;
 };
 
-/** A photo filling its box, or a tinted placeholder with an image icon and a corner shard. */
+/** Fading in on load and zooming on hover share one transition (§5). */
+const MOTION = "motion-safe:transition-[opacity,scale] motion-safe:duration-300 motion-safe:ease-out";
+
+/**
+ * A photo filling its box, fading in once loaded, or a tinted placeholder with an image icon and a corner shard.
+ */
 export function AlbumPhotoTile({ photo, size, index, alt, eager, iconSize, shardClassName, className }: Props) {
+  const fadeIn = useFadeInOnLoad();
   if (photo)
     return (
       <img
+        ref={fadeIn}
         src={photo[size]}
         alt={alt}
         loading={eager ? "eager" : "lazy"}
         decoding="async"
-        className={clsx("size-full object-cover", className)}
+        className={clsx("size-full object-cover motion-safe:data-loading:opacity-0", MOTION, className)}
       />
     );
   return (
@@ -43,6 +54,7 @@ export function AlbumPhotoTile({ photo, size, index, alt, eager, iconSize, shard
       {...(alt ? { role: "img", "aria-label": alt } : { "aria-hidden": true })}
       className={clsx(
         "relative flex size-full items-center justify-center overflow-hidden",
+        MOTION,
         TINTS[index % TINTS.length],
         className,
       )}

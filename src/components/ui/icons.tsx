@@ -178,6 +178,13 @@ export const WarningIcon = (p: IconProps) => (
   </Icon>
 );
 
+/** A tick: done (the copy buttons after copying). */
+export const CheckIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M5 12.5l4.5 4.5L19 7.5" />
+  </Icon>
+);
+
 export const CopyIcon = (p: IconProps) => (
   <Icon {...p}>
     <rect x="8" y="8" width="12" height="12" rx="2" />

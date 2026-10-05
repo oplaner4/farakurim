@@ -90,7 +90,7 @@ export function AlbumStrip({ album, position }: Props) {
               <a
                 href={album.href}
                 {...externalLinkAttrs(album.href)}
-                className="block aspect-4/3 overflow-hidden rounded-18 lg:rounded-20"
+                className="group block aspect-4/3 overflow-hidden rounded-18 lg:rounded-20"
                 onPointerEnter={loadLightbox}
                 onClick={(e) => {
                   if (isModifiedClick(e)) return;
@@ -106,6 +106,8 @@ export function AlbumStrip({ album, position }: Props) {
                   eager={i < 3}
                   iconSize={40}
                   shardClassName="h-16 w-22"
+                  // A slight zoom on hover: the photo opens (§5).
+                  className="motion-safe:group-hover:scale-103"
                 />
               </a>
             </li>

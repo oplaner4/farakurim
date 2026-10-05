@@ -21,7 +21,7 @@ type Props = {
  */
 export function EventPoster({ poster, href, title, alt }: Props) {
   const boxClass = clsx(
-    "relative flex h-85 w-60 items-center justify-center overflow-hidden rounded-16 bg-magenta-tint-alt text-magenta-ink no-underline",
+    "group relative flex h-85 w-60 items-center justify-center overflow-hidden rounded-16 bg-magenta-tint-alt text-magenta-ink no-underline",
     "md:h-83.5 md:w-auto md:rounded-18 lg:h-115 lg:rounded-20",
     /* Dark: posters (often white paper) get a margin of the tint around them. */
     poster && "dark:p-3",
@@ -29,7 +29,11 @@ export function EventPoster({ poster, href, title, alt }: Props) {
   const content = (
     <>
       {poster ? (
-        <img src={poster.src} alt={poster.alt} className="size-full object-contain" />
+        <img
+          src={poster.src}
+          alt={poster.alt}
+          className="size-full object-contain motion-safe:transition-transform motion-safe:duration-300 motion-safe:ease-out motion-safe:group-hover:scale-103"
+        />
       ) : (
         <PosterPlaceholder iconSize={40} className="h-20 w-28 lg:h-28 lg:w-40" />
       )}

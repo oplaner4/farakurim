@@ -184,6 +184,21 @@
   --aspect-a4: 1 / 1.414; /* Petrklíč covers and pages */
 
   --container-page: 79rem; /* 1200px content + 2 × 32px gutter */
+
+  /*
+   * Motion (design/DESIGN.md §5): colours fade in 150ms on everything interactive; movement (menus, accordions,
+   * zoom, bars) is short and only runs when the visitor allows motion (`motion-safe:`).
+   */
+  --default-transition-duration: 150ms;
+  --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.2, 0, 0, 1); /* movement: starts fast, settles gently */
+  --animate-fade-in: fade-in 150ms ease-out; /* a label or icon that just changed (copy buttons) */
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
 }
 
 /* `inline`: the value references the variable next/font sets on <html>, so it must not be resolved on :root. */
@@ -254,6 +269,43 @@
   /* Accordions (<details>) draw their own chevron. */
   summary::-webkit-details-marker {
     display: none;
+  }
+
+  /*
+   * Hover, focus and state colours fade instead of jumping (§5). `:where()` keeps it weaker than any utility, so a
+   * component's own `transition-*` replaces it.
+   */
+  :where(a, button, summary) {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-duration: var(--default-transition-duration);
+    transition-timing-function: var(--default-transition-timing-function);
+  }
+
+  /* A theme switch changes every colour at once: the controls must not lag behind (`setTheme()`). */
+  :root[data-theme-switching] :where(a, button, summary) {
+    transition: none;
+  }
+
+  /*
+   * Accordions open and close by height where the browser can animate to `auto` (`::details-content` and
+   * `interpolate-size`); elsewhere they snap open as before.
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    :root {
+      interpolate-size: allow-keywords;
+    }
+
+    details::details-content {
+      height: 0;
+      overflow: clip;
+      transition:
+        height 200ms var(--ease-out),
+        content-visibility 200ms allow-discrete;
+    }
+
+    details[open]::details-content {
+      height: auto;
+    }
   }
 
   :focus-visible {

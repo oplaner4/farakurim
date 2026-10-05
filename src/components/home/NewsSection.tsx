@@ -102,7 +102,7 @@ export function NewsSection({ events, renderedAt }: Props) {
                       Právě probíhá
                     </span>
                   )}
-                  <h3 className="text-17 leading-card font-bold underline-offset-3 group-hover:text-magenta-ink group-hover:underline md:text-18 lg:text-20">
+                  <h3 className="text-17 leading-card font-bold underline-offset-3 transition-colors group-hover:text-magenta-ink group-hover:underline md:text-18 lg:text-20">
                     {item.title}
                   </h3>
                   <span className="line-clamp-2 text-14 text-ink-2 md:text-15 lg:text-16">{item.text}</span>

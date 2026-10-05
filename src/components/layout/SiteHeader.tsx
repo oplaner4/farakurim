@@ -100,10 +100,12 @@ export function SiteHeader({
 
       {/* Shown while a menu button is expanded. Mobile: the main items as a list, then the groups as accordions.
           Tablet: main items as a 3-column grid of tiles, then the groups in 4 columns. Desktop: only the groups,
-          in a panel over the page (the main items are inline above). */}
+          in a panel over the page (the main items are inline above). With motion allowed it fades in sliding down
+          8px and fades out the same way (a discrete `display` transition; the `starting:` styles sit on the open state,
+          which would outrank them otherwise). */}
       <div
         id={MENU_ID}
-        className="hidden border-b border-line bg-bg group-has-aria-expanded/header:block lg:absolute lg:inset-x-0 lg:top-full lg:z-40 lg:shadow-menu"
+        className="hidden border-b border-line bg-bg opacity-0 group-has-aria-expanded/header:block group-has-aria-expanded/header:opacity-100 motion-safe:-translate-y-2 motion-safe:transition-[opacity,translate,display] motion-safe:transition-discrete motion-safe:duration-200 motion-safe:ease-out motion-safe:group-has-aria-expanded/header:translate-y-0 lg:absolute lg:inset-x-0 lg:top-full lg:z-40 lg:shadow-menu motion-safe:starting:group-has-aria-expanded/header:-translate-y-2 motion-safe:starting:group-has-aria-expanded/header:opacity-0"
       >
         <div className="container-page pt-2 pb-4 md:py-4 lg:pt-7 lg:pb-9">
           <nav aria-label="Hlavní menu" className="lg:hidden">

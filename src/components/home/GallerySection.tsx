@@ -60,13 +60,14 @@ export function GallerySection({ albums }: { albums: Album[] }) {
                         alt=""
                         iconSize={20}
                         shardClassName="h-6 w-8"
+                        className="motion-safe:group-hover:scale-103"
                       />
                     </span>
                     <span className="flex min-w-0 flex-col">
                       <time dateTime={album.date} className="text-13 text-muted">
                         {formatDayMonth(album.date)}
                       </time>
-                      <strong className="text-15 leading-card underline-offset-3 group-hover:text-green-ink group-hover:underline">
+                      <strong className="text-15 leading-card underline-offset-3 transition-colors group-hover:text-green-ink group-hover:underline">
                         {album.title}
                       </strong>
                     </span>

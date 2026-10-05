@@ -218,6 +218,17 @@ considers the calendar essential, so it is the second thing visitors see.
 - Autoplay (every carousel, 6 s) pauses on hover and focus and while the carousel is off screen, stops for good once the visitor swipes or uses the arrows, dots or arrow keys, and is off under `prefers-reduced-motion`.
 - Buttons have `aria-label` ("Předchozí fotografie", "Další fotografie", "Fotografie N"); the active dot has `aria-current="true"`.
 
+### Motion
+- **Colour changes fade** (about 150 ms) on everything interactive: links, buttons, nav items, hover cards. This also applies under `prefers-reduced-motion`, as it moves nothing; a theme switch changes every colour at once, without the fade.
+- **Movement is short and only with motion allowed** (`prefers-reduced-motion: no-preference`):
+  - the "Více" / mobile menu fades in sliding 8 px down, and out the same way (200 ms);
+  - accordions (`<details>`) open and close by height (200 ms) where the browser can animate to `auto`;
+  - photos that open (Fotogalerie strips, "Další alba" thumbnails, the event poster) zoom to 103 % on hover (300 ms);
+  - the Finanční podpora progress bars fill from the left on load (700 ms);
+  - Zonerama photos and Petrklíč pages fade in once loaded instead of popping in (300 ms).
+- The copy buttons' "Zkopírováno" fades in with a tick.
+- No lift or shadow on hover, no page-to-page transitions, no animation of the whole page on a theme switch.
+
 ### Next mass and countdown
 - **Server-side** computes the next mass from the regular schedule **plus exceptions**, and renders it into HTML (works without JS).
 - Emit `<time datetime="YYYY-MM-DDTHH:MM">`. JS reads it, updates the countdown every 20–30 s, and when the time passes, swaps to the next item (embed the next few as JSON).

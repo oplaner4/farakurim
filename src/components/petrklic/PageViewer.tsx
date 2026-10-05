@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { PetrklicIssue } from "@/content/types/petrklic";
 import { stepPage, viewerSpread } from "@/lib/petrklic/issues";
+import { useFadeInOnLoad } from "@/hooks/use-fade-in-on-load";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
 
@@ -21,6 +22,7 @@ const navButton =
 export function PageViewer({ issue }: Props) {
   const spread = useMediaQuery("(min-width: 75rem)");
   const [page, setPage] = useState(1);
+  const fadeIn = useFadeInOnLoad();
   const total = issue.pageImages.length;
   const view = viewerSpread(page, total, spread);
 
@@ -68,12 +70,13 @@ export function PageViewer({ issue }: Props) {
           {view.pages.map((n) => (
             <img
               key={n}
+              ref={fadeIn}
               src={issue.pageImages[n - 1]}
               alt={`Strana ${n}`}
               width={600}
               height={849}
               loading="lazy"
-              className="aspect-a4 w-75 rounded-6 bg-raised object-cover shadow-page"
+              className="aspect-a4 w-75 rounded-6 bg-raised object-cover shadow-page motion-safe:transition-opacity motion-safe:duration-300 motion-safe:data-loading:opacity-0"
             />
           ))}
         </div>

@@ -1,13 +1,14 @@
 "use client";
 
 import { cva, type VariantProps } from "class-variance-authority";
+import { clsx } from "clsx";
 import { useEffect, useState } from "react";
-import { CopyIcon } from "./icons";
+import { CheckIcon, CopyIcon } from "./icons";
 
 const RESET_MS = 3000;
 
 export const copyButton = cva(
-  "flex cursor-pointer items-center gap-1.5 border-2 border-orange-ink font-bold text-orange-ink-deep hover:bg-orange-tint-alt",
+  "flex cursor-pointer items-center border-2 border-orange-ink font-bold text-orange-ink-deep hover:bg-orange-tint-alt",
   {
     variants: {
       size: {
@@ -28,9 +29,14 @@ type Props = VariantProps<typeof copyButton> & {
   className?: string;
 };
 
-/** Copies `text` with the Clipboard API; the label switches to "Zkopírováno" for a moment (§15.1, §22). */
+/**
+ * Copies `text` with the Clipboard API; the label switches to "Zkopírováno" with a tick for a moment (§15.1, §22).
+ * The changed label fades in; the live region around it stays mounted so the change is announced.
+ */
 export function CopyButton({ text, label = "Zkopírovat", size, className }: Props) {
   const [copied, setCopied] = useState(false);
+  // No fade on the first render, only when the label changes.
+  const [changed, setChanged] = useState(false);
 
   useEffect(() => {
     if (!copied) return;
@@ -42,6 +48,7 @@ export function CopyButton({ text, label = "Zkopírovat", size, className }: Pro
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
+      setChanged(true);
     } catch {
       setCopied(false);
     }
@@ -50,8 +57,15 @@ export function CopyButton({ text, label = "Zkopírovat", size, className }: Pro
   return (
     // Needs JS: hidden by the page's <noscript> style.
     <button type="button" onClick={copy} data-js-only className={copyButton({ size, className })}>
-      <CopyIcon size={16} />
-      <span aria-live="polite">{copied ? "Zkopírováno" : label}</span>
+      <span aria-live="polite" className="flex items-center">
+        <span
+          key={String(copied)}
+          className={clsx("flex items-center gap-1.5", changed && "motion-safe:animate-fade-in")}
+        >
+          {copied ? <CheckIcon size={16} /> : <CopyIcon size={16} />}
+          {copied ? "Zkopírováno" : label}
+        </span>
+      </span>
     </button>
   );
 }
