@@ -10,7 +10,9 @@ paths:
 - `design/DESIGN.md` is the **source of truth**. The mockups give exact values (sizes, spacing, copy);
   never copy their structure (inline styles, three separate files).
 - Tailwind CSS v4 utilities in the components. Class names: `clsx`; component variants:
-  `class-variance-authority` (`cva`, see `ButtonLink`).
+  `class-variance-authority` (`cva`, see `ButtonLink`). Prettier sorts classes in `className`, `clsx()` and `cva()`
+  only (`tailwindFunctions`), so keep class strings there, not in bare string constants. Styles a few components
+  repeat (a button, a pill) become a `cva` component in `src/components/ui/`, not a shared string or an `@utility`.
 - Tokens live in the `@theme` block of `src/styles/globals.css`. Tailwind's default palette, breakpoints,
   type scale, radii and shadows are **removed**, so only design values exist:
   colours `blue`, `blue-ink`, `magenta-tint`, `ink-2`, `muted`, …; sizes named by pixels (`text-26`,
