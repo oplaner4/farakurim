@@ -42,6 +42,15 @@ cp .env.local.example .env.local
 The key is read at build time and again in the browser, so it ends up in the published JavaScript. Restrict it in
 Google Cloud to the `farakurim.cz` referrer and the Google Calendar API.
 
+### Statistics (optional)
+
+The site counts anonymous visits with a self-hosted [Matomo](https://matomo.org/) at
+`https://statistiky.farakurim.cz` (its own web root on the hosting, installed and updated by hand, not in this repo).
+The tracker sets no cookies and stores nothing in the browser; Matomo shortens IP addresses and deletes raw visits
+after 90 days. It is on only when `NEXT_PUBLIC_MATOMO_URL` and `NEXT_PUBLIC_MATOMO_SITE_ID` are set, so local builds
+don't track; set both in `.env.local` to test it. The privacy page (`/ochrana-osobnich-udaju/`) describes it and the
+third-party services the site loads: update it when that list changes.
+
 ### "Slovo na dnešek" (vira.cz)
 
 The footer shows the day's verse from the [vira.cz widget](https://www.vira.cz/Servis-pro-vas/Sluzby-pro-webmastery/Zobrazeni-biblickeho-citatu).
@@ -130,7 +139,7 @@ commit on `main` uploads the **contents** of `out/` to the web root with rsync o
 `/2026.farakurim.cz/`, served at http://2026.farakurim.cz/). Make releases with
 `pnpm version <patch|minor|major> -m "chore(release): v%s"` (it bumps, commits and tags; needs a clean tree), then
 `git push origin main --follow-tags`. The workflow reads `DEPLOY_SSH_KEY` (secret) and `DEPLOY_KNOWN_HOSTS` from the `Production` environment and
-the repository variable `GOOGLE_CALENDAR_API_KEY` (the build job has no environment). Uploaded files are not in git, so upload new files from `uploads/` into `/uploads/`
+the repository variables `GOOGLE_CALENDAR_API_KEY`, `MATOMO_URL` and `MATOMO_SITE_ID` (the build job has no environment). Uploaded files are not in git, so upload new files from `uploads/` into `/uploads/`
 yourself before the release (the `farnost-deploy` skill has the commands): the workflow stops if the build links a file
 that is not on the server yet (set the `Production` variable `CHECK_UPLOADS` to `false` to skip that check). The sync deletes files that are no longer in
 `out/`, except three folders that live only on the server: `/uploads/`, `/virtualni_prohlidka/` (the old site's

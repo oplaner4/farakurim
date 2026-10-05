@@ -82,6 +82,9 @@ jobs:
           # Without the key the calendars ship mock data. A repository variable: the key is public in the built JS,
           # and this job has no environment, so it could not read the Production environment's values.
           NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY: ${{ vars.GOOGLE_CALENDAR_API_KEY }}
+          # Anonymous statistics (Matomo on statistiky.farakurim.cz); without both the site does not track.
+          NEXT_PUBLIC_MATOMO_URL: ${{ vars.MATOMO_URL }}
+          NEXT_PUBLIC_MATOMO_SITE_ID: ${{ vars.MATOMO_SITE_ID }}
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: startsWith(github.ref, 'refs/tags/v')

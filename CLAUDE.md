@@ -29,6 +29,9 @@ an agent must follow on top of it. Pages not rebuilt yet have placeholders ("Str
   (details in `.claude/rules/content-and-time.md`).
 - `NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY` (`.env.local`, never committed) switches the calendars from mock data to
   Google Calendar. It ends up in the exported JS, so it must stay restricted to the farakurim.cz referrer.
+- `NEXT_PUBLIC_MATOMO_URL` and `NEXT_PUBLIC_MATOMO_SITE_ID` switch on the cookieless Matomo tracker
+  (`MatomoTracker`; Matomo itself lives on `statistiky.farakurim.cz`, outside this repo). Keep it cookieless, and
+  update the privacy page when the site starts loading a new third-party service.
 
 ## Done means checked
 
