@@ -114,12 +114,6 @@ export function groupEvents(events: NewsEvent[], today: IsoDate): EventGroup[] {
   return groups;
 }
 
-/** "?strana=3" → 3; anything invalid → 1. */
-export function parsePage(value: string | null): number {
-  const n = Number(value);
-  return Number.isInteger(n) && n > 1 ? n : 1;
-}
-
 /** "Slavnostní mše k jubileu 800 let" → "slavnostni-mse-k-jubileu-800-let" */
 export const slugify = (text: string) =>
   fold(text)

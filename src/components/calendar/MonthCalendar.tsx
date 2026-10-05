@@ -1,12 +1,11 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { createParser, type SetValues, useQueryStates } from "nuqs";
 import { type ReactNode, Suspense, useMemo, useState } from "react";
 import { GOOGLE_CALENDAR_API_KEY } from "@/content/site";
 import type { CalendarEntry, CalendarId } from "@/content/types/calendar";
 import type { IsoDate } from "@/content/types/shared";
 import { agendaByDate, type IsoMonth, monthGridRange, parseDayParam, parseMonthParam } from "@/lib/calendar/agenda";
-import { updateQueryParams } from "@/lib/shared/query-params";
 import { useCalendarEntries } from "@/hooks/use-calendar-entries";
 import { useToday } from "@/hooks/use-now";
 import { AgendaGrid } from "./AgendaGrid";
@@ -27,12 +26,33 @@ type Props = {
   children: ReactNode;
 };
 
-type ViewProps = Props & { monthParam?: IsoMonth; dayParam?: IsoDate };
+/** `?mesic=2026-11` and `?den=2026-10-18`; an invalid value reads as none. */
+const calendarParams = {
+  month: createParser({ parse: (value) => parseMonthParam(value) ?? null, serialize: String }),
+  day: createParser({ parse: (value) => parseDayParam(value) ?? null, serialize: String }),
+};
+const calendarUrlKeys = { month: "mesic", day: "den" };
+
+type ViewProps = Props & {
+  monthParam?: IsoMonth;
+  dayParam?: IsoDate;
+  /** Writes the URL; none in the prerendered calendar. */
+  setParams?: SetValues<typeof calendarParams>;
+};
 
 /** Without an API key, only the prerendered months have entries. */
 const bounded = !GOOGLE_CALENDAR_API_KEY;
 
-function MonthCalendarView({ entries, months, hrefs, renderedAt, children, monthParam, dayParam }: ViewProps) {
+function MonthCalendarView({
+  entries,
+  months,
+  hrefs,
+  renderedAt,
+  children,
+  monthParam,
+  dayParam,
+  setParams,
+}: ViewProps) {
   const today = useToday(renderedAt);
   const [shown, setShown] = useState<Record<CalendarId, boolean>>({ services: true, events: true });
   // The URL is only read on load. Paging and selecting update this state in the same render and write the URL
@@ -64,16 +84,16 @@ function MonthCalendarView({ entries, months, hrefs, renderedAt, children, month
   function showMonth(next: IsoMonth) {
     const month = next === selected.slice(0, 7) ? undefined : next;
     setView((v) => ({ ...v, month }));
-    updateQueryParams({ mesic: month ?? null }, { replace: true });
+    void setParams?.({ month: month ?? null });
   }
   function selectDay(date: IsoDate) {
     const day = date === today ? undefined : date;
     setView({ day });
-    updateQueryParams({ den: day ?? null, mesic: null }, { replace: true });
+    void setParams?.({ day: day ?? null, month: null });
   }
   function showToday() {
     setView({});
-    updateQueryParams({ den: null, mesic: null }, { replace: true });
+    void setParams?.(null);
   }
 
   return (
@@ -114,13 +134,9 @@ function MonthCalendarView({ entries, months, hrefs, renderedAt, children, month
 }
 
 function MonthCalendarWithParams(props: Props) {
-  const params = useSearchParams();
+  const [{ month, day }, setParams] = useQueryStates(calendarParams, { urlKeys: calendarUrlKeys });
   return (
-    <MonthCalendarView
-      {...props}
-      monthParam={parseMonthParam(params.get("mesic"))}
-      dayParam={parseDayParam(params.get("den"))}
-    />
+    <MonthCalendarView {...props} monthParam={month ?? undefined} dayParam={day ?? undefined} setParams={setParams} />
   );
 }
 

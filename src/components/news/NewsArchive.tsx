@@ -1,12 +1,11 @@
 "use client";
 
 import { clsx } from "clsx";
-import { useSearchParams } from "next/navigation";
+import { type SetValues, useQueryStates } from "nuqs";
 import { Suspense } from "react";
 import { links } from "@/content/site";
 import { archiveListing, archiveYearHref } from "@/lib/news/archive";
-import { parsePage } from "@/lib/news/events";
-import { PAGE_PARAM, QUERY_PARAM } from "@/lib/shared/query-params";
+import { archiveHref, archiveParams, archiveUrlKeys } from "@/lib/shared/query-params";
 import { useLoadMore } from "@/hooks/use-load-more";
 import { useToday } from "@/hooks/use-now";
 import { ButtonLink } from "@/components/ui/ButtonLink";
@@ -73,10 +72,8 @@ export function NewsArchive(props: Props) {
 }
 
 function NewsArchiveFromUrl(props: Props) {
-  const params = useSearchParams();
-  return (
-    <NewsArchiveView {...props} rawQuery={params.get(QUERY_PARAM) ?? ""} page={parsePage(params.get(PAGE_PARAM))} />
-  );
+  const [{ query, page }, setParams] = useQueryStates(archiveParams, { urlKeys: archiveUrlKeys });
+  return <NewsArchiveView {...props} rawQuery={query} page={page} setParams={setParams} />;
 }
 
 /**
@@ -90,11 +87,12 @@ function NewsArchiveView({
   renderedAt,
   rawQuery,
   page,
-}: Props & { rawQuery: string; page: number }) {
+  setParams,
+}: Props & { rawQuery: string; page: number; setParams?: SetValues<typeof archiveParams> }) {
   const today = useToday(renderedAt);
-  const query = rawQuery.trim();
-  const loadMore = useLoadMore(page);
-  const { value, inputRef, onChange, onSubmit, clear } = useArchiveSearch(rawQuery);
+  const loadMore = useLoadMore(page, setParams && ((next) => setParams({ page: next }, { history: "push" })));
+  const { value, search, inputRef, onChange, onSubmit, clear } = useArchiveSearch(rawQuery, setParams);
+  const query = search.trim();
   const { years, year, previous, matching, groups, shownCount, countLabel } = archiveListing(items, {
     years: yearList,
     yearSlug,
@@ -103,7 +101,7 @@ function NewsArchiveView({
     today,
   });
 
-  const moreHref = `?${new URLSearchParams({ ...(query && { [QUERY_PARAM]: rawQuery }), [PAGE_PARAM]: String(page + 1) })}`;
+  const moreHref = archiveHref({ query: query && search, page: page + 1 });
   const countProps = { label: countLabel, searching: query !== "", onClear: clear };
 
   return (

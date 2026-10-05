@@ -1,49 +1,35 @@
 "use client";
 
-import { type ChangeEvent, type FormEvent, useEffect, useRef, useState } from "react";
-import { PAGE_PARAM, QUERY_PARAM, updateQueryParams } from "@/lib/shared/query-params";
+import type { SetValues } from "nuqs";
+import { type ChangeEvent, type FormEvent, useRef } from "react";
+import { useDebounce } from "use-debounce";
+import type { archiveParams } from "@/lib/shared/query-params";
 
 const SEARCH_DELAY_MS = 250;
 
 /**
- * The archive's search field. Typing updates `?q=` after a short pause (and resets the page); the input shows
- * what is typed until the search reaches the URL, and any change of the URL's query (the search itself,
- * "Zrušit hledání", back/forward) hands the input back to it.
+ * The archive's search field, bound to `?q=` (`query` and `setParams` from nuqs; none in the prerendered list).
+ * The field and the URL follow every keystroke; the list (`search`) only after a short pause, so its count isn't
+ * announced on every letter. Enter and "Zrušit hledání" apply at once; typing also resets the page.
  */
-export function useArchiveSearch(rawQuery: string) {
-  const [draft, setDraft] = useState<string | null>(null);
-  const [seenQuery, setSeenQuery] = useState(rawQuery);
-  if (rawQuery !== seenQuery) {
-    setSeenQuery(rawQuery);
-    setDraft(null);
-  }
-  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+export function useArchiveSearch(query: string, setParams?: SetValues<typeof archiveParams>) {
+  const [debounced, { flush }] = useDebounce(query, SEARCH_DELAY_MS);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => () => clearTimeout(timer.current), []);
-
-  function search(value: string) {
-    clearTimeout(timer.current);
-    updateQueryParams({ [QUERY_PARAM]: value || null, [PAGE_PARAM]: null }, { replace: true });
-  }
-
   function onChange(e: ChangeEvent<HTMLInputElement>) {
-    const { value } = e.target;
-    setDraft(value);
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => search(value), SEARCH_DELAY_MS);
+    void setParams?.({ query: e.target.value || null, page: null });
   }
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
+    if (!setParams) return;
     e.preventDefault();
-    search(draft ?? rawQuery);
+    flush();
   }
 
   function clear() {
-    setDraft("");
-    search("");
+    void setParams?.({ query: null, page: null });
     inputRef.current?.focus();
   }
 
-  return { value: draft ?? rawQuery, inputRef, onChange, onSubmit, clear };
+  return { value: query, search: query === "" ? "" : debounced, inputRef, onChange, onSubmit, clear };
 }

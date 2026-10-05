@@ -2,7 +2,7 @@
 
 import { clsx } from "clsx";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useQueryState } from "nuqs";
 import { Suspense } from "react";
 import type { NewsEvent } from "@/content/types/news";
 import { links } from "@/content/site";
@@ -16,10 +16,9 @@ import {
   NEWS_FILTERS,
   NEWS_PAGE_SIZE,
   type NewsFilter,
-  parsePage,
 } from "@/lib/news/events";
 import { useToday } from "@/hooks/use-now";
-import { PAGE_PARAM } from "@/lib/shared/query-params";
+import { PAGE_PARAM, pageParser } from "@/lib/shared/query-params";
 import { useLoadMore } from "@/hooks/use-load-more";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { EventCard, eventAnchor } from "./EventCard";
@@ -55,17 +54,23 @@ export function EventList(props: Props) {
 }
 
 function EventListFromUrl(props: Props) {
-  const page = parsePage(useSearchParams().get(PAGE_PARAM));
-  return <EventListView {...props} page={page} />;
+  const [page, setPage] = useQueryState(PAGE_PARAM, pageParser.withOptions({ history: "push" }));
+  return <EventListView {...props} page={page} setPage={setPage} />;
 }
 
 /**
  * Every matching card is in the HTML; the ones beyond `page` are hidden, so "Načíst další" only reveals them,
  * and without JS a <noscript> style (NewsPage) shows them all.
  */
-function EventListView({ events, filter, renderedAt, page }: Props & { page: number }) {
+function EventListView({
+  events,
+  filter,
+  renderedAt,
+  page,
+  setPage,
+}: Props & { page: number; setPage?: (page: number) => unknown }) {
   const today = useToday(renderedAt);
-  const loadMore = useLoadMore(page);
+  const loadMore = useLoadMore(page, setPage);
   const groups = groupEvents(filterEvents(events, filter, today), today);
   const flat = groups.flatMap((g) => g.events);
   const position = new Map(flat.map((event, i) => [event.id, i]));

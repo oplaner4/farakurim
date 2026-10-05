@@ -12,7 +12,6 @@ import {
   NEWS_FILTER_META,
   NEWS_FILTERS,
   otherEvents,
-  parsePage,
   posterAlt,
   slugify,
 } from "./events";
@@ -76,18 +75,6 @@ describe("groupEvents", () => {
       ["weekly"],
       ["long-past", "past"],
     ]);
-  });
-});
-
-describe("parsePage", () => {
-  it.each([
-    [null, 1],
-    ["2", 2],
-    ["0", 1],
-    ["abc", 1],
-    ["1.5", 1],
-  ])("%s → %i", (value, expected) => {
-    expect(parsePage(value)).toBe(expected);
   });
 });
 
