@@ -15,15 +15,13 @@ import { externalLinkAttrs, isModifiedClick } from "@/lib/shared/links";
 import { clearHash, pushHash, replaceHash } from "@/lib/shared/location-hash";
 import { useLocationHash } from "@/hooks/use-location-hash";
 import { useSnapCarousel } from "@/hooks/use-snap-carousel";
-import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
+import { ArrowButton } from "@/components/ui/ArrowButton";
+import { ArrowRightIcon } from "@/components/ui/icons";
 import { AlbumPhotoTile } from "./AlbumPhotoTile";
 
 // The lightbox library loads with the first photo opened (or hovered).
 const loadLightbox = () => import("./PhotoLightbox");
 const PhotoLightbox = dynamic(() => loadLightbox().then((m) => m.PhotoLightbox), { ssr: false });
-
-const arrowClass =
-  "flex size-12 flex-none cursor-pointer items-center justify-center rounded-full border-thin border-line bg-raised text-ink hover:border-green-ink hover:text-green-ink";
 
 type Props = {
   album: Album;
@@ -114,9 +112,13 @@ export function AlbumStrip({ album, position }: Props) {
           ))}
         </ul>
         <div data-js-only className="flex items-center justify-between gap-3">
-          <button type="button" className={arrowClass} aria-label="Předchozí fotografie" onClick={prev}>
-            <ChevronLeftIcon size={20} />
-          </button>
+          <ArrowButton
+            direction="prev"
+            variant="outline"
+            tone="green"
+            aria-label="Předchozí fotografie"
+            onClick={prev}
+          />
           <span aria-live="polite" className="text-15 font-bold text-ink-2">
             {view ? (
               photoCounter(view.first + 1, view.last + 1, count)
@@ -129,9 +131,7 @@ export function AlbumStrip({ album, position }: Props) {
               </>
             )}
           </span>
-          <button type="button" className={arrowClass} aria-label="Další fotografie" onClick={next}>
-            <ChevronRightIcon size={20} />
-          </button>
+          <ArrowButton direction="next" variant="outline" tone="green" aria-label="Další fotografie" onClick={next} />
         </div>
       </div>
       {open !== null && (

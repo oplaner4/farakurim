@@ -1,14 +1,10 @@
 "use client";
 
-import { clsx } from "clsx";
 import type { CarouselSlide } from "@/content/types/home";
 import { useSnapCarousel } from "@/hooks/use-snap-carousel";
-import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
+import { ArrowButton } from "@/components/ui/ArrowButton";
 
 const BASE = "/assets/img/pozadi";
-
-const arrowClass =
-  "pointer-events-auto flex size-11 cursor-pointer items-center justify-center rounded-full bg-overlay text-ink hover:bg-bg hover:text-blue-ink md:size-12";
 
 /** The homepage photos one at a time (design/DESIGN.md §4.2): swipe, the arrows, the dots, and autoplay. */
 export function HeroCarousel({ slides }: { slides: CarouselSlide[] }) {
@@ -65,14 +61,13 @@ export function HeroCarousel({ slides }: { slides: CarouselSlide[] }) {
 
       {/* Mobile/tablet: arrows either side of the dots, above the overlapping card. Desktop: dots left, arrows right. */}
       <div className="pointer-events-none absolute inset-x-4 bottom-15 flex items-center justify-between gap-2 md:inset-x-8 md:bottom-25 lg:inset-x-6 lg:bottom-6">
-        <button
-          type="button"
-          className={clsx(arrowClass, "lg:ml-auto")}
+        <ArrowButton
+          direction="prev"
+          size="responsive"
+          className="pointer-events-auto lg:ml-auto"
           aria-label="Předchozí fotografie"
           onClick={prev}
-        >
-          <ChevronLeftIcon />
-        </button>
+        />
         <div className="pointer-events-auto flex items-center gap-0.5 rounded-full bg-overlay px-1.5 md:px-2 lg:-order-1 lg:px-2.5">
           {slides.map((slide, i) => (
             <button
@@ -87,9 +82,13 @@ export function HeroCarousel({ slides }: { slides: CarouselSlide[] }) {
             </button>
           ))}
         </div>
-        <button type="button" className={arrowClass} aria-label="Další fotografie" onClick={next}>
-          <ChevronRightIcon />
-        </button>
+        <ArrowButton
+          direction="next"
+          size="responsive"
+          className="pointer-events-auto"
+          aria-label="Další fotografie"
+          onClick={next}
+        />
       </div>
     </section>
   );

@@ -1,14 +1,10 @@
 "use client";
 
-import { clsx } from "clsx";
 import type { Album } from "@/content/types/gallery";
 import { photoAlt } from "@/lib/gallery/albums";
 import { useSnapCarousel } from "@/hooks/use-snap-carousel";
 import { AlbumPhotoTile } from "@/components/gallery/AlbumPhotoTile";
-import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
-
-const arrowClass =
-  "absolute top-1/2 flex size-12 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-overlay text-ink hover:bg-bg hover:text-green-ink";
+import { ArrowButton } from "@/components/ui/ArrowButton";
 
 /**
  * The newest album's photos one at a time (design/DESIGN.md §4.5): swipe, the arrows (wrapping around) or the
@@ -51,24 +47,22 @@ export function AlbumCarousel({ album }: { album: Album }) {
           </li>
         ))}
       </ul>
-      <button
-        type="button"
+      <ArrowButton
+        direction="prev"
+        tone="green"
         data-js-only
-        className={clsx(arrowClass, "left-3")}
+        className="absolute top-1/2 left-3 -translate-y-1/2"
         aria-label="Předchozí fotografie"
         onClick={prev}
-      >
-        <ChevronLeftIcon size={20} />
-      </button>
-      <button
-        type="button"
+      />
+      <ArrowButton
+        direction="next"
+        tone="green"
         data-js-only
-        className={clsx(arrowClass, "right-3")}
+        className="absolute top-1/2 right-3 -translate-y-1/2"
         aria-label="Další fotografie"
         onClick={next}
-      >
-        <ChevronRightIcon size={20} />
-      </button>
+      />
       <span
         aria-live="polite"
         className="absolute right-3 bottom-3 rounded-full bg-overlay px-3 py-1 text-14 font-bold text-ink"
