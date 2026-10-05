@@ -59,7 +59,9 @@ jobs:
       - run: pnpm exec prettier --check .
       - run: pnpm test
       - run: pnpm lint
-      - run: pnpm exec tsc --noEmit
+      # A fresh checkout has no .next/types (PageProps, LayoutProps, RouteContext) or next-env.d.ts:
+      # next dev and next build generate them locally, next typegen does it without building.
+      - run: pnpm exec next typegen && pnpm exec tsc --noEmit
 
       - run: pnpm build
         env:
