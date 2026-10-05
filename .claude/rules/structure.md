@@ -22,7 +22,7 @@ podpora), `links` (Odkazy; content in `web-links.ts`, as `links` in `site.ts` ar
 - **`src/lib`** files are named after their topic inside the group, not after the group: `lib/news/events.ts`,
   `lib/news/archive.ts`, `lib/news/ics.ts`, `lib/services/masses.ts`, `lib/contacts/office-hours.ts`,
   `lib/layout/bible-quote.ts`. `lib/shared/` holds the cross-domain helpers: `prague.ts` (time zone),
-  `czech.ts` (Czech grammar and formats), `build-time.ts`, `links.ts`, `query-params.ts`, `theme.ts` and
+  `czech.ts` (Czech grammar and formats), `build-time.ts`, `links.ts`, `query-params.ts` and
   `structured-data.ts` (JSON-LD). `lib` may import `@/content/site` for URLs and
   `@/content/types/*` for types, never the content data itself (tests may, to check real records).
 - When a `lib` file grows two independent topics, split it by topic (as `news/events.ts` and `news/archive.ts`)

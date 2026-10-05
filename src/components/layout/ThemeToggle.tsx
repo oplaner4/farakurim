@@ -1,7 +1,7 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
-import { isDarkTheme, setTheme, subscribeTheme } from "@/lib/shared/theme";
+import { useTheme } from "next-themes";
+import { useHydrated } from "@/hooks/use-now";
 import { MoonIcon, SunIcon } from "@/components/ui/icons";
 
 /**
@@ -9,7 +9,9 @@ import { MoonIcon, SunIcon } from "@/components/ui/icons";
  * the label and `aria-pressed` follow the effective theme once the page is hydrated.
  */
 export function ThemeToggle() {
-  const dark = useSyncExternalStore(subscribeTheme, isDarkTheme, () => false);
+  const { resolvedTheme, setTheme } = useTheme();
+  // next-themes reads the saved theme while hydrating; the prerendered HTML has none.
+  const dark = useHydrated() && resolvedTheme === "dark";
 
   return (
     <button

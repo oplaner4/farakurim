@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import { ThemeProvider } from "next-themes";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SITE_URL } from "@/content/site";
-import { themeInitScript } from "@/lib/shared/theme";
 import "@/styles/globals.css";
 
 // Farnost Sans is Oxygen with fixed caron letters (scripts/build-fonts.py); the OFL forbids the name "Oxygen" on it.
@@ -31,21 +31,25 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    // The inline script may set data-theme before hydration.
+    // next-themes' inline script sets data-theme before hydration.
     <html lang="cs" className={farnostSans.variable} suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-      </head>
       <body>
-        <a
-          href="#obsah"
-          className="sr-only z-50 rounded-12 bg-blue px-4 py-2.5 font-bold text-white focus:not-sr-only focus:absolute focus:top-2 focus:left-4 focus:text-white"
-        >
-          Přejít na obsah
-        </a>
-        {/* Each page renders <SiteHeader> (it marks the current page) and <main id="obsah">. */}
-        {children}
-        <SiteFooter />
+        {/*
+          Theme override: <html data-theme="light|dark">, saved in localStorage ("theme") and synced across tabs.
+          Without JS no attribute is set and the `dark` variant in globals.css follows `prefers-color-scheme`.
+          globals.css also sets `color-scheme`, so next-themes doesn't.
+        */}
+        <ThemeProvider attribute="data-theme" enableColorScheme={false} disableTransitionOnChange>
+          <a
+            href="#obsah"
+            className="sr-only z-50 rounded-12 bg-blue px-4 py-2.5 font-bold text-white focus:not-sr-only focus:absolute focus:top-2 focus:left-4 focus:text-white"
+          >
+            Přejít na obsah
+          </a>
+          {/* Each page renders <SiteHeader> (it marks the current page) and <main id="obsah">. */}
+          {children}
+          <SiteFooter />
+        </ThemeProvider>
       </body>
     </html>
   );
