@@ -124,7 +124,7 @@ deployed to `/uploads/…` and linked root-relative. Album photos stay on Zonera
 GitHub Actions (`.github/workflows/deploy.yml`) checks and builds every push and pull request. A push to `main` also
 uploads the **contents** of `out/` to the web root with rsync over SSH (for now `/2026.farakurim.cz/`, served at
 http://2026.farakurim.cz/). It reads `DEPLOY_SSH_KEY` (secret) and `DEPLOY_KNOWN_HOSTS` from the `Production` environment and
-`GOOGLE_CALENDAR_API_KEY` from the repository (the build job has no environment). Uploaded files are not in git, so upload new files from `uploads/` into `/uploads/`
+the repository variable `GOOGLE_CALENDAR_API_KEY` (the build job has no environment). Uploaded files are not in git, so upload new files from `uploads/` into `/uploads/`
 yourself before pushing (the `farnost-deploy` skill has the commands): the workflow stops if the build links a file
 that is not on the server yet. The sync deletes files that are no longer in
 `out/`, except three folders that live only on the server: `/uploads/`, `/virtualni_prohlidka/` (the old site's

@@ -45,9 +45,9 @@ jobs:
 
       - run: pnpm build
         env:
-          # Without the key the calendars ship mock data. A repository-level secret or variable: this job has no
-          # environment, so it cannot read the Production environment's. The key is public in the built JS anyway.
-          NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY: ${{ secrets.GOOGLE_CALENDAR_API_KEY || vars.GOOGLE_CALENDAR_API_KEY }}
+          # Without the key the calendars ship mock data. A repository variable: the key is public in the built JS,
+          # and this job has no environment, so it could not read the Production environment's values.
+          NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY: ${{ vars.GOOGLE_CALENDAR_API_KEY }}
 
       - uses: actions/upload-artifact@v7
         if: github.event_name != 'pull_request'
