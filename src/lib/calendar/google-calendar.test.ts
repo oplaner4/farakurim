@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { eventsUrl, toEntries } from "./google-calendar";
+import { eventsUrl, parseEventsPage, toEntries } from "./google-calendar";
 
 describe("eventsUrl", () => {
   it("asks for expanded events of the Prague days", () => {
@@ -9,6 +9,41 @@ describe("eventsUrl", () => {
     expect(url.searchParams.get("timeMin")).toBe("2026-10-01T00:00:00.000+02:00");
     // The day after the range, already in winter time.
     expect(url.searchParams.get("timeMax")).toBe("2026-11-01T00:00:00.000+01:00");
+  });
+});
+
+describe("parseEventsPage", () => {
+  const event = {
+    id: "m1",
+    summary: "Mše svatá",
+    etag: "dropped",
+    start: { dateTime: "2026-10-04T08:00:00+02:00" },
+    end: { dateTime: "2026-10-04T09:00:00Z" },
+  };
+
+  it("keeps the fields the calendars use and the next page token", () => {
+    expect(parseEventsPage({ kind: "calendar#events", items: [event], nextPageToken: "p2" })).toEqual({
+      events: [
+        {
+          id: "m1",
+          summary: "Mše svatá",
+          start: { dateTime: "2026-10-04T08:00:00+02:00" },
+          end: { dateTime: "2026-10-04T09:00:00Z" },
+        },
+      ],
+      nextPageToken: "p2",
+    });
+  });
+
+  it("leaves out a malformed event and reads a page without items", () => {
+    const broken = { id: "x", start: { date: "4. 10. 2026" }, end: {} };
+    expect(parseEventsPage({ items: [broken, event, null] }).events.map((e) => e.id)).toEqual(["m1"]);
+    expect(parseEventsPage({})).toEqual({ events: [], nextPageToken: undefined });
+  });
+
+  it("throws for a response that is not a result page", () => {
+    expect(() => parseEventsPage("<html>")).toThrow();
+    expect(() => parseEventsPage({ items: "none" })).toThrow();
   });
 });
 

@@ -1,4 +1,5 @@
 import { decodeHTML } from "entities";
+import * as z from "zod";
 import type { BibleQuote } from "@/content/types/layout";
 import type { IsoDate } from "@/content/types/shared";
 
@@ -30,16 +31,11 @@ export function parseViraQuote(html: string, date: IsoDate): BibleQuote | undefi
   return text && reference ? { date, text, reference } : undefined;
 }
 
+/** What the proxy answers: the `BibleQuote` of a day. */
+const quoteJson = z.object({ date: z.iso.date(), text: z.string().min(1), reference: z.string().min(1) });
+
 /** The proxy's JSON as a quote; none for anything else (an error page, the PHP source on a dev server). */
 export function parseQuoteJson(value: unknown): BibleQuote | undefined {
-  if (typeof value !== "object" || value === null) return undefined;
-  const { date, text, reference } = value as Record<string, unknown>;
-  const valid =
-    typeof date === "string" &&
-    /^\d{4}-\d{2}-\d{2}$/.test(date) &&
-    typeof text === "string" &&
-    text !== "" &&
-    typeof reference === "string" &&
-    reference !== "";
-  return valid ? { date, text, reference } : undefined;
+  const quote = quoteJson.safeParse(value);
+  return quote.success ? quote.data : undefined;
 }

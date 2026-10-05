@@ -32,7 +32,8 @@
     "react-dom": "^19.2.8",
     "server-only": "^0.0.1",
     "use-debounce": "^10.1.1",
-    "yet-another-react-lightbox": "^3.32.2"
+    "yet-another-react-lightbox": "^3.32.2",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.3",

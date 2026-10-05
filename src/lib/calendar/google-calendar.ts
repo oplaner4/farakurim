@@ -1,4 +1,5 @@
 import { addDays, format, subMinutes } from "date-fns";
+import * as z from "zod";
 import type { CalendarEntry, CalendarId } from "@/content/types/calendar";
 import type { DateRange } from "./agenda";
 import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
@@ -9,19 +10,37 @@ import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
 
 const API = "https://www.googleapis.com/calendar/v3/calendars";
 
-type GoogleTime = { date?: string; dateTime?: string };
+/** An all-day event has `date` ("2026-10-05"), a timed one `dateTime` (RFC 3339). */
+const googleTime = z.object({ date: z.iso.date().optional(), dateTime: z.iso.datetime({ offset: true }).optional() });
 
-export type GoogleEvent = {
-  id: string;
-  recurringEventId?: string;
-  status?: string;
-  summary?: string;
-  location?: string;
-  start: GoogleTime;
-  end: GoogleTime;
-};
+/** The fields of an `events.list` item the calendars use; Google's other fields are dropped. */
+const googleEvent = z.object({
+  id: z.string(),
+  recurringEventId: z.string().optional(),
+  status: z.string().optional(),
+  summary: z.string().optional(),
+  location: z.string().optional(),
+  start: googleTime,
+  end: googleTime,
+});
 
-type GoogleEventsPage = { items?: GoogleEvent[]; nextPageToken?: string };
+export type GoogleEvent = z.infer<typeof googleEvent>;
+
+/** One result page; the items are checked one by one, so a malformed event is left out instead of the calendar. */
+const googleEventsPage = z.object({
+  items: z.array(z.unknown()).optional(),
+  nextPageToken: z.string().optional(),
+});
+
+/** The events of a result page, without the ones that do not match `googleEvent`; throws for anything else. */
+export function parseEventsPage(json: unknown): { events: GoogleEvent[]; nextPageToken?: string } {
+  const page = googleEventsPage.parse(json);
+  const events = (page.items ?? []).flatMap((item) => {
+    const event = googleEvent.safeParse(item);
+    return event.success ? [event.data] : [];
+  });
+  return { events, nextPageToken: page.nextPageToken };
+}
 
 /** `events.list` URL for the days of `range` (Prague time). */
 export function eventsUrl(calendarId: string, apiKey: string, { from, to }: DateRange, pageToken?: string): string {
@@ -82,8 +101,8 @@ export async function fetchGoogleCalendar(
   do {
     const response = await fetch(eventsUrl(calendarId, apiKey, range, pageToken), init);
     if (!response.ok) throw new Error(`Google Calendar ${calendarId}: HTTP ${response.status}`);
-    const page = (await response.json()) as GoogleEventsPage;
-    events.push(...(page.items ?? []));
+    const page = parseEventsPage(await response.json());
+    events.push(...page.events);
     pageToken = page.nextPageToken;
   } while (pageToken);
   return events;
