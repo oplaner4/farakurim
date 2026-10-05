@@ -1,0 +1,114 @@
+# Verifies every push and pull request; a push to main also deploys the built site (out/) to http://2026.farakurim.cz/.
+# Uploaded files (/uploads/) are not in git: they are still uploaded from a local uploads/ folder (farnost-deploy),
+# and the deploy stops if the build links a file that is not on the server yet.
+# Keep in sync with .claude/skills/farnost-deploy/SKILL.md: SSH target, web root, rsync flags, excludes, verify checks.
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# One deploy at a time; a newer push waits for the running one instead of cancelling it mid-sync.
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  SSH_TARGET: farakurim_cz@91.239.200.63
+  WEB_ROOT: /2026.farakurim.cz
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm exec prettier --check .
+      - run: pnpm test
+      - run: pnpm lint
+      - run: pnpm exec tsc --noEmit
+
+      - run: pnpm build
+        env:
+          # Without the key the calendars ship mock data. A repository-level secret or variable: this job has no
+          # environment, so it cannot read the Production environment's. The key is public in the built JS anyway.
+          NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY: ${{ secrets.GOOGLE_CALENDAR_API_KEY || vars.GOOGLE_CALENDAR_API_KEY }}
+
+      - uses: actions/upload-artifact@v7
+        if: github.event_name != 'pull_request'
+        with:
+          name: out
+          path: out/
+          include-hidden-files: true # out/.htaccess
+          retention-days: 7
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment:
+      name: Production
+      url: http://2026.farakurim.cz/
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: out
+          path: out/
+
+      - name: Set up SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          # The host key is public, so it may be a variable; the private key must be a secret.
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS || vars.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          if [ -z "$DEPLOY_SSH_KEY" ] || [ -z "$DEPLOY_KNOWN_HOSTS" ]; then
+            echo "::error::Set DEPLOY_SSH_KEY (secret) and DEPLOY_KNOWN_HOSTS in the Production environment."
+            exit 1
+          fi
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      - name: Check that every linked upload is on the server
+        run: |
+          grep -rhoE '/uploads/[A-Za-z0-9._/%-]+\.[A-Za-z0-9]+' out | sort -u > linked.txt
+          ssh "$SSH_TARGET" "cd $WEB_ROOT && find uploads -type f" | sed 's|^|/|' | sort -u > on-server.txt
+          comm -23 linked.txt on-server.txt > missing.txt
+          if [ -s missing.txt ]; then
+            echo "::error::The build links files that are not in $WEB_ROOT/uploads/ yet. Upload them first (farnost-deploy):"
+            cat missing.txt
+            exit 1
+          fi
+          echo "All $(wc -l < linked.txt) linked uploads are on the server."
+
+      # --delete keeps the web root equal to the build; the three folders live only on the server.
+      - name: Deploy out/
+        run: |
+          rsync -az --itemize-changes --delete \
+            --exclude=/uploads/ --exclude=/virtualni_prohlidka/ --exclude=/cache/ \
+            --chmod=D755,F644 \
+            out/ "$SSH_TARGET:$WEB_ROOT/"
+
+      - name: Verify
+        run: |
+          check() { code=$(curl -s -o /dev/null -w '%{http_code}' "$1"); echo "$code $1"; [ "$code" = "$2" ]; }
+          check http://2026.farakurim.cz/ 200
+          check http://2026.farakurim.cz/neexistuje/ 404
+          # The tour is copied to the server once (farnost-deploy); without it only the footer link breaks.
+          check http://2026.farakurim.cz/virtualni_prohlidka/ 200 || echo "::warning::The virtual tour is missing on the server."

@@ -26,6 +26,25 @@ them: `/uploads/`, `/virtualni_prohlidka/` (the old site's Lapentor tour, 553 MB
 the footer) and `/cache/` (the last "Slovo na dnešek" verse, its fallback while vira.cz is down). Never sync `out/`
 without all three excludes.
 
+## GitHub Actions deploys `out/`
+
+`.github/workflows/deploy.yml` builds every push and, on a push to `main`, syncs `out/` to the web root with the
+same excludes. It cannot upload `uploads/` (not in git), and it **stops before syncing** if the build links a
+`/uploads/…` file that is not on the server yet. So the usual deploy is:
+
+1. Upload the staged files: steps 2–4 below for the `uploads/` command only (skip when `uploads/` is empty).
+2. Push `main` (`git push`): ask the user first, a push to `main` publishes the site. Then watch the run in the
+   repo's Actions tab and check the changed pages (step 5).
+
+The deploy job reads the `Production` environment: `DEPLOY_SSH_KEY` (secret, a private key the server accepts) and
+`DEPLOY_KNOWN_HOSTS` (the server's line from `ssh-keygen -F 91.239.200.63`, fingerprint checked). The build job has
+no environment, so `GOOGLE_CALENDAR_API_KEY` is a repository-level secret or variable. Deploying
+`out/` locally with the commands below still works, as a fallback when Actions is down.
+
+**Keep the workflow and this skill in sync.** Both hold the SSH target, the web root, the `out/` rsync flags with
+its three excludes and the verify checks. When you change one (a new server-only folder, the switch to
+`/farakurim.cz/`, other flags), change the other in the same commit.
+
 ## 1. Preconditions
 
 - `/2026.farakurim.cz/virtualni_prohlidka/` exists on the server (`ssh farakurim_cz@91.239.200.63 'ls

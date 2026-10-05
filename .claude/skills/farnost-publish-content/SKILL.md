@@ -56,5 +56,6 @@ Never stage `uploads/` or `out/`.
 
 ## 5. Deploy
 
-Run the `farnost-deploy` skill: it dry-runs the upload of `uploads/` and `out/` to http://2026.farakurim.cz/, asks
-the user to confirm, deploys and checks the new URLs. Do not deploy without the user's explicit yes.
+Run the `farnost-deploy` skill: it uploads the staged `uploads/` files (dry run, the user's yes), then pushes `main`,
+and GitHub Actions builds and deploys `out/` to http://2026.farakurim.cz/. Do not upload or push without the user's
+explicit yes.
