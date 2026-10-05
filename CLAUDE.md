@@ -47,7 +47,7 @@ Commit messages follow **Conventional Commits** (`type(scope): subject`), checke
 ## Managing content
 
 Content is edited in `src/content/*.ts` through project skills (ported from the old site's admin workflows in
-`farniWebClaudeControl`, which stays untouched): `farnost-create-aktualita` (poster/PDF → `news.ts`),
+`farniWebClaudeControl`, which stays untouched): `farnost-create-aktualita` (poster/PDF → `news/`),
 `farnost-create-porad-bohosluzeb` (weekly PDF → `ohlasky.ts`), `farnost-create-galerie` (Zonerama album →
 `gallery.ts`), `farnost-create-petrklic` (Petrklíč PDF → `petrklic.ts`), each finishing with
 `farnost-publish-content` (verify, commit, deploy via `farnost-deploy`).

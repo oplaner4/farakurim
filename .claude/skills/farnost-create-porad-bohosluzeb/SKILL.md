@@ -65,7 +65,7 @@ that is not there. A mass on a weekday without any regular mass (e.g. a Tuesday 
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `category` | `zmena` (changes to services), `smireni` (confession times), `pozvanka` (invitations, pilgrimages, events), `podekovani` (thanks), `info` (anything else: collections, notices). |
 | `html`     | `<p>…</p>`; key dates and times in `<strong>`; e-mails as `<a href="mailto:…">`, web addresses as links.                                                                         |
-| `newsId`   | The `id` of the matching aktualita in `src/content/news.ts`, if there is one (adds "Více v aktualitách").                                                                        |
+| `newsId`   | The `id` of the matching aktualita in `src/content/news/`, if there is one (adds "Více v aktualitách").                                                                          |
 
 Unfinished text in the PDF ("vynesl …………. Kč") goes to the user: ask for the value, never publish the dots.
 

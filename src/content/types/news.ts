@@ -1,6 +1,6 @@
 import type { ClockTime, IsoDate } from "./shared";
 
-// Aktuality (news.ts, news-archive/): the events, their detail pages and the archive.
+// Aktuality (news/): the events, their detail pages and the archive.
 
 /** A file attached to an event; the type label ("PNG", "PDF") comes from the file extension. */
 export type EventAttachment = {

@@ -100,8 +100,8 @@ src/components/      One component per block, by group: ui/, layout/, home/, new
 src/hooks/           Every React hook, one use-<name>.ts each
 src/lib/<group>/     Pure logic with unit tests, by the same groups plus shared/ (Prague time, Czech grammar, links)
 src/content/         Content, one file per domain (mock data and build-time fetches): an API later. calendar.ts reads
-                     Google Calendar and bible-quote.ts the vira.cz verse at build time; news-archive/ holds the
-                     2019–2025 aktuality from the old site (one file per year); ohlasky.ts is server-only
+                     Google Calendar and bible-quote.ts the vira.cz verse at build time; news/ holds the aktuality
+                     (this year one file per month, 2019–2025 from the old site one per year); ohlasky.ts is server-only
 src/content/types/   The content types, one file per domain
 public/              Static assets served as is (logo, carousel photos at the old site's URLs), plus .htaccess and
                      biblicky-citat.php

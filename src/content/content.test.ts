@@ -1,5 +1,9 @@
+import { readdirSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { isMatch } from "date-fns";
 import { describe, expect, it, vi } from "vitest";
+import type { NewsEvent } from "@/content/types/news";
 import { eventClock } from "@/lib/news/ics";
 import { activityGroups } from "./activities";
 import { chronicle } from "./chronicle";
@@ -35,7 +39,7 @@ const isSorted = <T>(list: T[], ordered: (a: T, b: T) => boolean) =>
   list.every((item, i) => i === 0 || ordered(list[i - 1], item));
 const UPLOAD = /^\/uploads\/[^\s]+\.(pdf|png|jpe?g|webp|mp3)$/;
 
-describe("Aktuality (news.ts, news-archive/)", () => {
+describe("Aktuality (news/)", () => {
   it.each(events.map((e) => [e.id, e] as const))("%s has valid dates", (_, e) => {
     expect(isIsoDate(e.start), `start ${e.start}`).toBe(true);
     if (e.end !== undefined) {
@@ -77,6 +81,18 @@ describe("Aktuality (news.ts, news-archive/)", () => {
       if (e.longTerm && e.longTerm !== true) expect(isClock(e.longTerm.weeklyAt), e.id).toBe(true);
       if (e.sessions !== undefined) expect(e.end, `${e.id}: sessions need an end`).toBeDefined();
     }
+  });
+
+  // news/<year>/<MM>.ts: the skill adds an event to the file of its start month, in start-date order.
+  const newsDir = join(dirname(fileURLToPath(import.meta.url)), "news");
+  const monthFiles = readdirSync(newsDir, { recursive: true, encoding: "utf8" }).filter((f) =>
+    /^\d{4}[/\\]\d{2}\.ts$/.test(f),
+  );
+  it.each(monthFiles)("keeps news/%s to its month, in start-date order", async (file) => {
+    const [year, month] = file.replace(/\.ts$/, "").split(/[/\\]/);
+    const list = Object.values(await import(`./news/${year}/${month}.ts`)).flat() as NewsEvent[];
+    expect(list.filter((e) => !e.start.startsWith(`${year}-${month}-`)).map((e) => e.id)).toEqual([]);
+    expect(isSorted(list, (a, b) => a.start <= b.start)).toBe(true);
   });
 });
 

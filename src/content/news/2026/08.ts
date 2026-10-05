@@ -1,0 +1,65 @@
+import type { NewsEvent } from "@/content/types/news";
+import { UPLOADS } from "../uploads";
+
+export const august: NewsEvent[] = [
+  {
+    id: "promena-farnosti-2026",
+    title: "Proměna farnosti s Patrikem Páleníkem z Tchaj-wanu",
+    start: "2026-08-03",
+    time: "9:30",
+    place: "Brno, Petrov",
+    mapQuery: "Petrov 2, Brno",
+    text: "Inspirující setkání o proměně farnosti s misionářem Patrikem Páleníkem.",
+    program: [
+      { time: "9:30", title: "Setkání s kněžími z diecéze a absolventy Kickstartu" },
+      { time: "13:00", title: "Diskuse a kafe s absolventy Kickstartu" },
+      { time: "17:00", title: "Setkání s laiky a členy leadership týmů" },
+    ],
+    poster: {
+      src: `${UPLOADS}/promena-farnosti-2026-pozvanka.webp`,
+      alt: "Pozvánka: Proměna farnosti s Patrikem Páleníkem z Tchaj-wanu",
+    },
+    attachments: [{ label: "Pozvánka", file: `${UPLOADS}/promena-farnosti-2026-pozvanka.jpg`, size: 306063 }],
+  },
+  {
+    id: "farni-tabor-2026",
+    title: "Farní tábor 2026",
+    start: "2026-08-08",
+    end: "2026-08-15",
+    text: "Letní farní tábor pro děti.",
+  },
+  {
+    id: "celostatni-setkani-mladeze-2026",
+    title: "Celostátní setkání mládeže Ostrava 2026",
+    start: "2026-08-11",
+    end: "2026-08-16",
+    place: "Ostrava",
+    text: "Celostátní setkání mládeže s tématem „Odvahu! Já jsem přemohl svět“ (Jan 16,33).",
+    poster: {
+      src: `${UPLOADS}/celostatni-setkani-mladeze-2026-plakat.webp`,
+      alt: "Plakát: Celostátní setkání mládeže Ostrava 11.–16. 8. 2026",
+    },
+    attachments: [{ label: "Plakát", file: `${UPLOADS}/celostatni-setkani-mladeze-2026-plakat.pdf`, size: 782250 }],
+    links: [{ label: "@csm_ostrava na Instagramu", href: "https://www.instagram.com/csm_ostrava/" }],
+  },
+  {
+    id: "vranovska-pout-2026",
+    title: "8. výroční Vranovská pouť",
+    start: "2026-08-30",
+    time: "7:00",
+    place: "Česká, Lelekovice a Vranov u Brna",
+    text: "Pouť Sedmiradostnou cestou z České a Lelekovic na Vranov, zakončená mší svatou.",
+    body: "<p>Po mši svaté je připraveno občerstvení na farní zahradě.</p>",
+    program: [
+      { time: "7:00", title: "Sraz poutníků v České", note: "u kapličky" },
+      { time: "7:45", title: "Sraz poutníků v Lelekovicích", note: "u kostela sv. Filipa a Jakuba" },
+      { time: "11:00", title: "Mše svatá", note: "kostel Narození Panny Marie ve Vranově u Brna" },
+    ],
+    poster: {
+      src: `${UPLOADS}/vranovska-pout-2026-plakat.webp`,
+      alt: "Plakát: 8. výroční Vranovská pouť Sedmiradostnou cestou 30. srpna 2026",
+    },
+    attachments: [{ label: "Plakát", file: `${UPLOADS}/vranovska-pout-2026-plakat.jpg`, size: 762346 }],
+    links: [{ label: "Sedmiradostná cesta", href: "https://www.sedmiradostnacesta.com/" }],
+  },
+];
