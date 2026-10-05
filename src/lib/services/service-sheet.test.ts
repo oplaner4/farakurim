@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { Announcement, SheetDay } from "@/content/types/services";
-import { publicDays, sheetExceptions, showWeekLabel, sortAnnouncements, weekView } from "./service-sheet";
+import type { Announcement, RegularService, SheetDay } from "@/content/types/services";
+import { markChanges, publicDays, sheetExceptions, showWeekLabel, sortAnnouncements, weekView } from "./service-sheet";
 
 const days: SheetDay[] = [
   { date: "2026-10-02", rows: [{ time: "18:15", place: "kurim", title: "Mše sv.", mass: true }] },
@@ -46,6 +46,51 @@ describe("sheetExceptions", () => {
   it("leaves a day of the week without rows without masses", () => {
     expect(result[3]).toEqual({ date: "2026-10-05", reason: "dle ohlášek", services: [] });
     expect(result).toHaveLength(4);
+  });
+});
+
+describe("markChanges", () => {
+  const regular: RegularService[] = [
+    { weekday: 4, time: "17:30", place: "kurim", title: "Adorace" },
+    { weekday: 4, time: "18:00", place: "kurim" },
+    { weekday: 5, time: "16:45", place: "kurim", rule: "not-first-in-month" },
+    { weekday: 5, time: "18:15", place: "kurim", rule: "first-in-month" },
+    { weekday: 0, time: "8:00", place: "kurim" },
+  ];
+  const mass = (time: string, place = "kurim") => ({ time, place, title: "Mše sv.", mass: true });
+  const changed = (days: SheetDay[]) => markChanges(days, regular).map((d) => d.rows.map((r) => !!r.changed));
+
+  it("tags masses that are not in the regular schedule of their date", () => {
+    expect(
+      changed([
+        { date: "2026-10-01", rows: [mass("18:00"), mass("19:00"), mass("18:00", "moravske-kninice")] },
+        { date: "2026-10-04", rows: [mass("8:00"), mass("9:30")] },
+      ]),
+    ).toEqual([
+      [false, true, true],
+      [false, true],
+    ]);
+  });
+
+  it("applies the first-in-month rules", () => {
+    expect(
+      changed([
+        { date: "2026-10-02", rows: [mass("18:15"), mass("16:45")] },
+        { date: "2026-10-09", rows: [mass("18:15"), mass("16:45")] },
+      ]),
+    ).toEqual([
+      [false, true],
+      [true, false],
+    ]);
+  });
+
+  it("leaves weekdays without a regular mass, other services and manual tags alone", () => {
+    const days: SheetDay[] = [
+      { date: "2026-10-06", rows: [mass("8:00")] },
+      { date: "2026-10-01", rows: [{ time: "17:00", place: "kurim", title: "Adorace", service: true }] },
+      { date: "2026-10-04", rows: [{ ...mass("8:00"), changed: true }] },
+    ];
+    expect(changed(days)).toEqual([[false], [false], [true]]);
   });
 });
 

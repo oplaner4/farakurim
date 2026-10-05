@@ -38,7 +38,7 @@ build-time next mass.
 - Ohlášky (`content/ohlasky.ts`, design §14.5–14.7): one `ServiceSheet` per week with `days[].rows[]` and
   `announcements[]`. For every day from `validFrom` to `validTo` the sheet's `mass` and `service` rows (adoration,
   "Velikonoční obřady"; never funerals, baptisms, weddings) are the day's only services (`sheetExceptions()`), never
-  combined with `regularServices`; after the week the regular schedule applies. `changed` only adds the "změna" tag. Intentions are published word for word, names included (the parish's decision: the PDF
+  combined with `regularServices`; after the week the regular schedule applies. `changed` only adds the "změna" tag; `markChanges()` sets it on masses that are not in the regular schedule. Intentions are published word for word, names included (the parish's decision: the PDF
   is public too). A row the user asks to hide gets `public: false`, which keeps its `detail` off the web: the module
   is `server-only`, pages pass `publicDays()` and client components get only props, never the module.
 - Petrklíč (`content/petrklic.ts`): one record per issue, newest first, added with `farnost-create-petrklic`; the

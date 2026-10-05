@@ -1,8 +1,16 @@
 import { eachDayOfInterval } from "date-fns";
-import type { Announcement, PlaceId, ScheduleException, ServiceSheet, SheetDay } from "@/content/types/services";
+import type {
+  Announcement,
+  PlaceId,
+  RegularService,
+  ScheduleException,
+  ServiceSheet,
+  SheetDay,
+} from "@/content/types/services";
 import type { IsoDate } from "@/content/types/shared";
 import { plural } from "@/lib/shared/czech";
-import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
+import { inPrague, pragueDate, pragueDateTime, pragueWeekday } from "@/lib/shared/prague";
+import { servicesOnDate } from "./masses";
 
 // The weekly ohlášky as structured content (design/DESIGN.md §14.5–14.7).
 
@@ -33,6 +41,27 @@ export function sheetExceptions(
         if (r.service) return [{ time: r.time, place: r.place, title: r.title }];
         return [];
       }),
+    };
+  });
+}
+
+/**
+ * Tags a mass "změna" (`changed`) when its time and place are not a regular mass of that date (`rule` included).
+ * A weekday without any regular mass has nothing to change, so its masses stay untagged; a `changed: true` entered
+ * by hand (the PDF marks a change) is kept.
+ */
+export function markChanges(days: SheetDay[], regular: RegularService[]): SheetDay[] {
+  const massWeekdays = new Set(regular.filter((s) => !s.title).map((s) => s.weekday));
+  return days.map((day) => {
+    if (!massWeekdays.has(pragueWeekday(day.date))) return day;
+    const masses = servicesOnDate(day.date, { regular, exceptions: [] }).filter((s) => !s.title);
+    return {
+      ...day,
+      rows: day.rows.map((row) =>
+        row.mass && !row.changed && !masses.some((m) => m.time === row.time && m.place === row.place)
+          ? { ...row, changed: true }
+          : row,
+      ),
     };
   });
 }

@@ -85,7 +85,10 @@ export type SheetRow = {
    * "bohoslužba". Never for funerals, baptisms or weddings.
    */
   service?: boolean;
-  /** Differs from the regular schedule: shows the "změna" tag (the sheet's masses replace the regular ones anyway). */
+  /**
+   * Shows the "změna" tag. Computed for masses that are not in the regular schedule (`markChanges`); set it by hand
+   * only for a change the PDF marks that the schedule cannot tell (the sheet's masses replace the regular ones anyway).
+   */
   changed?: boolean;
 };
 
