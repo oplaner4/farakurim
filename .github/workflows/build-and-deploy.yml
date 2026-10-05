@@ -6,7 +6,7 @@
 # changes when this file does.
 # Keep in sync with .claude/skills/farnost-deploy/SKILL.md: SSH target, web root, rsync flags, excludes, verify checks.
 
-name: Deploy
+name: Build and deploy
 
 on:
   push:

@@ -95,7 +95,7 @@ public/              Static assets served as is (logo, carousel photos at the ol
                      biblicky-citat.php
 scripts/             Dev and preview servers, icon, font, mockup and content tooling
 fonts-source/        Oxygen TTFs and their OFL licence (input for `pnpm fonts`)
-.github/workflows/   deploy.yml: check, build and deploy (see Deployment)
+.github/workflows/   build-and-deploy.yml: check, build and deploy (see Deployment)
 uploads/             Uploaded files (posters, PDFs, Petrklíč) staged for the server; git-ignored
 ```
 
@@ -121,7 +121,7 @@ deployed to `/uploads/…` and linked root-relative. Album photos stay on Zonera
 
 ## Deployment
 
-GitHub Actions (`.github/workflows/deploy.yml`) checks and builds every push and pull request; pushes to `main` are
+GitHub Actions (`.github/workflows/build-and-deploy.yml`) checks and builds every push and pull request; pushes to `main` are
 only a backup. A **release** deploys: pushing a tag `vX.Y.Z` that matches `version` in `package.json` and points to a
 commit on `main` uploads the **contents** of `out/` to the web root with rsync over SSH (for now
 `/2026.farakurim.cz/`, served at http://2026.farakurim.cz/). Make releases with

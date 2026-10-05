@@ -61,7 +61,7 @@ What an agent must never get wrong:
   `farnost-deploy` skill from a clean tree (`pnpm version` bumps `package.json`, commits and tags).
 - `/farakurim.cz/` on the server is the live old PHP site: never deploy there.
 - Never delete `/uploads/`, `/virtualni_prohlidka/` or `/cache/` on the server: they live only there.
-- **Keep `.github/workflows/deploy.yml` and the `farnost-deploy` skill in sync:** the SSH target, web root, rsync
+- **Keep `.github/workflows/build-and-deploy.yml` and the `farnost-deploy` skill in sync:** the SSH target, web root, rsync
   flags, the three excludes and the verify checks live in both, so a change to one is a change to the other.
 
 ## Rules
