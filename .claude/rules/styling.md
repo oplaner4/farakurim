@@ -39,6 +39,8 @@ paths:
 - Section colours: blue = mass, Kontakty, primary actions · magenta = Aktuality · green = Fotogalerie · orange = Petrklíč.
 - Contrast: coloured **text** uses the `*-ink` shades. Never white text on green or orange
   (the orange button has dark text).
-- Font: self-hosted Oxygen via `next/font/local` (400 and 700 are registered; 300 is available).
-  Oxygen has no `→` glyph, so arrows are SVG icons (`ArrowRightIcon`).
+- Font: self-hosted **Farnost Sans** via `next/font/local` (400 and 700 are registered; 300 is available). It is Oxygen
+  (the design's font) with the caron letters `ť ď ľ Ľ` widened so the caron no longer covers the next space, and
+  the `ď ľ Ľ` Bold lacks added. `pnpm fonts` builds it (`scripts/build-fonts.py`); the OFL forbids calling a
+  modified font "Oxygen", so keep the new name in code and font files. Oxygen has no `→` glyph, so arrows are SVG icons (`ArrowRightIcon`).
 - No gradients, no emoji, no sad colours (the dark theme is a friendly blue-tinted night, never black). The decorative "shards" are `clip-path` triangles on `aria-hidden` spans.

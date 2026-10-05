@@ -8,7 +8,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "icons": "node scripts/generate-icons.mjs",
-    "fonts": "scripts/subset-fonts.sh",
+    "fonts": "python3 scripts/build-fonts.py",
     "petrklic": "python3 scripts/petrklic-images.py",
     "format": "prettier --write .",
     "preview": "python3 scripts/preview.py 4173",

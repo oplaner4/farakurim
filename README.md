@@ -50,21 +50,21 @@ PHP, so they show the build's verse. The "Zdroj: www.vira.cz" link is vira.cz's 
 
 ## Commands
 
-| Command                                          | What it does                                                                                                                  |
-| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm dev`                                       | Dev server at http://localhost:3000 (`scripts/dev-server.mjs`: `next dev` plus `/uploads/…` from `uploads/` or the live site) |
-| `pnpm build`                                     | Static export to `out/`                                                                                                       |
-| `pnpm preview`                                   | Serve `out/` at http://localhost:4173 (run `pnpm build` first), `/uploads/…` from `uploads/` or the live site                 |
-| `pnpm test`                                      | Vitest unit tests (`src/**/*.test.ts`)                                                                                        |
-| `pnpm lint`                                      | ESLint (Next core-web-vitals + TypeScript + React hooks rules)                                                                |
-| `pnpm exec tsc --noEmit`                         | Type check                                                                                                                    |
-| `pnpm format`                                    | Prettier, including Tailwind class sorting (`prettier-plugin-tailwindcss`)                                                    |
-| `pnpm mockups`                                   | Render the design mockups and serve them at http://localhost:4174/mockups/                                                    |
-| `pnpm icons`                                     | Regenerate `src/app/icon.png` (32 px) and `apple-icon.png` (180 px) from `src/app/icon.svg`                                   |
-| `pnpm fonts`                                     | Regenerate `src/fonts/*.woff2` from `fonts-source/Oxygen/*.ttf` (needs fonttools and brotli)                                  |
-| `pnpm petrklic <id> [--pages]`                   | Render a Petrklíč issue's `cover.webp` (and viewer `pages/`) from `uploads/petrklic/<id>/petrklic-<id>.pdf`                   |
-| `python3 scripts/poster-webp.py <in> <out.webp>` | Render an event poster (PDF page 1 or image) to WebP                                                                          |
-| `python3 scripts/zonerama-album.py <album-url>`  | Read a Zonerama album (title, date, photo URLs) as JSON                                                                       |
+| Command                                          | What it does                                                                                                                    |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm dev`                                       | Dev server at http://localhost:3000 (`scripts/dev-server.mjs`: `next dev` plus `/uploads/…` from `uploads/` or the live site)   |
+| `pnpm build`                                     | Static export to `out/`                                                                                                         |
+| `pnpm preview`                                   | Serve `out/` at http://localhost:4173 (run `pnpm build` first), `/uploads/…` from `uploads/` or the live site                   |
+| `pnpm test`                                      | Vitest unit tests (`src/**/*.test.ts`)                                                                                          |
+| `pnpm lint`                                      | ESLint (Next core-web-vitals + TypeScript + React hooks rules)                                                                  |
+| `pnpm exec tsc --noEmit`                         | Type check                                                                                                                      |
+| `pnpm format`                                    | Prettier, including Tailwind class sorting (`prettier-plugin-tailwindcss`)                                                      |
+| `pnpm mockups`                                   | Render the design mockups and serve them at http://localhost:4174/mockups/                                                      |
+| `pnpm icons`                                     | Regenerate `src/app/icon.png` (32 px) and `apple-icon.png` (180 px) from `src/app/icon.svg`                                     |
+| `pnpm fonts`                                     | Build `src/fonts/farnost-sans-*.woff2` (Oxygen with fixed `ť ď ľ Ľ`) from `fonts-source/Oxygen/*.ttf` (needs fonttools, brotli) |
+| `pnpm petrklic <id> [--pages]`                   | Render a Petrklíč issue's `cover.webp` (and viewer `pages/`) from `uploads/petrklic/<id>/petrklic-<id>.pdf`                     |
+| `python3 scripts/poster-webp.py <in> <out.webp>` | Render an event poster (PDF page 1 or image) to WebP                                                                            |
+| `python3 scripts/zonerama-album.py <album-url>`  | Read a Zonerama album (title, date, photo URLs) as JSON                                                                         |
 
 The last three are used by the content skills (`farnost-create-petrklic`, `-aktualita`, `-galerie`).
 
@@ -94,7 +94,7 @@ src/content/types/   The content types, one file per domain
 public/              Static assets served as is (logo, carousel photos at the old site's URLs), plus .htaccess and
                      biblicky-citat.php
 scripts/             Dev and preview servers, icon, font, mockup and content tooling
-fonts-source/        Oxygen TTFs and their OFL licence (input for `pnpm fonts`)
+fonts-source/        Original Oxygen TTFs and their OFL licence (input for `pnpm fonts`)
 .github/workflows/   build-and-deploy.yml: check, build and deploy (see Deployment)
 uploads/             Uploaded files (posters, PDFs, Petrklíč) staged for the server; git-ignored
 ```

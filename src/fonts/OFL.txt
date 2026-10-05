@@ -1,4 +1,6 @@
 Copyright (c) 2012, vernon adams (vern@newtypography.co.uk), with Reserved Font Names 'Oxygen'
+Copyright (c) 2026, Římskokatolická farnost Kuřim: Farnost Sans, a Modified Version of Oxygen
+(renamed, caron letters widened, Bold ď ľ Ľ added; built by scripts/build-fonts.py).
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:

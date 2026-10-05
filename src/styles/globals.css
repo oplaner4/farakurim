@@ -181,7 +181,7 @@
 
 /* `inline`: the value references the variable next/font sets on <html>, so it must not be resolved on :root. */
 @theme inline {
-  --font-sans: var(--font-oxygen), "Segoe UI", "Helvetica Neue", sans-serif;
+  --font-sans: var(--font-farnost-sans), "Segoe UI", "Helvetica Neue", sans-serif;
 }
 
 /* Dark tokens (design/DESIGN.md §10): same names, so every utility follows the theme. Brand fills stay. */
