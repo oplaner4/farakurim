@@ -24,8 +24,8 @@ routes), `chronicle` (Kronika farnosti), `activities` (Seznam aktivit, V√Ωuka n√
 - **`src/lib`** files are named after their topic inside the group, not after the group: `lib/news/events.ts`,
   `lib/news/archive.ts`, `lib/news/ics.ts`, `lib/services/masses.ts`, `lib/contacts/office-hours.ts`,
   `lib/layout/bible-quote.ts`. `lib/shared/` holds the cross-domain helpers: `prague.ts` (time zone),
-  `czech.ts` (Czech grammar and formats), `build-time.ts`, `links.ts`, `query-params.ts` and
-  `structured-data.ts` (JSON-LD). `lib` may import `@/content/site` for URLs and
+  `czech.ts` (Czech grammar and formats), `build-time.ts`, `links.ts`, `query-params.ts`,
+  `planned-pages.ts` (the placeholder routes) and `structured-data.ts` (JSON-LD). `lib` may import `@/content/site` for URLs and
   `@/content/types/*` for types, never the content data itself (tests may, to check real records).
 - When a `lib` file grows two independent topics, split it by topic (as `news/events.ts` and `news/archive.ts`)
   rather than letting it pass ~300 lines.

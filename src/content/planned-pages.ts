@@ -1,0 +1,111 @@
+import { links } from "./site";
+import type { PlannedPage } from "./types/planned";
+
+/*
+ * The old site's pages (farakurim.cz/sitemap) that are not rebuilt yet: each URL gets a page with "Stránku
+ * připravujeme", so nothing 404s once the new site takes over farakurim.cz. The groups and their extra catechesis
+ * pages move under Seznam aktivit like Schola; public/.htaccess redirects their old URLs. When a page is rebuilt,
+ * remove it here.
+ */
+
+const activities = { label: "Seznam aktivit", href: links.activities };
+
+const camp = { label: "Farní tábor", href: "/farni_tabor/informace/" };
+const campPages: PlannedPage[] = [
+  { path: "/farni_tabor/informace/", title: "Farní tábor", color: "magenta" },
+  { path: "/farni_tabor/vedouci/", title: "Vedoucí", color: "magenta", parents: [camp] },
+  { path: "/farni_tabor/kontakt/", title: "Kontakt", color: "magenta", parents: [camp] },
+  { path: "/farni_tabor/rocniky/", title: "Ročníky", color: "magenta", parents: [camp] },
+  ...[2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026].map((year): PlannedPage => ({
+    path: `/farni_tabor/${year}/`,
+    title: `Tábor ${year}`,
+    color: "magenta",
+    parents: [camp, { label: "Ročníky", href: "/farni_tabor/rocniky/" }],
+  })),
+];
+
+const nativity = { label: "Betlémy", href: "/betlemy/rozcestnik/" };
+const nativityPages: PlannedPage[] = [
+  { path: "/betlemy/rozcestnik/", title: "Betlémy", color: "green" },
+  { path: "/betlemy/vystava/", title: "Výstava betlémů", color: "green", parents: [nativity] },
+  { path: "/betlemy/putovani/", title: "Betlémské putování", color: "green", parents: [nativity] },
+  { path: "/betlemy/2024/", title: "Betlémy 2024", color: "green", parents: [nativity] },
+  { path: "/betlemy/2025/", title: "Betlémy 2025", color: "green", parents: [nativity] },
+];
+
+const KATECHEZE = `${links.activities}katecheze_pro_deti/`;
+const catechesis = { label: "Katecheze pro děti", href: KATECHEZE };
+const extra = { label: "Mimořádné katecheze", href: `${KATECHEZE}mimoradne/rozcestnik/` };
+
+/** A season of the extra catechesis: its signpost and one page per Sunday. */
+function season(slug: string, name: string, sundays: number): PlannedPage[] {
+  const signpost = { label: name, href: `${KATECHEZE}mimoradne/${slug}/rozcestnik/` };
+  return [
+    { path: signpost.href, title: name, color: "green", parents: [activities, catechesis, extra] },
+    ...Array.from({ length: sundays }, (_, i): PlannedPage => ({
+      path: `${KATECHEZE}mimoradne/${slug}/${i + 1}/`,
+      title: `${i + 1}. neděle`,
+      color: "green",
+      parents: [activities, catechesis, extra, signpost],
+    })),
+  ];
+}
+
+const activityPages: PlannedPage[] = [
+  { path: `${links.activities}chramovy_sbor/`, title: "Chrámový sbor", color: "green", parents: [activities] },
+  {
+    path: `${links.activities}spolecenstvi_mladych/`,
+    title: "Společenství mladých",
+    color: "green",
+    parents: [activities],
+  },
+  { path: KATECHEZE, title: "Katecheze pro děti", color: "green", parents: [activities] },
+  { path: extra.href, title: "Mimořádné katecheze", color: "green", parents: [activities, catechesis] },
+  ...season("adventni_doba", "Adventní doba", 4),
+  {
+    path: `${KATECHEZE}mimoradne/vanocni_doba/rozcestnik/`,
+    title: "Vánoční doba",
+    color: "green",
+    parents: [activities, catechesis, extra],
+  },
+  ...[
+    ["stedry_den", "Štědrý den"],
+    ["tri_kralove", "Tři králové"],
+  ].map(([slug, title]): PlannedPage => ({
+    path: `${KATECHEZE}mimoradne/vanocni_doba/${slug}/`,
+    title,
+    color: "green",
+    parents: [
+      activities,
+      catechesis,
+      extra,
+      { label: "Vánoční doba", href: `${KATECHEZE}mimoradne/vanocni_doba/rozcestnik/` },
+    ],
+  })),
+  ...season("postni_doba", "Postní doba", 6),
+  {
+    path: `${KATECHEZE}mimoradne/svaty_tyden/`,
+    title: "Svatý týden",
+    color: "green",
+    parents: [activities, catechesis, extra],
+  },
+  {
+    path: `${KATECHEZE}mimoradne/seslani_ducha_svateho/`,
+    title: "Slavnost seslání Ducha svatého",
+    color: "green",
+    parents: [activities, catechesis, extra],
+  },
+];
+
+const council = { label: "Pastorační rada", href: "/pastoracni_rada/clenove/" };
+
+export const plannedPages: PlannedPage[] = [
+  { path: "/pastoracni_rada/clenove/", title: "Pastorační rada – členové", color: "blue" },
+  { path: "/pastoracni_rada/zapisy/", title: "Zápisy pastorační rady", color: "blue", parents: [council] },
+  { path: "/knezi_rodaci/", title: "Kněží – rodáci kuřimské farnosti", color: "blue" },
+  { path: "/synoda/", title: "Synoda 2021–2023", color: "blue" },
+  { path: "/gdpr/", title: "Dotazníky – GDPR", color: "blue" },
+  ...activityPages,
+  ...campPages,
+  ...nativityPages,
+];

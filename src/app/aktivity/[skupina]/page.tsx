@@ -1,27 +1,43 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { GroupPageView } from "@/components/activities/GroupPageView";
+import { PlannedPageView, plannedPageMetadata } from "@/components/layout/PlannedPageView";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { groupLinks, groupPages } from "@/content/groups";
+import { plannedPages } from "@/content/planned-pages";
+import { links } from "@/content/site";
+import { findPlannedPage, pathSegments, plannedSegments } from "@/lib/shared/planned-pages";
 
-// Static export: one page per group with a page (design/DESIGN.md §27), under Seznam aktivit like its breadcrumb.
+// Static export: one page per group (design/DESIGN.md §27), under Seznam aktivit like its breadcrumb. Groups not
+// rebuilt yet show their placeholder (`content/planned-pages.ts`).
 export const dynamicParams = false;
 
+const ACTIVITIES = pathSegments(links.activities);
+
 export function generateStaticParams() {
-  return groupPages.map((group) => ({ skupina: group.id }));
+  const planned = plannedSegments(plannedPages, ACTIVITIES, 1).map(([skupina]) => skupina);
+  return [...groupPages.map((group) => group.id), ...planned].map((skupina) => ({ skupina }));
 }
 
 const findGroup = (id: string) => groupPages.find((group) => group.id === id);
+const findPlanned = (id: string) => findPlannedPage(plannedPages, [...ACTIVITIES, id]);
 
 export async function generateMetadata({ params }: PageProps<"/aktivity/[skupina]">): Promise<Metadata> {
-  const group = findGroup((await params).skupina);
-  return group ? { title: group.name, description: group.description ?? group.tagline } : {};
+  const { skupina } = await params;
+  const group = findGroup(skupina);
+  if (!group) return plannedPageMetadata(findPlanned(skupina));
+  return { title: group.name, description: group.description ?? group.tagline };
 }
 
 /** A group page (Schola first): the template filled with the group's data. */
 export default async function GroupPage({ params }: PageProps<"/aktivity/[skupina]">) {
-  const group = findGroup((await params).skupina);
-  if (!group) notFound();
+  const { skupina } = await params;
+  const group = findGroup(skupina);
+  if (!group) {
+    const planned = findPlanned(skupina);
+    if (!planned) notFound();
+    return <PlannedPageView page={planned} />;
+  }
   return (
     <>
       <SiteHeader currentHref={group.href} />

@@ -9,6 +9,7 @@ import { parishChurches, places, regularServices } from "./masses";
 import { events } from "./news";
 import { scheduleExceptions, serviceSheet } from "./ohlasky";
 import { petrklicIssues } from "./petrklic";
+import { plannedPages } from "./planned-pages";
 import { religiousEducation } from "./religious-education";
 import { contacts, links, parish } from "./site";
 import { support } from "./support";
@@ -283,6 +284,25 @@ describe("Výuka náboženství (religious-education.ts)", () => {
 
   it("links the application and the rules under /uploads/", () => {
     expect([applicationForm, rules].filter((f) => !UPLOAD.test(f))).toEqual([]);
+  });
+});
+
+describe("Stránky v přípravě (planned-pages.ts)", () => {
+  it("gives each placeholder one root-relative path with a trailing slash", () => {
+    const paths = plannedPages.map((p) => p.path);
+    expect(paths.filter((p) => !/^\/[a-z0-9_/]+\/$/.test(p))).toEqual([]);
+    expect(duplicates(paths)).toEqual([]);
+  });
+
+  it("does not take the place of a rebuilt page", () => {
+    const rebuilt = [...Object.values(links), ...groupPages.map((g) => g.href)];
+    expect(plannedPages.filter((p) => rebuilt.includes(p.path)).map((p) => p.path)).toEqual([]);
+  });
+
+  it("links every breadcrumb to a page of the site", () => {
+    const pages = new Set([...plannedPages.map((p) => p.path), ...Object.values(links)]);
+    const crumbs = plannedPages.flatMap((p) => (p.parents ?? []).map((c) => c.href));
+    expect(crumbs.filter((href) => !pages.has(href))).toEqual([]);
   });
 });
 

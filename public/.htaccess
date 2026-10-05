@@ -4,3 +4,7 @@ ErrorDocument 404 /404.html
 
 # Group pages moved under Seznam aktivit (/aktivity/<group>/); the old site and its links use /schola.
 RedirectMatch 301 ^/schola/?$ /aktivity/schola/
+RedirectMatch 301 ^/chramovy_sbor/?$ /aktivity/chramovy_sbor/
+RedirectMatch 301 ^/spolecenstvi_mladych(/setkavani)?/?$ /aktivity/spolecenstvi_mladych/
+RedirectMatch 301 ^/katecheze_pro_deti(/pravidelne)?/?$ /aktivity/katecheze_pro_deti/
+RedirectMatch 301 ^/katecheze_pro_deti/mimoradne/(.+?)/?$ /aktivity/katecheze_pro_deti/mimoradne/$1/
