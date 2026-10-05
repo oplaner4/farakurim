@@ -14,7 +14,7 @@ import { AlbumPhotoTile } from "@/components/gallery/AlbumPhotoTile";
 import { ArrowRightIcon } from "@/components/ui/icons";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
-// The lightbox library loads with the first photo opened (or hovered).
+// The lightbox library loads with the first photo opened, hovered or focused.
 const loadLightbox = () => import("@/components/gallery/PhotoLightbox");
 const PhotoLightbox = dynamic(() => loadLightbox().then((m) => m.PhotoLightbox), { ssr: false });
 
@@ -55,6 +55,7 @@ export function GroupPhotos({ name, photos }: { name: string; photos: AlbumPhoto
               aria-label={`${photoAlt(set, i + 1)} – zobrazit zvětšenou`}
               className="group block aspect-square overflow-hidden rounded-14"
               onPointerEnter={loadLightbox}
+              onFocus={loadLightbox}
               onClick={openAt(i)}
             >
               <AlbumPhotoTile
@@ -76,6 +77,7 @@ export function GroupPhotos({ name, photos }: { name: string; photos: AlbumPhoto
         href={photos[0].large}
         className="flex min-h-11 items-center gap-1.5 self-start font-bold text-green-ink hover:text-ink"
         onPointerEnter={loadLightbox}
+        onFocus={loadLightbox}
         onClick={openAt(0)}
       >
         {showAll}

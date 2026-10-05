@@ -3,6 +3,7 @@
 import { clsx } from "clsx";
 import { type KeyboardEvent, useRef, useState } from "react";
 import type { SchoolTimetable as School, TimetableRow } from "@/content/types/activities";
+import { FilterPill } from "@/components/ui/FilterPill";
 
 /**
  * The school switcher of "Rozvrh výuky" (design/DESIGN.md §24): tabs (`role="tablist"`, arrow keys, Home, End)
@@ -33,26 +34,22 @@ export function SchoolTimetable({ schools }: { schools: School[] }) {
         className="-mx-4 no-scrollbar flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:p-0"
       >
         {schools.map((school, i) => (
-          <button
+          <FilterPill
             key={school.id}
+            tone="green"
             ref={(el) => {
               tabs.current[i] = el;
             }}
             id={`skola-${school.id}-tab`}
-            type="button"
             role="tab"
             aria-selected={i === selected}
             aria-controls={`skola-${school.id}`}
             tabIndex={i === selected ? 0 : -1}
             onClick={() => setSelected(i)}
             onKeyDown={onKeyDown}
-            className={clsx(
-              "min-h-11 shrink-0 cursor-pointer rounded-full border-thin border-line bg-surface px-4 text-15 font-bold text-ink hover:border-green",
-              "aria-selected:border-green aria-selected:bg-green aria-selected:text-on-green",
-            )}
           >
             {school.name}
-          </button>
+          </FilterPill>
         ))}
       </div>
       {schools.map((school, i) => (

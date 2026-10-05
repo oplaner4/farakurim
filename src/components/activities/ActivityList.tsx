@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useDebounce } from "use-debounce";
 import type { Activity, ActivityGroup } from "@/content/types/activities";
 import { activityCount, ALL_GROUPS, filterActivities, seeksHelp } from "@/lib/activities/search";
+import { FilterPill } from "@/components/ui/FilterPill";
 import { ArrowRightIcon, ClockIcon, SearchIcon, UserIcon } from "@/components/ui/icons";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
@@ -52,19 +53,16 @@ export function ActivityList({ groups }: { groups: ActivityGroup[] }) {
             className="-mx-4 no-scrollbar flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:p-0"
           >
             {pills.map((pill) => (
-              <button
+              <FilterPill
                 key={pill.id}
-                type="button"
+                tone="green"
+                size="count"
                 aria-pressed={pill.id === group}
                 onClick={() => setGroup(pill.id)}
-                className={clsx(
-                  "flex min-h-11 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border-thin border-line bg-surface px-3.5 text-15 font-bold text-ink hover:border-green",
-                  "aria-pressed:border-green aria-pressed:bg-green aria-pressed:text-on-green",
-                )}
               >
                 {pill.title}
                 <span className="text-13 font-normal">{pill.count}</span>
-              </button>
+              </FilterPill>
             ))}
           </div>
         </div>
