@@ -28,7 +28,8 @@ without all three excludes.
 
 ## Release: a version tag deploys `out/`
 
-`.github/workflows/build-and-deploy.yml` checks and builds every push. Pushes to `main` are only a backup; the site is deployed
+`.github/workflows/build-and-deploy.yml` checks and builds every push. Pushes to `main` are only a backup (the `main` push of a
+`chore(release): v…` commit is skipped: its tag run checks the same commit); the site is deployed
 when a **release tag** `vX.Y.Z` is pushed. The tag must equal `version` in `package.json` and point to a commit on
 `main`, or the run stops. Actions cannot upload `uploads/` (not in git), and it **stops before syncing** if the
 build links a `/uploads/…` file that is not on the server yet. So a release is:
