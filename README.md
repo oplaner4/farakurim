@@ -3,12 +3,20 @@
 The new website of **Římskokatolická farnost Kuřim**. Next.js (App Router) exported as a **static site**: the
 hosting runs PHP only, with no Node.js, so `pnpm build` writes plain HTML/CSS/JS to `out/`.
 
+Live at **https://farakurim.cz/** since v1.0.0, replacing the old PHP site (backed up on the server, see
+[Deployment](#deployment)).
+
 Built so far: the homepage, Aktuality (with the event detail pages and the archive, one page per year back to
 2019), Pořad bohoslužeb, Kontakty, Kalendář, Petrklíč (the current issue and the archive), Fotogalerie, Finanční
 podpora (the projects of the year, with QR Platba codes drawn at build time, and Starší projekty with the yearly
-accounts), Odkazy, Kronika farnosti, Výuka náboženství, Seznam aktivit and the group page template (Schola). The old site's
-other pages have placeholders ("Stránku připravujeme") at their URLs, so nothing 404s after the switch. Every page
-shares the header with the "Více" menu and the sitemap footer with the "Slovo na dnešek" Bible verse.
+accounts), Odkazy, Kronika farnosti, Výuka náboženství, Seznam aktivit with the group page template (Schola, under
+`/aktivity/<group>/`) and Ochrana osobních údajů. The old site's other pages have placeholders ("Stránku
+připravujeme") at their URLs (`src/content/planned-pages.ts`), and `public/.htaccess` redirects the old URLs that
+moved (the group and katecheze pages), so old links don't end on the 404. Every page shares the header with the
+"Více" menu and the sitemap footer with the "Slovo na dnešek" Bible verse.
+
+Working on it with Claude Code: `CLAUDE.md` adds the rules an agent follows on top of this README, and
+`.claude/rules/` and `.claude/skills/` hold the topic rules and the project skills.
 
 ## Requirements
 
@@ -81,14 +89,8 @@ PHP, so they show the build's verse. The "Zdroj: www.vira.cz" link is vira.cz's 
 
 The last four are used by the content skills (`farnost-create-petrklic`, `-aktualita`, `-galerie`, `-porad-bohosluzeb`).
 
-Before you commit, run the full check:
-
-```sh
-pnpm format && pnpm test && pnpm lint && pnpm exec tsc --noEmit && pnpm build
-```
-
-Then compare the change with the mockups in a browser at 390, 834 and 1440 px, in the light and dark theme
-(`pnpm mockups` next to `pnpm preview`).
+Before you commit, run the full check and compare the change with the mockups: see
+[docs/conventions.md](docs/conventions.md).
 
 ## Project layout
 
@@ -105,46 +107,56 @@ src/content/         Content, one file per domain (mock data and build-time fetc
                      Google Calendar and bible-quote.ts the vira.cz verse at build time; news/ holds the aktuality
                      (this year one file per month, 2019–2025 from the old site one per year); ohlasky.ts is server-only
 src/content/types/   The content types, one file per domain
-public/              Static assets served as is (logo, carousel photos at the old site's URLs), plus .htaccess and
-                     biblicky-citat.php
+public/              Static assets served as is (logo, carousel photos at the old site's URLs), plus .htaccess (404
+                     page, redirects of moved URLs) and biblicky-citat.php
 scripts/             Dev and preview servers, release and deploy, icon, font, mockup and content tooling
 fonts-source/        Original Oxygen TTFs and their OFL licence (input for `pnpm fonts`)
 .github/workflows/   build-and-deploy.yml: check, build and deploy (see Deployment)
+.claude/             Claude Code project skills (content, release, commit, design) and rules (conventions by topic)
+docs/                Design specs and implementation plans of larger features (e.g. Matomo)
 uploads/             Uploaded files (posters, PDFs, Petrklíč, group photos) staged for the server; git-ignored
 ```
 
-`CLAUDE.md` and `.claude/rules/` describe the conventions in detail: where code goes, styling tokens,
-accessibility, dates and "now" in a static build, links, hooks and checking against the design.
-
-## Content
-
-Content lives in `src/content/*.ts`. It is added with project skills for Claude Code (in `.claude/skills/`):
-`farnost-create-aktualita` (an event from a poster), `farnost-create-porad-bohosluzeb` (the weekly ohlášky PDF),
-`farnost-create-galerie` (a Zonerama album) and `farnost-create-petrklic` (a newsletter PDF). Each finishes with
-`farnost-publish-content`: check, commit and deploy. Uploaded files are not in git: they are staged in `uploads/`,
-deployed to `/uploads/…` and linked root-relative. Album photos stay on Zonerama.
+Where code goes and the conventions per topic (styling tokens, accessibility, dates and "now" in a static build,
+links, hooks, checking against the design) are in `.claude/rules/`.
 
 ## Conventions
 
-- UI copy is **Czech**; code, comments and commit messages are **English**.
-- Styling uses Tailwind CSS v4 with the design tokens in `src/styles/globals.css` only (no hex or arbitrary values).
-- Everything must work as a static export: no route handlers reading the request, server actions, middleware,
-  ISR or `next/image` optimisation.
-- Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat(news): …`), checked by
-  commitlint in the `commit-msg` hook. Don't bypass the hook with `--no-verify`.
+Language, stack, the static-export limits, commits and the check before a commit: see
+[docs/conventions.md](docs/conventions.md).
+
+## Content
+
+Content lives in `src/content/*.ts`. It is added with project skills for Claude Code (in `.claude/skills/`, ported
+from the old site's admin workflows): `farnost-create-aktualita` (an event from a poster or PDF, into `news/`),
+`farnost-create-porad-bohosluzeb` (the weekly ohlášky PDF, into `ohlasky.ts`), `farnost-create-galerie` (a Zonerama
+album, into `gallery.ts`) and `farnost-create-petrklic` (a newsletter PDF, into `petrklic.ts`). Each finishes with
+`farnost-publish-content`: check, commit and release with `farnost-release`.
+
+Uploaded files are not in git: they are staged in `uploads/` (git-ignored, mirrors `/uploads/` on the server) and
+linked root-relative as `/uploads/…`. Album photos stay on Zonerama. The old site's `/nahrane/` is not used.
 
 ## Deployment
 
-GitHub Actions (`.github/workflows/build-and-deploy.yml`) checks and builds every push and pull request; pushes to `main` are
-only a backup. A **release** deploys: pushing a tag `vX.Y.Z` that matches `version` in `package.json` and points to a
-commit on `main` uploads the **contents** of `out/` to the web root with rsync over SSH (`/farakurim.cz/`, served at
-https://farakurim.cz/; the old PHP site is backed up in `/stary.farakurim.cz/`). Make releases with `pnpm release` (`scripts/release.sh`,
-from a clean `main`): it shows the commits, the version and the new uploads, asks, then uploads `uploads/`, bumps the
-version (`pnpm version`: commit and tag) and pushes `main` with the tag. The server details (SSH target, web root,
-rsync flags, verify checks) live in `scripts/deploy.sh`, which the workflow's deploy job runs too. The workflow reads `DEPLOY_SSH_KEY` (secret) and `DEPLOY_KNOWN_HOSTS` from the `Production` environment and
-the repository variables `GOOGLE_CALENDAR_API_KEY`, `MATOMO_URL` and `MATOMO_SITE_ID` (the build job has no environment). Uploaded files are not in git, so `pnpm release` uploads the new files from `uploads/` into `/uploads/`
-before it tags: the workflow stops if the build links a file
-that is not on the server yet (set the `Production` variable `CHECK_UPLOADS` to `false` to skip that check). The sync deletes files that are no longer in
-`out/`, except three folders that live only on the server: `/uploads/`, `/virtualni_prohlidka/` (the old site's
-virtual tour) and `/cache/` (the last vira.cz verse). `trailingSlash: true` produces `page/index.html`, so Apache
-serves the pages without rewrite rules; `public/.htaccess` serves `404.html` for missing URLs.
+GitHub Actions (`.github/workflows/build-and-deploy.yml`) checks and builds every push and pull request; pushes to
+`main` are only a backup. A **release** deploys: pushing a tag `vX.Y.Z` that matches `version` in `package.json` and
+points to a commit on `main` uploads the **contents** of `out/` to the web root `/farakurim.cz/` (served at
+https://farakurim.cz/) with rsync over SSH. The old PHP site is backed up in `/stary.farakurim.cz/` on the server.
+
+Make releases with `pnpm release` (`scripts/release.sh`, from a clean `main` that is not behind `origin`). It shows
+the commits since the last tag, the next version (minor when a `feat` outside the `content` scope is among them,
+patch otherwise, `--major` on request) and the new files in `uploads/`, asks, then uploads them into `/uploads/`,
+bumps the version (`pnpm version`: commit and tag) and pushes `main` with the tag. A failed release is fixed in a new
+commit and released again; a pushed tag is never moved.
+
+The server details (SSH target, web root, rsync flags, server-only folders, verify checks) live only in
+`scripts/deploy.sh`, which the workflow's deploy job runs too, and which can still deploy `out/` by hand when Actions
+is down. The workflow reads `DEPLOY_SSH_KEY` (secret) and `DEPLOY_KNOWN_HOSTS` from the `Production` environment and
+the repository variables `GOOGLE_CALENDAR_API_KEY`, `MATOMO_URL` and `MATOMO_SITE_ID` (the build job has no
+environment). Uploaded files are not in git, so the deploy job stops if the build links a `/uploads/…` file that is
+not on the server yet (set the `Production` variable `CHECK_UPLOADS` to `false` to skip that check).
+
+The sync deletes files that are no longer in `out/`, except three folders that live only on the server: `/uploads/`,
+`/virtualni_prohlidka/` (the old site's virtual tour) and `/cache/` (the last vira.cz verse). `trailingSlash: true`
+produces `page/index.html`, so Apache serves the pages without rewrite rules; `public/.htaccess` serves `404.html`
+for missing URLs and redirects the old URLs that moved.

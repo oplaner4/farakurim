@@ -1,63 +1,40 @@
 @AGENTS.md
+@docs/conventions.md
 
 # CLAUDE.md
 
-New website of **Římskokatolická farnost Kuřim** (farakurim.cz). `README.md` has the pages built so far, the
-requirements, the **commands**, the project layout and the deployment overview: read it first. This file holds what
-an agent must follow on top of it. Pages not rebuilt yet have placeholders ("Stránku připravujeme"); the design spec is
-`design/DESIGN.md` (the shared lightbox is §21, the header and footer §20, nav groups in `navGroups`).
+New website of **Římskokatolická farnost Kuřim** (farakurim.cz). The project conventions (language, stack, static
+export, commits, the check before a commit) are imported above from `docs/conventions.md`. `README.md` describes the
+rest: the pages built so far, the requirements, the commands, the layout, the content workflow and how deployment
+works. **Read it first.** This file holds only what an agent must follow on top of them. Pages not rebuilt yet have
+placeholders ("Stránku připravujeme"); the design spec is `design/DESIGN.md` (the shared lightbox is §21, the
+header and footer §20, nav groups in `navGroups`).
 
-## Language convention
+## Working rules
 
-- **UI copy** (all visible text, alt texts, aria-labels): **Czech**.
-- **Code** (identifiers, comments, file names, commit messages): **English**.
-
-## Stack and the static-export constraint
-
-- Next.js 16 (App Router) + React 19 + TypeScript, **pnpm only** (never npm/yarn).
-- Styling: **Tailwind CSS v4**. Dates: **date-fns v4 + `@date-fns/tz`**. Lightbox: **yet-another-react-lightbox**
-  (loaded on first use, restyled in `src/styles/lightbox.css`; the URL hash opens and closes it).
-  Prefer an established library over hand-written helpers; check it with context7 first.
-- Dependencies use caret ranges (`^x.y.z`) so `pnpm update` picks up minor and patch releases.
-- `output: "export"` in `next.config.ts`: `pnpm build` writes plain HTML/CSS/JS to `out/`.
-- **Why:** the hosting (cesky-hosting.cz) runs PHP 8.4 only, with **no Node.js**. Anything that needs a
-  Node server is off the table: route handlers reading the request, server actions, `cookies()`/`headers()`,
-  rewrites/redirects/headers in config, ISR, proxy/middleware, and `next/image` optimization.
-  Check `node_modules/next/dist/docs/01-app/02-guides/static-exports.md` before using a Next feature.
-  The one server-side piece is `public/biblicky-citat.php`, the PHP proxy for the vira.cz verse (README).
-- Server Components run **at build time**; anything that depends on "now" is re-computed in the browser
-  (details in `.claude/rules/content-and-time.md`).
-- `NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY` (`.env.local`, never committed) switches the calendars from mock data to
-  Google Calendar. It ends up in the exported JS, so it must stay restricted to the farakurim.cz referrer.
-- `NEXT_PUBLIC_MATOMO_URL` and `NEXT_PUBLIC_MATOMO_SITE_ID` switch on the cookieless Matomo tracker
-  (`MatomoTracker`; Matomo itself lives on `statistiky.farakurim.cz`, outside this repo). Keep it cookieless, and
-  update the privacy page when the site starts loading a new third-party service.
+- Check a library with context7 before you use it, and check
+  `node_modules/next/dist/docs/01-app/02-guides/static-exports.md` before you use a Next feature.
+- `NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY` ends up in the exported JS: never commit `.env.local`, and keep the key
+  restricted to the farakurim.cz referrer.
+- Keep the Matomo tracker (`MatomoTracker`) cookieless, and update the privacy page when the site starts loading a
+  new third-party service.
 
 ## Done means checked
 
-Commands are in [README.md § Commands](README.md#commands). Before you call work done, run
-`pnpm format && pnpm test && pnpm lint && pnpm exec tsc --noEmit && pnpm build`, then check the change in a browser
-at **390, 834 and 1440 px** against `design/mockups/` (how: `.claude/rules/design-check.md`).
+Never call work done before the full check and the browser check in `docs/conventions.md` pass.
 
 ## Git and commits
 
-Commit messages follow **Conventional Commits** (`type(scope): subject`), checked by commitlint in the husky
-`commit-msg` hook. Use the `commit` skill (`.claude/skills/commit/SKILL.md`); never bypass the hook with `--no-verify`.
+Use the `commit` skill (`.claude/skills/commit/SKILL.md`); never bypass the commitlint hook with `--no-verify`.
 
 ## Managing content
 
-Content is edited in `src/content/*.ts` through project skills (ported from the old site's admin workflows in
-`farniWebClaudeControl`, which stays untouched): `farnost-create-aktualita` (poster/PDF → `news/`),
-`farnost-create-porad-bohosluzeb` (weekly PDF → `ohlasky.ts`), `farnost-create-galerie` (Zonerama album →
-`gallery.ts`), `farnost-create-petrklic` (Petrklíč PDF → `petrklic.ts`), each finishing with
-`farnost-publish-content` (verify, commit, deploy via `farnost-release`).
-Uploaded files are **not** in git: they are staged in `uploads/` (git-ignored, mirrors `/uploads/` on the server)
-and linked root-relative as `/uploads/…`. Album photos stay on Zonerama. The old site's `/nahrane/` is not used.
+Use the content skills listed in [README.md § Content](README.md#content). Their source, the old site's admin
+workflows in `farniWebClaudeControl`, stays untouched.
 
 ## Deployment
 
-How it works is in [README.md § Deployment](README.md#deployment); `pnpm release` (`scripts/release.sh`) releases, and
-the `farnost-release` skill says how an agent runs it.
+`pnpm release` (`scripts/release.sh`) releases, and the `farnost-release` skill says how an agent runs it.
 What an agent must never get wrong:
 
 - Pushing a release tag `vX.Y.Z` **publishes the site** (GitHub Actions deploys `out/`; pushes to `main` are only a
