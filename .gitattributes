@@ -1,0 +1,6 @@
+# LF everywhere, also on Windows checkouts with core.autocrlf=true: Prettier writes LF (its default endOfLine),
+# so CRLF working files would show up as modified after every `pnpm format`. Binary files are detected by Git.
+* text=auto eol=lf
+
+# The font licences stay byte-for-byte as distributed (CRLF).
+OFL.txt -text
