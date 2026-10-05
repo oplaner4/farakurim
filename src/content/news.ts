@@ -586,6 +586,18 @@ export const events: NewsEvent[] = [
     attachments: [{ label: "Plakát", file: `${UPLOADS}/hody-ceska-2026-plakat.png`, size: 482268 }],
   },
   {
+    id: "novy-web-farnosti",
+    title: "Nový web farnosti",
+    start: "2026-10-05",
+    end: "2026-10-31",
+    text: "Farní web dostal novou podobu. Některé méně navštěvované stránky ještě připravujeme.",
+    lead: "Vítejte na novém webu farnosti Kuřim.",
+    body:
+      "<p>Farní web prošel úplnou proměnou: nový vzhled, přehlednější aktuality, pořad bohoslužeb, kalendář a fotogalerie a pohodlné čtení na mobilu.</p>" +
+      "<p>Některé vedlejší stránky ještě připravujeme a budeme je postupně doplňovat. Do té doby najdete jejich obsah na původním webu.</p>",
+    links: [{ label: "Původní web farnosti", href: "https://stary.farakurim.cz/" }],
+  },
+  {
     id: "kolac-pro-hospic-2026",
     title: "Koláč pro hospic",
     start: "2026-10-07",
