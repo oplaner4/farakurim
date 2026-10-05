@@ -4,7 +4,7 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { chronicle } from "@/content/chronicle";
 import { events } from "@/content/news";
-import { links, OLD_SITE_URL } from "@/content/site";
+import { links } from "@/content/site";
 import { eventHref } from "@/lib/news/events";
 
 const lead = "Přehled událostí kostela sv. Maří Magdaleny a kuřimské farnosti od roku 1226.";
@@ -40,7 +40,7 @@ export default function ChroniclePage() {
             </>
           )}
           na stránce{" "}
-          <a href={`${OLD_SITE_URL}/knezi_rodaci`} className="font-bold">
+          <a href={links.priestsFromParish} className="font-bold">
             Kněží – rodáci
           </a>
           .

@@ -1,4 +1,4 @@
-import { links } from "./site";
+import { BUILD_YEAR, links } from "./site";
 import type { PlannedPage } from "./types/planned";
 
 /*
@@ -16,7 +16,8 @@ const campPages: PlannedPage[] = [
   { path: "/farni_tabor/vedouci/", title: "Vedoucí", color: "magenta", parents: [camp] },
   { path: "/farni_tabor/kontakt/", title: "Kontakt", color: "magenta", parents: [camp] },
   { path: "/farni_tabor/rocniky/", title: "Ročníky", color: "magenta", parents: [camp] },
-  ...[2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026].map((year): PlannedPage => ({
+  // From the first camp on the old site to the build year ("Tábor <year>" in the menu).
+  ...Array.from({ length: BUILD_YEAR - 2018 }, (_, i) => 2019 + i).map((year): PlannedPage => ({
     path: `/farni_tabor/${year}/`,
     title: `Tábor ${year}`,
     color: "magenta",
@@ -102,7 +103,7 @@ const council = { label: "Pastorační rada", href: "/pastoracni_rada/clenove/" 
 export const plannedPages: PlannedPage[] = [
   { path: "/pastoracni_rada/clenove/", title: "Pastorační rada – členové", color: "blue" },
   { path: "/pastoracni_rada/zapisy/", title: "Zápisy pastorační rady", color: "blue", parents: [council] },
-  { path: "/knezi_rodaci/", title: "Kněží – rodáci kuřimské farnosti", color: "blue" },
+  { path: links.priestsFromParish, title: "Kněží – rodáci kuřimské farnosti", color: "blue" },
   { path: "/synoda/", title: "Synoda 2021–2023", color: "blue" },
   { path: "/gdpr/", title: "Dotazníky – GDPR", color: "blue" },
   ...activityPages,

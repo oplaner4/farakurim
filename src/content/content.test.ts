@@ -11,7 +11,7 @@ import { scheduleExceptions, serviceSheet } from "./ohlasky";
 import { petrklicIssues } from "./petrklic";
 import { plannedPages } from "./planned-pages";
 import { religiousEducation } from "./religious-education";
-import { contacts, links, parish } from "./site";
+import { contacts, links, navGroups, parish } from "./site";
 import { support } from "./support";
 import { pastProjects } from "./support-archive";
 import { linkGroups } from "./web-links";
@@ -294,8 +294,18 @@ describe("Stránky v přípravě (planned-pages.ts)", () => {
     expect(duplicates(paths)).toEqual([]);
   });
 
+  it("leads every link of the Více menu and Další skupiny to a page of the site", () => {
+    const pages = new Set([...plannedPages.map((p) => p.path), ...Object.values(links)]);
+    const hrefs = [...navGroups.flatMap((g) => g.links.map((l) => l.href)), ...groupLinks.map((g) => g.href)];
+    expect(hrefs.filter((href) => !pages.has(href))).toEqual([]);
+  });
+
   it("does not take the place of a rebuilt page", () => {
-    const rebuilt = [...Object.values(links), ...groupPages.map((g) => g.href)];
+    // Kněží – rodáci has a route name in `links` but only its placeholder so far.
+    const rebuilt = [
+      ...Object.values(links).filter((href) => href !== links.priestsFromParish),
+      ...groupPages.map((g) => g.href),
+    ];
     expect(plannedPages.filter((p) => rebuilt.includes(p.path)).map((p) => p.path)).toEqual([]);
   });
 

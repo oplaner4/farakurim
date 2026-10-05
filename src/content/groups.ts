@@ -1,4 +1,4 @@
-import { contacts, links, OLD_SITE_URL } from "./site";
+import { contacts, links } from "./site";
 import type { GroupLink, GroupPage } from "./types/activities";
 
 /*
@@ -79,18 +79,18 @@ export const groupLinks: GroupLink[] = [
     id: "chramovy-sbor",
     name: "Chrámový sbor",
     note: "sbor pro mše a slavnosti",
-    href: `${OLD_SITE_URL}/chramovy_sbor`,
+    href: `${links.activities}chramovy_sbor/`,
   },
   {
     id: "spolecenstvi-mladeze",
     name: "Společenství mládeže",
     note: "každou neděli 18:30",
-    href: `${OLD_SITE_URL}/spolecenstvi_mladych/setkavani`,
+    href: `${links.activities}spolecenstvi_mladych/`,
   },
   {
     id: "katecheze",
     name: "Katecheze pro děti",
     note: "každou neděli při 2. mši",
-    href: `${OLD_SITE_URL}/katecheze_pro_deti/pravidelne`,
+    href: `${links.activities}katecheze_pro_deti/`,
   },
 ];

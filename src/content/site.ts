@@ -24,6 +24,7 @@ export const links = {
   chronicle: "/kronika_prehled_udalosti/",
   /** Group pages live under Seznam aktivit (`/aktivity/<group id>/`), like their breadcrumb. */
   schola: "/aktivity/schola/",
+  priestsFromParish: "/knezi_rodaci/",
   webLinks: "/odkazy/",
   /** Lapentor tour copied from the old site; it lives only on the server (see farnost-deploy). */
   virtualTour: "/virtualni_prohlidka/",
@@ -40,9 +41,6 @@ export const mainNav = [
   { label: "Kontakty", href: links.contacts, color: "blue" },
 ] as const;
 
-/** The old PHP site, still live at farakurim.cz: pages not yet rebuilt are linked there. */
-export const OLD_SITE_URL = "https://farakurim.cz";
-
 /** Year of the build in Prague: the current Farní tábor and the footer copyright. */
 export const BUILD_YEAR = Number(pragueDate(BUILD_TIME).slice(0, 4));
 
@@ -57,10 +55,10 @@ export const navGroups = [
     links: [
       { label: "Kalendář", href: links.calendar },
       { label: "Finanční podpora", href: links.support },
-      { label: "Pastorační rada – členové", href: `${OLD_SITE_URL}/pastoracni_rada/clenove` },
-      { label: "Zápisy pastorační rady", href: `${OLD_SITE_URL}/pastoracni_rada/zapisy` },
+      { label: "Pastorační rada – členové", href: "/pastoracni_rada/clenove/" },
+      { label: "Zápisy pastorační rady", href: "/pastoracni_rada/zapisy/" },
       { label: "Kronika farnosti", href: links.chronicle },
-      { label: "Kněží – rodáci", href: `${OLD_SITE_URL}/knezi_rodaci` },
+      { label: "Kněží – rodáci", href: links.priestsFromParish },
       { label: "Odkazy", href: links.webLinks },
     ],
   },
@@ -69,10 +67,10 @@ export const navGroups = [
     color: "green",
     links: [
       { label: "Schola", href: links.schola },
-      { label: "Chrámový sbor", href: `${OLD_SITE_URL}/chramovy_sbor` },
-      { label: "Katecheze pro děti", href: `${OLD_SITE_URL}/katecheze_pro_deti/pravidelne` },
+      { label: "Chrámový sbor", href: `${links.activities}chramovy_sbor/` },
+      { label: "Katecheze pro děti", href: `${links.activities}katecheze_pro_deti/` },
       { label: "Výuka náboženství", href: links.religiousEducation },
-      { label: "Společenství mladých", href: `${OLD_SITE_URL}/spolecenstvi_mladych/setkavani` },
+      { label: "Společenství mladých", href: `${links.activities}spolecenstvi_mladych/` },
       { label: "Seznam aktivit", href: links.activities },
     ],
   },
@@ -80,11 +78,11 @@ export const navGroups = [
     title: "Farní tábor",
     color: "magenta",
     links: [
-      { label: `Tábor ${BUILD_YEAR}`, href: `${OLD_SITE_URL}/farni_tabor/${BUILD_YEAR}` },
-      { label: "O táboru", href: `${OLD_SITE_URL}/farni_tabor/informace` },
-      { label: "Vedoucí", href: `${OLD_SITE_URL}/farni_tabor/vedouci` },
-      { label: "Kontakt", href: `${OLD_SITE_URL}/farni_tabor/kontakt` },
-      { label: "Ročníky", href: `${OLD_SITE_URL}/farni_tabor/rocniky` },
+      { label: `Tábor ${BUILD_YEAR}`, href: `/farni_tabor/${BUILD_YEAR}/` },
+      { label: "O táboru", href: "/farni_tabor/informace/" },
+      { label: "Vedoucí", href: "/farni_tabor/vedouci/" },
+      { label: "Kontakt", href: "/farni_tabor/kontakt/" },
+      { label: "Ročníky", href: "/farni_tabor/rocniky/" },
     ],
   },
   {

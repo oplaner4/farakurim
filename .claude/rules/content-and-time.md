@@ -77,7 +77,7 @@ build-time next mass.
   block optional; photos and video thumbnails are uploaded to `/uploads/skupiny/<group>/` (WebP, `small` 480 px
   square, `large` ≤ 1600 px). The hero and the photos share one lightbox at `#foto-N` (the hero is
   `#foto-1`, `groupPhotoSet()`). Videos play from youtube-nocookie.com only after a click. `groupLinks` feeds "Další
-  skupiny"; groups without a page here link to the old site.
+  skupiny"; groups without their page yet link to their placeholder.
 - Pages not rebuilt yet (`content/planned-pages.ts`): every old-site URL from farakurim.cz/sitemap has a page with
   its breadcrumb and "Stránku připravujeme" (noindex, not in the sitemap), built by `src/app/[...stranka]/` and,
   under Seznam aktivit, `src/app/aktivity/[skupina]/(…)`. The groups and the extra catechesis live under
@@ -94,5 +94,5 @@ build-time next mass.
   `Intl.PluralRules`. Under `output: "export"` next-intl also needs explicit `locale`/`timeZone`/`now` on its provider
   to stay static. Revisit only when a second language is planned. The real decision then is URLs: static export
   forces a `/cs/…` prefix on every page (no locale negotiation, no localized pathnames).
-- External links to the live site sit in `content/site.ts` (`links` and the "Více" menu / footer groups `navGroups`);
-  swap them when the pages are rebuilt here. "Tábor <year>" and the footer © follow `BUILD_YEAR`.
+- The site's routes sit in `content/site.ts` (`links` and the "Více" menu / footer groups `navGroups`); a page not
+  rebuilt yet is linked to its placeholder (`planned-pages.ts`), never to the old site. "Tábor <year>" and the footer © follow `BUILD_YEAR`.

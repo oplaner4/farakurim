@@ -4,7 +4,7 @@
 
 New website of **Římskokatolická farnost Kuřim** (farakurim.cz). `README.md` has the pages built so far, the
 requirements, the **commands**, the project layout and the deployment overview: read it first. This file holds what
-an agent must follow on top of it. Pages not rebuilt yet are linked to the live site; the design spec is
+an agent must follow on top of it. Pages not rebuilt yet have placeholders ("Stránku připravujeme"); the design spec is
 `design/DESIGN.md` (the shared lightbox is §21, the header and footer §20, nav groups in `navGroups`).
 
 ## Language convention

@@ -8,8 +8,7 @@ Built so far: the homepage, Aktuality (with the event detail pages and the archi
 podpora (the projects of the year, with QR Platba codes drawn at build time, and Starší projekty with the yearly
 accounts), Odkazy, Kronika farnosti, Výuka náboženství, Seznam aktivit and the group page template (Schola). The old site's
 other pages have placeholders ("Stránku připravujeme") at their URLs, so nothing 404s after the switch. Every page
-shares the header with the "Více" menu and the sitemap footer with the "Slovo na dnešek" Bible verse. Links to pages
-that are not rebuilt yet point to the live site.
+shares the header with the "Více" menu and the sitemap footer with the "Slovo na dnešek" Bible verse.
 
 ## Requirements
 
