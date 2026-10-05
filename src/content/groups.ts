@@ -19,6 +19,7 @@ export const schola: GroupPage = {
   tagline: "Jsme parta dětí, mladých i dospělých, které spojuje radost ze zpěvu, hudby a společného prožívání víry.",
   hero: {
     src: `${UPLOADS}/schola-uvod.webp`,
+    small: `${UPLOADS}/schola-uvod-nahled.webp`,
     alt: "Schola s hudebními nástroji na zahradě pod stromy",
   },
   about: [

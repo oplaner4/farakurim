@@ -1,12 +1,14 @@
 import { clsx } from "clsx";
 import type { GroupLink, GroupPage } from "@/content/types/activities";
 import { links } from "@/content/site";
-import { otherGroups } from "@/lib/activities/groups";
+import { groupPhotoSet, otherGroups } from "@/lib/activities/groups";
 import { externalLinkAttrs, NEW_TAB } from "@/lib/shared/links";
 import { ArrowRightIcon, ExternalLinkIcon } from "@/components/ui/icons";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { GroupHero } from "./GroupHero";
 import { GroupInfoBox } from "./GroupInfoBox";
+import { GroupLightbox } from "./GroupLightbox";
 import { GroupPhotos } from "./GroupPhotos";
 import { VideoCard } from "./VideoCard";
 
@@ -17,6 +19,8 @@ const arrowLink = clsx("flex min-h-11 items-center gap-1.5 self-start font-bold"
  * Kdy · Kde · Kontakt box, photos, videos, downloads and the other groups. Every block but the title is optional.
  */
 export function GroupPageView({ group, groups }: { group: GroupPage; groups: GroupLink[] }) {
+  // The hero and the grid's photos share one lightbox.
+  const lightboxPhotos = groupPhotoSet(group);
   return (
     <>
       <PageHeading
@@ -25,14 +29,7 @@ export function GroupPageView({ group, groups }: { group: GroupPage; groups: Gro
         size="standard"
         parents={[{ label: "Seznam aktivit", href: links.activities }]}
         intro={group.tagline}
-        media={
-          group.hero && (
-            <div className="relative h-55 overflow-hidden rounded-24 bg-green-tint md:h-80 md:rounded-26 lg:h-95 lg:rounded-28">
-              <img src={group.hero.src} alt={group.hero.alt} fetchPriority="high" className="size-full object-cover" />
-              <span aria-hidden="true" className="absolute right-0 bottom-0 h-20 w-30 bg-green shard-br" />
-            </div>
-          )
-        }
+        media={group.hero && <GroupHero hero={group.hero} />}
       />
 
       {(group.about || group.when || group.where || group.contact) && (
@@ -53,7 +50,15 @@ export function GroupPageView({ group, groups }: { group: GroupPage; groups: Gro
         </div>
       )}
 
-      {group.photos && group.photos.length > 0 && <GroupPhotos name={group.name} photos={group.photos} />}
+      {group.photos && group.photos.length > 0 && (
+        <GroupPhotos
+          name={group.name}
+          photos={group.photos}
+          before={group.hero ? 1 : 0}
+          total={lightboxPhotos.length}
+        />
+      )}
+      {lightboxPhotos.length > 0 && <GroupLightbox name={group.name} photos={lightboxPhotos} />}
 
       {group.videos && group.videos.length > 0 && (
         <section aria-labelledby="videa" className="flex flex-col gap-3">

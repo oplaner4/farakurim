@@ -256,7 +256,7 @@ describe("Seznam aktivit a skupiny (activities.ts, groups.ts)", () => {
 
   it("links the group pages' files root-relative under /uploads/", () => {
     const files = [
-      ...(schola.hero ? [schola.hero.src] : []),
+      ...(schola.hero ? [schola.hero.src, schola.hero.small] : []),
       ...(schola.photos ?? []).flatMap((p) => [p.small, p.large]),
       ...(schola.videos ?? []).map((v) => v.thumbnail),
     ];

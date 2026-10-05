@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { formatDuration, groupPhotoFromHash, groupPhotoHash, otherGroups, youtubeEmbedUrl } from "./groups";
+import {
+  formatDuration,
+  groupPhotoFromHash,
+  groupPhotoHash,
+  groupPhotoSet,
+  otherGroups,
+  youtubeEmbedUrl,
+} from "./groups";
 
 describe("formatDuration", () => {
   it.each([
@@ -29,6 +36,23 @@ describe("group photo hash", () => {
     expect(groupPhotoFromHash("#foto-0", 19)).toBeNull();
     expect(groupPhotoFromHash("#foto-20", 19)).toBeNull();
     expect(groupPhotoFromHash("#obsah", 19)).toBeNull();
+  });
+});
+
+describe("groupPhotoSet", () => {
+  const photo = { small: "/a-nahled.webp", large: "/a.webp" };
+
+  it("puts the hero before the grid's photos", () => {
+    const hero = { src: "/uvod.webp", small: "/uvod-nahled.webp", alt: "Schola" };
+    expect(groupPhotoSet({ hero, photos: [photo] })).toEqual([
+      { small: "/uvod-nahled.webp", large: "/uvod.webp" },
+      photo,
+    ]);
+  });
+
+  it("works without a hero or without photos", () => {
+    expect(groupPhotoSet({ photos: [photo] })).toEqual([photo]);
+    expect(groupPhotoSet({})).toEqual([]);
   });
 });
 

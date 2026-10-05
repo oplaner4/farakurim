@@ -90,7 +90,8 @@ export type GroupLink = {
 export type GroupPage = GroupLink & {
   /** One sentence under the H1. */
   tagline: string;
-  hero?: { src: string; alt: string };
+  /** The wide photo under the breadcrumb; it opens the lightbox as the first of the page's photos. */
+  hero?: { src: string; alt: string; /** 480 px square, for the lightbox's thumbnails. */ small: string };
   /** "O nás": paragraphs of plain text. */
   about?: string[];
   /** "Kdy": one or more lines ("Zpíváme" – "první neděli v měsíci v 9:30 při dětské mši"). */

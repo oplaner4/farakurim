@@ -1,4 +1,5 @@
-import type { GroupLink } from "@/content/types/activities";
+import type { GroupLink, GroupPage } from "@/content/types/activities";
+import type { AlbumPhoto } from "@/content/types/gallery";
 
 // The group pages (design/DESIGN.md §27).
 
@@ -22,6 +23,12 @@ export function groupPhotoFromHash(hash: string, count: number): number | null {
   const match = /^#foto-(\d+)$/.exec(hash);
   const n = match ? Number(match[1]) : 0;
   return n >= 1 && n <= count ? n - 1 : null;
+}
+
+/** Every photo the page's lightbox shows: the hero first, then the "Fotografie" grid's photos. */
+export function groupPhotoSet(group: Pick<GroupPage, "hero" | "photos">): AlbumPhoto[] {
+  const hero = group.hero ? [{ small: group.hero.small, large: group.hero.src }] : [];
+  return [...hero, ...(group.photos ?? [])];
 }
 
 /** "Další skupiny": up to `size` other groups, starting after the current one so each page shows a different mix. */
