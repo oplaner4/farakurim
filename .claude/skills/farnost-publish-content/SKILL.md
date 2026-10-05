@@ -5,8 +5,8 @@ description: Finish a content change on the new farakurim.cz site - stage upload
 
 # Publish a content change
 
-The site is a static export: content lives in `src/content/*.ts`, and a change goes live when it is pushed to `main`:
-GitHub Actions runs the checks (format, tests, lint, types), builds and deploys `out/`, and deploys nothing when a
+The site is a static export: content lives in `src/content/*.ts`, and a change goes live with the next release (a version
+tag pushed by `farnost-deploy`): GitHub Actions runs the checks (format, tests, lint, types), builds and deploys `out/`, and deploys nothing when a
 check fails. So this skill does not run them; it only checks how the change looks.
 
 Uploaded files (posters, attachments, the weekly PDF, Petrklíč issues) are **not** in git or `out/`: they live on
@@ -50,7 +50,8 @@ Never stage `uploads/` or `out/`.
 
 ## 4. Deploy
 
-Run the `farnost-deploy` skill: it uploads the staged `uploads/` files (dry run, the user's yes), then pushes `main`,
-and GitHub Actions checks, builds and deploys `out/` to http://2026.farakurim.cz/. If the run fails (a check, or a
-linked upload missing on the server), fix it in a new commit and push again. Do not upload or push without the user's
-explicit yes.
+Run the `farnost-deploy` skill: it uploads the staged `uploads/` files (dry run, the user's yes), bumps the version
+and tags the release, and pushes `main` with the tag; GitHub Actions then checks, builds and deploys `out/` to
+http://2026.farakurim.cz/. If the run fails (a check, or a linked upload missing on the server), fix it in a new
+commit and release again with a new version. Do not upload, tag or push without the user's explicit yes. When the
+user only wants a backup, push `main` without a release.

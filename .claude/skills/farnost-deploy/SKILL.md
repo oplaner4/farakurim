@@ -1,6 +1,6 @@
 ---
 name: farnost-deploy
-description: Deploy the new farakurim.cz site to the web host with rsync over SSH - upload the staged uploads/ files and the built out/ to 2026.farakurim.cz, after a dry run and the user's explicit confirmation. Use at the end of farnost-publish-content, or whenever the user asks to deploy, upload, publish to the server or sync the site over SFTP/rsync.
+description: Release the new farakurim.cz site - upload the staged uploads/ files with rsync over SSH, bump the version in package.json, tag it vX.Y.Z and push, so GitHub Actions deploys out/ to 2026.farakurim.cz; always after the user's explicit confirmation. Use at the end of farnost-publish-content, or whenever the user asks to deploy, upload, publish to the server or sync the site over SFTP/rsync.
 ---
 
 # Deploy to the server
@@ -26,15 +26,27 @@ them: `/uploads/`, `/virtualni_prohlidka/` (the old site's Lapentor tour, 553 MB
 the footer) and `/cache/` (the last "Slovo na dnešek" verse, its fallback while vira.cz is down). Never sync `out/`
 without all three excludes.
 
-## GitHub Actions deploys `out/`
+## Release: a version tag deploys `out/`
 
-`.github/workflows/deploy.yml` builds every push and, on a push to `main`, syncs `out/` to the web root with the
-same excludes. It cannot upload `uploads/` (not in git), and it **stops before syncing** if the build links a
-`/uploads/…` file that is not on the server yet. So the usual deploy is:
+`.github/workflows/deploy.yml` checks and builds every push. Pushes to `main` are only a backup; the site is deployed
+when a **release tag** `vX.Y.Z` is pushed. The tag must equal `version` in `package.json` and point to a commit on
+`main`, or the run stops. Actions cannot upload `uploads/` (not in git), and it **stops before syncing** if the
+build links a `/uploads/…` file that is not on the server yet. So a release is:
 
-1. Upload the staged files: steps 2–4 below for the `uploads/` command only (skip when `uploads/` is empty).
-2. Push `main` (`git push`): ask the user first, a push to `main` publishes the site. Then watch the run in the
-   repo's Actions tab and check the changed pages (step 5).
+1. **Clean state.** `git status --short` must be empty (also no `AGENTS.md` re-added by `next dev`: ask the user to
+   commit or discard it), on `main`, not behind `origin/main` (`git fetch && git status -sb`). Otherwise stop.
+2. **Upload the staged files:** steps 2–4 below for the `uploads/` command only (skip when `uploads/` is empty).
+3. **Pick the version.** List the commits since the last release (`git log --oneline $(git describe --tags
+--abbrev=0 2>/dev/null)..HEAD`, or all of them before the first release). `patch` for content and fixes, `minor` when
+   a `feat` outside the `content` scope is among them, `major` only when the user asks (e.g. the switch to
+   `/farakurim.cz/`). Tell the user the commits and the version, and ask for a yes: it publishes the site.
+4. **Bump and tag.** `pnpm version <patch|minor|major> -m "chore(release): v%s"` sets `package.json`, commits it
+   (a valid commitlint message) and creates the annotated tag `vX.Y.Z`. It refuses a dirty tree.
+5. **Push** both: `git push origin main --follow-tags`, unless the user pushes it. Then watch the run in the repo's
+   Actions tab and check the changed pages (step 5 below).
+
+A failed run (a check, a missing upload) is fixed in a new commit and released with a new version; never move or
+reuse a pushed tag.
 
 The deploy job reads the `Production` environment: `DEPLOY_SSH_KEY` (secret, a private key the server accepts) and
 `DEPLOY_KNOWN_HOSTS` (the server's line from `ssh-keygen -F 91.239.200.63`, fingerprint checked). The build job has
@@ -53,7 +65,7 @@ its three excludes and the verify checks. When you change one (a new server-only
 
 - Only for the local `out/` fallback: `out/` comes from a fresh `pnpm build` of the current commit with `.env.local`
   in place (without the key the calendars ship mock data). The usual flow needs no local build: Actions builds.
-- The work is committed (`git status --short` is empty, apart from `AGENTS.md` re-added by `next dev`).
+- The work is committed (`git status --short` is empty).
 
 ## 2. Dry run
 

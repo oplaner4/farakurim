@@ -56,8 +56,9 @@ and linked root-relative as `/uploads/…`. Album photos stay on Zonerama. The o
 How it works is in [README.md § Deployment](README.md#deployment); the steps are in the `farnost-deploy` skill.
 What an agent must never get wrong:
 
-- A push to `main` **publishes the site** (GitHub Actions deploys `out/`), and so does uploading `uploads/`: ask the
-  user for an explicit yes before either.
+- Pushing a release tag `vX.Y.Z` **publishes the site** (GitHub Actions deploys `out/`; pushes to `main` are only a
+  backup), and so does uploading `uploads/`: ask the user for an explicit yes before either. Releases are made by the
+  `farnost-deploy` skill from a clean tree (`pnpm version` bumps `package.json`, commits and tags).
 - `/farakurim.cz/` on the server is the live old PHP site: never deploy there.
 - Never delete `/uploads/`, `/virtualni_prohlidka/` or `/cache/` on the server: they live only there.
 - **Keep `.github/workflows/deploy.yml` and the `farnost-deploy` skill in sync:** the SSH target, web root, rsync
