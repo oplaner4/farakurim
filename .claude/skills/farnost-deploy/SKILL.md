@@ -43,8 +43,9 @@ build links a `/uploads/…` file that is not on the server yet. So a release is
    `/farakurim.cz/`). Tell the user the commits and the version, and ask for a yes: it publishes the site.
 4. **Bump and tag.** `pnpm version <patch|minor|major> -m "chore(release): v%s"` sets `package.json`, commits it
    (a valid commitlint message) and creates the annotated tag `vX.Y.Z`. It refuses a dirty tree.
-5. **Push** both: `git push origin main --follow-tags`, unless the user pushes it. Then watch the run in the repo's
-   Actions tab and check the changed pages (step 5 below).
+5. **Push** both: `git push origin main --follow-tags`, unless the user pushes it. Then stop: do not
+   query the run (no `gh`, no GitHub API). The user follows it in the repo's Actions tab, and its Verify step runs the
+   checks of step 5 below. Say that the release is pushed and point the user to the Actions tab.
 
 A failed run (a check, a missing upload) is fixed in a new commit and released with a new version; never move or
 reuse a pushed tag.
@@ -112,6 +113,8 @@ rsync -az --delete --exclude=/uploads/ --exclude=/virtualni_prohlidka/ --exclude
 On an error, report rsync's output and stop; rerunning is safe (rsync only sends what differs).
 
 ## 5. Verify
+
+After a local `out/` deploy or a new upload; a release is verified by the workflow's Verify step.
 
 ```sh
 curl -sI http://2026.farakurim.cz/ | head -1
