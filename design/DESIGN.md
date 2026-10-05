@@ -29,6 +29,7 @@ Every page has a **light and a dark theme**.
 | `mockups/lightbox-foto/{light,dark}/`, `mockups/lightbox-plakat/{light,dark}/` | The lightbox, open, for a photo and for a poster (section 21) |
 | `mockups/financni-podpora/{light,dark}/` | Finanční podpora (section 22) |
 | `mockups/odkazy/{light,dark}/` | Odkazy (section 23) |
+| `mockups/vyuka-nabozenstvi/`, `mockups/aktivity/`, `mockups/kronika/`, `mockups/skupina-schola/`, `mockups/financni-podpora-starsi/` (each `{light,dark}`) | Sections 24–28 |
 | `mockups/menu/{light,dark}/` | Homepage with the "Více" menu open (section 20) |
 | `assets/logo-farnost-kurim.svg` | Cleaned logo (also the future favicon) |
 
@@ -1048,4 +1049,64 @@ Mockups: `mockups/odkazy/`. Section colour: blue (group Farnost). Reached from t
 - **Link card** (`--surface`, radius 18, padding 16, the whole card is the link): a 44 px tile in the group tint with the initial letter in the group ink (replace with the site's favicon if you like), the name (17 px bold), a one-line description, and the domain with an external-link icon in the group ink. Grid: 1 column mobile, 2 tablet, 4 desktop.
 - `target="_blank" rel="noopener"` and visually hidden "(otevře se v novém okně)", as on the current site. Use **https** URLs.
 - Data: a simple list (group, name, description, URL) editable in the admin.
+
+## 24. Výuka náboženství (`/vyuka_nabozenstvi`)
+
+Mockups: `mockups/vyuka-nabozenstvi/`. Section colour: **green** (group Život ve farnosti).
+- Breadcrumb, H1, lead "Náboženství pro děti z 1. až 9. třídy …".
+- **"Rozvrh výuky"** with "Školní rok 2026/2027" on the right, and a **school switcher**: pills `ZŠ Tyršova · ZŠ Jungmannova · Moravské Knínice · Fara Kuřim` (`role="tablist"`, active = green fill with dark text). Mobile: one scrolling row.
+  - Tablet/desktop: a table (Třída as a green pill, **Den**, **Hodina**, Místo, Vyučující), with a visually hidden `<caption>`.
+  - Mobile: each row becomes a card: a 76 px green tile "třída 1.–2.", then "**pátek · 12:15–13:00**", the room and the teacher.
+  - Without JS show all four tables one under another (each with an H3 school name); the switcher is an enhancement.
+- Three cards (desktop 3 columns, tablet 2, mobile stacked):
+  - **Přihláška** (green tint, corner triangle): text + green button "Přihláška do náboženství" (the current JPG; ideally a PDF or an online form) and an outline button "Zásady výuky (PDF)".
+  - **Kontakt**: avatar initials, *Hanka Prokopová – pastorační asistentka*, buttons Zavolat / Napsat e-mail (real phone and e-mail from the admin; the mockup uses placeholders).
+  - **Omlouvání**: short text on excusing absence, pointing to the PDF.
+- Data: school → rows (class, day, time, room, teacher), school year label. Editable each September.
+
+## 25. Seznam aktivit (`/aktivity`)
+
+Mockups: `mockups/aktivity/`. Section colour: green.
+- H1 "Seznam aktivit", lead "Co se ve farnosti děje a na koho se obrátit. MK = Moravské Knínice."
+- **Search** "Hledat aktivitu nebo jméno" (matches name, contact names and frequency) and **filter pills** with counts: `Vše 60 · Pravidelné 24 · Správa a komunikace 8 · Jednorázové a roční 28` (`aria-pressed`). Count line with Czech plurals: "Zobrazena jedna aktivita / Zobrazeny 2 aktivity / Zobrazeno 5 aktivit" ("Nalezen…" while searching).
+- One section per group (H2 with a shard: Pravidelné green, Správa blue, Jednorázové magenta), cards in a grid (1 / 2 / 3 columns), `--surface`, radius 18:
+  - name (17 px bold); a clock row with the frequency if known ("každou neděli po mši v 10:30"); a person row with contact names;
+  - **"hledáme"** (no one responsible yet) is shown in magenta ink – an invitation to help;
+  - if the activity has its own page (group template, section 27, or Výuka náboženství), a link "Více o skupině →".
+- Bottom panel "Chcete se zapojit?" (green tint) with a button to Kontakty.
+- Contacts: show **names only**; phone/e-mail only for people who agreed (GDPR). Data: group, name, frequency, contacts, optional page link.
+
+## 26. Kronika farnosti (`/kronika_prehled_udalosti`)
+
+Mockups: `mockups/kronika/`. Section colour: blue.
+- H1 "Kronika farnosti", lead; **era pills** `Vše · 13.–18. století · 19.–20. století · Novější opravy`.
+- Each era: H2 + a **vertical timeline** (`<ol>`): a right-aligned year column (92 / 130 / 150 px), a 2 px line with dots, and the text.
+  - **Milestones** (1226 first church, 1286 own parish, 1766–1772 rebuilt, 1893 organ, 2000 new façade): bigger blue-ink year, 16 px blue dot, text in a blue-tint bubble. Others: 10 px grey dot, plain text.
+  - Entries are sorted by year (the current page has a few out of order: 1833, 1843).
+- The mockup texts are **shortened paraphrases** – take the exact wording from the current chronicle.
+- Footer note linking to the 800-year article and Kněží – rodáci.
+
+## 27. Group page template (example: Schola, `/schola`)
+
+Mockups: `mockups/skupina-schola/`. One template for **Schola, Chrámový sbor, Společenství mládeže, Katecheze pro děti (pravidelné)** and future groups (Ministranti, Farní kavárna …). Colour: green.
+Every block is optional; a group fills only what it has.
+1. Breadcrumb `Úvod › Seznam aktivit › Schola` (groups live under Seznam aktivit).
+2. **Hero photo** (220 / 320 / 380 px, radius, green corner triangle), H1 and a one-sentence tagline.
+3. **"O nás"** text and the **info box** "Kdy · Kde · Kontakt" (green tint, icon rows with uppercase green labels; contact name + role; buttons Zavolat / E-mail). Desktop: text left (1.6 fr), info box right (1 fr); smaller screens: text, then the box.
+4. **Fotografie**: a square-thumbnail grid (6 on mobile in 3 columns, 4 on tablet, 6 on desktop) + "Zobrazit všech 18 fotografií →"; thumbnails open the **lightbox** (section 21). Source: a Zonerama album or uploaded photos.
+5. **Video** ("Poslechněte si nás"): YouTube cards (16:9 thumbnail, play button, duration, title) + link to the channel. Use `youtube-nocookie.com` and load the player only after a click (privacy + speed).
+6. **Další skupiny**: 3 cards linking to other groups + "Všechny aktivity farnosti →".
+7. Optional **Ke stažení** block (e.g. Chrámový sbor: "Noty a nahrávky pro členy sboru" – a link to the shared folder; mark it "jen pro členy").
+Data per group: name, slug, tagline, hero photo, text, when (one or more lines), where, contact (name, role, phone, e-mail), photos, videos, downloads.
+
+## 28. Finanční podpora – starší projekty (`/financni_podpora/starsi`)
+
+Mockups: `mockups/financni-podpora-starsi/`. Colour: orange.
+- Breadcrumb `Úvod › Finanční podpora › Starší projekty`, H1, lead with thanks.
+- One card per project (`--surface`): place chip, green **"Dokončeno · 2019–2025"** pill, H2, one-line summary, and two totals on the right: **Náklady celkem** and **Dotace celkem** (sum of the yearly rows).
+- **"Vyúčtování podle let (7)"** as `<details>` (the first project open by default):
+  - tablet/desktop: a table Rok / Provedené práce / Rozpočet / Dotace / Dary / **Náklady**, numbers right-aligned, no wrapping;
+  - mobile: one card per year (year + costs on top, the works, then a 3-column mini `<dl>` Rozpočet / Dotace / Dary).
+- "—" when a value is not recorded. Two rows for one year are allowed (fara 2020: two stages).
+- Link back "← Aktuální projekty a jak přispět".
 
