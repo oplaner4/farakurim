@@ -17,6 +17,8 @@ export const links = {
   petrklicArchive: "/petrklic/archiv/",
   contacts: "/kontakty/",
   calendar: "/kalendar/",
+  support: "/financni_podpora/aktualne/",
+  webLinks: "/odkazy/",
   /** Lapentor tour copied from the old site; it lives only on the server (see farnost-deploy). */
   virtualTour: "/virtualni_prohlidka/",
   viraCz: "https://www.vira.cz/",
@@ -35,6 +37,9 @@ export const mainNav = [
 /** The old PHP site, still live at farakurim.cz: pages not yet rebuilt are linked there. */
 const OLD_SITE_URL = "https://farakurim.cz";
 
+/** "Starší projekty a jejich vyúčtování" (§22.1), not rebuilt yet. */
+export const supportArchiveHref = `${OLD_SITE_URL}/financni_podpora/starsi`;
+
 /** Year of the build in Prague: the current Farní tábor and the footer copyright. */
 export const BUILD_YEAR = Number(pragueDate(BUILD_TIME).slice(0, 4));
 
@@ -48,12 +53,12 @@ export const navGroups = [
     color: "blue",
     links: [
       { label: "Kalendář", href: links.calendar },
-      { label: "Finanční podpora", href: `${OLD_SITE_URL}/financni_podpora/aktualne` },
+      { label: "Finanční podpora", href: links.support },
       { label: "Pastorační rada – členové", href: `${OLD_SITE_URL}/pastoracni_rada/clenove` },
       { label: "Zápisy pastorační rady", href: `${OLD_SITE_URL}/pastoracni_rada/zapisy` },
       { label: "Kronika farnosti", href: `${OLD_SITE_URL}/kronika_prehled_udalosti` },
       { label: "Kněží – rodáci", href: `${OLD_SITE_URL}/knezi_rodaci` },
-      { label: "Odkazy", href: `${OLD_SITE_URL}/odkazy` },
+      { label: "Odkazy", href: links.webLinks },
     ],
   },
   {
@@ -119,12 +124,12 @@ export const GOOGLE_CALENDAR_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_A
 
 export const parish = {
   name: "Římskokatolická farnost Kuřim",
-  /** The municipalities of the parish, linked to their websites in the footer. */
+  /** The municipalities of the parish, linked to their websites in the footer and on Odkazy. */
   villages: [
-    { name: "Kuřim", href: "https://www.kurim.cz/" },
-    { name: "Moravské Knínice", href: "https://www.moravskekninice.cz/" },
-    { name: "Jinačovice", href: "https://www.obecjinacovice.cz/" },
-    { name: "Česká", href: "https://www.ceska.cz/" },
+    { name: "Kuřim", href: "https://www.kurim.cz/", description: "Oficiální stránky města Kuřimi" },
+    { name: "Moravské Knínice", href: "https://www.moravskekninice.cz/", description: "Oficiální stránky obce" },
+    { name: "Jinačovice", href: "https://www.obecjinacovice.cz/", description: "Oficiální stránky obce" },
+    { name: "Česká", href: "https://www.ceska.cz/", description: "Oficiální stránky obce" },
   ],
   bankAccount: "247704317/0300",
 };

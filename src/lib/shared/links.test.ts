@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { externalLinkAttrs, isExternalHref, withExternalLinkTargets } from "./links";
+import { displayDomain, externalLinkAttrs, isExternalHref, withExternalLinkTargets } from "./links";
 
 describe("isExternalHref", () => {
   it("treats other sites as external", () => {
@@ -39,5 +39,15 @@ describe("withExternalLinkTargets", () => {
   it("leaves a link that already has a target alone", () => {
     const html = '<a href="https://example.com" target="_self">x</a>';
     expect(withExternalLinkTargets(html)).toBe(html);
+  });
+});
+
+describe("displayDomain", () => {
+  it.each([
+    ["https://www.cirkev.cz/", "cirkev.cz"],
+    ["https://www.vaticannews.va/cs.html", "vaticannews.va"],
+    ["https://donator.cz/projekt/tisnovpastorace", "donator.cz"],
+  ])("%s → %s", (href, expected) => {
+    expect(displayDomain(href)).toBe(expected);
   });
 });

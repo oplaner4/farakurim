@@ -60,7 +60,10 @@ export const formatDayMonth = (date: IsoDate) => fmt(date, "d. MMMM");
 export const formatWeekdayDate = (date: IsoDate) => `${capitalize(fmt(date, "EEEEEE"))} ${formatShortDate(date)}`;
 
 /** "27. 9. – 4. 10. 2026" */
-export const formatDateRange = (from: IsoDate, to: IsoDate) => `${formatShortDate(from)} – ${fmt(to, "d. M. yyyy")}`;
+/** "30. 6. 2026" */
+export const formatNumericDate = (date: IsoDate) => fmt(date, "d. M. yyyy");
+
+export const formatDateRange = (from: IsoDate, to: IsoDate) => `${formatShortDate(from)} – ${formatNumericDate(to)}`;
 
 export type EventDateParts = {
   /** Big line of the date block: "7." or "2.–4." */
@@ -206,3 +209,12 @@ export function formatFileSize(bytes: number): string {
   if (bytes < 1000 * 1000) return `${sizeFormat.format(Math.max(1, Math.round(bytes / 1000)))} kB`;
   return `${sizeFormat.format(bytes / (1000 * 1000))} MB`;
 }
+
+const czkFormat = new Intl.NumberFormat("cs", { maximumFractionDigits: 0 });
+const percentFormat = new Intl.NumberFormat("cs", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+/** "57 800 Kč", with non-breaking spaces so an amount never wraps. */
+export const formatCzk = (amount: number) => `${czkFormat.format(amount)} Kč`;
+
+/** "8,7 %" for 0.087. */
+export const formatPercent = (ratio: number) => `${percentFormat.format(ratio * 100)} %`;

@@ -19,12 +19,14 @@ type Props = {
   link?: { href: string; label: string; shortLabel?: string };
   /** Smaller heading used inside panels (Kontakty on tablet/desktop). */
   compact?: boolean;
+  /** The section headings of the text pages (Finanční podpora, Odkazy): 22 / 26 / 30px. */
+  small?: boolean;
   /** Show the link only on desktop (the section has its own button on smaller screens). */
   linkDesktopOnly?: boolean;
   className?: string;
 };
 
-export function SectionHeading({ id, title, color, link, compact, linkDesktopOnly, className }: Props) {
+export function SectionHeading({ id, title, color, link, compact, small, linkDesktopOnly, className }: Props) {
   const accent = accents[color];
   return (
     <div
@@ -34,11 +36,12 @@ export function SectionHeading({ id, title, color, link, compact, linkDesktopOnl
         className,
       )}
     >
-      <div className={clsx("flex items-center gap-2.5 md:gap-3", !compact && "lg:gap-3.5")}>
+      <div className={clsx("flex items-center gap-2.5", !small && "md:gap-3", !compact && !small && "lg:gap-3.5")}>
         <span
           className={clsx(
-            "h-5.5 w-4 flex-none shard-br md:h-6.5 md:w-4.5",
-            compact ? "lg:h-7 lg:w-5" : "lg:h-8 lg:w-5.5",
+            "flex-none shard-br",
+            small ? "h-5 w-3.5" : "h-5.5 w-4 md:h-6.5 md:w-4.5",
+            !small && (compact ? "lg:h-7 lg:w-5" : "lg:h-8 lg:w-5.5"),
             accent.shard,
           )}
           aria-hidden="true"
@@ -46,8 +49,12 @@ export function SectionHeading({ id, title, color, link, compact, linkDesktopOnl
         <h2
           id={id}
           className={clsx(
-            "text-26 leading-normal font-bold tracking-heading",
-            compact ? "lg:text-32 lg:leading-title" : "md:text-32 lg:text-40 lg:leading-display lg:tracking-display",
+            "leading-normal font-bold",
+            small ? "text-22 md:text-26 lg:text-30" : "text-26 tracking-heading",
+            !small &&
+              (compact
+                ? "lg:text-32 lg:leading-title"
+                : "md:text-32 lg:text-40 lg:leading-display lg:tracking-display"),
           )}
         >
           {title}

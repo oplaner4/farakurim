@@ -4,7 +4,8 @@ The new website of **Římskokatolická farnost Kuřim**. Next.js (App Router) e
 hosting runs PHP only, with no Node.js, so `pnpm build` writes plain HTML/CSS/JS to `out/`.
 
 Built so far: the homepage, Aktuality (with the event detail pages and the archive, one page per year back to
-2019), Pořad bohoslužeb, Kontakty, Kalendář, Petrklíč (the current issue and the archive) and Fotogalerie. Every page
+2019), Pořad bohoslužeb, Kontakty, Kalendář, Petrklíč (the current issue and the archive), Fotogalerie, Finanční
+podpora (the projects of the year, with QR Platba codes drawn at build time) and Odkazy. Every page
 shares the header with the "Více" menu and the sitemap footer with the "Slovo na dnešek" Bible verse. Links to pages
 that are not rebuilt yet point to the live site.
 
@@ -84,7 +85,7 @@ design/              Design handoff: DESIGN.md (the spec) and mockups per page, 
 src/app/             Pages (one folder per route), sitemap and 404
 src/styles/          globals.css (Tailwind theme tokens), utilities.css, lightbox.css
 src/components/      One component per block, by group: ui/, layout/, home/, news/, services/, contacts/,
-                     calendar/, petrklic/, gallery/
+                     calendar/, petrklic/, gallery/, support/ (Finanční podpora), links/ (Odkazy)
 src/hooks/           Every React hook, one use-<name>.ts each
 src/lib/<group>/     Pure logic with unit tests, by the same groups plus shared/ (Prague time, Czech grammar, links)
 src/content/         Content, one file per domain (mock data and build-time fetches): an API later. calendar.ts reads

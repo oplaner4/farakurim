@@ -4,12 +4,14 @@ import {
   eventDateBlock,
   fileType,
   formatCompactDate,
+  formatCzk,
   formatDateRange,
   formatEventDate,
   formatEventWhen,
   formatFileSize,
   formatLongDate,
   formatMonthYear,
+  formatPercent,
   formatWeekdayDate,
   plural,
   relativeEventLabel,
@@ -148,5 +150,27 @@ describe("formatFileSize", () => {
     expect(formatFileSize(340_123)).toBe("340 kB");
     expect(formatFileSize(120)).toBe("1 kB");
     expect(formatFileSize(1_234_567)).toBe("1,2 MB");
+  });
+});
+
+describe("formatCzk", () => {
+  it.each([
+    [0, "0 Kč"],
+    [500, "500 Kč"],
+    [57800, "57 800 Kč"],
+    [664679, "664 679 Kč"],
+  ])("%i → %s", (amount, expected) => {
+    expect(formatCzk(amount)).toBe(expected.replaceAll(" ", " "));
+  });
+});
+
+describe("formatPercent", () => {
+  it.each([
+    [0.087, "8,7 %"],
+    [0.0064, "0,6 %"],
+    [0.0015, "0,2 %"],
+    [1, "100,0 %"],
+  ])("%f → %s", (ratio, expected) => {
+    expect(formatPercent(ratio)).toBe(expected.replaceAll(" ", " "));
   });
 });

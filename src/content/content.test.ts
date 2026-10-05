@@ -7,6 +7,8 @@ import { events } from "./news";
 import { scheduleExceptions, serviceSheet } from "./ohlasky";
 import { petrklicIssues } from "./petrklic";
 import { contacts, parish } from "./site";
+import { support } from "./support";
+import { linkGroups } from "./web-links";
 
 // Checks on the content the farnost-create-* skills write from posters and PDFs: a typo there does not break the
 // build, it quietly shows the wrong thing (an event without its time, a missing poster, a misplaced album).
@@ -181,5 +183,45 @@ describe("Fotogalerie (gallery.ts)", () => {
       expect(a.photoCount, a.id).toBeGreaterThan(0);
       if (a.photos) expect(a.photos.length, a.id).toBeLessThanOrEqual(a.photoCount);
     }
+  });
+});
+
+describe("Finanční podpora (support.ts)", () => {
+  const { projects, regularGifts, puls } = support;
+
+  it("dates the amounts in the projects' year", () => {
+    expect(isIsoDate(support.asOf)).toBe(true);
+    expect(support.asOf.startsWith(String(support.year))).toBe(true);
+  });
+
+  it("gives each project and the regular gifts their own numeric variable symbol", () => {
+    const symbols = [...projects.map((p) => p.variableSymbol), regularGifts.variableSymbol];
+    expect(symbols.every((vs) => /^\d{1,10}$/.test(vs))).toBe(true);
+    expect(duplicates(symbols)).toEqual([]);
+    expect(duplicates(projects.map((p) => p.id))).toEqual([]);
+  });
+
+  it("keeps the amounts whole and not negative", () => {
+    const amounts = projects.flatMap((p) => [p.budget, p.grants, p.gifts, p.workDone ?? 0]);
+    expect(amounts.every((a) => Number.isInteger(a) && a >= 0)).toBe(true);
+    expect(projects.every((p) => p.budget > 0)).toBe(true);
+  });
+
+  it("lists the Fond PULS years once each, oldest first", () => {
+    expect(isSorted(puls, (a, b) => a.year < b.year)).toBe(true);
+  });
+});
+
+describe("Odkazy (web-links.ts)", () => {
+  const all = linkGroups.flatMap((g) => g.links);
+
+  it("links only to https sites, each once", () => {
+    expect(all.every((l) => l.href.startsWith("https://"))).toBe(true);
+    expect(duplicates(all.map((l) => l.href))).toEqual([]);
+    expect(duplicates(linkGroups.map((g) => g.id))).toEqual([]);
+  });
+
+  it("describes every link", () => {
+    expect(all.every((l) => l.name.trim() && l.description.trim())).toBe(true);
   });
 });

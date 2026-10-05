@@ -24,6 +24,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     petrklicYearHref(),
     ...PETRKLIC_YEARS.map((y) => petrklicYearHref(y.year)),
     links.contacts,
+    links.support,
+    links.webLinks,
   ];
   return paths.map((path) => ({ url: `${SITE_URL}${path}` }));
 }

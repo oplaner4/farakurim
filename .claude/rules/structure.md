@@ -7,7 +7,8 @@ paths:
 # Where code goes
 
 `src/` is split by **kind** first, then by the same **domain groups** everywhere:
-`news`, `services` (Pořad bohoslužeb, masses), `contacts`, `calendar`, `petrklic`, `gallery`, `home`, `layout`
+`news`, `services` (Pořad bohoslužeb, masses), `contacts`, `calendar`, `petrklic`, `gallery`, `support` (Finanční
+podpora), `links` (Odkazy; content in `web-links.ts`, as `links` in `site.ts` are the site's own routes), `home`, `layout`
 (header, footer and their parts) and `shared` (`ui` in components) for what several domains use.
 
 | Folder                         | Holds                                                                                |

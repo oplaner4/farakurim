@@ -31,3 +31,6 @@ export const withExternalLinkTargets = (html: string) =>
 /** A click that should follow the link as usual (new tab or window, download) instead of opening a lightbox. */
 export const isModifiedClick = (e: Pick<MouseEvent, "button" | "metaKey" | "ctrlKey" | "shiftKey" | "altKey">) =>
   e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey;
+
+/** The host a link card shows: "https://www.vaticannews.va/cs.html" → "vaticannews.va". */
+export const displayDomain = (href: string) => new URL(href).hostname.replace(/^www\./, "");

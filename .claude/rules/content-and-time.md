@@ -58,6 +58,12 @@ build-time next mass.
   designed placeholders; alt texts are computed (`photoAlt()` in `src/lib/gallery/albums.ts`). A photo opens the
   lightbox (DESIGN.md §21) at `#album-<id>-foto-N`; an event poster that is an image opens it at `#plakat` (detail page)
   or `#plakat-<event id>` (Aktuality), a PDF poster opens in the browser.
+- Finanční podpora (`content/support.ts`, design §22): the projects of the year with budget, grants, gifts and
+  the optional work done (whole Kč, valid on `asOf`), the regular gifts (VS 1111) and the Fond PULS years (`null` =
+  not known yet). Progress, the IBAN and the QR Platba string are computed in `src/lib/support/payment.ts`; the QR
+  is drawn at build time by `PaymentQr` (a Server Component), so `qrcode` never reaches the browser.
+- Odkazy (`content/web-links.ts`, design §23): link groups with a colour; "Obce farnosti" reuses `parish.villages`
+  (also the footer), and the card's domain is computed (`displayDomain()`).
 - Office hours (`content/site.ts`): weekly slots with an optional yearly `closed` break; the live status is
   `officeStatus()` in `src/lib/contacts/office-hours.ts`.
 - Czech output: `plural()` (built on `Intl.PluralRules("cs")`), date-fns `cs` locale (genitive month names

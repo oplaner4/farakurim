@@ -34,6 +34,7 @@
 
   --color-*: initial;
   --color-white: #ffffff;
+  --color-black: #000000; /* QR codes: always black on white, in both themes (scanners) */
 
   /* Brand (from logo) */
   --color-blue: #1d71b7; /* white text OK on it */
@@ -152,6 +153,7 @@
   --radius-*: initial;
   --blur-6: 6px; /* behind the hero's compact mobile control */
 
+  --radius-3: 3px; /* place chip square (Finanční podpora) */
   --radius-4: 4px;
   --radius-6: 6px;
   --radius-8: 8px;
@@ -161,7 +163,9 @@
   --radius-16: 16px;
   --radius-18: 18px;
   --radius-20: 20px;
+  --radius-22: 22px; /* project cards on tablet */
   --radius-24: 24px;
+  --radius-26: 26px; /* "Jak můžete přispět" panel on tablet */
   --radius-28: 28px;
   --radius-32: 32px;
 
