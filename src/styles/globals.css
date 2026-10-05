@@ -79,6 +79,7 @@
   --color-card: #ffffff; /* next-mass card */
   --color-raised: #ffffff; /* small blocks on tints: date tiles, pills, Petrklíč cover */
   --color-overlay: rgb(255 255 255 / 0.92); /* carousel buttons and dot pill */
+  --color-scrim: rgb(17 25 35 / 0.55); /* the hero's compact mobile control: the same in both themes (§4.2) */
   --color-dot-on: #1d71b7;
   --color-dot-off: #c9d6e3;
   --color-shadow: rgb(29 113 183 / 0.16);
@@ -149,6 +150,8 @@
   --tracking-time: -0.03em;
 
   --radius-*: initial;
+  --blur-6: 6px; /* behind the hero's compact mobile control */
+
   --radius-4: 4px;
   --radius-6: 6px;
   --radius-8: 8px;

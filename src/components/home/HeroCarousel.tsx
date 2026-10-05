@@ -1,5 +1,6 @@
 "use client";
 
+import { clsx } from "clsx";
 import type { CarouselSlide } from "@/content/types/home";
 import { useSnapCarousel } from "@/hooks/use-snap-carousel";
 import { ArrowButton } from "@/components/ui/ArrowButton";
@@ -59,21 +60,36 @@ export function HeroCarousel({ slides }: { slides: CarouselSlide[] }) {
         aria-hidden="true"
       />
 
-      {/* Mobile/tablet: arrows either side of the dots, above the overlapping card. Desktop: dots left, arrows right. */}
-      <div className="pointer-events-none absolute inset-x-4 bottom-15 flex items-center justify-between gap-2 md:inset-x-8 md:bottom-25 lg:inset-x-6 lg:bottom-6">
+      {/*
+       * Mobile: one small dark pill centred above the overlapping card, the dots only an indicator (§4.2). Tablet:
+       * arrows either side of the dot pill. Desktop: dots left, arrows right.
+       */}
+      <div className="absolute flex items-center max-md:bottom-14 max-md:left-1/2 max-md:-translate-x-1/2 max-md:gap-0.5 max-md:rounded-full max-md:bg-scrim max-md:px-0.5 max-md:backdrop-blur-6 md:pointer-events-none md:inset-x-8 md:bottom-25 md:justify-between md:gap-2 lg:inset-x-6 lg:bottom-6">
         <ArrowButton
           direction="prev"
-          size="responsive"
+          variant="hero"
+          size="hero"
           className="pointer-events-auto lg:ml-auto"
           aria-label="Předchozí fotografie"
           onClick={prev}
         />
-        <div className="pointer-events-auto flex items-center gap-0.5 rounded-full bg-overlay px-1.5 md:px-2 lg:-order-1 lg:px-2.5">
+        <span aria-hidden="true" className="flex items-center gap-1.25 md:hidden">
+          {slides.map((slide, i) => (
+            <span
+              key={slide.file}
+              className={clsx(
+                "h-1.5 rounded-3 transition-[width,background-color] duration-250",
+                i === active ? "w-4 bg-white" : "w-1.5 bg-white/50",
+              )}
+            />
+          ))}
+        </span>
+        <div className="pointer-events-auto flex items-center gap-0.5 rounded-full bg-overlay px-2 max-md:hidden lg:-order-1 lg:px-2.5">
           {slides.map((slide, i) => (
             <button
               key={slide.file}
               type="button"
-              className="group flex h-9 w-7 cursor-pointer items-center justify-center md:h-10 md:w-7.5 lg:h-11"
+              className="group flex h-10 w-7.5 cursor-pointer items-center justify-center lg:h-11"
               aria-label={`Fotografie ${i + 1}`}
               aria-current={i === active ? "true" : undefined}
               onClick={() => goTo(i)}
@@ -84,7 +100,8 @@ export function HeroCarousel({ slides }: { slides: CarouselSlide[] }) {
         </div>
         <ArrowButton
           direction="next"
-          size="responsive"
+          variant="hero"
+          size="hero"
           className="pointer-events-auto"
           aria-label="Další fotografie"
           onClick={next}

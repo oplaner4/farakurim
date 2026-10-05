@@ -5,10 +5,15 @@ import { ChevronLeftIcon, ChevronRightIcon } from "./icons";
 export const arrowButton = cva("flex flex-none cursor-pointer items-center justify-center rounded-full text-ink", {
   variants: {
     variant: {
-      /* On a photo: the hero and the homepage album carousel. */
+      /* On a photo: the homepage album carousel. */
       overlay: "bg-overlay hover:bg-bg",
       /* On the page: the Fotogalerie strips. The border takes the hover colour of the icon. */
       outline: "border-thin border-line bg-raised hover:border-current",
+      /*
+       * The hero (§4.2): a white icon on the compact dark mobile control, the overlay disc from tablet up. The 40px
+       * mobile button gets a 44px touch target from its ::before.
+       */
+      hero: "relative before:absolute before:-inset-0.5 max-md:text-white max-md:*:size-4.5 md:bg-overlay md:hover:bg-bg",
     },
     /* The section colour the icon turns on hover. */
     tone: {
@@ -17,8 +22,8 @@ export const arrowButton = cva("flex flex-none cursor-pointer items-center justi
     },
     size: {
       default: "size-12",
-      /* The hero: 44px on mobile, 48px from tablet up. */
-      responsive: "size-11 md:size-12",
+      /* The hero: 40px on mobile, 48px from tablet up. */
+      hero: "size-10 md:size-12",
     },
   },
   defaultVariants: { variant: "overlay", tone: "blue", size: "default" },
