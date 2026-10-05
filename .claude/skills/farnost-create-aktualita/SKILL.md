@@ -101,7 +101,7 @@ the file: the archive lists them.
 
 ## 7. Publish
 
-Follow **`farnost-publish-content`** (verify, browser check of `/aktuality/<slug>/`, commit, upload checklist).
+Follow **`farnost-publish-content`** (browser check of `/aktuality/<slug>/`, commit, upload and push).
 If the event has no `calendarEventId`, remind the user to add it to the "Události" Google Calendar, so it shows in
 the Kalendář.
 

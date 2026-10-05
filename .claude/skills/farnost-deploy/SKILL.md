@@ -51,8 +51,8 @@ its three excludes and the verify checks. When you change one (a new server-only
 /2026.farakurim.cz/virtualni_prohlidka/index.php'`). If not, offer the one-time copy in
   [Virtual tour setup](#virtual-tour-setup) first; the deploy itself works without it, only the footer link 404s.
 
-- `out/` comes from a fresh `pnpm build` of the current commit with `.env.local` in place (without the key the
-  calendars ship mock data). When in doubt, rebuild.
+- Only for the local `out/` fallback: `out/` comes from a fresh `pnpm build` of the current commit with `.env.local`
+  in place (without the key the calendars ship mock data). The usual flow needs no local build: Actions builds.
 - The work is committed (`git status --short` is empty, apart from `AGENTS.md` re-added by `next dev`).
 
 ## 2. Dry run
