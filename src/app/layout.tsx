@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { ThemeProvider } from "next-themes";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { MatomoTracker } from "@/components/layout/MatomoTracker";
 import { QueryProvider } from "@/components/layout/QueryProvider";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SITE_URL } from "@/content/site";
@@ -52,6 +53,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <QueryProvider>
             <NuqsAdapter>{children}</NuqsAdapter>
             <SiteFooter />
+            <MatomoTracker />
           </QueryProvider>
         </ThemeProvider>
       </body>

@@ -123,6 +123,13 @@ export const parishCalendars: Record<CalendarId, { name: string; googleId: strin
  */
 export const GOOGLE_CALENDAR_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY || undefined;
 
+/**
+ * The self-hosted Matomo (`https://statistiky.farakurim.cz`) and the site's ID in it. Without both, no statistics
+ * are collected (local and dev builds). Public in the built JS, like the calendar key.
+ */
+export const MATOMO_URL = process.env.NEXT_PUBLIC_MATOMO_URL || undefined;
+export const MATOMO_SITE_ID = process.env.NEXT_PUBLIC_MATOMO_SITE_ID || undefined;
+
 export const parish = {
   name: "Římskokatolická farnost Kuřim",
   /** The municipalities of the parish, linked to their websites in the footer and on Odkazy. */
