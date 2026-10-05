@@ -51,7 +51,8 @@ writing components, and follow the project rules (`.claude/rules/*.md`, loaded p
 - Pages in `src/app/<route>/page.tsx` with `metadata`, `<SiteHeader currentHref=…>`, `<main id="obsah"
 className="container-page …">`, `PageHeading`. Remember `output: "export"`: nothing that needs a server.
 - JS-only controls get `data-js-only` plus `<noscript><style>[data-js-only]{display:none}</style></noscript>`.
-- Update CLAUDE.md (built pages, structure) and `.claude/rules/design-check.md` (page list).
+- Update README.md (built pages, project layout), `.claude/rules/structure.md` if a new group appears, and
+  `.claude/rules/design-check.md` (page list).
 
 Known traps from earlier drops:
 

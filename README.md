@@ -50,21 +50,23 @@ PHP, so they show the build's verse. The "Zdroj: www.vira.cz" link is vira.cz's 
 
 ## Commands
 
-| Command                                          | What it does                                                               |
-| ------------------------------------------------ | -------------------------------------------------------------------------- |
-| `pnpm dev`                                       | Dev server at http://localhost:3000                                        |
-| `pnpm build`                                     | Static export to `out/`                                                    |
-| `pnpm preview`                                   | Serve `out/` at http://localhost:4173 (run `pnpm build` first)             |
-| `pnpm test`                                      | Vitest unit tests (`src/**/*.test.ts`)                                     |
-| `pnpm lint`                                      | ESLint                                                                     |
-| `pnpm exec tsc --noEmit`                         | Type check                                                                 |
-| `pnpm format`                                    | Prettier, including Tailwind class sorting                                 |
-| `pnpm mockups`                                   | Render the design mockups and serve them at http://localhost:4174/mockups/ |
-| `pnpm icons`                                     | Regenerate `src/app/icon.png` and `apple-icon.png` from `src/app/icon.svg` |
-| `pnpm fonts`                                     | Regenerate `src/fonts/*.woff2` from `fonts-source/Oxygen/*.ttf`            |
-| `pnpm petrklic <id> [--pages]`                   | Render a Petrklíč issue's cover (and viewer pages) from its PDF            |
-| `python3 scripts/poster-webp.py <in> <out.webp>` | Render an event poster (PDF page 1 or image) to WebP                       |
-| `python3 scripts/zonerama-album.py <album-url>`  | Read a Zonerama album (title, date, photo URLs) as JSON                    |
+| Command                                          | What it does                                                                                                                  |
+| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm dev`                                       | Dev server at http://localhost:3000 (`scripts/dev-server.mjs`: `next dev` plus `/uploads/…` from `uploads/` or the live site) |
+| `pnpm build`                                     | Static export to `out/`                                                                                                       |
+| `pnpm preview`                                   | Serve `out/` at http://localhost:4173 (run `pnpm build` first), `/uploads/…` from `uploads/` or the live site                 |
+| `pnpm test`                                      | Vitest unit tests (`src/**/*.test.ts`)                                                                                        |
+| `pnpm lint`                                      | ESLint (Next core-web-vitals + TypeScript + React hooks rules)                                                                |
+| `pnpm exec tsc --noEmit`                         | Type check                                                                                                                    |
+| `pnpm format`                                    | Prettier, including Tailwind class sorting (`prettier-plugin-tailwindcss`)                                                    |
+| `pnpm mockups`                                   | Render the design mockups and serve them at http://localhost:4174/mockups/                                                    |
+| `pnpm icons`                                     | Regenerate `src/app/icon.png` (32 px) and `apple-icon.png` (180 px) from `src/app/icon.svg`                                   |
+| `pnpm fonts`                                     | Regenerate `src/fonts/*.woff2` from `fonts-source/Oxygen/*.ttf` (needs fonttools and brotli)                                  |
+| `pnpm petrklic <id> [--pages]`                   | Render a Petrklíč issue's `cover.webp` (and viewer `pages/`) from `uploads/petrklic/<id>/petrklic-<id>.pdf`                   |
+| `python3 scripts/poster-webp.py <in> <out.webp>` | Render an event poster (PDF page 1 or image) to WebP                                                                          |
+| `python3 scripts/zonerama-album.py <album-url>`  | Read a Zonerama album (title, date, photo URLs) as JSON                                                                       |
+
+The last three are used by the content skills (`farnost-create-petrklic`, `-aktualita`, `-galerie`).
 
 Before you commit, run the full check:
 
@@ -85,10 +87,15 @@ src/components/      One component per block, by group: ui/, layout/, home/, new
                      calendar/, petrklic/, gallery/
 src/hooks/           Every React hook, one use-<name>.ts each
 src/lib/<group>/     Pure logic with unit tests, by the same groups plus shared/ (Prague time, Czech grammar, links)
-src/content/         Content, one file per domain (mock data and build-time fetches): an API later
+src/content/         Content, one file per domain (mock data and build-time fetches): an API later. calendar.ts reads
+                     Google Calendar and bible-quote.ts the vira.cz verse at build time; news-archive/ holds the
+                     2019–2025 aktuality from the old site (one file per year); ohlasky.ts is server-only
 src/content/types/   The content types, one file per domain
-public/              Static assets served as is, plus .htaccess and biblicky-citat.php
+public/              Static assets served as is (logo, carousel photos at the old site's URLs), plus .htaccess and
+                     biblicky-citat.php
 scripts/             Dev and preview servers, icon, font, mockup and content tooling
+fonts-source/        Oxygen TTFs and their OFL licence (input for `pnpm fonts`)
+.github/workflows/   deploy.yml: check, build and deploy (see Deployment)
 uploads/             Uploaded files (posters, PDFs, Petrklíč) staged for the server; git-ignored
 ```
 
@@ -114,9 +121,12 @@ deployed to `/uploads/…` and linked root-relative. Album photos stay on Zonera
 
 ## Deployment
 
-There is no CI. Build locally (with `.env.local` in place) and upload `uploads/` into `/uploads/` and the
-**contents** of `out/` to the web root with rsync over SSH (the `farnost-deploy` skill has the commands; for now the
-web root is `/2026.farakurim.cz/`, served at http://2026.farakurim.cz/). The sync deletes files that are no longer in
+GitHub Actions (`.github/workflows/deploy.yml`) checks and builds every push and pull request. A push to `main` also
+uploads the **contents** of `out/` to the web root with rsync over SSH (for now `/2026.farakurim.cz/`, served at
+http://2026.farakurim.cz/). It reads `DEPLOY_SSH_KEY` (secret) and `DEPLOY_KNOWN_HOSTS` from the `Production` environment and
+`GOOGLE_CALENDAR_API_KEY` from the repository (the build job has no environment). Uploaded files are not in git, so upload new files from `uploads/` into `/uploads/`
+yourself before pushing (the `farnost-deploy` skill has the commands): the workflow stops if the build links a file
+that is not on the server yet. The sync deletes files that are no longer in
 `out/`, except three folders that live only on the server: `/uploads/`, `/virtualni_prohlidka/` (the old site's
 virtual tour) and `/cache/` (the last vira.cz verse). `trailingSlash: true` produces `page/index.html`, so Apache
 serves the pages without rewrite rules; `public/.htaccess` serves `404.html` for missing URLs.
