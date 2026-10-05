@@ -1,9 +1,9 @@
 ---
-name: farnost-deploy
+name: farnost-release
 description: Release the new farakurim.cz site with `pnpm release` - preview the commits, version and staged uploads, ask the user for an explicit yes, then upload uploads/, tag vX.Y.Z and push, so GitHub Actions deploys out/ to 2026.farakurim.cz. Use at the end of farnost-publish-content, or whenever the user asks to deploy, release, upload, publish to the server or sync the site.
 ---
 
-# Deploy to the server
+# Release the site
 
 `pnpm release` (`scripts/release.sh`) does the release; the server details (SSH target, web root `/2026.farakurim.cz/`,
 rsync flags, the server-only folders `/uploads/`, `/virtualni_prohlidka/`, `/cache/`, the verify checks) live in
@@ -17,7 +17,7 @@ rsync flags, the server-only folders `/uploads/`, `/virtualni_prohlidka/`, `/cac
    dirty tree (often `AGENTS.md` re-added by `next dev`), ask the user to commit or discard it.
 2. **Ask** the user, with the version, the commits and the uploads from the preview, for example:
 
-   > Vydat v0.5.1 na http://2026.farakurim.cz/? (2 commity, 3 nové soubory v /uploads/)
+   > Release v0.5.1 to http://2026.farakurim.cz/? (2 commits, 3 new files in /uploads/)
 
    Wait for a clear yes; it publishes the site. Without it, stop: the commits stay as they are.
 

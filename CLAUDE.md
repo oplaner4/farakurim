@@ -50,14 +50,14 @@ Content is edited in `src/content/*.ts` through project skills (ported from the 
 `farniWebClaudeControl`, which stays untouched): `farnost-create-aktualita` (poster/PDF → `news/`),
 `farnost-create-porad-bohosluzeb` (weekly PDF → `ohlasky.ts`), `farnost-create-galerie` (Zonerama album →
 `gallery.ts`), `farnost-create-petrklic` (Petrklíč PDF → `petrklic.ts`), each finishing with
-`farnost-publish-content` (verify, commit, deploy via `farnost-deploy`).
+`farnost-publish-content` (verify, commit, deploy via `farnost-release`).
 Uploaded files are **not** in git: they are staged in `uploads/` (git-ignored, mirrors `/uploads/` on the server)
 and linked root-relative as `/uploads/…`. Album photos stay on Zonerama. The old site's `/nahrane/` is not used.
 
 ## Deployment
 
 How it works is in [README.md § Deployment](README.md#deployment); `pnpm release` (`scripts/release.sh`) releases, and
-the `farnost-deploy` skill says how an agent runs it.
+the `farnost-release` skill says how an agent runs it.
 What an agent must never get wrong:
 
 - Pushing a release tag `vX.Y.Z` **publishes the site** (GitHub Actions deploys `out/`; pushes to `main` are only a

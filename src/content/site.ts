@@ -27,7 +27,7 @@ export const links = {
   priestsFromParish: "/knezi_rodaci/",
   webLinks: "/odkazy/",
   privacy: "/ochrana-osobnich-udaju/",
-  /** Lapentor tour copied from the old site; it lives only on the server (see farnost-deploy). */
+  /** Lapentor tour copied from the old site; it lives only on the server (see the farnost-release skill). */
   virtualTour: "/virtualni_prohlidka/",
   viraCz: "https://www.vira.cz/",
 };

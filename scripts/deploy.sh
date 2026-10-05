@@ -85,7 +85,7 @@ cmd_verify() {
   check / 200 || ok=false
   check /neexistuje/ 404 || ok=false # the Czech 404 page
   for path in "$@"; do check "$path" 200 || ok=false; done
-  # Copied to the server once (see the farnost-deploy skill); without it only the footer link breaks.
+  # Copied to the server once (see the farnost-release skill); without it only the footer link breaks.
   check /virtualni_prohlidka/ 200 || warn "The virtual tour is missing on the server."
   $ok || fail "The site does not answer as expected."
 }

@@ -6,7 +6,7 @@ description: Finish a content change on the new farakurim.cz site - stage upload
 # Publish a content change
 
 The site is a static export: content lives in `src/content/*.ts`, and a change goes live with the next release (a version
-tag pushed by `farnost-deploy`): GitHub Actions runs the checks (format, tests, lint, types), builds and deploys `out/`, and deploys nothing when a
+tag pushed by `farnost-release`): GitHub Actions runs the checks (format, tests, lint, types), builds and deploys `out/`, and deploys nothing when a
 check fails. So this skill does not run them; it only checks how the change looks.
 
 Uploaded files (posters, attachments, the weekly PDF, Petrklíč issues) are **not** in git or `out/`: they live on
@@ -50,7 +50,7 @@ Never stage `uploads/` or `out/`.
 
 ## 4. Deploy
 
-Run the `farnost-deploy` skill: `pnpm release` previews the commits, the version and the staged uploads, and after the
+Run the `farnost-release` skill: `pnpm release` previews the commits, the version and the staged uploads, and after the
 user's yes `pnpm release --yes` uploads them, bumps the version, tags the release and pushes `main` with the tag; GitHub Actions then checks, builds and deploys `out/` to
 http://2026.farakurim.cz/. If the run fails (a check, or a linked upload missing on the server), fix it in a new
 commit and release again with a new version. Do not upload, tag or push without the user's explicit yes. When the

@@ -2,7 +2,7 @@
 // "Slovo na dnešek" (design/DESIGN.md §20.5): the day's verse from the vira.cz widget as JSON
 // ({"date", "text", "reference"}), for the footer card (src/components/layout/use-todays-quote.ts).
 // vira.cz sends no CORS headers, so the browser cannot read the widget itself. This script fetches it once a
-// day (Prague time), keeps it in cache/ (left alone by farnost-deploy) and falls back to the last verse it got
+// day (Prague time), keeps it in cache/ (left alone by scripts/deploy.sh) and falls back to the last verse it got
 // while vira.cz is down. The page links www.vira.cz, which is vira.cz's condition of use.
 
 declare(strict_types=1);
