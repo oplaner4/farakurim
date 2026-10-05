@@ -26,6 +26,7 @@ export const links = {
   schola: "/aktivity/schola/",
   priestsFromParish: "/knezi_rodaci/",
   webLinks: "/odkazy/",
+  privacy: "/ochrana-osobnich-udaju/",
   /** Lapentor tour copied from the old site; it lives only on the server (see farnost-deploy). */
   virtualTour: "/virtualni_prohlidka/",
   viraCz: "https://www.vira.cz/",

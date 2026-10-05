@@ -27,6 +27,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     links.support,
     links.supportArchive,
     links.webLinks,
+    links.privacy,
     links.chronicle,
     links.religiousEducation,
     links.activities,

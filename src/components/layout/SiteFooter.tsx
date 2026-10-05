@@ -50,9 +50,14 @@ export async function SiteFooter() {
         <span>
           © {BUILD_YEAR} {parish.name}
         </span>
-        <a href={links.contacts} className="text-inherit hover:text-inherit">
-          Kontakty a úřední hodiny
-        </a>
+        <span className="flex flex-wrap gap-x-6 gap-y-1.5">
+          <a href={links.privacy} className="text-inherit hover:text-inherit">
+            Ochrana osobních údajů
+          </a>
+          <a href={links.contacts} className="text-inherit hover:text-inherit">
+            Kontakty a úřední hodiny
+          </a>
+        </span>
       </div>
     </footer>
   );
