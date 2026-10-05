@@ -27,6 +27,8 @@ Every page has a **light and a dark theme**.
 | `mockups/petrklic-archiv/{light,dark}/` | Archiv Petrklíče (section 18) |
 | `mockups/fotogalerie/{light,dark}/` | Fotogalerie (section 19) |
 | `mockups/lightbox-foto/{light,dark}/`, `mockups/lightbox-plakat/{light,dark}/` | The lightbox, open, for a photo and for a poster (section 21) |
+| `mockups/financni-podpora/{light,dark}/` | Finanční podpora (section 22) |
+| `mockups/odkazy/{light,dark}/` | Odkazy (section 23) |
 | `mockups/menu/{light,dark}/` | Homepage with the "Více" menu open (section 20) |
 | `assets/logo-farnost-kurim.svg` | Cleaned logo (also the future favicon) |
 
@@ -152,7 +154,8 @@ Order is the same at every breakpoint. Differences per breakpoint are noted.
 - 7 photos, **different file per breakpoint**: `/assets/img/pozadi/{sm|md|lg}/{1-7}.webp`.
 - Height: 300 (mobile, full-bleed), 420 (tablet, full-bleed), 540 (desktop, rounded 32, left column).
 - Controls: prev/next round buttons (white 92 %) and a white pill holding 7 dots; the active dot is a 24 px blue bar, inactive dots are 8 px circles.
-  Mobile/tablet: arrows and dots in a row near the bottom (above the overlapping card). Desktop: dots bottom-left, arrows bottom-right.
+  Tablet: arrows and dots in a row near the bottom (above the overlapping card). Desktop: dots bottom-left, arrows bottom-right.
+- **Mobile uses a compact control instead**, so the photo stays visible: one small translucent dark pill **centred horizontally** near the bottom (just above the overlapping next-mass card), `rgba(17,25,35,0.55)` with a 6 px backdrop blur. It holds a 40 px "‹" button, the dots (6 px tall, 5 px apart; active = 16 px white bar, others 6 px white at 50 %) and a 40 px "›" button. About 180 × 40 px in total. The dots are only an indicator (`aria-hidden`); navigation is by the two buttons and **swipe**. Same in the dark theme.
 
 ### 4.3 Next mass ("Nejbližší mše svatá"), the most important block
 - A white card. **Mobile/tablet:** overlaps the carousel (negative top margin −44 / −72). **Desktop:** sits beside the carousel (flex-wrap row: carousel `flex: 999 1 560px`, card `flex: 1 1 380px`).
@@ -987,4 +990,51 @@ Production: a native `<dialog>` opened with `showModal()`, over the page.
 - Close with Esc, the close button, the browser back button, and a click on the dark background outside the image.
 - Lock page scroll while open. Under `prefers-reduced-motion`, no slide or zoom animations.
 - Without JS, photos link to the album on Zonerama and posters to the image file, so nothing is lost.
+
+## 22. Finanční podpora (`/financni_podpora/aktualne`)
+
+Mockups: `mockups/financni-podpora/`. Section colour: **orange** (the same as "Podpora farnosti" on Kontakty).
+Not in the main menu: reached from the "Více" menu / footer (group Farnost) and from Kontakty ("Projekty a další možnosti podpory →").
+
+### 22.1 Structure
+1. Breadcrumb, H1 "Finanční podpora", lead "Vaše dary zajišťují chod farnosti, její život a opravy kostelů a fary. Za každý příspěvek děkujeme."
+2. **"Jak můžete přispět"** (orange tint panel, orange corner triangle):
+   - three ways as icon rows: *Hotově* (na faře nebo v obálce do sbírky), *Při sbírce* (v kostele při bohoslužbách), *Převodem* (s variabilním symbolem projektu). Desktop: 3 columns; tablet/mobile: a list.
+   - white account card: "Bankovní účet farnosti", **247704317/0300** (24/28 px), button "Zkopírovat číslo účtu" (→ "Zkopírováno"), note "Bez variabilního symbolu jde dar na běžný chod farnosti."
+   - "Na požádání vystavíme potvrzení o daru pro daňové účely. Kontaktujte faru →".
+3. **"Projekty 2026"** with "Stav k 30. 6. 2026" on the right. One card per project (desktop 3 columns, tablet/mobile 1 column):
+   - place chip with the village colour (Kuřim blue, Moravské Knínice green), H3 title, one-line description of the planned works;
+   - **progress**: "57 800 Kč z 664 679 Kč" + percentage (orange-ink) and a 12 px bar (`role="progressbar"`, orange fill on `--surface`). Progress = dary + dotace vs. rozpočet; show at least a 1.5 % sliver so a small amount is still visible;
+   - a 2-column `<dl>`: Rozpočet, Dotace, Dary, and Provedené práce when known;
+   - payment box (orange tint): "Účet 247704317/0300", **VS 5555**, button "Zkopírovat VS"; on tablet/desktop a **QR Platba** code (96 px, always black on white, also in the dark theme). On mobile no QR (you cannot scan your own screen).
+4. **"Další možnosti podpory"** (3 surface cards; tablet 2 columns, mobile stacked):
+   - *Pravidelné dary farnosti*: VS 1111, "Přijato v roce 2026 (k 30. 6.)" **95 760 Kč**, "Zkopírovat VS".
+   - *Fond PULS*: description, an expandable table "Příspěvky farnosti podle let" (Rok / Předpis / Od dárců / Ze sbírky — **check the column names** against the current page), link "Přispět přes Donator.cz ↗".
+   - *Pastorační aktivity děkanství Tišnov*: description, link "O projektu na Donator.cz ↗".
+5. Link "Starší projekty a jejich vyúčtování →" (`/financni_podpora/starsi`, not designed yet; can reuse the project card without the payment box, with a "Dokončeno" state).
+
+### 22.2 Data (per project)
+| Field | Notes |
+|---|---|
+| title, place, description | plain text |
+| variable symbol | e.g. 5555; also used to generate the QR Platba (SPAYD: `SPD*1.0*ACC:<IBAN>*X-VS:5555*MSG:Dar – <project>`) |
+| budget, grants, gifts, work done | integers in Kč; "work done" optional |
+| as-of date | "Stav k …" shown once above the cards |
+| active / finished | finished projects move to Starší projekty |
+
+Copy buttons use the Clipboard API and announce "Zkopírováno" (`aria-live`).
+
+## 23. Odkazy (`/odkazy`)
+
+Mockups: `mockups/odkazy/`. Section colour: blue (group Farnost). Reached from the "Více" menu and footer.
+
+- Breadcrumb, H1 "Odkazy", lead "Užitečné stránky církve, katolických médií a obcí naší farnosti." and a small note with an external-link icon: "Odkazy vedou na jiné weby a otevírají se v novém okně."
+- Links are regrouped into **four groups**, each an H2 with a shard in the group colour:
+  - **Církev** (blue): Česká biskupská konference, Biskupství brněnské, Vatican News (česky), Papežská misijní díla.
+  - **Média** (magenta): Katolický týdeník, Radio Proglas, Signály, Katolik.cz.
+  - **Modlitba a Bible** (green): Breviář (ebreviar.cz), Bible on-line (biblenet.cz), Katechismus.
+  - **Obce farnosti** (orange): Kuřim, Moravské Knínice, Jinačovice, Česká.
+- **Link card** (`--surface`, radius 18, padding 16, the whole card is the link): a 44 px tile in the group tint with the initial letter in the group ink (replace with the site's favicon if you like), the name (17 px bold), a one-line description, and the domain with an external-link icon in the group ink. Grid: 1 column mobile, 2 tablet, 4 desktop.
+- `target="_blank" rel="noopener"` and visually hidden "(otevře se v novém okně)", as on the current site. Use **https** URLs.
+- Data: a simple list (group, name, description, URL) editable in the admin.
 
