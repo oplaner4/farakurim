@@ -1,0 +1,55 @@
+# Checks every push to main and every pull request: format, tests, lint, types and the static build. It deploys
+# nothing: `pnpm release` (scripts/release.sh) checks, builds and deploys from the maintainer's machine, to save the
+# free plan's limited Actions minutes. Pushes to main are a backup of the code.
+# Pushes and pull requests that only change docs (Markdown, design/, agent skills and rules) do not run, and neither
+# does the release commit (`chore(release): vX.Y.Z`): pnpm release has just checked it.
+# The runner image and the actions are pinned (actions by commit SHA, updated by Dependabot).
+
+name: Check
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: &docs-only
+      - "**.md"
+      - "design/**"
+      - ".claude/**"
+      - ".agents/**"
+  pull_request:
+    paths-ignore: *docs-only
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    if: >-
+      !(github.event_name == 'push' && startsWith(github.event.head_commit.message, 'chore(release): v'))
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false # no later step pushes or fetches
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm exec prettier --check .
+      - run: pnpm test
+      - run: pnpm lint
+      # A fresh checkout has no .next/types (PageProps, LayoutProps, RouteContext) or next-env.d.ts:
+      # next dev and next build generate them locally, next typegen does it without building.
+      - run: pnpm exec next typegen && pnpm exec tsc --noEmit
+
+      # Without keys the calendars use mock data and the tracker is off; the build only has to succeed.
+      - run: pnpm build

@@ -37,13 +37,13 @@ workflows in `farniWebClaudeControl`, stays untouched.
 `pnpm release` (`scripts/release.sh`) releases, and the `farnost-release` skill says how an agent runs it.
 What an agent must never get wrong:
 
-- Pushing a release tag `vX.Y.Z` **publishes the site** (GitHub Actions deploys `out/`; pushes to `main` are only a
-  backup), and so does uploading `uploads/`: ask the user for an explicit yes before either. Preview with
-  `pnpm release`, and run `pnpm release --yes` only after that yes.
+- `pnpm release --yes` **publishes the site** from this machine (GitHub Actions only checks pushes; pushes to `main`
+  are a backup), and so do `scripts/deploy.sh out` and `scripts/deploy.sh uploads`: ask the user for an explicit yes
+  before any of them. Preview with `pnpm release`, and run `pnpm release --yes` only after that yes.
 - `/stary.farakurim.cz/` on the server is the backup of the old PHP site: never deploy there or delete it.
-- Never delete `/uploads/`, `/virtualni_prohlidka/` or `/cache/` on the server: they live only there.
+- Never delete `/uploads/`, `/nahrane/`, `/virtualni_prohlidka/` or `/cache/` on the server: they live only there.
 - The SSH target, web root, rsync flags, server-only folders and verify checks live only in `scripts/deploy.sh`
-  (used by `pnpm release` and the workflow's deploy job): change them there.
+  (used by `pnpm release`): change them there.
 
 ## Rules
 

@@ -74,7 +74,7 @@ PHP, so they show the build's verse. The "Zdroj: www.vira.cz" link is vira.cz's 
 | `pnpm dev`                                          | Dev server at http://localhost:3000 (`scripts/dev-server.mjs`: `next dev` plus `/uploads/…` from `uploads/` or the live site)   |
 | `pnpm build`                                        | Static export to `out/`                                                                                                         |
 | `pnpm preview`                                      | Serve `out/` at http://localhost:4173 (run `pnpm build` first), `/uploads/…` from `uploads/` or the live site                   |
-| `pnpm release [--yes] [--major]`                    | Publish the site: upload new `uploads/`, bump, tag and push (see Deployment); asks first unless `--yes`                         |
+| `pnpm release [--yes] [--major]`                    | Publish the site: check, build, upload new `uploads/`, deploy, tag and push (see Deployment); asks first unless `--yes`         |
 | `pnpm test`                                         | Vitest unit tests (`src/**/*.test.ts`)                                                                                          |
 | `pnpm lint`                                         | ESLint (Next core-web-vitals + TypeScript + React hooks rules)                                                                  |
 | `pnpm exec tsc --noEmit`                            | Type check                                                                                                                      |
@@ -111,7 +111,7 @@ public/              Static assets served as is (logo, carousel photos at the ol
                      page, redirects of moved URLs) and biblicky-citat.php
 scripts/             Dev and preview servers, release and deploy, icon, font, mockup and content tooling
 fonts-source/        Original Oxygen TTFs and their OFL licence (input for `pnpm fonts`)
-.github/workflows/   build-and-deploy.yml: check, build and deploy (see Deployment)
+.github/workflows/   check.yml: checks and builds pushes and pull requests (see Deployment)
 .claude/             Claude Code project skills (content, release, commit, design) and rules (conventions by topic)
 docs/                Design specs and implementation plans of larger features (e.g. Matomo)
 uploads/             Uploaded files (posters, PDFs, Petrklíč, group photos) staged for the server; git-ignored
@@ -134,29 +134,30 @@ album, into `gallery.ts`) and `farnost-create-petrklic` (a newsletter PDF, into 
 `farnost-publish-content`: check, commit and release with `farnost-release`.
 
 Uploaded files are not in git: they are staged in `uploads/` (git-ignored, mirrors `/uploads/` on the server) and
-linked root-relative as `/uploads/…`. Album photos stay on Zonerama. The old site's `/nahrane/` is not used.
+linked root-relative as `/uploads/…`. Album photos stay on Zonerama. The old site's uploads in `/nahrane/` stay on
+the server so old links keep working, but new content never links or adds to them.
 
 ## Deployment
 
-GitHub Actions (`.github/workflows/build-and-deploy.yml`) checks and builds every push and pull request; pushes to
-`main` are only a backup. A **release** deploys: pushing a tag `vX.Y.Z` that matches `version` in `package.json` and
-points to a commit on `main` uploads the **contents** of `out/` to the web root `/farakurim.cz/` (served at
-https://farakurim.cz/) with rsync over SSH. The old PHP site is backed up in `/stary.farakurim.cz/` on the server.
+The site is deployed **from the maintainer's machine** with `pnpm release` (`scripts/release.sh`): the repository is
+private on GitHub Free, whose Actions minutes are limited. It uploads the **contents** of `out/` to the web root
+`/farakurim.cz/` (served at https://farakurim.cz/) with rsync over SSH, so it needs an SSH key the server accepts and
+`.env.local` with the Google Calendar key and both Matomo variables (see [Getting started](#getting-started)). The old PHP site is backed up in `/stary.farakurim.cz/` on the server.
 
-Make releases with `pnpm release` (`scripts/release.sh`, from a clean `main` that is not behind `origin`). It shows
-the commits since the last tag, the next version (minor when a `feat` outside the `content` scope is among them,
-patch otherwise, `--major` on request) and the new files in `uploads/`, asks, then uploads them into `/uploads/`,
-bumps the version (`pnpm version`: commit and tag) and pushes `main` with the tag. A failed release is fixed in a new
-commit and released again; a pushed tag is never moved.
+Run it from a clean `main` that is not behind `origin`. It shows the commits since the last tag and the next version
+(minor when a `feat` outside the `content` scope is among them, patch otherwise, `--major` on request) and the new
+files in `uploads/`, runs the full check and a fresh build, and summarises what the sync will add, change and delete.
+After a yes it uploads the new files into `/uploads/`, checks that every `/uploads/…` file the build links is on the
+server, syncs `out/`, verifies the live site, bumps the version (`pnpm version`: commit and tag) and pushes `main`
+with the tag as a backup. A failed release is fixed in a new commit and released again; a pushed tag is never moved.
 
 The server details (SSH target, web root, rsync flags, server-only folders, verify checks) live only in
-`scripts/deploy.sh`, which the workflow's deploy job runs too, and which can still deploy `out/` by hand when Actions
-is down. The workflow reads `DEPLOY_SSH_KEY` (secret) and `DEPLOY_KNOWN_HOSTS` from the `Production` environment and
-the repository variables `GOOGLE_CALENDAR_API_KEY`, `MATOMO_URL` and `MATOMO_SITE_ID` (the build job has no
-environment). Uploaded files are not in git, so the deploy job stops if the build links a `/uploads/…` file that is
-not on the server yet (set the `Production` variable `CHECK_UPLOADS` to `false` to skip that check).
+`scripts/deploy.sh`; its commands (`uploads`, `check-uploads`, `out`, `verify`, with `--dry-run` where it changes
+the server) also work on their own. GitHub Actions (`.github/workflows/check.yml`) only checks and builds pushes to
+`main` and pull requests, skipping docs-only changes and release commits to save the free plan's minutes; it needs
+no secrets or variables.
 
-The sync deletes files that are no longer in `out/`, except three folders that live only on the server: `/uploads/`,
-`/virtualni_prohlidka/` (the old site's virtual tour) and `/cache/` (the last vira.cz verse). `trailingSlash: true`
-produces `page/index.html`, so Apache serves the pages without rewrite rules; `public/.htaccess` serves `404.html`
-for missing URLs and redirects the old URLs that moved.
+The sync deletes files that are no longer in `out/`, except four folders that live only on the server: `/uploads/`,
+`/nahrane/` (the old site's uploads, kept for old links), `/virtualni_prohlidka/` (the old site's virtual tour) and
+`/cache/` (the last vira.cz verse). `trailingSlash: true` produces `page/index.html`, so Apache serves the pages
+without rewrite rules; `public/.htaccess` serves `404.html` for missing URLs and redirects the old URLs that moved.

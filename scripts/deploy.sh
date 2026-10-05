@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # The server side of a release: the one place that knows the SSH target, the web root, the rsync flags and the
-# folders that live only on the server. Used by scripts/release.sh (uploads) and by the deploy job of
-# .github/workflows/build-and-deploy.yml (check-uploads, out, verify); deploying out/ from here still works as a
-# fallback when Actions is down (build first with .env.local in place).
+# folders that live only on the server. Used by scripts/release.sh (`pnpm release`), which runs every command below
+# from this machine with the local SSH key; run them by hand only after building out/ with .env.local in place.
 #
 # Usage: scripts/deploy.sh uploads [--dry-run]   new files from uploads/ to /uploads/ (never overwrites or deletes)
 #        scripts/deploy.sh check-uploads         fail if out/ links a /uploads/… file that is not on the server
@@ -15,16 +14,17 @@ set -euo pipefail
 SSH_TARGET=farakurim_cz@91.239.200.63
 WEB_ROOT=/farakurim.cz
 SITE=https://farakurim.cz
-# Not in out/ and only on the server: uploaded files, the old site's virtual tour, the last vira.cz verse.
-SERVER_ONLY=(/uploads/ /virtualni_prohlidka/ /cache/)
+# Not in out/ and only on the server: uploaded files, the old site's files (kept so old links keep working), the old
+# site's virtual tour, the last vira.cz verse.
+SERVER_ONLY=(/uploads/ /nahrane/ /virtualni_prohlidka/ /cache/)
 
 cd "$(dirname "$0")/.."
 
 warn() {
-  if [ "${GITHUB_ACTIONS:-}" = true ]; then echo "::warning::$1"; else echo "warning: $1" >&2; fi
+  echo "warning: $1" >&2
 }
 fail() {
-  if [ "${GITHUB_ACTIONS:-}" = true ]; then echo "::error::$1"; else echo "error: $1" >&2; fi
+  echo "error: $1" >&2
   exit 1
 }
 # Sets n to rsync's -n for --dry-run.
