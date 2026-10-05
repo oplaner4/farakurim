@@ -6,7 +6,7 @@ import { WaysToGive } from "@/components/support/WaysToGive";
 import { ArrowRightIcon } from "@/components/ui/icons";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { links, supportArchiveHref } from "@/content/site";
+import { links } from "@/content/site";
 import { support } from "@/content/support";
 import { formatNumericDate } from "@/lib/shared/czech";
 
@@ -40,7 +40,7 @@ export default function SupportPage() {
           </div>
         </section>
         <OtherSupport support={support} />
-        <a href={supportArchiveHref} className="flex min-h-11 items-center gap-2 self-start font-bold">
+        <a href={links.supportArchive} className="flex min-h-11 items-center gap-2 self-start font-bold">
           Starší projekty a jejich vyúčtování
           <ArrowRightIcon size={18} />
         </a>

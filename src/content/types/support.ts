@@ -49,3 +49,28 @@ export type SupportPage = {
   pulsUrl: string;
   pastoralUrl: string;
 };
+
+/**
+ * One year of a past project's accounts (design/DESIGN.md §28). Amounts are whole Kč; `null` when not recorded
+ * ("—"). A year may have two rows (two stages of the same year).
+ */
+export type PastProjectYear = {
+  year: number;
+  /** "střecha, helmice věže": the works done that year. */
+  works: string;
+  budget: number | null;
+  grants: number | null;
+  gifts: number | null;
+  /** What the works cost ("Náklady"). */
+  costs: number;
+};
+
+/** A finished or earlier project on "Starší projekty" (§28): newest year first. */
+export type PastProject = {
+  id: string;
+  title: string;
+  place: { name: string; color: ChurchColor };
+  /** One line on the whole project. */
+  summary: string;
+  years: PastProjectYear[];
+};

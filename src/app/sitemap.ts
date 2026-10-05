@@ -25,7 +25,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...PETRKLIC_YEARS.map((y) => petrklicYearHref(y.year)),
     links.contacts,
     links.support,
+    links.supportArchive,
     links.webLinks,
+    links.chronicle,
+    links.religiousEducation,
+    links.activities,
+    links.schola,
   ];
   return paths.map((path) => ({ url: `${SITE_URL}${path}` }));
 }

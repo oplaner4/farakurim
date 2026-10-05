@@ -18,6 +18,11 @@ export const links = {
   contacts: "/kontakty/",
   calendar: "/kalendar/",
   support: "/financni_podpora/aktualne/",
+  supportArchive: "/financni_podpora/starsi/",
+  religiousEducation: "/vyuka_nabozenstvi/",
+  activities: "/aktivity/",
+  chronicle: "/kronika_prehled_udalosti/",
+  schola: "/schola/",
   webLinks: "/odkazy/",
   /** Lapentor tour copied from the old site; it lives only on the server (see farnost-deploy). */
   virtualTour: "/virtualni_prohlidka/",
@@ -35,10 +40,7 @@ export const mainNav = [
 ] as const;
 
 /** The old PHP site, still live at farakurim.cz: pages not yet rebuilt are linked there. */
-const OLD_SITE_URL = "https://farakurim.cz";
-
-/** "Starší projekty a jejich vyúčtování" (§22.1), not rebuilt yet. */
-export const supportArchiveHref = `${OLD_SITE_URL}/financni_podpora/starsi`;
+export const OLD_SITE_URL = "https://farakurim.cz";
 
 /** Year of the build in Prague: the current Farní tábor and the footer copyright. */
 export const BUILD_YEAR = Number(pragueDate(BUILD_TIME).slice(0, 4));
@@ -56,7 +58,7 @@ export const navGroups = [
       { label: "Finanční podpora", href: links.support },
       { label: "Pastorační rada – členové", href: `${OLD_SITE_URL}/pastoracni_rada/clenove` },
       { label: "Zápisy pastorační rady", href: `${OLD_SITE_URL}/pastoracni_rada/zapisy` },
-      { label: "Kronika farnosti", href: `${OLD_SITE_URL}/kronika_prehled_udalosti` },
+      { label: "Kronika farnosti", href: links.chronicle },
       { label: "Kněží – rodáci", href: `${OLD_SITE_URL}/knezi_rodaci` },
       { label: "Odkazy", href: links.webLinks },
     ],
@@ -65,12 +67,12 @@ export const navGroups = [
     title: "Život ve farnosti",
     color: "green",
     links: [
-      { label: "Schola", href: `${OLD_SITE_URL}/schola` },
+      { label: "Schola", href: links.schola },
       { label: "Chrámový sbor", href: `${OLD_SITE_URL}/chramovy_sbor` },
       { label: "Katecheze pro děti", href: `${OLD_SITE_URL}/katecheze_pro_deti/pravidelne` },
-      { label: "Výuka náboženství", href: `${OLD_SITE_URL}/vyuka_nabozenstvi` },
+      { label: "Výuka náboženství", href: links.religiousEducation },
       { label: "Společenství mladých", href: `${OLD_SITE_URL}/spolecenstvi_mladych/setkavani` },
-      { label: "Seznam aktivit", href: `${OLD_SITE_URL}/aktivity` },
+      { label: "Seznam aktivit", href: links.activities },
     ],
   },
   {

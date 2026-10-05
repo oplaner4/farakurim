@@ -1,13 +1,18 @@
 import { isMatch } from "date-fns";
 import { describe, expect, it, vi } from "vitest";
 import { eventClock } from "@/lib/news/ics";
+import { activityGroups } from "./activities";
+import { chronicle } from "./chronicle";
 import { albums } from "./gallery";
+import { groupLinks, schola } from "./groups";
 import { parishChurches, places, regularServices } from "./masses";
 import { events } from "./news";
 import { scheduleExceptions, serviceSheet } from "./ohlasky";
 import { petrklicIssues } from "./petrklic";
+import { religiousEducation } from "./religious-education";
 import { contacts, parish } from "./site";
 import { support } from "./support";
+import { pastProjects } from "./support-archive";
 import { linkGroups } from "./web-links";
 
 // Checks on the content the farnost-create-* skills write from posters and PDFs: a typo there does not break the
@@ -209,6 +214,71 @@ describe("Finanční podpora (support.ts)", () => {
 
   it("lists the Fond PULS years once each, oldest first", () => {
     expect(isSorted(puls, (a, b) => a.year < b.year)).toBe(true);
+  });
+});
+
+describe("Starší projekty (support-archive.ts)", () => {
+  it("lists each project once, its years newest first", () => {
+    expect(duplicates(pastProjects.map((p) => p.id))).toEqual([]);
+    for (const p of pastProjects)
+      expect(
+        isSorted(p.years, (a, b) => a.year >= b.year),
+        p.id,
+      ).toBe(true);
+  });
+
+  it("keeps the amounts whole and not negative", () => {
+    const amounts = pastProjects.flatMap((p) => p.years.flatMap((y) => [y.budget, y.grants, y.gifts, y.costs]));
+    expect(amounts.every((a) => a === null || (Number.isInteger(a) && a >= 0))).toBe(true);
+  });
+});
+
+describe("Kronika farnosti (chronicle.ts)", () => {
+  const entries = chronicle.flatMap((era) => era.entries);
+
+  it("writes the years as 1226 or 1766–1772 (en dash), in order", () => {
+    expect(entries.filter((e) => !/^\d{4}(–\d{4})?$/.test(e.year)).map((e) => e.year)).toEqual([]);
+    for (const era of chronicle) {
+      const years = era.entries.map((e) => Number.parseInt(e.year, 10));
+      expect(
+        isSorted(years, (a, b) => a <= b),
+        era.id,
+      ).toBe(true);
+    }
+    expect(duplicates(chronicle.map((era) => era.id))).toEqual([]);
+  });
+});
+
+describe("Seznam aktivit a skupiny (activities.ts, groups.ts)", () => {
+  it("names each activity once per group", () => {
+    for (const g of activityGroups) expect(duplicates(g.activities.map((a) => a.name)), g.id).toEqual([]);
+    expect(duplicates(activityGroups.map((g) => g.id))).toEqual([]);
+  });
+
+  it("links the group pages' files root-relative under /uploads/", () => {
+    const files = [
+      ...(schola.hero ? [schola.hero.src] : []),
+      ...(schola.photos ?? []).flatMap((p) => [p.small, p.large]),
+      ...(schola.videos ?? []).map((v) => v.thumbnail),
+    ];
+    expect(files.filter((f) => !UPLOAD.test(f))).toEqual([]);
+    expect(duplicates(groupLinks.map((g) => g.id))).toEqual([]);
+  });
+});
+
+describe("Výuka náboženství (religious-education.ts)", () => {
+  const { schools, schoolYear, applicationForm, rules } = religiousEducation;
+
+  it("names the school year and every school once", () => {
+    expect(schoolYear).toMatch(/^(\d{4})\/(\d{4})$/);
+    const [from, to] = schoolYear.split("/").map(Number);
+    expect(to).toBe(from + 1);
+    expect(duplicates(schools.map((s) => s.id))).toEqual([]);
+    expect(schools.every((s) => s.rows.length > 0)).toBe(true);
+  });
+
+  it("links the application and the rules under /uploads/", () => {
+    expect([applicationForm, rules].filter((f) => !UPLOAD.test(f))).toEqual([]);
   });
 });
 
