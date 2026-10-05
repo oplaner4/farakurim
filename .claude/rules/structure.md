@@ -8,7 +8,9 @@ paths:
 
 `src/` is split by **kind** first, then by the same **domain groups** everywhere:
 `news`, `services` (Pořad bohoslužeb, masses), `contacts`, `calendar`, `petrklic`, `gallery`, `support` (Finanční
-podpora), `links` (Odkazy; content in `web-links.ts`, as `links` in `site.ts` are the site's own routes), `home`, `layout`
+podpora and Starší projekty), `links` (Odkazy; content in `web-links.ts`, as `links` in `site.ts` are the site's own
+routes), `chronicle` (Kronika farnosti), `activities` (Seznam aktivit, Výuka náboženství and the group pages; content in
+`activities.ts`, `religious-education.ts` and `groups.ts`, types in `types/activities.ts`), `home`, `layout`
 (header, footer and their parts) and `shared` (`ui` in components) for what several domains use.
 
 | Folder                         | Holds                                                                                |

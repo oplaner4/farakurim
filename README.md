@@ -5,7 +5,8 @@ hosting runs PHP only, with no Node.js, so `pnpm build` writes plain HTML/CSS/JS
 
 Built so far: the homepage, Aktuality (with the event detail pages and the archive, one page per year back to
 2019), Pořad bohoslužeb, Kontakty, Kalendář, Petrklíč (the current issue and the archive), Fotogalerie, Finanční
-podpora (the projects of the year, with QR Platba codes drawn at build time) and Odkazy. Every page
+podpora (the projects of the year, with QR Platba codes drawn at build time, and Starší projekty with the yearly
+accounts), Odkazy, Kronika farnosti, Výuka náboženství, Seznam aktivit and the group page template (Schola). Every page
 shares the header with the "Více" menu and the sitemap footer with the "Slovo na dnešek" Bible verse. Links to pages
 that are not rebuilt yet point to the live site.
 
@@ -85,7 +86,8 @@ design/              Design handoff: DESIGN.md (the spec) and mockups per page, 
 src/app/             Pages (one folder per route), sitemap and 404
 src/styles/          globals.css (Tailwind theme tokens), utilities.css, lightbox.css
 src/components/      One component per block, by group: ui/, layout/, home/, news/, services/, contacts/,
-                     calendar/, petrklic/, gallery/, support/ (Finanční podpora), links/ (Odkazy)
+                     calendar/, petrklic/, gallery/, support/ (Finanční podpora), links/ (Odkazy), chronicle/
+                     (Kronika), activities/ (Seznam aktivit, Výuka náboženství, the group pages)
 src/hooks/           Every React hook, one use-<name>.ts each
 src/lib/<group>/     Pure logic with unit tests, by the same groups plus shared/ (Prague time, Czech grammar, links)
 src/content/         Content, one file per domain (mock data and build-time fetches): an API later. calendar.ts reads
@@ -97,7 +99,7 @@ public/              Static assets served as is (logo, carousel photos at the ol
 scripts/             Dev and preview servers, icon, font, mockup and content tooling
 fonts-source/        Original Oxygen TTFs and their OFL licence (input for `pnpm fonts`)
 .github/workflows/   build-and-deploy.yml: check, build and deploy (see Deployment)
-uploads/             Uploaded files (posters, PDFs, Petrklíč) staged for the server; git-ignored
+uploads/             Uploaded files (posters, PDFs, Petrklíč, group photos) staged for the server; git-ignored
 ```
 
 `CLAUDE.md` and `.claude/rules/` describe the conventions in detail: where code goes, styling tokens,

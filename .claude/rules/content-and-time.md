@@ -62,6 +62,19 @@ build-time next mass.
   the optional work done (whole Kč, valid on `asOf`), the regular gifts (VS 1111) and the Fond PULS years (`null` =
   not known yet). Progress, the IBAN and the QR Platba string are computed in `src/lib/support/payment.ts`; the QR
   is drawn at build time by `PaymentQr` (a Server Component), so `qrcode` never reaches the browser.
+- Starší projekty (`content/support-archive.ts`, design §28): the yearly accounts of the finished projects, newest
+  year first, `null` where a value was not recorded ("—"); the totals and the "Dokončeno · 2019–2025" span are
+  computed (`src/lib/support/past-projects.ts`).
+- Kronika (`content/chronicle.ts`, design §26): eras of entries with a `year` ("1226" or "1766–1772") and the old
+  chronicle's wording; `milestone` highlights an entry. The timeline sorts by year (`byYear()`).
+- Seznam aktivit (`content/activities.ts`, §25): groups of activities with names-only contacts (GDPR); "hledáme" in
+  `contacts` marks an activity looking for help (`seeksHelp()`), `href` links its own page. Výuka náboženství
+  (`content/religious-education.ts`, §24): the school year, one timetable per school, the form and rules under
+  `/uploads/vyuka-nabozenstvi/` and the contact; update it each September.
+- Group pages (`content/groups.ts`, §27): one `GroupPage` per group (Schola so far, route `src/app/schola/`), every
+  block optional; photos and video thumbnails are uploaded to `/uploads/skupiny/<group>/` (WebP, `small` 480 px
+  square, `large` ≤ 1600 px). Videos play from youtube-nocookie.com only after a click. `groupLinks` feeds "Další
+  skupiny"; groups without a page here link to the old site.
 - Odkazy (`content/web-links.ts`, design §23): link groups with a colour; "Obce farnosti" reuses `parish.villages`
   (also the footer), and the card's domain is computed (`displayDomain()`).
 - Office hours (`content/site.ts`): weekly slots with an optional yearly `closed` break; the live status is
