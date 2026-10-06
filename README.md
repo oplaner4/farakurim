@@ -6,15 +6,6 @@ hosting runs PHP only, with no Node.js, so `pnpm build` writes plain HTML/CSS/JS
 Live at **https://farakurim.cz/** since v1.0.0, replacing the old PHP site (backed up on the server, see
 [Deployment](#deployment)).
 
-Built so far: the homepage, Aktuality (with the event detail pages and the archive, one page per year back to
-2019), Pořad bohoslužeb, Kontakty, Kalendář, Petrklíč (the current issue and the archive), Fotogalerie, Finanční
-podpora (the projects of the year, with QR Platba codes drawn at build time, and Starší projekty with the yearly
-accounts), Odkazy, Kronika farnosti, Výuka náboženství, Seznam aktivit with the group pages (Schola, Chrámový sbor,
-Společenství mládeže and Katecheze pro děti, under `/aktivity/<group>/`) and Ochrana osobních údajů. The old site's other pages have placeholders ("Stránku
-připravujeme") at their URLs (`src/content/planned-pages.ts`), and `public/.htaccess` redirects the old URLs that
-moved (the group and katecheze pages), so old links don't end on the 404. Every page shares the header with the
-"Více" menu and the sitemap footer with the "Slovo na dnešek" Bible verse.
-
 Working on it with Claude Code: `CLAUDE.md` adds the rules an agent follows on top of this README, and
 `.claude/rules/` and `.claude/skills/` hold the topic rules and the project skills.
 
