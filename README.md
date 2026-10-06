@@ -148,6 +148,13 @@ checks that every `/uploads/…` file the build links is on the server, syncs `o
 it tags. Its release commit carries the trailer `Release-Deploy: local`, so the workflow does not deploy that tag
 again.
 
+The site is static, so what depends on the date (the © year, the prerendered calendars, the next mass for visitors
+without JS) ages with the build. The deploy workflow therefore runs daily and **refreshes** the latest release tag on
+`main` when the last deploy is 7 days old: it checks, builds and deploys that tag like a release (a `--local` one too).
+A refresh publishes nothing that was not released, so it needs no yes; running the workflow by hand (the Actions tab,
+"Run workflow") refreshes now. GitHub pauses scheduled workflows after 60 days without activity in the repository:
+re-enable it in the Actions tab.
+
 The workflow reads `DEPLOY_SSH_KEY` (secret) and `DEPLOY_KNOWN_HOSTS` from the `Production` environment and the
 repository variables `GOOGLE_CALENDAR_API_KEY`, `MATOMO_URL` and `MATOMO_SITE_ID` (the build job has no
 environment). The deploy stops if the build links a `/uploads/…` file that is not on the server yet (set the

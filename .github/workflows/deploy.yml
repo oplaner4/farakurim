@@ -2,6 +2,10 @@
 # out/ to https://farakurim.cz/. The tag must match package.json and be on main. A release made with
 # `pnpm release --local` is already deployed from the maintainer's machine: its commit carries the trailer
 # `Release-Deploy: local`, and this workflow then only says so.
+# The site is static, so what depends on the date (the year, the prerendered calendars, the next mass without JS)
+# ages with the build. A daily schedule rebuilds and redeploys the latest release tag when the last deploy (on the
+# Production environment, or a --local release's commit) is 7 days old; running the workflow by hand does it now.
+# A refresh publishes nothing new: the tag was released, so it needs no yes. It always builds, a --local tag too.
 # Uploaded files (/uploads/) are not in git: `pnpm release` uploads them from the local uploads/ folder before it
 # pushes the tag, and the deploy stops if the build links a file that is not on the server yet.
 # The SSH target, web root, rsync flags, server-only folders and verify checks live in scripts/deploy.sh, which
@@ -13,24 +17,34 @@ name: Deploy
 on:
   push:
     tags: ["v*"]
+  schedule:
+    - cron: "17 3 * * *" # daily, 05:17 Prague summer time
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
+  # Picks what to deploy: the pushed tag, or on a refresh the latest tag on main if it is due.
   release:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      deployments: read # the last Production deploy
     outputs:
-      local: ${{ steps.tag.outputs.local }}
+      deploy: ${{ steps.tag.outputs.deploy || steps.refresh.outputs.deploy }}
+      ref: ${{ steps.tag.outputs.ref || steps.refresh.outputs.ref }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0 # the check needs origin/main
+          fetch-depth: 0 # the check needs origin/main and the tags
           persist-credentials: false # no later step pushes or fetches
 
       - name: Check the release tag
         id: tag
+        if: github.event_name == 'push'
         run: |
+          echo "ref=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
           version="v$(node -p "require('./package.json').version")"
           if [ "$version" != "$GITHUB_REF_NAME" ]; then
             echo "::error::Tag $GITHUB_REF_NAME does not match package.json ($version). Release with pnpm release."
@@ -42,20 +56,59 @@ jobs:
           fi
           if [ "$(git log -1 --format='%(trailers:key=Release-Deploy,valueonly)' "$GITHUB_SHA")" = local ]; then
             echo "::notice::$GITHUB_REF_NAME was deployed from the maintainer's machine (pnpm release --local)."
-            echo "local=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Find the release to refresh
+        id: refresh
+        if: github.event_name != 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MAX_AGE_DAYS: 7
+        run: |
+          tags=$(git tag --list 'v*' --merged origin/main --sort=-v:refname)
+          tag=${tags%%$'\n'*}
+          if [ -z "$tag" ]; then
+            echo "::error::No release tag on main."
+            exit 1
+          fi
+          echo "ref=$tag" >> "$GITHUB_OUTPUT"
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # A --local release has no Production deployment: its release commit dates its deploy.
+          last=$(git log -1 --format=%ct "$tag")
+          while read -r id created; do
+            state=$(gh api "repos/$GITHUB_REPOSITORY/deployments/$id/statuses?per_page=1" --jq '.[0].state // ""')
+            if [ "$state" = success ]; then
+              at=$(date -d "$created" +%s)
+              if [ "$at" -gt "$last" ]; then last=$at; fi
+              break
+            fi
+          done < <(gh api "repos/$GITHUB_REPOSITORY/deployments?environment=Production&per_page=30" \
+            --jq '.[] | "\(.id) \(.created_at)"')
+          age=$(( ($(date +%s) - last) / 86400 ))
+          if [ "$age" -lt "$MAX_AGE_DAYS" ]; then
+            echo "::notice::The last deploy is $age days old; $tag is refreshed after $MAX_AGE_DAYS."
+          else
+            echo "::notice::The last deploy is $age days old: refreshing $tag."
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
           fi
 
   # The same check as pushes and pull requests (check.yml), plus the build with the production keys as the artifact
   # `out`.
   check:
     needs: release
-    if: needs.release.outputs.local != 'true'
+    if: needs.release.outputs.deploy == 'true'
     uses: ./.github/workflows/check.yml
     with:
       release: true
+      ref: ${{ needs.release.outputs.ref }}
 
   deploy:
-    needs: check
+    needs: [release, check]
     runs-on: ubuntu-24.04
     # One deploy at a time; a newer release waits for the running one instead of cancelling it mid-sync.
     concurrency:
@@ -67,6 +120,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ needs.release.outputs.ref }}
           sparse-checkout: scripts/deploy.sh # only the deploy script; out/ comes from the check
           sparse-checkout-cone-mode: false
           persist-credentials: false
