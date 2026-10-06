@@ -56,8 +56,8 @@ export function WeekSchedule({ days, renderedAt }: Props) {
                 day.date < today && "opacity-60",
               )}
             >
-              <div className="flex shrink-0 basis-16 flex-col leading-snug md:basis-25 lg:basis-35">
-                <strong className={clsx("text-17", day.solemnity ? "text-blue-ink" : "text-ink")}>
+              <div className="flex shrink-0 basis-20 flex-col leading-snug md:basis-25 lg:basis-35">
+                <strong className={clsx("text-17 whitespace-nowrap", day.solemnity ? "text-blue-ink" : "text-ink")}>
                   {formatWeekdayDate(day.date)}
                 </strong>
                 {isToday && (
