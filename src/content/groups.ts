@@ -31,6 +31,7 @@ export const schola: GroupPage = {
     src: `${UPLOADS}/schola-uvod.webp`,
     small: `${UPLOADS}/schola-uvod-nahled.webp`,
     alt: "Schola s hudebními nástroji na zahradě pod stromy",
+    focusY: 60,
   },
   about: [
     "Doprovázíme především dětské bohoslužby v Kuřimi, ale zpíváme také při slavnostních příležitostech, jako jsou Vánoce, první svaté přijímání, biřmování nebo další farní akce. Občas se k nám připojí také členové chrámového sboru nebo další muzikanti a zpěváci z Kuřimi, za jejichž podporu a spolupráci jsme velmi vděční.",
