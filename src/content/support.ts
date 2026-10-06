@@ -6,18 +6,19 @@ import type { SupportPage } from "./types/support";
  */
 export const support: SupportPage = {
   year: 2026,
-  asOf: "2026-06-30",
+  asOf: "2026-09-30",
   projects: [
     {
       id: "fara",
       title: "Budova fary v Kuřimi",
       place: { name: "Kuřim", color: "blue" },
-      description: "Oprava zádveří, ošetření dřeva, obnova a nátěr fasády, oprava stodoly a plotu.",
+      description:
+        "Ošetření krovu palánku proti škůdcům, oprava a nátěr jeho fasády, nátěr fasády stodoly a oprava plotů za farou.",
       variableSymbol: "5555",
       budget: 664679,
       grants: 0,
-      gifts: 57800,
-      workDone: 42777,
+      gifts: 120800,
+      workDone: 441710,
     },
     {
       id: "kninice",
@@ -27,20 +28,22 @@ export const support: SupportPage = {
       variableSymbol: "4444",
       budget: 280000,
       grants: 0,
-      gifts: 1800,
+      gifts: 51800,
     },
     {
       id: "kostel",
       title: "Kostel sv. Maří Magdaleny v Kuřimi",
       place: { name: "Kuřim", color: "blue" },
-      description: "Restaurování pískovcového portálu a plán údržby kostela.",
+      description:
+        "Provozní údržba kostela a projektová příprava dalších oprav (okapy, římsy, okna, dveře, fasáda, odvlhčení, statika).",
       variableSymbol: "3333",
       budget: 330000,
       grants: 0,
-      gifts: 500,
+      gifts: 5500,
+      workDone: 16940,
     },
   ],
-  regularGifts: { variableSymbol: "1111", received: 95760 },
+  regularGifts: { variableSymbol: "1111", received: 130540 },
   puls: [
     { year: 2015, assessed: 52318, fromDonors: null, fromCollections: 52318 },
     { year: 2016, assessed: 69160, fromDonors: null, fromCollections: 69160 },
@@ -48,7 +51,7 @@ export const support: SupportPage = {
     { year: 2018, assessed: 74076, fromDonors: 19390, fromCollections: 54686 },
     { year: 2019, assessed: 74258, fromDonors: 24525, fromCollections: 49733 },
     { year: 2020, assessed: 127293, fromDonors: 37680, fromCollections: 89613 },
-    { year: 2021, assessed: 120735, fromDonors: 65958, fromCollections: 68910 },
+    { year: 2021, assessed: 120735, fromDonors: 51825, fromCollections: 68910 },
     { year: 2022, assessed: 122853, fromDonors: 122853, fromCollections: 0 },
     { year: 2023, assessed: 125092, fromDonors: 125092, fromCollections: 0 },
     { year: 2024, assessed: 131889, fromDonors: 131889, fromCollections: 0 },
