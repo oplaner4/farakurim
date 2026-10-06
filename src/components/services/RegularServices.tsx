@@ -52,7 +52,7 @@ export function RegularServices({ churches, renderedAt }: Props) {
         role="group"
         aria-label="Zobrazit den"
         data-js-only
-        className="-mx-4 no-scrollbar flex gap-1.5 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:gap-2 md:overflow-visible md:px-0 md:pb-0"
+        className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:gap-2 md:overflow-visible md:px-0 md:pb-0"
       >
         {chips.map((chip) => {
           const isToday = chip.value === today;

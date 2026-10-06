@@ -23,7 +23,7 @@ export function PreviousIssues({ issues }: { issues: PetrklicIssue[] }) {
           <ArrowRightIcon size={18} />
         </a>
       </div>
-      <ul className="-mx-4 no-scrollbar flex gap-3 overflow-x-auto px-4 pb-1 md:mx-0 md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:px-0 md:pb-0 lg:gap-6">
+      <ul className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 md:mx-0 md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:px-0 md:pb-0 lg:gap-6">
         {issues.map((issue) => (
           <li key={issue.id} className="shrink-0 basis-35">
             <a href={issue.pdfUrl} className="flex flex-col gap-2 text-ink no-underline hover:text-ink">

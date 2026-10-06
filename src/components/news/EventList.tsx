@@ -84,7 +84,7 @@ function EventListView({
 
       <div className="max-md:contents md:flex md:flex-wrap md:items-center md:justify-between md:gap-3">
         {/* Mobile: one scrollable row bleeding to the screen edges. */}
-        <nav aria-label="Filtr akcí" className="-mx-4 no-scrollbar overflow-x-auto px-4 pb-1 md:mx-0 md:px-0 md:pb-0">
+        <nav aria-label="Filtr akcí" className="-mx-4 overflow-x-auto px-4 pb-1 md:mx-0 md:px-0 md:pb-0">
           <ul className="flex gap-2 md:flex-wrap">
             {NEWS_FILTERS.map((f) => {
               const active = f === filter;

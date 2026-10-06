@@ -16,7 +16,7 @@ export function ArchiveYearLinks({ years, active }: Props) {
   const items = [{ label: "Vše", year: undefined }, ...years.map((year) => ({ label: String(year), year }))];
   return (
     <nav aria-label="Rok">
-      <ul className="-mx-4 no-scrollbar flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:px-0 md:pb-0">
+      <ul className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:px-0 md:pb-0">
         {items.map(({ label, year }) => {
           const current = year === active;
           return (

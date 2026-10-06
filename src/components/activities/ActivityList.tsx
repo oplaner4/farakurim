@@ -50,7 +50,7 @@ export function ActivityList({ groups }: { groups: ActivityGroup[] }) {
           <div
             role="group"
             aria-label="Skupina aktivit"
-            className="-mx-4 no-scrollbar flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:p-0"
+            className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:p-0"
           >
             {pills.map((pill) => (
               <FilterPill

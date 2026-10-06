@@ -31,7 +31,7 @@ export function SchoolTimetable({ schools }: { schools: School[] }) {
         role="tablist"
         aria-label="Škola"
         data-js-only
-        className="-mx-4 no-scrollbar flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:p-0"
+        className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:p-0"
       >
         {schools.map((school, i) => (
           <FilterPill
