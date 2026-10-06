@@ -30,6 +30,7 @@ Every page has a **light and a dark theme**.
 | `mockups/financni-podpora/{light,dark}/` | Finanční podpora (section 22) |
 | `mockups/odkazy/{light,dark}/` | Odkazy (section 23) |
 | `mockups/vyuka-nabozenstvi/`, `mockups/aktivity/`, `mockups/kronika/`, `mockups/skupina-schola/`, `mockups/financni-podpora-starsi/` (each `{light,dark}`) | Sections 24–28 |
+| `mockups/skupina-chramovy-sbor/`, `mockups/skupina-spolecenstvi-mladeze/`, `mockups/skupina-katecheze/` | More pages from the group template (27.1) |
 | `mockups/menu/{light,dark}/` | Homepage with the "Více" menu open (section 20) |
 | `assets/logo-farnost-kurim.svg` | Cleaned logo (also the future favicon) |
 
@@ -213,22 +214,22 @@ considers the calendar essential, so it is the second thing visitors see.
 ## 5. Behaviour
 
 ### Carousel
-- Prefer a CSS scroll-snap track (`overflow-x:auto; scroll-snap-type:x mandatory`) plus small vanilla JS for arrows, dots and optional autoplay.
+- Prefer a CSS scroll-snap track (`overflow-x:auto; scroll-snap-type:x mandatory`) plus small vanilla JS for arrows, dots and autoplay.
 - `<picture>` per slide: `lg` at `(min-width:1200px)`, `md` at `(min-width:768px)`, and `sm` as the `<img>` fallback.
 - Slide 1 `fetchpriority="high"`, others `loading="lazy"`. Meaningful `alt` per photo.
 - Autoplay (every carousel, 6 s) pauses on hover and focus and while the carousel is off screen, stops for good once the visitor swipes or uses the arrows, dots or arrow keys, and is off under `prefers-reduced-motion`.
 - Buttons have `aria-label` ("Předchozí fotografie", "Další fotografie", "Fotografie N"); the active dot has `aria-current="true"`.
 
 ### Motion
-- **Colour changes fade** (about 150 ms) on everything interactive: links, buttons, nav items, hover cards. This also applies under `prefers-reduced-motion`, as it moves nothing; a theme switch changes every colour at once, without the fade.
-- **Movement is short and only with motion allowed** (`prefers-reduced-motion: no-preference`):
-  - the "Více" / mobile menu fades in sliding 8 px down, and out the same way (200 ms);
-  - accordions (`<details>`) open and close by height (200 ms) where the browser can animate to `auto`;
-  - photos that open (Fotogalerie strips, "Další alba" thumbnails, the event poster) zoom to 103 % on hover (300 ms);
-  - the Finanční podpora progress bars fill from the left on load (700 ms);
-  - Zonerama photos and Petrklíč pages fade in once loaded instead of popping in (300 ms).
-- The copy buttons' "Zkopírováno" fades in with a tick.
-- No lift or shadow on hover, no page-to-page transitions, no animation of the whole page on a theme switch.
+- **Colour changes fade (~150 ms)** on everything interactive (links, buttons, pills, cards, menu items), also under `prefers-reduced-motion`.
+- **Movement only when motion is allowed** (`prefers-reduced-motion: no-preference`):
+  - the menu (the "Více" panel and the mobile/tablet drawer) slides in 8 px (200 ms);
+  - accordions (`<details>`: footer and drawer groups, PULS table, Starší projekty yearly breakdown) open by height (200 ms);
+  - photos that open something (gallery strips, homepage Fotogalerie thumbnails, Schola thumbnails and video cards, event posters) zoom the image to 103 % on hover (300 ms) inside their rounded frame;
+  - the Finanční podpora progress bars fill from the left (700 ms) when they come into view;
+  - photos and Petrklíč pages fade in once loaded (300 ms).
+- The copy buttons' "Zkopírováno" fades in with a tick icon.
+- **No** lift or shadow on hover, **no** page transitions, **no** whole-page animation on a theme switch.
 
 ### Next mass and countdown
 - **Server-side** computes the next mass from the regular schedule **plus exceptions**, and renders it into HTML (works without JS).
@@ -1093,18 +1094,32 @@ Every block is optional; a group fills only what it has.
 1. Breadcrumb `Úvod › Seznam aktivit › Schola` (groups live under Seznam aktivit).
 2. **Hero photo** (220 / 320 / 380 px, radius, green corner triangle), H1 and a one-sentence tagline.
 3. **"O nás"** text and the **info box** "Kdy · Kde · Kontakt" (green tint, icon rows with uppercase green labels; contact name + role; buttons Zavolat / E-mail). Desktop: text left (1.6 fr), info box right (1 fr); smaller screens: text, then the box.
-4. **Fotografie**: a square-thumbnail grid (6 on mobile in 3 columns, 4 on tablet, 6 on desktop) + "Zobrazit všech 18 fotografií →"; thumbnails open the **lightbox** (section 21). Source: a Zonerama album or uploaded photos.
-5. **Video** ("Poslechněte si nás"): YouTube cards (16:9 thumbnail, play button, duration, title) + link to the channel. Use `youtube-nocookie.com` and load the player only after a click (privacy + speed).
+4. **Fotografie**: a square-thumbnail grid (6 on mobile in 3 columns, 4 on tablet, 6 on desktop) + "Zobrazit všech 18 fotografií →"; thumbnails open the **lightbox** (section 21) and zoom to 103 % on hover (motion rules in section 5). Source: a Zonerama album or uploaded photos.
+5. **Video** ("Poslechněte si nás"): YouTube cards (16:9 thumbnail, play button, duration, title; the thumbnail zooms to 103 % on hover, section 5) + link to the channel. Use `youtube-nocookie.com` and load the player only after a click (privacy + speed).
 6. **Další skupiny**: 3 cards linking to other groups + "Všechny aktivity farnosti →".
 7. Optional **Ke stažení** block (e.g. Chrámový sbor: "Noty a nahrávky pro členy sboru" – a link to the shared folder; mark it "jen pro členy").
 Data per group: name, slug, tagline, hero photo, text, when (one or more lines), where, contact (name, role, phone, e-mail), photos, videos, downloads.
+
+### 27.1 The other group pages
+
+All use the same template; the blocks each one uses:
+
+| Page | Route | Blocks | Notes |
+|---|---|---|---|
+| **Schola** | `/schola` | hero, O nás + info box, Fotografie, Video, Další skupiny | the reference example |
+| **Chrámový sbor** | `/chramovy_sbor` | hero, O nás + info box (two contacts: sbormistr Adam Janík, varhaník Jan Čáp), **Noty a nahrávky pro členy**, Další skupiny | the downloads block: 4 voice cards (Soprán, Alt, Tenor, Bas – "noty (PDF) a nahrávky (MP3)") linking to the choir's shared folder, with a magenta lock pill "Jen pro vnitřní potřebu sboru"; access is given by the choirmaster (the folder itself is protected, the page only links to it) |
+| **Společenství mládeže** | `/spolecenstvi_mladych/setkavani` | hero (the group's **poster** can be the hero image), O nás + info box, **Příští setkání**, Další skupiny | "Příští setkání": a blue-tint card with a date tile (NE / 11), "Neděle 11. 10. v 18:30", place and topic, and "Všechna setkání v kalendáři →"; filled automatically from the next event of the youth calendar category; hidden when there is none |
+| **Katecheze pro děti** | `/katecheze_pro_deti/pravidelne` | hero, **Pro rodiče** text + info box, **Jak to probíhá**, Fotografie (9), link card to **Mimořádné katecheze**, Další skupiny | "Jak to probíhá": 4 numbered step cards (Začátek mše → Po evangeliu → Katecheze → Obětování), 1 / 2 / 4 columns; the orange link card leads to the seasonal stories (advent, půst …) |
+
+- The texts in these mockups are **drafts** written from the old pages (some of them now only say "Stránku připravujeme"): times, places and contacts must be confirmed by each group. Contact buttons use placeholder numbers.
+- "Další skupiny" always lists the other three group pages; Seznam aktivit links each of these activities to its page ("Více o skupině →").
 
 ## 28. Finanční podpora – starší projekty (`/financni_podpora/starsi`)
 
 Mockups: `mockups/financni-podpora-starsi/`. Colour: orange.
 - Breadcrumb `Úvod › Finanční podpora › Starší projekty`, H1, lead with thanks.
 - One card per project (`--surface`): place chip, green **"Dokončeno · 2019–2025"** pill, H2, one-line summary, and two totals on the right: **Náklady celkem** and **Dotace celkem** (sum of the yearly rows).
-- **"Vyúčtování podle let (7)"** as `<details>` (the first project open by default):
+- **"Vyúčtování podle let (7)"** as `<details>` (the first project open by default; opens by height, 200 ms, section 5):
   - tablet/desktop: a table Rok / Provedené práce / Rozpočet / Dotace / Dary / **Náklady**, numbers right-aligned, no wrapping;
   - mobile: one card per year (year + costs on top, the works, then a 3-column mini `<dl>` Rozpočet / Dotace / Dary).
 - "—" when a value is not recorded. Two rows for one year are allowed (fara 2020: two stages).
