@@ -21,7 +21,7 @@ screenshots plus block positions (`getBoundingClientRect()` of each `section[ari
 - The frames also have a fixed height: the gap above the mockup footer is not part of the design.
 - Known, intentional differences: real photos instead of tinted placeholders, the countdown values,
   designed placeholders instead of the `[foto alba]` / `[foto N]` / `[plakát akce]` labels, the real Schola photos
-  and video thumbnails instead of tinted boxes, no Chrámový sbor hero until the choir sends a photo, the Společenství
+  and video thumbnails instead of tinted boxes, the Společenství
   mládeže poster shown whole as its hero, the old site's full texts (Kronika, Schola "O nás") instead of the
   mockups' shortened ones, real Petrklíč covers and pages instead of
   `[obálka]` / `[strana]`, the ohlášky intentions left out (or shown) instead of `[úmysl]` / `[jméno]`, and calendar entries: the build

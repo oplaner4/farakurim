@@ -104,6 +104,8 @@ export type GroupPage = GroupLink & {
     /** 480 px square, for the lightbox's thumbnails. */
     small: string;
     poster?: boolean;
+    /** Where the wide box crops the photo: the vertical focal point in % (50, the centre, when omitted). */
+    focusY?: number;
   };
   /** The heading of `about`: "O nás" when omitted ("Pro rodiče" for Katecheze). */
   aboutTitle?: string;

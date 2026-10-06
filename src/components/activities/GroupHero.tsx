@@ -26,6 +26,8 @@ export function GroupHero({ hero }: { hero: NonNullable<GroupPage["hero"]> }) {
         src={hero.src}
         alt=""
         fetchPriority="high"
+        // The focal point is data: it keeps a group photo's faces in the wide box.
+        style={hero.focusY === undefined ? undefined : { objectPosition: `50% ${hero.focusY}%` }}
         // A slight zoom on hover: the photo opens (§5).
         className={clsx(
           "size-full motion-safe:transition-transform motion-safe:duration-300 motion-safe:ease-out motion-safe:group-hover:scale-103",

@@ -86,6 +86,12 @@ export const choir: GroupPage = {
   note: "vícehlasý zpěv při slavnostech",
   href: links.choir,
   tagline: "Zpíváme vícehlasé mše a skladby při slavnostních bohoslužbách v kostele sv. Maří Magdaleny.",
+  hero: {
+    src: `${uploads("chramovy_sbor")}/chramovy-sbor-uvod.webp`,
+    small: `${uploads("chramovy_sbor")}/chramovy-sbor-uvod-nahled.webp`,
+    alt: "Chrámový sbor zpívá z not u varhan",
+    focusY: 30,
+  },
   about: [
     "Sbor zpívá při slavnostních mších – o Vánocích, Velikonocích, na pouť nebo při farních výročích. Repertoár sahá od gregoriánského chorálu po současné autory.",
     "Hledáme nové hlasy, hlavně tenory a basy. Noty číst nemusíte – ke každé skladbě jsou cvičné nahrávky pro jednotlivé hlasy.",
