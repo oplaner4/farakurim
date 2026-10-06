@@ -1,6 +1,6 @@
 # Checks every push to main and every pull request: format, tests, lint, types and the static build. It deploys
-# nothing: `pnpm release` (scripts/release.sh) checks, builds and deploys from the maintainer's machine, to save the
-# free plan's limited Actions minutes. Pushes to main are a backup of the code.
+# nothing: `pnpm release` (scripts/release.sh) checks, builds and deploys from the maintainer's machine, which holds
+# the server's SSH key. Pushes to main are a backup of the code.
 # Pushes and pull requests that only change docs (Markdown, design/, agent skills and rules) do not run, and neither
 # does the release commit (`chore(release): vX.Y.Z`): pnpm release has just checked it.
 # The runner image and the actions are pinned (actions by commit SHA, updated by Dependabot).

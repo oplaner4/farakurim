@@ -29,8 +29,7 @@ Use the `commit` skill (`.claude/skills/commit/SKILL.md`); never bypass the comm
 
 ## Managing content
 
-Use the content skills listed in [README.md § Content](README.md#content). Their source, the old site's admin
-workflows in `farniWebClaudeControl`, stays untouched.
+Use the content skills listed in [README.md § Content](README.md#content).
 
 ## Deployment
 
@@ -58,9 +57,3 @@ Topic rules live in `.claude/rules/` and load when you work on matching files:
 | `hooks.md`            | `use` prefix only for hooks, one `use-<name>.ts` file per hook             |
 | `links.md`            | External links open in a new tab (`src/lib/shared/links.ts` helpers)       |
 | `structure.md`        | Where code goes: components, hooks, `lib` and content types by domain      |
-
-## The old site
-
-The old PHP codebase (`/run/media/ondrej-planer/HDD/farakurim/www`) is **only a source of assets and files**.
-Do not copy or imitate its code; it has known security problems (SQL built by string concatenation,
-plaintext passwords).

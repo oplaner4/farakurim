@@ -62,7 +62,7 @@ Known traps from earlier drops:
   compare layout and spacing, not where lines wrap.
 - Rules beat the mockup: never white text on green or orange (use `on-orange` / `on-green`), coloured text
   uses `*-ink`, arrows are `ArrowRightIcon` (Oxygen has no `→`), placeholders like `[foto]` / `[mapa]`
-  become designed placeholders, `href="#"` needs a real URL (the old site's `views/*.html` often has it).
+  become designed placeholders, `href="#"` needs a real URL.
 
 ## 4. Verify
 

@@ -127,8 +127,7 @@ Language, stack, the static-export limits, commits and the check before a commit
 
 ## Content
 
-Content lives in `src/content/*.ts`. It is added with project skills for Claude Code (in `.claude/skills/`, ported
-from the old site's admin workflows): `farnost-create-aktualita` (an event from a poster or PDF, into `news/`),
+Content lives in `src/content/*.ts`. It is added with project skills for Claude Code (in `.claude/skills/`): `farnost-create-aktualita` (an event from a poster or PDF, into `news/`),
 `farnost-create-porad-bohosluzeb` (the weekly ohlášky PDF, into `ohlasky.ts`), `farnost-create-galerie` (a Zonerama
 album, into `gallery.ts`) and `farnost-create-petrklic` (a newsletter PDF, into `petrklic.ts`). Each finishes with
 `farnost-publish-content`: check, commit and release with `farnost-release`.
@@ -139,8 +138,8 @@ the server so old links keep working, but new content never links or adds to the
 
 ## Deployment
 
-The site is deployed **from the maintainer's machine** with `pnpm release` (`scripts/release.sh`): the repository is
-private on GitHub Free, whose Actions minutes are limited. It uploads the **contents** of `out/` to the web root
+The site is deployed **from the maintainer's machine** with `pnpm release` (`scripts/release.sh`), which holds the
+SSH key the server accepts. It uploads the **contents** of `out/` to the web root
 `/farakurim.cz/` (served at https://farakurim.cz/) with rsync over SSH, so it needs an SSH key the server accepts and
 `.env.local` with the Google Calendar key and both Matomo variables (see [Getting started](#getting-started)). The old PHP site is backed up in `/stary.farakurim.cz/` on the server.
 
@@ -154,10 +153,20 @@ with the tag as a backup. A failed release is fixed in a new commit and released
 The server details (SSH target, web root, rsync flags, server-only folders, verify checks) live only in
 `scripts/deploy.sh`; its commands (`uploads`, `check-uploads`, `out`, `verify`, with `--dry-run` where it changes
 the server) also work on their own. GitHub Actions (`.github/workflows/check.yml`) only checks and builds pushes to
-`main` and pull requests, skipping docs-only changes and release commits to save the free plan's minutes; it needs
-no secrets or variables.
+`main` and pull requests, skipping docs-only changes and release commits, which it has nothing to check in; it
+needs no secrets or variables.
 
 The sync deletes files that are no longer in `out/`, except four folders that live only on the server: `/uploads/`,
 `/nahrane/` (the old site's uploads, kept for old links), `/virtualni_prohlidka/` (the old site's virtual tour) and
 `/cache/` (the last vira.cz verse). `trailingSlash: true` produces `page/index.html`, so Apache serves the pages
 without rewrite rules; `public/.htaccess` serves `404.html` for missing URLs and redirects the old URLs that moved.
+
+## License
+
+The source code is under the [MIT License](LICENSE). The content of the site is not: the texts and data in
+`src/content/`, the photos, posters, logo and other images in `public/` and the design in `design/` are
+© Římskokatolická farnost Kuřim, all rights reserved. Third-party parts keep their own licences: the Oxygen font
+(`fonts-source/`, and its subsets in `src/fonts/`) is under the [SIL Open Font License](fonts-source/Oxygen/OFL.txt),
+and the agent skills in `.agents/skills/` are under the MIT License from their sources:
+`tailwind-design-system` from [wshobson/agents](https://github.com/wshobson/agents) (© 2024 Seth Hobson) and
+`vercel-react-best-practices` from [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) (© Vercel).

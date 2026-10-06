@@ -26,7 +26,7 @@ Files that go to the server are prepared in `uploads/` (git-ignored), which mirr
 `pnpm stage aktualita|porad|petrklic` (`scripts/stage-upload.py`) stages them: it names a file in **ASCII,
 lower-case kebab-case**, prefixed with its record (`hody-ceska-plakat.png`, `2026-10-04-porad-bohosluzeb.pdf`), and
 refuses a name already on the server, since files there are never overwritten. Diacritics break in some SFTP
-clients, and the prefix keeps names unique without the old site's random ids. Stage files by hand only for content
+clients, and the prefix keeps names unique. Stage files by hand only for content
 the script does not cover, following the same rules.
 
 ## 2. Check in the browser

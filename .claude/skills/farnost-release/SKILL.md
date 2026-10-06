@@ -48,7 +48,7 @@ All need the user's yes first, like a release, except the dry runs, `check-uploa
   release. Build first (`pnpm build` with `.env.local`, or the calendars ship mock data) and show the user every
   `*deleting` line of the dry run.
 - **Virtual tour**, one time, when `verify` warns that it is missing: copy it on the server from the old site
-  (`ssh farakurim_cz@91.239.200.63 'cp -a /stary.farakurim.cz/virtualni_prohlidka /farakurim.cz/'`). It is a
+  (`ssh <SSH_TARGET from scripts/deploy.sh> 'cp -a /stary.farakurim.cz/virtualni_prohlidka /farakurim.cz/'`). It is a
   self-contained PHP app; do not edit its files.
 
 `/stary.farakurim.cz/` on the server is the backup of the old PHP site: never deploy there or delete it.
