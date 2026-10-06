@@ -1,8 +1,9 @@
 # Checks every push to main and every pull request: format, tests, lint, types and the static build. It deploys
-# nothing: `pnpm release` (scripts/release.sh) checks, builds and deploys from the maintainer's machine, which holds
-# the server's SSH key. Pushes to main are a backup of the code.
+# nothing: the release tag pushed by `pnpm release` does (deploy.yml). Pushes to main are a backup of the code.
 # Pushes and pull requests that only change docs (Markdown, design/, agent skills and rules) do not run, and neither
-# does the release commit (`chore(release): vX.Y.Z`): pnpm release has just checked it.
+# does the release commit (`chore(release): vX.Y.Z`): deploy.yml checks its tag, or pnpm release --local has.
+# deploy.yml also calls this workflow with `release: true`, so a release runs the same check, then builds with the
+# production keys and hands out/ to its deploy job as the artifact `out`.
 # The runner image and the actions are pinned (actions by commit SHA, updated by Dependabot).
 
 name: Check
@@ -17,9 +18,17 @@ on:
       - ".agents/**"
   pull_request:
     paths-ignore: *docs-only
+  workflow_call:
+    inputs:
+      release:
+        description: Build with the production keys and upload out/ for the deploy job.
+        type: boolean
+        default: false
 
+# A called workflow sees the caller's github context, so the workflow name keeps a release's group apart from a
+# push to main's (and the caller's job groups must differ from this one).
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -27,8 +36,10 @@ permissions:
 
 jobs:
   check:
+    # A called run sees the caller's tag push, so only branch pushes of the release commit are skipped.
     if: >-
-      !(github.event_name == 'push' && startsWith(github.event.head_commit.message, 'chore(release): v'))
+      !(github.event_name == 'push' && github.ref_type == 'branch'
+      && startsWith(github.event.head_commit.message, 'chore(release): v'))
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -51,5 +62,19 @@ jobs:
       # next dev and next build generate them locally, next typegen does it without building.
       - run: pnpm exec next typegen && pnpm exec tsc --noEmit
 
-      # Without keys the calendars use mock data and the tracker is off; the build only has to succeed.
+      # Without keys (pushes and pull requests) the calendars use mock data and the tracker is off; the build only has
+      # to succeed. A release passes the repository variables: the calendar key is public in the built JS anyway.
       - run: pnpm build
+        env:
+          NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY: ${{ inputs.release && vars.GOOGLE_CALENDAR_API_KEY || '' }}
+          # Anonymous statistics (Matomo on statistiky.farakurim.cz); without both the site does not track.
+          NEXT_PUBLIC_MATOMO_URL: ${{ inputs.release && vars.MATOMO_URL || '' }}
+          NEXT_PUBLIC_MATOMO_SITE_ID: ${{ inputs.release && vars.MATOMO_SITE_ID || '' }}
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: inputs.release
+        with:
+          name: out
+          path: out/
+          include-hidden-files: true # out/.htaccess
+          retention-days: 7

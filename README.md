@@ -74,7 +74,7 @@ PHP, so they show the build's verse. The "Zdroj: www.vira.cz" link is vira.cz's 
 | `pnpm dev`                                          | Dev server at http://localhost:3000 (`scripts/dev-server.mjs`: `next dev` plus `/uploads/…` from `uploads/` or the live site)   |
 | `pnpm build`                                        | Static export to `out/`                                                                                                         |
 | `pnpm preview`                                      | Serve `out/` at http://localhost:4173 (run `pnpm build` first), `/uploads/…` from `uploads/` or the live site                   |
-| `pnpm release [--yes] [--major]`                    | Publish the site: check, build, upload new `uploads/`, deploy, tag and push (see Deployment); asks first unless `--yes`         |
+| `pnpm release [--local] [--yes] [--major]`          | Publish the site: upload new `uploads/`, tag and push, so Actions deploys (`--local`: deploy from here); asks unless `--yes`    |
 | `pnpm test`                                         | Vitest unit tests (`src/**/*.test.ts`)                                                                                          |
 | `pnpm lint`                                         | ESLint (Next core-web-vitals + TypeScript + React hooks rules)                                                                  |
 | `pnpm exec tsc --noEmit`                            | Type check                                                                                                                      |
@@ -111,7 +111,7 @@ public/              Static assets served as is (logo, carousel photos at the ol
                      page, redirects of moved URLs) and biblicky-citat.php
 scripts/             Dev and preview servers, release and deploy, icon, font, mockup and content tooling
 fonts-source/        Original Oxygen TTFs and their OFL licence (input for `pnpm fonts`)
-.github/workflows/   check.yml: checks and builds pushes and pull requests (see Deployment)
+.github/workflows/   check.yml: checks pushes and pull requests; deploy.yml: deploys release tags (see Deployment)
 .claude/             Claude Code project skills (content, release, commit, design) and rules (conventions by topic)
 docs/                Design specs and implementation plans of larger features (e.g. Matomo)
 uploads/             Uploaded files (posters, PDFs, Petrklíč, group photos) staged for the server; git-ignored
@@ -138,23 +138,35 @@ the server so old links keep working, but new content never links or adds to the
 
 ## Deployment
 
-The site is deployed **from the maintainer's machine** with `pnpm release` (`scripts/release.sh`), which holds the
-SSH key the server accepts. It uploads the **contents** of `out/` to the web root
-`/farakurim.cz/` (served at https://farakurim.cz/) with rsync over SSH, so it needs an SSH key the server accepts and
-`.env.local` with the Google Calendar key and both Matomo variables (see [Getting started](#getting-started)). The old PHP site is backed up in `/stary.farakurim.cz/` on the server.
+A **release** deploys the site: `pnpm release` (`scripts/release.sh`, from a clean `main` that is not behind `origin`)
+pushes a tag `vX.Y.Z`, and GitHub Actions (`.github/workflows/deploy.yml`) checks and builds the tagged commit and
+uploads the **contents** of `out/` to the web root `/farakurim.cz/` (served at https://farakurim.cz/) with rsync over
+SSH. The tag must match `version` in `package.json` and point to a commit on `main`. The old PHP site is backed up in
+`/stary.farakurim.cz/` on the server.
 
-Run it from a clean `main` that is not behind `origin`. It shows the commits since the last tag and the next version
-(minor when a `feat` outside the `content` scope is among them, patch otherwise, `--major` on request) and the new
-files in `uploads/`, runs the full check and a fresh build, and summarises what the sync will add, change and delete.
-After a yes it uploads the new files into `/uploads/`, checks that every `/uploads/…` file the build links is on the
-server, syncs `out/`, verifies the live site, bumps the version (`pnpm version`: commit and tag) and pushes `main`
-with the tag as a backup. A failed release is fixed in a new commit and released again; a pushed tag is never moved.
+`pnpm release` shows the commits since the last tag, the next version (minor when a `feat` outside the `content`
+scope is among them, patch otherwise, `--major` on request) and the new files in `uploads/`, asks, then uploads them
+into `/uploads/` (uploaded files are not in git, so this runs from the machine that staged them), bumps the version
+(commit `chore(release): vX.Y.Z` and the tag) and pushes `main` with the tag. A failed release is fixed in a new commit
+and released again; a pushed tag is never moved.
+
+`pnpm release --local` deploys from this machine instead, e.g. when GitHub Actions is down. It needs `.env.local` with
+the Google Calendar key and both Matomo variables (see [Getting started](#getting-started)): it runs the full check
+and a fresh build, summarises what the sync will add, change and delete, and after the yes uploads the new files,
+checks that every `/uploads/…` file the build links is on the server, syncs `out/` and verifies the live site before
+it tags. Its release commit carries the trailer `Release-Deploy: local`, so the workflow does not deploy that tag
+again.
+
+The workflow reads `DEPLOY_SSH_KEY` (secret) and `DEPLOY_KNOWN_HOSTS` from the `Production` environment and the
+repository variables `GOOGLE_CALENDAR_API_KEY`, `MATOMO_URL` and `MATOMO_SITE_ID` (the build job has no
+environment). The deploy stops if the build links a `/uploads/…` file that is not on the server yet (set the
+`Production` variable `CHECK_UPLOADS` to `false` to skip that check). `.github/workflows/check.yml` checks and builds
+pushes to `main` and pull requests, skipping docs-only changes and release commits, with no secrets; the deploy
+workflow calls it for the tag, so a release runs the same check before it builds with the variables above.
 
 The server details (SSH target, web root, rsync flags, server-only folders, verify checks) live only in
-`scripts/deploy.sh`; its commands (`uploads`, `check-uploads`, `out`, `verify`, with `--dry-run` where it changes
-the server) also work on their own. GitHub Actions (`.github/workflows/check.yml`) only checks and builds pushes to
-`main` and pull requests, skipping docs-only changes and release commits, which it has nothing to check in; it
-needs no secrets or variables.
+`scripts/deploy.sh`, used by both the workflow and `pnpm release`; its commands (`uploads`, `check-uploads`, `out`,
+`verify`, with `--dry-run` where it changes the server) also work on their own.
 
 The sync deletes files that are no longer in `out/`, except four folders that live only on the server: `/uploads/`,
 `/nahrane/` (the old site's uploads, kept for old links), `/virtualni_prohlidka/` (the old site's virtual tour) and
