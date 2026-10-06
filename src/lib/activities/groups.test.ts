@@ -60,13 +60,13 @@ describe("otherGroups", () => {
   const groups = ["a", "b", "c", "d", "e"].map((id) => ({ id }));
   const ids = (list: { id: string }[]) => list.map((g) => g.id);
 
-  it("starts after the current group and wraps around", () => {
+  it("keeps the list's order without the current group", () => {
     expect(ids(otherGroups(groups, "a"))).toEqual(["b", "c", "d"]);
-    expect(ids(otherGroups(groups, "d"))).toEqual(["e", "a", "b"]);
+    expect(ids(otherGroups(groups, "c"))).toEqual(["a", "b", "d"]);
   });
 
-  it("never lists the current group and takes the first ones for an unknown id", () => {
-    expect(ids(otherGroups(groups.slice(0, 3), "b", 3))).toEqual(["c", "a"]);
+  it("takes the first ones for an unknown id", () => {
+    expect(ids(otherGroups(groups.slice(0, 3), "b", 3))).toEqual(["a", "c"]);
     expect(ids(otherGroups(groups, "x"))).toEqual(["a", "b", "c"]);
   });
 });

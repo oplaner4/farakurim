@@ -67,7 +67,7 @@ export type ReligiousEducation = {
   contact: ContactPerson;
 };
 
-// The group pages (groups.ts, design/DESIGN.md §27): Schola and, later, Chrámový sbor, Společenství mládeže, …
+// The group pages (groups.ts, design/DESIGN.md §27): Schola, Chrámový sbor, Společenství mládeže, Katecheze.
 
 /** A YouTube video, played from youtube-nocookie.com only after a click. */
 export type GroupVideo = {
@@ -94,20 +94,49 @@ export type GroupPage = GroupLink & {
   tagline: string;
   /** The meta description; the tagline when omitted. */
   description?: string;
-  /** The wide photo under the breadcrumb; it opens the lightbox as the first of the page's photos. */
-  hero?: { src: string; alt: string; /** 480 px square, for the lightbox's thumbnails. */ small: string };
+  /**
+   * The wide photo under the breadcrumb; it opens the lightbox as the first of the page's photos. `poster` shows a
+   * square poster whole on a tint instead of filling the box.
+   */
+  hero?: {
+    src: string;
+    alt: string;
+    /** 480 px square, for the lightbox's thumbnails. */
+    small: string;
+    poster?: boolean;
+  };
+  /** The heading of `about`: "O nás" when omitted ("Pro rodiče" for Katecheze). */
+  aboutTitle?: string;
   /** "O nás": paragraphs of plain text. */
   about?: string[];
   /** "Kdy": one or more lines ("Zpíváme" – "první neděli v měsíci v 9:30 při dětské mši"). */
   when?: { label: string; text: string }[];
   /** "Kde" */
   where?: { name: string; address?: string };
-  contact?: ContactPerson;
+  /** "Kontakt": one or more people; the buttons call and e-mail the first one with a phone or e-mail. */
+  contacts?: ContactPerson[];
+  /**
+   * "Příští setkání": the next entry of the parish calendars whose title contains `calendarTitle` (case and
+   * diacritics ignored); hidden when there is none.
+   */
+  nextMeeting?: { calendarTitle: string };
+  /** "Jak to probíhá": numbered steps. */
+  steps?: { title: string; text: string }[];
   /** Uploaded photos (`small` 480 px square, `large` up to 1600 px). */
   photos?: AlbumPhoto[];
   videos?: GroupVideo[];
   /** The group's YouTube channel. */
   channel?: { label: string; href: string };
-  /** "Ke stažení": shared folders, songbooks; `membersOnly` marks it "jen pro členy". */
-  downloads?: { title: string; items: { label: string; href: string; membersOnly?: boolean }[] };
+  /**
+   * "Ke stažení": shared folders, songbooks. Items with a `note` are cards with a music icon (the choir's voices).
+   * `restricted` is the magenta lock pill next to the heading ("Jen pro vnitřní potřebu sboru").
+   */
+  downloads?: {
+    title: string;
+    intro?: string;
+    restricted?: string;
+    items: { label: string; href: string; note?: string }[];
+  };
+  /** A highlighted link to a related page (Katecheze → Mimořádné katecheze). */
+  linkCard?: { title: string; text: string; href: string };
 };

@@ -72,12 +72,15 @@ build-time next mass.
   `contacts` marks an activity looking for help (`seeksHelp()`), `href` links its own page. Výuka náboženství
   (`content/religious-education.ts`, §24): the school year, one timetable per school, the form and rules under
   `/uploads/vyuka-nabozenstvi/` and the contact; update it each September.
-- Group pages (`content/groups.ts`, §27): one `GroupPage` per group (Schola so far), served at `/aktivity/<id>/`
-  by `src/app/aktivity/[skupina]/` like its breadcrumb (`public/.htaccess` redirects the old `/schola`), every
-  block optional; photos and video thumbnails are uploaded to `/uploads/skupiny/<group>/` (WebP, `small` 480 px
+- Group pages (`content/groups.ts`, §27, §27.1): one `GroupPage` per group (Schola, Chrámový sbor, Společenství
+  mládeže, Katecheze pro děti), served at `/aktivity/<id>/` by `src/app/aktivity/[skupina]/` like its breadcrumb
+  (`public/.htaccess` redirects the old URLs), every block optional; texts the old pages lacked are drafts from the
+  design that each group should confirm; photos and video thumbnails are uploaded to `/uploads/skupiny/<group>/` (WebP, `small` 480 px
   square, `large` ≤ 1600 px). The hero and the photos share one lightbox at `#foto-N` (the hero is
-  `#foto-1`, `groupPhotoSet()`). Videos play from youtube-nocookie.com only after a click. `groupLinks` feeds "Další
-  skupiny"; groups without their page yet link to their placeholder.
+  `#foto-1`, `groupPhotoSet()`). Videos play from youtube-nocookie.com only after a click. "Další skupiny" lists the other
+  group pages in `groupPages` order. "Příští setkání" (`nextMeeting.calendarTitle`) is the next entry of the parish
+  calendars whose title contains that text (`src/lib/activities/meetings.ts`): read at build time for eight weeks
+  and re-read in the browser like the other calendars; hidden when there is none.
 - Pages not rebuilt yet (`content/planned-pages.ts`): every old-site URL from farakurim.cz/sitemap has a page with
   its breadcrumb and "Stránku připravujeme" (noindex, not in the sitemap), built by `src/app/[...stranka]/` and,
   under Seznam aktivit, `src/app/aktivity/[skupina]/(…)`. The groups and the extra catechesis live under

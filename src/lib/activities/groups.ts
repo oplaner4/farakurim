@@ -31,9 +31,6 @@ export function groupPhotoSet(group: Pick<GroupPage, "hero" | "photos">): AlbumP
   return [...hero, ...(group.photos ?? [])];
 }
 
-/** "Další skupiny": up to `size` other groups, starting after the current one so each page shows a different mix. */
-export function otherGroups<T extends Pick<GroupLink, "id">>(groups: T[], currentId: string, size = 3): T[] {
-  const at = groups.findIndex((g) => g.id === currentId);
-  const rotated = [...groups.slice(at + 1), ...groups.slice(0, Math.max(at, 0))];
-  return rotated.filter((g) => g.id !== currentId).slice(0, size);
-}
+/** "Další skupiny": the first `size` groups other than the current one, in the list's order (§27.1). */
+export const otherGroups = <T extends Pick<GroupLink, "id">>(groups: T[], currentId: string, size = 3): T[] =>
+  groups.filter((g) => g.id !== currentId).slice(0, size);

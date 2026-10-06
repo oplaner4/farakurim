@@ -34,9 +34,14 @@ export const activityGroups: ActivityGroup[] = [
       },
       { name: "Schola MK", when: "1× měsíčně doprovází mše", contacts: "Maruška Dvořáková, Romana Helanová" },
       { name: "Dětská scholička MK", when: "v neděli před mší", contacts: "Pavlína Kurková, Romana Helanová" },
-      { name: "Chrámový sbor", contacts: "Adam Janík, Jan Čáp" },
+      { name: "Chrámový sbor", contacts: "Adam Janík, Jan Čáp", href: links.choir },
       { name: "Farní kavárna", when: "každou neděli po mši v 10:30", contacts: "Tomáš Planer" },
-      { name: "Společenství mládeže", contacts: "Olda Sychra, Lexa Krška" },
+      {
+        name: "Společenství mládeže",
+        when: "každou neděli 18:30–20:30",
+        contacts: "Olda Sychra, Lexa Krška",
+        href: links.youth,
+      },
       {
         name: "Společenství chlapů",
         when: "každé 2 týdny v úterý ve 20:15",
@@ -49,7 +54,12 @@ export const activityGroups: ActivityGroup[] = [
       },
       { name: "Obědy pro p. faráře", contacts: "Maruška Dvořáková" },
       { name: "Vyučování náboženství", contacts: "otec Jaroslav", href: links.religiousEducation },
-      { name: "Katecheze pro děti", when: "každou neděli při 2. mši", contacts: "Jana Kytnerová" },
+      {
+        name: "Katecheze pro děti",
+        when: "každou neděli při 2. mši",
+        contacts: "Jana Kytnerová",
+        href: links.catechesis,
+      },
       {
         name: "Komunita Emmanuel",
         when: "prvopáteční adorace, 1× měsíčně v sobotu",

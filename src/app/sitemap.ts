@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { ARCHIVE_YEARS } from "@/components/news/ArchivePage";
 import { PETRKLIC_YEARS } from "@/components/petrklic/ArchivePage";
+import { groupPages } from "@/content/groups";
 import { events } from "@/content/news";
 import { links, SITE_URL } from "@/content/site";
 import { archiveYears, archiveYearHref } from "@/lib/news/archive";
@@ -31,7 +32,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     links.chronicle,
     links.religiousEducation,
     links.activities,
-    links.schola,
+    ...groupPages.map((group) => group.href),
   ];
   return paths.map((path) => ({ url: `${SITE_URL}${path}` }));
 }

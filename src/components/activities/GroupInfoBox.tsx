@@ -23,8 +23,10 @@ function Row({ icon, label, children }: { icon: ReactNode; label: string; childr
 
 /** "Kdy · Kde · Kontakt" of a group page (design/DESIGN.md §27, 3): icon rows and the contact's buttons. */
 export function GroupInfoBox({ group }: { group: GroupPage }) {
-  const { when, where, contact } = group;
-  if (!when && !where && !contact) return null;
+  const { when, where, contacts = [] } = group;
+  if (!when && !where && contacts.length === 0) return null;
+  // The buttons reach the first contact that has a phone or an e-mail.
+  const reachable = contacts.find((c) => c.phone || c.email);
   return (
     <aside
       aria-label="Kdy, kde a kontakt"
@@ -46,28 +48,32 @@ export function GroupInfoBox({ group }: { group: GroupPage }) {
           {where.address && <span className="text-15 text-ink-2">{where.address}</span>}
         </Row>
       )}
-      {contact && (
-        <>
-          <Row icon={<UserIcon size={20} />} label="Kontakt">
-            <strong>{contact.name}</strong>
-            <span className="text-15 text-ink-2">{contact.role}</span>
-            {contact.phone && <span className="text-15 text-ink-2">{contact.phone}</span>}
-          </Row>
-          <div className="flex flex-wrap gap-2">
-            {contact.phone && (
-              <ButtonLink href={telHref(contact.phone)} variant="green" size="small">
-                <PhoneIcon size={18} />
-                Zavolat
-              </ButtonLink>
-            )}
-            {contact.email && (
-              <ButtonLink href={`mailto:${contact.email}`} variant="outline-green" size="small">
-                <MailIcon size={18} />
-                E-mail
-              </ButtonLink>
-            )}
-          </div>
-        </>
+      {contacts.length > 0 && (
+        <Row icon={<UserIcon size={20} />} label="Kontakt">
+          {contacts.map((contact, i) => (
+            <p key={contact.name} className="flex flex-col gap-0.5">
+              <strong className={i > 0 ? "mt-1.5" : undefined}>{contact.name}</strong>
+              <span className="text-15 text-ink-2">{contact.role}</span>
+              {contact.phone && <span className="text-15 text-ink-2">{contact.phone}</span>}
+            </p>
+          ))}
+        </Row>
+      )}
+      {reachable && (
+        <div className="flex flex-wrap gap-2">
+          {reachable.phone && (
+            <ButtonLink href={telHref(reachable.phone)} variant="green" size="small">
+              <PhoneIcon size={18} />
+              Zavolat
+            </ButtonLink>
+          )}
+          {reachable.email && (
+            <ButtonLink href={`mailto:${reachable.email}`} variant="outline-green" size="small">
+              <MailIcon size={18} />
+              E-mail
+            </ButtonLink>
+          )}
+        </div>
       )}
     </aside>
   );

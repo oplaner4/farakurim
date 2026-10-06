@@ -24,6 +24,9 @@ export const links = {
   chronicle: "/kronika_prehled_udalosti/",
   /** Group pages live under Seznam aktivit (`/aktivity/<group id>/`), like their breadcrumb. */
   schola: "/aktivity/schola/",
+  choir: "/aktivity/chramovy_sbor/",
+  youth: "/aktivity/spolecenstvi_mladych/",
+  catechesis: "/aktivity/katecheze_pro_deti/",
   priestsFromParish: "/knezi_rodaci/",
   webLinks: "/odkazy/",
   privacy: "/ochrana-osobnich-udaju/",
@@ -68,10 +71,10 @@ export const navGroups = [
     color: "green",
     links: [
       { label: "Schola", href: links.schola },
-      { label: "Chrámový sbor", href: `${links.activities}chramovy_sbor/` },
-      { label: "Katecheze pro děti", href: `${links.activities}katecheze_pro_deti/` },
+      { label: "Chrámový sbor", href: links.choir },
+      { label: "Katecheze pro děti", href: links.catechesis },
       { label: "Výuka náboženství", href: links.religiousEducation },
-      { label: "Společenství mladých", href: `${links.activities}spolecenstvi_mladych/` },
+      { label: "Společenství mladých", href: links.youth },
       { label: "Seznam aktivit", href: links.activities },
     ],
   },

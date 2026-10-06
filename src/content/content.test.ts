@@ -8,7 +8,7 @@ import { eventClock } from "@/lib/news/ics";
 import { activityGroups } from "./activities";
 import { chronicle } from "./chronicle";
 import { albums } from "./gallery";
-import { groupLinks, groupPages, schola } from "./groups";
+import { groupPages } from "./groups";
 import { parishChurches, places, regularServices } from "./masses";
 import { events } from "./news";
 import { scheduleExceptions, serviceSheet } from "./ohlasky";
@@ -272,13 +272,13 @@ describe("Seznam aktivit a skupiny (activities.ts, groups.ts)", () => {
   });
 
   it("links the group pages' files root-relative under /uploads/", () => {
-    const files = [
-      ...(schola.hero ? [schola.hero.src, schola.hero.small] : []),
-      ...(schola.photos ?? []).flatMap((p) => [p.small, p.large]),
-      ...(schola.videos ?? []).map((v) => v.thumbnail),
-    ];
+    const files = groupPages.flatMap((group) => [
+      ...(group.hero ? [group.hero.src, group.hero.small] : []),
+      ...(group.photos ?? []).flatMap((p) => [p.small, p.large]),
+      ...(group.videos ?? []).map((v) => v.thumbnail),
+    ]);
     expect(files.filter((f) => !UPLOAD.test(f))).toEqual([]);
-    expect(duplicates(groupLinks.map((g) => g.id))).toEqual([]);
+    expect(duplicates(groupPages.map((g) => g.id))).toEqual([]);
   });
 
   it("serves each group page under Seznam aktivit at its id", () => {
@@ -312,7 +312,7 @@ describe("Stránky v přípravě (planned-pages.ts)", () => {
 
   it("leads every link of the Více menu and Další skupiny to a page of the site", () => {
     const pages = new Set([...plannedPages.map((p) => p.path), ...Object.values(links)]);
-    const hrefs = [...navGroups.flatMap((g) => g.links.map((l) => l.href)), ...groupLinks.map((g) => g.href)];
+    const hrefs = [...navGroups.flatMap((g) => g.links.map((l) => l.href)), ...groupPages.map((g) => g.href)];
     expect(hrefs.filter((href) => !pages.has(href))).toEqual([]);
   });
 

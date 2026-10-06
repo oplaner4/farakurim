@@ -3,9 +3,9 @@ import type { PlannedPage } from "./types/planned";
 
 /*
  * The old site's pages (farakurim.cz/sitemap) that are not rebuilt yet: each URL gets a page with "Stránku
- * připravujeme", so nothing 404s once the new site takes over farakurim.cz. The groups and their extra catechesis
- * pages move under Seznam aktivit like Schola; public/.htaccess redirects their old URLs. When a page is rebuilt,
- * remove it here.
+ * připravujeme", so nothing 404s once the new site takes over farakurim.cz. The extra catechesis pages move under
+ * Katecheze pro děti in Seznam aktivit; public/.htaccess redirects their old URLs. When a page is rebuilt, remove it
+ * here.
  */
 
 const activities = { label: "Seznam aktivit", href: links.activities };
@@ -34,7 +34,7 @@ const nativityPages: PlannedPage[] = [
   { path: "/betlemy/2025/", title: "Betlémy 2025", color: "green", parents: [nativity] },
 ];
 
-const KATECHEZE = `${links.activities}katecheze_pro_deti/`;
+const KATECHEZE = links.catechesis;
 const catechesis = { label: "Katecheze pro děti", href: KATECHEZE };
 const extra = { label: "Mimořádné katecheze", href: `${KATECHEZE}mimoradne/rozcestnik/` };
 
@@ -53,14 +53,6 @@ function season(slug: string, name: string, sundays: number): PlannedPage[] {
 }
 
 const activityPages: PlannedPage[] = [
-  { path: `${links.activities}chramovy_sbor/`, title: "Chrámový sbor", color: "green", parents: [activities] },
-  {
-    path: `${links.activities}spolecenstvi_mladych/`,
-    title: "Společenství mladých",
-    color: "green",
-    parents: [activities],
-  },
-  { path: KATECHEZE, title: "Katecheze pro děti", color: "green", parents: [activities] },
   { path: extra.href, title: "Mimořádné katecheze", color: "green", parents: [activities, catechesis] },
   ...season("adventni_doba", "Adventní doba", 4),
   {
