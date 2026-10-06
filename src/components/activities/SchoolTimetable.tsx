@@ -73,15 +73,21 @@ export function SchoolTimetable({ schools }: { schools: School[] }) {
   );
 }
 
-/** Mobile: one card per class, the class in a green tile. */
+/** "6.–9. (1. skupina)": the grade range with its group, unique within a school. */
+function gradeLabel(row: TimetableRow) {
+  return row.group ? `${row.grade} (${row.group})` : row.grade;
+}
+
+/** Mobile: one card per class, the class in a green tile (the group on its own smaller line). */
 function TimetableCards({ rows }: { rows: TimetableRow[] }) {
   return (
     <ul className="flex flex-col gap-2.5 md:hidden">
       {rows.map((row) => (
-        <li key={row.grade} className="flex items-start gap-3.5 rounded-18 bg-surface p-4">
+        <li key={gradeLabel(row)} className="flex items-start gap-3.5 rounded-18 bg-surface p-4">
           <span className="flex min-h-16 w-19 shrink-0 flex-col items-center justify-center rounded-14 bg-green-tint p-1.5 text-center leading-heading text-green-ink">
             <span className="text-12 font-bold">třída</span>
             <strong className="text-15">{row.grade}</strong>
+            {row.group && <span className="text-12">{row.group}</span>}
           </span>
           <span className="flex min-w-0 flex-col gap-1">
             <strong className="text-17">
@@ -114,10 +120,10 @@ function TimetableTable({ school }: { school: School }) {
         </thead>
         <tbody>
           {school.rows.map((row) => (
-            <tr key={row.grade} className="align-top">
+            <tr key={gradeLabel(row)} className="align-top">
               <th scope="row" className="border-b border-line p-3.5 text-left">
                 <span className="inline-block rounded-full bg-green-tint px-2.5 py-0.5 text-15 text-green-ink">
-                  {row.grade}
+                  {gradeLabel(row)}
                 </span>
               </th>
               <td className="border-b border-line p-3.5 font-bold">{row.day}</td>

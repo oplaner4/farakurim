@@ -38,8 +38,10 @@ export type ContactPerson = {
 
 /** One class of the timetable. */
 export type TimetableRow = {
-  /** "1.–2.", "6.–9. (1. skupina)" */
+  /** "1.–2.", "6.–9." */
   grade: string;
+  /** "1. skupina", when one grade range has more groups. */
+  group?: string;
   /** "pátek" */
   day: string;
   /** "12:15–13:00", or a note ("podle rozpisu skupin"). */

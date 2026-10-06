@@ -52,14 +52,16 @@ export const religiousEducation: ReligiousEducation = {
       name: "Fara Kuřim",
       rows: [
         {
-          grade: "6.–9. (1. skupina)",
+          grade: "6.–9.",
+          group: "1. skupina",
           day: "středa",
           time: "16:30–17:30",
           room: "farní klubovna",
           teacher: "P. Jaroslav Filka",
         },
         {
-          grade: "6.–9. (2. skupina)",
+          grade: "6.–9.",
+          group: "2. skupina",
           day: "pátek",
           time: "15:00–16:00",
           room: "farní klubovna",
