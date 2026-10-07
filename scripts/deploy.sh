@@ -92,7 +92,7 @@ cmd_out() {
 }
 
 # Deletes the _next/static/ files that are not in out/ and older than KEEP_STATIC_DAYS, printed like rsync's
-# deletions (-n only prints them).
+# deletions (-n only prints them), then the folders they leave empty (an old build's _next/static/<build id>/).
 prune_static() {
   local tmp
   tmp=$(mktemp -d)
@@ -101,7 +101,8 @@ prune_static() {
   comm -23 "$tmp/old" "$tmp/current" > "$tmp/stale"
   [ -s "$tmp/stale" ] || return 0
   sed 's/^/*deleting   /' "$tmp/stale"
-  [ "${1:-}" = -n ] || ssh "$SSH_TARGET" "cd $WEB_ROOT && xargs rm -f --" < "$tmp/stale"
+  [ "${1:-}" = -n ] ||
+    ssh "$SSH_TARGET" "cd $WEB_ROOT && xargs rm -f -- && find _next/static -mindepth 1 -type d -empty -delete" < "$tmp/stale"
 }
 
 cmd_verify() {
