@@ -12,7 +12,7 @@
 #        pnpm release --major    a major version (e.g. a redesign); combines with the others
 #
 # The version follows the Conventional Commits since the last tag: minor when a feat outside the content scope is
-# among them, patch otherwise (scripts/release-version.mjs). A failed run is fixed in a new commit and released again; never move a pushed tag.
+# among them, patch otherwise (scripts/release-version.ts). A failed run is fixed in a new commit and released again; never move a pushed tag.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -44,8 +44,8 @@ git fetch --quiet origin main
 last=$(git describe --tags --abbrev=0 --match 'v*' 2>/dev/null || true)
 commits=$(git log --format='%h %s' ${last:+"$last.."}HEAD)
 [ -n "$commits" ] || fail "Nothing to release: no commits since $last."
-read -r bump next < <(cut -d' ' -f2- <<< "$commits" | node scripts/release-version.mjs $($major && echo --major)) &&
-  [ -n "$next" ] || fail "Could not work out the next version (scripts/release-version.mjs)."
+read -r bump next < <(cut -d' ' -f2- <<< "$commits" | pnpm exec tsx scripts/release-version.ts $($major && echo --major)) &&
+  [ -n "$next" ] || fail "Could not work out the next version (scripts/release-version.ts)."
 
 echo "Commits since ${last:-the start}:"
 sed 's/^/  /' <<< "$commits"

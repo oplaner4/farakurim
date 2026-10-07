@@ -1,7 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { nextVersion, releaseBump } from "./release-version.mjs";
+import { nextVersion, releaseBump } from "./release-version";
 
 describe("releaseBump", () => {
   it("is minor when a feature is among the commits", () => {
@@ -50,10 +50,15 @@ describe("nextVersion", () => {
   });
 });
 
-describe("command line", () => {
-  const script = new URL("./release-version.mjs", import.meta.url).pathname;
-  const { version } = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
-  const run = (input, ...args) => execFileSync(process.execPath, [script, ...args], { input, encoding: "utf8" });
+// Each call starts Node, slower than the unit tests when the whole suite runs.
+describe("command line", { timeout: 30_000 }, () => {
+  const script = new URL("./release-version.ts", import.meta.url).pathname;
+  const { version } = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as {
+    version: string;
+  };
+  // tsx as scripts/release.sh runs it, loaded into Node directly (no pnpm start per call).
+  const run = (input: string, ...args: string[]) =>
+    execFileSync(process.execPath, ["--import", "tsx", script, ...args], { input, encoding: "utf8" });
 
   it("prints the bump and the version for package.json", () => {
     expect(run("fix: a\nfeat(news): b\n")).toBe(`minor ${nextVersion(version, "minor")}\n`);
