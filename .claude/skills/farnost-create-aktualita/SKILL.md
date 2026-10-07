@@ -19,28 +19,28 @@ if it announces several unrelated events, ask which to add (or add each separate
 
 Write the text from the source, in Czech; do not invent facts. Leave out what the source does not say.
 
-| Field                  | How to fill it                                                                                                                                                                            |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`                   | ASCII kebab-case from the title (`hody-ceska`); must be unique across `src/content/news/`. Add the year when the title repeats yearly (`farni-den-2026`). Also the file name prefix.      |
-| `slug`                 | Omit: it is generated from the title. Set it only when that would collide with another event or a filter page (`tyden`, `mesic`, `dlouhodobe`, `vse`, `archiv`).                          |
-| `title`                | The headline, sentence case (not the poster's capitals). **Required.**                                                                                                                    |
-| `start`, `end`         | ISO dates. `end` only for multi-day events. A date without a year is the next such date from today.                                                                                       |
-| `time`                 | Free text: `"9:30"`, `"18:00–20:30"`. Omit for all-day events.                                                                                                                            |
-| `place`                | `"Kuřim, kostel sv. Maří Magdalény"`, `"Kuřim, fara"`, `"Tišnov"`. **Required.** Add `mapQuery` when the place alone would not find it on Mapy.cz.                                        |
-| `text`                 | 1–2 sentences for the cards. **Required.** No URLs.                                                                                                                                       |
-| `lead`                 | Optional: one inviting sentence under the detail title (also the page description). Defaults to `text`.                                                                                   |
-| `body`                 | Optional HTML for "O akci": `<p>`, `<strong>`, `<ul><li>`. Use it when the source has more than `text` says; keep it to a few short paragraphs. Links go to `links`, not into the body.   |
-| `program`              | Rows `{ time, title, note? }` when the source has a programme.                                                                                                                            |
-| `links`                | `{ label, href }` for every web address and e-mail (`mailto:`) in the source, with a readable label.                                                                                      |
-| `price`                | `"300 Kč"`, `"zdarma"`, when stated.                                                                                                                                                      |
-| `registrationDeadline` | ISO date of "přihlášky do …".                                                                                                                                                             |
-| `sessions`             | Number of meetings of a course or series (`start` = first, `end` = last).                                                                                                                 |
-| `longTerm`             | `{ weeklyAt: "18:30" }` for a weekly series (weekday of `start`), `true` for other long-running events.                                                                                   |
-| `highlights`           | Only for real key facts or numbers (anniversaries); usually omit.                                                                                                                         |
-| `label`                | A short free tag only when nothing above fits.                                                                                                                                            |
-| `pinned`               | Only when the user asks for "Doporučujeme". At most one: remove `pinned` from the previous event.                                                                                         |
-| `published`            | Today's date in Prague (`TZ=Europe/Prague date +%F`), not from the source: the day the record goes on the site (the shared link's publication date). Keep it when editing a record later. |
-| `calendarEventId`      | Ask whether the event is in the "Události" Google Calendar; if the user gives its event ID, set it (links the calendar entry to the detail page).                                         |
+| Field                  | How to fill it                                                                                                                                                                          |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                   | ASCII kebab-case from the title (`hody-ceska`); must be unique across `src/content/news/`. Add the year when the title repeats yearly (`farni-den-2026`). Also the file name prefix.    |
+| `slug`                 | Omit: it is generated from the title. Set it only when that would collide with another event or a filter page (`tyden`, `mesic`, `dlouhodobe`, `vse`, `archiv`).                        |
+| `title`                | The headline, sentence case (not the poster's capitals). **Required.**                                                                                                                  |
+| `start`, `end`         | ISO dates. `end` only for multi-day events. A date without a year is the next such date from today.                                                                                     |
+| `time`                 | Free text: `"9:30"`, `"18:00–20:30"`. Omit for all-day events.                                                                                                                          |
+| `place`                | `"Kuřim, kostel sv. Maří Magdalény"`, `"Kuřim, fara"`, `"Tišnov"`. **Required.** Add `mapQuery` when the place alone would not find it on Mapy.cz.                                      |
+| `text`                 | 1–2 sentences for the cards. **Required.** No URLs.                                                                                                                                     |
+| `lead`                 | Optional: one inviting sentence under the detail title (also the page description). Defaults to `text`.                                                                                 |
+| `body`                 | Optional HTML for "O akci": `<p>`, `<strong>`, `<ul><li>`. Use it when the source has more than `text` says; keep it to a few short paragraphs. Links go to `links`, not into the body. |
+| `program`              | Rows `{ time, title, note? }` when the source has a programme.                                                                                                                          |
+| `links`                | `{ label, href }` for every web address and e-mail (`mailto:`) in the source, with a readable label.                                                                                    |
+| `price`                | `"300 Kč"`, `"zdarma"`, when stated.                                                                                                                                                    |
+| `registrationDeadline` | ISO date of "přihlášky do …".                                                                                                                                                           |
+| `sessions`             | Number of meetings of a course or series (`start` = first, `end` = last).                                                                                                               |
+| `longTerm`             | `{ weeklyAt: "18:30" }` for a weekly series (weekday of `start`), `true` for other long-running events.                                                                                 |
+| `highlights`           | Only for real key facts or numbers (anniversaries); usually omit.                                                                                                                       |
+| `label`                | A short free tag only when nothing above fits.                                                                                                                                          |
+| `pinned`               | Only when the user asks for "Doporučujeme". At most one: remove `pinned` from the previous event.                                                                                       |
+| `published`            | Leave out: the script sets today's date in Prague (the shared link's publication date). Keep it when editing a record later.                                                            |
+| `calendarEventId`      | Ask whether the event is in the "Události" Google Calendar; if the user gives its event ID, set it (links the calendar entry to the detail page).                                       |
 
 ## 3. Pick the label
 
@@ -67,42 +67,47 @@ pnpm stage aktualita "<source>" <id> <label> --title "<title>" --check
 Show the extracted fields (and the label) in a short list. Point out guesses: the year, an inferred end date,
 `longTerm`. Wait for corrections before writing anything.
 
-## 5. Stage the files
+## 5. Stage the files and add the record
 
-Run the same command without `--check`. It copies the file to `uploads/aktuality/` and, for `Plakát`, `Pozvánka`
-and `Leták`, renders the poster WebP next to it (`--poster` / `--no-poster` overrides that; a text-only document
-gets the designed placeholder). It prints the `poster` and `attachments` lines for the record, with the size.
+Write the confirmed event as JSON to `record.json` in the session's scratchpad (never in the repo): the fields
+from step 2, without `published`, `poster` and `attachments`. A `poster.alt` you write (e.g. with the date) is
+kept; otherwise it is `"<label>: <title>"`.
 
-## 6. Add the record
-
-Add the event to the file of its **start month**, `src/content/news/<year>/<MM>.ts` (`2026/10.ts` for an event
-starting in October 2026), in start-date order; a multi-day event goes by its `start`. Use the `UPLOADS` constant
-for file URLs (`import { UPLOADS } from "../uploads";`, add it if the file lacks it); paste the lines `pnpm stage`
-printed:
-
-```ts
-  {
-    id: "hody-ceska",
-    title: "Hody v České",
-    start: "2026-10-02",
-    end: "2026-10-04",
-    place: "Česká",
-    text: "Srdečně zveme na tradiční hody v České – stavění máje, průvod a koncert.",
-    published: "2026-09-21",
-    poster: { src: `${UPLOADS}/hody-ceska-plakat.webp`, alt: "Plakát: Hody v České" },
-    attachments: [{ label: "Plakát", file: `${UPLOADS}/hody-ceska-plakat.png`, size: 1240000 }],
-  },
+```json
+{
+  "id": "hody-ceska",
+  "title": "Hody v České",
+  "start": "2026-10-02",
+  "end": "2026-10-04",
+  "place": "Česká",
+  "text": "Srdečně zveme na tradiční hody v České – stavění máje, průvod a koncert."
+}
 ```
 
+Then run the step 3 command without `--check`, with the record:
+
+```sh
+pnpm stage aktualita "<source>" <id> <label> --record <scratchpad>/record.json
+```
+
+It validates the record first against `newsEventSchema` (`src/lib/news/schema.ts`: required fields, dates,
+times, links, unknown fields) and checks the `id` is free, so a bad record stages nothing; the error names each
+field. Then it copies the file to `uploads/aktuality/` and, for `Plakát`, `Pozvánka` and `Leták`, renders the
+poster WebP next to it (`--poster` / `--no-poster` overrides that; a text-only document gets the designed
+placeholder). Last, `scripts/add-aktualita.ts` adds the record with `poster`, `attachments` and `published` to
+the file of its **start month** (`src/content/news/<year>/<MM>.ts`) in start-date order, with the `UPLOADS`
+constant, formats it and runs the news tests. The first event of a new year creates `news/<year>/` and adds it to
+`news/index.ts`. Read the diff of the month file before going on.
+
 The attachment is the original file (the full-size link); the poster is only the WebP. Finished events stay in
-the file: the archive lists them.
+the file: the archive lists them. An event without a source file is added with
+`pnpm add-aktualita <scratchpad>/record.json` alone. Without `--record`, `pnpm stage` only prints the `poster`
+and `attachments` lines, for changing an existing record by hand.
 
-The first event of a new year starts its folder: create `news/<year>/<MM>.ts` (`export const january: NewsEvent[]`,
-named after the month as in `2026/`), a `news/<year>/index.ts` joining the months like `2026/index.ts`, and add it
-first in `events` in `news/index.ts`. The previous year's events keep their title slugs, so leave them out of
-`pastYears` there.
+If the record is refused after staging (it should not be: it is checked first), fix `record.json` and run the same
+command again: staging the same file again is allowed.
 
-## 7. Publish
+## 6. Publish
 
 Follow **`farnost-publish-content`** (browser check of `/aktuality/<slug>/`, commit, upload and push).
 If the event has no `calendarEventId`, remind the user to add it to the "Události" Google Calendar, so it shows in
@@ -114,4 +119,6 @@ the Kalendář.
 - Putting URLs or e-mails into `text`/`body` instead of `links`.
 - Guessing a year or end date silently: say it in the confirmation.
 - Staging (without `--check`) before the user confirms: an abandoned file would go out with the next release.
+- Editing the month file by hand for a new event instead of `--record`: the order, the `UPLOADS` import and
+  `published` are then up to you.
 - Pinning a second event without unpinning the first.

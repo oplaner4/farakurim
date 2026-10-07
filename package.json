@@ -12,6 +12,7 @@
     "fonts": "python3 scripts/build-fonts.py",
     "petrklic": "python3 scripts/petrklic-images.py",
     "stage": "python3 scripts/stage-upload.py",
+    "add-aktualita": "tsx scripts/add-aktualita.ts",
     "format": "prettier --write .",
     "preview": "python3 scripts/preview.py 4173",
     "release": "scripts/release.sh",
@@ -56,6 +57,7 @@
     "sharp": "^0.35.5",
     "sirv": "^3.0.2",
     "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
     "typescript": "^5",
     "vitest": "^5.0.3"
   },

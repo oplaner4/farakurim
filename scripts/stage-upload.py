@@ -4,9 +4,11 @@ Every command checks the name is still free on the site (files on the server are
 under its ASCII name and renders the images. --check only validates and prints, without copying or rendering: use it
 before the user confirms, so nothing unconfirmed is left in uploads/ for the next release.
 
-  aktualita <source> <id> <label> [--title "<title>"] [--poster | --no-poster]
+  aktualita <source> <id> <label> [--title "<title>"] [--poster | --no-poster] [--record <record.json>]
       uploads/aktuality/<id>-<label>.<ext>, plus <id>-<label>.webp (page 1 / scaled image) for a visual label
-      (Plakát, Pozvánka, Leták); prints the `poster` and `attachments` lines.
+      (Plakát, Pozvánka, Leták); prints the `poster` and `attachments` lines. --record adds them to the confirmed
+      NewsEvent in the JSON file and adds it to src/content/news/ (scripts/add-aktualita.ts; with --check it only
+      validates the record).
   porad <pdf> [--from YYYY-MM-DD --to YYYY-MM-DD] [--rev N]
       reads the week from the heading ("od 4. 10. 2026 do 11. 10. 2026"), stages
       uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-<N>].pdf; prints pdfUrl, the week and its days.
@@ -99,17 +101,41 @@ def aktualita(args):
   if ext not in EXTENSIONS:
     fail(f"{src.suffix} is not an image, PDF, audio or video file")
   name = f"{args.id}-{LABELS[label]}"
-  dest = stage(src, f"aktuality/{name}{ext}", args.check)
   poster = args.poster if args.poster is not None else label in VISUAL
   if poster and ext not in {".pdf", ".png", ".jpg", ".webp", ".gif"}:
     fail(f"a {ext} file cannot be a poster: pass --no-poster")
+  record = None
+  if args.record:
+    record = json.loads(pathlib.Path(args.record).read_text(encoding="utf-8"))
+    if record.get("id") != args.id:
+      fail(f"the record's id {record.get('id')!r} is not {args.id!r}")
+    title = args.title or record.get("title") or "<title>"
+    if poster:
+      # Keep an alt text the record already has (it may add the date); the src is always the staged WebP.
+      alt = (record.get("poster") or {}).get("alt") or f"{label}: {title}"
+      record["poster"] = {"src": f"/uploads/aktuality/{name}.webp", "alt": alt}
+    record["attachments"] = [{"label": label, "file": f"/uploads/aktuality/{name}{ext}", "size": src.stat().st_size}]
+    # Validate before anything is copied, so a bad record leaves nothing staged.
+    add_record(record, check=True)
+  dest = stage(src, f"aktuality/{name}{ext}", args.check)
   if poster and not args.check:
     run(sys.executable, str(root / "scripts" / "poster-webp.py"), str(dest), str(dest.with_suffix(".webp")))
-  alt = json.dumps(f"{label}: {args.title or '<title>'}", ensure_ascii=False)
+  alt = json.dumps(f"{label}: {args.title or (record or {}).get('title') or '<title>'}", ensure_ascii=False)
   print(f"{'Would stage' if args.check else 'Staged'} uploads/aktuality/{name}{ext}" + (" and .webp" if poster else ""))
-  if poster:
-    print(f"    poster: {{ src: `${{UPLOADS}}/{name}.webp`, alt: {alt} }},")
-  print(f'    attachments: [{{ label: "{label}", file: `${{UPLOADS}}/{name}{ext}`, size: {src.stat().st_size} }}],')
+  if record is None:
+    if poster:
+      print(f"    poster: {{ src: `${{UPLOADS}}/{name}.webp`, alt: {alt} }},")
+    print(f'    attachments: [{{ label: "{label}", file: `${{UPLOADS}}/{name}{ext}`, size: {src.stat().st_size} }}],')
+  elif not args.check:
+    sys.stdout.flush()
+    add_record(record, check=False)
+
+
+def add_record(record, check):
+  """Adds the NewsEvent to src/content/news/ with scripts/add-aktualita.ts (or only validates it)."""
+  command = ["pnpm", "--silent", "add-aktualita", "-"] + (["--check"] if check else [])
+  if subprocess.run(command, input=json.dumps(record, ensure_ascii=False), text=True, cwd=root).returncode != 0:
+    fail("the record was not added (see above)")
 
 
 def iso(day, month, year):
@@ -172,6 +198,7 @@ def main():
   a.add_argument("label")
   a.add_argument("--title")
   a.add_argument("--poster", action=argparse.BooleanOptionalAction, default=None)
+  a.add_argument("--record")
   p = commands.add_parser("porad")
   p.add_argument("source")
   p.add_argument("--from", dest="valid_from")
