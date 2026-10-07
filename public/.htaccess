@@ -16,6 +16,14 @@ ErrorDocument 404 /404.html
   </ElseIf>
 </IfModule>
 
+# biblicky-citat.php sends its own Cache-Control (until midnight); the host's default added a second one with
+# max-age=30 and an Expires header.
+<Files "biblicky-citat.php">
+  <IfModule mod_expires.c>
+    ExpiresActive Off
+  </IfModule>
+</Files>
+
 # Section folders without a page of their own open their first page (the host lists no directories, so they
 # would answer 403).
 RedirectMatch 301 ^/pastoracni_rada/?$ /pastoracni_rada/clenove/
