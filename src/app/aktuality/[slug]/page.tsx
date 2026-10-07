@@ -38,6 +38,10 @@ export async function generateMetadata({ params }: PageProps<"/aktuality/[slug]"
     alternates: { canonical: eventHref(event) },
     openGraph: {
       ...siteOpenGraph,
+      type: "article",
+      authors: [parish.name],
+      // Never the build time: it would change on every deploy.
+      ...(event.published && { publishedTime: event.published }),
       title: event.title,
       description,
       url: eventHref(event),

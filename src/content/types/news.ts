@@ -83,4 +83,9 @@ export type NewsEvent = {
    * Kalendář links the event to this detail page (design/DESIGN.md §16.4).
    */
   calendarEventId?: string;
+  /**
+   * The day the record was added to the site (Prague date), the shared link's `article:published_time`. Set by
+   * `farnost-create-aktualita` from October 2026; older records have none.
+   */
+  published?: IsoDate;
 };

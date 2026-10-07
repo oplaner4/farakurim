@@ -15,6 +15,7 @@ describe("Aktuality (news/)", () => {
       expect(e.end > e.start, `end ${e.end} must be after start ${e.start} (omit it for one day)`).toBe(true);
     }
     if (e.registrationDeadline) expect(isIsoDate(e.registrationDeadline)).toBe(true);
+    if (e.published) expect(isIsoDate(e.published), `published ${e.published}`).toBe(true);
   });
 
   it.each(events.filter((e) => e.time).map((e) => [e.id, e] as const))("%s has a readable time", (_, e) => {
