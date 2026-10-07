@@ -1,6 +1,6 @@
 import type { NewsEvent } from "@/content/types/news";
 import { formatCompactDate } from "@/lib/shared/czech";
-import { FileIcon } from "@/components/ui/icons";
+import { FileIcon } from "@/components/ui/icons/media-icons";
 
 /** What a row needs; the page passes only these fields to the client. */
 export type ArchiveItem = Pick<NewsEvent, "id" | "title" | "start" | "end" | "time" | "place" | "archiveHidden"> & {

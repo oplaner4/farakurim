@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
 import type { ComponentProps, ReactNode, Ref, RefObject } from "react";
 import YetAnotherLightbox, { type LightboxExternalProps, useController } from "yet-another-react-lightbox";
-import { CloseIcon } from "./icons";
+import { CloseIcon } from "./icons/navigation-icons";
 import "@/styles/lightbox.css";
 
 /** The round translucent buttons of the lightbox (design/DESIGN.md §21.1): close 48 px, prev/next 56 px. */

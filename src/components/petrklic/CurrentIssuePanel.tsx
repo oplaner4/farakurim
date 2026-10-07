@@ -1,7 +1,7 @@
 import type { PetrklicIssue } from "@/content/types/petrklic";
 import { issueLabel, volumeOf } from "@/lib/petrklic/issues";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { DownloadIcon, EyeIcon } from "@/components/ui/icons";
+import { DownloadIcon, EyeIcon } from "@/components/ui/icons/media-icons";
 import { PetrklicCover } from "./PetrklicCover";
 
 /*

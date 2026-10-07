@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import { ExternalLinkIcon } from "@/components/ui/icons";
+import { ExternalLinkIcon } from "@/components/ui/icons/navigation-icons";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import type { LinkGroup, LinkGroupColor } from "@/content/types/links";
 import { displayDomain, NEW_TAB } from "@/lib/shared/links";

@@ -6,7 +6,8 @@ import { useDebounce } from "use-debounce";
 import type { Activity, ActivityGroup } from "@/content/types/activities";
 import { activityCount, ALL_GROUPS, filterActivities, seeksHelp } from "@/lib/activities/search";
 import { FilterPill } from "@/components/ui/FilterPill";
-import { ArrowRightIcon, ClockIcon, SearchIcon, UserIcon } from "@/components/ui/icons";
+import { ClockIcon, UserIcon } from "@/components/ui/icons/contact-icons";
+import { ArrowRightIcon, SearchIcon } from "@/components/ui/icons/navigation-icons";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 /** The list follows the field after a short pause, so the count isn't announced on every letter. */

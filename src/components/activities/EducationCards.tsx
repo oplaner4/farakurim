@@ -4,7 +4,8 @@ import type { ReligiousEducation } from "@/content/types/activities";
 import { initials } from "@/lib/activities/people";
 import { telHref } from "@/lib/shared/links";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { FileDownloadIcon, FileIcon, MailIcon, PhoneIcon } from "@/components/ui/icons";
+import { MailIcon, PhoneIcon } from "@/components/ui/icons/contact-icons";
+import { FileDownloadIcon, FileIcon } from "@/components/ui/icons/media-icons";
 
 const card = cva("flex min-w-0 flex-col gap-3 rounded-24 p-5 md:rounded-26 md:p-6 lg:rounded-28 lg:p-7", {
   variants: {

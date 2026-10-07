@@ -16,7 +16,7 @@ import { clearHash, pushHash, replaceHash } from "@/lib/shared/location-hash";
 import { useLocationHash } from "@/hooks/use-location-hash";
 import { useSnapCarousel } from "@/hooks/use-snap-carousel";
 import { ArrowButton } from "@/components/ui/ArrowButton";
-import { ArrowRightIcon } from "@/components/ui/icons";
+import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
 import { AlbumPhotoTile } from "./AlbumPhotoTile";
 
 // The lightbox library loads with the first photo opened (or hovered).

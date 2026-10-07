@@ -5,7 +5,7 @@ import { links } from "@/content/site";
 import type { DateBlock } from "@/lib/shared/czech";
 import { otherEvents } from "@/lib/news/events";
 import { useToday } from "@/hooks/use-now";
-import { ArrowRightIcon, ChevronLeftIcon } from "@/components/ui/icons";
+import { ArrowRightIcon, ChevronLeftIcon } from "@/components/ui/icons/navigation-icons";
 
 /** What a card needs; the page passes only these fields to the client. */
 export type MoreEventItem = Pick<NewsEvent, "id" | "title" | "start" | "end" | "time" | "place" | "longTerm"> & {

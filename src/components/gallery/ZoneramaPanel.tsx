@@ -1,6 +1,6 @@
 import { GALLERY_URL } from "@/content/gallery";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { ExternalLinkIcon } from "@/components/ui/icons";
+import { ExternalLinkIcon } from "@/components/ui/icons/navigation-icons";
 
 /** "Další alba" (design/DESIGN.md §19.1, 3): the older albums live on Zonerama. */
 export function ZoneramaPanel() {

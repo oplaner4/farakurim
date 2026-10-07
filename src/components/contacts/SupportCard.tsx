@@ -1,5 +1,5 @@
 import { CopyButton } from "@/components/ui/CopyButton";
-import { ArrowRightIcon } from "@/components/ui/icons";
+import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
 import { links, parish } from "@/content/site";
 import { ContactCard } from "./ContactCard";
 

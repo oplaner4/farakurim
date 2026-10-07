@@ -4,7 +4,7 @@ import Link from "next/link";
 import { links } from "@/content/site";
 import { archiveYearHref, type ArchiveYear } from "@/lib/news/archive";
 import { QUERY_PARAM } from "@/lib/shared/query-params";
-import { SearchIcon } from "@/components/ui/icons";
+import { SearchIcon } from "@/components/ui/icons/navigation-icons";
 
 type Props = {
   /** The search field's text (`useArchiveSearch`). */

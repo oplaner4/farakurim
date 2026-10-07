@@ -6,7 +6,7 @@ import { links } from "@/content/site";
 import { formatEventDate } from "@/lib/shared/czech";
 import { currentNews, eventHref, eventStatus } from "@/lib/news/events";
 import { useToday } from "@/hooks/use-now";
-import { CalendarIcon } from "@/components/ui/icons";
+import { CalendarIcon } from "@/components/ui/icons/contact-icons";
 import { POSTER_TINTS } from "@/components/ui/PosterPlaceholder";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 

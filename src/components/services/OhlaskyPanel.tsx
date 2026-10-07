@@ -5,15 +5,11 @@ import { formatDateRange } from "@/lib/shared/czech";
 import { withExternalLinkTargets } from "@/lib/shared/links";
 import { isOneWeek, sortAnnouncements } from "@/lib/services/service-sheet";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import {
-  ArrowRightIcon,
-  ChurchIcon,
-  ClockIcon,
-  FileDownloadIcon,
-  HeartIcon,
-  InfoIcon,
-  WarningIcon,
-} from "@/components/ui/icons";
+import { ChurchIcon, ClockIcon } from "@/components/ui/icons/contact-icons";
+import { FileDownloadIcon } from "@/components/ui/icons/media-icons";
+import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
+import { InfoIcon, WarningIcon } from "@/components/ui/icons/status-icons";
+import { HeartIcon } from "@/components/ui/icons/support-icons";
 
 const categories: Record<AnnouncementCategory, { label: string; icon: ReactNode; className: string }> = {
   zmena: {

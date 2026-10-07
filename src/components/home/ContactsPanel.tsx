@@ -4,7 +4,7 @@ import { contacts, links } from "@/content/site";
 import { telHref } from "@/lib/shared/links";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { WEEKDAY_SHORT } from "@/lib/shared/czech";
-import { ClockIcon, MailIcon, PhoneIcon, PinIcon } from "@/components/ui/icons";
+import { ClockIcon, MailIcon, PhoneIcon, PinIcon } from "@/components/ui/icons/contact-icons";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 function Row({ icon, className, children }: { icon: ReactNode; className?: string; children: ReactNode }) {

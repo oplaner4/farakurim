@@ -2,7 +2,7 @@
 
 import { useTheme } from "next-themes";
 import { useHydrated } from "@/hooks/use-now";
-import { MoonIcon, SunIcon } from "@/components/ui/icons";
+import { MoonIcon, SunIcon } from "@/components/ui/icons/status-icons";
 
 /**
  * Light/dark switch. The icon is chosen by CSS (`dark:`), so it is right before hydration;

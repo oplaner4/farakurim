@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { GroupPage } from "@/content/types/activities";
 import { telHref } from "@/lib/shared/links";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { ClockIcon, MailIcon, PhoneIcon, PinIcon, UserIcon } from "@/components/ui/icons";
+import { ClockIcon, MailIcon, PhoneIcon, PinIcon, UserIcon } from "@/components/ui/icons/contact-icons";
 
 function Row({ icon, label, children }: { icon: ReactNode; label: string; children: ReactNode }) {
   return (

@@ -2,7 +2,8 @@ import type { ReactNode } from "react";
 import type { EventAttachment, EventLink } from "@/content/types/news";
 import { fileType, formatFileSize } from "@/lib/shared/czech";
 import { externalLinkAttrs } from "@/lib/shared/links";
-import { ExternalLinkIcon, FileIcon } from "@/components/ui/icons";
+import { FileIcon } from "@/components/ui/icons/media-icons";
+import { ExternalLinkIcon } from "@/components/ui/icons/navigation-icons";
 import { DetailBlock } from "./DetailBlock";
 
 type FileRowProps = { href: string; label: string; detail: string; icon: ReactNode };

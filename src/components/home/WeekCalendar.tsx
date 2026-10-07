@@ -22,7 +22,7 @@ import {
 import { plural } from "@/lib/shared/czech";
 import { useCalendarEntries } from "@/hooks/use-calendar-entries";
 import { useToday } from "@/hooks/use-now";
-import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
+import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons/navigation-icons";
 
 type Props = {
   /** Prerendered entries; the browser re-reads Google Calendar when it has a key. */

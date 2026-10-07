@@ -8,7 +8,7 @@ import { photoAlt } from "@/lib/gallery/albums";
 import { formatLongDate } from "@/lib/shared/czech";
 import { thumbStart } from "@/lib/shared/lightbox";
 import { NEW_TAB } from "@/lib/shared/links";
-import { ChevronLeftIcon, ChevronRightIcon, ExternalLinkIcon } from "@/components/ui/icons";
+import { ChevronLeftIcon, ChevronRightIcon, ExternalLinkIcon } from "@/components/ui/icons/navigation-icons";
 import {
   LightboxButton,
   LightboxControls,

@@ -3,7 +3,7 @@ import { BUILD_TIME } from "@/lib/shared/build-time";
 import { capitalize, formatEventWhen } from "@/lib/shared/czech";
 import { mapHref, NEW_TAB } from "@/lib/shared/links";
 import { eventCalendarHref, eventEnd } from "@/lib/news/events";
-import { CalendarIcon, PinIcon } from "@/components/ui/icons";
+import { CalendarIcon, PinIcon } from "@/components/ui/icons/contact-icons";
 import { EventActions } from "./EventActions";
 
 /** "Kdy a kde" (§13.2): date, place with a map link, and the calendar and share actions. */

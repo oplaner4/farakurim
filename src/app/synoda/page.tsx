@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
-import { ExternalLinkIcon, FileIcon } from "@/components/ui/icons";
+import { FileIcon } from "@/components/ui/icons/media-icons";
+import { ExternalLinkIcon } from "@/components/ui/icons/navigation-icons";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { links } from "@/content/site";

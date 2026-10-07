@@ -5,7 +5,7 @@ import type { AlbumPhoto } from "@/content/types/gallery";
 import { photoAlt, photoCountLabel } from "@/lib/gallery/albums";
 import { plural } from "@/lib/shared/czech";
 import { AlbumPhotoTile } from "@/components/gallery/AlbumPhotoTile";
-import { ArrowRightIcon } from "@/components/ui/icons";
+import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { loadGroupLightbox, openGroupPhoto } from "./GroupLightbox";
 

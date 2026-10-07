@@ -4,7 +4,7 @@ import type { Weekday } from "@/content/types/shared";
 import { capitalize, WEEKDAY_NAMES } from "@/lib/shared/czech";
 import type { ScheduleDay } from "@/lib/services/masses";
 import { NEW_TAB } from "@/lib/shared/links";
-import { PinIcon } from "@/components/ui/icons";
+import { PinIcon } from "@/components/ui/icons/contact-icons";
 
 /** What a card needs; the page passes only these fields to the client. */
 export type ChurchSchedule = {

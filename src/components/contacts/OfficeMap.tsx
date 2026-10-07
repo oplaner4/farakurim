@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { contacts } from "@/content/site";
 import { useHydrated } from "@/hooks/use-now";
-import { PinIcon } from "@/components/ui/icons";
+import { PinIcon } from "@/components/ui/icons/contact-icons";
 
 /**
  * The Mapy.com embed of the parish office over its designed placeholder. The iframe is added after hydration, so its

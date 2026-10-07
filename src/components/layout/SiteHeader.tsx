@@ -3,7 +3,7 @@ import { serviceSheet } from "@/content/ohlasky";
 import { links, mainNav } from "@/content/site";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ColorStripe } from "@/components/ui/ColorStripe";
-import { FileDownloadIcon } from "@/components/ui/icons";
+import { FileDownloadIcon } from "@/components/ui/icons/media-icons";
 import { HeaderMenu } from "./HeaderMenu";
 import { MenuButton } from "./MenuButton";
 import { NavGroupAccordions } from "./NavGroupAccordions";

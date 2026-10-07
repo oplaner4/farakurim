@@ -1,6 +1,6 @@
 import { links } from "@/content/site";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { MailIcon } from "@/components/ui/icons";
+import { MailIcon } from "@/components/ui/icons/contact-icons";
 
 /** "Chcete se zapojit?" (design/DESIGN.md §25): the closing invitation, leading to Kontakty. */
 export function JoinPanel() {

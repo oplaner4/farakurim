@@ -1,6 +1,6 @@
 import { links, parishCalendars } from "@/content/site";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { ArrowRightIcon } from "@/components/ui/icons";
+import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
 
 const buttonClass = "min-h-12 grow basis-45 px-3.5";
 

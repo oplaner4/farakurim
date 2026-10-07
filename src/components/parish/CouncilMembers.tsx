@@ -1,6 +1,6 @@
 import type { ParishCouncil } from "@/content/types/parish";
 import { formatNumericDate } from "@/lib/shared/czech";
-import { MailIcon } from "@/components/ui/icons";
+import { MailIcon } from "@/components/ui/icons/contact-icons";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 /** The initials of a name without its titles ("Mgr. Eva Fialová" → "EF"). */

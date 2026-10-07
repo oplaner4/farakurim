@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { PastProjectCard } from "@/components/support/PastProjectCard";
-import { ArrowLeftIcon } from "@/components/ui/icons";
+import { ArrowLeftIcon } from "@/components/ui/icons/navigation-icons";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { links } from "@/content/site";
 import { pastProjects } from "@/content/support-archive";

@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ComponentProps } from "react";
-import { ChevronLeftIcon, ChevronRightIcon } from "./icons";
+import { ChevronLeftIcon, ChevronRightIcon } from "./icons/navigation-icons";
 
 export const arrowButton = cva("flex flex-none cursor-pointer items-center justify-center rounded-full text-ink", {
   variants: {

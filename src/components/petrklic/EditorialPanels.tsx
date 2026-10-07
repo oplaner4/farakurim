@@ -1,5 +1,5 @@
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { MailIcon } from "@/components/ui/icons";
+import { MailIcon } from "@/components/ui/icons/contact-icons";
 
 type Props = {
   email: string;

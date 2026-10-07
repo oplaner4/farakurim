@@ -1,7 +1,7 @@
 import { links } from "@/content/site";
 import type { PetrklicIssue } from "@/content/types/petrklic";
 import { issueLabel, volumeOf } from "@/lib/petrklic/issues";
-import { ArrowRightIcon } from "@/components/ui/icons";
+import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
 import { PetrklicCover } from "./PetrklicCover";
 
 /**

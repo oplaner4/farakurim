@@ -1,7 +1,8 @@
 import type { ComponentType } from "react";
 import { socialLinks, webmaster } from "@/content/site";
 import { externalLinkAttrs } from "@/lib/shared/links";
-import { FacebookIcon, InstagramIcon, LinkIcon } from "@/components/ui/icons";
+import { FacebookIcon, InstagramIcon } from "@/components/ui/icons/contact-icons";
+import { LinkIcon } from "@/components/ui/icons/navigation-icons";
 import { ContactCard } from "./ContactCard";
 
 type IconComponent = ComponentType<{ size?: number; className?: string }>;

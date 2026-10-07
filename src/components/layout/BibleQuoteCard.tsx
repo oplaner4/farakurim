@@ -3,7 +3,8 @@
 import type { BibleQuote } from "@/content/types/layout";
 import { links } from "@/content/site";
 import { NEW_TAB } from "@/lib/shared/links";
-import { BookIcon, ExternalLinkIcon } from "@/components/ui/icons";
+import { BookIcon } from "@/components/ui/icons/media-icons";
+import { ExternalLinkIcon } from "@/components/ui/icons/navigation-icons";
 import { useTodaysQuote } from "@/hooks/use-todays-quote";
 
 /**

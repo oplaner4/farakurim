@@ -3,7 +3,7 @@ import { parishChurches } from "@/content/masses";
 import { links } from "@/content/site";
 import type { ParishChurch } from "@/content/types/contacts";
 import { mapHref, NEW_TAB } from "@/lib/shared/links";
-import { ArrowRightIcon } from "@/components/ui/icons";
+import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
 import { ContactCard } from "./ContactCard";
 
 const bars: Record<ParishChurch["color"], string> = {

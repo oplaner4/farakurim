@@ -6,7 +6,7 @@ import type { ZoomRef } from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import { fileType } from "@/lib/shared/czech";
 import { zoomLabel, zoomStep } from "@/lib/shared/lightbox";
-import { DownloadIcon } from "@/components/ui/icons";
+import { DownloadIcon } from "@/components/ui/icons/media-icons";
 import { LightboxButton, LightboxControls, LightboxShell, LightboxTopBar } from "@/components/ui/Lightbox";
 
 const PLUGINS = [Zoom];

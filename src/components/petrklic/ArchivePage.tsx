@@ -1,6 +1,6 @@
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { PageHeading } from "@/components/ui/PageHeading";
-import { ChevronLeftIcon } from "@/components/ui/icons";
+import { ChevronLeftIcon } from "@/components/ui/icons/navigation-icons";
 import { petrklicIssues } from "@/content/petrklic";
 import { links } from "@/content/site";
 import { groupByYear } from "@/lib/petrklic/issues";

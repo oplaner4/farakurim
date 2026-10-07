@@ -1,6 +1,6 @@
 import { clsx } from "clsx";
 import { navGroups } from "@/content/site";
-import { ChevronDownIcon } from "@/components/ui/icons";
+import { ChevronDownIcon } from "@/components/ui/icons/navigation-icons";
 import { GroupShard } from "./GroupShard";
 import { NavGroupLink } from "./NavGroupLink";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { use } from "react";
-import { CloseIcon, MenuIcon } from "@/components/ui/icons";
+import { CloseIcon, MenuIcon } from "@/components/ui/icons/navigation-icons";
 import { HeaderMenuContext } from "./HeaderMenu";
 
 /**

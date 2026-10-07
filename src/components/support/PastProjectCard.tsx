@@ -3,7 +3,7 @@ import type { ChurchColor } from "@/content/types/services";
 import type { PastProject } from "@/content/types/support";
 import { formatCzk } from "@/lib/shared/czech";
 import { formatAmount, projectTotals, yearSpan } from "@/lib/support/past-projects";
-import { ChevronDownIcon } from "@/components/ui/icons";
+import { ChevronDownIcon } from "@/components/ui/icons/navigation-icons";
 
 const placeColors: Record<ChurchColor, string> = {
   blue: "bg-blue",

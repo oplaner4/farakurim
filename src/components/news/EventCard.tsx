@@ -5,7 +5,9 @@ import { eventDateBlock, fileType, formatEventWhen } from "@/lib/shared/czech";
 import { eventHref, type EventStatus, type EventTagKind, eventTags, posterAlt } from "@/lib/news/events";
 import { isImageFile } from "@/lib/shared/lightbox";
 import { externalLinkAttrs } from "@/lib/shared/links";
-import { ExternalLinkIcon, FileIcon, PinIcon } from "@/components/ui/icons";
+import { PinIcon } from "@/components/ui/icons/contact-icons";
+import { FileIcon } from "@/components/ui/icons/media-icons";
+import { ExternalLinkIcon } from "@/components/ui/icons/navigation-icons";
 import { POSTER_TINTS, PosterPlaceholder } from "@/components/ui/PosterPlaceholder";
 import { PosterLink } from "./PosterLink";
 

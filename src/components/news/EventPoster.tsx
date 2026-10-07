@@ -2,7 +2,7 @@ import { clsx } from "clsx";
 import type { NewsEvent } from "@/content/types/news";
 import { fileType } from "@/lib/shared/czech";
 import { isImageFile } from "@/lib/shared/lightbox";
-import { ZoomInIcon } from "@/components/ui/icons";
+import { ZoomInIcon } from "@/components/ui/icons/media-icons";
 import { PosterPlaceholder } from "@/components/ui/PosterPlaceholder";
 import { PosterLink } from "./PosterLink";
 

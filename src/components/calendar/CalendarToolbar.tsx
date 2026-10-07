@@ -2,7 +2,7 @@ import { clsx } from "clsx";
 import { parishCalendars } from "@/content/site";
 import type { CalendarId } from "@/content/types/calendar";
 import { addToMonth, type IsoMonth, monthHeading } from "@/lib/calendar/agenda";
-import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
+import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons/navigation-icons";
 
 const toolbarButton =
   "flex min-h-11 cursor-pointer items-center justify-center rounded-12 border-thin border-line bg-raised font-bold hover:bg-surface disabled:cursor-default disabled:opacity-40 disabled:hover:bg-raised";

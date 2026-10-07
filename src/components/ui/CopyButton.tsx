@@ -3,7 +3,7 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
 import { useEffect, useState } from "react";
-import { CheckIcon, CopyIcon } from "./icons";
+import { CheckIcon, CopyIcon } from "./icons/status-icons";
 
 const RESET_MS = 3000;
 

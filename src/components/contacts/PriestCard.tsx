@@ -1,6 +1,6 @@
 import { contacts, priest } from "@/content/site";
 import { telHref } from "@/lib/shared/links";
-import { UserIcon } from "@/components/ui/icons";
+import { UserIcon } from "@/components/ui/icons/contact-icons";
 import { ContactCard } from "./ContactCard";
 
 const rows = [

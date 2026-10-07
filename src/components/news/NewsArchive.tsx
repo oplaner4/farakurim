@@ -9,7 +9,7 @@ import { archiveHref, archiveParams, archiveUrlKeys } from "@/lib/shared/query-p
 import { useLoadMore } from "@/hooks/use-load-more";
 import { useToday } from "@/hooks/use-now";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { ArrowRightIcon, ChevronLeftIcon } from "@/components/ui/icons";
+import { ArrowRightIcon, ChevronLeftIcon } from "@/components/ui/icons/navigation-icons";
 import { ArchiveFilters } from "./ArchiveFilters";
 import { ArchiveResults } from "./ArchiveResults";
 import { type ArchiveItem, rowAnchor } from "./ArchiveRow";

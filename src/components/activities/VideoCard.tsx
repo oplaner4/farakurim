@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { GroupVideo } from "@/content/types/activities";
 import { formatDuration, youtubeEmbedUrl, youtubeWatchUrl } from "@/lib/activities/groups";
 import { isModifiedClick, NEW_TAB } from "@/lib/shared/links";
-import { PlayIcon } from "@/components/ui/icons";
+import { PlayIcon } from "@/components/ui/icons/media-icons";
 
 /**
  * A video of a group page (design/DESIGN.md §27, 5): the uploaded thumbnail with a play button and the length. A

@@ -1,7 +1,7 @@
 import { clsx } from "clsx";
 import type { ReactNode } from "react";
 import { CopyButton } from "@/components/ui/CopyButton";
-import { ChevronDownIcon, ExternalLinkIcon } from "@/components/ui/icons";
+import { ChevronDownIcon, ExternalLinkIcon } from "@/components/ui/icons/navigation-icons";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import type { PulsYear, SupportPage } from "@/content/types/support";
 import { formatCzk, formatShortDate } from "@/lib/shared/czech";

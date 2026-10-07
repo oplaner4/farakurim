@@ -1,5 +1,6 @@
 import { CopyButton } from "@/components/ui/CopyButton";
-import { ArrowRightIcon, CashIcon, CollectionIcon, TransferIcon } from "@/components/ui/icons";
+import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
+import { CashIcon, CollectionIcon, TransferIcon } from "@/components/ui/icons/support-icons";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { links, parish } from "@/content/site";
 

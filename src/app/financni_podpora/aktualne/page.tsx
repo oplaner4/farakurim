@@ -3,7 +3,7 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { OtherSupport } from "@/components/support/OtherSupport";
 import { ProjectCard } from "@/components/support/ProjectCard";
 import { WaysToGive } from "@/components/support/WaysToGive";
-import { ArrowRightIcon } from "@/components/ui/icons";
+import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { links } from "@/content/site";

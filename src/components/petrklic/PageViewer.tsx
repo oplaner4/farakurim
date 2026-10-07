@@ -5,7 +5,7 @@ import type { PetrklicIssue } from "@/content/types/petrklic";
 import { stepPage, viewerSpread } from "@/lib/petrklic/issues";
 import { useFadeInOnLoad } from "@/hooks/use-fade-in-on-load";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
+import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons/navigation-icons";
 
 type Props = {
   issue: PetrklicIssue & { pageImages: string[] };

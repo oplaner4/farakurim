@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import { ImageIcon } from "./icons";
+import { ImageIcon } from "./icons/media-icons";
 
 /** Event tints for posters and their placeholders, cycled by position (text colour drives the placeholder). */
 export const POSTER_TINTS = [

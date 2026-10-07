@@ -10,7 +10,9 @@ import { isOneWeek } from "@/lib/services/service-sheet";
 import { inPrague, pragueDateTime } from "@/lib/shared/prague";
 import { useHydrated, useNow } from "@/hooks/use-now";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { ArrowRightIcon, FileDownloadIcon, PinIcon } from "@/components/ui/icons";
+import { PinIcon } from "@/components/ui/icons/contact-icons";
+import { FileDownloadIcon } from "@/components/ui/icons/media-icons";
+import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
 
 /** Value for `<time dateTime>`: "2026-10-04T08:00" */
 const isoDateTime = (date: string, time: string) =>

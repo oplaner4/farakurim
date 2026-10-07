@@ -6,7 +6,7 @@ import { meetingLabel, meetingRange, meetingTile, nextMeeting, shortPlace } from
 import type { DateRange } from "@/lib/calendar/agenda";
 import { useCalendarEntries } from "@/hooks/use-calendar-entries";
 import { useToday } from "@/hooks/use-now";
-import { ArrowRightIcon } from "@/components/ui/icons";
+import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
 
 type Props = {
   /** The group's meetings in `range`, prerendered; the browser re-reads Google Calendar when it has a key. */

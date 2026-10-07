@@ -3,7 +3,8 @@ import type { ReactNode } from "react";
 import { links } from "@/content/site";
 import { externalLinkAttrs } from "@/lib/shared/links";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { ArrowRightIcon, CalendarIcon } from "@/components/ui/icons";
+import { CalendarIcon } from "@/components/ui/icons/contact-icons";
+import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
 
 type CardProps = { id: string; title: string; children: ReactNode; desktopOnly?: boolean };
 

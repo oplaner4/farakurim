@@ -3,7 +3,7 @@ import { links } from "@/content/site";
 import { formatDayMonth, formatLongDate } from "@/lib/shared/czech";
 import { albumAnchor } from "@/lib/gallery/albums";
 import { AlbumPhotoTile } from "@/components/gallery/AlbumPhotoTile";
-import { ArrowRightIcon } from "@/components/ui/icons";
+import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { AlbumCarousel } from "./AlbumCarousel";
 

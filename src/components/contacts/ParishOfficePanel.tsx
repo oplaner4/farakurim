@@ -2,7 +2,8 @@ import { clsx } from "clsx";
 import { contacts, parish } from "@/content/site";
 import { mapHref, NEW_TAB, telHref } from "@/lib/shared/links";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { ArrowRightIcon, MailIcon, PhoneIcon } from "@/components/ui/icons";
+import { MailIcon, PhoneIcon } from "@/components/ui/icons/contact-icons";
+import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
 import { OfficeMap } from "./OfficeMap";
 
 /** "Fara" (design/DESIGN.md §15.1): address, call and e-mail buttons, the map and the map link. */

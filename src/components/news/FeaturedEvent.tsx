@@ -4,7 +4,8 @@ import { eventHref, posterAlt } from "@/lib/news/events";
 import { isImageFile } from "@/lib/shared/lightbox";
 import { ButtonLink, buttonLink } from "@/components/ui/ButtonLink";
 import { eventAnchor } from "./EventCard";
-import { CalendarIcon, ImageIcon, PinIcon } from "@/components/ui/icons";
+import { CalendarIcon, PinIcon } from "@/components/ui/icons/contact-icons";
+import { ImageIcon } from "@/components/ui/icons/media-icons";
 import { PosterPlaceholder } from "@/components/ui/PosterPlaceholder";
 import { PosterLink } from "./PosterLink";
 
