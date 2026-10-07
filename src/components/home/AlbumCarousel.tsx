@@ -38,6 +38,8 @@ export function AlbumCarousel({ album }: { album: Album }) {
             <AlbumPhotoTile
               photo={album.photos?.[i]}
               size="large"
+              // Full width up to the desktop, then beside the 340 px "Další alba" (design/DESIGN.md §4.5).
+              sizes="(min-width: 75rem) 836px, (min-width: 48rem) calc(100vw - 64px), calc(100vw - 32px)"
               index={i}
               alt={photoAlt(album, i + 1)}
               eager={i === 0}

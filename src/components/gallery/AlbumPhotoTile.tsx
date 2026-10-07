@@ -2,6 +2,7 @@
 
 import { clsx } from "clsx";
 import type { AlbumPhoto } from "@/content/types/gallery";
+import { zoneramaSrcSet } from "@/lib/gallery/albums";
 import { useFadeInOnLoad } from "@/hooks/use-fade-in-on-load";
 import { PosterPlaceholder } from "@/components/ui/PosterPlaceholder";
 
@@ -17,6 +18,11 @@ type Props = {
   /** Missing in the mock data: a designed placeholder stands in. */
   photo?: AlbumPhoto;
   size: keyof AlbumPhoto;
+  /**
+   * The tile's rendered width (`sizes`): a Zonerama photo then comes in the width the screen needs (`srcset`), and
+   * `size` is only the fallback.
+   */
+  sizes?: string;
   /** Position in the album, 0-based: picks the placeholder tint. */
   index: number;
   alt: string;
@@ -36,14 +42,16 @@ const MOTION = "motion-safe:transition-[opacity,scale] motion-safe:duration-300 
  * A photo filling its box, fading in once loaded over a tinted skeleton that pulses while it loads, or a tinted
  * placeholder with an image icon and a corner shard.
  */
-export function AlbumPhotoTile({ photo, size, index, alt, eager, iconSize, shardClassName, className }: Props) {
+export function AlbumPhotoTile({ photo, size, sizes, index, alt, eager, iconSize, shardClassName, className }: Props) {
   const fadeIn = useFadeInOnLoad();
+  const srcSet = photo && sizes ? zoneramaSrcSet(photo.large) : undefined;
   if (photo)
     return (
       <span className="relative isolate block size-full">
         <img
           ref={fadeIn}
           src={photo[size]}
+          {...(srcSet && { srcSet, sizes })}
           alt={alt}
           loading={eager ? "eager" : "lazy"}
           decoding="async"

@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { albumAnchor, photoAlt, photoCountLabel, photoCounter, photoFromHash, photoHash } from "./albums";
+import {
+  albumAnchor,
+  photoAlt,
+  photoCountLabel,
+  photoCounter,
+  photoFromHash,
+  photoHash,
+  zoneramaSrcSet,
+} from "./albums";
 
 describe("gallery labels", () => {
   it("counts photos in Czech", () => {
@@ -26,5 +34,22 @@ describe("gallery labels", () => {
     expect(photoFromHash(album, "#album-pout-foto-0")).toBeNull();
     expect(photoFromHash(album, "#album-pouti-foto-3")).toBeNull();
     expect(photoFromHash(album, "")).toBeNull();
+  });
+});
+
+describe("zoneramaSrcSet", () => {
+  it("offers the photo in four widths at its aspect ratio", () => {
+    expect(zoneramaSrcSet("https://eu.zonerama.com/photos/662362586_1600x1067_18.jpg")).toBe(
+      [
+        "https://eu.zonerama.com/photos/662362586_400x267_18.jpg 400w",
+        "https://eu.zonerama.com/photos/662362586_800x534_18.jpg 800w",
+        "https://eu.zonerama.com/photos/662362586_1200x800_18.jpg 1200w",
+        "https://eu.zonerama.com/photos/662362586_1600x1067_18.jpg 1600w",
+      ].join(", "),
+    );
+  });
+
+  it("leaves other photos alone", () => {
+    expect(zoneramaSrcSet("/uploads/skupiny/schola/1-large.webp")).toBeUndefined();
   });
 });

@@ -25,7 +25,7 @@ const PhotoLightbox = dynamic(() => loadLightbox().then((m) => m.PhotoLightbox),
 
 type Props = {
   album: Album;
-  /** The album's place on the page: shifts the placeholder tints from one album to the next. */
+  /** The album's place on the page: shifts the placeholder tints from one album to the next; 0 loads eagerly. */
   position: number;
 };
 
@@ -101,9 +101,11 @@ export function AlbumStrip({ album, position }: Props) {
                 <AlbumPhotoTile
                   photo={album.photos?.[i]}
                   size="small"
+                  sizes="(min-width: 75rem) 400px, (min-width: 48rem) 50vw, calc(100vw - 32px)"
                   index={i + position}
                   alt={photoAlt(album, i + 1)}
-                  eager={i < 3}
+                  // Only the first album is in view on load; the strips below wait until scrolled to.
+                  eager={position === 0 && i < 3}
                   iconSize={40}
                   shardClassName="h-16 w-22"
                   // A slight zoom on hover: the photo opens (§5).

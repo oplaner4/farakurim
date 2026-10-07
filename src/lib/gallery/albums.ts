@@ -30,3 +30,20 @@ export function photoFromHash(album: Pick<Album, "id" | "photoCount">, hash: str
   const n = Number(hash.slice(prefix.length));
   return Number.isInteger(n) && n >= 1 && n <= album.photoCount ? n - 1 : null;
 }
+
+/** Zonerama scales a photo to the `<width>x<height>` in its URL, so a page can pick the size it needs. */
+const ZONERAMA_PHOTO = /^(https:\/\/eu\.zonerama\.com\/photos\/\d+)_(\d+)x(\d+)(_\d+\.jpg)$/;
+const SRCSET_WIDTHS = [400, 800, 1200, 1600];
+
+/**
+ * `srcset` of a Zonerama photo in 400–1600 px widths at its aspect ratio, so a phone doesn't download the desktop
+ * size; `undefined` for any other URL (the group pages' own uploads).
+ */
+export function zoneramaSrcSet(url: string): string | undefined {
+  const match = ZONERAMA_PHOTO.exec(url);
+  if (!match) return undefined;
+  const [, base, width, height, suffix] = match;
+  return SRCSET_WIDTHS.map(
+    (w) => `${base}_${w}x${Math.round((w * Number(height)) / Number(width))}${suffix} ${w}w`,
+  ).join(", ");
+}

@@ -56,6 +56,7 @@ export function GallerySection({ albums }: { albums: Album[] }) {
                       <AlbumPhotoTile
                         photo={album.photos?.[0]}
                         size="small"
+                        sizes="88px"
                         index={i + 1}
                         alt=""
                         iconSize={20}
