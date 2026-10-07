@@ -3,6 +3,7 @@ import { events as allEvents } from "@/content/news";
 import {
   currentNews,
   eventHref,
+  eventPageTitle,
   eventSlug,
   eventStatus,
   eventTags,
@@ -104,6 +105,25 @@ describe("otherEvents", () => {
   it("lists the nearest unfinished events without the current one", () => {
     expect(ids(otherEvents(events, events[4], TODAY, 2))).toEqual(["ongoing", "soon"]);
     expect(ids(otherEvents(events, events[2], TODAY, 2))).toEqual(["soon", "pinned"]);
+  });
+});
+
+describe("eventPageTitle", () => {
+  it("adds the year only when another event has the same title", () => {
+    const adoration = (id: string, start: string) => ({ id, title: "Adorační den", start, text: "" });
+    const list = [
+      adoration("a", "2020-11-08"),
+      adoration("b", "2021-11-07"),
+      { ...adoration("c", "2022-05-01"), title: "Pouť" },
+    ];
+    expect(eventPageTitle(list[0], list)).toBe("Adorační den 2020");
+    expect(eventPageTitle(list[1], list)).toBe("Adorační den 2021");
+    expect(eventPageTitle(list[2], list)).toBe("Pouť");
+  });
+
+  it("tells every event of the site apart", () => {
+    const titles = allEvents.map((e) => eventPageTitle(e, allEvents));
+    expect(new Set(titles).size).toBe(titles.length);
   });
 });
 

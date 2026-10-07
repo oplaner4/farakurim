@@ -150,6 +150,15 @@ export const eventHref = (event: NewsEvent) => `${links.news}${eventSlug(event)}
 /** The `.ics` download of "Přidat do kalendáře" (§13.2). */
 export const eventCalendarHref = (event: NewsEvent) => `${eventHref(event)}kalendar.ics`;
 
+/**
+ * The detail page's `<title>` before the parish name (design/DESIGN.md §13.5). When other events share the title
+ * (a yearly "Adorační den farnosti"), the year of the start follows it, so search results tell them apart.
+ */
+export function eventPageTitle(event: NewsEvent, events: NewsEvent[]): string {
+  const shared = events.some((e) => e.id !== event.id && e.title === event.title);
+  return shared ? `${event.title} ${event.start.slice(0, 4)}` : event.title;
+}
+
 export const findEventBySlug = (events: NewsEvent[], slug: string) => events.find((e) => eventSlug(e) === slug);
 
 /** "Další akce" on a detail page: the nearest unfinished events other than this one. */

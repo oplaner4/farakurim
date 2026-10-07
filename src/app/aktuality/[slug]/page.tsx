@@ -6,6 +6,7 @@ import { events } from "@/content/news";
 import { links, parish } from "@/content/site";
 import {
   eventHref,
+  eventPageTitle,
   eventSlug,
   filterFromSlug,
   findEventBySlug,
@@ -32,7 +33,7 @@ export async function generateMetadata({ params }: PageProps<"/aktuality/[slug]"
   const description = event.lead ?? event.text;
   return {
     // "<Event title> – Římskokatolická farnost Kuřim" (design/DESIGN.md §13.5), not the "|" template.
-    title: { absolute: `${event.title} – ${parish.name}` },
+    title: { absolute: `${eventPageTitle(event, events)} – ${parish.name}` },
     description,
     alternates: { canonical: eventHref(event) },
     openGraph: {
