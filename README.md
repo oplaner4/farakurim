@@ -66,6 +66,7 @@ PHP, so they show the build's verse. The "Zdroj: www.vira.cz" link is vira.cz's 
 | `pnpm build`                                        | Static export to `out/`                                                                                                         |
 | `pnpm preview`                                      | Serve `out/` at http://localhost:4173 (run `pnpm build` first), `/uploads/…` from `uploads/` or the live site                   |
 | `pnpm release [--local] [--yes] [--major]`          | Publish the site: upload new `uploads/`, tag and push, so Actions deploys (`--local`: deploy from here); asks unless `--yes`    |
+| `pnpm pull-uploads [--dry-run]`                     | Download the server's `/uploads/` files missing in `uploads/` (never overwrites or deletes local files)                         |
 | `pnpm test`                                         | Vitest unit tests (`src/**/*.test.ts`)                                                                                          |
 | `pnpm lint`                                         | ESLint (Next core-web-vitals + TypeScript + React hooks rules)                                                                  |
 | `pnpm exec tsc --noEmit`                            | Type check                                                                                                                      |
@@ -124,7 +125,8 @@ album, into `gallery.ts`) and `farnost-create-petrklic` (a newsletter PDF, into 
 `farnost-publish-content`: check, commit and release with `farnost-release`.
 
 Uploaded files are not in git: they are staged in `uploads/` (git-ignored, mirrors `/uploads/` on the server) and
-linked root-relative as `/uploads/…`. Album photos stay on Zonerama. The old site's uploads in `/nahrane/` stay on
+linked root-relative as `/uploads/…` (`pnpm pull-uploads` downloads the server's files you lack). Album photos stay on
+Zonerama. The old site's uploads in `/nahrane/` stay on
 the server so old links keep working, but new content never links or adds to them.
 
 ## Deployment
@@ -163,8 +165,8 @@ pushes to `main` and pull requests, skipping docs-only changes and release commi
 workflow calls it for the tag, so a release runs the same check before it builds with the variables above.
 
 The server details (SSH target, web root, rsync flags, server-only folders, verify checks) live only in
-`scripts/deploy.sh`, used by both the workflow and `pnpm release`; its commands (`uploads`, `check-uploads`, `out`,
-`verify`, with `--dry-run` where it changes the server) also work on their own.
+`scripts/deploy.sh`, used by both the workflow and `pnpm release`; its commands (`uploads`, `pull-uploads`, `check-uploads`,
+`out`, `verify`, with `--dry-run` where it changes the server) also work on their own.
 
 The sync deletes files that are no longer in `out/`, except four folders that live only on the server: `/uploads/`,
 `/nahrane/` (the old site's uploads, kept for old links), `/virtualni_prohlidka/` (the old site's virtual tour) and

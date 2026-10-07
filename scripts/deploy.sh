@@ -3,10 +3,11 @@
 # folders that live only on the server. Used by scripts/release.sh (`pnpm release`), which runs every command below
 # from this machine with the local SSH key; run them by hand only after building out/ with .env.local in place.
 #
-# Usage: scripts/deploy.sh uploads [--dry-run]   new files from uploads/ to /uploads/ (never overwrites or deletes)
-#        scripts/deploy.sh check-uploads         fail if out/ links a /uploads/… file that is not on the server
-#        scripts/deploy.sh out [--dry-run]       sync out/ to the web root (--delete, server-only folders excluded)
-#        scripts/deploy.sh verify [path…]        check the live site (and each given path, e.g. /uploads/x.pdf)
+# Usage: scripts/deploy.sh uploads [--dry-run]        new files from uploads/ to /uploads/ (never overwrites or deletes)
+#        scripts/deploy.sh pull-uploads [--dry-run]   new files from /uploads/ to uploads/ (never overwrites or deletes)
+#        scripts/deploy.sh check-uploads              fail if out/ links a /uploads/… file that is not on the server
+#        scripts/deploy.sh out [--dry-run]            sync out/ to the web root (--delete, server-only folders excluded)
+#        scripts/deploy.sh verify [path…]             check the live site (and each given path, e.g. /uploads/x.pdf)
 #
 # The old PHP site that lived in /farakurim.cz/ is backed up in /stary.farakurim.cz/ (outside WEB_ROOT, never synced).
 set -euo pipefail
@@ -47,6 +48,15 @@ cmd_uploads() {
   # --ignore-existing and no --delete: the server's /uploads/ is the only copy of earlier uploads.
   rsync -az "${n[@]}" --itemize-changes --ignore-existing --chmod=D755,F644 \
     uploads/ "$SSH_TARGET:$WEB_ROOT/uploads/" | { grep '^<f' || true; } | sed 's|^[^ ]* |/uploads/|'
+}
+
+cmd_pull_uploads() {
+  local n
+  parse_dry_run "$@"
+  mkdir -p uploads
+  # --ignore-existing and no --delete: files staged in uploads/ but not released yet stay as they are.
+  rsync -az "${n[@]}" --itemize-changes --ignore-existing \
+    "$SSH_TARGET:$WEB_ROOT/uploads/" uploads/ | { grep '^>f' || true; } | sed 's|^[^ ]* |uploads/|'
 }
 
 cmd_check_uploads() {
@@ -92,8 +102,9 @@ cmd_verify() {
 
 case "${1:-}" in
   uploads) shift && cmd_uploads "$@" ;;
+  pull-uploads) shift && cmd_pull_uploads "$@" ;;
   check-uploads) cmd_check_uploads ;;
   out) shift && cmd_out "$@" ;;
   verify) shift && cmd_verify "$@" ;;
-  *) sed -n '7,10p' "$0" | sed 's/^# \{0,1\}//' >&2 && exit 2 ;;
+  *) sed -n '6,10p' "$0" | sed 's/^# \{0,1\}//' >&2 && exit 2 ;;
 esac
