@@ -127,6 +127,7 @@ export function GroupPageView({ group, groups, nextMeeting }: Props) {
       {group.linkCard && (
         <a
           href={group.linkCard.href}
+          {...externalLinkAttrs(group.linkCard.href)}
           className="flex items-center justify-between gap-4 rounded-18 bg-orange-tint px-5 py-4.5 text-ink no-underline hover:bg-orange-tint-alt hover:text-ink"
         >
           <span className="flex flex-col gap-0.5">

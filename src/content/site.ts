@@ -7,6 +7,9 @@ import type { CarouselSlide } from "@/content/types/home";
 /** Public origin of the site: absolute URLs in metadata, JSON-LD and calendar files. */
 export const SITE_URL = "https://farakurim.cz";
 
+/** The old PHP site, kept for the pages not moved here (Mimořádné katecheze). */
+export const OLD_SITE_URL = "https://stary.farakurim.cz";
+
 export const links = {
   home: "/",
   news: "/aktuality/",

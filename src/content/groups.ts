@@ -1,4 +1,4 @@
-import { contacts, links } from "./site";
+import { contacts, links, OLD_SITE_URL } from "./site";
 import type { GroupPage } from "./types/activities";
 
 /*
@@ -173,7 +173,8 @@ export const catechesis: GroupPage = {
   linkCard: {
     title: "Mimořádné katecheze",
     text: "Příběhy na doma pro advent, půst, Vánoce a Velikonoce",
-    href: `${links.catechesis}mimoradne/rozcestnik/`,
+    // Not rebuilt here: the stories stay on the old site.
+    href: `${OLD_SITE_URL}/katecheze_pro_deti/mimoradne/rozcestnik`,
   },
 };
 

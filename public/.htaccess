@@ -17,15 +17,16 @@ RedirectMatch 301 ^/financni_podpora/?$ /financni_podpora/aktualne/
 RedirectMatch 301 ^/petrklic/?$ /petrklic/aktualni/
 RedirectMatch 301 ^/farni_tabor/?$ /farni_tabor/informace/
 RedirectMatch 301 ^/betlemy/?$ /betlemy/rozcestnik/
-RedirectMatch 301 ^/aktivity/katecheze_pro_deti/mimoradne/?$ /aktivity/katecheze_pro_deti/mimoradne/rozcestnik/
-RedirectMatch 301 ^/aktivity/katecheze_pro_deti/mimoradne/(adventni_doba|postni_doba|vanocni_doba)/?$ /aktivity/katecheze_pro_deti/mimoradne/$1/rozcestnik/
 
 # Group pages moved under Seznam aktivit (/aktivity/<group>/); the old site and its links use /schola.
 RedirectMatch 301 ^/schola/?$ /aktivity/schola/
 RedirectMatch 301 ^/chramovy_sbor/?$ /aktivity/chramovy_sbor/
 RedirectMatch 301 ^/spolecenstvi_mladych(/setkavani)?/?$ /aktivity/spolecenstvi_mladych/
-# The old katecheze pages also answered with .php; mimoradne/ and the season folders opened their rozcestník.
+# The old katecheze pages also answered with .php.
 RedirectMatch 301 ^/katecheze_pro_deti(/pravidelne)?(\.php)?/?$ /aktivity/katecheze_pro_deti/
-RedirectMatch 301 ^/katecheze_pro_deti/mimoradne(/index)?(\.php)?/?$ /aktivity/katecheze_pro_deti/mimoradne/rozcestnik/
-RedirectMatch 301 ^/katecheze_pro_deti/mimoradne/(adventni_doba|postni_doba|vanocni_doba)(/index)?(\.php)?/?$ /aktivity/katecheze_pro_deti/mimoradne/$1/rozcestnik/
-RedirectMatch 301 ^/katecheze_pro_deti/mimoradne/(.+?)(\.php)?/?$ /aktivity/katecheze_pro_deti/mimoradne/$1/
+
+# Mimořádné katecheze are not rebuilt: their URLs, the old ones and those under /aktivity/ that earlier releases served as
+# placeholders, lead to the same page on the old site. mimoradne/ and the season folders open their rozcestník.
+RedirectMatch 301 ^/(?:aktivity/)?katecheze_pro_deti/mimoradne(?:/index)?(?:\.php)?/?$ https://stary.farakurim.cz/katecheze_pro_deti/mimoradne/rozcestnik
+RedirectMatch 301 ^/(?:aktivity/)?katecheze_pro_deti/mimoradne/(adventni_doba|postni_doba|vanocni_doba)(?:/index)?(?:\.php)?/?$ https://stary.farakurim.cz/katecheze_pro_deti/mimoradne/$1/rozcestnik
+RedirectMatch 301 ^/(?:aktivity/)?katecheze_pro_deti/mimoradne/(.+?)(?:\.php)?/?$ https://stary.farakurim.cz/katecheze_pro_deti/mimoradne/$1
