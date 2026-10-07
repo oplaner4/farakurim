@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 import type { Announcement, RegularService, SheetDay } from "@/content/types/services";
-import { markChanges, publicDays, sheetExceptions, showWeekLabel, sortAnnouncements, weekView } from "./service-sheet";
+import {
+  isOneWeek,
+  markChanges,
+  publicDays,
+  sheetExceptions,
+  showWeekLabel,
+  sortAnnouncements,
+  weekView,
+} from "./service-sheet";
 
 const days: SheetDay[] = [
   { date: "2026-10-02", rows: [{ time: "18:15", place: "kurim", title: "Mše sv.", mass: true }] },
@@ -46,6 +54,12 @@ describe("sheetExceptions", () => {
   it("leaves a day of the week without rows without masses", () => {
     expect(result[3]).toEqual({ date: "2026-10-05", reason: "dle ohlášek", services: [] });
     expect(result).toHaveLength(4);
+  });
+
+  it("covers every day of a two-week sheet", () => {
+    const twoWeeks = sheetExceptions({ validFrom: "2026-10-04", validTo: "2026-10-18", days }, ["kurim"]);
+    expect(twoWeeks.map((x) => x.date)).toHaveLength(15);
+    expect(twoWeeks.at(-1)).toEqual({ date: "2026-10-18", reason: "dle ohlášek", services: [] });
   });
 });
 
@@ -130,5 +144,21 @@ describe("showWeekLabel", () => {
     expect(showWeekLabel(1)).toBe("Zobrazit celý týden (+1 den)");
     expect(showWeekLabel(3)).toBe("Zobrazit celý týden (+3 dny)");
     expect(showWeekLabel(6)).toBe("Zobrazit celý týden (+6 dní)");
+  });
+
+  it("names the whole period of a sheet longer than a week", () => {
+    expect(showWeekLabel(9, false)).toBe("Zobrazit celé období (+9 dní)");
+  });
+});
+
+describe("isOneWeek", () => {
+  it("counts a sheet of up to 8 days as one week", () => {
+    expect(isOneWeek({ validFrom: "2026-10-04", validTo: "2026-10-11" })).toBe(true);
+    expect(isOneWeek({ validFrom: "2026-10-05", validTo: "2026-10-11" })).toBe(true);
+  });
+
+  it("does not count a two-week sheet, across the DST change too", () => {
+    expect(isOneWeek({ validFrom: "2026-10-04", validTo: "2026-10-12" })).toBe(false);
+    expect(isOneWeek({ validFrom: "2026-10-18", validTo: "2026-11-01" })).toBe(false);
   });
 });

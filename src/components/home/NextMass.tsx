@@ -6,6 +6,7 @@ import { links } from "@/content/site";
 import type { ScheduleException, ServiceSheet } from "@/content/types/services";
 import { formatDateRange, formatWeekdayDate } from "@/lib/shared/czech";
 import { countdown, formatMassDay, upcomingServices } from "@/lib/services/masses";
+import { isOneWeek } from "@/lib/services/service-sheet";
 import { inPrague, pragueDateTime } from "@/lib/shared/prague";
 import { useHydrated, useNow } from "@/hooks/use-now";
 import { ButtonLink } from "@/components/ui/ButtonLink";
@@ -82,7 +83,8 @@ export function NextMass({ renderedAt, exceptions, sheet, showCountdown = true }
           Pořad bohoslužeb (PDF)
         </ButtonLink>
         <p className="order-6 -mt-2 text-center text-13 text-muted lg:hidden">
-          Ohlášky na týden {formatDateRange(sheet.validFrom, sheet.validTo)}
+          Ohlášky {isOneWeek(sheet) && "na týden "}
+          {formatDateRange(sheet.validFrom, sheet.validTo)}
         </p>
       </div>
 

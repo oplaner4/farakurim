@@ -29,6 +29,9 @@ pnpm stage porad "<source>" --check
 ## 2. Extract the sheet
 
 **Week**: `validFrom` / `validTo` as `--check` printed them from the heading, with every date of the week.
+A PDF can cover **two weeks** (around Christmas, Easter or a holiday): it is still **one** `ServiceSheet` with
+every day of both weeks, never split into two. The site drops "tento týden" from its labels by itself (`isOneWeek()`,
+more than 8 days). Everything below that says "the week" means the sheet's whole period.
 
 **Days** (`days[]`, one per date, in order):
 

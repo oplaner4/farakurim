@@ -10,15 +10,17 @@ import { useToday } from "@/hooks/use-now";
 type Props = {
   /** Public rows only (`publicDays`), with place names instead of IDs. */
   days: SheetDay[];
+  /** The ohlášky cover one week (`isOneWeek`); a longer sheet drops "tento týden" from the labels. */
+  oneWeek: boolean;
   renderedAt: number;
 };
 
 /**
- * "Rozpis bohoslužeb tento týden" (design/DESIGN.md §14.6): one row per day of the ohlášky. Today and the coming
+ * "Rozpis bohoslužeb tento týden", or "Rozpis bohoslužeb" for a longer sheet (design/DESIGN.md §14.6): one row per day of the ohlášky. Today and the coming
  * days show by default; the toggle adds the past days, dimmed. Without JS the build day decides and the toggle
  * is hidden.
  */
-export function WeekSchedule({ days, renderedAt }: Props) {
+export function WeekSchedule({ days, oneWeek, renderedAt }: Props) {
   const today = useToday(renderedAt);
   const [showPast, setShowPast] = useState(false);
   const view = weekView(days, today, showPast);
@@ -27,7 +29,7 @@ export function WeekSchedule({ days, renderedAt }: Props) {
     <section aria-labelledby="rozpis" className="flex flex-col gap-3.5">
       <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
         <h2 id="rozpis" className="text-22 leading-heading font-bold md:text-26 lg:text-32">
-          Rozpis bohoslužeb tento týden
+          Rozpis bohoslužeb{oneWeek && " tento týden"}
         </h2>
         {view.pastCount > 0 && (
           <button
@@ -38,7 +40,7 @@ export function WeekSchedule({ days, renderedAt }: Props) {
             data-js-only
             className="min-h-11 px-1 text-15 font-bold text-blue-ink hover:text-blue-ink-hover"
           >
-            {showPast ? "Skrýt proběhlé dny" : showWeekLabel(view.pastCount)}
+            {showPast ? "Skrýt proběhlé dny" : showWeekLabel(view.pastCount, oneWeek)}
           </button>
         )}
       </div>

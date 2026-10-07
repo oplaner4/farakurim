@@ -15,12 +15,12 @@ import { BUILD_TIME } from "@/lib/shared/build-time";
 import { mapHref } from "@/lib/shared/links";
 import { weeklySchedule } from "@/lib/services/masses";
 import { eventHref } from "@/lib/news/events";
-import { markChanges, publicDays } from "@/lib/services/service-sheet";
+import { isOneWeek, markChanges, publicDays } from "@/lib/services/service-sheet";
 
 export const metadata: Metadata = {
   title: "Pořad bohoslužeb",
   description:
-    "Pravidelné bohoslužby v Kuřimi, Moravských Knínicích a Jinačovicích, ohlášky na tento týden, svátost smíření a křty.",
+    "Pravidelné bohoslužby v Kuřimi, Moravských Knínicích a Jinačovicích, aktuální ohlášky, svátost smíření a křty.",
 };
 
 // The schedule is grouped at build time; the client only filters it.
@@ -60,7 +60,7 @@ export default function ServicesPage() {
       >
         <PageHeading title="Pořad bohoslužeb" color="blue" size="standard" />
         <OhlaskyPanel sheet={serviceSheet} newsHref={newsHref} />
-        <WeekSchedule days={weekDays} renderedAt={BUILD_TIME} />
+        <WeekSchedule days={weekDays} oneWeek={isOneWeek(serviceSheet)} renderedAt={BUILD_TIME} />
         <RegularServices churches={churches} renderedAt={BUILD_TIME} />
         <InfoCards confession={sacraments.confession} baptism={sacraments.baptism} />
         <noscript>

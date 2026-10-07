@@ -133,8 +133,9 @@ def porad(args):
   if src.suffix.lower() != ".pdf":
     fail("the pořad bohoslužeb is a PDF")
   valid_from, valid_to = week(src, args)
-  if not 0 < (valid_to - valid_from).days < 14:
-    fail(f"the week {valid_from} – {valid_to} looks wrong: pass --from and --to")
+  # One week, or two around holidays (Sunday to Sunday is 14 days); anything longer is a misread heading.
+  if not 0 < (valid_to - valid_from).days <= 21:
+    fail(f"the period {valid_from} – {valid_to} looks wrong: pass --from and --to")
   rel = f"porady_bohosluzeb/{valid_from}-porad-bohosluzeb{f'-{args.rev}' if args.rev else ''}.pdf"
   stage(src, rel, args.check, f"this week is already published; for a corrected PDF pass --rev {(args.rev or 1) + 1}")
   days = [valid_from + datetime.timedelta(n) for n in range((valid_to - valid_from).days + 1)]

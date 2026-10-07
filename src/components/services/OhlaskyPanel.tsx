@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import type { Announcement, AnnouncementCategory, ServiceSheet } from "@/content/types/services";
 import { formatDateRange } from "@/lib/shared/czech";
 import { withExternalLinkTargets } from "@/lib/shared/links";
-import { sortAnnouncements } from "@/lib/services/service-sheet";
+import { isOneWeek, sortAnnouncements } from "@/lib/services/service-sheet";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import {
   ArrowRightIcon,
@@ -46,8 +46,8 @@ type Props = {
 };
 
 /*
- * Ohlášky "Tento týden" (design/DESIGN.md §14.1, §14.5): the title with the PDF button, then one card per
- * announcement, changes first. One column on mobile, two from tablet up.
+ * Ohlášky "Tento týden" (design/DESIGN.md §14.1, §14.5; "Aktuálně" for a sheet longer than a week): the title with
+ * the PDF button, then one card per announcement, changes first. One column on mobile, two from tablet up.
  */
 export function OhlaskyPanel({ sheet, newsHref }: Props) {
   return (
@@ -63,7 +63,9 @@ export function OhlaskyPanel({ sheet, newsHref }: Props) {
 
       <div className="relative flex flex-wrap items-end justify-between gap-x-6 gap-y-3.5 pr-10 md:pr-20 lg:pr-37.5">
         <div className="flex flex-col gap-1.5">
-          <span className="text-13 font-bold tracking-eyebrow text-blue-ink uppercase">Tento týden</span>
+          <span className="text-13 font-bold tracking-eyebrow text-blue-ink uppercase">
+            {isOneWeek(sheet) ? "Tento týden" : "Aktuálně"}
+          </span>
           <h2 id="tento-tyden" className="text-22 leading-heading font-bold tracking-heading md:text-28 lg:text-36">
             Ohlášky {formatDateRange(sheet.validFrom, sheet.validTo)}
           </h2>

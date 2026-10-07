@@ -695,7 +695,7 @@ Enter ohlášky as **structured content**, one record per week, instead of uploa
 
 | Field | Notes |
 |---|---|
-| week range | from/to dates; it drives the "Tento týden" title and the homepage note |
+| week range | from/to dates; it drives the "Tento týden" title and the homepage note. A sheet longer than 8 days (two weeks around holidays) drops the week wording: eyebrow "Aktuálně", "Rozpis bohoslužeb", "Zobrazit celé období (+N dní)", "Ohlášky 4. 10. – 18. 10." |
 | days[] | date, feast (text), Sunday/solemnity flag |
 | rows[] | day, time, place, text, `changed` flag, `public` flag |
 | announcements[] | category (14.5), text (rich text: bold, links), optional related Aktuality item |

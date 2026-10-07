@@ -1,4 +1,4 @@
-import { eachDayOfInterval } from "date-fns";
+import { differenceInCalendarDays, eachDayOfInterval } from "date-fns";
 import type {
   Announcement,
   PlaceId,
@@ -97,6 +97,13 @@ export function weekView(days: SheetDay[], today: IsoDate, showPast: boolean): W
   return { days: showPast ? days : upcoming, pastCount };
 }
 
-/** "Zobrazit celý týden (+3 dny)" */
-export const showWeekLabel = (pastCount: number) =>
-  `Zobrazit celý týden (+${pastCount} ${plural(pastCount, ["den", "dny", "dní"])})`;
+/**
+ * Whether the ohlášky cover one week (up to 8 days, Sunday to Sunday): the labels then say "týden". A longer sheet
+ * (two weeks around holidays) is labelled by its dates only.
+ */
+export const isOneWeek = ({ validFrom, validTo }: Pick<ServiceSheet, "validFrom" | "validTo">): boolean =>
+  differenceInCalendarDays(pragueDateTime(validTo, "12:00"), pragueDateTime(validFrom, "12:00"), { in: inPrague }) < 8;
+
+/** "Zobrazit celý týden (+3 dny)", or "Zobrazit celé období (+9 dní)" for a sheet longer than a week. */
+export const showWeekLabel = (pastCount: number, oneWeek = true) =>
+  `Zobrazit ${oneWeek ? "celý týden" : "celé období"} (+${pastCount} ${plural(pastCount, ["den", "dny", "dní"])})`;

@@ -35,7 +35,7 @@ build-time next mass.
   the title otherwise. First-Friday/Saturday variants use `rule: "first-in-month"` (and `"not-first-in-month"` for
   what they replace). Exceptions (`scheduleExceptions`) **replace the whole day's services**, titled ones included;
   never hard-code those variants in logic.
-- Ohlášky (`content/ohlasky.ts`, design §14.5–14.7): one `ServiceSheet` per week with `days[].rows[]` and
+- Ohlášky (`content/ohlasky.ts`, design §14.5–14.7): one `ServiceSheet` per week (or two weeks around holidays; `isOneWeek()` switches the labels) with `days[].rows[]` and
   `announcements[]`. For every day from `validFrom` to `validTo` the sheet's `mass` and `service` rows (adoration,
   "Velikonoční obřady"; never funerals, baptisms, weddings) are the day's only services (`sheetExceptions()`), never
   combined with `regularServices`; after the week the regular schedule applies. `changed` only adds the "změna" tag; `markChanges()` sets it on masses that are not in the regular schedule. Intentions are published word for word, names included (the parish's decision: the PDF
