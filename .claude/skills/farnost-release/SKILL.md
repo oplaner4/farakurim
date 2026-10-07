@@ -34,8 +34,8 @@ Never move or reuse a pushed tag.
 ## Release from this machine
 
 Only when the user asks, e.g. because GitHub Actions is down: `pnpm release --local` previews more (a minute or two).
-It also checks that `.env.local` sets the Google Calendar key and both Matomo variables, runs the full check
-(Prettier, tests, lint, types) and a fresh `pnpm build`, and summarises the sync of `out/` (new, changed, deleted
+It builds with `RELEASE_BUILD=1`, which stops first unless `.env.local` sets the Google Calendar key and both Matomo
+variables, runs the full check (Prettier, tests, lint, types) and a fresh `pnpm build`, and summarises the sync of `out/` (new, changed, deleted
 files) with every deleted file outside `_next/`. Name any deleted page or file outside `_next/` in the question.
 After the yes, `pnpm release --local --yes` runs the checks and the build again, uploads the new files, checks that
 every linked upload is on the server, syncs `out/`, verifies the live site, then commits, tags and pushes; the
@@ -49,7 +49,7 @@ All need the user's yes first, like a release, except the dry runs, `check-uploa
 
 - `scripts/deploy.sh uploads [--dry-run]`: only upload the staged files (never overwrites or deletes on the server).
 - `scripts/deploy.sh out [--dry-run]` then `scripts/deploy.sh verify [/uploads/…]`: deploy `out/` without a
-  release. Build first (`pnpm build` with `.env.local`, or the calendars ship mock data) and show the user every
+  release. Build first with `RELEASE_BUILD=1 pnpm build` (it fails without the keys in `.env.local`) and show the user every
   `*deleting` line of the dry run.
 - **Virtual tour**, one time, when `verify` warns that it is missing: copy it on the server from the old site
   (`ssh <SSH_TARGET from scripts/deploy.sh> 'cp -a /stary.farakurim.cz/virtualni_prohlidka /farakurim.cz/'`). It is a

@@ -51,7 +51,7 @@ build-time next mass.
   homepage: the build's week, the one before and the next four; "Tento týden" always runs Monday to Sunday). `useCalendarEntries()` re-reads every shown range in the browser (TanStack Query, one query per range) and merges it over the
   build's entries (`mergeEntries()`); a range outside the prerendered one is dimmed with a loading or error message
   until Google answers. Without `NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY` the entries are a fallback generated from
-  `regularServices` and the Aktuality records, nothing is fetched, and paging stops at the prerendered months. An Aktuality record links to its calendar event through `calendarEventId`. The weekly table and the
+  `regularServices` and the Aktuality records, nothing is fetched, and paging stops at the prerendered months; a release build (`RELEASE_BUILD=1`) fails without the key instead (`src/lib/shared/build-env.ts`). An Aktuality record links to its calendar event through `calendarEventId`. The weekly table and the
   next-mass countdown still use `regularServices` / `scheduleExceptions`.
 - Fotogalerie (`content/gallery.ts`): Zonerama albums, newest first, with `photoCount` and optional `photos`
   (`small`/`large` URLs). An album without `photos` shows `photoCount` designed placeholders in the strips and the homepage

@@ -31,7 +31,7 @@ pnpm dev       # http://localhost:3000
 ### Google Calendar (optional)
 
 The Kalendář page and the homepage week calendar read the parish's two public Google Calendars. Without a key they
-show mock data generated from the regular mass schedule and the Aktuality records. To use the real calendars, copy the
+show entries generated from the regular mass schedule and the Aktuality records. To use the real calendars, copy the
 example file to `.env.local` (never committed) and fill in the key:
 
 ```sh
@@ -40,6 +40,11 @@ cp .env.local.example .env.local
 
 The key is read at build time and again in the browser, so it ends up in the published JavaScript. Restrict it in
 Google Cloud to the `farakurim.cz` referrer and the Google Calendar API.
+
+Every build checks the keys that are set, this one and the two Matomo variables below (`next.config.ts`,
+`src/lib/shared/build-env.ts`): a malformed key, or only one of the Matomo pair, stops it. A release build
+(`RELEASE_BUILD=1`, set by the deploy workflow and by `pnpm release --local`) also needs all three, so a release never
+ships the generated calendars or skips the statistics because a key went missing.
 
 ### Statistics (optional)
 
@@ -146,7 +151,7 @@ and released again; a pushed tag is never moved.
 
 `pnpm release --local` deploys from this machine instead, e.g. when GitHub Actions is down. It needs `.env.local` with
 the Google Calendar key and both Matomo variables (see [Getting started](#getting-started)): it runs the full check
-and a fresh build, summarises what the sync will add, change and delete, and after the yes uploads the new files,
+and a fresh release build (`RELEASE_BUILD=1`, which stops first when a key is missing or malformed), summarises what the sync will add, change and delete, and after the yes uploads the new files,
 checks that every `/uploads/…` file the build links is on the server, syncs `out/` and verifies the live site before
 it tags. Its release commit carries the trailer `Release-Deploy: local`, so the workflow does not deploy that tag
 again.

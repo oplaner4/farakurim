@@ -67,10 +67,12 @@ jobs:
       # next dev and next build generate them locally, next typegen does it without building.
       - run: pnpm exec next typegen && pnpm exec tsc --noEmit
 
-      # Without keys (pushes and pull requests) the calendars use mock data and the tracker is off; the build only has
-      # to succeed. A release passes the repository variables: the calendar key is public in the built JS anyway.
+      # Without keys (pushes and pull requests) the calendars use generated entries and the tracker is off; the build
+      # only has to succeed. A release passes the repository variables (the calendar key is public in the built JS
+      # anyway) and RELEASE_BUILD, so next.config.ts fails the build when one is missing (src/lib/shared/build-env.ts).
       - run: pnpm build
         env:
+          RELEASE_BUILD: ${{ inputs.release && '1' || '' }}
           NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY: ${{ inputs.release && vars.GOOGLE_CALENDAR_API_KEY || '' }}
           # Anonymous statistics (Matomo on statistiky.farakurim.cz); without both the site does not track.
           NEXT_PUBLIC_MATOMO_URL: ${{ inputs.release && vars.MATOMO_URL || '' }}

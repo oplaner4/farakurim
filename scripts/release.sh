@@ -59,12 +59,9 @@ echo
 
 # 3–5 only with --local; without it GitHub Actions checks and builds the tagged commit.
 if $deploy_here; then
-  # 3. The production keys: without them the calendars ship mock data and the site does not count visits.
-  for key in NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY NEXT_PUBLIC_MATOMO_URL NEXT_PUBLIC_MATOMO_SITE_ID; do
-    [ -n "${!key:-}" ] || grep -qE "^$key=.+" .env.local 2> /dev/null || fail "$key is not set in .env.local."
-  done
-
-  # 4. The full check and a fresh build.
+  # 3–4. The full check and a fresh release build. With RELEASE_BUILD=1, next.config.ts stops on a missing or
+  # malformed production key (src/lib/shared/build-env.ts); next typegen loads it first, so that fails fast.
+  export RELEASE_BUILD=1
   echo "Checking and building…"
   # Runs a step quietly and shows its output only when it fails.
   step() {
@@ -73,10 +70,10 @@ if $deploy_here; then
     "$@" > "$log" 2>&1 || { cat "$log" >&2; fail "$* failed."; }
     rm -f "$log"
   }
+  step pnpm exec next typegen
   step pnpm exec prettier --check .
   step pnpm test
   step pnpm lint
-  step pnpm exec next typegen
   step pnpm exec tsc --noEmit
   rm -rf out
   step pnpm build
