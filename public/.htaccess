@@ -2,6 +2,14 @@
 # tour redirects its misses to /errors/404, which does not exist, so they end here too.
 ErrorDocument 404 /404.html
 
+# Files under /_next/static/ have a content hash in their name, so browsers may keep them for a year. The host's
+# default (max-age=30) made every visit revalidate the fonts, and the text flashed in the fallback font meanwhile.
+<IfModule mod_headers.c>
+  <If "%{REQUEST_URI} =~ m#^/_next/static/#">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </If>
+</IfModule>
+
 # Section folders without a page of their own open their first page (the host lists no directories, so they
 # would answer 403).
 RedirectMatch 301 ^/pastoracni_rada/?$ /pastoracni_rada/clenove/
