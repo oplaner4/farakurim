@@ -2,6 +2,16 @@
 # tour redirects its misses to /errors/404, which does not exist, so they end here too.
 ErrorDocument 404 /404.html
 
+# Section folders without a page of their own open their first page (the host lists no directories, so they
+# would answer 403).
+RedirectMatch 301 ^/pastoracni_rada/?$ /pastoracni_rada/clenove/
+RedirectMatch 301 ^/financni_podpora/?$ /financni_podpora/aktualne/
+RedirectMatch 301 ^/petrklic/?$ /petrklic/aktualni/
+RedirectMatch 301 ^/farni_tabor/?$ /farni_tabor/informace/
+RedirectMatch 301 ^/betlemy/?$ /betlemy/rozcestnik/
+RedirectMatch 301 ^/aktivity/katecheze_pro_deti/mimoradne/?$ /aktivity/katecheze_pro_deti/mimoradne/rozcestnik/
+RedirectMatch 301 ^/aktivity/katecheze_pro_deti/mimoradne/(adventni_doba|postni_doba|vanocni_doba)/?$ /aktivity/katecheze_pro_deti/mimoradne/$1/rozcestnik/
+
 # Group pages moved under Seznam aktivit (/aktivity/<group>/); the old site and its links use /schola.
 RedirectMatch 301 ^/schola/?$ /aktivity/schola/
 RedirectMatch 301 ^/chramovy_sbor/?$ /aktivity/chramovy_sbor/
