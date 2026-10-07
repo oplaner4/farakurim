@@ -9,7 +9,7 @@ import { SITE_URL } from "@/content/site";
 import "@/styles/globals.css";
 
 // Farnost Sans is Oxygen with fixed caron letters (scripts/build-fonts.py); the OFL forbids the name "Oxygen" on it.
-// Weight 300 (farnost-sans-300.woff2) is available but unused; add it here when a design needs it.
+// next/font preloads every weight listed here; 300 is the day's verse (BibleQuoteCard).
 const farnostSans = localFont({
   src: [
     { path: "../fonts/farnost-sans-300.woff2", weight: "300", style: "normal" },
