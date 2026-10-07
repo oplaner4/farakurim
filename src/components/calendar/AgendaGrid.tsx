@@ -5,10 +5,9 @@ import { clsx } from "clsx";
 import { format } from "date-fns";
 import { cs } from "date-fns/locale";
 import type { IsoDate } from "@/content/types/shared";
-import { type AgendaItem, dayCellLabel, type IsoMonth } from "@/lib/calendar/agenda";
+import { type AgendaItem, type CalendarStatus, dayCellLabel, type IsoMonth } from "@/lib/calendar/agenda";
 import { capitalize } from "@/lib/shared/czech";
 import { inPrague, pragueDateTime } from "@/lib/shared/prague";
-import type { CalendarStatus } from "@/hooks/use-calendar-entries";
 import { AgendaContext, AgendaDayButton } from "./AgendaDayButton";
 
 const asDate = (date: IsoDate) => pragueDateTime(date, "12:00");

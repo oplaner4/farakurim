@@ -8,6 +8,7 @@ import { GOOGLE_CALENDAR_API_KEY, links } from "@/content/site";
 import {
   type AgendaItem,
   agendaByDate,
+  containsRange,
   type DateRange,
   daySummary,
   itemTime,
@@ -51,8 +52,7 @@ export function WeekCalendar({ entries, range: prerendered, hrefs, renderedAt }:
   // Without an API key there is nothing to read beyond the prerendered weeks.
   const canGo = (delta: number) => {
     if (GOOGLE_CALENDAR_API_KEY) return true;
-    const { from, to } = weekRange(today, offset + delta);
-    return from >= prerendered.from && to <= prerendered.to;
+    return containsRange(prerendered, weekRange(today, offset + delta));
   };
 
   // Mobile and tablet: start the row at today in the current week, at Monday in the others.

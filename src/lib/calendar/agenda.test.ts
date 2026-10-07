@@ -3,8 +3,11 @@ import type { CalendarEntry } from "@/content/types/calendar";
 import type { NewsEvent } from "@/content/types/news";
 import type { Place, PlaceId } from "@/content/types/services";
 import {
+  addRange,
   addToMonth,
   agendaByDate,
+  calendarStatus,
+  containsRange,
   dayCellLabel,
   dayHeading,
   daySummary,
@@ -200,6 +203,59 @@ describe("mergeEntries", () => {
       ],
     );
     expect(merged).toEqual([shared]);
+  });
+});
+
+describe("shown ranges", () => {
+  const october = { from: "2026-09-28", to: "2026-11-01" };
+  const november = { from: "2026-10-26", to: "2026-12-06" };
+
+  it("knows whether a range lies within another", () => {
+    const prerendered = { from: "2026-08-31", to: "2027-04-04" };
+    expect(containsRange(prerendered, october)).toBe(true);
+    expect(containsRange(prerendered, prerendered)).toBe(true);
+    expect(containsRange(prerendered, { from: "2026-08-30", to: "2026-09-05" })).toBe(false);
+    expect(containsRange(prerendered, { from: "2027-03-29", to: "2027-04-05" })).toBe(false);
+  });
+
+  it("adds a range once, keeping the array while nothing is new", () => {
+    const one = addRange([], october);
+    expect(one).toEqual([october]);
+    // A copy with the same days is the same range (each render passes a new object).
+    expect(addRange(one, { ...october })).toBe(one);
+    expect(addRange(one, november)).toEqual([october, november]);
+    // Same start, other end: another range.
+    expect(addRange(one, { from: october.from, to: "2026-10-04" })).toHaveLength(2);
+  });
+
+  it("copies only the days of the range", () => {
+    const [added] = addRange([], { ...october, extra: true } as typeof october);
+    expect(added).toEqual(october);
+  });
+});
+
+describe("calendarStatus", () => {
+  const status = (s: Partial<Parameters<typeof calendarStatus>[0]>) =>
+    calendarStatus({ live: true, prerendered: false, read: false, failed: false, ...s });
+
+  it("is ready without an API key, whatever else holds", () => {
+    expect(status({ live: false })).toBe("ready");
+    expect(status({ live: false, failed: true })).toBe("ready");
+  });
+
+  it("is ready for a prerendered range before Google answers, also when it fails", () => {
+    expect(status({ prerendered: true })).toBe("ready");
+    expect(status({ prerendered: true, failed: true })).toBe("ready");
+  });
+
+  it("waits for Google outside the prerendered range", () => {
+    expect(status({})).toBe("loading");
+    expect(status({ read: true })).toBe("ready");
+    expect(status({ failed: true })).toBe("error");
+  });
+
+  it("keeps an answer that a later retry failed to refresh", () => {
+    expect(status({ read: true, failed: true })).toBe("ready");
   });
 });
 

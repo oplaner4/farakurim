@@ -118,6 +118,40 @@ export function mergeEntries(
   return [...merged.values()];
 }
 
+/** Whether every day of `inner` lies within `outer`. */
+export const containsRange = (outer: DateRange, inner: DateRange) => inner.from >= outer.from && inner.to <= outer.to;
+
+/** `ranges` with `range` added at the end, or the same array when it is already among them. */
+export function addRange(ranges: DateRange[], { from, to }: DateRange): DateRange[] {
+  return ranges.some((r) => r.from === from && r.to === to) ? ranges : [...ranges, { from, to }];
+}
+
+/**
+ * - `ready`: the entries cover the range (from the build or from Google);
+ * - `loading`: the range lies outside the build's and Google has not answered yet;
+ * - `error`: the same, but Google failed.
+ */
+export type CalendarStatus = "ready" | "loading" | "error";
+
+/**
+ * Status of a shown range: `live` when the browser reads Google Calendar (an API key), `prerendered` when the
+ * build's entries cover the range, `read` once Google answered for it and `failed` when its last read failed.
+ */
+export function calendarStatus({
+  live,
+  prerendered,
+  read,
+  failed,
+}: {
+  live: boolean;
+  prerendered: boolean;
+  read: boolean;
+  failed: boolean;
+}): CalendarStatus {
+  if (!live || prerendered || read) return "ready";
+  return failed ? "error" : "loading";
+}
+
 /** "18. října, 2 bohoslužby, 1 akce", "19. října, nic v kalendáři" */
 export function dayCellLabel(date: IsoDate, items: AgendaItem[]): string {
   const services = items.filter((i) => i.calendar === "services").length;

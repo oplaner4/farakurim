@@ -1,7 +1,6 @@
 import { clsx } from "clsx";
 import type { IsoDate } from "@/content/types/shared";
-import { type AgendaItem, dayHeading, itemTime } from "@/lib/calendar/agenda";
-import type { CalendarStatus } from "@/hooks/use-calendar-entries";
+import { type AgendaItem, type CalendarStatus, dayHeading, itemTime } from "@/lib/calendar/agenda";
 
 const KIND = { services: "Bohoslužba", events: "Akce" };
 
