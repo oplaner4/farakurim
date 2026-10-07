@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { EventDetail } from "@/components/news/EventDetail";
 import { NewsPage } from "@/components/news/NewsPage";
 import { events } from "@/content/news";
-import { links, parish } from "@/content/site";
+import { links, parish, siteOpenGraph } from "@/content/site";
 import {
   eventHref,
   eventPageTitle,
@@ -37,11 +37,11 @@ export async function generateMetadata({ params }: PageProps<"/aktuality/[slug]"
     description,
     alternates: { canonical: eventHref(event) },
     openGraph: {
-      type: "website",
+      ...siteOpenGraph,
       title: event.title,
       description,
       url: eventHref(event),
-      images: event.poster && [{ url: event.poster.src, alt: event.poster.alt }],
+      ...(event.poster && { images: [{ url: event.poster.src, alt: event.poster.alt }] }),
     },
   };
 }

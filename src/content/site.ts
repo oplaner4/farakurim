@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { BUILD_TIME } from "@/lib/shared/build-time";
 import { pragueDate } from "@/lib/shared/prague";
 import type { CalendarId } from "@/content/types/calendar";
@@ -155,6 +156,25 @@ export const parish = {
   /** Identifikační číslo (IČ) of the parish. */
   ico: "49461362",
 };
+
+/**
+ * The card of a shared link (Facebook, WhatsApp, e-mail) on every page: the church photo of the carousel's slide 6,
+ * cropped to 1200 × 630. The card's title and text fall back to the page's <title> and description. Event pages
+ * spread it and show their poster instead (Next.js replaces `openGraph` as a whole).
+ */
+export const siteOpenGraph = {
+  type: "website",
+  siteName: parish.name,
+  locale: "cs_CZ",
+  images: [
+    {
+      url: "/assets/img/sdileni.jpg",
+      width: 1200,
+      height: 630,
+      alt: "Kostel sv. Maří Magdalény v Kuřimi s věží a hodinami nad korunami stromů",
+    },
+  ],
+} satisfies NonNullable<Metadata["openGraph"]>;
 
 const officeHours: OfficeHours[] = [
   { weekday: 1, from: "9:00", to: "10:00" },

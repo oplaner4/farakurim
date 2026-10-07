@@ -5,7 +5,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { MatomoTracker } from "@/components/layout/MatomoTracker";
 import { QueryProvider } from "@/components/layout/QueryProvider";
 import { SiteFooter } from "@/components/layout/SiteFooter";
-import { SITE_URL } from "@/content/site";
+import { SITE_URL, siteOpenGraph } from "@/content/site";
 import "@/styles/globals.css";
 
 // Farnost Sans is Oxygen with fixed caron letters (scripts/build-fonts.py); the OFL forbids the name "Oxygen" on it.
@@ -26,6 +26,8 @@ export const metadata: Metadata = {
   title: { default: "Římskokatolická farnost Kuřim", template: "%s | Římskokatolická farnost Kuřim" },
   description:
     "Farnost Kuřim, Moravské Knínice, Jinačovice a Česká: nejbližší mše svatá, pořad bohoslužeb, aktuality, fotogalerie a farní zpravodaj Petrklíč.",
+  openGraph: siteOpenGraph,
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {
