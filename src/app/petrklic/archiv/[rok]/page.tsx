@@ -12,7 +12,11 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps<"/petrklic/archiv/[rok]">): Promise<Metadata> {
   const { rok } = await params;
-  return { title: `Archiv Petrklíče ${rok}`, alternates: { canonical: archiveYearHref(Number(rok)) } };
+  return {
+    title: `Archiv Petrklíče ${rok}`,
+    description: `Čísla farního zpravodaje Petrklíč z roku ${rok} ke čtení a ke stažení ve formátu PDF.`,
+    alternates: { canonical: archiveYearHref(Number(rok)) },
+  };
 }
 
 export default async function PetrklicYearPage({ params }: PageProps<"/petrklic/archiv/[rok]">) {
