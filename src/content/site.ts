@@ -179,7 +179,6 @@ export const contacts = {
 
 export const priest = {
   name: "PhDr. ThLic. Ing. Jaroslav Filka",
-  // TODO: confirm the title with the parish (design/DESIGN.md §15.1).
   role: "duchovní správce farnosti",
 };
 
