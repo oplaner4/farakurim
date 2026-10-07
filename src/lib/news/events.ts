@@ -2,7 +2,7 @@ import { endOfMonth, endOfWeek } from "date-fns";
 import { links } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import type { IsoDate } from "@/content/types/shared";
-import { fold, formatEventWhen } from "@/lib/shared/czech";
+import { fold, formatEventWhen, formatShortDate } from "@/lib/shared/czech";
 import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
 
 // ISO dates (`YYYY-MM-DD`) compare correctly as strings, so the date maths here stays on strings.
@@ -38,6 +38,28 @@ export function eventStatus(event: NewsEvent, today: IsoDate): EventStatus {
   if (eventEnd(event) < today) return "past";
   if (!event.longTerm && event.start <= today) return "now";
   return "upcoming";
+}
+
+export type EventTagKind = "now" | "deadline" | "info" | "past";
+
+/** The badges of an event card, in order: running, open registration, key facts, then "Proběhlo". */
+export function eventTags(
+  event: NewsEvent,
+  status: EventStatus,
+  today: IsoDate,
+): { kind: EventTagKind; label: string }[] {
+  const tags: { kind: EventTagKind; label: string }[] = [];
+  if (status === "now") tags.push({ kind: "now", label: "Právě probíhá" });
+  if (event.registrationDeadline && event.registrationDeadline >= today) {
+    tags.push({ kind: "deadline", label: `Přihlášky do ${formatShortDate(event.registrationDeadline)}` });
+  }
+  if (event.price) tags.push({ kind: "info", label: event.price });
+  // "setkání" is the same word for every count.
+  if (event.sessions) tags.push({ kind: "info", label: `${event.sessions} setkání` });
+  if (event.longTerm && event.longTerm !== true) tags.push({ kind: "info", label: "Každý týden" });
+  if (event.label) tags.push({ kind: "info", label: event.label });
+  if (status === "past") tags.push({ kind: "past", label: "Proběhlo" });
+  return tags;
 }
 
 const byStart = (a: Pick<NewsEvent, "start">, b: Pick<NewsEvent, "start">) => a.start.localeCompare(b.start);

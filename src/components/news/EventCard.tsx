@@ -1,37 +1,20 @@
 import { clsx } from "clsx";
 import type { NewsEvent } from "@/content/types/news";
 import type { IsoDate } from "@/content/types/shared";
-import { eventDateBlock, fileType, formatEventWhen, formatShortDate } from "@/lib/shared/czech";
-import { eventHref, type EventStatus, posterAlt } from "@/lib/news/events";
+import { eventDateBlock, fileType, formatEventWhen } from "@/lib/shared/czech";
+import { eventHref, type EventStatus, type EventTagKind, eventTags, posterAlt } from "@/lib/news/events";
 import { isImageFile } from "@/lib/shared/lightbox";
 import { externalLinkAttrs } from "@/lib/shared/links";
 import { ExternalLinkIcon, FileIcon, PinIcon } from "@/components/ui/icons";
 import { POSTER_TINTS, PosterPlaceholder } from "@/components/ui/PosterPlaceholder";
 import { PosterLink } from "./PosterLink";
 
-type TagKind = "now" | "deadline" | "info" | "past";
-
-const tagStyles: Record<TagKind, string> = {
+const tagStyles: Record<EventTagKind, string> = {
   now: "bg-magenta text-white",
   deadline: "bg-orange-tint text-orange-ink-deep",
   info: "bg-blue-tint text-blue-ink",
   past: "bg-surface text-ink-2",
 };
-
-function eventTags(event: NewsEvent, status: EventStatus, today: IsoDate): { kind: TagKind; label: string }[] {
-  const tags: { kind: TagKind; label: string }[] = [];
-  if (status === "now") tags.push({ kind: "now", label: "Právě probíhá" });
-  if (event.registrationDeadline && event.registrationDeadline >= today) {
-    tags.push({ kind: "deadline", label: `Přihlášky do ${formatShortDate(event.registrationDeadline)}` });
-  }
-  if (event.price) tags.push({ kind: "info", label: event.price });
-  // "setkání" is the same word for every count.
-  if (event.sessions) tags.push({ kind: "info", label: `${event.sessions} setkání` });
-  if (event.longTerm && event.longTerm !== true) tags.push({ kind: "info", label: "Každý týden" });
-  if (event.label) tags.push({ kind: "info", label: event.label });
-  if (status === "past") tags.push({ kind: "past", label: "Proběhlo" });
-  return tags;
-}
 
 /** Anchor of an event on the Aktuality page ("Načíst další" focuses it). */
 export const eventAnchor = (id: string) => `akce-${id}`;

@@ -5,6 +5,7 @@ import {
   eventHref,
   eventSlug,
   eventStatus,
+  eventTags,
   featuredEvent,
   filterEvents,
   findEventBySlug,
@@ -113,5 +114,40 @@ describe("posterAlt", () => {
       "Plakát: Farní den, neděle 18. října 2026 v 9:30, farní zahrada",
     );
     expect(posterAlt(base)).toBe("Plakát: Farní den, neděle 18. října 2026");
+  });
+});
+
+describe("eventTags", () => {
+  const labels = (tags: { label: string }[]) => tags.map((t) => t.label);
+
+  it("lists the badges in order", () => {
+    const full = event("x", "2026-10-02", "2026-10-04", {
+      registrationDeadline: "2026-10-03",
+      price: "200 Kč",
+      sessions: 6,
+      label: "Pro rodiny",
+    });
+    expect(eventTags(full, "now", TODAY)).toEqual([
+      { kind: "now", label: "Právě probíhá" },
+      { kind: "deadline", label: "Přihlášky do 3. 10." },
+      { kind: "info", label: "200 Kč" },
+      { kind: "info", label: "6 setkání" },
+      { kind: "info", label: "Pro rodiny" },
+    ]);
+  });
+
+  it("shows the registration deadline until its day has passed", () => {
+    const until = (deadline: string) => event("x", "2026-10-18", undefined, { registrationDeadline: deadline });
+    expect(labels(eventTags(until(TODAY), "upcoming", TODAY))).toEqual(["Přihlášky do 3. 10."]);
+    expect(eventTags(until("2026-10-02"), "upcoming", TODAY)).toEqual([]);
+  });
+
+  it("marks weekly series, but not other long-term events", () => {
+    expect(labels(eventTags(events[5], "upcoming", TODAY))).toEqual(["Každý týden"]);
+    expect(eventTags(event("x", "2026-10-01", "2027-06-30", { longTerm: true }), "upcoming", TODAY)).toEqual([]);
+  });
+
+  it("ends a past event with Proběhlo", () => {
+    expect(eventTags(events[1], "past", TODAY)).toEqual([{ kind: "past", label: "Proběhlo" }]);
   });
 });

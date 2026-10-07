@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { eventsUrl, parseEventsPage, toEntries } from "./google-calendar";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { eventsUrl, fetchGoogleCalendar, parseEventsPage, toEntries } from "./google-calendar";
 
 describe("eventsUrl", () => {
   it("asks for expanded events of the Prague days", () => {
@@ -83,5 +83,50 @@ describe("toEntries", () => {
 
   it("drops cancelled instances", () => {
     expect(toEntries([{ id: "x", status: "cancelled", start: {}, end: {} }], "services", hrefs)).toEqual([]);
+  });
+});
+
+describe("fetchGoogleCalendar", () => {
+  const range = { from: "2026-10-01", to: "2026-10-31" };
+  const item = (id: string) => ({ id, start: { date: "2026-10-04" }, end: { date: "2026-10-05" } });
+
+  /** Answers each request with the next of `pages` and records the page tokens asked for. */
+  function stubFetch(...pages: { status?: number; body?: unknown }[]) {
+    const tokens: (string | null)[] = [];
+    const fetch = vi.fn(async (url: string) => {
+      tokens.push(new URL(url).searchParams.get("pageToken"));
+      const { status = 200, body = {} } = pages[tokens.length - 1];
+      return new Response(JSON.stringify(body), { status });
+    });
+    vi.stubGlobal("fetch", fetch);
+    return tokens;
+  }
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("follows the result pages and joins their events", async () => {
+    const tokens = stubFetch(
+      { body: { items: [item("a"), item("b")], nextPageToken: "p2" } },
+      { body: { items: [item("c")], nextPageToken: "p3" } },
+      { body: { items: [] } },
+    );
+    const events = await fetchGoogleCalendar("cal", "KEY", range);
+    expect(events.map((e) => e.id)).toEqual(["a", "b", "c"]);
+    expect(tokens).toEqual([null, "p2", "p3"]);
+  });
+
+  it("throws when the API fails, also on a later page", async () => {
+    stubFetch({ status: 403 });
+    await expect(fetchGoogleCalendar("cal", "KEY", range)).rejects.toThrow("Google Calendar cal: HTTP 403");
+
+    stubFetch({ body: { items: [item("a")], nextPageToken: "p2" } }, { status: 500 });
+    await expect(fetchGoogleCalendar("cal", "KEY", range)).rejects.toThrow("HTTP 500");
+  });
+
+  it("throws when the answer is not a result page", async () => {
+    stubFetch({ body: { items: "nothing" } });
+    await expect(fetchGoogleCalendar("cal", "KEY", range)).rejects.toThrow();
   });
 });
