@@ -10,6 +10,7 @@ const lead = "Užitečné stránky církve, katolických médií a obcí naší 
 
 export const metadata: Metadata = {
   title: "Odkazy",
+  alternates: { canonical: links.webLinks },
   description: `${lead} Biskupství brněnské, Radio Proglas, breviář, Bible a obce Kuřim, Moravské Knínice, Jinačovice a Česká.`,
 };
 

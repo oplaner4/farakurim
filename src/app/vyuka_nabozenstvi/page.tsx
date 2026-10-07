@@ -12,6 +12,7 @@ const lead =
 
 export const metadata: Metadata = {
   title: "Výuka náboženství",
+  alternates: { canonical: links.religiousEducation },
   description: `${lead} Rozvrh na školní rok ${religiousEducation.schoolYear}, přihláška a kontakt.`,
 };
 

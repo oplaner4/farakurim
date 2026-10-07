@@ -19,6 +19,7 @@ import { isOneWeek, markChanges, publicDays } from "@/lib/services/service-sheet
 
 export const metadata: Metadata = {
   title: "Pořad bohoslužeb",
+  alternates: { canonical: links.services },
   description:
     "Pravidelné bohoslužby v Kuřimi, Moravských Knínicích a Jinačovicích, aktuální ohlášky, svátost smíření a křty.",
 };

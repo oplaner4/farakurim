@@ -12,6 +12,7 @@ const lead = "Synodální proces katolické církve „Synoda o synodalitě“ a
 
 export const metadata: Metadata = {
   title: "Synoda 2021–2023",
+  alternates: { canonical: links.synod },
   description: `${lead} Leták, tematické okruhy a výstupy diecézí.`,
 };
 

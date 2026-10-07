@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { EventDetail } from "@/components/news/EventDetail";
 import { NewsPage } from "@/components/news/NewsPage";
 import { events } from "@/content/news";
-import { parish } from "@/content/site";
+import { links, parish } from "@/content/site";
 import {
   eventHref,
   eventSlug,
@@ -25,7 +25,8 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps<"/aktuality/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const filter = filterFromSlug(slug);
-  if (filter) return { title: `Aktuality: ${NEWS_FILTER_META[filter].label}` };
+  // A filter page re-lists events of /aktuality/, so search engines index that page instead.
+  if (filter) return { title: `Aktuality: ${NEWS_FILTER_META[filter].label}`, alternates: { canonical: links.news } };
   const event = findEventBySlug(events, slug);
   if (!event) return { title: "Aktuality" };
   const description = event.lead ?? event.text;

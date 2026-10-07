@@ -11,6 +11,7 @@ const lead = "Pastorační rada farnosti (PRF) je poradním orgánem kněze při
 
 export const metadata: Metadata = {
   title: "Pastorační rada – členové",
+  alternates: { canonical: links.parishCouncil },
   description: `${lead} Členové rady, funkční období a e-mail.`,
 };
 

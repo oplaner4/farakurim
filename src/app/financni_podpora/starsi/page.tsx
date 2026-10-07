@@ -10,6 +10,7 @@ const lead = "Vyúčtování dokončených a dřívějších oprav podle let. D�
 
 export const metadata: Metadata = {
   title: "Starší projekty",
+  alternates: { canonical: links.supportArchive },
   description: `${lead} Kostel sv. Markéty v Moravských Knínicích, fara a kostel sv. Maří Magdaleny v Kuřimi.`,
 };
 

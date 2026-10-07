@@ -13,6 +13,7 @@ import { jsonLdScript, parishJsonLd } from "@/lib/shared/structured-data";
 
 export const metadata: Metadata = {
   title: "Kontakty",
+  alternates: { canonical: links.contacts },
   description:
     "Fara Kuřim, Křížkovského 55/5: telefon, e-mail, úřední hodiny, duchovní správce, kostely farnosti a bankovní účet.",
 };

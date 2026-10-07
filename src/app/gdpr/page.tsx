@@ -5,6 +5,7 @@ import { contacts, links, parish } from "@/content/site";
 
 export const metadata: Metadata = {
   title: "Dotazníky – GDPR",
+  alternates: { canonical: links.questionnaireConsent },
   description: "Souhlas se zpracováním osobních údajů v dotaznících Římskokatolické farnosti Kuřim podle GDPR.",
 };
 

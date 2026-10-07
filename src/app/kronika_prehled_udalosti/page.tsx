@@ -11,6 +11,7 @@ const lead = "Přehled událostí kostela sv. Maří Magdaleny a kuřimské farn
 
 export const metadata: Metadata = {
   title: "Kronika farnosti",
+  alternates: { canonical: links.chronicle },
   description: `${lead} Založení kostela, vznik farnosti, přestavba v 18. století, zvony, varhany a opravy.`,
 };
 

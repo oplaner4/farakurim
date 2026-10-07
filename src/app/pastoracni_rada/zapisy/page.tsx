@@ -10,6 +10,7 @@ const lead = "Zprávy ze zasedání pastorační rady farnosti (PRF), od nejnov�
 
 export const metadata: Metadata = {
   title: "Zápisy pastorační rady",
+  alternates: { canonical: links.councilMinutes },
   description: `${lead} Co rada projednala a jaké akce farnost připravuje.`,
 };
 

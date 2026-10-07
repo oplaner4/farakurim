@@ -14,6 +14,7 @@ const lead = "Vaše dary zajišťují chod farnosti, její život a opravy koste
 
 export const metadata: Metadata = {
   title: "Finanční podpora",
+  alternates: { canonical: links.support },
   description: `${lead} Bankovní účet farnosti, projekty roku ${support.year} a další možnosti podpory.`,
 };
 

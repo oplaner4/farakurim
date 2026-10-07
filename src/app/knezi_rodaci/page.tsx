@@ -9,6 +9,7 @@ const lead = "Kněží, kteří se narodili v kuřimské farnosti, od 19. stolet
 
 export const metadata: Metadata = {
   title: "Kněží – rodáci kuřimské farnosti",
+  alternates: { canonical: links.priestsFromParish },
   description: `${lead} Data narození, kněžského svěcení a úmrtí.`,
 };
 

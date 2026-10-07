@@ -13,6 +13,7 @@ const lead = "Fotografie z farních akcí. Starší alba najdete na Zonerama.";
 
 export const metadata: Metadata = {
   title: "Fotogalerie",
+  alternates: { canonical: links.gallery },
   description: `${lead} Farnost Kuřim, Moravské Knínice, Jinačovice a Česká.`,
 };
 

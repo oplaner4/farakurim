@@ -8,6 +8,7 @@ const lead = "Jak web farnosti zachází s údaji návštěvníků.";
 
 export const metadata: Metadata = {
   title: "Ochrana osobních údajů",
+  alternates: { canonical: links.privacy },
   description: `${lead} Anonymní statistika návštěvnosti bez cookies na hostingu farnosti.`,
 };
 

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { ContactsPanel } from "@/components/home/ContactsPanel";
 import { GallerySection } from "@/components/home/GallerySection";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
@@ -11,11 +12,16 @@ import { albums } from "@/content/gallery";
 import { events } from "@/content/news";
 import { scheduleExceptions, serviceSheet } from "@/content/ohlasky";
 import { petrklicIssues, petrklicTexts } from "@/content/petrklic";
-import { carouselSlides, parish } from "@/content/site";
+import { carouselSlides, links, parish } from "@/content/site";
 import { BUILD_TIME } from "@/lib/shared/build-time";
 import { currentNews } from "@/lib/news/events";
 import { weekRange } from "@/lib/calendar/agenda";
 import { pragueDate } from "@/lib/shared/prague";
+
+// Title and description come from the root layout.
+export const metadata: Metadata = {
+  alternates: { canonical: links.home },
+};
 
 const buildDay = pragueDate(BUILD_TIME);
 

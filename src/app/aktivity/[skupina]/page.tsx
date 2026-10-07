@@ -31,7 +31,11 @@ export async function generateMetadata({ params }: PageProps<"/aktivity/[skupina
   const { skupina } = await params;
   const group = findGroup(skupina);
   if (!group) return plannedPageMetadata(findPlanned(skupina));
-  return { title: group.name, description: group.description ?? group.tagline };
+  return {
+    title: group.name,
+    description: group.description ?? group.tagline,
+    alternates: { canonical: group.href },
+  };
 }
 
 /** "Příští setkání": the group's meetings in the eight weeks from the build, re-read by the browser. */

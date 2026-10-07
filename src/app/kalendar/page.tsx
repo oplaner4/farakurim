@@ -11,6 +11,7 @@ import { pragueDate } from "@/lib/shared/prague";
 
 export const metadata: Metadata = {
   title: "Kalendář",
+  alternates: { canonical: links.calendar },
   description: "Bohoslužby i farní akce farnosti Kuřim na jednom místě, s možností přidat si kalendáře do telefonu.",
 };
 

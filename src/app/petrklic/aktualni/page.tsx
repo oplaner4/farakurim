@@ -13,6 +13,7 @@ const [current, ...previous] = petrklicIssues;
 
 export const metadata: Metadata = {
   title: `Petrklíč ${issueLabel(current)}`,
+  alternates: { canonical: links.petrklic },
   description: `${petrklicTexts.lead} Aktuální číslo ${issueLabel(current)} ke čtení online a ke stažení.`,
 };
 

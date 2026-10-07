@@ -10,6 +10,7 @@ const lead = "Co se ve farnosti děje a na koho se obrátit. MK = Moravské Kní
 
 export const metadata: Metadata = {
   title: "Seznam aktivit",
+  alternates: { canonical: links.activities },
   description:
     "Pravidelné i jednorázové aktivity farnosti Kuřim, Moravské Knínice a Česká a kontaktní osoby: schola, ministranti, farní kavárna, společenství a další.",
 };
