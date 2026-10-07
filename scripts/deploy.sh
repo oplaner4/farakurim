@@ -118,7 +118,8 @@ cmd_verify() {
   for path in "$@"; do check "$path" 200 || ok=false; done
   # Copied to the server once (see the farnost-release skill); without it only the footer link breaks.
   check /virtualni_prohlidka/ 200 || warn "The virtual tour is missing on the server."
-  # public/.htaccess sends www.farakurim.cz to the bare host, so search engines index one copy of the site.
+  # The host's "Přesměrování aliasu www" (hosting panel) sends www.farakurim.cz to the bare host, so search engines
+  # index one copy of the site.
   local www
   www=$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' https://www.farakurim.cz/kontakty/)
   echo "$www (https://www.farakurim.cz/kontakty/)"
