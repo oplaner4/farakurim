@@ -170,7 +170,9 @@ The server details (SSH target, web root, rsync flags, server-only folders, veri
 
 The sync deletes files that are no longer in `out/`, except four folders that live only on the server: `/uploads/`,
 `/nahrane/` (the old site's uploads, kept for old links), `/virtualni_prohlidka/` (the old site's virtual tour) and
-`/cache/` (the last vira.cz verse). `trailingSlash: true` produces `page/index.html`, so Apache serves the pages
+`/cache/` (the last vira.cz verse). Old `_next/static/` chunks stay 30 days, so a page opened before a release still
+loads the chunks it asks for later; pages and their `*.txt` payloads are sent with `Cache-Control: no-cache`, so a
+visit after a release never gets an old page whose chunks are gone. `trailingSlash: true` produces `page/index.html`, so Apache serves the pages
 without rewrite rules; `public/.htaccess` serves `404.html` for missing URLs and redirects the old URLs that moved.
 
 ## License

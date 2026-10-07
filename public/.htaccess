@@ -4,10 +4,16 @@ ErrorDocument 404 /404.html
 
 # Files under /_next/static/ have a content hash in their name, so browsers may keep them for a year. The host's
 # default (max-age=30) made every visit revalidate the fonts, and the text flashed in the fallback font meanwhile.
+# Pages and their RSC payloads (*.txt, read on client-side navigation) change with every release and name its
+# chunks, so browsers revalidate them on every visit (a cheap 304 when nothing changed). The host's default (2 hours
+# for pages, 2 days for *.txt) kept serving old pages whose chunks a later release had replaced: ChunkLoadError.
 <IfModule mod_headers.c>
   <If "%{REQUEST_URI} =~ m#^/_next/static/#">
     Header set Cache-Control "public, max-age=31536000, immutable"
   </If>
+  <ElseIf "%{REQUEST_URI} =~ m#(/|\.html|\.txt)$#">
+    Header set Cache-Control "no-cache"
+  </ElseIf>
 </IfModule>
 
 # Section folders without a page of their own open their first page (the host lists no directories, so they

@@ -18,6 +18,9 @@ SITE=https://farakurim.cz
 # Not in out/ and only on the server: uploaded files, the old site's files (kept so old links keep working), the old
 # site's virtual tour, the last vira.cz verse.
 SERVER_ONLY=(/uploads/ /nahrane/ /virtualni_prohlidka/ /cache/)
+# Days an old build's _next/static/ file stays on the server, so a tab opened before a release still loads the
+# chunks it asks for later (the lightbox, the next page).
+KEEP_STATIC_DAYS=30
 
 cd "$(dirname "$0")/.."
 
@@ -81,10 +84,24 @@ cmd_out() {
   parse_dry_run "$@"
   [ -f out/index.html ] || fail "out/ is missing: build first."
   for dir in "${SERVER_ONLY[@]}"; do excludes+=("--exclude=$dir"); done
-  # --delete keeps the web root equal to the build (stale pages, old _next/ chunks); the excludes protect the
-  # server-only folders from it.
-  rsync -az "${n[@]}" --itemize-changes --delete "${excludes[@]}" --chmod=D755,F644 \
+  # --delete keeps the web root equal to the build (stale pages); the excludes protect the server-only folders
+  # from it, and the filter keeps old _next/static/ files for prune_static.
+  rsync -az "${n[@]}" --itemize-changes --delete "${excludes[@]}" --filter='P /_next/static/**' --chmod=D755,F644 \
     out/ "$SSH_TARGET:$WEB_ROOT/"
+  prune_static "${n[@]}"
+}
+
+# Deletes the _next/static/ files that are not in out/ and older than KEEP_STATIC_DAYS, printed like rsync's
+# deletions (-n only prints them).
+prune_static() {
+  local tmp
+  tmp=$(mktemp -d)
+  (cd out && find _next/static -type f) | LC_ALL=C sort > "$tmp/current"
+  ssh "$SSH_TARGET" "cd $WEB_ROOT && find _next/static -type f -mtime +$KEEP_STATIC_DAYS" | LC_ALL=C sort > "$tmp/old"
+  comm -23 "$tmp/old" "$tmp/current" > "$tmp/stale"
+  [ -s "$tmp/stale" ] || return 0
+  sed 's/^/*deleting   /' "$tmp/stale"
+  [ "${1:-}" = -n ] || ssh "$SSH_TARGET" "cd $WEB_ROOT && xargs rm -f --" < "$tmp/stale"
 }
 
 cmd_verify() {

@@ -83,7 +83,8 @@ if $deploy_here; then
   [ -z "$(git status --porcelain)" ] || fail "The check or the build changed the tree: commit or discard it first."
   echo
 
-  # 5. What the sync changes in the web root (rsync dry run). New _next/ chunks replace the old ones on every build.
+  # 5. What the sync changes in the web root (rsync dry run). Old _next/static/ files stay for
+  # KEEP_STATIC_DAYS (scripts/deploy.sh), then they are deleted too.
   changes=$(scripts/deploy.sh out --dry-run)
   added=$(grep -c '^<f+++' <<< "$changes" || true)
   changed=$(grep -c '^<f[^+]' <<< "$changes" || true)
