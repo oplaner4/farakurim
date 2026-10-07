@@ -2,6 +2,8 @@
 // (node_modules/next/dist/docs/01-app/02-guides/custom-server.md) that also answers /uploads/… like the web host:
 // files staged in the local uploads/ folder are served from there, anything else is redirected to the live site.
 // /virtualni_prohlidka/ (on the server only, not in the build) is redirected to the live site too.
+// /favicon.ico, which browsers request by default, is redirected to the SVG icon: the site has no .ico, and the
+// [...stranka] catch-all would answer it with a "missing param in generateStaticParams()" error in dev.
 // Only `pnpm dev` uses it; `pnpm build` stays a plain static export. `pnpm preview` does the same in scripts/preview.py.
 import { createServer } from "node:http";
 import { fileURLToPath } from "node:url";
@@ -10,6 +12,8 @@ import sirv from "sirv";
 
 const PREFIX = "/uploads/";
 const TOUR = "/virtualni_prohlidka/";
+const FAVICON = "/favicon.ico";
+const ICON = "/icon.svg";
 const LIVE = "https://farakurim.cz";
 const port = Number(process.env.PORT) || 3000;
 const hostname = "localhost";
@@ -23,6 +27,11 @@ await app.prepare();
 
 const server = createServer((req, res) => {
   const url = req.url ?? "/";
+  if (url === FAVICON) {
+    res.writeHead(302, { Location: ICON });
+    res.end();
+    return;
+  }
   if (url.startsWith(TOUR)) {
     res.writeHead(302, { Location: LIVE + url });
     res.end();
