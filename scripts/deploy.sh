@@ -63,7 +63,10 @@ cmd_check_uploads() {
   [ -d out ] || fail "out/ is missing: build first."
   local tmp
   tmp=$(mktemp -d)
-  grep -rhoE '/uploads/[A-Za-z0-9._/%-]+\.[A-Za-z0-9]+' out | sort -u > "$tmp/linked"
+  # Only our own links: root-relative (after a quote or a parenthesis) or on farakurim.cz, not another site's
+  # /wp-content/uploads/.
+  grep -rhoE '(["'\''(]|farakurim\.cz)/uploads/[A-Za-z0-9._/%-]+\.[A-Za-z0-9]+' out | sed -E 's|^[^/]*||' |
+    sort -u > "$tmp/linked"
   ssh "$SSH_TARGET" "cd $WEB_ROOT && find uploads -type f" | sed 's|^|/|' | sort -u > "$tmp/on-server"
   comm -23 "$tmp/linked" "$tmp/on-server" > "$tmp/missing"
   if [ -s "$tmp/missing" ]; then
