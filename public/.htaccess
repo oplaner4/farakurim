@@ -24,6 +24,12 @@ ErrorDocument 404 /404.html
   </IfModule>
 </Files>
 
+# www.farakurim.cz served the same pages as farakurim.cz, so search engines saw two copies of the site (the old
+# site used www). Send it to the bare host, keeping the path and query.
+<If "%{HTTP_HOST} =~ /^www\./i">
+  RedirectMatch 301 ^/(.*)$ https://farakurim.cz/$1
+</If>
+
 # Section folders without a page of their own open their first page (the host lists no directories, so they
 # would answer 403).
 RedirectMatch 301 ^/pastoracni_rada/?$ /pastoracni_rada/clenove/
