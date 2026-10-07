@@ -9,9 +9,11 @@ import { activityGroups } from "./activities";
 import { chronicle } from "./chronicle";
 import { albums } from "./gallery";
 import { groupPages } from "./groups";
+import { nativePriests } from "./native-priests";
 import { parishChurches, places, regularServices } from "./masses";
 import { events } from "./news";
 import { scheduleExceptions, serviceSheet } from "./ohlasky";
+import { councilMeetings, parishCouncil } from "./parish-council";
 import { petrklicIssues } from "./petrklic";
 import { plannedPages } from "./planned-pages";
 import { religiousEducation } from "./religious-education";
@@ -287,6 +289,32 @@ describe("Seznam aktivit a skupiny (activities.ts, groups.ts)", () => {
   });
 });
 
+/** The root-relative hrefs of an HTML text: the site's own pages and its uploaded files. */
+const localHrefs = (html: string) => [...html.matchAll(/href="(\/[^"]*)"/g)].map((m) => m[1]);
+
+describe("Pastorační rada a Kněží – rodáci (parish-council.ts, native-priests.ts)", () => {
+  it("has a valid term and each member once", () => {
+    const { from, to } = parishCouncil.term;
+    expect([from, to].every(isIsoDate)).toBe(true);
+    expect(to > from).toBe(true);
+    expect(duplicates(parishCouncil.members)).toEqual([]);
+  });
+
+  it("lists the meetings newest first, one per day", () => {
+    const dates = councilMeetings.map((m) => m.date);
+    expect(dates.filter((d) => !isIsoDate(d))).toEqual([]);
+    expect(isSorted(dates, (a, b) => a > b)).toBe(true);
+  });
+
+  it("names each priest once and links files under /uploads/", () => {
+    expect(duplicates(nativePriests.map((p) => p.name))).toEqual([]);
+    const hrefs = [...nativePriests.map((p) => p.html ?? ""), ...councilMeetings.map((m) => m.html)].flatMap(
+      localHrefs,
+    );
+    expect(hrefs.filter((href) => !UPLOAD.test(href))).toEqual([]);
+  });
+});
+
 describe("Výuka náboženství (religious-education.ts)", () => {
   const { schools, schoolYear, applicationForm, rules } = religiousEducation;
 
@@ -317,11 +345,7 @@ describe("Stránky v přípravě (planned-pages.ts)", () => {
   });
 
   it("does not take the place of a rebuilt page", () => {
-    // Kněží – rodáci has a route name in `links` but only its placeholder so far.
-    const rebuilt = [
-      ...Object.values(links).filter((href) => href !== links.priestsFromParish),
-      ...groupPages.map((g) => g.href),
-    ];
+    const rebuilt = [...Object.values(links), ...groupPages.map((g) => g.href)];
     expect(plannedPages.filter((p) => rebuilt.includes(p.path)).map((p) => p.path)).toEqual([]);
   });
 

@@ -68,6 +68,11 @@ build-time next mass.
 - Kronika (`content/chronicle.ts`, design §26): eras of entries with a `year` and, for a span, `until` (1766–1772
   is `year: 1766, until: 1772`) and the old chronicle's wording; `milestone` highlights an entry. The timeline sorts
   them (`byYear()`) and writes the years (`formatYears()`).
+- Pastorační rada (`content/parish-council.ts`, no mockup): the term, the members (names only, as the council
+  publishes them) and the meeting reports, newest first, as the council's HTML (`/pastoracni_rada/clenove/` and
+  `/zapisy/`, each report at `#zasedani-<date>`). Kněží – rodáci (`content/native-priests.ts`): the old page's
+  wording, in its order. Synoda and Dotazníky – GDPR are fixed texts in their pages; their files and the Krpálek
+  PDF were moved from `/nahrane/podstranky/` to `/uploads/synoda/` and `/uploads/knezi-rodaci/`.
 - Seznam aktivit (`content/activities.ts`, §25): groups of activities with names-only contacts (GDPR); "hledáme" in
   `contacts` marks an activity looking for help (`seeksHelp()`), `href` links its own page. Výuka náboženství
   (`content/religious-education.ts`, §24): the school year, one timetable per school, the form and rules under

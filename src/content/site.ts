@@ -27,7 +27,12 @@ export const links = {
   choir: "/aktivity/chramovy_sbor/",
   youth: "/aktivity/spolecenstvi_mladych/",
   catechesis: "/aktivity/katecheze_pro_deti/",
+  parishCouncil: "/pastoracni_rada/clenove/",
+  councilMinutes: "/pastoracni_rada/zapisy/",
   priestsFromParish: "/knezi_rodaci/",
+  synod: "/synoda/",
+  /** The consent to processing personal data in the parish questionnaires. */
+  questionnaireConsent: "/gdpr/",
   webLinks: "/odkazy/",
   privacy: "/ochrana-osobnich-udaju/",
   /** Lapentor tour copied from the old site; it lives only on the server (see the farnost-release skill). */
@@ -59,8 +64,8 @@ export const navGroups = [
     links: [
       { label: "Kalendář", href: links.calendar },
       { label: "Finanční podpora", href: links.support },
-      { label: "Pastorační rada – členové", href: "/pastoracni_rada/clenove/" },
-      { label: "Zápisy pastorační rady", href: "/pastoracni_rada/zapisy/" },
+      { label: "Pastorační rada – členové", href: links.parishCouncil },
+      { label: "Zápisy pastorační rady", href: links.councilMinutes },
       { label: "Kronika farnosti", href: links.chronicle },
       { label: "Kněží – rodáci", href: links.priestsFromParish },
       { label: "Odkazy", href: links.webLinks },
@@ -144,6 +149,8 @@ export const parish = {
     { name: "Česká", href: "https://www.ceska.cz/", description: "Oficiální stránky obce" },
   ],
   bankAccount: "247704317/0300",
+  /** Identifikační číslo (IČ) of the parish. */
+  ico: "49461362",
 };
 
 const officeHours: OfficeHours[] = [

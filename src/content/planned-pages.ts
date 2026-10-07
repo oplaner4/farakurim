@@ -90,15 +90,4 @@ const activityPages: PlannedPage[] = [
   },
 ];
 
-const council = { label: "Pastorační rada", href: "/pastoracni_rada/clenove/" };
-
-export const plannedPages: PlannedPage[] = [
-  { path: "/pastoracni_rada/clenove/", title: "Pastorační rada – členové", color: "blue" },
-  { path: "/pastoracni_rada/zapisy/", title: "Zápisy pastorační rady", color: "blue", parents: [council] },
-  { path: links.priestsFromParish, title: "Kněží – rodáci kuřimské farnosti", color: "blue" },
-  { path: "/synoda/", title: "Synoda 2021–2023", color: "blue" },
-  { path: "/gdpr/", title: "Dotazníky – GDPR", color: "blue" },
-  ...activityPages,
-  ...campPages,
-  ...nativityPages,
-];
+export const plannedPages: PlannedPage[] = [...activityPages, ...campPages, ...nativityPages];
