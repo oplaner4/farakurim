@@ -14,13 +14,13 @@ routes), `chronicle` (Kronika farnosti), `activities` (Seznam aktivit, Výuka n�
 rada and Kněží – rodáci; content in `parish-council.ts` and `native-priests.ts`), `home`, `layout`
 (header, footer and their parts) and `shared` (`ui` in components) for what several domains use.
 
-| Folder                         | Holds                                                                                |
-| ------------------------------ | ------------------------------------------------------------------------------------ |
-| `src/components/<group>/`      | React components, one per block                                                      |
-| `src/hooks/`                   | Every React hook, one `use-<name>.ts` each (`hooks.md`)                              |
-| `src/lib/<group>/<topic>.ts`   | Pure logic with its `<topic>.test.ts` beside it; no React, no content imports        |
-| `src/content/<domain>.ts`      | The content (mock data, build-time fetches): the future API boundary                 |
-| `src/content/types/<group>.ts` | The content types of one domain; `shared.ts` holds `IsoDate`, `ClockTime`, `Weekday` |
+| Folder                         | Holds                                                                                 |
+| ------------------------------ | ------------------------------------------------------------------------------------- |
+| `src/components/<group>/`      | React components, one per block                                                       |
+| `src/hooks/`                   | Every React hook, one `use-<name>.ts` each (`hooks.md`)                               |
+| `src/lib/<group>/<topic>.ts`   | Pure logic with its `<topic>.test.ts` beside it; no React, no content imports         |
+| `src/content/<domain>.ts`      | The content (hand-edited data, build-time fetches): the boundary an API could replace |
+| `src/content/types/<group>.ts` | The content types of one domain; `shared.ts` holds `IsoDate`, `ClockTime`, `Weekday`  |
 
 - **`src/lib`** files are named after their topic inside the group, not after the group: `lib/news/events.ts`,
   `lib/news/archive.ts`, `lib/news/ics.ts`, `lib/services/masses.ts`, `lib/contacts/office-hours.ts`,

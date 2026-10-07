@@ -66,7 +66,7 @@ The husky `commit-msg` hook (`.husky/commit-msg`) rejects anything else, so vali
 
 - **scope** (optional, lower-case kebab): the area touched. Use the established ones:
   `header`, `carousel`, `mass`, `news`, `gallery`, `petrklic`, `contacts`, `footer` (homepage blocks),
-  `content` (mock data), `lib` (date/schedule logic), `theme` (Tailwind tokens), `fonts`, `icons`,
+  `content` (content data), `lib` (date/schedule logic), `theme` (Tailwind tokens), `fonts`, `icons`,
   `deps`, `config`, `skills`. Omit the scope when the change spans many areas.
 - **subject**: imperative mood ("add", not "added"/"adds"), lower-case start, no trailing period.
   commitlint rejects sentence-case, Start-Case, PascalCase and UPPER-CASE subjects.

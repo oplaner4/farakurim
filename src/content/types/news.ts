@@ -51,8 +51,8 @@ export type NewsEvent = {
   /** One sentence under the detail page's title; also the page description. Defaults to `text`. */
   lead?: string;
   /**
-   * Detail page body as HTML (paragraphs, bold, links, lists). It is rendered as is, so the API that
-   * replaces the mock content must sanitise it. Defaults to `text` as one paragraph.
+   * Detail page body as HTML (paragraphs, bold, links, lists). It is rendered as is, so it must come
+   * from a trusted source (the content files) or be sanitised first. Defaults to `text` as one paragraph.
    */
   body?: string;
   program?: ProgramItem[];

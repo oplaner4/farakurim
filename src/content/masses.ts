@@ -1,7 +1,8 @@
 import type { ParishChurch } from "@/content/types/contacts";
 import type { Place, PlaceId, RegularService } from "@/content/types/services";
 
-// Mock content. Replace with data from the CMS/API once the backend exists.
+// The parish's churches and its regular weekly schedule. Edit here when the schedule changes; the current ohlášky
+// (`content/ohlasky.ts`) override it day by day.
 
 /** In display order (design/DESIGN.md §14.3). */
 export const places: Record<PlaceId, Place> = {

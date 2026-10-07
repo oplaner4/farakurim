@@ -40,7 +40,7 @@ handoff separate from the implementation in the history.
 Load the **`tailwind-design-system`** and **`vercel-react-best-practices`** skills (Skill tool) before
 writing components, and follow the project rules (`.claude/rules/*.md`, loaded per path):
 
-- Content stays mock data behind `src/content/types/`; one data source per concept (e.g. the regular
+- Content stays in `src/content/`, behind `src/content/types/`; one data source per concept (e.g. the regular
   schedule feeds both the homepage and Pořad bohoslužeb). Update `.claude/rules/content-and-time.md` when
   the data model changes.
 - Pure date/logic in `src/lib/<group>/*.ts` with Vitest tests (`.claude/rules/structure.md`) (Prague time, `pragueWeekday`, `useNow`/`useToday`

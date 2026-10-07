@@ -3,7 +3,7 @@ import { sheetExceptions } from "@/lib/services/service-sheet";
 import { places } from "./masses";
 import type { PlaceId, ScheduleException, ServiceSheet, SheetRow } from "@/content/types/services";
 
-// Mock content: this week's ohlášky. Server-only: rows marked not public must never reach a client bundle, so client
+// The current ohlášky, filled from the parish's weekly PDF (`farnost-create-porad-bohosluzeb`). Server-only: rows marked not public must never reach a client bundle, so client
 // components get what they need as props (`scheduleExceptions`, the PDF link), never this module.
 
 const kurimMass = (time: string, detail?: string, extra: Partial<SheetRow> = {}): SheetRow => ({

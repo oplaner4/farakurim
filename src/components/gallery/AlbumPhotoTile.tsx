@@ -15,7 +15,7 @@ const TINTS = [
 ];
 
 type Props = {
-  /** Missing in the mock data: a designed placeholder stands in. */
+  /** Missing when the album has no photo URLs: a designed placeholder stands in. */
   photo?: AlbumPhoto;
   size: keyof AlbumPhoto;
   /**

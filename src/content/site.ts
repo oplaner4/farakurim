@@ -131,8 +131,8 @@ export const parishCalendars: Record<CalendarId, { name: string; googleId: strin
 };
 
 /**
- * Browser key for the Google Calendar API, restricted to the site's referrer. Without it, the calendars are
- * mock data generated from the schedule and Aktuality (`content/calendar.ts`).
+ * Browser key for the Google Calendar API, restricted to the site's referrer. Without it (local and CI builds), the
+ * calendars fall back to entries generated from the schedule and Aktuality (`content/calendar.ts`).
  */
 export const GOOGLE_CALENDAR_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY || undefined;
 

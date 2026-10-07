@@ -96,7 +96,7 @@ src/components/      One component per block, by group: ui/, layout/, home/, new
                      (Kronika), activities/ (Seznam aktivit, Výuka náboženství, the group pages)
 src/hooks/           Every React hook, one use-<name>.ts each
 src/lib/<group>/     Pure logic with unit tests, by the same groups plus shared/ (Prague time, Czech grammar, links)
-src/content/         Content, one file per domain (mock data and build-time fetches): an API later. calendar.ts reads
+src/content/         Content, one file per domain (hand-edited data and build-time fetches). calendar.ts reads
                      Google Calendar and bible-quote.ts the vira.cz verse at build time; news/ holds the aktuality
                      (this year one file per month, 2019–2025 from the old site one per year); ohlasky.ts is server-only
 src/content/types/   The content types, one file per domain

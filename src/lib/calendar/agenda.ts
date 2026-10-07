@@ -230,8 +230,8 @@ export const monthHeading = (month: IsoMonth) => capitalize(fmt(`${month}-01`, "
 /** Time column of an item: "18:30" or "celý den". */
 export const itemTime = (item: AgendaItem) => item.time ?? "celý den";
 
-// Mock calendars, generated the way the mockups generate October 2026 (§16.4), until the Google Calendars
-// are read with an API key.
+// Fallback calendars for builds without a Google Calendar API key (local and CI builds), generated the way the
+// mockups generate October 2026 (§16.4).
 
 /** "Bohoslužby" occurrences from the regular schedule and its exceptions. */
 export function scheduleEntries(

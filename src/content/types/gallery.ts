@@ -20,7 +20,7 @@ export type PhotoSet = {
   /** The album on Zonerama ("Album na Zonerama" in the lightbox). */
   href?: string;
   photoCount: number;
-  /** Omitted in the mock data: the strips then show `photoCount` designed placeholders. */
+  /** Omitted when the album has no photo URLs yet: the strips then show `photoCount` designed placeholders. */
   photos?: AlbumPhoto[];
 };
 

@@ -50,12 +50,12 @@ build-time next mass.
   expands recurrences and exceptions) for the prerendered range (Kalendář: the previous month and the next six;
   homepage: the build's week, the one before and the next four; "Tento týden" always runs Monday to Sunday). `useCalendarEntries()` re-reads every shown range in the browser (TanStack Query, one query per range) and merges it over the
   build's entries (`mergeEntries()`); a range outside the prerendered one is dimmed with a loading or error message
-  until Google answers. Without `NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY` the entries are mock data generated from
+  until Google answers. Without `NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY` the entries are a fallback generated from
   `regularServices` and the Aktuality records, nothing is fetched, and paging stops at the prerendered months. An Aktuality record links to its calendar event through `calendarEventId`. The weekly table and the
   next-mass countdown still use `regularServices` / `scheduleExceptions`.
 - Fotogalerie (`content/gallery.ts`): Zonerama albums, newest first, with `photoCount` and optional `photos`
-  (`small`/`large` URLs). The mock data has no photos, so the strips and the homepage carousel show `photoCount`
-  designed placeholders; alt texts are computed (`photoAlt()` in `src/lib/gallery/albums.ts`). A photo opens the
+  (`small`/`large` URLs). An album without `photos` shows `photoCount` designed placeholders in the strips and the homepage
+  carousel; alt texts are computed (`photoAlt()` in `src/lib/gallery/albums.ts`). A photo opens the
   lightbox (DESIGN.md §21) at `#album-<id>-foto-N`; an event poster that is an image opens it at `#plakat` (detail page)
   or `#plakat-<event id>` (Aktuality), a PDF poster opens in the browser.
 - Finanční podpora (`content/support.ts`, design §22): the projects of the year with budget, grants, gifts and

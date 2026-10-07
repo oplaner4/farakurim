@@ -15,7 +15,7 @@ export const calendarHrefs: Record<string, string> = Object.fromEntries(
 );
 
 /**
- * Entries of both calendars in `range`: from Google Calendar when an API key is set, otherwise mock entries
+ * Entries of both calendars in `range`: from Google Calendar when an API key is set, otherwise fallback entries
  * generated from the regular schedule and the Aktuality records. A failing API fails the build, so a deploy
  * never ships an empty calendar.
  */

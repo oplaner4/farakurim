@@ -56,8 +56,8 @@ export type AnnouncementCategory = "zmena" | "smireni" | "pozvanka" | "podekovan
 export type Announcement = {
   category: AnnouncementCategory;
   /**
-   * The text as HTML (bold, links). It is rendered as is, so the API that replaces the mock content must
-   * sanitise it.
+   * The text as HTML (bold, links). It is rendered as is, so it must come from a trusted source (the content
+   * files) or be sanitised first.
    */
   html: string;
   /** ID of the related Aktuality record: adds "Více v aktualitách". */

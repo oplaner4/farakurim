@@ -44,7 +44,7 @@ export function PhotoLightbox({ album, index, position, onView, onClose }: Props
     alt: photoAlt(album, i + 1),
   }));
 
-  // An album without photo URLs (the mock data) shows the strip's placeholders, 4:3 in the free space.
+  // An album without photo URLs shows the strip's placeholders, 4:3 in the free space.
   const renderSlide = ({ slide, rect }: RenderSlideProps) => {
     if (slide.src) return undefined;
     const width = Math.min(rect.width, (rect.height * 4) / 3);
