@@ -33,20 +33,30 @@ type Props = {
 const MOTION = "motion-safe:transition-[opacity,scale] motion-safe:duration-300 motion-safe:ease-out";
 
 /**
- * A photo filling its box, fading in once loaded, or a tinted placeholder with an image icon and a corner shard.
+ * A photo filling its box, fading in once loaded over a tinted skeleton that pulses while it loads, or a tinted
+ * placeholder with an image icon and a corner shard.
  */
 export function AlbumPhotoTile({ photo, size, index, alt, eager, iconSize, shardClassName, className }: Props) {
   const fadeIn = useFadeInOnLoad();
   if (photo)
     return (
-      <img
-        ref={fadeIn}
-        src={photo[size]}
-        alt={alt}
-        loading={eager ? "eager" : "lazy"}
-        decoding="async"
-        className={clsx("size-full object-cover motion-safe:data-loading:opacity-0", MOTION, className)}
-      />
+      <span className="relative isolate block size-full">
+        <img
+          ref={fadeIn}
+          src={photo[size]}
+          alt={alt}
+          loading={eager ? "eager" : "lazy"}
+          decoding="async"
+          className={clsx("peer size-full object-cover motion-safe:data-loading:opacity-0", MOTION, className)}
+        />
+        <span
+          aria-hidden
+          className={clsx(
+            "absolute inset-0 -z-1 motion-safe:peer-data-loading:animate-pulse",
+            TINTS[index % TINTS.length],
+          )}
+        />
+      </span>
     );
   return (
     <span
