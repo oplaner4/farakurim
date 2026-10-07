@@ -12,11 +12,12 @@ import { albums } from "@/content/gallery";
 import { events } from "@/content/news";
 import { scheduleExceptions, serviceSheet } from "@/content/ohlasky";
 import { petrklicIssues, petrklicTexts } from "@/content/petrklic";
-import { carouselSlides, links, parish } from "@/content/site";
+import { carouselSlides, links, parish, SITE_URL } from "@/content/site";
 import { BUILD_TIME } from "@/lib/shared/build-time";
 import { currentNews } from "@/lib/news/events";
 import { weekRange } from "@/lib/calendar/agenda";
 import { pragueDate } from "@/lib/shared/prague";
+import { jsonLdScript, parishJsonLd } from "@/lib/shared/structured-data";
 
 // Title and description come from the root layout.
 export const metadata: Metadata = {
@@ -60,6 +61,10 @@ export default async function HomePage() {
         <noscript>
           <style>{"[data-js-only]{display:none}"}</style>
         </noscript>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLdScript(parishJsonLd(`${SITE_URL}${links.home}`)) }}
+        />
       </main>
     </>
   );

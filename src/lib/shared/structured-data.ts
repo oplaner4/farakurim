@@ -31,11 +31,15 @@ export function eventJsonLd(event: NewsEvent, url: string) {
 const SCHEMA_DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const hhmm = (time: string) => time.padStart(5, "0");
 
-/** schema.org/Church of the Kontakty page (design/DESIGN.md §15.3): address, phone, e-mail, office hours. */
+/**
+ * schema.org/Church of the Kontakty page (design/DESIGN.md §15.3) and the home page: address, phone, e-mail, office
+ * hours. The shared `@id` tells search engines both pages describe the same parish.
+ */
 export function parishJsonLd(url: string) {
   return {
     "@context": "https://schema.org",
     "@type": "Church",
+    "@id": `${SITE_URL}/#farnost`,
     name: parish.name,
     url,
     address: {
