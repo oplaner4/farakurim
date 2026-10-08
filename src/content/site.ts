@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { BUILD_YEAR } from "@/lib/shared/build-time";
 import type { CalendarId } from "@/content/types/calendar";
 import type { OfficeHours } from "@/content/types/contacts";
 import type { CarouselSlide } from "@/content/types/home";
@@ -7,7 +6,7 @@ import type { CarouselSlide } from "@/content/types/home";
 /** Public origin of the site: absolute URLs in metadata, JSON-LD and calendar files. */
 export const SITE_URL = "https://farakurim.cz";
 
-/** The old PHP site, kept for the pages not moved here (Mimořádné katecheze). */
+/** The old PHP site, kept for the pages not moved here (Mimořádné katecheze, Tábor 2019–2026, Betlémy 2024–2025). */
 export const OLD_SITE_URL = "https://stary.farakurim.cz";
 
 export const links = {
@@ -87,7 +86,6 @@ export const navGroups = [
     title: "Farní tábor",
     color: "magenta",
     links: [
-      { label: `Tábor ${BUILD_YEAR}`, href: `/farni_tabor/${BUILD_YEAR}/` },
       { label: "O táboru", href: "/farni_tabor/informace/" },
       { label: "Vedoucí", href: "/farni_tabor/vedouci/" },
       { label: "Kontakt", href: "/farni_tabor/kontakt/" },

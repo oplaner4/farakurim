@@ -45,6 +45,11 @@ RedirectMatch 301 ^/(?:aktivity/)?katecheze_pro_deti/mimoradne(?:/index)?(?:\.ph
 RedirectMatch 301 ^/(?:aktivity/)?katecheze_pro_deti/mimoradne/(adventni_doba|postni_doba|vanocni_doba)(?:/index)?(?:\.php)?/?$ https://stary.farakurim.cz/katecheze_pro_deti/mimoradne/$1/rozcestnik
 RedirectMatch 301 ^/(?:aktivity/)?katecheze_pro_deti/mimoradne/(.+?)(?:\.php)?/?$ https://stary.farakurim.cz/katecheze_pro_deti/mimoradne/$1
 
+# Neither are Tábor 2019–2026 and Betlémy 2024 and 2025: their URLs, which earlier releases served as placeholders,
+# lead to the same page on the old site.
+RedirectMatch 301 ^/farni_tabor/(2019|202[0-6])(?:\.php)?/?$ https://stary.farakurim.cz/farni_tabor/$1
+RedirectMatch 301 ^/betlemy/(2024|2025)(?:\.php)?/?$ https://stary.farakurim.cz/betlemy/$1
+
 # The old site served each Petrklíč PDF from /petrklic/pdf?id=<id of its database row> (also pdf.php); its sitemap
 # and old emails link there. Each old id opens its issue's PDF (ids from the old database's petrklice table), and
 # /petrklic/pdf without a known id, which used to send the newest issue, opens the current issue's page. The query

@@ -93,7 +93,10 @@ build-time next mass.
   its breadcrumb and "Stránku připravujeme" (noindex, not in the sitemap), built by `src/app/[...stranka]/` (never under
   `/aktivity/`, where `src/app/aktivity/[skupina]/` builds only the group pages). The groups live under `/aktivity/`;
   `public/.htaccess` redirects their old URLs. Remove a page from the list when it is rebuilt. Mimořádné katecheze are not rebuilt: the
-  Katecheze link card and `public/.htaccess` lead to them on the old site (`OLD_SITE_URL`, same path).
+  Katecheze link card and `public/.htaccess` lead to them on the old site (`OLD_SITE_URL`, same path). Neither are
+  Tábor 2019–2026 and Betlémy 2024 and 2025: `public/.htaccess` redirects them to the old site. The old site's own
+  `.htaccess` (on the server, not in git) sends `X-Robots-Tag: noindex` on every page except these, so search engines
+  index them there.
 - Odkazy (`content/web-links.ts`, design §23): link groups with a colour; "Obce farnosti" reuses `parish.villages`
   (also the footer), and the card's domain is computed (`displayDomain()`).
 - Office hours (`content/site.ts`): weekly slots with an optional yearly `closed` break; the live status is
@@ -107,4 +110,5 @@ build-time next mass.
   to stay static. Revisit only when a second language is planned. The real decision then is URLs: static export
   forces a `/cs/…` prefix on every page (no locale negotiation, no localized pathnames).
 - The site's routes sit in `content/site.ts` (`links` and the "Více" menu / footer groups `navGroups`); a page not
-  rebuilt yet is linked to its placeholder (`planned-pages.ts`), never to the old site. "Tábor <year>" and the footer © follow `BUILD_YEAR`.
+  rebuilt yet is linked to its placeholder (`planned-pages.ts`), never to the old site. The footer ©
+  follows `BUILD_YEAR`; the menu has no "Tábor <year>" link for now (Tábor 2026 is on the old site).
