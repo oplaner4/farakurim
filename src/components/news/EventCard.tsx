@@ -13,9 +13,10 @@ import { PosterLink } from "./PosterLink";
 
 const tagStyles: Record<EventTagKind, string> = {
   now: "bg-magenta text-white",
-  deadline: "bg-orange-tint text-orange-ink-deep",
-  info: "bg-blue-tint text-blue-ink",
-  past: "bg-surface text-ink-2",
+  blue: "bg-blue-tint text-blue-ink",
+  orange: "bg-orange-tint text-orange-ink-deep",
+  magenta: "bg-magenta-tint text-magenta-ink",
+  grey: "bg-surface text-ink-2",
 };
 
 /** Anchor of an event on the Aktuality page ("Načíst další" focuses it). */

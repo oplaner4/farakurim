@@ -144,15 +144,16 @@ describe("eventTags", () => {
     const full = event("x", "2026-10-02", "2026-10-04", {
       registrationDeadline: "2026-10-03",
       price: "200 Kč",
-      sessions: 6,
-      label: "Pro rodiny",
+      sessions: ["2026-10-02", "2026-10-03", "2026-10-04"],
+      tags: [{ label: "Pro rodiny" }, { label: "Zrušeno", color: "orange" }],
     });
     expect(eventTags(full, "now", TODAY)).toEqual([
       { kind: "now", label: "Právě probíhá" },
-      { kind: "deadline", label: "Přihlášky do 3. 10." },
-      { kind: "info", label: "200 Kč" },
-      { kind: "info", label: "6 setkání" },
-      { kind: "info", label: "Pro rodiny" },
+      { kind: "orange", label: "Přihlášky do 3. 10." },
+      { kind: "blue", label: "200 Kč" },
+      { kind: "blue", label: "3 setkání" },
+      { kind: "blue", label: "Pro rodiny" },
+      { kind: "orange", label: "Zrušeno" },
     ]);
   });
 
@@ -168,6 +169,6 @@ describe("eventTags", () => {
   });
 
   it("ends a past event with Proběhlo", () => {
-    expect(eventTags(events[1], "past", TODAY)).toEqual([{ kind: "past", label: "Proběhlo" }]);
+    expect(eventTags(events[1], "past", TODAY)).toEqual([{ kind: "grey", label: "Proběhlo" }]);
   });
 });

@@ -152,7 +152,9 @@ export function formatEventWhen(event: NewsEvent, { longMonth = false } = {}): E
     return { date: time ? `${range}, ${time}` : range };
   }
   if (sessions) {
-    return { date: `od ${formatDay(start, longMonth)}${time ? `, vždy ${time}` : ""}` };
+    // "vždy" only when no meeting keeps its own time.
+    const always = time && sessions.every((session) => typeof session === "string" || session.time === undefined);
+    return { date: `od ${formatDay(start, longMonth)}${always ? `, vždy ${time}` : ""}` };
   }
   return { date: end === start ? formatDay(start, longMonth) : formatDayRange(start, end, longMonth), time };
 }

@@ -51,13 +51,24 @@ describe("eventCalendar", () => {
     );
     expect(weekly).toContain("DTSTART:20261001T163000Z");
     expect(weekly).toContain("RRULE:FREQ=WEEKLY;UNTIL=20270429T215900Z");
-    const sessions = lines(
-      eventCalendar(event({ start: "2026-10-11", end: "2026-11-22", time: "18:00–20:30", sessions: 7 }), URL),
-    );
-    expect(sessions).toContain("RRULE:FREQ=WEEKLY;COUNT=7");
-    // Seven meetings that don't fit a weekly rhythm stay one all-day span.
-    const irregular = lines(eventCalendar(event({ start: "2026-10-11", end: "2026-11-15", sessions: 7 }), URL));
-    expect(irregular).toContain("DTEND;VALUE=DATE:20261116");
+  });
+
+  it("writes one event per meeting of a series, with its own time and UID", () => {
+    const series = event({
+      start: "2026-10-17",
+      end: "2026-11-22",
+      time: "19:00–21:30",
+      sessions: [{ date: "2026-10-17", time: "9:00" }, "2026-10-27", { date: "2026-11-21", end: "2026-11-22" }],
+    });
+    const out = lines(eventCalendar(series, URL));
+    expect(out.filter((l) => l === "BEGIN:VEVENT")).toHaveLength(3);
+    expect(out).toContain("DTSTART:20261017T070000Z");
+    expect(out).toContain("DTSTART:20261027T180000Z");
+    expect(out).toContain("DTEND:20261027T203000Z");
+    expect(out).toContain("DTSTART;VALUE=DATE:20261121");
+    expect(out).toContain("DTEND;VALUE=DATE:20261123");
+    expect(out).toContain("UID:hody-v-ceske-2026-10-27@farakurim.cz");
+    expect(out.some((l) => l.startsWith("RRULE"))).toBe(false);
   });
 });
 

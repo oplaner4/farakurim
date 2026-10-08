@@ -44,7 +44,7 @@ export const january: NewsEvent[] = [
       { label: "Plakát, 2. část", file: `${UPLOADS}/kurz-mission-possible-2026-plakat-2.jpg`, size: 705064 },
     ],
     links: [{ label: "Přihláška na kurz", href: "https://www.emmanuel.cz/MP" }],
-    sessions: 6,
+    sessions: ["2026-01-17", "2026-01-27", "2026-02-10", "2026-02-24", "2026-03-21", "2026-04-14"],
   },
   {
     id: "obnova-pro-manzele-2026",
@@ -63,7 +63,7 @@ export const january: NewsEvent[] = [
       { label: "laskaapravdakurim@seznam.cz", href: "mailto:laskaapravdakurim@seznam.cz" },
       { label: "Komunita Emmanuel", href: "https://www.emmanuel.cz/" },
     ],
-    sessions: 3,
+    sessions: ["2026-01-24", "2026-02-28", "2026-03-21"],
   },
   {
     id: "laska-a-pravda-2026",
@@ -77,6 +77,6 @@ export const january: NewsEvent[] = [
     poster: { src: `${UPLOADS}/laska-a-pravda-2026-plakat.webp`, alt: "Plakát: Láska a pravda, program pro manžele" },
     attachments: [{ label: "Plakát", file: `${UPLOADS}/laska-a-pravda-2026-plakat.png`, size: 270672 }],
     links: [{ label: "Program Láska a pravda", href: "https://www.emmanuel.cz/manzele/" }],
-    sessions: 3,
+    sessions: ["2026-01-24", "2026-02-28", "2026-03-21"],
   },
 ];

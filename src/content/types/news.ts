@@ -31,6 +31,18 @@ export type Highlight = {
 };
 
 /**
+ * A meeting of a series: its day, or `{ date, end?, time? }` when it lasts several days or keeps its own time
+ * (`time` replaces the event's `time`).
+ */
+export type EventSession = IsoDate | { date: IsoDate; end?: IsoDate; time?: string };
+
+/** Colours of a free badge, from the design's tag colours (design/DESIGN.md §11.7); `blue` by default. */
+export type TagColor = "blue" | "orange" | "magenta" | "grey";
+
+/** A free badge on an event card. */
+export type EventTag = { label: string; color?: TagColor };
+
+/**
  * One record of the Aktuality page (design/DESIGN.md §11.7) and its detail page (§13.4). The homepage shows
  * the nearest ones; the archive (§12) lists them from the day after they end.
  */
@@ -66,9 +78,13 @@ export type NewsEvent = {
   /** Tags */
   price?: string;
   registrationDeadline?: IsoDate;
-  /** A series of meetings from `start` to `end`: listed by its first date with "N setkání". */
-  sessions?: number;
-  label?: string;
+  /**
+   * The meetings of a series, in order, from `start` to `end`: listed by its first date with "N setkání", and
+   * one Kalendář entry and .ics event per meeting.
+   */
+  sessions?: EventSession[];
+  /** Free badges after the computed ones ("Zrušeno", "Pro rodiny"). */
+  tags?: EventTag[];
   /**
    * Long-term series, listed under "Dlouhodobé akce". `weeklyAt` means it meets every week
    * on the weekday of `start` at that time.

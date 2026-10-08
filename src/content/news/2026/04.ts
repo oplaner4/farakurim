@@ -49,7 +49,7 @@ export const april: NewsEvent[] = [
     },
     attachments: [{ label: "Plakát", file: `${UPLOADS}/kurz-evangelizace-2026-plakat.jpg`, size: 56345 }],
     links: [{ label: "Biskupství brněnské", href: "https://www.biskupstvi.cz/" }],
-    sessions: 4,
+    sessions: ["2026-04-18", "2026-04-25", "2026-05-09", { date: "2026-05-22", end: "2026-05-23" }],
   },
   {
     id: "setkani-katechetu-2026",

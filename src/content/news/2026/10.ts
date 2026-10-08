@@ -115,7 +115,7 @@ export const october: NewsEvent[] = [
     poster: { src: `${UPLOADS}/manzelske-vecery-2026-plakat.webp`, alt: "Plakát: Manželské večery pro Tišnov a okolí" },
     attachments: [{ label: "Plakát", file: `${UPLOADS}/manzelske-vecery-2026-plakat.pdf`, size: 461974 }],
     links: [{ label: "Přihláška", href: "https://bit.ly/randeprovsechny" }],
-    sessions: 7,
+    sessions: ["2026-10-11", "2026-10-18", "2026-10-25", "2026-11-01", "2026-11-08", "2026-11-15", "2026-11-22"],
   },
   {
     id: "setkani-varhaniku-a-schol-2026",

@@ -1,9 +1,9 @@
 import { tz } from "@date-fns/tz";
-import { addDays, differenceInCalendarDays, format } from "date-fns";
-import { createEvent, type DateArray, type DateTime, type EventAttributes } from "ics";
+import { addDays, format } from "date-fns";
+import { createEvents, type DateArray, type DateTime, type EventAttributes } from "ics";
 import type { NewsEvent } from "@/content/types/news";
 import type { ClockTime, IsoDate } from "@/content/types/shared";
-import { eventSlug } from "./events";
+import { eventMeetings, eventSlug, type Meeting } from "./events";
 import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
 
 // "Přidat do kalendáře" (design/DESIGN.md §13.2): one .ics file per event, generated at build time.
@@ -12,11 +12,16 @@ import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
 /** "9:30" or "18:00–20:30"; other time texts ("po mši") make the event all-day. */
 const CLOCK = /^(\d{1,2}:\d{2})(?:\s*[–-]\s*(\d{1,2}:\d{2}))?$/;
 
+/** Start (and end) time of a time text, if it is a clock time. */
+export function parseClock(time: string | undefined): { from: ClockTime; to?: ClockTime } | undefined {
+  const match = CLOCK.exec(time ?? "");
+  return match ? { from: match[1], to: match[2] } : undefined;
+}
+
 /** Start (and end) time of a single-day event's or weekly series' time text, if it is a clock time. */
 export function eventClock(event: NewsEvent): { from: ClockTime; to?: ClockTime } | undefined {
   const weeklyAt = event.longTerm && event.longTerm !== true ? event.longTerm.weeklyAt : undefined;
-  const match = CLOCK.exec(weeklyAt ?? event.time ?? "");
-  return match ? { from: match[1], to: match[2] } : undefined;
+  return parseClock(weeklyAt ?? event.time);
 }
 
 const dateArray = (date: IsoDate) => date.split("-").map(Number) as DateArray;
@@ -25,46 +30,60 @@ const utcStamp = (instant: Date) => format(instant, "yyyyMMdd'T'HHmmss'Z'", { in
 
 type Timing = Pick<EventAttributes, "start" | "startInputType" | "recurrenceRule"> & { end?: DateTime };
 
-function timing(event: NewsEvent): Timing {
-  const { start, end = start, longTerm, sessions } = event;
-  const weeklyAt = longTerm && longTerm !== true ? longTerm.weeklyAt : undefined;
-  const clock = eventClock(event);
-  if (clock) {
+/** A single day with a clock time is timed; anything longer, or with another time text, is all-day. */
+function timing({ start, end, time }: Meeting): Timing {
+  const clock = parseClock(time);
+  if (clock && end === start) {
     const { from, to } = clock;
-    const timed: Timing = {
+    return {
       start: pragueDateTime(start, from).getTime(),
       startInputType: "utc",
       end: to ? pragueDateTime(start, to).getTime() : undefined,
     };
-    if (weeklyAt) {
-      return { ...timed, recurrenceRule: `FREQ=WEEKLY;UNTIL=${utcStamp(pragueDateTime(end, "23:59"))}` };
-    }
-    // A series of N meetings is weekly only when N weeks fit exactly from the first to the last.
-    const span = differenceInCalendarDays(pragueDateTime(end, "12:00"), pragueDateTime(start, "12:00"), {
-      in: inPrague,
-    });
-    if (sessions && span === (sessions - 1) * 7) return { ...timed, recurrenceRule: `FREQ=WEEKLY;COUNT=${sessions}` };
-    if (end === start) return timed;
   }
   return { start: dateArray(start), end: dateArray(nextDay(end)) };
 }
 
+/**
+ * The VEVENTs of an event: one per meeting of a series (each with its own UID, or calendar apps keep only one),
+ * one that repeats for a weekly long-term event, otherwise one.
+ */
+function occurrences(event: NewsEvent): (Timing & { uid: string })[] {
+  const { start, end = start, longTerm } = event;
+  const slug = eventSlug(event);
+  if (event.sessions) {
+    return eventMeetings(event).map((meeting) => ({
+      ...timing(meeting),
+      uid: `${slug}-${meeting.start}@farakurim.cz`,
+    }));
+  }
+  const uid = `${slug}@farakurim.cz`;
+  if (longTerm && longTerm !== true) {
+    const until = utcStamp(pragueDateTime(end, "23:59"));
+    return [
+      { ...timing({ start, end: start, time: longTerm.weeklyAt }), recurrenceRule: `FREQ=WEEKLY;UNTIL=${until}`, uid },
+    ];
+  }
+  return [{ ...timing({ start, end, time: event.time }), uid }];
+}
+
 /** iCalendar text of one event, with the detail page's absolute URL. */
 export function eventCalendar(event: NewsEvent, url: string): string {
-  const { start, startInputType, end, recurrenceRule } = timing(event);
-  const attributes = {
-    start,
-    startInputType,
-    ...(end === undefined ? {} : { end }),
-    recurrenceRule,
-    title: event.title,
-    location: event.place,
-    description: `${event.lead ?? event.text}\n\n${url}`,
-    url,
-    uid: `${eventSlug(event)}@farakurim.cz`,
-    productId: "farakurim.cz",
-  } as EventAttributes;
-  const { error, value } = createEvent(attributes);
+  const attributes = occurrences(event).map(
+    ({ start, startInputType, end, recurrenceRule, uid }) =>
+      ({
+        start,
+        startInputType,
+        ...(end === undefined ? {} : { end }),
+        recurrenceRule,
+        title: event.title,
+        location: event.place,
+        description: `${event.lead ?? event.text}\n\n${url}`,
+        url,
+        uid,
+      }) as EventAttributes,
+  );
+  const { error, value } = createEvents(attributes, { productId: "farakurim.cz" });
   if (error || !value) throw error ?? new Error(`No calendar for ${event.id}`);
   return value;
 }

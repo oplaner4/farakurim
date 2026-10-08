@@ -531,7 +531,7 @@ export const events2021: NewsEvent[] = [
     place: "Boskovice, kino Panorama",
     text: "Koncert byl zrušen. Charitativní koncert skupiny Učedníci, zaměřené na křesťanský folk.",
     body: "<p>Výtěžek z koncertu měl podpořit salesiánskou misii v Bulharsku, kterou vykonává P. Petr Cvrkal.</p>",
-    label: "Zrušeno",
+    tags: [{ label: "Zrušeno" }],
     poster: {
       src: `${UPLOADS}/koncert-ucednici-2021-plakat.webp`,
       alt: "Plakát: Charitativní koncert skupiny Učedníci 11. 12. 2021",

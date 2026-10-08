@@ -140,23 +140,23 @@ describe("newsEntries", () => {
     ]);
   });
 
-  it("splits weekly series into meetings and skips long-term events without a day", () => {
+  it("splits series into their meetings and skips long-term events without a day", () => {
     const events: NewsEvent[] = [
       {
         ...base,
         id: "vecery",
         title: "Večery",
         start: "2026-10-11",
-        end: "2026-10-25",
+        end: "2026-11-21",
         time: "18:00–20:30",
-        sessions: 3,
+        sessions: ["2026-10-11", { date: "2026-10-20", time: "9:00" }, { date: "2026-11-20", end: "2026-11-21" }],
       },
       { ...base, id: "seminar", title: "Seminář", start: "2026-03-01", end: "2026-11-30", longTerm: true },
     ];
-    expect(newsEntries(events, href).map((e) => [e.date, e.time])).toEqual([
-      ["2026-10-11", "18:00"],
-      ["2026-10-18", "18:00"],
-      ["2026-10-25", "18:00"],
+    expect(newsEntries(events, href).map((e) => [e.id, e.date, e.end, e.time])).toEqual([
+      ["vecery-2026-10-11", "2026-10-11", undefined, "18:00"],
+      ["vecery-2026-10-20", "2026-10-20", undefined, "9:00"],
+      ["vecery-2026-11-20", "2026-11-20", "2026-11-21", "18:00"],
     ]);
   });
 });

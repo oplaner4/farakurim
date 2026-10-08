@@ -84,8 +84,18 @@ describe("event formatting", () => {
 
   it("writes series and long-term events", () => {
     expect(
-      formatEventWhen({ ...base, start: "2026-10-11", end: "2026-11-22", time: "18:00–20:30", sessions: 7 }).date,
+      formatEventWhen({
+        ...base,
+        start: "2026-10-11",
+        end: "2026-11-22",
+        time: "18:00–20:30",
+        sessions: ["2026-10-11", "2026-10-18", "2026-10-25", "2026-11-01", "2026-11-08", "2026-11-15", "2026-11-22"],
+      }).date,
     ).toBe("od neděle 11. 10. 2026, vždy 18:00–20:30");
+    const ownTimes = ["2026-10-11", { date: "2026-10-18", time: "9:00" }];
+    expect(
+      formatEventWhen({ ...base, start: "2026-10-11", end: "2026-10-18", time: "18:00", sessions: ownTimes }).date,
+    ).toBe("od neděle 11. 10. 2026");
     expect(
       formatEventWhen({ ...base, start: "2026-10-01", end: "2027-04-29", longTerm: { weeklyAt: "18:30" } }).date,
     ).toBe("1. 10. 2026 – 29. 4. 2027, každý čtvrtek od 18:30");
@@ -99,7 +109,14 @@ describe("event formatting", () => {
       top: "2.–4.",
       bottom: "října",
     });
-    expect(eventDateBlock({ ...base, start: "2026-10-11", end: "2026-11-22", sessions: 7 })).toEqual({
+    expect(
+      eventDateBlock({
+        ...base,
+        start: "2026-10-11",
+        end: "2026-11-22",
+        sessions: ["2026-10-11", "2026-10-18", "2026-10-25", "2026-11-01", "2026-11-08", "2026-11-15", "2026-11-22"],
+      }),
+    ).toEqual({
       top: "11.",
       bottom: "října",
     });

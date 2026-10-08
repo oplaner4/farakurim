@@ -61,7 +61,14 @@ export const events2024: NewsEvent[] = [
     },
     attachments: [{ label: "Leták", file: `${UPLOADS}/mission-possible-2024-letak.pdf`, size: 2100559 }],
     links: [{ label: "Mission Possible", href: "https://www.emmanuel.cz/mp/" }],
-    sessions: 6,
+    sessions: [
+      { date: "2024-01-20", time: "9:00–18:30" },
+      { date: "2024-01-30", time: "19:00–21:30" },
+      { date: "2024-02-13", time: "19:00–21:30" },
+      { date: "2024-02-27", time: "19:00–21:30" },
+      { date: "2024-03-16", time: "9:00–18:30" },
+      { date: "2024-03-26", time: "19:00–21:30" },
+    ],
   },
   {
     id: "narodni-tyden-manzelstvi-2024",

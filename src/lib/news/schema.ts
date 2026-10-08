@@ -1,6 +1,7 @@
 import * as z from "zod";
 import type { NewsEvent } from "@/content/types/news";
-import { eventClock } from "./ics";
+import { eventMeetings } from "./events";
+import { parseClock } from "./ics";
 
 // The rules of one Aktuality record, in one place: news.test.ts checks every record in src/content/news/ with
 // them, and scripts/add-aktualita.ts checks a new record before the farnost-create-aktualita skill stages its files.
@@ -15,6 +16,13 @@ const upload = z.string().regex(/^\/uploads\/\S+\.(pdf|png|jpe?g|webp|mp3)$/, "m
 const minutes = (time: string) => {
   const [h, m] = time.split(":").map(Number);
   return h * 60 + m;
+};
+const TIME_MESSAGE = 'must be "H:MM" or "H:MM–H:MM"';
+/** A time text the calendar files can read: one valid clock time or a range that ends after it starts. */
+const readableTime = (time: string) => {
+  const span = parseClock(time);
+  const times = span ? [span.from, span.to ?? span.from] : [];
+  return !!span && times.every((t) => CLOCK.test(t)) && !(span.to && minutes(span.to) <= minutes(span.from));
 };
 
 /** A NewsEvent (src/content/types/news.ts); its fields are listed in the order the month files write them. */
@@ -37,9 +45,14 @@ export const newsEventSchema = z
       .optional(),
     price: text.optional(),
     registrationDeadline: date.optional(),
-    sessions: z.int().positive().optional(),
+    sessions: z
+      .array(z.union([date, z.strictObject({ date, end: date.optional(), time: z.string().optional() })]))
+      .min(2, "a series has at least two meetings")
+      .optional(),
     longTerm: z.union([z.literal(true), z.strictObject({ weeklyAt: clock })]).optional(),
-    label: text.optional(),
+    tags: z
+      .array(z.strictObject({ label: text, color: z.enum(["blue", "orange", "magenta", "grey"]).optional() }))
+      .optional(),
     pinned: z.boolean().optional(),
     archiveHidden: z.boolean().optional(),
     published: date.optional(),
@@ -56,16 +69,30 @@ export const newsEventSchema = z
     if (event.end !== undefined && event.end <= event.start) {
       ctx.addIssue({ code: "custom", path: ["end"], message: "must be after start (omit it for one day)" });
     }
-    if (event.sessions !== undefined && event.end === undefined) {
-      ctx.addIssue({ code: "custom", path: ["end"], message: "a series of sessions needs an end" });
+    if (event.sessions) {
+      const meetings = eventMeetings(event);
+      if (meetings[0]?.start !== event.start) {
+        ctx.addIssue({ code: "custom", path: ["sessions", 0], message: "the first meeting must be on start" });
+      }
+      if (meetings.at(-1)?.end !== event.end) {
+        ctx.addIssue({ code: "custom", path: ["end"], message: "must be the last meeting's last day" });
+      }
+      meetings.forEach((meeting, i) => {
+        if (meeting.end < meeting.start) {
+          ctx.addIssue({ code: "custom", path: ["sessions", i, "end"], message: "must be after date" });
+        }
+        if (i > 0 && meeting.start <= meetings[i - 1].end) {
+          ctx.addIssue({ code: "custom", path: ["sessions", i], message: "must follow the previous meeting" });
+        }
+        const own = event.sessions?.[i];
+        if (typeof own === "object" && own.time !== undefined && !readableTime(own.time)) {
+          ctx.addIssue({ code: "custom", path: ["sessions", i, "time"], message: TIME_MESSAGE });
+        }
+      });
     }
     // An unreadable time ("18.00") makes the event all-day in the .ics file and the JSON-LD.
-    if (event.time !== undefined) {
-      const span = eventClock({ ...event, longTerm: undefined });
-      const times = span ? [span.from, span.to ?? span.from] : [];
-      if (!span || !times.every((t) => CLOCK.test(t)) || (span.to && minutes(span.to) <= minutes(span.from))) {
-        ctx.addIssue({ code: "custom", path: ["time"], message: 'must be "H:MM" or "H:MM–H:MM"' });
-      }
+    if (event.time !== undefined && !readableTime(event.time)) {
+      ctx.addIssue({ code: "custom", path: ["time"], message: TIME_MESSAGE });
     }
   }) satisfies z.ZodType<NewsEvent>;
 

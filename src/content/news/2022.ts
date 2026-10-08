@@ -80,7 +80,7 @@ export const events2022: NewsEvent[] = [
     poster: { src: `${UPLOADS}/vecery-pro-dva-2022-informace.webp`, alt: "Leták: Večery pro dva" },
     attachments: [{ label: "Informace", file: `${UPLOADS}/vecery-pro-dva-2022-informace.pdf`, size: 1015226 }],
     links: [{ label: "Komunita Emmanuel", href: "https://www.emmanuel.cz/" }],
-    sessions: 4,
+    sessions: ["2022-02-16", "2022-03-01", "2022-03-16", "2022-03-30"],
   },
   {
     id: "koncert-ucednici-2022",
@@ -577,7 +577,18 @@ export const events2022: NewsEvent[] = [
       { label: "kurz.samuel@seznam.cz", href: "mailto:kurz.samuel@seznam.cz" },
     ],
     registrationDeadline: "2022-08-31",
-    sessions: 10,
+    sessions: [
+      "2022-10-09",
+      "2022-11-13",
+      "2022-12-11",
+      "2023-01-15",
+      "2023-02-12",
+      "2023-03-12",
+      "2023-04-23",
+      "2023-05-14",
+      "2023-06-11",
+      { date: "2023-08-27", end: "2023-08-29" },
+    ],
   },
   {
     id: "adoracni-den-2022",

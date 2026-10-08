@@ -1,6 +1,6 @@
 import { endOfMonth, endOfWeek } from "date-fns";
 import { links } from "@/content/site";
-import type { NewsEvent } from "@/content/types/news";
+import type { NewsEvent, TagColor } from "@/content/types/news";
 import type { IsoDate } from "@/content/types/shared";
 import { fold, formatEventWhen, formatShortDate } from "@/lib/shared/czech";
 import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
@@ -40,9 +40,13 @@ export function eventStatus(event: NewsEvent, today: IsoDate): EventStatus {
   return "upcoming";
 }
 
-export type EventTagKind = "now" | "deadline" | "info" | "past";
+/** A badge's look: `now` is the filled "Právě probíhá", the rest are the tag colours. */
+export type EventTagKind = "now" | TagColor;
 
-/** The badges of an event card, in order: running, open registration, key facts, then "Proběhlo". */
+/**
+ * The badges of an event card, in order: running, open registration, key facts, the record's own tags, then
+ * "Proběhlo".
+ */
 export function eventTags(
   event: NewsEvent,
   status: EventStatus,
@@ -51,15 +55,27 @@ export function eventTags(
   const tags: { kind: EventTagKind; label: string }[] = [];
   if (status === "now") tags.push({ kind: "now", label: "Právě probíhá" });
   if (event.registrationDeadline && event.registrationDeadline >= today) {
-    tags.push({ kind: "deadline", label: `Přihlášky do ${formatShortDate(event.registrationDeadline)}` });
+    tags.push({ kind: "orange", label: `Přihlášky do ${formatShortDate(event.registrationDeadline)}` });
   }
-  if (event.price) tags.push({ kind: "info", label: event.price });
+  if (event.price) tags.push({ kind: "blue", label: event.price });
   // "setkání" is the same word for every count.
-  if (event.sessions) tags.push({ kind: "info", label: `${event.sessions} setkání` });
-  if (event.longTerm && event.longTerm !== true) tags.push({ kind: "info", label: "Každý týden" });
-  if (event.label) tags.push({ kind: "info", label: event.label });
-  if (status === "past") tags.push({ kind: "past", label: "Proběhlo" });
+  if (event.sessions) tags.push({ kind: "blue", label: `${event.sessions.length} setkání` });
+  if (event.longTerm && event.longTerm !== true) tags.push({ kind: "blue", label: "Každý týden" });
+  for (const tag of event.tags ?? []) tags.push({ kind: tag.color ?? "blue", label: tag.label });
+  if (status === "past") tags.push({ kind: "grey", label: "Proběhlo" });
   return tags;
+}
+
+/** A meeting of a series with its defaults filled in: its last day and its time text. */
+export type Meeting = { start: IsoDate; end: IsoDate; time?: string };
+
+/** The meetings of a series (`sessions`), empty for other events. */
+export function eventMeetings(event: Pick<NewsEvent, "sessions" | "time">): Meeting[] {
+  return (event.sessions ?? []).map((session) =>
+    typeof session === "string"
+      ? { start: session, end: session, time: event.time }
+      : { start: session.date, end: session.end ?? session.date, time: session.time ?? event.time },
+  );
 }
 
 const byStart = (a: Pick<NewsEvent, "start">, b: Pick<NewsEvent, "start">) => a.start.localeCompare(b.start);

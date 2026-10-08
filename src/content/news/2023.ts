@@ -392,7 +392,7 @@ export const events2023: NewsEvent[] = [
       { label: "Komunita Emmanuel – manželé", href: "https://www.emmanuel.cz/manzele/" },
     ],
     registrationDeadline: "2023-10-15",
-    sessions: 3,
+    sessions: ["2023-10-21", "2023-11-18", "2023-12-02"],
   },
   {
     id: "nadechni-se-2023",

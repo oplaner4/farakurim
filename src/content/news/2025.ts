@@ -18,7 +18,10 @@ export const events2025: NewsEvent[] = [
       alt: "Plakát: Vánoční koncert, Adam Michna z Otradovic – Missa super Již Slunce z Hvězdy vyšlo",
     },
     attachments: [{ label: "Plakát", file: `${UPLOADS}/vanocni-koncert-magnificat-2025-plakat.jpg`, size: 405248 }],
-    sessions: 2,
+    sessions: [
+      { date: "2025-01-05", time: "17:00" },
+      { date: "2025-01-12", time: "15:00" },
+    ],
   },
   {
     id: "diecezni-setkani-katechetu-2025",
@@ -82,7 +85,18 @@ export const events2025: NewsEvent[] = [
     body: "<p>Náplní zhruba dvouhodinových setkání je společná modlitba chval, uvedení do tématu, sdílení a adorace. Účastníci věnují také každý den čtvrthodinku modlitbě s Písmem svatým k tématům semináře. Seminář pomáhá obnovit vztah s Bohem a objevit vlastní obdarování.</p>",
     poster: { src: `${UPLOADS}/seminar-zivot-v-duchu-2025-plakat.webp`, alt: "Plakát: Seminář Život v Duchu, Tišnov" },
     attachments: [{ label: "Plakát", file: `${UPLOADS}/seminar-zivot-v-duchu-2025-plakat.pdf`, size: 2646507 }],
-    sessions: 10,
+    sessions: [
+      "2025-01-26",
+      "2025-02-02",
+      "2025-02-09",
+      "2025-02-16",
+      "2025-02-23",
+      "2025-03-02",
+      "2025-03-09",
+      "2025-03-16",
+      "2025-03-23",
+      "2025-03-30",
+    ],
   },
   {
     id: "postni-obnova-lomnice-2025",
@@ -102,7 +116,7 @@ export const events2025: NewsEvent[] = [
       alt: "Plakát: Postní duchovní obnova v Lomnici, téma Jubilejní rok",
     },
     attachments: [{ label: "Plakát", file: `${UPLOADS}/postni-obnova-lomnice-2025-plakat.jpg`, size: 504241 }],
-    sessions: 3,
+    sessions: ["2025-03-14", "2025-03-28", "2025-04-11"],
   },
   {
     id: "koncert-scholy-brnenske-mladeze-2025",

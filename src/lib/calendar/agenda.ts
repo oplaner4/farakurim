@@ -13,7 +13,8 @@ import type { CalendarEntry, CalendarId } from "@/content/types/calendar";
 import type { NewsEvent } from "@/content/types/news";
 import type { Place, PlaceId } from "@/content/types/services";
 import type { ClockTime, IsoDate } from "@/content/types/shared";
-import { eventClock } from "@/lib/news/ics";
+import { eventMeetings } from "@/lib/news/events";
+import { eventClock, parseClock } from "@/lib/news/ics";
 import { capitalize, plural } from "@/lib/shared/czech";
 import { servicesOnDate, type ScheduleSource } from "@/lib/services/masses";
 import { inPrague, pragueDate, pragueDateTime, pragueWeekday } from "@/lib/shared/prague";
@@ -252,21 +253,32 @@ export function scheduleEntries(
 }
 
 /**
- * "Události" occurrences of the Aktuality records: one entry per event, or one per meeting of a weekly
- * series (`longTerm.weeklyAt`, `sessions`). Long-term events without a meeting day are left out.
+ * "Události" occurrences of the Aktuality records: one entry per event, one per meeting of a series
+ * (`sessions`) or one per week of a weekly series (`longTerm.weeklyAt`). Long-term events without a meeting day
+ * are left out.
  */
 export function newsEntries(events: NewsEvent[], href: (event: NewsEvent) => string): CalendarEntry[] {
   return events.flatMap((event): CalendarEntry[] => {
-    const { id, title, start, end = start, place, longTerm, sessions } = event;
+    const { id, title, start, end = start, place, longTerm } = event;
     if (longTerm === true) return [];
-    const time = eventClock(event)?.from;
-    const base = { calendar: "events" as const, title, place, href: href(event), ...(time && { time }) };
-    if (longTerm || sessions) {
+    const base = { calendar: "events" as const, title, place, href: href(event) };
+    const atTime = (time: ClockTime | undefined) => (time ? { time } : {});
+    if (event.sessions) {
+      return eventMeetings(event).map((meeting) => ({
+        ...base,
+        id: `${id}-${meeting.start}`,
+        date: meeting.start,
+        ...(meeting.end !== meeting.start && { end: meeting.end }),
+        ...atTime(parseClock(meeting.time)?.from),
+      }));
+    }
+    const time = atTime(eventClock(event)?.from);
+    if (longTerm) {
       const weekday = pragueWeekday(start);
       return datesBetween(start, end)
         .filter((date) => pragueWeekday(date) === weekday)
-        .map((date) => ({ ...base, id: `${id}-${date}`, date }));
+        .map((date) => ({ ...base, ...time, id: `${id}-${date}`, date }));
     }
-    return [{ ...base, id, date: start, ...(end !== start && { end }) }];
+    return [{ ...base, ...time, id, date: start, ...(end !== start && { end }) }];
   });
 }

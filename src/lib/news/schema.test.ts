@@ -49,7 +49,35 @@ describe("newsEventSchema", () => {
     expect(problems({ start: "2026-02-30" })).toHaveLength(1);
     expect(problems({ published: "7. 10. 2026" })).toHaveLength(1);
     expect(problems({ end: "2026-10-02" })).toEqual(["end: must be after start (omit it for one day)"]);
-    expect(problems({ sessions: 4 })).toEqual(["end: a series of sessions needs an end"]);
+  });
+
+  it("checks a series' meetings against start and end", () => {
+    const series = { start: "2026-10-11", end: "2026-10-25" };
+    expect(
+      problems({ ...series, sessions: ["2026-10-11", { date: "2026-10-18", time: "9:00" }, "2026-10-25"] }),
+    ).toEqual([]);
+    expect(problems({ ...series, sessions: ["2026-10-11"] })).toContain("sessions: a series has at least two meetings");
+    expect(problems({ ...series, sessions: ["2026-10-12", "2026-10-25"] })).toEqual([
+      "sessions.0: the first meeting must be on start",
+    ]);
+    expect(problems({ ...series, sessions: ["2026-10-11", "2026-10-18"] })).toEqual([
+      "end: must be the last meeting's last day",
+    ]);
+    expect(problems({ start: "2026-10-11", sessions: ["2026-10-11", "2026-10-18"] })).toEqual([
+      "end: must be the last meeting's last day",
+    ]);
+    expect(problems({ ...series, sessions: ["2026-10-11", "2026-10-25", "2026-10-18"] })).toEqual([
+      "end: must be the last meeting's last day",
+      "sessions.2: must follow the previous meeting",
+    ]);
+    expect(
+      problems({ ...series, sessions: ["2026-10-11", { date: "2026-10-24", end: "2026-10-25", time: "18.00" }] }),
+    ).toEqual(['sessions.1.time: must be "H:MM" or "H:MM–H:MM"']);
+  });
+
+  it("checks the tags", () => {
+    expect(problems({ tags: [{ label: "Zrušeno", color: "orange" }, { label: "Pro rodiny" }] })).toEqual([]);
+    expect(problems({ tags: [{ label: "Zrušeno", color: "red" }] })).toHaveLength(1);
   });
 
   it("only accepts times the calendar files can read", () => {
