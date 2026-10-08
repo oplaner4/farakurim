@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { GroupPageView } from "@/components/activities/GroupPageView";
 import { NextMeeting } from "@/components/activities/NextMeeting";
 import { SiteHeader } from "@/components/layout/SiteHeader";
-import { loadCalendarEntries } from "@/content/calendar";
+import { loadCalendarEntries } from "@/server/calendar";
 import { groupPages } from "@/content/groups";
 import { isMeeting, meetingRange } from "@/lib/activities/meetings";
 import { BUILD_TIME } from "@/lib/shared/build-time";

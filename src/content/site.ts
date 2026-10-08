@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { BUILD_TIME } from "@/lib/shared/build-time";
-import { pragueDate } from "@/lib/shared/prague";
+import { BUILD_YEAR } from "@/lib/shared/build-time";
 import type { CalendarId } from "@/content/types/calendar";
 import type { OfficeHours } from "@/content/types/contacts";
 import type { CarouselSlide } from "@/content/types/home";
@@ -53,9 +52,6 @@ export const mainNav = [
   { label: "Petrklíč", href: links.petrklic, color: "orange" },
   { label: "Kontakty", href: links.contacts, color: "blue" },
 ] as const;
-
-/** Year of the build in Prague: the current Farní tábor and the footer copyright. */
-export const BUILD_YEAR = Number(pragueDate(BUILD_TIME).slice(0, 4));
 
 /**
  * Secondary pages, grouped for the "Více" menu and the sitemap footer (design/DESIGN.md §20.1). `color` is the
@@ -132,7 +128,7 @@ export const parishCalendars: Record<CalendarId, { name: string; googleId: strin
 
 /**
  * Browser key for the Google Calendar API, restricted to the site's referrer. Without it (local and CI builds), the
- * calendars fall back to entries generated from the schedule and Aktuality (`content/calendar.ts`).
+ * calendars fall back to entries generated from the schedule and Aktuality (`server/calendar.ts`).
  */
 export const GOOGLE_CALENDAR_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY || undefined;
 

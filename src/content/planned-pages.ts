@@ -1,4 +1,4 @@
-import { BUILD_YEAR } from "./site";
+import { BUILD_YEAR } from "@/lib/shared/build-time";
 import type { PlannedPage } from "./types/planned";
 
 /*

@@ -19,7 +19,7 @@ build-time next mass.
 
 ## Content and data
 
-- All content lives in `src/content/`, typed by `src/content/types/` (one file per domain, `structure.md`). Components and `src/lib`
+- All content lives in `src/content/` (hand-edited data only; build-time fetches and values derived from content live in `src/server/`, `structure.md`), typed by `src/content/types/` (one file per domain, `structure.md`). Components and `src/lib`
   only depend on those types, so a real API or CMS can replace the files later without touching the UI.
   A `<domain>.test.ts` beside each content file (`news/news.test.ts` for Aktuality, shared checks in
   `test-helpers.ts`) checks the data itself (valid dates and times, unique IDs, order, `/uploads/` links); extend it when a content type gains a rule a typo could break.
@@ -41,7 +41,7 @@ build-time next mass.
   combined with `regularServices`; after the week the regular schedule applies, except on the hand-entered
   `laterExceptions` (changes announced for later dates; `scheduleExceptions()` puts them after the sheet's days and
   drops the ones the sheet covers or that are past). Only the sheet and `laterExceptions` are content: the combined
-  exceptions are computed by their consumers (homepage, `content/calendar.ts`). `changed` only adds the "změna" tag; `markChanges()` sets it on masses that are not in the regular schedule. Intentions are published word for word, names included (the parish's decision: the PDF
+  exceptions are `currentExceptions` in `server/services.ts` (homepage, `server/calendar.ts`). `changed` only adds the "změna" tag; `markChanges()` sets it on masses that are not in the regular schedule. Intentions are published word for word, names included (the parish's decision: the PDF
   is public too). A row the user asks to hide gets `public: false`, which keeps its `detail` off the web: the module
   is `server-only`, pages pass `publicDays()` and client components get only props, never the module.
 - Petrklíč (`content/petrklic.ts`): one record per issue, newest first, added with `farnost-create-petrklic`; the
@@ -49,7 +49,7 @@ build-time next mass.
   `petrklic-<id>.pdf`, `cover.webp` and the current issue's viewer `pages/<n>.webp` (rendered by `pnpm petrklic`).
 - Calendars (Kalendář, homepage "Tento týden"): the parish's two Google Calendars ("Bohoslužby" = `services`,
   "Události" = `events`, `parishCalendars` in `content/site.ts`) are the source, because visitors subscribe to
-  them. `loadCalendarEntries()` (`content/calendar.ts`) reads them at build time with `singleEvents=true` (Google
+  them. `loadCalendarEntries()` (`server/calendar.ts`) reads them at build time with `singleEvents=true` (Google
   expands recurrences and exceptions) for the prerendered range (Kalendář: the previous month and the next six;
   homepage: the build's week, the one before and the next four; "Tento týden" always runs Monday to Sunday). `useCalendarEntries()` re-reads every shown range in the browser (TanStack Query, one query per range) and merges it over the
   build's entries (`mergeEntries()`); a range outside the prerendered one is dimmed with a loading or error message

@@ -7,20 +7,18 @@ import { NextMass } from "@/components/home/NextMass";
 import { PetrklicPanel } from "@/components/home/PetrklicPanel";
 import { WeekCalendar } from "@/components/home/WeekCalendar";
 import { SiteHeader } from "@/components/layout/SiteHeader";
-import { calendarHrefs, loadCalendarEntries } from "@/content/calendar";
 import { albums } from "@/content/gallery";
 import { events } from "@/content/news";
-import { places } from "@/content/masses";
-import { laterExceptions, serviceSheet } from "@/content/ohlasky";
+import { serviceSheet } from "@/content/ohlasky";
 import { petrklicIssues, petrklicTexts } from "@/content/petrklic";
 import { carouselSlides, links, parish, SITE_URL } from "@/content/site";
 import { BUILD_TIME } from "@/lib/shared/build-time";
 import { currentNews } from "@/lib/news/events";
 import { weekRange } from "@/lib/calendar/agenda";
-import { scheduleExceptions } from "@/lib/services/service-sheet";
 import { pragueDate } from "@/lib/shared/prague";
 import { jsonLdScript, parishJsonLd } from "@/lib/shared/structured-data";
-import type { PlaceId } from "@/content/types/services";
+import { calendarHrefs, loadCalendarEntries } from "@/server/calendar";
+import { currentExceptions } from "@/server/services";
 
 // Title and description come from the root layout.
 export const metadata: Metadata = {
@@ -31,9 +29,6 @@ const buildDay = pragueDate(BUILD_TIME);
 
 // Only events that can still show up are serialized for the client, which re-filters them by today's date.
 const upcomingNews = currentNews(events, buildDay, Infinity);
-
-// This week's ohlášky and the hand-entered changes after it, for the next-mass countdown.
-const exceptions = scheduleExceptions(serviceSheet, laterExceptions, Object.keys(places) as PlaceId[]);
 
 // The week calendar's weeks: the previous one, the build's and four more, so a build a few weeks old still has the
 // current week and the visitor can page a little without an API key.
@@ -51,7 +46,7 @@ export default async function HomePage() {
           <HeroCarousel slides={carouselSlides} />
           <NextMass
             renderedAt={BUILD_TIME}
-            exceptions={exceptions}
+            exceptions={currentExceptions}
             sheet={{ pdfUrl: serviceSheet.pdfUrl, validFrom: serviceSheet.validFrom, validTo: serviceSheet.validTo }}
           />
         </div>

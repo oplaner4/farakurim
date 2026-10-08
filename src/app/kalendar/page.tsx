@@ -3,7 +3,7 @@ import { MonthCalendar } from "@/components/calendar/MonthCalendar";
 import { SubscribePanel } from "@/components/calendar/SubscribePanel";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { PageHeading } from "@/components/ui/PageHeading";
-import { calendarHrefs, loadCalendarEntries } from "@/content/calendar";
+import { calendarHrefs, loadCalendarEntries } from "@/server/calendar";
 import { links } from "@/content/site";
 import { BUILD_TIME } from "@/lib/shared/build-time";
 import { addToMonth, monthGridRange } from "@/lib/calendar/agenda";

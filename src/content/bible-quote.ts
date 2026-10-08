@@ -1,10 +1,7 @@
-import { BUILD_TIME } from "@/lib/shared/build-time";
-import { parseViraQuote, VIRA_QUOTE_URL } from "@/lib/layout/bible-quote";
-import { pragueDate } from "@/lib/shared/prague";
 import type { BibleQuote } from "@/content/types/layout";
 
-// "Slovo na dnešek" (design/DESIGN.md §20.5), read at build time; the browser asks `/biblicky-citat.php` for a
-// newer day's verse.
+// "Slovo na dnešek" (design/DESIGN.md §20.5): the verse shown when the day's one cannot be read
+// (`server/bible-quote.ts`).
 
 /** Shown when vira.cz cannot be reached at build time (the mockups' sample); the browser replaces it. */
 export const FALLBACK_QUOTE: BibleQuote = {
@@ -12,14 +9,3 @@ export const FALLBACK_QUOTE: BibleQuote = {
   text: "Toto je den, který učinil Hospodin, jásejme a radujme se z něho!",
   reference: "Žalm 118,24",
 };
-
-let quote: Promise<BibleQuote> | undefined;
-
-/** The build day's verse, fetched once per build process. vira.cz being down never fails the build. */
-export function loadBibleQuote(): Promise<BibleQuote> {
-  quote ??= fetch(VIRA_QUOTE_URL, { signal: AbortSignal.timeout(10_000) })
-    .then((response) => (response.ok ? response.text() : ""))
-    .then((html) => parseViraQuote(html, pragueDate(BUILD_TIME)) ?? FALLBACK_QUOTE)
-    .catch(() => FALLBACK_QUOTE);
-  return quote;
-}
