@@ -1,6 +1,6 @@
 <?php
 // "Slovo na dnešek" (design/DESIGN.md §20.5): the day's verse from the vira.cz widget as JSON
-// ({"date", "text", "reference"}), for the footer card (src/components/layout/use-todays-quote.ts).
+// ({"date", "text", "reference"}), for the footer card (src/hooks/use-todays-quote.ts).
 // vira.cz sends no CORS headers, so the browser cannot read the widget itself. This script fetches it once a
 // day (Prague time), keeps it in cache/ (left alone by scripts/deploy.sh) and falls back to the last verse it got
 // while vira.cz is down. The page links www.vira.cz, which is vira.cz's condition of use.
@@ -25,7 +25,7 @@ function widgetField(string $html, string $id): string
     return trim((string) preg_replace('~\s+~u', ' ', $text));
 }
 
-/** Today's verse from vira.cz, or null when it cannot be read. Same parsing as src/lib/bible-quote.ts. */
+/** Today's verse from vira.cz, or null when it cannot be read. Same parsing as src/lib/layout/bible-quote.ts. */
 function fetchVerse(string $today): ?array
 {
     $context = stream_context_create(['http' => ['timeout' => 5]]);
