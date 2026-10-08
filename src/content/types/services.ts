@@ -42,7 +42,10 @@ export type RegularService = ServiceEntry & {
   rule?: ServiceRule;
 };
 
-/** Replaces the whole regular schedule (masses and other services) for one day. An empty list cancels the day. */
+/**
+ * Replaces the whole regular schedule for one day with the public services of that day (masses, adoration and other
+ * mass-like services; never funerals, baptisms or weddings). An empty list cancels the day.
+ */
 export type ScheduleException = {
   date: IsoDate;
   services: ServiceEntry[];
