@@ -1,11 +1,10 @@
-import { clsx } from "clsx";
 import type { ReactNode } from "react";
 import { CopyButton } from "@/components/ui/CopyButton";
 import { ChevronDownIcon, ExternalLinkIcon } from "@/components/ui/icons/navigation-icons";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import type { PulsYear, SupportPage } from "@/content/types/support";
 import { formatCzk, formatShortDate } from "@/lib/shared/czech";
-import { externalLinkAttrs } from "@/lib/shared/links";
+import { ArrowLink } from "@/components/ui/ArrowLink";
 
 function Card({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
@@ -18,21 +17,6 @@ function Card({ id, title, children }: { id: string; title: string; children: Re
       </h3>
       {children}
     </section>
-  );
-}
-
-/** "Přispět přes Donator.cz ↗": an external link with its icon, in a new tab. */
-function DonatorLink({ href, children, className }: { href: string; children: ReactNode; className?: string }) {
-  return (
-    <a
-      href={href}
-      {...externalLinkAttrs(href)}
-      className={clsx("flex min-h-11 items-center gap-1.5 font-bold", className)}
-    >
-      {children}
-      <ExternalLinkIcon size={16} />
-      <span className="sr-only"> (otevře se v novém okně)</span>
-    </a>
   );
 }
 
@@ -105,15 +89,17 @@ export function OtherSupport({ support }: { support: SupportPage }) {
         <Card id="fond-puls" title="Fond PULS">
           <p className="text-15 text-ink-2">Příspěvek do fondu pro podporu kněží a pastorace brněnské diecéze.</p>
           <PulsTable years={support.puls} />
-          <DonatorLink href={support.pulsUrl}>Přispět přes Donator.cz</DonatorLink>
+          <ArrowLink href={support.pulsUrl} icon={ExternalLinkIcon}>
+            Přispět přes Donator.cz
+          </ArrowLink>
         </Card>
         <Card id="pastoracni-aktivity" title="Pastorační aktivity děkanství Tišnov">
           <p className="text-15 text-ink-2">
             Setkání mládeže, rodin a vzdělávací akce, které povzbuzují a stmelují farníky celého děkanátu.
           </p>
-          <DonatorLink href={support.pastoralUrl} className="mt-auto">
+          <ArrowLink href={support.pastoralUrl} icon={ExternalLinkIcon} className="mt-auto">
             O projektu na Donator.cz
-          </DonatorLink>
+          </ArrowLink>
         </Card>
       </div>
     </section>

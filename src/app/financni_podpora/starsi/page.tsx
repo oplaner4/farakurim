@@ -5,6 +5,7 @@ import { ArrowLeftIcon } from "@/components/ui/icons/navigation-icons";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { links } from "@/content/site";
 import { pastProjects } from "@/content/support-archive";
+import { ArrowLink } from "@/components/ui/ArrowLink";
 
 const lead = "Vyúčtování dokončených a dřívějších oprav podle let. Děkujeme všem dárcům a poskytovatelům dotací.";
 
@@ -33,10 +34,9 @@ export default function SupportArchivePage() {
         {pastProjects.map((project, i) => (
           <PastProjectCard key={project.id} project={project} open={i === 0} />
         ))}
-        <a href={links.support} className="flex min-h-11 items-center gap-2 self-start font-bold">
-          <ArrowLeftIcon size={18} />
+        <ArrowLink href={links.support} icon={ArrowLeftIcon} iconAt="start" gap="wide" className="self-start">
           Aktuální projekty a jak přispět
-        </a>
+        </ArrowLink>
       </main>
     </>
   );

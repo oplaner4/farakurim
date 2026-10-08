@@ -1,6 +1,6 @@
 import type { Intentions } from "@/content/types/services";
+import { ArrowLink } from "@/components/ui/ArrowLink";
 import { ArrowUpIcon } from "@/components/ui/icons/navigation-icons";
-import { ArrowLink } from "./InfoCards";
 
 /**
  * "Intence – mše na váš úmysl" (design/DESIGN.md §14.1, 3a): a blue-tint card with a corner shard. Desktop puts
@@ -37,7 +37,7 @@ export function IntentionsCard({ text }: { text: Intentions }) {
           <p className="mt-1 text-14 text-muted">{text.note}</p>
         </div>
       </div>
-      <ArrowLink href="#rozpis" icon={ArrowUpIcon}>
+      <ArrowLink href="#rozpis" icon={ArrowUpIcon} className="relative self-start">
         Intence na tento týden najdete v rozpisu bohoslužeb
       </ArrowLink>
     </section>

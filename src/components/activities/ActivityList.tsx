@@ -7,8 +7,9 @@ import type { Activity, ActivityGroup } from "@/content/types/activities";
 import { activityCount, ALL_GROUPS, filterActivities, seeksHelp } from "@/lib/activities/search";
 import { FilterPill } from "@/components/ui/FilterPill";
 import { ClockIcon, UserIcon } from "@/components/ui/icons/contact-icons";
-import { ArrowRightIcon, SearchIcon } from "@/components/ui/icons/navigation-icons";
+import { SearchIcon } from "@/components/ui/icons/navigation-icons";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { ArrowLink } from "@/components/ui/ArrowLink";
 
 /** The list follows the field after a short pause, so the count isn't announced on every letter. */
 const SEARCH_DELAY_MS = 250;
@@ -110,10 +111,9 @@ function ActivityCard({ activity }: { activity: Activity }) {
         {activity.contacts}
       </span>
       {activity.href && (
-        <a href={activity.href} className="flex min-h-10 items-center gap-1.5 self-start text-15 font-bold">
+        <ArrowLink href={activity.href} size="small" className="self-start">
           Více o skupině
-          <ArrowRightIcon size={16} />
-        </a>
+        </ArrowLink>
       )}
     </li>
   );

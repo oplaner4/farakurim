@@ -7,6 +7,7 @@ import { groupByYear } from "@/lib/petrklic/issues";
 import { ArchiveYearBlock } from "./ArchiveYearBlock";
 import { ArchiveYearLinks } from "./ArchiveYearLinks";
 import { ArchiveYears } from "./ArchiveYears";
+import { ArrowLink } from "@/components/ui/ArrowLink";
 
 export const PETRKLIC_YEARS = groupByYear(petrklicIssues);
 const currentId = petrklicIssues[0].id;
@@ -36,10 +37,9 @@ export function ArchivePage({ year }: { year?: number }) {
         <div className="flex flex-col gap-6 lg:gap-8">
           {year ? blocks : <ArchiveYears headingIds={shown.map((y) => `rok-${y.year}`)}>{blocks}</ArchiveYears>}
         </div>
-        <a href={links.petrklic} className="flex min-h-11 items-center gap-1.5 self-start font-bold">
-          <ChevronLeftIcon size={18} />
+        <ArrowLink href={links.petrklic} icon={ChevronLeftIcon} iconAt="start" className="self-start">
           Aktuální číslo
-        </a>
+        </ArrowLink>
         <noscript>
           <style>{"[data-js-only]{display:none}"}</style>
         </noscript>

@@ -49,5 +49,5 @@ paths:
 - Font: self-hosted **Farnost Sans** via `next/font/local` (300, 400 and 700, all preloaded; 300 is the day's verse). It is Oxygen
   (the design's font) with the caron letters `ť ď ľ Ľ` widened so the caron no longer covers the next space, and
   the `ď ľ Ľ` Bold lacks added. `pnpm fonts` builds it (`scripts/build-fonts.py`); the OFL forbids calling a
-  modified font "Oxygen", so keep the new name in code and font files. Oxygen has no `→` glyph, so arrows are SVG icons (`ArrowRightIcon`).
+  modified font "Oxygen", so keep the new name in code and font files. Oxygen has no `→` glyph, so arrows are SVG icons (`ArrowRightIcon`); a bold text link with an arrow or another icon ("Celý archiv →", "← Aktuální číslo", "Kanál na YouTube ↗") is `ArrowLink` (`src/components/ui/`), never hand-written.
 - No gradients, no emoji, no sad colours (the dark theme is a friendly blue-tinted night, never black). The decorative "shards" are `clip-path` triangles on `aria-hidden` spans.

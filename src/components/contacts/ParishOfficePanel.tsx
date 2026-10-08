@@ -1,10 +1,10 @@
 import { clsx } from "clsx";
 import { contacts, parish } from "@/content/site";
-import { mapHref, NEW_TAB, telHref } from "@/lib/shared/links";
+import { mapHref, telHref } from "@/lib/shared/links";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { MailIcon, PhoneIcon } from "@/components/ui/icons/contact-icons";
-import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
 import { OfficeMap } from "./OfficeMap";
+import { ArrowLink } from "@/components/ui/ArrowLink";
 
 /** "Fara" (design/DESIGN.md §15.1): address, call and e-mail buttons, the map and the map link. */
 export function ParishOfficePanel({ className }: { className?: string }) {
@@ -41,10 +41,7 @@ export function ParishOfficePanel({ className }: { className?: string }) {
       </div>
       <div className="flex flex-col">
         <OfficeMap />
-        <a href={mapHref(contacts.mapQuery)} {...NEW_TAB} className="flex min-h-11 items-center gap-1.5 font-bold">
-          Navigovat na Mapy.cz
-          <ArrowRightIcon size={18} />
-        </a>
+        <ArrowLink href={mapHref(contacts.mapQuery)}>Navigovat na Mapy.cz</ArrowLink>
       </div>
     </section>
   );

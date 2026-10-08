@@ -1,6 +1,6 @@
 import { links, parishCalendars } from "@/content/site";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
+import { ArrowLink } from "@/components/ui/ArrowLink";
 
 const buttonClass = "min-h-12 grow basis-45 px-3.5";
 
@@ -26,10 +26,9 @@ export function SubscribePanel() {
           + {parishCalendars.events.name}
         </ButtonLink>
       </div>
-      <a href={links.services} className="flex min-h-11 items-center gap-1.5 self-start font-bold">
+      <ArrowLink href={links.services} className="self-start">
         Pravidelný pořad bohoslužeb
-        <ArrowRightIcon size={18} />
-      </a>
+      </ArrowLink>
     </section>
   );
 }

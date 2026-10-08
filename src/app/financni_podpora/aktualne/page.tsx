@@ -3,12 +3,12 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { OtherSupport } from "@/components/support/OtherSupport";
 import { ProjectCard } from "@/components/support/ProjectCard";
 import { WaysToGive } from "@/components/support/WaysToGive";
-import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { links } from "@/content/site";
 import { support } from "@/content/support";
 import { formatNumericDate } from "@/lib/shared/czech";
+import { ArrowLink } from "@/components/ui/ArrowLink";
 
 const lead = "Vaše dary zajišťují chod farnosti, její život a opravy kostelů a fary. Za každý příspěvek děkujeme.";
 
@@ -41,10 +41,9 @@ export default function SupportPage() {
           </div>
         </section>
         <OtherSupport support={support} />
-        <a href={links.supportArchive} className="flex min-h-11 items-center gap-2 self-start font-bold">
+        <ArrowLink href={links.supportArchive} gap="wide" className="self-start">
           Starší projekty a jejich vyúčtování
-          <ArrowRightIcon size={18} />
-        </a>
+        </ArrowLink>
         <noscript>
           <style>{"[data-js-only]{display:none}"}</style>
         </noscript>

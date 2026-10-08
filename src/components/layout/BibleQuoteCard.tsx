@@ -2,10 +2,10 @@
 
 import type { BibleQuote } from "@/content/types/layout";
 import { links } from "@/content/site";
-import { NEW_TAB } from "@/lib/shared/links";
 import { BookIcon } from "@/components/ui/icons/media-icons";
 import { ExternalLinkIcon } from "@/components/ui/icons/navigation-icons";
 import { useTodaysQuote } from "@/hooks/use-todays-quote";
+import { ArrowLink } from "@/components/ui/ArrowLink";
 
 /**
  * "Slovo na dnešek" (design/DESIGN.md §20.5) at the top of the footer: the day's verse from vira.cz. The
@@ -31,10 +31,9 @@ export function BibleQuoteCard({ quote: initial }: { quote: BibleQuote }) {
       </blockquote>
       <figcaption className="relative flex flex-wrap items-center justify-between gap-x-5 gap-y-1">
         <cite className="font-bold text-green-ink not-italic">{quote.reference}</cite>
-        <a href={links.viraCz} {...NEW_TAB} className="flex min-h-11 items-center gap-1.5 text-15 font-bold">
+        <ArrowLink href={links.viraCz} icon={ExternalLinkIcon} size="small">
           Zdroj: www.vira.cz
-          <ExternalLinkIcon size={16} />
-        </a>
+        </ArrowLink>
       </figcaption>
     </figure>
   );

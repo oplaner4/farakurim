@@ -5,7 +5,8 @@ import type { PetrklicIssue } from "@/content/types/petrklic";
 import { stepPage, viewerSpread } from "@/lib/petrklic/issues";
 import { useFadeInOnLoad } from "@/hooks/use-fade-in-on-load";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons/navigation-icons";
+import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons/navigation-icons";
+import { ArrowLink } from "@/components/ui/ArrowLink";
 
 type Props = {
   issue: PetrklicIssue & { pageImages: string[] };
@@ -32,13 +33,9 @@ export function PageViewer({ issue }: Props) {
         <h2 id="listujte" className="text-26 leading-heading font-bold lg:text-32">
           Listujte přímo zde
         </h2>
-        <a
-          href={issue.pdfUrl}
-          className="flex min-h-11 items-center gap-1.5 font-bold text-orange-ink-deep hover:text-ink"
-        >
+        <ArrowLink href={issue.pdfUrl} tone="orange">
           Otevřít na celou obrazovku
-          <ArrowRightIcon size={18} />
-        </a>
+        </ArrowLink>
       </div>
       <div className="flex flex-col overflow-hidden rounded-20 border border-line bg-surface">
         <div className="flex items-center justify-center gap-4 border-b border-line bg-raised p-2.5">

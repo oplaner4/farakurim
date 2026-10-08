@@ -5,6 +5,7 @@ import type { ParishChurch } from "@/content/types/contacts";
 import { mapHref, NEW_TAB } from "@/lib/shared/links";
 import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
 import { ContactCard } from "./ContactCard";
+import { ArrowLink } from "@/components/ui/ArrowLink";
 
 const bars: Record<ParishChurch["color"], string> = {
   blue: "bg-blue",
@@ -40,10 +41,9 @@ export function ChurchesCard() {
           </li>
         ))}
       </ul>
-      <a href={links.services} className="flex min-h-11 items-center gap-1.5 self-start font-bold">
+      <ArrowLink href={links.services} className="self-start">
         Pořad bohoslužeb
-        <ArrowRightIcon size={18} />
-      </a>
+      </ArrowLink>
     </ContactCard>
   );
 }

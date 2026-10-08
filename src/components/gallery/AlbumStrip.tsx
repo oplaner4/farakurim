@@ -16,8 +16,8 @@ import { clearHash, pushHash, replaceHash } from "@/lib/shared/location-hash";
 import { useLocationHash } from "@/hooks/use-location-hash";
 import { useSnapCarousel } from "@/hooks/use-snap-carousel";
 import { ArrowButton } from "@/components/ui/ArrowButton";
-import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
 import { AlbumPhotoTile } from "./AlbumPhotoTile";
+import { ArrowLink } from "@/components/ui/ArrowLink";
 
 // The lightbox library loads with the first photo opened (or hovered).
 const loadLightbox = () => import("./PhotoLightbox");
@@ -61,14 +61,9 @@ export function AlbumStrip({ album, position }: Props) {
           </h2>
           <span className="text-14 text-muted">{photoCountLabel(count)}</span>
         </div>
-        <a
-          href={album.href}
-          {...externalLinkAttrs(album.href)}
-          className="inline-flex min-h-11 items-center gap-1.5 font-bold text-green-ink hover:text-ink"
-        >
+        <ArrowLink href={album.href} tone="green">
           Otevřít album
-          <ArrowRightIcon size={18} />
-        </a>
+        </ArrowLink>
       </div>
       <div
         role="region"

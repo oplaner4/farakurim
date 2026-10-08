@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import type { GroupLink, GroupPage } from "@/content/types/activities";
 import { links } from "@/content/site";
 import { groupPhotoSet, otherGroups } from "@/lib/activities/groups";
-import { externalLinkAttrs, NEW_TAB } from "@/lib/shared/links";
+import { externalLinkAttrs } from "@/lib/shared/links";
 import { MusicIcon } from "@/components/ui/icons/media-icons";
 import { ArrowRightIcon, ExternalLinkIcon } from "@/components/ui/icons/navigation-icons";
 import { LockIcon } from "@/components/ui/icons/status-icons";
@@ -15,8 +15,8 @@ import { GroupInfoBox } from "./GroupInfoBox";
 import { GroupLightbox } from "./GroupLightbox";
 import { GroupPhotos } from "./GroupPhotos";
 import { VideoCard } from "./VideoCard";
+import { ArrowLink } from "@/components/ui/ArrowLink";
 
-const arrowLink = clsx("flex min-h-11 items-center gap-1.5 self-start font-bold");
 const card = clsx("rounded-18 bg-surface p-4 text-ink no-underline hover:bg-line hover:text-ink");
 
 /** A "Ke stažení" item: a link row (Schola's songbooks) or a card with an icon (the choir's voices). */
@@ -115,11 +115,9 @@ export function GroupPageView({ group, groups, nextMeeting }: Props) {
             ))}
           </ul>
           {group.channel && (
-            <a href={group.channel.href} {...NEW_TAB} className={arrowLink}>
+            <ArrowLink href={group.channel.href} icon={ExternalLinkIcon} className="self-start">
               {group.channel.label}
-              <ExternalLinkIcon size={18} />
-              <span className="sr-only"> (otevře se v novém okně)</span>
-            </a>
+            </ArrowLink>
           )}
         </section>
       )}
@@ -152,10 +150,9 @@ export function GroupPageView({ group, groups, nextMeeting }: Props) {
             </li>
           ))}
         </ul>
-        <a href={links.activities} className={arrowLink}>
+        <ArrowLink href={links.activities} className="self-start">
           Všechny aktivity farnosti
-          <ArrowRightIcon size={18} />
-        </a>
+        </ArrowLink>
       </section>
     </>
   );

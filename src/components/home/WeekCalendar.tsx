@@ -22,7 +22,8 @@ import {
 import { plural } from "@/lib/shared/czech";
 import { useCalendarEntries } from "@/hooks/use-calendar-entries";
 import { useToday } from "@/hooks/use-now";
-import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons/navigation-icons";
+import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons/navigation-icons";
+import { ArrowLink } from "@/components/ui/ArrowLink";
 
 type Props = {
   /** Prerendered entries; the browser re-reads Google Calendar when it has a key. */
@@ -101,13 +102,9 @@ export function WeekCalendar({ entries, range: prerendered, hrefs, renderedAt }:
           >
             <ChevronRightIcon size={20} />
           </button>
-          <a
-            href={links.calendar}
-            className="ml-1 inline-flex min-h-11 items-center gap-1.5 font-bold text-blue-ink hover:text-ink"
-          >
+          <ArrowLink href={links.calendar} tone="blue" iconClassName="max-lg:hidden" className="ml-1">
             Celý kalendář
-            <ArrowRightIcon size={18} className="hidden lg:block" />
-          </a>
+          </ArrowLink>
         </div>
       </div>
       <ol

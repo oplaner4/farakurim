@@ -1,8 +1,8 @@
 import { links } from "@/content/site";
 import type { PetrklicIssue } from "@/content/types/petrklic";
 import { issueLabel, volumeOf } from "@/lib/petrklic/issues";
-import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
 import { PetrklicCover } from "./PetrklicCover";
+import { ArrowLink } from "@/components/ui/ArrowLink";
 
 /**
  * "Předchozí čísla" (design/DESIGN.md §17.1): cover tiles that open the PDF. Mobile: a horizontal row of 140px
@@ -15,13 +15,9 @@ export function PreviousIssues({ issues }: { issues: PetrklicIssue[] }) {
         <h2 id="predchozi-cisla" className="text-22 leading-heading font-bold md:text-26 lg:text-32">
           Předchozí čísla
         </h2>
-        <a
-          href={links.petrklicArchive}
-          className="flex min-h-11 items-center gap-1.5 font-bold text-orange-ink-deep hover:text-ink"
-        >
+        <ArrowLink href={links.petrklicArchive} tone="orange">
           Celý archiv
-          <ArrowRightIcon size={18} />
-        </a>
+        </ArrowLink>
       </div>
       <ul className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 md:mx-0 md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:px-0 md:pb-0 lg:gap-6">
         {issues.map((issue) => (

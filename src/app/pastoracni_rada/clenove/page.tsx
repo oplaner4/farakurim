@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { CouncilMembers } from "@/components/parish/CouncilMembers";
-import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { councilMeetings, parishCouncil } from "@/content/parish-council";
 import { links } from "@/content/site";
 import { formatLongDate } from "@/lib/shared/czech";
+import { ArrowLink } from "@/components/ui/ArrowLink";
 
 const lead = "Pastorační rada farnosti (PRF) je poradním orgánem kněze při pastoraci farnosti.";
 
@@ -28,13 +28,9 @@ export default function ParishCouncilPage() {
         <PageHeading title="Pastorační rada" color="blue" size="standard" intro={lead} />
         <CouncilMembers council={parishCouncil} />
         {latest && (
-          <a
-            href={links.councilMinutes}
-            className="flex min-h-11 items-center gap-1.5 self-start font-bold text-blue-ink hover:text-ink"
-          >
+          <ArrowLink href={links.councilMinutes} tone="blue" className="self-start">
             Zápisy ze zasedání (poslední {formatLongDate(latest.date)})
-            <ArrowRightIcon size={18} />
-          </a>
+          </ArrowLink>
         )}
       </main>
     </>

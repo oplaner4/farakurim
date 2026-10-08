@@ -61,7 +61,7 @@ Known traps from earlier drops:
 - The mockup renders use a fallback font when Google Fonts doesn't load, so their text runs wider;
   compare layout and spacing, not where lines wrap.
 - Rules beat the mockup: never white text on green or orange (use `on-orange` / `on-green`), coloured text
-  uses `*-ink`, arrows are `ArrowRightIcon` (Oxygen has no `→`), placeholders like `[foto]` / `[mapa]`
+  uses `*-ink`, arrows are `ArrowRightIcon` (Oxygen has no `→`) and a text link with one is `ArrowLink`, placeholders like `[foto]` / `[mapa]`
   become designed placeholders, `href="#"` needs a real URL.
 
 ## 4. Verify

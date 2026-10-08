@@ -5,9 +5,9 @@ import type { AlbumPhoto } from "@/content/types/gallery";
 import { photoAlt, photoCountLabel } from "@/lib/gallery/albums";
 import { plural } from "@/lib/shared/czech";
 import { AlbumPhotoTile } from "@/components/gallery/AlbumPhotoTile";
-import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { loadGroupLightbox, openGroupPhoto } from "./GroupLightbox";
+import { ArrowLink } from "@/components/ui/ArrowLink";
 
 /** Thumbnails shown: 6 on mobile (3 columns) and desktop, 4 on tablet. */
 const SHOWN = 6;
@@ -64,16 +64,16 @@ export function GroupPhotos({ name, photos, before, total }: Props) {
           </li>
         ))}
       </ul>
-      <a
+      <ArrowLink
         href={photos[0].large}
-        className="flex min-h-11 items-center gap-1.5 self-start font-bold text-green-ink hover:text-ink"
+        tone="green"
+        className="self-start"
         onPointerEnter={loadGroupLightbox}
         onFocus={loadGroupLightbox}
         onClick={openGroupPhoto(1)}
       >
         {showAll}
-        <ArrowRightIcon size={18} />
-      </a>
+      </ArrowLink>
     </section>
   );
 }

@@ -1,7 +1,7 @@
 import { CopyButton } from "@/components/ui/CopyButton";
-import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
 import { links, parish } from "@/content/site";
 import { ContactCard } from "./ContactCard";
+import { ArrowLink } from "@/components/ui/ArrowLink";
 
 /** "Podpora farnosti" (§15.1): the bank account with a copy button and the link to Finanční podpora (§22). */
 export function SupportCard() {
@@ -13,13 +13,9 @@ export function SupportCard() {
         <strong className="text-24">{parish.bankAccount}</strong>
         <CopyButton text={parish.bankAccount} />
       </div>
-      <a
-        href={links.support}
-        className="relative flex min-h-11 items-center gap-1.5 self-start font-bold text-orange-ink-deep hover:text-ink"
-      >
+      <ArrowLink href={links.support} tone="orange" className="relative self-start">
         Projekty a další možnosti podpory
-        <ArrowRightIcon size={18} />
-      </a>
+      </ArrowLink>
     </ContactCard>
   );
 }

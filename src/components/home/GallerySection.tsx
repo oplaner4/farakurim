@@ -3,9 +3,9 @@ import { links } from "@/content/site";
 import { formatDayMonth, formatLongDate } from "@/lib/shared/czech";
 import { albumAnchor } from "@/lib/gallery/albums";
 import { AlbumPhotoTile } from "@/components/gallery/AlbumPhotoTile";
-import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { AlbumCarousel } from "./AlbumCarousel";
+import { ArrowLink } from "@/components/ui/ArrowLink";
 
 /**
  * Fotogalerie (design/DESIGN.md §4.5): the newest album's photos in a carousel, then the next three albums as
@@ -33,13 +33,9 @@ export function GallerySection({ albums }: { albums: Album[] }) {
               </time>
               <strong className="text-18 leading-card md:text-20 lg:text-22">{newest.title}</strong>
             </span>
-            <a
-              href={albumHref(newest)}
-              className="inline-flex min-h-11 items-center gap-1.5 font-bold text-green-ink hover:text-ink"
-            >
+            <ArrowLink href={albumHref(newest)} tone="green">
               Celé album
-              <ArrowRightIcon size={18} />
-            </a>
+            </ArrowLink>
           </figcaption>
         </figure>
         {older.length > 0 && (

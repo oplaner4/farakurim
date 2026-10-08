@@ -7,9 +7,9 @@ import { isOneWeek, sortAnnouncements } from "@/lib/services/service-sheet";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ChurchIcon, ClockIcon } from "@/components/ui/icons/contact-icons";
 import { FileDownloadIcon } from "@/components/ui/icons/media-icons";
-import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
 import { InfoIcon, WarningIcon } from "@/components/ui/icons/status-icons";
 import { HeartIcon } from "@/components/ui/icons/support-icons";
+import { ArrowLink } from "@/components/ui/ArrowLink";
 
 const categories: Record<AnnouncementCategory, { label: string; icon: ReactNode; className: string }> = {
   zmena: {
@@ -105,13 +105,9 @@ function AnnouncementCard({ item, href }: { item: Announcement; href?: string })
         dangerouslySetInnerHTML={{ __html: withExternalLinkTargets(item.html) }}
       />
       {href && (
-        <a
-          href={href}
-          className="mt-auto flex min-h-11 items-center gap-1.5 self-start font-bold text-magenta-ink hover:text-ink"
-        >
+        <ArrowLink href={href} tone="magenta" className="mt-auto self-start">
           Více v aktualitách
-          <ArrowRightIcon size={18} />
-        </a>
+        </ArrowLink>
       )}
     </li>
   );

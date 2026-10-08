@@ -1,10 +1,9 @@
 import { clsx } from "clsx";
 import type { ReactNode } from "react";
 import { links } from "@/content/site";
-import { externalLinkAttrs } from "@/lib/shared/links";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { CalendarIcon } from "@/components/ui/icons/contact-icons";
-import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
+import { ArrowLink } from "@/components/ui/ArrowLink";
 
 type CardProps = { id: string; title: string; children: ReactNode; desktopOnly?: boolean };
 
@@ -25,21 +24,6 @@ function InfoCard({ id, title, children, desktopOnly }: CardProps) {
   );
 }
 
-type ArrowLinkProps = { href: string; icon?: typeof ArrowRightIcon; children: ReactNode };
-
-/** A bold link with a trailing arrow, as in the cards of this page. */
-export function ArrowLink({ href, icon: Arrow = ArrowRightIcon, children }: ArrowLinkProps) {
-  return (
-    <a href={href} {...externalLinkAttrs(href)} className="flex min-h-11 items-center self-start font-bold">
-      {/* Inline, so the arrow follows the last word when the text wraps. */}
-      <span>
-        {children}
-        <Arrow size={18} className="ml-1.5 inline align-middle" />
-      </span>
-    </a>
-  );
-}
-
 /**
  * Svátost smíření, Křty and Kalendář farnosti (design/DESIGN.md §14.1). The calendar is an outline button
  * on mobile and tablet and a third card on desktop.
@@ -52,11 +36,15 @@ export function InfoCards({ confession, baptism }: { confession: string; baptism
       </InfoCard>
       <InfoCard id="krty" title="Křty">
         <p className="text-ink-2">{baptism}</p>
-        <ArrowLink href={links.contacts}>Kontakty na faru</ArrowLink>
+        <ArrowLink href={links.contacts} className="self-start">
+          Kontakty na faru
+        </ArrowLink>
       </InfoCard>
       <InfoCard id="kalendar-farnosti" title="Kalendář farnosti" desktopOnly>
         <p className="text-ink-2">Všechny bohoslužby a akce na jednom místě.</p>
-        <ArrowLink href={links.calendar}>Otevřít kalendář</ArrowLink>
+        <ArrowLink href={links.calendar} className="self-start">
+          Otevřít kalendář
+        </ArrowLink>
       </InfoCard>
       <ButtonLink href={links.calendar} variant="outline" className="md:col-span-2 md:justify-self-start lg:hidden">
         <CalendarIcon size={18} strokeWidth={2} />

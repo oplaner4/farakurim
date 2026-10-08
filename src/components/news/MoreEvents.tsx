@@ -5,7 +5,8 @@ import { links } from "@/content/site";
 import type { DateBlock } from "@/lib/shared/czech";
 import { otherEvents } from "@/lib/news/events";
 import { useToday } from "@/hooks/use-now";
-import { ArrowRightIcon, ChevronLeftIcon } from "@/components/ui/icons/navigation-icons";
+import { ChevronLeftIcon } from "@/components/ui/icons/navigation-icons";
+import { ArrowLink } from "@/components/ui/ArrowLink";
 
 /** What a card needs; the page passes only these fields to the client. */
 export type MoreEventItem = Pick<NewsEvent, "id" | "title" | "start" | "end" | "time" | "place" | "longTerm"> & {
@@ -41,13 +42,9 @@ export function MoreEvents({
         <h2 id="dalsi-akce" className="text-22 leading-heading font-bold md:text-26 lg:text-32">
           Další akce
         </h2>
-        <a
-          href={links.news}
-          className="flex min-h-11 items-center gap-1.5 font-bold text-magenta-ink hover:text-magenta-ink max-md:hidden"
-        >
+        <ArrowLink href={links.news} tone="magenta" className="max-md:hidden">
           Všechny aktuality
-          <ArrowRightIcon size={18} />
-        </a>
+        </ArrowLink>
       </div>
       <ul className="flex flex-col gap-3 md:grid md:grid-cols-2 lg:grid-fit-280 lg:gap-4">
         {list.map((item) => (
@@ -70,10 +67,9 @@ export function MoreEvents({
           </li>
         ))}
       </ul>
-      <a href={links.news} className="flex min-h-11 items-center gap-2 self-start font-bold md:hidden">
-        <ChevronLeftIcon size={18} />
+      <ArrowLink href={links.news} icon={ChevronLeftIcon} iconAt="start" gap="wide" className="self-start md:hidden">
         Všechny aktuality
-      </a>
+      </ArrowLink>
     </section>
   );
 }

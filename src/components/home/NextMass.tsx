@@ -12,7 +12,7 @@ import { useHydrated, useNow } from "@/hooks/use-now";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { PinIcon } from "@/components/ui/icons/contact-icons";
 import { FileDownloadIcon } from "@/components/ui/icons/media-icons";
-import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
+import { ArrowLink } from "@/components/ui/ArrowLink";
 
 /** Value for `<time dateTime>`: "2026-10-04T08:00" */
 const isoDateTime = (date: string, time: string) =>
@@ -140,13 +140,9 @@ export function NextMass({ renderedAt, exceptions, sheet, showCountdown = true }
           </div>
         )}
 
-        <a
-          href={links.services}
-          className="order-7 mt-auto hidden items-center gap-1.5 text-15 font-bold lg:inline-flex"
-        >
+        <ArrowLink href={links.services} size="compact" className="order-7 mt-auto max-lg:hidden">
           Pravidelné bohoslužby a ohlášky
-          <ArrowRightIcon size={18} />
-        </a>
+        </ArrowLink>
       </div>
     </section>
   );

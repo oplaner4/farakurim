@@ -6,7 +6,7 @@ import { meetingLabel, meetingRange, meetingTile, nextMeeting, shortPlace } from
 import type { DateRange } from "@/lib/calendar/agenda";
 import { useCalendarEntries } from "@/hooks/use-calendar-entries";
 import { useToday } from "@/hooks/use-now";
-import { ArrowRightIcon } from "@/components/ui/icons/navigation-icons";
+import { ArrowLink } from "@/components/ui/ArrowLink";
 
 type Props = {
   /** The group's meetings in `range`, prerendered; the browser re-reads Google Calendar when it has a key. */
@@ -48,10 +48,7 @@ export function NextMeeting({ entries, range, calendarTitle, renderedAt }: Props
           {meeting.place && <span className="text-15 text-ink-2">{shortPlace(meeting.place)}</span>}
         </div>
       </div>
-      <a href={links.calendar} className="flex min-h-11 items-center gap-1.5 font-bold">
-        Všechna setkání v kalendáři
-        <ArrowRightIcon size={18} />
-      </a>
+      <ArrowLink href={links.calendar}>Všechna setkání v kalendáři</ArrowLink>
     </section>
   );
 }
