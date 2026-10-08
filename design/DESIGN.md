@@ -733,7 +733,7 @@ Mockups: `mockups/kontakty/`. Section colour: **blue**. The header's current ite
 | **Úřední hodiny** | live **status line** (see 15.2); rows Pondělí 9:00–10:00 · Čtvrtek 19:00–20:00 (note "mimo letní prázdniny") · Jindy dle domluvy; today's row gets the blue tint |
 | **Duchovní správce** | round photo 88 px (placeholder), PhDr. ThLic. Ing. Jaroslav Filka, "duchovní správce farnosti"; `<dl>` Fara 541 230 183 · Mobil 723 661 146 · E-mail fara.kurim@seznam.cz, all as links |
 | **Kostely a kaple** | 4 rows, one per village of the parish, each a link to Mapy.cz: colour bar (Kuřim blue, Moravské Knínice green, Jinačovice orange, Česká magenta), village bold, building muted, "Mapa →"; then "Pořad bohoslužeb →". Kuřim: kostel sv. Maří Magdaleny; Moravské Knínice: kostel sv. Markéty; Jinačovice: **kaple sv. Máří Magdaleny** (bohoslužby dle domluvy); Česká: **kaple Panny Marie Růžencové**. Under the Kuřim and Moravské Knínice rows, an indented list of their **other chapels** (40 px rows, a small ring in the village colour, the chapel name, and "Katalog ↗" linking to its page in the diocese catalogue katalog.biskupstvi.cz): Kuřim – kaple Panny Marie Bolestné, kaple sv. Jana Nepomuckého; Moravské Knínice – kaple sv. Cyrila a Metoděje, kaple sv. Jana Nepomuckého. |
-| **Podpora farnosti** (orange tint, orange triangle) | "Bankovní účet farnosti", **247704317/0300** at 24 px, button **Zkopírovat** that switches to "Zkopírováno" (Clipboard API, `aria-live`) |
+| **Podpora farnosti** (orange tint, orange triangle) | "Bankovní účet farnosti", **247704317/0300** at 24 px, button **Zkopírovat** that switches to "Zkopírováno" (Clipboard API, `aria-live`); the button sits on its own line under the number, with a fixed minimum width of about 168 px so the label change never re-wraps it (see 22.2) |
 | **Sledujte nás** | Facebook, Instagram, Linktree buttons (**URLs to fill in**), then "Náměty a chyby na webu: Ondřej Planer, oplaner4@gmail.com" |
 
 ### 15.2 Office status line
@@ -1052,7 +1052,7 @@ Not in the main menu: reached from the "Více" menu / footer (group Farnost) and
 | as-of date | "Stav k …" shown once above the cards |
 | active / finished | finished projects move to Starší projekty |
 
-Copy buttons use the Clipboard API and announce "Zkopírováno" (`aria-live`).
+Copy buttons use the Clipboard API and announce "Zkopírováno" (`aria-live`). Every copy button (here and on Kontakty, 15.1) sits **on its own line under the value** and has a **fixed minimum width** that fits its longer label (about 168 px for "Zkopírovat" / "Zkopírováno", 230 px for "Zkopírovat číslo účtu", 160 px for "Zkopírovat VS"), with the label centred, so switching the label never changes the button width or re-wraps the layout.
 
 ## 23. Odkazy (`/odkazy`)
 
