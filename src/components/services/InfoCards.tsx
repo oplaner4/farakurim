@@ -25,11 +25,17 @@ function InfoCard({ id, title, children, desktopOnly }: CardProps) {
   );
 }
 
-function ArrowLink({ href, children }: { href: string; children: ReactNode }) {
+type ArrowLinkProps = { href: string; icon?: typeof ArrowRightIcon; children: ReactNode };
+
+/** A bold link with a trailing arrow, as in the cards of this page. */
+export function ArrowLink({ href, icon: Arrow = ArrowRightIcon, children }: ArrowLinkProps) {
   return (
-    <a href={href} {...externalLinkAttrs(href)} className="flex min-h-11 items-center gap-1.5 self-start font-bold">
-      {children}
-      <ArrowRightIcon size={18} />
+    <a href={href} {...externalLinkAttrs(href)} className="flex min-h-11 items-center self-start font-bold">
+      {/* Inline, so the arrow follows the last word when the text wraps. */}
+      <span>
+        {children}
+        <Arrow size={18} className="ml-1.5 inline align-middle" />
+      </span>
     </a>
   );
 }

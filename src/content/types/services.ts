@@ -114,3 +114,13 @@ export type ServiceSheet = {
   /** In the editor's order; changes are shown first. */
   announcements: Announcement[];
 };
+
+/** The Intence card (§14.1, 3a): how to have a mass said for one's intention. */
+export type Intentions = {
+  /** The intro sentence; `emphasis` is shown in bold between `before` and `after`. */
+  intro: { before: string; emphasis: string; after: string };
+  why: string;
+  /** Shown as pills. */
+  reasons: string[];
+  note: string;
+};

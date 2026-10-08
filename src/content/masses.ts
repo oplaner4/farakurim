@@ -1,5 +1,5 @@
 import type { ParishChurch } from "@/content/types/contacts";
-import type { Place, PlaceId, RegularService } from "@/content/types/services";
+import type { Intentions, Place, PlaceId, RegularService } from "@/content/types/services";
 
 // The parish's churches and its regular weekly schedule. Edit here when the schedule changes; the current ohlášky
 // (`content/ohlasky.ts`) override it day by day.
@@ -68,4 +68,23 @@ export const regularServices: RegularService[] = [
 export const sacraments = {
   confession: "Půl hodiny před každou mší svatou je možnost přistoupit ke svátosti smíření.",
   baptism: "Křty bývají druhou neděli v měsíci v 9:30. Termín si domluvte na faře.",
+};
+
+/** Pořad bohoslužeb §14.1 (3a): the Intence card. */
+export const intentions: Intentions = {
+  intro: {
+    before: "Úmysl, na který bude mše svatá sloužena, si můžete nechat zapsat ",
+    emphasis: "po každé mši svaté",
+    after: " v sakristii.",
+  },
+  why: "Mše svatá je nejlepší způsob, jak na oltář položit svůj dík i prosbu.",
+  reasons: [
+    "poděkování za výročí",
+    "za zemřelé",
+    "za zdraví",
+    "za Boží požehnání",
+    "v těžké situaci",
+    "o dar Ducha svatého",
+  ],
+  note: "Připadne-li na den mše s intencí pohřeb, mše s vaší intencí se slouží dál.",
 };

@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import type { ChurchSchedule } from "@/components/services/ChurchCard";
 import { InfoCards } from "@/components/services/InfoCards";
+import { IntentionsCard } from "@/components/services/IntentionsCard";
 import { RegularServices } from "@/components/services/RegularServices";
 import { OhlaskyPanel } from "@/components/services/OhlaskyPanel";
 import { WeekSchedule } from "@/components/services/WeekSchedule";
 import { PageHeading } from "@/components/ui/PageHeading";
-import { places, regularServices, sacraments } from "@/content/masses";
+import { intentions, places, regularServices, sacraments } from "@/content/masses";
 import { serviceSheet } from "@/content/ohlasky";
 import { events } from "@/content/news";
 import { links } from "@/content/site";
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
   title: "Pořad bohoslužeb",
   alternates: { canonical: links.services },
   description:
-    "Pravidelné bohoslužby v Kuřimi, Moravských Knínicích a Jinačovicích, aktuální ohlášky, svátost smíření a křty.",
+    "Pravidelné bohoslužby v Kuřimi, Moravských Knínicích a Jinačovicích, aktuální ohlášky, intence, svátost smíření a křty.",
 };
 
 // The schedule is grouped at build time; the client only filters it.
@@ -63,6 +64,7 @@ export default function ServicesPage() {
         <OhlaskyPanel sheet={serviceSheet} newsHref={newsHref} />
         <WeekSchedule days={weekDays} oneWeek={isOneWeek(serviceSheet)} renderedAt={BUILD_TIME} />
         <RegularServices churches={churches} renderedAt={BUILD_TIME} />
+        <IntentionsCard text={intentions} />
         <InfoCards confession={sacraments.confession} baptism={sacraments.baptism} />
         <noscript>
           <style>{"[data-js-only]{display:none}"}</style>
