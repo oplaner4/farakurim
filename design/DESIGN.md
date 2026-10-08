@@ -463,8 +463,16 @@ was posted.
   - `now` "Právě probíhá": magenta / white
   - `deadline` "Přihlášky do 10. 10.": orange tint / `#8A4B00` (dark: `--orange-tint` / `#FFC266`)
   - `info` "300 Kč", "7 setkání", "Každý týden": blue tint / blue ink
+  - **free tags** (entered by the editor, e.g. "Zrušeno"), each in its own colour:
+    - blue (default): blue tint / blue ink
+    - orange: orange tint / `#8A4B00` (dark: `--orange-tint` / `#FFC266`)
+    - magenta: magenta tint / magenta ink (the colours of the date block)
+    - grey: surface / ink-2 (like "Proběhlo")
   - `past` "Proběhlo": surface / ink-2
+  - **Order:** "Právě probíhá", the deadline, the computed tags (price, "N setkání", "Každý týden"), then the free tags, and "Proběhlo" last.
+  - "N setkání" is the number of meetings listed for a series (11.7).
 - **Meta**: the full date/time text ("pátek 2. – neděle 4. 10. 2026", "neděle 25. 10. 2026 · 9:30") and the place with a pin icon.
+- **Series of meetings** (a course, a cycle of evenings): the date block and the date line show the **first meeting** ("od neděle 11. 10. 2026"). "vždy 18:00–20:30" is added only when all meetings share the event's time; otherwise the time is left out of the line.
 - **Text**: a short description (aim for 1–2 sentences, clamp to 3 lines on mobile).
 - **Actions** (44 px, surface fill, radius 12):
   - attachments: file icon in magenta-ink, label plus type in muted ("Plakát PNG", "Pozvánka PDF");
@@ -490,11 +498,13 @@ to the first new card. Hide the button on the last page.
 | poster | image, used for thumbnail and featured panel |
 | attachments[] | label, file (type shown from extension) |
 | links[] | label, URL (http or mailto) |
-| tags | price, registration deadline (date), series count, free label |
-| long-term | boolean, or derived (e.g. a weekly series, or duration > 31 days) |
+| tags | price, registration deadline (date), the series' meetings (dates, each with an optional own time or end day; their count is the "N setkání" tag), free tags (label and colour: blue, orange, magenta or grey) |
+| long-term | boolean, or derived (e.g. a series of meetings, or duration > 31 days) |
 | pinned | boolean; at most one pinned event is shown in "Doporučujeme" |
 
 "Právě probíhá" and "Proběhlo" are **computed** from start/end and today, never stored.
+
+**Series of meetings:** a series stores the date of **every meeting**, not just a count. A meeting either uses the event's time, has its own time, or lasts several days (e.g. a weekend retreat: start and end day). Series are **not assumed to be weekly**. In the calendar (section 16) and in the "Přidat do kalendáře" `.ics` file (13.2), **each meeting is its own entry** at its own time. For a series, start = the first meeting, end = the last meeting.
 
 ### 11.8 Dark theme
 
@@ -578,7 +588,7 @@ Section colour: magenta. The header's current item stays "Aktuality".
 
 - Magenta-tint panel with magenta and orange triangles top-right, radius 24 / 28 / 28.
 - Rows with icons (magenta-ink): **Kdy** (label muted, value bold) and **Kde** (place bold + "Zobrazit na mapě" link to Mapy.cz with the place as a query).
-- **"Přidat do kalendáře"**: magenta filled button, 52 px. It downloads an `.ics` file (`/aktuality/<slug>.ics`) with title, start/end, place and the page URL. This is a new feature.
+- **"Přidat do kalendáře"**: magenta filled button, 52 px. It downloads an `.ics` file (`/aktuality/<slug>.ics`) with title, start/end, place and the page URL; for a series of meetings it contains one `VEVENT` per meeting, each at its own time (11.7). This is a new feature.
 - **"Sdílet"**: magenta outline button. It uses `navigator.share()` where available, and otherwise copies the URL and shows "Odkaz je zkopírovaný." (`role="status"`).
 
 ### 13.3 Content blocks
@@ -793,7 +803,7 @@ the Bohoslužby page and other in-page links. Section colour: **blue**, with
 - Recurring masses should live in Google Calendar as recurring events, with one-off changes (like 4. 10.) as exceptions. The website then has nothing to hard-code.
 - The mockups generate October 2026 from the regular schedule and the Aktuality events. Things to confirm with the parish:
   - **First Friday:** the 18:15 (Kuřim) and 17:00 (Moravské Knínice) masses are assumed to **replace** the usual Friday times.
-  - **Manželské večery:** the "7 setkání" are spread over the Sundays 11. 10. – 22. 11.
+  - **Manželské večery:** the 7 meetings are drawn on the Sundays 11. 10. – 22. 11.; in production they come from the event's list of meeting dates (11.7), each shown as its own calendar entry.
   - **Jubilee and Hubertská masses:** both are drawn as events that replace the regular 9:30 Sunday mass.
 - An event links to its detail page (section 13) when the website has a matching Aktuality record, for example by storing the Google event ID on the record.
 
