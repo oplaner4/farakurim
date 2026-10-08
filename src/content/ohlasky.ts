@@ -1,17 +1,9 @@
 import "server-only";
-import type { ScheduleException, ServiceSheet, SheetRow } from "@/content/types/services";
+import type { ScheduleException, ServiceSheet } from "@/content/types/services";
+import { massRow } from "@/lib/services/service-sheet";
 
 // The current ohlášky, filled from the parish's weekly PDF (`farnost-create-porad-bohosluzeb`). Server-only: rows marked not public must never reach a client bundle, so client
 // components get what they need as props (the schedule exceptions, the PDF link), never this module.
-
-const kurimMass = (time: string, detail?: string, extra: Partial<SheetRow> = {}): SheetRow => ({
-  time,
-  place: "kurim",
-  title: "Mše sv.",
-  mass: true,
-  ...(detail && { detail }),
-  ...extra,
-});
 
 const FOR_PARISHIONERS = "za živé a † farníky a dobrodince naší farnosti";
 
@@ -26,49 +18,41 @@ export const serviceSheet: ServiceSheet = {
       feast: "27. neděle v mezidobí",
       solemnity: true,
       rows: [
-        kurimMass("8:00", "za živou a † rodinu Valíčkovu"),
-        {
-          time: "9:30",
-          place: "moravske-kninice",
-          title: "Mše sv.",
-          mass: true,
-          detail: "za živou a zemřelou rodinu, přízeň a DO",
-        },
-        kurimMass("11:00", "za obec Česká, její obyvatele a rodáky", { title: "Hodová mše sv." }),
+        massRow("kurim", "8:00", "za živou a † rodinu Valíčkovu"),
+        massRow("moravske-kninice", "9:30", "za živou a zemřelou rodinu, přízeň a DO"),
+        massRow("kurim", "11:00", "za obec Česká, její obyvatele a rodáky", { title: "Hodová mše sv." }),
       ],
     },
-    { date: "2026-10-05", feast: "sv. Faustyna Kowalská", rows: [kurimMass("8:00", "za posilu v pastýřské službě")] },
-    { date: "2026-10-06", rows: [kurimMass("8:00", "za dar jednoty ve smýšlení a společném konání")] },
-    { date: "2026-10-07", feast: "Panna Maria Růžencová", rows: [kurimMass("8:00", FOR_PARISHIONERS)] },
+    {
+      date: "2026-10-05",
+      feast: "sv. Faustyna Kowalská",
+      rows: [massRow("kurim", "8:00", "za posilu v pastýřské službě")],
+    },
+    { date: "2026-10-06", rows: [massRow("kurim", "8:00", "za dar jednoty ve smýšlení a společném konání")] },
+    { date: "2026-10-07", feast: "Panna Maria Růžencová", rows: [massRow("kurim", "8:00", FOR_PARISHIONERS)] },
     {
       date: "2026-10-08",
       rows: [
         { time: "17:30", place: "kurim", title: "Adorace", service: true },
-        kurimMass("18:00", "za uzdravení bratrských vztahů a obnovení důvěry"),
+        massRow("kurim", "18:00", "za uzdravení bratrských vztahů a obnovení důvěry"),
       ],
     },
     {
       date: "2026-10-09",
       rows: [
-        kurimMass("16:45", "za † Janku Križalkovičovu"),
-        { time: "18:00", place: "moravske-kninice", title: "Mše sv.", mass: true, detail: "za nemocnou osobu" },
+        massRow("kurim", "16:45", "za † Janku Križalkovičovu"),
+        massRow("moravske-kninice", "18:00", "za nemocnou osobu"),
       ],
     },
-    { date: "2026-10-10", rows: [kurimMass("16:30", "za Komunitu Emmanuel")] },
+    { date: "2026-10-10", rows: [massRow("kurim", "16:30", "za Komunitu Emmanuel")] },
     {
       date: "2026-10-11",
       feast: "28. neděle v mezidobí",
       solemnity: true,
       rows: [
-        kurimMass("8:00", "za rodinu Skoupou a Kábelovu"),
-        kurimMass("9:30", "za Boží požehnání pro vnoučata a kmotřence"),
-        {
-          time: "11:00",
-          place: "moravske-kninice",
-          title: "Mše sv.",
-          mass: true,
-          detail: "na poděkování za prožitá léta a požehnání pro celou rodinu",
-        },
+        massRow("kurim", "8:00", "za rodinu Skoupou a Kábelovu"),
+        massRow("kurim", "9:30", "za Boží požehnání pro vnoučata a kmotřence"),
+        massRow("moravske-kninice", "11:00", "na poděkování za prožitá léta a požehnání pro celou rodinu"),
       ],
     },
   ],

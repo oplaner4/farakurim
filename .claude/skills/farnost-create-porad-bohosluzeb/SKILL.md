@@ -97,7 +97,7 @@ Run the command from step 1 without `--check`; it copies the PDF to `uploads/por
 ## 5. Replace the sheet
 
 Rewrite `serviceSheet` in `src/content/ohlasky.ts` with the new week. Keep the module's shape: `import "server-only"`,
-the helpers (`kurimMass`, `FOR_PARISHIONERS`, add others when a phrase repeats), and the `laterExceptions` export.
+the `massRow(place, time, detail?, extra?)` import from `@/lib/services/service-sheet` for every mass row, the phrase constants (`FOR_PARISHIONERS`, add others when a phrase repeats), and the `laterExceptions` export.
 Remove the `laterExceptions` entries the new sheet covers or that are past (on or before the new `validTo`; the
 content test fails otherwise): the sheet now holds those days.
 
@@ -107,9 +107,9 @@ content test fails otherwise): the sheet now holds those days.
       feast: "27. neděle v mezidobí",
       solemnity: true,
       rows: [
-        kurimMass("8:00", "za Jana Nováka"),
-        { time: "9:30", place: "moravske-kninice", title: "Mše sv.", mass: true },
-        kurimMass("11:00", "za obec Česká, její obyvatele a rodáky", { title: "Hodová mše sv." }),
+        massRow("kurim", "8:00", "za Jana Nováka"),
+        massRow("moravske-kninice", "9:30"),
+        massRow("kurim", "11:00", "za obec Česká, její obyvatele a rodáky", { title: "Hodová mše sv." }),
       ],
     },
 ```
