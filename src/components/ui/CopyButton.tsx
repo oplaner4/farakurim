@@ -8,7 +8,7 @@ import { CheckIcon, CopyIcon } from "./icons/status-icons";
 const RESET_MS = 3000;
 
 export const copyButton = cva(
-  "flex cursor-pointer items-center border-2 border-orange-ink font-bold text-orange-ink-deep hover:bg-orange-tint-alt",
+  "flex cursor-pointer items-center justify-center border-2 border-orange-ink font-bold text-orange-ink-deep hover:bg-orange-tint-alt",
   {
     variants: {
       size: {
@@ -16,8 +16,14 @@ export const copyButton = cva(
         /* The payment box of a project card (§22.1). The mockup's 40px is raised to the 44px touch target. */
         small: "min-h-11 rounded-10 px-3 text-14",
       },
+      /* A fixed minimum width that fits the longer label, so "Zkopírováno" never resizes the button (§22). */
+      width: {
+        default: "min-w-42",
+        account: "min-w-57.5",
+        vs: "min-w-40",
+      },
     },
-    defaultVariants: { size: "default" },
+    defaultVariants: { size: "default", width: "default" },
   },
 );
 
@@ -33,7 +39,7 @@ type Props = VariantProps<typeof copyButton> & {
  * Copies `text` with the Clipboard API; the label switches to "Zkopírováno" with a tick for a moment (§15.1, §22).
  * The changed label fades in; the live region around it stays mounted so the change is announced.
  */
-export function CopyButton({ text, label = "Zkopírovat", size, className }: Props) {
+export function CopyButton({ text, label = "Zkopírovat", size, width, className }: Props) {
   const [copied, setCopied] = useState(false);
   // No fade on the first render, only when the label changes.
   const [changed, setChanged] = useState(false);
@@ -56,7 +62,7 @@ export function CopyButton({ text, label = "Zkopírovat", size, className }: Pro
 
   return (
     // Needs JS: hidden by the page's <noscript> style.
-    <button type="button" onClick={copy} data-js-only className={copyButton({ size, className })}>
+    <button type="button" onClick={copy} data-js-only className={copyButton({ size, width, className })}>
       <span aria-live="polite" className="flex items-center">
         <span
           key={String(copied)}

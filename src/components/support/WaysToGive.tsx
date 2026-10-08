@@ -40,7 +40,7 @@ export function WaysToGive() {
         <div className="flex grow basis-74 flex-col gap-2 rounded-18 bg-raised p-4.5">
           <span className="text-14 text-muted">Bankovní účet farnosti</span>
           <strong className="text-24 md:text-28">{parish.bankAccount}</strong>
-          <CopyButton text={parish.bankAccount} label="Zkopírovat číslo účtu" className="self-start" />
+          <CopyButton text={parish.bankAccount} label="Zkopírovat číslo účtu" width="account" className="self-start" />
           <span className="text-14 text-ink-2">Bez variabilního symbolu jde dar na běžný chod farnosti.</span>
         </div>
       </div>

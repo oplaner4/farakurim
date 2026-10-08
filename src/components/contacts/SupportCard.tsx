@@ -9,7 +9,7 @@ export function SupportCard() {
     <ContactCard id="podpora-farnosti" title="Podpora farnosti" tone="orange">
       <span aria-hidden="true" className="absolute right-0 bottom-0 h-15 w-22.5 bg-orange shard-br" />
       <p className="text-15 text-ink-2">Bankovní účet farnosti</p>
-      <div className="relative flex flex-wrap items-center gap-3">
+      <div className="relative flex flex-col items-start gap-2.5">
         <strong className="text-24">{parish.bankAccount}</strong>
         <CopyButton text={parish.bankAccount} />
       </div>

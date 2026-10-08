@@ -78,7 +78,13 @@ export function ProjectCard({ project }: { project: SupportProject }) {
           <span className="text-17 font-bold">
             VS <span className="tracking-caps">{project.variableSymbol}</span>
           </span>
-          <CopyButton text={project.variableSymbol} label="Zkopírovat VS" size="small" className="mt-0.5 self-start" />
+          <CopyButton
+            text={project.variableSymbol}
+            label="Zkopírovat VS"
+            width="vs"
+            size="small"
+            className="mt-0.5 self-start"
+          />
         </div>
         <PaymentQr variableSymbol={project.variableSymbol} project={project.title} />
       </div>

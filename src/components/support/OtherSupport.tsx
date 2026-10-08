@@ -84,7 +84,7 @@ export function OtherSupport({ support }: { support: SupportPage }) {
             </span>
             <strong className="text-24">{formatCzk(regularGifts.received)}</strong>
           </div>
-          <CopyButton text={regularGifts.variableSymbol} label="Zkopírovat VS" className="self-start" />
+          <CopyButton text={regularGifts.variableSymbol} label="Zkopírovat VS" width="vs" className="self-start" />
         </Card>
         <Card id="fond-puls" title="Fond PULS">
           <p className="text-15 text-ink-2">Příspěvek do fondu pro podporu kněží a pastorace brněnské diecéze.</p>
