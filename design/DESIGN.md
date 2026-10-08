@@ -499,7 +499,7 @@ to the first new card. Hide the button on the last page.
 | attachments[] | label, file (type shown from extension) |
 | links[] | label, URL (http or mailto) |
 | tags | price, registration deadline (date), the series' meetings (dates, each with an optional own time or end day; their count is the "N setkání" tag), free tags (label and colour: blue, orange, magenta or grey) |
-| long-term | boolean, or derived (e.g. a series of meetings, or duration > 31 days) |
+| long-term | set by the editor, never derived: either "every week on the start's weekday at a time" (a weekly series with no end date list, shown with the "Každý týden" tag and the weekday and time in the date block) or "other long-running event" (e.g. an exhibition, shown with a month range "III–XI"). A series of meetings with listed dates is **not** long-term: it is a normal event shown by its first meeting. |
 | pinned | boolean; at most one pinned event is shown in "Doporučujeme" |
 
 "Právě probíhá" and "Proběhlo" are **computed** from start/end and today, never stored.
@@ -636,6 +636,13 @@ current item is "Bohoslužby" (blue-tint pill).
    - **Announcement cards**: one column on mobile, two on tablet and desktop.
 2a. **"Rozpis bohoslužeb tento týden"** below the panel: the weekly schedule from the PDF table, as a day-by-day list. See 14.6.
 3. **"Pravidelné bohoslužby"**: H2, a muted note "Dnes je sobota · změny vždy v ohláškách", day filter (14.2), church cards (14.3).
+3a. **Intence – mše na váš úmysl** (full-width card above the Smíření and Křty cards; blue tint, blue corner triangle, radius 24 / 24 / 28):
+   - H2 "Intence – mše na váš úmysl"; text "Úmysl, na který bude mše svatá sloužena, si můžete nechat zapsat **po každé mši svaté** v sakristii." and "Mše svatá je nejlepší způsob, jak na oltář položit svůj dík i prosbu."
+   - H3 "Za co můžete prosit nebo děkovat" with pills (white fill, blue ink, 14 px bold): poděkování za výročí · za zemřelé · za zdraví · za Boží požehnání · v těžké situaci · o dar Ducha svatého.
+   - Muted note: "Připadne-li na den mše s intencí pohřeb, mše s vaší intencí se slouží dál."
+   - Link "Intence na tento týden najdete v rozpisu bohoslužeb ↑" to the weekly schedule (14.6).
+   - Desktop: text left, pills and note right (two equal columns). Tablet and mobile: one column.
+   - To confirm with the parish: where intentions are written ("v sakristii" or at the fara) and the wording of the funeral note.
 4. **Svátost smíření**: "Půl hodiny před každou mší svatou je možnost přistoupit ke svátosti smíření."
 5. **Křty**: "Křty bývají druhou neděli v měsíci v 9:30. Termín si domluvte na faře." plus a link to Kontakty.
 6. **Kalendář farnosti**: link to `/kalendar`. Mobile and tablet: outline button. Desktop: a third card beside Smíření and Křty.
@@ -667,7 +674,7 @@ current item is "Bohoslužby" (blue-tint pill).
 | churches[] | name, place, colour (blue/green/orange), map query |
 | regular services[] | church, weekday, time, title, note, rule: `every` / `first-in-month` |
 | this week | ohlášky PDF + its date range, list of changes (date + text), this week's confession times |
-| sacrament notes | smíření text, křty text |
+| sacrament notes | smíření text, křty text, intence text (intro, reasons as pills, note) |
 
 The homepage "next mass" countdown (section 5) uses the same regular services plus
 this week's changes. One data source feeds both pages.
