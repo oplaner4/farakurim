@@ -1,18 +1,13 @@
 import { notFound } from "next/navigation";
 import { PlannedPageView, plannedPageMetadata } from "@/components/layout/PlannedPageView";
-import { links } from "@/content/site";
 import { plannedPages } from "@/content/planned-pages";
-import { findPlannedPage, pathSegments, plannedSegments } from "@/lib/shared/planned-pages";
+import { findPlannedPage, pathSegments } from "@/lib/shared/planned-pages";
 
-// Static export: the old site's pages not rebuilt yet, at their old URLs (those under /aktivity/ have their routes).
+// Static export: the old site's pages not rebuilt yet, at their old URLs.
 export const dynamicParams = false;
 
-const ACTIVITIES = pathSegments(links.activities)[0];
-
 export function generateStaticParams() {
-  return plannedSegments(plannedPages, [])
-    .filter((segments) => segments[0] !== ACTIVITIES)
-    .map((stranka) => ({ stranka }));
+  return plannedPages.map((page) => ({ stranka: pathSegments(page.path) }));
 }
 
 export async function generateMetadata({ params }: PageProps<"/[...stranka]">) {

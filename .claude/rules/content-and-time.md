@@ -90,9 +90,9 @@ build-time next mass.
   calendars whose title contains that text (`src/lib/activities/meetings.ts`): read at build time for eight weeks
   and re-read in the browser like the other calendars; hidden when there is none.
 - Pages not rebuilt yet (`content/planned-pages.ts`): every old-site URL from farakurim.cz/sitemap has a page with
-  its breadcrumb and "Stránku připravujeme" (noindex, not in the sitemap), built by `src/app/[...stranka]/` and,
-  under Seznam aktivit, `src/app/aktivity/[skupina]/`. The groups live under `/aktivity/`; `public/.htaccess`
-  redirects their old URLs. Remove a page from the list when it is rebuilt. Mimořádné katecheze are not rebuilt: the
+  its breadcrumb and "Stránku připravujeme" (noindex, not in the sitemap), built by `src/app/[...stranka]/` (never under
+  `/aktivity/`, where `src/app/aktivity/[skupina]/` builds only the group pages). The groups live under `/aktivity/`;
+  `public/.htaccess` redirects their old URLs. Remove a page from the list when it is rebuilt. Mimořádné katecheze are not rebuilt: the
   Katecheze link card and `public/.htaccess` lead to them on the old site (`OLD_SITE_URL`, same path).
 - Odkazy (`content/web-links.ts`, design §23): link groups with a colour; "Obce farnosti" reuses `parish.villages`
   (also the footer), and the card's domain is computed (`displayDomain()`).

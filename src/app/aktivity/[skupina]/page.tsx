@@ -2,35 +2,26 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { GroupPageView } from "@/components/activities/GroupPageView";
 import { NextMeeting } from "@/components/activities/NextMeeting";
-import { PlannedPageView, plannedPageMetadata } from "@/components/layout/PlannedPageView";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { loadCalendarEntries } from "@/content/calendar";
 import { groupPages } from "@/content/groups";
-import { plannedPages } from "@/content/planned-pages";
-import { links } from "@/content/site";
 import { isMeeting, meetingRange } from "@/lib/activities/meetings";
 import { BUILD_TIME } from "@/lib/shared/build-time";
-import { findPlannedPage, pathSegments, plannedSegments } from "@/lib/shared/planned-pages";
 import { pragueDate } from "@/lib/shared/prague";
 
-// Static export: one page per group (design/DESIGN.md §27), under Seznam aktivit like its breadcrumb. Groups not
-// rebuilt yet show their placeholder (`content/planned-pages.ts`).
+// Static export: one page per group (design/DESIGN.md §27), under Seznam aktivit like its breadcrumb.
 export const dynamicParams = false;
 
-const ACTIVITIES = pathSegments(links.activities);
-
 export function generateStaticParams() {
-  const planned = plannedSegments(plannedPages, ACTIVITIES, 1).map(([skupina]) => skupina);
-  return [...groupPages.map((group) => group.id), ...planned].map((skupina) => ({ skupina }));
+  return groupPages.map((group) => ({ skupina: group.id }));
 }
 
 const findGroup = (id: string) => groupPages.find((group) => group.id === id);
-const findPlanned = (id: string) => findPlannedPage(plannedPages, [...ACTIVITIES, id]);
 
 export async function generateMetadata({ params }: PageProps<"/aktivity/[skupina]">): Promise<Metadata> {
   const { skupina } = await params;
   const group = findGroup(skupina);
-  if (!group) return plannedPageMetadata(findPlanned(skupina));
+  if (!group) notFound();
   return {
     title: group.name,
     description: group.description ?? group.tagline,
@@ -49,11 +40,7 @@ async function nextMeeting(calendarTitle: string) {
 export default async function GroupPage({ params }: PageProps<"/aktivity/[skupina]">) {
   const { skupina } = await params;
   const group = findGroup(skupina);
-  if (!group) {
-    const planned = findPlanned(skupina);
-    if (!planned) notFound();
-    return <PlannedPageView page={planned} />;
-  }
+  if (!group) notFound();
   return (
     <>
       <SiteHeader currentHref={group.href} />

@@ -1,6 +1,6 @@
 // Pages of the old site not rebuilt yet (planned-pages.ts): their URLs exist, with "Stránku připravujeme".
 
-/** A placeholder page at an old-site URL (or its new place under /aktivity/). */
+/** A placeholder page at an old-site URL. */
 export type PlannedPage = {
   /** "/farni_tabor/2024/": root-relative, with the trailing slash of the static export. */
   path: string;

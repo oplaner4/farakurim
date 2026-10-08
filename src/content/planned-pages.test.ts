@@ -17,6 +17,10 @@ describe("Stránky v přípravě (planned-pages.ts)", () => {
     expect(hrefs.filter((href) => !pages.has(href))).toEqual([]);
   });
 
+  it("keeps out of /aktivity/, where only the group pages are built", () => {
+    expect(plannedPages.filter((p) => p.path.startsWith(links.activities)).map((p) => p.path)).toEqual([]);
+  });
+
   it("does not take the place of a rebuilt page", () => {
     const rebuilt = [...Object.values(links), ...groupPages.map((g) => g.href)];
     expect(plannedPages.filter((p) => rebuilt.includes(p.path)).map((p) => p.path)).toEqual([]);
