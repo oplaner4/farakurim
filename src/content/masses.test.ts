@@ -26,4 +26,12 @@ describe("Kostely a kaple (masses.ts)", () => {
     expect(parishChurches.map((c) => c.village)).toEqual(parish.villages.map((v) => v.name));
     for (const c of parishChurches) expect(c.building, c.village).not.toBe("");
   });
+
+  it("links the other chapels to the diocese catalogue and map overrides to Mapy.com", () => {
+    for (const c of parishChurches) {
+      for (const chapel of c.chapels ?? [])
+        expect(chapel.href, chapel.name).toMatch(/^https:\/\/katalog\.biskupstvi\.cz\//);
+      if (c.mapUrl) expect(c.mapUrl, c.village).toMatch(/^https:\/\/mapy\.(com|cz)\//);
+    }
+  });
 });

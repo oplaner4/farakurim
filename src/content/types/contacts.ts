@@ -14,6 +14,18 @@ export type ParishChurch = {
   color: ChurchColor | "magenta";
   /** Mapy.cz search. */
   mapQuery: string;
+  /** A Mapy.com share link, used instead of `mapQuery` when the search finds the wrong place. */
+  mapUrl?: string;
+  /** The village's other chapels, each linked to its page in the diocese catalogue (katalog.biskupstvi.cz). */
+  chapels?: ParishChapel[];
+};
+
+/** A smaller chapel listed under its village's church (§15.1). */
+export type ParishChapel = {
+  /** "Kaple Panny Marie Bolestné" */
+  name: string;
+  /** Its page in the diocese catalogue. */
+  href: string;
 };
 
 /** A weekly office-hours slot (§15.2). */
