@@ -33,12 +33,15 @@ build-time next mass.
   next mass and Pořad bohoslužeb. Rows without a `title` are masses; titled rows ("Adorace") are mass-like services.
   Both count for the homepage countdown, which says "Nejbližší mše svatá" for a mass and "Nejbližší bohoslužba" with
   the title otherwise. First-Friday/Saturday variants use `rule: "first-in-month"` (and `"not-first-in-month"` for
-  what they replace). Exceptions (`scheduleExceptions`) **replace the whole day's services**, titled ones included;
+  what they replace). Exceptions (`scheduleExceptions()`) **replace the whole day's services**, titled ones included;
   never hard-code those variants in logic.
 - Ohlášky (`content/ohlasky.ts`, design §14.5–14.7): one `ServiceSheet` per week (or two weeks around holidays; `isOneWeek()` switches the labels) with `days[].rows[]` and
   `announcements[]`. For every day from `validFrom` to `validTo` the sheet's `mass` and `service` rows (adoration,
   "Velikonoční obřady"; never funerals, baptisms, weddings) are the day's only services (`sheetExceptions()`), never
-  combined with `regularServices`; after the week the regular schedule applies. `changed` only adds the "změna" tag; `markChanges()` sets it on masses that are not in the regular schedule. Intentions are published word for word, names included (the parish's decision: the PDF
+  combined with `regularServices`; after the week the regular schedule applies, except on the hand-entered
+  `laterExceptions` (changes announced for later dates; `scheduleExceptions()` puts them after the sheet's days and
+  drops the ones the sheet covers or that are past). Only the sheet and `laterExceptions` are content: the combined
+  exceptions are computed by their consumers (homepage, `content/calendar.ts`). `changed` only adds the "změna" tag; `markChanges()` sets it on masses that are not in the regular schedule. Intentions are published word for word, names included (the parish's decision: the PDF
   is public too). A row the user asks to hide gets `public: false`, which keeps its `detail` off the web: the module
   is `server-only`, pages pass `publicDays()` and client components get only props, never the module.
 - Petrklíč (`content/petrklic.ts`): one record per issue, newest first, added with `farnost-create-petrklic`; the
@@ -52,7 +55,7 @@ build-time next mass.
   build's entries (`mergeEntries()`); a range outside the prerendered one is dimmed with a loading or error message
   until Google answers. Without `NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY` the entries are a fallback generated from
   `regularServices` and the Aktuality records, nothing is fetched, and paging stops at the prerendered months; a release build (`RELEASE_BUILD=1`) fails without the key instead (`src/lib/shared/build-env.ts`). An Aktuality record links to its calendar event through `calendarEventId`. The weekly table and the
-  next-mass countdown still use `regularServices` / `scheduleExceptions`.
+  next-mass countdown still use `regularServices` / `scheduleExceptions()`.
 - Fotogalerie (`content/gallery.ts`): Zonerama albums, newest first, with `photoCount` and optional `photos`
   (`small`/`large` URLs). An album without `photos` shows `photoCount` designed placeholders in the strips and the homepage
   carousel; alt texts are computed (`photoAlt()` in `src/lib/gallery/albums.ts`). A photo opens the

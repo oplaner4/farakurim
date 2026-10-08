@@ -46,6 +46,18 @@ export function sheetExceptions(
 }
 
 /**
+ * All schedule exceptions: every day of the sheet's week (`sheetExceptions()`), then the hand-entered `later` ones.
+ * A hand-entered exception the sheet covers, or that is past, is dropped, so the sheet always wins over it.
+ */
+export function scheduleExceptions(
+  sheet: Pick<ServiceSheet, "days" | "validFrom" | "validTo">,
+  later: ScheduleException[],
+  places: readonly PlaceId[],
+): ScheduleException[] {
+  return [...sheetExceptions(sheet, places), ...later.filter((x) => x.date > sheet.validTo)];
+}
+
+/**
  * Tags a mass "změna" (`changed`) when its time and place are not a regular mass of that date (`rule` included).
  * A weekday without any regular mass has nothing to change, so its masses stay untagged; a `changed: true` entered
  * by hand (the PDF marks a change) is kept.

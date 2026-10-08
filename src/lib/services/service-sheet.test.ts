@@ -4,6 +4,7 @@ import {
   isOneWeek,
   markChanges,
   publicDays,
+  scheduleExceptions,
   sheetExceptions,
   showWeekLabel,
   sortAnnouncements,
@@ -60,6 +61,33 @@ describe("sheetExceptions", () => {
     const twoWeeks = sheetExceptions({ validFrom: "2026-10-04", validTo: "2026-10-18", days }, ["kurim"]);
     expect(twoWeeks.map((x) => x.date)).toHaveLength(15);
     expect(twoWeeks.at(-1)).toEqual({ date: "2026-10-18", reason: "dle ohlášek", services: [] });
+  });
+});
+
+describe("scheduleExceptions", () => {
+  const sheet = { validFrom: "2026-10-02", validTo: "2026-10-05", days };
+  const cancelled = (date: string) => ({ date, reason: "zrušeno", services: [] });
+
+  it("puts the sheet's days first, then the hand-entered exceptions after the week", () => {
+    const result = scheduleExceptions(sheet, [cancelled("2026-10-11"), cancelled("2026-10-18")], ["kurim"]);
+    expect(result.map((x) => x.date)).toEqual([
+      "2026-10-02",
+      "2026-10-03",
+      "2026-10-04",
+      "2026-10-05",
+      "2026-10-11",
+      "2026-10-18",
+    ]);
+    expect(result.at(-1)).toEqual(cancelled("2026-10-18"));
+  });
+
+  it("drops hand-entered exceptions the sheet covers or that are past", () => {
+    const result = scheduleExceptions(
+      sheet,
+      [cancelled("2026-09-27"), cancelled("2026-10-04"), cancelled("2026-10-05")],
+      ["kurim"],
+    );
+    expect(result).toEqual(sheetExceptions(sheet, ["kurim"]));
   });
 });
 

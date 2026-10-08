@@ -1,10 +1,8 @@
 import "server-only";
-import { sheetExceptions } from "@/lib/services/service-sheet";
-import { places } from "./masses";
-import type { PlaceId, ScheduleException, ServiceSheet, SheetRow } from "@/content/types/services";
+import type { ScheduleException, ServiceSheet, SheetRow } from "@/content/types/services";
 
 // The current ohlášky, filled from the parish's weekly PDF (`farnost-create-porad-bohosluzeb`). Server-only: rows marked not public must never reach a client bundle, so client
-// components get what they need as props (`scheduleExceptions`, the PDF link), never this module.
+// components get what they need as props (the schedule exceptions, the PDF link), never this module.
 
 const kurimMass = (time: string, detail?: string, extra: Partial<SheetRow> = {}): SheetRow => ({
   time,
@@ -100,9 +98,8 @@ export const serviceSheet: ServiceSheet = {
 };
 
 /**
- * Days whose masses differ from the regular schedule: every day of this week's ohlášky first (only its masses count),
- * then cancellations or changes after this week (the first entry for a date wins).
+ * Hand-entered changes after this week's ohlášky, as soon as the parish announces them: each replaces its whole day
+ * (`services: []` cancels it). `scheduleExceptions()` puts them after the sheet's days and drops the ones the sheet
+ * covers or that are past.
  */
-export const scheduleExceptions: ScheduleException[] = [
-  ...sheetExceptions(serviceSheet, Object.keys(places) as PlaceId[]),
-];
+export const laterExceptions: ScheduleException[] = [];

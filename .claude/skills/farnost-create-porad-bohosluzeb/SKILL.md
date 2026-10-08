@@ -62,7 +62,14 @@ its intention off the web); that row's `detail` then stays in the PDF only.
 **The sheet drives the week**: for every date from `validFrom` to `validTo`, the day's `mass` and `service` rows are
 its only services (`sheetExceptions()`); the regular schedule is never mixed in, and applies again only after the
 week. So enter **every day of the week** with all its rows, as the PDF does: a missing mass is a cancelled mass, a
-missing day has no services. A cancellation needs no manual `scheduleExceptions` entry; mention it to the user.
+missing day has no services. A cancellation within the week needs no `laterExceptions` entry; mention it to the user.
+
+**Later changes** (`laterExceptions`): an announcement of a change **after** `validTo` ("v neděli 25. 10. mše svatá
+nebude", a moved time) can go into `laterExceptions` right away, so the next-mass countdown is right before that
+week's ohlášky arrive. Each entry replaces its whole day: list every service of that date at the parish churches
+(masses as `{ time, place }`, titled ones with `title`), `services: []` for none, and a short `reason`. Ask the user
+before adding one, and remind them to change Google Calendar too (the Kalendář reads it). Keep the entries in date
+order, one per date.
 
 **Changes**: the "změna" tag is computed (`markChanges()`): a mass whose time and place are not in `regularServices`
 for that date is a change, except on a weekday without any regular mass (e.g. a Tuesday morning mass).
@@ -90,9 +97,9 @@ Run the command from step 1 without `--check`; it copies the PDF to `uploads/por
 ## 5. Replace the sheet
 
 Rewrite `serviceSheet` in `src/content/ohlasky.ts` with the new week. Keep the module's shape: `import "server-only"`,
-the helpers (`kurimMass`, `FOR_PARISHIONERS`, add others when a phrase repeats), and the `scheduleExceptions`
-export (`...sheetExceptions(...)` first, then manual entries for dates after the week, such as an announced
-cancellation; the first entry for a date wins). Remove manual entries that are now covered by the sheet or past.
+the helpers (`kurimMass`, `FOR_PARISHIONERS`, add others when a phrase repeats), and the `laterExceptions` export.
+Remove the `laterExceptions` entries the new sheet covers or that are past (on or before the new `validTo`; the
+content test fails otherwise): the sheet now holds those days.
 
 ```ts
     {

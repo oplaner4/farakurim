@@ -1,11 +1,13 @@
 import { newsEntries, scheduleEntries, type DateRange } from "@/lib/calendar/agenda";
 import { fetchGoogleCalendar, toEntries } from "@/lib/calendar/google-calendar";
 import { eventHref } from "@/lib/news/events";
+import { scheduleExceptions } from "@/lib/services/service-sheet";
 import { places, regularServices } from "./masses";
-import { scheduleExceptions } from "./ohlasky";
+import { laterExceptions, serviceSheet } from "./ohlasky";
 import { events } from "./news";
 import { GOOGLE_CALENDAR_API_KEY, parishCalendars, SITE_URL } from "./site";
 import type { CalendarEntry, CalendarId } from "@/content/types/calendar";
+import type { PlaceId } from "@/content/types/services";
 
 // The two parish calendars (design/DESIGN.md §16.4), read at build time. Server-only: it imports all Aktuality.
 
@@ -21,8 +23,9 @@ export const calendarHrefs: Record<string, string> = Object.fromEntries(
  */
 export async function loadCalendarEntries(range: DateRange): Promise<CalendarEntry[]> {
   if (!GOOGLE_CALENDAR_API_KEY) {
+    const exceptions = scheduleExceptions(serviceSheet, laterExceptions, Object.keys(places) as PlaceId[]);
     return [
-      ...scheduleEntries({ regular: regularServices, exceptions: scheduleExceptions }, places, range),
+      ...scheduleEntries({ regular: regularServices, exceptions }, places, range),
       ...newsEntries(events, eventHref).filter((e) => (e.end ?? e.date) >= range.from && e.date <= range.to),
     ];
   }
