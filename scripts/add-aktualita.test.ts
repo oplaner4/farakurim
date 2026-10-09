@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { cpSync, existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -17,6 +17,15 @@ import {
 } from "./add-aktualita";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
+
+// The newest year folder in news/ and the one after it, which does not exist yet: the new-year tests must keep
+// passing after a real event of that year adds its folder.
+const LAST_YEAR = Math.max(
+  ...readdirSync(join(root, "src/content/news"), { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && /^\d{4}$/.test(entry.name))
+    .map((entry) => Number(entry.name)),
+);
+const NEW_YEAR = String(LAST_YEAR + 1);
 
 /** Formats `files` (relative to `dir`) with the repo's Prettier config, as the command does. */
 const prettier = (dir: string, files: string[]) => formatFiles(files.map((f) => join(dir, f)));
@@ -139,10 +148,14 @@ describe("yearFiles and addYear", () => {
   });
 
   it("lists the new year first in news/index.ts", () => {
-    const updated = addYear(readFileSync(join(root, "src/content/news/index.ts"), "utf8"), "2027");
-    expect(updated).toContain('import { events2026 } from "./2026";\nimport { events2027 } from "./2027";');
+    const updated = addYear(readFileSync(join(root, "src/content/news/index.ts"), "utf8"), NEW_YEAR);
+    expect(updated).toContain(
+      `import { events${LAST_YEAR} } from "./${LAST_YEAR}";\nimport { events${NEW_YEAR} } from "./${NEW_YEAR}";`,
+    );
     // Prettier wraps the list, and the command formats the file afterwards.
-    expect(updated.replace(/\s+/g, " ")).toContain("export const events: NewsEvent[] = [...events2027, ...events2026,");
+    expect(updated.replace(/\s+/g, " ")).toContain(
+      `export const events: NewsEvent[] = [...events${NEW_YEAR}, ...events${LAST_YEAR},`,
+    );
     expect(() => addYear("export const x = 1;", "2027")).toThrow(/unexpected shape/);
   });
 });
@@ -219,13 +232,14 @@ describe("addAktualita on a copy of news/", { timeout: 30_000 }, () => {
   });
 
   it("starts a new year", async () => {
-    const result = addAktualita(news, record({ id: "trikralova-sbirka-2027", start: "2027-01-02" }), { now });
+    const id = `trikralova-sbirka-${NEW_YEAR}`;
+    const result = addAktualita(news, record({ id, start: `${NEW_YEAR}-01-02` }), { now });
     expect(result.newYear).toBe(true);
-    expect(result.written).toEqual([...Object.keys(yearFiles("2027")).map((f) => `2027/${f}`), "index.ts"]);
-    expect(existsSync(join(news, "2027/12.ts"))).toBe(true);
+    expect(result.written).toEqual([...Object.keys(yearFiles(NEW_YEAR)).map((f) => `${NEW_YEAR}/${f}`), "index.ts"]);
+    expect(existsSync(join(news, `${NEW_YEAR}/12.ts`))).toBe(true);
     await prettier(news, result.written);
 
     const { events } = (await import(`${join(news, "index.ts")}?t=${Date.now()}`)) as { events: NewsEvent[] };
-    expect(events[0].id).toBe("trikralova-sbirka-2027");
+    expect(events[0].id).toBe(id);
   });
 });
