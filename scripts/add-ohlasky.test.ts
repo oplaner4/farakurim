@@ -41,8 +41,11 @@ describe("addOhlasky on a temp ohlasky.json and news/", () => {
     dir = mkdtempSync(join(tmpdir(), "add-ohlasky-"));
     file = join(dir, "ohlasky.json");
     news = join(dir, "news");
-    mkdirSync(news);
-    writeFileSync(join(news, "10.ts"), '  {\n    id: "farni-den-2026",\n  },\n');
+    mkdirSync(join(news, "2026"), { recursive: true });
+    writeFileSync(
+      join(news, "2026", "10.json"),
+      JSON.stringify([{ id: "farni-den-2026", title: "Farní den", start: "2026-10-11", text: "Farní den." }]),
+    );
     writeFileSync(file, JSON.stringify({ sheets: [], laterExceptions: LATER }));
     // An older sheet (27. 9.–4. 10.) and the current one (4.–11. 10.), written as the command writes them on
     // 30. 9., when both are still kept.

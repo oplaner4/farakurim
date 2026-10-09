@@ -56,7 +56,7 @@ describe("runCommand", { timeout: 30_000 }, () => {
       "--check",
     ]);
     expect(aktualita.lines).toEqual([
-      "Would add the record to src/content/news/2026/10.ts",
+      "Would add the record to src/content/news/2026/10.json",
       "Would stage uploads/aktuality/x-2026-letak.jpg",
     ]);
   });

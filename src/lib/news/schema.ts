@@ -102,6 +102,3 @@ export const newsEventSchema = z
       ctx.addIssue({ code: "custom", path: ["time"], message: TIME_MESSAGE });
     }
   }) satisfies z.ZodType<NewsEvent>;
-
-/** The record's fields in the order the month files keep them. */
-export const NEWS_EVENT_FIELDS = Object.keys(newsEventSchema.shape);

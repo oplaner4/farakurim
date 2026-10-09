@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import * as z from "zod";
-import { NEWS_EVENT_FIELDS, newsEventSchema } from "./schema";
+import { newsEventSchema } from "./schema";
 
 const event = {
   id: "hody-ceska-2026",
@@ -103,12 +103,5 @@ describe("newsEventSchema", () => {
   it("names every problem with its field", () => {
     const result = newsEventSchema.safeParse({ ...event, start: "x", tittle: "y" });
     expect(z.prettifyError(result.error!)).toContain("→ at start");
-  });
-});
-
-describe("NEWS_EVENT_FIELDS", () => {
-  it("lists the fields in the month files' order", () => {
-    expect(NEWS_EVENT_FIELDS.slice(0, 4)).toEqual(["id", "title", "start", "end"]);
-    expect(NEWS_EVENT_FIELDS.indexOf("published")).toBeLessThan(NEWS_EVENT_FIELDS.indexOf("poster"));
   });
 });

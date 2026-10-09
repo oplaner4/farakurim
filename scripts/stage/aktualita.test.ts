@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";
 import { describe, expect, it } from "vitest";
+import { readMonth } from "@/content/news";
 import { labelSuffix, stageAktualita } from "./aktualita";
 import { useStageFixture } from "../test-helpers";
 
@@ -30,8 +31,8 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
     const size = readFileSync(join(env.home, "Downloads", source)).length;
     expect(lines).toEqual([
       "Would stage uploads/aktuality/hody-ceska-plakat.jpg and .webp",
-      '    poster: { src: `${UPLOADS}/hody-ceska-plakat.webp`, alt: "Plakát: Hody v České" },',
-      `    attachments: [{ label: "Plakát", file: \`\${UPLOADS}/hody-ceska-plakat.jpg\`, size: ${size} }],`,
+      '"poster": {"src":"/uploads/aktuality/hody-ceska-plakat.webp","alt":"Plakát: Hody v České"},',
+      `"attachments": [{"label":"Plakát","file":"/uploads/aktuality/hody-ceska-plakat.jpg","size":${size}}],`,
     ]);
     expect(written).toEqual([]);
     expect(existsSync(uploaded())).toBe(false);
@@ -60,7 +61,9 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
     const source = await poster();
     const { lines } = await stageAktualita(env, { source, id: "a", label: " Mapka trasy ", check: true });
     expect(lines[0]).toBe("Would stage uploads/aktuality/a-mapka-trasy.jpg and .webp");
-    expect(lines.at(-1)).toContain('attachments: [{ label: "Mapka trasy", file: `${UPLOADS}/a-mapka-trasy.jpg`');
+    expect(lines.at(-1)).toContain(
+      '"attachments": [{"label":"Mapka trasy","file":"/uploads/aktuality/a-mapka-trasy.jpg"',
+    );
     const audio = download("koncert.mp3", "x");
     expect((await stageAktualita(env, { source: audio, id: "b", label: "Záznam koncertu" })).lines[0]).toBe(
       "Staged uploads/aktuality/b-zaznam-koncertu.mp3",
@@ -105,7 +108,7 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
     const source = await poster();
     const options = { source, id: "test-hody-2026", label: "Plakát", record };
     expect((await stageAktualita(env, { ...options, check: true })).lines[0]).toBe(
-      "Would add the record to src/content/news/2026/10.ts",
+      "Would add the record to src/content/news/2026/10.json",
     );
     const { lines, written } = await stageAktualita(env, {
       ...options,
@@ -113,15 +116,17 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
     });
     expect(lines).toEqual([
       "Staged uploads/aktuality/test-hody-2026-plakat.jpg and .webp",
-      "Added the record to src/content/news/2026/10.ts",
+      "Added the record to src/content/news/2026/10.json",
     ]);
-    expect(written).toEqual(["2026/10.ts"]);
-    const month = readFileSync(join(env.newsDir, "2026/10.ts"), "utf8");
-    expect(month).toContain('id: "test-hody-2026",');
-    expect(month).toContain(
-      'poster: { src: `${UPLOADS}/test-hody-2026-plakat.webp`, alt: "Plakát: Hody v České 20. října" }',
-    );
-    expect(month).toContain('attachments: [{ label: "Plakát", file: `${UPLOADS}/test-hody-2026-plakat.jpg`, size: ');
+    expect(written).toEqual(["2026/10.json"]);
+    const added = readMonth(env.newsDir, "2026/10.json").find((e) => e.id === "test-hody-2026");
+    expect(added?.poster).toEqual({
+      src: "/uploads/aktuality/test-hody-2026-plakat.webp",
+      alt: "Plakát: Hody v České 20. října",
+    });
+    expect(added?.attachments).toEqual([
+      { label: "Plakát", file: "/uploads/aktuality/test-hody-2026-plakat.jpg", size: expect.any(Number) },
+    ]);
   });
 
   it("stages nothing for a record it refuses", async () => {

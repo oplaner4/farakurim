@@ -1,6 +1,6 @@
 // `pnpm stage aktualita` (scripts/stage/cli.ts): stages an aktualita's file as
 // uploads/aktuality/<id>-<label in ASCII>.<ext> with its poster WebP and, with a record, adds the event with its
-// files to src/content/news/ (scripts/add-aktualita.ts).
+// files to its month file in src/content/news/ (scripts/add-aktualita.ts).
 
 import { statSync } from "node:fs";
 import { extname } from "node:path";
@@ -86,9 +86,10 @@ export async function stageAktualita(
   if (poster && !check) await renderPoster(dest, dest.slice(0, -ext.length) + ".webp");
   lines.push(stagedLine(check, `uploads/aktuality/${name}${ext}`) + (poster ? " and .webp" : ""));
   if (!record) {
-    const alt = JSON.stringify(`${label}: ${title}`);
-    if (poster) lines.push(`    poster: { src: \`\${UPLOADS}/${name}.webp\`, alt: ${alt} },`);
-    lines.push(`    attachments: [{ label: "${label}", file: \`\${UPLOADS}/${name}${ext}\`, size: ${size} }],`);
+    // The entries to paste into an existing record's month file (news/<year>/<MM>.json).
+    const file = `/uploads/aktuality/${name}`;
+    if (poster) lines.push(`"poster": ${JSON.stringify({ src: `${file}.webp`, alt: `${label}: ${title}` })},`);
+    lines.push(`"attachments": ${JSON.stringify([{ label, file: `${file}${ext}`, size }])},`);
     return { lines, written: [] };
   }
   if (check) return { lines, written: [] };
