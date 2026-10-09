@@ -9,7 +9,7 @@ import * as prettier from "prettier";
 
 export const ROOT = fileURLToPath(new URL("..", import.meta.url));
 export const NEWS_DIR = join(ROOT, "src/content/news");
-export const OHLASKY_DIR = join(ROOT, "src/content/ohlasky");
+export const OHLASKY_FILE = join(ROOT, "src/content/ohlasky.json");
 
 const UPLOADS_PATH = "/uploads/aktuality/";
 

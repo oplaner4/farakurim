@@ -1,6 +1,6 @@
 // `pnpm stage porad` (scripts/stage/cli.ts): reads the week from the pořad bohoslužeb heading ("od 4. 10. 2026
 // do 11. 10. 2026"), stages uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-<N>].pdf and, with a record, adds
-// the sheet to src/content/ohlasky/ (scripts/add-ohlasky.ts).
+// the sheet to src/content/ohlasky.json (scripts/add-ohlasky.ts).
 
 import { extname } from "node:path";
 import { addDays, differenceInCalendarDays, format, getISODay } from "date-fns";
@@ -51,7 +51,7 @@ export interface PoradOptions {
   validFrom?: string;
   validTo?: string;
   rev?: number;
-  /** The confirmed sheet record (days and announcements), added to src/content/ohlasky/. */
+  /** The confirmed sheet record (days and announcements), added to src/content/ohlasky.json. */
   record?: Record<string, unknown>;
   check?: boolean;
 }
@@ -83,7 +83,7 @@ export async function stagePorad(env: StageEnv, options: PoradOptions) {
   const lines: string[] = [];
   // Validate before anything is copied, so a bad record leaves nothing staged.
   if (options.record) {
-    const checked = addOhlasky(env.ohlaskyDir, env.newsDir, options.record, sheetWeek, { check: true });
+    const checked = addOhlasky(env.ohlaskyFile, env.newsDir, options.record, sheetWeek, { check: true });
     if (check) lines.push(...ohlaskyLines(checked, true));
   }
   await stage(env, src, rel, check, hint);
@@ -96,7 +96,7 @@ export async function stagePorad(env: StageEnv, options: PoradOptions) {
     return { lines, written: [] };
   }
   if (check) return { lines, written: [] };
-  const result = addOhlasky(env.ohlaskyDir, env.newsDir, options.record, sheetWeek);
+  const result = addOhlasky(env.ohlaskyFile, env.newsDir, options.record, sheetWeek);
   lines.push(...ohlaskyLines(result, false));
   return { lines, written: result.written };
 }

@@ -1,5 +1,4 @@
 import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { parseWeek, stagePorad, weekDays } from "./porad";
 import { hasPoppler, pdfWithText, useStageFixture } from "../test-helpers";
@@ -89,10 +88,10 @@ describe("stagePorad", { timeout: 30_000 }, () => {
       record: record(),
     });
     expect(lines[0]).toBe("Staged uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf");
-    expect(lines[1]).toBe("Added the sheet 2099-10-04 – 2099-10-11 to src/content/ohlasky/2099-10-04.ts");
-    expect(written).toContain(join(env.ohlaskyDir, "2099-10-04.ts"));
-    expect(readFileSync(join(env.ohlaskyDir, "2099-10-04.ts"), "utf8")).toContain(
-      'pdfUrl: "/uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf"',
+    expect(lines[1]).toBe("Added the sheet 2099-10-04 – 2099-10-11 to src/content/ohlasky.json");
+    expect(written).toEqual([env.ohlaskyFile]);
+    expect(JSON.parse(readFileSync(env.ohlaskyFile, "utf8")).sheets.at(-1).pdfUrl).toBe(
+      "/uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf",
     );
   });
 
@@ -102,9 +101,10 @@ describe("stagePorad", { timeout: 30_000 }, () => {
     await expect(stagePorad(env, { ...week, record: { ...record(), days: [] } })).rejects.toThrow("missing 2099-10-04");
     expect(existsSync(uploaded("porady_bohosluzeb"))).toBe(false);
     // The real sheets copied into the temp folder may add "Would remove …" lines in between: assert the ends only.
+    const before = readFileSync(env.ohlaskyFile, "utf8");
     const checked = await stagePorad(env, { ...week, record: record(), check: true });
-    expect(checked.lines[0]).toBe("Would add the sheet 2099-10-04 – 2099-10-11 to src/content/ohlasky/2099-10-04.ts");
+    expect(checked.lines[0]).toBe("Would add the sheet 2099-10-04 – 2099-10-11 to src/content/ohlasky.json");
     expect(checked.lines.at(-1)).toBe("Would stage uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf");
-    expect(existsSync(join(env.ohlaskyDir, "2099-10-04.ts"))).toBe(false);
+    expect(readFileSync(env.ohlaskyFile, "utf8")).toBe(before);
   });
 });

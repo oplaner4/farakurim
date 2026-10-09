@@ -16,8 +16,8 @@
 //       reads the week from the heading ("od 4. 10. 2026 do 11. 10. 2026"), stages
 //       uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-<N>].pdf; prints pdfUrl, the week and its days.
 //       --rev 2 names a corrected PDF of a week already on the server. --record adds the confirmed sheet (days and
-//       announcements as JSON) to src/content/ohlasky/ and removes the outdated sheets (scripts/add-ohlasky.ts; with
-//       --check it only validates the record).
+//       announcements as JSON) to src/content/ohlasky.json and removes the outdated sheets and the covered
+//       laterExceptions (scripts/add-ohlasky.ts; with --check it only validates the record).
 //   petrklic <pdf> <id> [--note "<note>"]
 //       uploads/petrklic/<id>/petrklic-<id>.pdf with cover.webp and pages/; prints the `issue(...)` line.
 // A source without a folder is also looked for in ~/Downloads/.
@@ -102,7 +102,7 @@ export async function runCommand(
       record,
       check,
     });
-    return { lines, format: written.length > 0 ? { files: written, tests: "src/content/ohlasky" } : undefined };
+    return { lines, format: written.length > 0 ? { files: written, tests: "src/content/ohlasky.test.ts" } : undefined };
   }
   const lines = await stagePetrklic(env, { source: args[0], id: args[1], note: values.note, check });
   return { lines };

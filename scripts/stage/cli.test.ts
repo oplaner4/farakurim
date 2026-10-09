@@ -41,10 +41,7 @@ describe("runCommand", { timeout: 30_000 }, () => {
       "--record",
       sheetFile,
     ]);
-    expect(sheet.format).toEqual({
-      files: [join(env.ohlaskyDir, "2099-10-04.ts"), join(env.ohlaskyDir, "index.ts")],
-      tests: "src/content/ohlasky",
-    });
+    expect(sheet.format).toEqual({ files: [env.ohlaskyFile], tests: "src/content/ohlasky.test.ts" });
 
     const recordFile = join(env.home, "record.json");
     writeFileSync(recordFile, JSON.stringify({ id: "x-2026", title: "T", start: "2026-10-20", place: "P", text: "T" }));

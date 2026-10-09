@@ -5,7 +5,7 @@
 import { copyFileSync, existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { basename, dirname, join } from "node:path";
-import { NEWS_DIR, OHLASKY_DIR, ROOT } from "../content-files";
+import { NEWS_DIR, OHLASKY_FILE, ROOT } from "../content-files";
 
 const MB = 1024 * 1024;
 /** The largest source file each command stages, in MB; the usage and the size error name them. */
@@ -15,7 +15,7 @@ export const MAX_MB = { aktualita: 10, porad: 20, petrklic: 40 };
 export interface StageEnv {
   uploadsDir: string;
   newsDir: string;
-  ohlaskyDir: string;
+  ohlaskyFile: string;
   /** The site's address, e.g. https://farakurim.cz. */
   site: string;
   /** Asks whether a URL exists (a HEAD request); a stub in the tests. */
@@ -34,7 +34,7 @@ export function siteFromDeployScript(script: string): string {
 export const defaultEnv = (): StageEnv => ({
   uploadsDir: join(ROOT, "uploads"),
   newsDir: NEWS_DIR,
-  ohlaskyDir: OHLASKY_DIR,
+  ohlaskyFile: OHLASKY_FILE,
   site: siteFromDeployScript(readFileSync(join(ROOT, "scripts/deploy.sh"), "utf8")),
   fetch,
   home: homedir(),
