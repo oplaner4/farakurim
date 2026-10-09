@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "node scripts/dev-server.mjs",
-    "build": "next build",
+    "build": "node scripts/clear-fetch-cache.mjs && next build",
     "lint": "eslint",
     "test": "vitest run",
     "icons": "tsx scripts/generate-icons.ts",
