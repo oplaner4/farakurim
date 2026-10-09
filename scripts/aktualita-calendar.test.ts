@@ -108,7 +108,7 @@ describe("with a temp folder", () => {
   it("asks only Události, with the site as referrer, and writes nothing when linked", async () => {
     const fetch = stubCalendar([google("a", "2026-10-12", "Adorace", URL_OF)]);
     expect(await checkCalendar(aktualita(), { apiKey: "KEY", outDir: dir })).toEqual([
-      'Události: linked ("Adorace" on 2026-10-12).',
+      'Události: linked ("Adorace" on 2026-10-12): nothing to do.',
     ]);
     const [url, init] = fetch.mock.calls[0];
     expect(url).toContain(encodeURIComponent(parishCalendars.events.googleId));
@@ -120,6 +120,7 @@ describe("with a temp folder", () => {
     stubCalendar([google("a", "2026-10-12", "Adorační den")]);
     expect(await checkCalendar(aktualita(), { apiKey: "KEY", outDir: dir })).toEqual([
       `Události, 2026-10-12: "Adorační den" has no link: add ${URL_OF} to its description.`,
+      expect.stringMatching(/^This can be done before or after the release/),
     ]);
     expect(readdirSync(dir)).toEqual([]);
   });
@@ -128,7 +129,7 @@ describe("with a temp folder", () => {
     stubCalendar([]);
     const lines = await checkCalendar(aktualita(), { apiKey: "KEY", outDir: dir });
     expect(lines[0]).toBe("Události: no event on 2026-10-12.");
-    expect(lines[1]).toMatch(/^Wrote .*adoracni-den-2026\.ics: import it into "Události"/);
+    expect(lines[1]).toMatch(/^Wrote .*adoracni-den-2026\.ics: import it into "Události" .*, not into a personal/);
     expect(readdirSync(dir)).toEqual(["adoracni-den-2026.ics"]);
   });
 

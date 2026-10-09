@@ -19,26 +19,26 @@ if it announces several unrelated events, ask which to add (or add each separate
 
 Write the text from the source, in Czech; do not invent facts. Leave out what the source does not say.
 
-| Field                  | How to fill it                                                                                                                                                                                                                                                                                          |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`                   | ASCII kebab-case from the title, with the start year (`hody-ceska-2026`, `farni-den-2026`); must be unique across `src/content/news/`. Never `tyden`, `mesic`, `dlouhodobe`, `vse`, `archiv` or a path `public/.htaccess` redirects. Also the detail URL (`/aktuality/<id>/`) and the file name prefix. |
-| `title`                | The headline, sentence case (not the poster's capitals). **Required.**                                                                                                                                                                                                                                  |
-| `start`, `end`         | ISO dates. `end` only for multi-day events. A date without a year is the next such date from today.                                                                                                                                                                                                     |
-| `time`                 | Free text: `"9:30"`, `"18:00–20:30"`. Omit for all-day events.                                                                                                                                                                                                                                          |
-| `place`                | `"Kuřim, kostel sv. Maří Magdalény"`, `"Kuřim, fara"`, `"Tišnov"`. **Required.** Add `mapQuery` when the place alone would not find it on Mapy.cz.                                                                                                                                                      |
-| `text`                 | 1–2 sentences for the cards. **Required.** No URLs.                                                                                                                                                                                                                                                     |
-| `lead`                 | Optional: one inviting sentence under the detail title (also the page description). Defaults to `text`.                                                                                                                                                                                                 |
-| `body`                 | Optional HTML for "O akci": `<p>`, `<strong>`, `<ul><li>`. Use it when the source has more than `text` says; keep it to a few short paragraphs. Links go to `links`, not into the body.                                                                                                                 |
-| `program`              | Rows `{ time, title, note? }` when the source has a programme.                                                                                                                                                                                                                                          |
-| `links`                | `{ label, href }` for every web address and e-mail (`mailto:`) in the source, with a readable label.                                                                                                                                                                                                    |
-| `price`                | `"300 Kč"`, `"zdarma"`, when stated.                                                                                                                                                                                                                                                                    |
-| `registrationDeadline` | ISO date of "přihlášky do …".                                                                                                                                                                                                                                                                           |
-| `sessions`             | The dates of every meeting of a course or series, in order (first = `start`, last = `end`): `["2026-10-11", "2026-10-18"]`. A meeting with its own time or several days is `{ date, time?, end? }`. Leave out when the source does not list the dates.                                                  |
-| `longTerm`             | `{ weeklyAt: "18:30" }` for a weekly series (weekday of `start`), `true` for other long-running events.                                                                                                                                                                                                 |
-| `highlights`           | Only for real key facts or numbers (anniversaries); usually omit.                                                                                                                                                                                                                                       |
-| `tags`                 | Short free tags only when nothing above fits: `[{ label: "Zrušeno" }]`; `color` `"orange"`, `"magenta"` or `"grey"` instead of the default blue.                                                                                                                                                        |
-| `pinned`               | Only when the user asks for "Doporučujeme". At most one: remove `pinned` from the previous event.                                                                                                                                                                                                       |
-| `published`            | Leave out: the script sets today's date in Prague (the shared link's publication date). Keep it when editing a record later.                                                                                                                                                                            |
+| Field                  | How to fill it                                                                                                                                                                                                                                         |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `id`                   | ASCII kebab-case from the title, with the start year (`hody-ceska-2026`, `farni-den-2026`). Also the detail URL (`/aktuality/<id>/`) and the file name prefix.                                                                                         |
+| `title`                | The headline, sentence case (not the poster's capitals). **Required.**                                                                                                                                                                                 |
+| `start`, `end`         | ISO dates. `end` only for multi-day events. A date without a year is the next such date from today.                                                                                                                                                    |
+| `time`                 | Free text: `"9:30"`, `"18:00–20:30"`. Omit for all-day events.                                                                                                                                                                                         |
+| `place`                | `"Kuřim, kostel sv. Maří Magdalény"`, `"Kuřim, fara"`, `"Tišnov"`. **Required.** Add `mapQuery` when the place alone would not find it on Mapy.cz.                                                                                                     |
+| `text`                 | 1–2 sentences for the cards. **Required.** No URLs.                                                                                                                                                                                                    |
+| `lead`                 | Optional: one inviting sentence under the detail title (also the page description). Defaults to `text`.                                                                                                                                                |
+| `body`                 | Optional HTML for "O akci": `<p>`, `<strong>`, `<ul><li>`. Use it when the source has more than `text` says; keep it to a few short paragraphs. Links go to `links`, not into the body.                                                                |
+| `program`              | Rows `{ time, title, note? }` when the source has a programme.                                                                                                                                                                                         |
+| `links`                | `{ label, href }` for every web address and e-mail (`mailto:`) in the source, with a readable label.                                                                                                                                                   |
+| `price`                | `"300 Kč"`, `"zdarma"`, when stated.                                                                                                                                                                                                                   |
+| `registrationDeadline` | ISO date of "přihlášky do …".                                                                                                                                                                                                                          |
+| `sessions`             | The dates of every meeting of a course or series, in order (first = `start`, last = `end`): `["2026-10-11", "2026-10-18"]`. A meeting with its own time or several days is `{ date, time?, end? }`. Leave out when the source does not list the dates. |
+| `longTerm`             | `{ weeklyAt: "18:30" }` for a weekly series (weekday of `start`), `true` for other long-running events.                                                                                                                                                |
+| `highlights`           | Only for real key facts or numbers (anniversaries); usually omit.                                                                                                                                                                                      |
+| `tags`                 | Short free tags only when nothing above fits: `[{ label: "Zrušeno" }]`; `color` `"orange"`, `"magenta"` or `"grey"` instead of the default blue.                                                                                                       |
+| `pinned`               | Only when the user asks for "Doporučujeme". At most one: remove `pinned` from the previous event.                                                                                                                                                      |
+| `published`            | Leave out: the script sets today's date in Prague (the shared link's publication date). Keep it when editing a record later.                                                                                                                           |
 
 ## 3. Pick the label
 
@@ -98,7 +98,7 @@ field. Then it copies the file to `uploads/aktuality/` and, for an image or PDF,
 it (unless `--no-poster`; an event without a poster gets the designed placeholder). Last, `scripts/add-aktualita.ts` adds the record with `poster`, `attachments` and `published` to
 the file of its **start month** (`src/content/news/<year>/<MM>.ts`) in start-date order, with the `UPLOADS`
 constant, formats it and runs the news tests. The first event of a new year creates `news/<year>/` and adds it to
-`news/index.ts`. Read the diff of the month file before going on.
+`news/index.ts`.
 
 The attachment is the original file (the full-size link); the poster is only the WebP. Finished events stay in
 the file: the archive lists them. An event without a source file is added with
@@ -110,17 +110,8 @@ command again: staging the same file again is allowed.
 
 After adding the record, the command checks the event in the "Události" Google Calendar
 (`scripts/aktualita-calendar.ts`; `pnpm aktualita-calendar <id>` runs it again later). The Kalendář links a calendar
-event to the detail page when the event's description holds the page's URL. Pass its result on to the user:
-
-- **linked**: nothing to do;
-- **has no link**: the event is there; the user pastes the printed URL into its description;
-- **no event**: it wrote `~/Downloads/<id>.ics` (the detail page's "Přidat do kalendáře" file, whose description
-  holds the URL); the user imports it into "Události" (Google Calendar → Settings → Import and export → Import), not
-  into a personal calendar;
-- **not checked** (no API key in `.env.local`, or Google failed): the `.ics` is written too; the user imports it
-  unless the event is already there, and then pastes the URL into its description instead.
-
-The order does not matter: a URL pasted before the release links once the page is built.
+event to the detail page when the event's description holds the page's URL. Show the user its output as printed:
+it says what, if anything, they need to do.
 
 ## 6. Publish
 

@@ -86,7 +86,10 @@ export function writeIcs(event: NewsEvent, outDir: string): string {
   return path;
 }
 
-const IMPORT = 'import it into "Události" (Google Calendar → Settings → Import and export → Import)';
+const IMPORT =
+  'import it into "Události" at https://calendar.google.com/calendar/u/0/r/settings/export, not into a personal calendar';
+/** Closes a report that asks the user to act. */
+const WHEN = "This can be done before or after the release: the Kalendář links the event once both are in place.";
 
 export interface CheckOptions {
   /** NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY; without it the calendar is not read. */
@@ -101,6 +104,7 @@ export async function checkCalendar(event: NewsEvent, { apiKey, outDir }: CheckO
   const unchecked = (reason: string) => [
     `Události: not checked (${reason}).`,
     `Wrote ${writeIcs(event, outDir)}: ${IMPORT}, unless the event is there already; then add ${url} to its description.`,
+    WHEN,
   ];
   if (!apiKey) return unchecked("no NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY in .env.local");
   const meetings = meetingsOf(event);
@@ -114,18 +118,19 @@ export async function checkCalendar(event: NewsEvent, { apiKey, outDir }: CheckO
   const matches = matchMeetings(event, calendar);
   if (matches.every((m) => m.status === "missing")) {
     const days = meetings.map((m) => m.start).join(", ");
-    return [`Události: no event on ${days}.`, `Wrote ${writeIcs(event, outDir)}: ${IMPORT}.`];
+    return [`Události: no event on ${days}.`, `Wrote ${writeIcs(event, outDir)}: ${IMPORT}.`, WHEN];
   }
   if (matches.every((m) => m.status === "linked")) {
     const all = matches.length > 1 ? `, all ${matches.length} meetings` : ` on ${matches[0].found!.date}`;
-    return [`Události: linked ("${matches[0].found!.title}"${all}).`];
+    return [`Události: linked ("${matches[0].found!.title}"${all}): nothing to do.`];
   }
-  return matches.map(({ meeting, status, found }) => {
+  const lines = matches.map(({ meeting, status, found }) => {
     const day = `Události, ${meeting.start}`;
     if (status === "linked") return `${day}: linked ("${found!.title}").`;
     if (status === "unlinked") return `${day}: "${found!.title}" has no link: add ${url} to its description.`;
     return `${day}: no event: add one with ${url} in its description.`;
   });
+  return [...lines, WHEN];
 }
 
 /** Loads .env.local and prints the check; never throws, so it cannot fail the command that added the record. */
