@@ -118,6 +118,21 @@ export const october: NewsEvent[] = [
     sessions: ["2026-10-11", "2026-10-18", "2026-10-25", "2026-11-01", "2026-11-08", "2026-11-15", "2026-11-22"],
   },
   {
+    id: "adoracni-den-2026",
+    title: "Adorační den kuřimské farnosti",
+    start: "2026-10-12",
+    time: "13:00–18:00",
+    place: "Kuřim, kostel sv. Maří Magdalény",
+    text: "Adorační den naší farnosti v kostele sv. Maří Magdalény.",
+    published: "2026-10-09",
+    calendarEventId: "_95hm2r1gchhjipj3c5hjgohkc4pjed9p61j30p9lcgsmcoj5cgp38d1g6o",
+    poster: {
+      src: `${UPLOADS}/adoracni-den-2026-plakat.webp`,
+      alt: "Plakát: Adorační den kuřimské farnosti 12. října 2026",
+    },
+    attachments: [{ label: "Plakát", file: `${UPLOADS}/adoracni-den-2026-plakat.jpg`, size: 171441 }],
+  },
+  {
     id: "setkani-varhaniku-a-schol-2026",
     title: "Děkanátní setkání varhaníků a schol",
     start: "2026-10-17",
