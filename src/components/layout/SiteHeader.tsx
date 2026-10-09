@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import { serviceSheet } from "@/content/ohlasky";
+import { buildSheet } from "@/server/services";
 import { links, mainNav } from "@/content/site";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ColorStripe } from "@/components/ui/ColorStripe";
@@ -87,7 +87,7 @@ export function SiteHeader({
               </li>
             </ul>
           </nav>
-          <ButtonLink href={serviceSheet.pdfUrl} size="compact" className="max-md:hidden">
+          <ButtonLink href={buildSheet.pdfUrl} size="compact" className="max-md:hidden">
             <FileDownloadIcon size={18} />
             Ohlášky
           </ButtonLink>

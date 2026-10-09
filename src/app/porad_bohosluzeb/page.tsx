@@ -8,7 +8,6 @@ import { OhlaskyPanel } from "@/components/services/OhlaskyPanel";
 import { WeekSchedule } from "@/components/services/WeekSchedule";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { intentions, places, regularServices, sacraments } from "@/content/masses";
-import { serviceSheet } from "@/content/ohlasky";
 import { events } from "@/content/news";
 import { links } from "@/content/site";
 import type { PlaceId } from "@/content/types/services";
@@ -17,6 +16,7 @@ import { mapHref } from "@/lib/shared/links";
 import { weeklySchedule } from "@/lib/services/masses";
 import { eventHref } from "@/lib/news/events";
 import { isOneWeek, markChanges, publicDays } from "@/lib/services/service-sheet";
+import { buildSheet } from "@/server/services";
 
 export const metadata: Metadata = {
   title: "Pořad bohoslužeb",
@@ -41,7 +41,7 @@ const churches: ChurchSchedule[] = (Object.keys(places) as PlaceId[]).map((id) =
 
 // Only what is public reaches the page (and the client bundle), tagged "změna" where it differs from the regular
 // schedule, with place names instead of IDs.
-const weekDays = publicDays(markChanges(serviceSheet.days, regularServices)).map((day) => ({
+const weekDays = publicDays(markChanges(buildSheet.days, regularServices)).map((day) => ({
   ...day,
   rows: day.rows.map((row) => ({ ...row, place: places[row.place as PlaceId]?.name ?? row.place })),
 }));
@@ -61,8 +61,8 @@ export default function ServicesPage() {
         className="container-page flex flex-col gap-7 pt-5 pb-12 md:gap-9 md:pt-7 md:pb-14 lg:gap-12 lg:pt-9 lg:pb-20"
       >
         <PageHeading title="Pořad bohoslužeb" color="blue" size="standard" />
-        <OhlaskyPanel sheet={serviceSheet} newsHref={newsHref} />
-        <WeekSchedule days={weekDays} oneWeek={isOneWeek(serviceSheet)} renderedAt={BUILD_TIME} />
+        <OhlaskyPanel sheet={buildSheet} newsHref={newsHref} />
+        <WeekSchedule days={weekDays} oneWeek={isOneWeek(buildSheet)} renderedAt={BUILD_TIME} />
         <RegularServices churches={churches} renderedAt={BUILD_TIME} />
         <IntentionsCard text={intentions} />
         <InfoCards confession={sacraments.confession} baptism={sacraments.baptism} />

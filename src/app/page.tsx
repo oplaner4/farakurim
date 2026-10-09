@@ -9,7 +9,6 @@ import { WeekCalendar } from "@/components/home/WeekCalendar";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { albums } from "@/content/gallery";
 import { events } from "@/content/news";
-import { serviceSheet } from "@/content/ohlasky";
 import { petrklicIssues, petrklicTexts } from "@/content/petrklic";
 import { carouselSlides, links, parish, SITE_URL } from "@/content/site";
 import { BUILD_TIME } from "@/lib/shared/build-time";
@@ -18,7 +17,7 @@ import { weekRange } from "@/lib/calendar/agenda";
 import { pragueDate } from "@/lib/shared/prague";
 import { jsonLdScript, parishJsonLd } from "@/lib/shared/structured-data";
 import { linkablePages, loadCalendarEntries } from "@/server/calendar";
-import { currentExceptions } from "@/server/services";
+import { buildSheet, currentExceptions } from "@/server/services";
 
 // Title and description come from the root layout.
 export const metadata: Metadata = {
@@ -47,7 +46,7 @@ export default async function HomePage() {
           <NextMass
             renderedAt={BUILD_TIME}
             exceptions={currentExceptions}
-            sheet={{ pdfUrl: serviceSheet.pdfUrl, validFrom: serviceSheet.validFrom, validTo: serviceSheet.validTo }}
+            sheet={{ pdfUrl: buildSheet.pdfUrl, validFrom: buildSheet.validFrom, validTo: buildSheet.validTo }}
           />
         </div>
         <div className="container-page">

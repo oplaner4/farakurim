@@ -6,22 +6,13 @@ import type {
   ScheduleException,
   ServiceSheet,
   SheetDay,
-  SheetRow,
 } from "@/content/types/services";
-import type { ClockTime, IsoDate } from "@/content/types/shared";
+import type { IsoDate } from "@/content/types/shared";
 import { plural } from "@/lib/shared/czech";
 import { inPrague, pragueDate, pragueDateTime, pragueWeekday } from "@/lib/shared/prague";
 import { servicesOnDate } from "./masses";
 
 // The weekly ohlášky as structured content (design/DESIGN.md §14.5–14.7).
-
-/** A mass row of the ohlášky ("Mše sv." at `place`), so `content/ohlasky.ts` lists each mass on one line. */
-export const massRow = (
-  place: SheetRow["place"],
-  time: ClockTime,
-  detail?: string,
-  extra: Partial<SheetRow> = {},
-): SheetRow => ({ time, place, title: "Mše sv.", mass: true, ...(detail && { detail }), ...extra });
 
 const isPlaceId = (place: string, places: readonly PlaceId[]): place is PlaceId =>
   (places as readonly string[]).includes(place);

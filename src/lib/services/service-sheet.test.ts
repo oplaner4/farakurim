@@ -4,7 +4,6 @@ import {
   currentSheet,
   isOneWeek,
   markChanges,
-  massRow,
   periodDates,
   publicDays,
   scheduleExceptions,
@@ -286,22 +285,5 @@ describe("isOneWeek", () => {
   it("does not count a two-week sheet, across the DST change too", () => {
     expect(isOneWeek({ validFrom: "2026-10-04", validTo: "2026-10-12" })).toBe(false);
     expect(isOneWeek({ validFrom: "2026-10-18", validTo: "2026-11-01" })).toBe(false);
-  });
-});
-
-describe("massRow", () => {
-  it("builds a mass row at any place, with the intention when given", () => {
-    expect(massRow("moravske-kninice", "11:00", "za farníky")).toEqual({
-      time: "11:00",
-      place: "moravske-kninice",
-      title: "Mše sv.",
-      mass: true,
-      detail: "za farníky",
-    });
-    expect(massRow("Vranov", "9:00")).toEqual({ time: "9:00", place: "Vranov", title: "Mše sv.", mass: true });
-  });
-
-  it("lets extra fields override the defaults", () => {
-    expect(massRow("kurim", "11:00", undefined, { title: "Hodová mše sv." }).title).toBe("Hodová mše sv.");
   });
 });
