@@ -26,6 +26,8 @@ const prettier = (dir: string, files: string[]) =>
     {
       cwd: root,
       stdio: "ignore",
+      // pnpm is pnpm.cmd on Windows, which Node starts only through a shell.
+      shell: process.platform === "win32",
     },
   );
 

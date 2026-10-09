@@ -133,7 +133,8 @@ def aktualita(args):
 
 def add_record(record, check):
   """Adds the NewsEvent to src/content/news/ with scripts/add-aktualita.ts (or only validates it)."""
-  command = ["pnpm", "--silent", "add-aktualita", "-"] + (["--check"] if check else [])
+  # shutil.which finds pnpm.cmd on Windows, which subprocess cannot start by its bare name.
+  command = [shutil.which("pnpm") or "pnpm", "--silent", "add-aktualita", "-"] + (["--check"] if check else [])
   if subprocess.run(command, input=json.dumps(record, ensure_ascii=False), text=True, cwd=root).returncode != 0:
     fail("the record was not added (see above)")
 

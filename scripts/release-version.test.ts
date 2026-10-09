@@ -1,5 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { nextVersion, releaseBump } from "./release-version";
 
@@ -52,7 +53,7 @@ describe("nextVersion", () => {
 
 // Each call starts Node, slower than the unit tests when the whole suite runs.
 describe("command line", { timeout: 30_000 }, () => {
-  const script = new URL("./release-version.ts", import.meta.url).pathname;
+  const script = fileURLToPath(new URL("./release-version.ts", import.meta.url));
   const { version } = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as {
     version: string;
   };

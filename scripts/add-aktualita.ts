@@ -203,9 +203,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       console.log(`Would add the record to src/content/news/${target}${year}`);
     } else {
       const paths = written.map((f) => join("src/content/news", f));
-      execFileSync("pnpm", ["exec", "prettier", "--write", ...paths], { cwd: root, stdio: "ignore" });
+      // pnpm is pnpm.cmd on Windows, which Node starts only through a shell (the arguments have no spaces).
+      const shell = process.platform === "win32";
+      execFileSync("pnpm", ["exec", "prettier", "--write", ...paths], { cwd: root, stdio: "ignore", shell });
       console.log(`Added the record to src/content/news/${target}${year}`);
-      execFileSync("pnpm", ["exec", "vitest", "run", "src/content/news"], { cwd: root, stdio: "inherit" });
+      execFileSync("pnpm", ["exec", "vitest", "run", "src/content/news"], { cwd: root, stdio: "inherit", shell });
     }
   } catch (error) {
     console.error(`add-aktualita: ${error instanceof Error ? error.message : error}`);
