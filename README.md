@@ -84,14 +84,14 @@ they show the build's verse. The "Zdroj: www.vira.cz" link is vira.cz's conditio
 
 Content tooling, used by the content skills (see [Content](#content)):
 
-| Command                                             | What it does                                                                     |
-| --------------------------------------------------- | -------------------------------------------------------------------------------- |
-| `pnpm stage aktualita\|porad\|petrklic … [--check]` | Stage a file in `uploads/` and print its lines for `src/content/`                |
-| `pnpm add-aktualita <record.json> [--check]`        | Add an aktualita to its month file in `src/content/news/`, checked by its schema |
-| `pnpm aktualita-calendar <id> [--out <dir>]`        | Check that the aktualita's Události event links its page; else write the `.ics`  |
-| `pnpm petrklic <id> [--pages]`                      | Render a Petrklíč issue's `cover.webp` (and viewer `pages/`) from its PDF        |
-| `tsx scripts/upload-images.ts poster <in> <out>`    | Render an event poster (PDF page 1 or image) to WebP                             |
-| `python3 scripts/zonerama-album.py <album-url>`     | Read a Zonerama album as JSON; `--write` adds it to `gallery.ts`                 |
+| Command                                             | What it does                                                                            |
+| --------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `pnpm stage aktualita\|porad\|petrklic … [--check]` | Stage a file in `uploads/` and print its lines for `src/content/`                       |
+| `pnpm add-aktualita <record.json> [--check]`        | Add an aktualita to its month's JSON file in `src/content/news/`, checked by its schema |
+| `pnpm aktualita-calendar <id> [--out <dir>]`        | Check that the aktualita's Události event links its page; else write the `.ics`         |
+| `pnpm petrklic <id> [--pages]`                      | Render a Petrklíč issue's `cover.webp` (and viewer `pages/`) from its PDF               |
+| `tsx scripts/upload-images.ts poster <in> <out>`    | Render an event poster (PDF page 1 or image) to WebP                                    |
+| `python3 scripts/zonerama-album.py <album-url>`     | Read a Zonerama album as JSON; `--write` adds it to `gallery.ts`                        |
 
 Before you commit, run the full check and compare the change with the mockups: see
 [docs/conventions.md](docs/conventions.md), which also holds the language, stack, static-export and commit conventions.
@@ -105,7 +105,7 @@ src/styles/          globals.css (Tailwind theme tokens), utilities.css, lightbo
 src/components/      One component per block, by domain group (news/, services/, gallery/, parish/, …), ui/ shared
 src/hooks/           Every React hook, one use-<name>.ts each
 src/lib/<group>/     Pure logic with unit tests, by the same groups plus shared/ (Prague time, Czech grammar, links)
-src/content/         Content, one file per domain (hand-edited data only); news/ holds the aktuality
+src/content/         Content, one file per domain (hand-edited data only); news/ holds the aktuality (one JSON file per month)
 src/content/types/   The content types, one file per domain
 src/server/          Server-only build-time code: Google Calendar, the vira.cz verse, the schedule exceptions
 public/              Static assets, plus .htaccess (404 page, caching, redirects of moved URLs) and biblicky-citat.php

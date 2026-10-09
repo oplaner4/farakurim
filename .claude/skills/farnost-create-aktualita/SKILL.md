@@ -1,12 +1,12 @@
 ---
 name: farnost-create-aktualita
-description: Add a new aktualita (event) to the new farakurim.cz site from a poster, invitation or announcement given as a PDF, PNG or JPG - extract the event, confirm it with the user, add a NewsEvent to its month's file in src/content/news/, stage the poster and attachments for the server, then publish. Use whenever the user wants to add, post or publish an aktualita, event, plakát or pozvánka.
+description: Add a new aktualita (event) to the new farakurim.cz site from a poster, invitation or announcement given as a PDF, PNG or JPG - extract the event, confirm it with the user, add a NewsEvent to its month's JSON file in src/content/news/, stage the poster and attachments for the server, then publish. Use whenever the user wants to add, post or publish an aktualita, event, plakát or pozvánka.
 ---
 
 # Create an aktualita
 
 Read the file, extract one event as a `NewsEvent` (`src/content/types/news.ts`), confirm it with the user, add it to
-`src/content/news/<year>/<MM>.ts`, stage its files, then finish with **`farnost-publish-content`**. The fields and how they are
+`src/content/news/<year>/<MM>.json`, stage its files, then finish with **`farnost-publish-content`**. The fields and how they are
 shown are specified in `design/DESIGN.md` §11.7 and §13.4.
 
 ## 1. Read the file
@@ -96,14 +96,14 @@ It validates the record first against `newsEventSchema` (`src/lib/news/schema.ts
 times, links, unknown fields) and checks the `id` is free, so a bad record stages nothing; the error names each
 field. Then it copies the file to `uploads/aktuality/` and, for an image or PDF, renders the poster WebP next to
 it (unless `--no-poster`; an event without a poster gets the designed placeholder). Last, `scripts/add-aktualita.ts` adds the record with `poster`, `attachments` and `published` to
-the file of its **start month** (`src/content/news/<year>/<MM>.ts`) in start-date order, with the `UPLOADS`
-constant, formats it and runs the news tests. The first event of a new year creates `news/<year>/` and adds it to
-`news/index.ts`.
+the JSON file of its **start month** (`src/content/news/<year>/<MM>.json`, any year) in start-date order, formats it
+and runs the news tests. The month's first event creates its file (and the year's folder).
 
 The attachment is the original file (the full-size link); the poster is only the WebP. Finished events stay in
 the file: the archive lists them. An event without a source file is added with
-`pnpm add-aktualita <scratchpad>/record.json` alone. Without `--record`, `pnpm stage` only prints the `poster`
-and `attachments` lines, for changing an existing record by hand.
+`pnpm add-aktualita <scratchpad>/record.json` alone. Without `--record`, `pnpm stage` only prints the `"poster"`
+and `"attachments"` entries as JSON, to paste into an existing record. A correction to an existing record is an
+edit of its month file; `pnpm test src/content/news` checks it.
 
 If the record is refused after staging (it should not be: it is checked first), fix `record.json` and run the same
 command again: staging the same file again is allowed.
@@ -124,8 +124,8 @@ Follow **`farnost-publish-content`** (commit, upload and push). Until the calend
 - Putting URLs or e-mails into `text`/`body` instead of `links`.
 - Guessing a year or end date silently: say it in the confirmation.
 - Staging (without `--check`) before the user confirms: an abandoned file would go out with the next release.
-- Editing the month file by hand for a new event instead of `--record`: the order, the `UPLOADS` import and
-  `published` are then up to you.
+- Editing the month file by hand for a new event instead of `--record`: the order and `published` are then up to
+  you.
 - Pinning a second event without unpinning the first.
 - Forgetting `--no-poster` for a text-only PDF (`Program`, `Informace`, `Oznámení`): its first page becomes the
   poster.

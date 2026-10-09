@@ -23,6 +23,8 @@ build-time next mass.
   only depend on those types, so a real API or CMS can replace the files later without touching the UI.
   A `<domain>.test.ts` beside each content file (`news/news.test.ts` for Aktuality, shared checks in
   `test-helpers.ts`) checks the data itself (valid dates and times, unique IDs, order, `/uploads/` links); extend it when a content type gains a rule a typo could break.
+  The Aktuality are JSON month files (`news/<year>/<MM>.json`) that `news/index.ts` reads and checks with
+  `newsEventSchema` on import.
   Aktuality, ohlášky and albums are added with the `farnost-create-*` skills (CLAUDE.md "Managing content");
   their uploaded files are linked root-relative (`/uploads/…`, absolute only where a URL leaves the page, e.g.
   JSON-LD), never committed.
