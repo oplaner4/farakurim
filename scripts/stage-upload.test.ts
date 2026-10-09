@@ -86,11 +86,13 @@ describe("on a temp uploads/, news/ and home", { timeout: 30_000 }, () => {
     dir = mkdtempSync(join(tmpdir(), "stage-upload-"));
     mkdirSync(join(dir, "home", "Downloads"), { recursive: true });
     cpSync(join(root, "src/content/news"), join(dir, "news"), { recursive: true });
+    cpSync(join(root, "src/content/ohlasky"), join(dir, "ohlasky"), { recursive: true });
     fetchMock = vi.fn();
     status(404);
     env = {
       uploadsDir: join(dir, "uploads"),
       newsDir: join(dir, "news"),
+      ohlaskyDir: join(dir, "ohlasky"),
       site: "https://example.cz",
       fetch: fetchMock as unknown as typeof fetch,
       home: join(dir, "home"),
@@ -246,7 +248,7 @@ describe("on a temp uploads/, news/ and home", { timeout: 30_000 }, () => {
   describe("stagePorad", () => {
     it("stages the PDF of the given week and lists its days", async () => {
       const source = download("porad.pdf", "%PDF");
-      const lines = await stagePorad(env, { source, validFrom: "2026-10-04", validTo: "2026-10-11" });
+      const { lines } = await stagePorad(env, { source, validFrom: "2026-10-04", validTo: "2026-10-11" });
       expect(lines).toEqual([
         "Staged uploads/porady_bohosluzeb/2026-10-04-porad-bohosluzeb.pdf",
         '  pdfUrl: "/uploads/porady_bohosluzeb/2026-10-04-porad-bohosluzeb.pdf",\n  validFrom: "2026-10-04",\n  validTo: "2026-10-11",',
@@ -258,7 +260,7 @@ describe("on a temp uploads/, news/ and home", { timeout: 30_000 }, () => {
     it("names a corrected PDF and hints at it when the week is published", async () => {
       const source = download("porad.pdf", "%PDF");
       const week = { source, validFrom: "2026-10-04", validTo: "2026-10-11", check: true };
-      expect((await stagePorad(env, { ...week, rev: 2 }))[0]).toBe(
+      expect((await stagePorad(env, { ...week, rev: 2 })).lines[0]).toBe(
         "Would stage uploads/porady_bohosluzeb/2026-10-04-porad-bohosluzeb-2.pdf",
       );
       status(200);
@@ -278,9 +280,44 @@ describe("on a temp uploads/, news/ and home", { timeout: 30_000 }, () => {
 
     it.skipIf(!hasPoppler)("reads the week from the PDF heading", async () => {
       const source = download("porad.pdf", pdfWithText(["Porad bohosluzeb od 4. 10. do 11. 10. 2026"]));
-      expect((await stagePorad(env, { source, check: true }))[1]).toContain('validFrom: "2026-10-04"');
+      expect((await stagePorad(env, { source, check: true })).lines[1]).toContain('validFrom: "2026-10-04"');
       const blank = download("prazdny.pdf", pdfWithText(["Farnost Kurim"]));
       await expect(stagePorad(env, { source: blank })).rejects.toThrow("no 'od … do …' week");
+    });
+    /** A record covering 2099-10-04 – 2099-10-11, after every real sheet, so the tests keep passing. */
+    const record = () => ({
+      days: weekDays("2099-10-04", "2099-10-11").map((d) => ({ date: d.slice(3), rows: [] })),
+      announcements: [{ category: "info", html: "<p>Sbírka.</p>" }],
+    });
+
+    it("adds the record as a sheet after staging the PDF", async () => {
+      const source = download("porad.pdf", "%PDF");
+      const { lines, written } = await stagePorad(env, {
+        source,
+        validFrom: "2099-10-04",
+        validTo: "2099-10-11",
+        record: record(),
+      });
+      expect(lines[0]).toBe("Staged uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf");
+      expect(lines[1]).toBe("Added the sheet 2099-10-04 – 2099-10-11 to src/content/ohlasky/2099-10-04.ts");
+      expect(written).toContain(join(dir, "ohlasky", "2099-10-04.ts"));
+      expect(readFileSync(join(dir, "ohlasky", "2099-10-04.ts"), "utf8")).toContain(
+        'pdfUrl: "/uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf"',
+      );
+    });
+
+    it("stages nothing for a record it refuses, and only validates with check", async () => {
+      const source = download("porad.pdf", "%PDF");
+      const week = { source, validFrom: "2099-10-04", validTo: "2099-10-11" };
+      await expect(stagePorad(env, { ...week, record: { ...record(), days: [] } })).rejects.toThrow(
+        "missing 2099-10-04",
+      );
+      expect(existsSync(uploaded("porady_bohosluzeb"))).toBe(false);
+      // The real sheets copied into the temp folder may add "Would remove …" lines in between: assert the ends only.
+      const checked = await stagePorad(env, { ...week, record: record(), check: true });
+      expect(checked.lines[0]).toBe("Would add the sheet 2099-10-04 – 2099-10-11 to src/content/ohlasky/2099-10-04.ts");
+      expect(checked.lines.at(-1)).toBe("Would stage uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf");
+      expect(existsSync(join(dir, "ohlasky", "2099-10-04.ts"))).toBe(false);
     });
   });
 
@@ -319,6 +356,29 @@ describe("on a temp uploads/, news/ and home", { timeout: 30_000 }, () => {
         "--check",
       ]);
       expect(lines[0]).toBe("Would stage uploads/porady_bohosluzeb/2026-10-04-porad-bohosluzeb-3.pdf");
+
+      const sheetFile = join(dir, "sheet.json");
+      writeFileSync(
+        sheetFile,
+        JSON.stringify({
+          days: weekDays("2099-10-04", "2099-10-11").map((d) => ({ date: d.slice(3), rows: [] })),
+          announcements: [],
+        }),
+      );
+      const sheet = await runCommand(env, [
+        "porad",
+        source,
+        "--from",
+        "2099-10-04",
+        "--to",
+        "2099-10-11",
+        "--record",
+        sheetFile,
+      ]);
+      expect(sheet.format).toEqual({
+        files: [join(dir, "ohlasky", "2099-10-04.ts"), join(dir, "ohlasky", "index.ts")],
+        tests: "src/content/ohlasky",
+      });
 
       const recordFile = join(dir, "record.json");
       writeFileSync(

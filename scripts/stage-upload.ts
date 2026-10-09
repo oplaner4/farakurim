@@ -11,10 +11,12 @@
 //       unless --no-poster; prints the `poster` and `attachments` lines. --record adds them to the confirmed
 //       NewsEvent in the JSON file and adds it to src/content/news/ (scripts/add-aktualita.ts; with --check it only
 //       validates the record).
-//   porad <pdf> [--from YYYY-MM-DD --to YYYY-MM-DD] [--rev N]
+//   porad <pdf> [--from YYYY-MM-DD --to YYYY-MM-DD] [--rev N] [--record <record.json>]
 //       reads the week from the heading ("od 4. 10. 2026 do 11. 10. 2026"), stages
 //       uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-<N>].pdf; prints pdfUrl, the week and its days.
-//       --rev 2 names a corrected PDF of a week already on the server.
+//       --rev 2 names a corrected PDF of a week already on the server. --record adds the confirmed sheet (days and
+//       announcements as JSON) to src/content/ohlasky/ and removes the outdated sheets (scripts/add-ohlasky.ts; with
+//       --check it only validates the record).
 //   petrklic <pdf> <id> [--note "<note>"]
 //       uploads/petrklic/<id>/petrklic-<id>.pdf with cover.webp and pages/; prints the `issue(...)` line.
 // A source without a folder is also looked for in ~/Downloads/.
@@ -28,6 +30,7 @@ import { parseArgs } from "node:util";
 import { addDays, differenceInCalendarDays, format, getISODay } from "date-fns";
 import type { NewsEvent } from "@/content/types/news";
 import { fold } from "@/lib/shared/czech";
+import { addOhlasky, OHLASKY_DIR, ohlaskyLines } from "./add-ohlasky";
 import { addAktualita, formatAndTest, NEWS_DIR, targetLine } from "./add-aktualita";
 import { reportCalendar } from "./aktualita-calendar";
 import { pdfFirstPageText, pdfPageCount, renderPetrklic, renderPoster } from "./upload-images";
@@ -59,6 +62,7 @@ const WEEKDAYS = ["po", "út", "st", "čt", "pá", "so", "ne"];
 export interface StageEnv {
   uploadsDir: string;
   newsDir: string;
+  ohlaskyDir: string;
   /** The site's address, e.g. https://farakurim.cz. */
   site: string;
   /** Asks whether a URL exists (a HEAD request); a stub in the tests. */
@@ -77,6 +81,7 @@ export function siteFromDeployScript(script: string): string {
 export const defaultEnv = (): StageEnv => ({
   uploadsDir: join(root, "uploads"),
   newsDir: NEWS_DIR,
+  ohlaskyDir: OHLASKY_DIR,
   site: siteFromDeployScript(readFileSync(join(root, "scripts/deploy.sh"), "utf8")),
   fetch,
   home: homedir(),
@@ -240,10 +245,12 @@ export interface PoradOptions {
   validFrom?: string;
   validTo?: string;
   rev?: number;
+  /** The confirmed sheet record (days and announcements), added to src/content/ohlasky/. */
+  record?: Record<string, unknown>;
   check?: boolean;
 }
 
-/** Stages the weekly PDF; returns the lines to print (pdfUrl, the week and its days). */
+/** Stages the weekly PDF and, with a record, adds the sheet; returns the lines to print and the files written. */
 export async function stagePorad(env: StageEnv, options: PoradOptions) {
   const { rev, check = false } = options;
   const src = sourceFile(options.source, MAX_MB.porad, env.home);
@@ -266,12 +273,26 @@ export async function stagePorad(env: StageEnv, options: PoradOptions) {
   if (days <= 0 || days > 21) throw new Error(`the period ${validFrom} – ${validTo} looks wrong: pass --from and --to`);
   const rel = `porady_bohosluzeb/${validFrom}-porad-bohosluzeb${rev ? `-${rev}` : ""}.pdf`;
   const hint = `this week is already published; for a corrected PDF pass --rev ${(rev ?? 1) + 1}`;
+  const sheetWeek = { pdfUrl: `/uploads/${rel}`, validFrom, validTo };
+  const lines: string[] = [];
+  // Validate before anything is copied, so a bad record leaves nothing staged.
+  if (options.record) {
+    const checked = addOhlasky(env.ohlaskyDir, env.newsDir, options.record, sheetWeek, { check: true });
+    if (check) lines.push(...ohlaskyLines(checked, true));
+  }
   await stage(env, src, rel, check, hint);
-  return [
-    stagedLine(check, `uploads/${rel}`),
-    `  pdfUrl: "/uploads/${rel}",\n  validFrom: "${validFrom}",\n  validTo: "${validTo}",`,
-    `days: ${weekDays(validFrom, validTo).join(", ")}`,
-  ];
+  lines.push(stagedLine(check, `uploads/${rel}`));
+  if (!options.record) {
+    lines.push(
+      `  pdfUrl: "/uploads/${rel}",\n  validFrom: "${validFrom}",\n  validTo: "${validTo}",`,
+      `days: ${weekDays(validFrom, validTo).join(", ")}`,
+    );
+    return { lines, written: [] };
+  }
+  if (check) return { lines, written: [] };
+  const result = addOhlasky(env.ohlaskyDir, env.newsDir, options.record, sheetWeek);
+  lines.push(...ohlaskyLines(result, false));
+  return { lines, written: result.written };
 }
 
 /** The year and number of a Petrklíč id: `2026-2`, or `2026-3-mimoradne` with a note. */
@@ -304,7 +325,7 @@ export async function stagePetrklic(env: StageEnv, options: PetrklicOptions) {
 }
 
 const USAGE = `Usage: pnpm stage aktualita <source> <id> <label> [--title "<title>"] [--poster | --no-poster] [--record <json>] [--check]
-       pnpm stage porad <pdf> [--from YYYY-MM-DD --to YYYY-MM-DD] [--rev N] [--check]
+       pnpm stage porad <pdf> [--from YYYY-MM-DD --to YYYY-MM-DD] [--rev N] [--record <json>] [--check]
        pnpm stage petrklic <pdf> <id> [--note "<note>"] [--check]
 Largest source file: ${Object.entries(MAX_MB)
   .map(([command, mb]) => `${command} ${mb} MB`)
@@ -313,12 +334,15 @@ Largest source file: ${Object.entries(MAX_MB)
 /** Each command's positional arguments and options. */
 const COMMANDS: Record<string, { positionals: number; options: string[] }> = {
   aktualita: { positionals: 3, options: ["title", "poster", "record", "check"] },
-  porad: { positionals: 1, options: ["from", "to", "rev", "check"] },
+  porad: { positionals: 1, options: ["from", "to", "rev", "record", "check"] },
   petrklic: { positionals: 2, options: ["note", "check"] },
 };
 
-/** Runs a command line (without the program); returns the lines to print. */
-export async function runCommand(env: StageEnv, argv: string[]) {
+/** Runs a command line (without the program); returns the lines to print, the files to format and the added event. */
+export async function runCommand(
+  env: StageEnv,
+  argv: string[],
+): Promise<{ lines: string[]; format?: { files: string[]; tests: string }; event?: NewsEvent }> {
   const { values, positionals } = parseArgs({
     args: argv,
     allowPositionals: true,
@@ -339,33 +363,46 @@ export async function runCommand(env: StageEnv, argv: string[]) {
   const unknown = Object.keys(values).filter((option) => !spec?.options.includes(option));
   if (!spec || args.length !== spec.positionals || unknown.length > 0) throw new Error(`wrong arguments\n${USAGE}`);
   const check = values.check ?? false;
+  const record = values.record
+    ? (JSON.parse(readFileSync(values.record, "utf8")) as Record<string, unknown>)
+    : undefined;
   if (command === "aktualita") {
     const [source, id, label] = args;
-    const record = values.record
-      ? (JSON.parse(readFileSync(values.record, "utf8")) as Record<string, unknown>)
-      : undefined;
-    return stageAktualita(env, { source, id, label, title: values.title, poster: values.poster, record, check });
+    const result = await stageAktualita(env, {
+      source,
+      id,
+      label,
+      title: values.title,
+      poster: values.poster,
+      record,
+      check,
+    });
+    const files = result.written.map((f) => join(env.newsDir, f));
+    return { ...result, format: files.length > 0 ? { files, tests: "src/content/news" } : undefined };
   }
   if (command === "porad") {
     const rev = values.rev === undefined ? undefined : Number(values.rev);
     if (rev !== undefined && !(Number.isInteger(rev) && rev > 1)) throw new Error("--rev is a number from 2");
-    const lines = await stagePorad(env, { source: args[0], validFrom: values.from, validTo: values.to, rev, check });
-    return { lines, written: [] };
+    const { lines, written } = await stagePorad(env, {
+      source: args[0],
+      validFrom: values.from,
+      validTo: values.to,
+      rev,
+      record,
+      check,
+    });
+    return { lines, format: written.length > 0 ? { files: written, tests: "src/content/ohlasky" } : undefined };
   }
   const lines = await stagePetrklic(env, { source: args[0], id: args[1], note: values.note, check });
-  return { lines, written: [] };
+  return { lines };
 }
 
 // No top-level await: tsx runs the scripts as CommonJS (package.json has no "type": "module").
 async function main() {
   try {
-    const { lines, written, event } = await runCommand(defaultEnv(), process.argv.slice(2));
+    const { lines, format, event } = await runCommand(defaultEnv(), process.argv.slice(2));
     console.log(lines.join("\n"));
-    if (written.length > 0)
-      await formatAndTest(
-        written.map((f) => join(NEWS_DIR, f)),
-        "src/content/news",
-      );
+    if (format) await formatAndTest(format.files, format.tests);
     if (event) await reportCalendar(event);
   } catch (error) {
     console.error(`stage-upload: ${error instanceof Error ? error.message : error}`);
