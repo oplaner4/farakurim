@@ -44,14 +44,12 @@ describe("meetingsOf", () => {
 });
 
 describe("matchMeetings", () => {
-  it("finds an event that links the page, by URL or by calendarEventId", () => {
+  it("finds an event whose description links the page", () => {
     const linked = google("a", "2026-10-12", "Adorace", `Zveme.\n\n${URL_OF}`);
     expect(matchMeetings(aktualita(), [google("x", "2026-10-12", "Jiná akce"), linked])[0]).toMatchObject({
       status: "linked",
       found: { title: "Adorace", date: "2026-10-12" },
     });
-    const series = { ...google("s_1", "2026-10-12", "Adorace"), recurringEventId: "s" };
-    expect(matchMeetings(aktualita({ calendarEventId: "s" }), [series])[0].status).toBe("linked");
   });
 
   it("names an event with the title but without the link, ignoring case and accents", () => {

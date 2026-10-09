@@ -3,7 +3,6 @@
 import { clsx } from "clsx";
 import { useEffect, useRef, useState } from "react";
 import type { CalendarEntry } from "@/content/types/calendar";
-import type { CalendarLinks } from "@/lib/calendar/google-calendar";
 import type { IsoDate } from "@/content/types/shared";
 import { GOOGLE_CALENDAR_API_KEY, links } from "@/content/site";
 import {
@@ -31,8 +30,8 @@ type Props = {
   entries: CalendarEntry[];
   /** The days `entries` cover. */
   range: DateRange;
-  /** How Události events link to Aktuality detail pages. */
-  calendarLinks: CalendarLinks;
+  /** The Aktuality detail pages Události events may link to. */
+  linkablePages: string[];
   renderedAt: number;
 };
 
@@ -45,11 +44,11 @@ const weekButton =
  * the services. Mobile and tablet scroll sideways and collapse the week's past days to narrow cards; desktop shows
  * seven columns with the past days faded.
  */
-export function WeekCalendar({ entries, range: prerendered, calendarLinks, renderedAt }: Props) {
+export function WeekCalendar({ entries, range: prerendered, linkablePages, renderedAt }: Props) {
   const today = useToday(renderedAt);
   const [offset, setOffset] = useState(0);
   const range = weekRange(today, offset);
-  const { entries: loaded, status } = useCalendarEntries({ entries, range: prerendered }, range, calendarLinks);
+  const { entries: loaded, status } = useCalendarEntries({ entries, range: prerendered }, range, linkablePages);
   const agenda = agendaByDate(loaded, range);
   // Without an API key there is nothing to read beyond the prerendered weeks.
   const canGo = (delta: number) => {

@@ -812,7 +812,7 @@ the Bohoslužby page and other in-page links. Section colour: **blue**, with
   - **First Friday:** the 18:15 (Kuřim) and 17:00 (Moravské Knínice) masses are assumed to **replace** the usual Friday times.
   - **Manželské večery:** the 7 meetings are drawn on the Sundays 11. 10. – 22. 11.; in production they come from the event's list of meeting dates (11.7), each shown as its own calendar entry.
   - **Jubilee and Hubertská masses:** both are drawn as events that replace the regular 9:30 Sunday mass.
-- An event of the Události calendar links to its detail page (section 13) when its description holds the page's URL (as the "Přidat do kalendáře" file writes it), or when the Aktuality record stores the Google event ID.
+- An event of the Události calendar links to its detail page (section 13) when its description holds the page's URL (as the "Přidat do kalendáře" file writes it).
 
 ### 16.5 Dark theme
 

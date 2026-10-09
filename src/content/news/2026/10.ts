@@ -125,7 +125,6 @@ export const october: NewsEvent[] = [
     place: "Kuřim, kostel sv. Maří Magdalény",
     text: "Adorační den naší farnosti v kostele sv. Maří Magdalény.",
     published: "2026-10-09",
-    calendarEventId: "_95hm2r1gchhjipj3c5hjgohkc4pjed9p61j30p9lcgsmcoj5cgp38d1g6o",
     poster: {
       src: `${UPLOADS}/adoracni-den-2026-plakat.webp`,
       alt: "Plakát: Adorační den kuřimské farnosti 12. října 2026",

@@ -17,7 +17,7 @@ import { currentNews } from "@/lib/news/events";
 import { weekRange } from "@/lib/calendar/agenda";
 import { pragueDate } from "@/lib/shared/prague";
 import { jsonLdScript, parishJsonLd } from "@/lib/shared/structured-data";
-import { calendarLinks, loadCalendarEntries } from "@/server/calendar";
+import { linkablePages, loadCalendarEntries } from "@/server/calendar";
 import { currentExceptions } from "@/server/services";
 
 // Title and description come from the root layout.
@@ -54,7 +54,7 @@ export default async function HomePage() {
           <WeekCalendar
             entries={weekEntries}
             range={calendarRange}
-            calendarLinks={calendarLinks}
+            linkablePages={linkablePages}
             renderedAt={BUILD_TIME}
           />
           <NewsSection events={upcomingNews} renderedAt={BUILD_TIME} />

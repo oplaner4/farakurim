@@ -40,7 +40,6 @@ Write the text from the source, in Czech; do not invent facts. Leave out what th
 | `tags`                 | Short free tags only when nothing above fits: `[{ label: "Zrušeno" }]`; `color` `"orange"`, `"magenta"` or `"grey"` instead of the default blue.                                                                                                       |
 | `pinned`               | Only when the user asks for "Doporučujeme". At most one: remove `pinned` from the previous event.                                                                                                                                                      |
 | `published`            | Leave out: the script sets today's date in Prague (the shared link's publication date). Keep it when editing a record later.                                                                                                                           |
-| `calendarEventId`      | Leave out: the "Události" Google Calendar links an event to the detail page by the page's URL in the event's description (step 5 checks it). Set it only when the user gives an event ID and its description cannot hold the URL.                      |
 
 ## 3. Pick the label
 

@@ -4,7 +4,6 @@ import type { CalendarEntry } from "@/content/types/calendar";
 import { links } from "@/content/site";
 import { meetingLabel, meetingRange, meetingTile, nextMeeting, shortPlace } from "@/lib/activities/meetings";
 import type { DateRange } from "@/lib/calendar/agenda";
-import { NO_LINKS } from "@/lib/calendar/google-calendar";
 import { useCalendarEntries } from "@/hooks/use-calendar-entries";
 import { useToday } from "@/hooks/use-now";
 import { ArrowLink } from "@/components/ui/ArrowLink";
@@ -24,7 +23,7 @@ type Props = {
  */
 export function NextMeeting({ entries, range, calendarTitle, renderedAt }: Props) {
   const today = useToday(renderedAt);
-  const { entries: loaded } = useCalendarEntries({ entries, range }, meetingRange(today), NO_LINKS);
+  const { entries: loaded } = useCalendarEntries({ entries, range }, meetingRange(today), []);
   const meeting = nextMeeting(loaded, calendarTitle, today);
   if (!meeting) return null;
   const tile = meetingTile(meeting.date);

@@ -9,7 +9,7 @@ import { links as siteLinks, SITE_URL } from "@/content/site";
 // `singleEvents=true` makes Google expand recurring events and apply their exceptions, so no RRULE handling
 // is needed here. Runs at build time and in the browser (the key is restricted to the site's referrer).
 // An event of the Události calendar links to an Aktuality detail page when its description holds the page's URL
-// (pasted, or imported with the page's "Přidat do kalendáře" file), or by its ID (`calendarEventId`).
+// (pasted, or imported with the page's "Přidat do kalendáře" file).
 
 const API = "https://www.googleapis.com/calendar/v3/calendars";
 
@@ -67,16 +67,6 @@ export function eventsUrl(calendarId: string, apiKey: string, { from, to }: Date
  */
 export const refererInit = (siteUrl: string): RequestInit => ({ headers: { Referer: `${siteUrl}/` } });
 
-/**
- * How Události events link to Aktuality detail pages: `byEventId` maps an event ID (a recurring event's series ID)
- * to its page, and `pages` lists the detail pages a description's URL may link to (pages not built yet are left out,
- * so a URL pasted before the release links nothing instead of a missing page).
- */
-export type CalendarLinks = { byEventId: Record<string, string>; pages: string[] };
-
-/** For calendars shown without links to detail pages. */
-export const NO_LINKS: CalendarLinks = { byEventId: {}, pages: [] };
-
 const SITE_HOST = new URL(SITE_URL).host.replace(/^www\./, "").replaceAll(".", "\\.");
 // The site's URL (with or without the scheme and www.), or a bare root-relative path, then /aktuality/<slug>.
 const PAGE_URL = new RegExp(
@@ -106,20 +96,17 @@ export function eventDays({ start, end }: GoogleEvent): { date: string; end?: st
 }
 
 /**
- * Turns Google events into calendar entries. An Události event links to an Aktuality detail page by its ID, else
- * by the first built page its description links to.
+ * Turns Google events into calendar entries. An Události event links to the first of `linkablePages` (the built
+ * Aktuality detail pages) its description links to; a page not built yet is left out, so a URL pasted before the
+ * release links nothing instead of a missing page.
  */
-export function toEntries(events: GoogleEvent[], calendar: CalendarId, links: CalendarLinks): CalendarEntry[] {
-  const pages = new Set(links.pages);
+export function toEntries(events: GoogleEvent[], calendar: CalendarId, linkablePages: string[]): CalendarEntry[] {
+  const pages = new Set(linkablePages);
   return events.flatMap((event): CalendarEntry[] => {
     if (event.status === "cancelled") return [];
     const days = eventDays(event);
     if (!days) return [];
-    const href =
-      calendar === "events"
-        ? (links.byEventId[event.recurringEventId ?? event.id] ??
-          aktualitaPaths(event.description).find((path) => pages.has(path)))
-        : undefined;
+    const href = calendar === "events" ? aktualitaPaths(event.description).find((path) => pages.has(path)) : undefined;
     return [
       {
         id: event.id,

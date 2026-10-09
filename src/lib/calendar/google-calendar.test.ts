@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   aktualitaPaths,
-  type CalendarLinks,
   eventsUrl,
   fetchGoogleCalendar,
   parseEventsPage,
@@ -78,7 +77,7 @@ describe("refererInit", () => {
 });
 
 describe("toEntries", () => {
-  const hrefs: CalendarLinks = { byEventId: { series: "/aktuality/vecery/" }, pages: ["/aktuality/hody/"] };
+  const pages = ["/aktuality/hody/", "/aktuality/vecery/"];
 
   it("converts timed, all-day and multi-day events", () => {
     const entries = toEntries(
@@ -96,12 +95,13 @@ describe("toEntries", () => {
           id: "v_1",
           recurringEventId: "series",
           summary: "Večery",
+          description: "https://farakurim.cz/aktuality/vecery/",
           start: { dateTime: "2026-10-11T18:00:00+02:00" },
           end: { dateTime: "2026-10-12T00:00:00+02:00" },
         },
       ],
       "events",
-      hrefs,
+      pages,
     );
     expect(entries).toEqual([
       { id: "m1", calendar: "events", title: "Mše svatá", place: "Kuřim", date: "2026-10-04", time: "8:00" },
@@ -111,7 +111,7 @@ describe("toEntries", () => {
     ]);
   });
 
-  it("links an Události event by its ID, else by the first built page in its description", () => {
+  it("links an Události event to the first built page in its description", () => {
     const event = (id: string, description?: string) => ({
       id,
       description,
@@ -119,26 +119,22 @@ describe("toEntries", () => {
       end: { date: "2026-10-05" },
     });
     const href = (calendar: "events" | "services", ...events: ReturnType<typeof event>[]) =>
-      toEntries(events, calendar, hrefs).map((e) => e.href);
+      toEntries(events, calendar, pages).map((e) => e.href);
     expect(
       href(
         "events",
         event("a", "https://farakurim.cz/aktuality/hody/"),
         event("b", "/aktuality/neni-postaveno/ a /aktuality/hody/"),
         event("c", "https://farakurim.cz/aktuality/neni-postaveno/"),
-        event("series", "https://farakurim.cz/aktuality/hody/"),
         event("d"),
       ),
-    ).toEqual(["/aktuality/hody/", "/aktuality/hody/", undefined, "/aktuality/vecery/", undefined]);
+    ).toEqual(["/aktuality/hody/", "/aktuality/hody/", undefined, undefined]);
     // Bohoslužby events never link.
-    expect(href("services", event("a", "https://farakurim.cz/aktuality/hody/"), event("series"))).toEqual([
-      undefined,
-      undefined,
-    ]);
+    expect(href("services", event("a", "https://farakurim.cz/aktuality/hody/"))).toEqual([undefined]);
   });
 
   it("drops cancelled instances", () => {
-    expect(toEntries([{ id: "x", status: "cancelled", start: {}, end: {} }], "services", hrefs)).toEqual([]);
+    expect(toEntries([{ id: "x", status: "cancelled", start: {}, end: {} }], "services", pages)).toEqual([]);
   });
 });
 

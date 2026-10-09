@@ -1,6 +1,6 @@
 // Checks that an aktualita is in the Události Google Calendar, linked to its detail page (farnost-create-aktualita
-// skill). The calendar links an event to the page when the event's description holds the page's URL (or by
-// `calendarEventId`), so for each meeting of the aktualita it reports one of:
+// skill). The calendar links an event to the page when the event's description holds the page's URL, so for each
+// meeting of the aktualita it reports one of:
 //   linked     an event that day already links the page: nothing to do;
 //   no link    an event that day has a matching title but not the URL: paste the URL into its description;
 //   missing    no such event: when no meeting is in the calendar, it writes the aktualita's .ics (the file of
@@ -70,11 +70,7 @@ export function matchMeetings(event: NewsEvent, calendar: GoogleEvent[]): Meetin
       return days && days.date <= meeting.end && (days.end ?? days.date) >= meeting.start ? [{ e, days }] : [];
     });
     const found = ({ e, days }: (typeof sameDay)[number]) => ({ title: e.summary?.trim() ?? "", date: days.date });
-    const linked = sameDay.find(
-      ({ e }) =>
-        (event.calendarEventId !== undefined && (e.recurringEventId ?? e.id) === event.calendarEventId) ||
-        aktualitaPaths(e.description).includes(href),
-    );
+    const linked = sameDay.find(({ e }) => aktualitaPaths(e.description).includes(href));
     if (linked) return { meeting, status: "linked", found: found(linked) };
     const titled = sameDay.find(({ e }) => sameTitle(e.summary ?? "", event.title));
     if (titled) return { meeting, status: "unlinked", found: found(titled) };

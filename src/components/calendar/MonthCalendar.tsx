@@ -4,7 +4,6 @@ import { createParser, type SetValues, useQueryStates } from "nuqs";
 import { type ReactNode, Suspense, useMemo, useState } from "react";
 import { GOOGLE_CALENDAR_API_KEY } from "@/content/site";
 import type { CalendarEntry, CalendarId } from "@/content/types/calendar";
-import type { CalendarLinks } from "@/lib/calendar/google-calendar";
 import type { IsoDate } from "@/content/types/shared";
 import { agendaByDate, type IsoMonth, monthGridRange, parseDayParam, parseMonthParam } from "@/lib/calendar/agenda";
 import { useCalendarEntries } from "@/hooks/use-calendar-entries";
@@ -20,8 +19,8 @@ type Props = {
    * The prerendered months. Without an API key nothing else can be loaded, so paging stops at them.
    */
   months: { first: IsoMonth; last: IsoMonth };
-  /** How Události events link to Aktuality detail pages. */
-  calendarLinks: CalendarLinks;
+  /** The Aktuality detail pages Události events may link to. */
+  linkablePages: string[];
   renderedAt: number;
   /** "Kalendář v telefonu", under the day detail. */
   children: ReactNode;
@@ -47,7 +46,7 @@ const bounded = !GOOGLE_CALENDAR_API_KEY;
 function MonthCalendarView({
   entries,
   months,
-  calendarLinks,
+  linkablePages,
   renderedAt,
   children,
   monthParam,
@@ -69,7 +68,7 @@ function MonthCalendarView({
     () => ({ entries, range: { from: monthGridRange(first).from, to: monthGridRange(last).to } }),
     [entries, first, last],
   );
-  const { entries: loaded, status } = useCalendarEntries(initial, range, calendarLinks);
+  const { entries: loaded, status } = useCalendarEntries(initial, range, linkablePages);
   const selectedInGrid = selected >= range.from && selected <= range.to;
   const agenda = useMemo(
     () =>

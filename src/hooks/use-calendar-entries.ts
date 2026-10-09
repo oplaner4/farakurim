@@ -12,7 +12,7 @@ import {
   type DateRange,
   mergeEntries,
 } from "@/lib/calendar/agenda";
-import { type CalendarLinks, fetchGoogleCalendar, toEntries } from "@/lib/calendar/google-calendar";
+import { fetchGoogleCalendar, toEntries } from "@/lib/calendar/google-calendar";
 
 // The prerendered calendars hold the entries of the build's date range. With an API key, the browser re-reads
 // every range it shows from Google Calendar (one TanStack query per range), so changes appear without a redeploy.
@@ -21,18 +21,22 @@ import { type CalendarLinks, fetchGoogleCalendar, toEntries } from "@/lib/calend
 
 type Read = { range: DateRange; entries: CalendarEntry[] };
 
-async function readRange(range: DateRange, links: CalendarLinks): Promise<Read> {
+async function readRange(range: DateRange, linkablePages: string[]): Promise<Read> {
   const ids = Object.keys(parishCalendars) as CalendarId[];
   const lists = await Promise.all(
     ids.map(async (id) =>
-      toEntries(await fetchGoogleCalendar(parishCalendars[id].googleId, GOOGLE_CALENDAR_API_KEY!, range), id, links),
+      toEntries(
+        await fetchGoogleCalendar(parishCalendars[id].googleId, GOOGLE_CALENDAR_API_KEY!, range),
+        id,
+        linkablePages,
+      ),
     ),
   );
   return { range, entries: lists.flat() };
 }
 
-const rangeQuery = (range: DateRange, links: CalendarLinks) =>
-  queryOptions({ queryKey: ["calendar", range.from, range.to], queryFn: () => readRange(range, links) });
+const rangeQuery = (range: DateRange, linkablePages: string[]) =>
+  queryOptions({ queryKey: ["calendar", range.from, range.to], queryFn: () => readRange(range, linkablePages) });
 
 /** Prerendered entries and the days they cover. */
 export type InitialCalendar = { entries: CalendarEntry[]; range: DateRange };
@@ -42,12 +46,12 @@ const combineReads = (results: UseQueryResult<Read>[]) => results.flatMap((r) =>
 
 /**
  * Entries for `range` and around it: the prerendered `initial` ones, with the days of every range read from
- * Google Calendar replaced by Google's entries. `links` links Události events to Aktuality detail pages.
+ * Google Calendar replaced by Google's entries. `linkablePages` are the Aktuality detail pages Události events may link to.
  */
 export function useCalendarEntries(
   initial: InitialCalendar,
   range: DateRange,
-  links: CalendarLinks,
+  linkablePages: string[],
 ): { entries: CalendarEntry[]; status: CalendarStatus } {
   // Every range shown so far, in order.
   const [shown, setShown] = useState<DateRange[]>([]);
@@ -55,10 +59,10 @@ export function useCalendarEntries(
   if (GOOGLE_CALENDAR_API_KEY && withRange !== shown) setShown(withRange);
 
   // The shown range is read (and a failed read tried again) here; going back to it starts as loading, not as failed.
-  const current = useQuery({ ...rangeQuery(range, links), enabled: !!GOOGLE_CALENDAR_API_KEY });
+  const current = useQuery({ ...rangeQuery(range, linkablePages), enabled: !!GOOGLE_CALENDAR_API_KEY });
   // Only collects what the ranges shown so far have read.
   const reads = useQueries({
-    queries: shown.map((r) => ({ ...rangeQuery(r, links), enabled: false })),
+    queries: shown.map((r) => ({ ...rangeQuery(r, linkablePages), enabled: false })),
     combine: combineReads,
   });
 

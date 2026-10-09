@@ -32,7 +32,7 @@ rada and Kněží – rodáci; content in `parish-council.ts` and `native-priest
 - When a `lib` file grows two independent topics, split it by topic (as `news/events.ts` and `news/archive.ts`)
   rather than letting it pass ~300 lines.
 - **`src/server`** files start with `import "server-only"` and are named after their domain: `server/calendar.ts`
-  (`loadCalendarEntries()`, `calendarLinks`), `server/services.ts` (`currentExceptions`), `server/bible-quote.ts`
+  (`loadCalendarEntries()`, `linkablePages`), `server/services.ts` (`currentExceptions`), `server/bible-quote.ts`
   (`loadBibleQuote()`). They may import content and `lib`; pages and Server Components import them, client components
   and hooks never do. **Why:** `content` stays the data alone and `lib` stays free of it, so a value computed from
   content (or read at build time) has one home instead of being recomputed in every page.

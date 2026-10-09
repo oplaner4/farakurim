@@ -56,7 +56,6 @@ export const newsEventSchema = z
     pinned: z.boolean().optional(),
     archiveHidden: z.boolean().optional(),
     published: date.optional(),
-    calendarEventId: text.optional(),
     poster: z.strictObject({ src: upload, alt: text }).optional(),
     attachments: z.array(z.strictObject({ label: text, file: upload, size: z.int().positive().optional() })).optional(),
     links: z
