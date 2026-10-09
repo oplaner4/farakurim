@@ -1,6 +1,6 @@
 ---
 name: farnost-publish-content
-description: Finish a content change on the new farakurim.cz site - stage uploaded files for the server, commit, and release after the user confirms (GitHub Actions checks, builds and deploys the release). Use at the end of farnost-create-aktualita, farnost-create-porad-bohosluzeb, farnost-create-galerie and farnost-create-petrklic, or whenever src/content/ was edited to publish news, ohlášky, albums or Petrklíč issues.
+description: Finish a content change on the new farakurim.cz site - commit, and release after the user confirms (GitHub Actions checks, builds and deploys the release). Use at the end of farnost-create-aktualita, farnost-create-porad-bohosluzeb, farnost-create-galerie and farnost-create-petrklic, or whenever src/content/ was edited to publish news, ohlášky, albums or Petrklíč issues.
 ---
 
 # Publish a content change
@@ -12,30 +12,15 @@ browser check: the content tests check the data, and the pages are built from co
 
 Uploaded files (posters, attachments, the weekly PDF, Petrklíč issues) are **not** in git or `out/`: they live on
 the web host under `/uploads/…` and the content links them root-relative, as `/uploads/…`.
+The create skills stage them in `uploads/` (git-ignored) with `pnpm stage`, and the release uploads them.
 
-## 1. Stage the files for the server
-
-Files that go to the server are prepared in `uploads/` (git-ignored), which mirrors `/uploads/` on the server:
-
-| Content          | Staging path                                 | Link                                          |
-| ---------------- | -------------------------------------------- | --------------------------------------------- |
-| Aktuality files  | `uploads/aktuality/<file>`                   | `/uploads/aktuality/<file>`                   |
-| Pořad bohoslužeb | `uploads/porady_bohosluzeb/<file>`           | `/uploads/porady_bohosluzeb/<file>`           |
-| Petrklíč         | `uploads/petrklic/<id>/` (PDF, cover, pages) | `/uploads/petrklic/<id>/petrklic-<id>.pdf`, … |
-
-`pnpm stage aktualita|porad|petrklic` (`scripts/stage/`) stages them: it names a file in **ASCII,
-lower-case kebab-case**, prefixed with its record (`hody-ceska-plakat.png`, `2026-10-04-porad-bohosluzeb.pdf`), and
-refuses a name already on the server, since files there are never overwritten. Diacritics break in some SFTP
-clients, and the prefix keeps names unique. Stage files by hand only for content
-the script does not cover, following the same rules.
-
-## 2. Commit
+## 1. Commit
 
 Use the `commit` skill with the `content` scope, e.g. `feat(content): add the Hody v České aktualita`,
 `feat(content): publish the ohlášky for 4.–11. 10. 2026`, `feat(content): add the Medový den album`.
 Never stage `uploads/` or `out/`.
 
-## 3. Deploy
+## 2. Deploy
 
 Run the `farnost-release` skill: `pnpm release` previews the commits, the version and the staged uploads, and after the
 user's yes `pnpm release --yes` uploads them, bumps the version, tags the release and pushes `main` with the tag;
