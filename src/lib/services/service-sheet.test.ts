@@ -1,12 +1,15 @@
 import { describe, expect, it } from "vitest";
 import type { Announcement, RegularService, SheetDay } from "@/content/types/services";
 import {
+  currentSheet,
   isOneWeek,
   markChanges,
   massRow,
+  periodDates,
   publicDays,
   scheduleExceptions,
   sheetExceptions,
+  sheetOrderProblems,
   showWeekLabel,
   sortAnnouncements,
   weekView,
@@ -70,7 +73,7 @@ describe("scheduleExceptions", () => {
   const cancelled = (date: string) => ({ date, reason: "zrušeno", services: [] });
 
   it("puts the sheet's days first, then the hand-entered exceptions after the week", () => {
-    const result = scheduleExceptions(sheet, [cancelled("2026-10-11"), cancelled("2026-10-18")], ["kurim"]);
+    const result = scheduleExceptions([sheet], [cancelled("2026-10-11"), cancelled("2026-10-18")], ["kurim"]);
     expect(result.map((x) => x.date)).toEqual([
       "2026-10-02",
       "2026-10-03",
@@ -84,11 +87,105 @@ describe("scheduleExceptions", () => {
 
   it("drops hand-entered exceptions the sheet covers or that are past", () => {
     const result = scheduleExceptions(
-      sheet,
+      [sheet],
       [cancelled("2026-09-27"), cancelled("2026-10-04"), cancelled("2026-10-05")],
       ["kurim"],
     );
     expect(result).toEqual(sheetExceptions(sheet, ["kurim"]));
+  });
+
+  it("lets the newer sheet win the shared day and keeps every other day of both", () => {
+    const next = {
+      validFrom: "2026-10-05",
+      validTo: "2026-10-06",
+      days: [
+        { date: "2026-10-05", rows: [{ time: "9:00", place: "kurim", title: "Mše sv.", mass: true }] },
+        { date: "2026-10-06", rows: [] },
+      ],
+    };
+    const result = scheduleExceptions([sheet, next], [cancelled("2026-10-06"), cancelled("2026-10-07")], ["kurim"]);
+    expect(result.map((x) => x.date)).toEqual([
+      "2026-10-02",
+      "2026-10-03",
+      "2026-10-04",
+      "2026-10-05",
+      "2026-10-06",
+      "2026-10-07",
+    ]);
+    expect(result[3]).toEqual({
+      date: "2026-10-05",
+      reason: "dle ohlášek",
+      services: [{ time: "9:00", place: "kurim" }],
+    });
+    expect(result.at(-1)).toEqual(cancelled("2026-10-07"));
+  });
+
+  it("leaves a gap between sheets to the regular schedule", () => {
+    const later = { validFrom: "2026-10-11", validTo: "2026-10-11", days: [{ date: "2026-10-11", rows: [] }] };
+    const dates = scheduleExceptions([sheet, later], [], ["kurim"]).map((x) => x.date);
+    expect(dates).not.toContain("2026-10-08");
+    expect(dates.at(-1)).toBe("2026-10-11");
+  });
+});
+
+describe("periodDates", () => {
+  it("lists every date of the period, across the DST change too", () => {
+    expect(periodDates("2026-10-24", "2026-10-26")).toEqual(["2026-10-24", "2026-10-25", "2026-10-26"]);
+    expect(periodDates("2026-10-04", "2026-10-04")).toEqual(["2026-10-04"]);
+  });
+});
+
+describe("currentSheet", () => {
+  const sheets = [
+    { validFrom: "2026-10-04", validTo: "2026-10-11" },
+    { validFrom: "2026-10-11", validTo: "2026-10-18" },
+    { validFrom: "2026-10-25", validTo: "2026-11-01" },
+  ];
+
+  it("is the sheet whose week has started last", () => {
+    expect(currentSheet(sheets, "2026-10-08")).toBe(sheets[0]);
+    expect(currentSheet(sheets, "2026-10-12")).toBe(sheets[1]);
+  });
+
+  it("is the newer sheet on the shared Sunday", () => {
+    expect(currentSheet(sheets, "2026-10-11")).toBe(sheets[1]);
+  });
+
+  it("stays on the last started sheet in a gap and after the last week", () => {
+    expect(currentSheet(sheets, "2026-10-21")).toBe(sheets[1]);
+    expect(currentSheet(sheets, "2026-12-01")).toBe(sheets[2]);
+  });
+
+  it("is the first sheet before any week starts, and nothing without sheets", () => {
+    expect(currentSheet(sheets, "2026-09-01")).toBe(sheets[0]);
+    expect(currentSheet([], "2026-10-08")).toBeUndefined();
+  });
+});
+
+describe("sheetOrderProblems", () => {
+  it("allows sheets sharing their boundary day, and gaps", () => {
+    expect(
+      sheetOrderProblems([
+        { validFrom: "2026-10-04", validTo: "2026-10-11" },
+        { validFrom: "2026-10-11", validTo: "2026-10-18" },
+        { validFrom: "2026-10-25", validTo: "2026-11-01" },
+      ]),
+    ).toEqual([]);
+  });
+
+  it("names a sheet that starts before the previous one ends, or is out of order", () => {
+    expect(
+      sheetOrderProblems([
+        { validFrom: "2026-10-04", validTo: "2026-10-11" },
+        { validFrom: "2026-10-10", validTo: "2026-10-17" },
+      ]),
+    ).toEqual(["2026-10-10 – 2026-10-17 starts before 2026-10-04 – 2026-10-11 ends (only its last day may be shared)"]);
+    expect(
+      sheetOrderProblems([
+        { validFrom: "2026-10-11", validTo: "2026-10-18" },
+        { validFrom: "2026-10-04", validTo: "2026-10-11" },
+      ]),
+    ).toHaveLength(1);
   });
 });
 

@@ -26,6 +26,13 @@ export const massRow = (
 const isPlaceId = (place: string, places: readonly PlaceId[]): place is PlaceId =>
   (places as readonly string[]).includes(place);
 
+/** Every date from `validFrom` to `validTo`, in order (Prague days, so the DST change counts one day). */
+export const periodDates = (validFrom: IsoDate, validTo: IsoDate): IsoDate[] =>
+  eachDayOfInterval(
+    { start: pragueDateTime(validFrom, "12:00"), end: pragueDateTime(validTo, "12:00") },
+    { in: inPrague },
+  ).map((day) => pragueDate(day));
+
 /**
  * Schedule exceptions from the ohlášky: every day of the sheet's week gets exactly the masses and mass-like services
  * its rows list at the parish churches, never the regular schedule, so a change or a cancellation is entered only once. Days after the
@@ -35,11 +42,7 @@ export function sheetExceptions(
   sheet: Pick<ServiceSheet, "days" | "validFrom" | "validTo">,
   places: readonly PlaceId[],
 ): ScheduleException[] {
-  return eachDayOfInterval(
-    { start: pragueDateTime(sheet.validFrom, "12:00"), end: pragueDateTime(sheet.validTo, "12:00") },
-    { in: inPrague },
-  ).map((day) => {
-    const date = pragueDate(day);
+  return periodDates(sheet.validFrom, sheet.validTo).map((date) => {
     const rows = sheet.days.find((d) => d.date === date)?.rows ?? [];
     return {
       date,
@@ -55,15 +58,43 @@ export function sheetExceptions(
 }
 
 /**
- * All schedule exceptions: every day of the sheet's week (`sheetExceptions()`), then the hand-entered `later` ones.
- * A hand-entered exception the sheet covers, or that is past, is dropped, so the sheet always wins over it.
+ * All schedule exceptions: every day of every sheet (`sheetExceptions()`), the newer sheet replacing a day it shares
+ * with the older one, then the hand-entered `later` ones after the last sheet. A hand-entered exception a sheet
+ * covers, or that is past, is dropped, so the sheets always win over it. `sheets` are sorted by `validFrom`.
  */
 export function scheduleExceptions(
-  sheet: Pick<ServiceSheet, "days" | "validFrom" | "validTo">,
+  sheets: Pick<ServiceSheet, "days" | "validFrom" | "validTo">[],
   later: ScheduleException[],
   places: readonly PlaceId[],
 ): ScheduleException[] {
-  return [...sheetExceptions(sheet, places), ...later.filter((x) => x.date > sheet.validTo)];
+  const byDate = new Map<IsoDate, ScheduleException>();
+  for (const sheet of sheets) for (const x of sheetExceptions(sheet, places)) byDate.set(x.date, x);
+  const lastDay = sheets.reduce<IsoDate>((last, s) => (s.validTo > last ? s.validTo : last), "");
+  const fromSheets = [...byDate.values()].sort((a, b) => (a.date < b.date ? -1 : 1));
+  return [...fromSheets, ...later.filter((x) => x.date > lastDay)];
+}
+
+/**
+ * The sheet shown on `today`: the last one (sorted by `validFrom`) whose week has started, so the newer sheet wins
+ * the Sunday two sheets share and a stale sheet stays until the next one arrives; the first one before any started.
+ */
+export function currentSheet<T extends { validFrom: IsoDate }>(sheets: T[], today: IsoDate): T | undefined {
+  return sheets.findLast((s) => s.validFrom <= today) ?? sheets[0];
+}
+
+/** "2026-10-04 – 2026-10-11" for the messages. */
+const period = (s: Pick<ServiceSheet, "validFrom" | "validTo">) => `${s.validFrom} – ${s.validTo}`;
+
+/**
+ * How `sheets` break their order: each must start on or after the previous one's `validTo`, so two consecutive
+ * sheets share at most that day. One message per offending sheet; empty when they are in order.
+ */
+export function sheetOrderProblems(sheets: Pick<ServiceSheet, "validFrom" | "validTo">[]): string[] {
+  return sheets.flatMap((s, i) =>
+    i > 0 && s.validFrom < sheets[i - 1].validTo
+      ? [`${period(s)} starts before ${period(sheets[i - 1])} ends (only its last day may be shared)`]
+      : [],
+  );
 }
 
 /**
