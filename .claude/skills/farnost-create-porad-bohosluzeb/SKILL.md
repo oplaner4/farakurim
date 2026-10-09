@@ -9,7 +9,8 @@ The weekly PDF ("ROZPIS BOHOSLUŽEB V TÝDNU od … do …") becomes **structure
 (`src/content/types/services.ts`), generated into `src/content/ohlasky/<validFrom>.ts`. It can be published any day
 before its week: the site shows each sheet from its `validFrom` (the newer one on the Sunday two sheets share), and the
 script removes the sheets before the current one. It feeds the "Tento týden" ohlášky, the weekly schedule, and, for
-every day of its week, the next-mass countdown and the schedule exceptions (design/DESIGN.md §14.5–14.7). Finish with **`farnost-publish-content`**.
+every day of its week, the next-mass countdown and the schedule exceptions (design/DESIGN.md §14.5–14.7). Finish with
+**`farnost-publish-content`**.
 
 ## 1. Read the PDF
 
@@ -33,7 +34,7 @@ Write the confirmed sheet as `record.json` in the session's scratchpad (never in
 `announcements` only: `pdfUrl`, `validFrom` and `validTo` come from the PDF. Rows use the table's fields; a mass row is
 `{ "time", "place", "title": "Mše sv.", "detail", "mass": true }` (example in step 4).
 
-**Week**: `validFrom` / `validTo` as `--check` printed them from the heading, with every date of the week.
+**Week**: the week `--check` printed from the heading (not part of the record): enter every date of it in `days`.
 A PDF can cover **two weeks** (around Christmas, Easter or a holiday): it is still **one** `ServiceSheet` with
 every day of both weeks, never split into two. The site drops "tento týden" from its labels by itself (`isOneWeek()`,
 more than 8 days). Everything below that says "the week" means the sheet's whole period.
@@ -64,14 +65,14 @@ more than 8 days). Everything below that says "the week" means the sheet's whole
 linked PDF is public anyway. Set `public: false` only on a row the user asks to hide (e.g. a family asked to keep
 its intention off the web); that row's `detail` then stays in the PDF only.
 
-**The sheet drives the week**: for every date from `validFrom` to `validTo` (the newer sheet wins a shared Sunday), the day's `mass` and `service` rows are
-its only services (`sheetExceptions()`); the regular schedule is never mixed in, and applies again only after the
+**The sheet drives the week**: for every date from `validFrom` to `validTo` (the newer sheet wins a shared Sunday),
+the day's `mass` and `service` rows are its only services (`sheetExceptions()`); the regular schedule is never mixed in, and applies again only after the
 last sheet. So enter **every day of the week** with all its rows, as the PDF does: a missing mass is a cancelled mass, a
 missing day has no services. A cancellation within the week needs no `laterExceptions` entry; mention it to the user.
 
-**Later changes** (`laterExceptions`, in `src/content/ohlasky/index.ts`, after the **last** sheet's `validTo`): an announcement of a change **after** `validTo` ("v neděli 25. 10. mše svatá
-nebude", a moved time) can go into `laterExceptions` right away, so the next-mass countdown is right before that
-week's ohlášky arrive. Each entry replaces its whole day: list every service of that date at the parish churches
+**Later changes** (`laterExceptions`, in `src/content/ohlasky/index.ts`, after the **last** sheet's `validTo`): an
+announcement of a change **after** `validTo` ("v neděli 25. 10. mše svatá nebude", a moved time) can go into
+`laterExceptions` right away, so the next-mass countdown is right before that week's ohlášky arrive. Each entry replaces its whole day: list every service of that date at the parish churches
 (masses as `{ time, place }`, titled ones with `title`), `services: []` for none, and a short `reason`. Ask the user
 before adding one, and remind them to change Google Calendar too (the Kalendář reads it). Keep the entries in date
 order, one per date.
@@ -91,8 +92,9 @@ Unfinished text in the PDF ("vynesl …………. Kč") goes to the user: ask fo
 
 ## 3. Confirm with the user
 
-Show the week, a compact day-by-day list of rows, and the announcements with
-their categories. Ask about anything uncertain: unreadable rows, cancellations.
+Validate the record first: `pnpm stage porad "<source>" --record <scratchpad>/record.json --check`. Then show the
+week, a compact day-by-day list of rows, and the announcements with their categories. Ask about anything uncertain:
+unreadable rows, cancellations.
 
 ## 4. Stage the PDF and add the sheet
 
@@ -100,10 +102,15 @@ their categories. Ask about anything uncertain: unreadable rows, cancellations.
 pnpm stage porad "<source>" --record <scratchpad>/record.json
 ```
 
-Add `--rev 2` for a corrected PDF of a published week (it replaces that week's sheet). Run it with `--check` before
-confirming with the user to validate the record. It validates the record first (the error names each field), stages the
-PDF, writes the sheet file and the index, removes the outdated sheets, formats them and runs the ohlášky tests. When it
-names a `laterExceptions` entry the new sheet covers, remove that entry from `src/content/ohlasky/index.ts`.
+It validates the record first (the error names each field), stages the PDF, writes the sheet file and the index,
+removes the outdated sheets, formats them and runs the ohlášky tests. When it names a `laterExceptions` entry the new
+sheet covers, remove that entry from `src/content/ohlasky/index.ts` and rerun `pnpm exec vitest run src/content/ohlasky`.
+
+**Corrections**: never edit the generated sheet file by hand.
+
+- Before the release: fix `record.json` and rerun the same command (restaging the identical PDF is allowed, and the
+  sheet of the same week is replaced).
+- After the release: stage the corrected PDF with `--rev 2` (it replaces that week's sheet).
 
 ```json
 {
@@ -126,7 +133,8 @@ names a `laterExceptions` entry the new sheet covers, remove that entry from `sr
 
 ## 5. Publish
 
-Follow **`farnost-publish-content`**. Remind the user to mirror changed or cancelled services in the "Mše,
+Follow **`farnost-publish-content`**; the commit must include the whole `src/content/ohlasky/` folder, with the sheet
+files the script removed (deletions): `git add src/content/ohlasky`. Remind the user to mirror changed or cancelled services in the "Mše,
 adorace" Google Calendar, which the Kalendář reads.
 
 ## Common mistakes
@@ -142,4 +150,5 @@ adorace" Google Calendar, which the Kalendář reads.
 - `service: true` on a funeral, baptism or wedding: personal events never count for the countdown.
 - Publishing placeholder dots from an unfinished PDF.
 - Putting `pdfUrl`, `validFrom` or `validTo` into `record.json`: the script reads them from the PDF.
-- Editing a generated sheet file instead of staging a corrected record (`--rev 2`).
+- Editing a generated sheet file instead of rerunning the command with a corrected record (or `--rev 2` after the
+  release).
