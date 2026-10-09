@@ -176,6 +176,22 @@ export const october: NewsEvent[] = [
     pinned: true,
   },
   {
+    id: "koncert-at-svoboda-zni-2026",
+    title: "Koncert duchovní hudby Ať svoboda zní",
+    start: "2026-10-18",
+    time: "18:00",
+    place: "Kuřim, kostel sv. Maří Magdalény",
+    text: "Koncert duchovní hudby k výročí projevu Martina Luthera Kinga „Mám sen“. Zpívají Dej Nám Akord – DNA (Brno) a Danielis (Rousínov).",
+    body: "<p>Koncert duchovní hudby k výročí projevu Martina Luthera Kinga „Mám sen“.</p><ul><li><strong>Dej Nám Akord – DNA</strong> (Brno)</li><li><strong>Danielis</strong> (Rousínov)</li></ul><p>Akce s podporou města Kuřim.</p>",
+    price: "dobrovolné vstupné",
+    published: "2026-10-09",
+    poster: {
+      src: `${UPLOADS}/koncert-at-svoboda-zni-2026-plakat.webp`,
+      alt: "Plakát: Koncert duchovní hudby Ať svoboda zní",
+    },
+    attachments: [{ label: "Plakát", file: `${UPLOADS}/koncert-at-svoboda-zni-2026-plakat.jpg`, size: 520991 }],
+  },
+  {
     id: "hubertska-mse-2026",
     title: "Hubertská mše",
     start: "2026-10-25",
