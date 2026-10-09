@@ -19,9 +19,9 @@ short.
   re-computed in the browser (`.claude/rules/content-and-time.md`).
 - **Commits** follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat(news): …`), checked by
   commitlint in the husky `commit-msg` hook. Don't bypass the hook with `--no-verify`.
-- **Checked before commit:** run the full check, then compare the change with the mockups in `design/mockups/` in a
-  browser at 390, 834 and 1440 px, in the light and dark theme (`pnpm mockups` next to `pnpm preview`; how:
-  `.claude/rules/design-check.md`):
+- **Checked before commit:** run the full check, then, for a code or design change (not for content alone), compare
+  it with the mockups in `design/mockups/` in a browser at 390, 834 and 1440 px, in the light and dark theme
+  (`pnpm mockups` next to `pnpm preview`; how: `.claude/rules/design-check.md`):
 
   ```sh
   pnpm format && pnpm test && pnpm lint && pnpm exec tsc --noEmit && pnpm build

@@ -109,7 +109,7 @@ command again: staging the same file again is allowed.
 
 ## 6. Publish
 
-Follow **`farnost-publish-content`** (browser check of `/aktuality/<slug>/`, commit, upload and push).
+Follow **`farnost-publish-content`** (commit, upload and push).
 If the event has no `calendarEventId`, remind the user to add it to the "Události" Google Calendar, so it shows in
 the Kalendář.
 

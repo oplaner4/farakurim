@@ -70,9 +70,7 @@ computed. The volume (ročník) is computed from the year.
 
 ## 5. Publish
 
-Follow **`farnost-publish-content`**; check `/petrklic/aktualni/` (cover, viewer pages, download link),
-`/petrklic/archiv/` and the homepage Petrklíč card. Locally (`pnpm dev`, `pnpm preview`) the new files are served
-from `uploads/`, older ones from the live site. Upload the whole `uploads/petrklic/<id>/` folder.
+Follow **`farnost-publish-content`**. Upload the whole `uploads/petrklic/<id>/` folder.
 
 ## Common mistakes
 

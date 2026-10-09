@@ -47,8 +47,7 @@ photo URLs by hand.
 
 ## 5. Publish
 
-Follow **`farnost-publish-content`**; check `/fotogalerie/` (strip, counter "1–3 / 15", photos load) and the
-homepage album carousel.
+Follow **`farnost-publish-content`**.
 
 ## Common mistakes
 

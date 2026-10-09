@@ -21,7 +21,8 @@ groups in `navGroups`).
 
 ## Done means checked
 
-Never call work done before the full check and the browser check in `docs/conventions.md` pass.
+Never call work done before the full check and the browser check in `docs/conventions.md` pass. A content-only
+change (`src/content/` through the content skills) needs no browser check: its tests check the data.
 
 ## Git and commits
 

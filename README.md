@@ -129,7 +129,7 @@ Language, stack, the static-export limits, commits and the check before a commit
 Content lives in `src/content/*.ts`. It is added with project skills for Claude Code (in `.claude/skills/`): `farnost-create-aktualita` (an event from a poster or PDF, into `news/`),
 `farnost-create-porad-bohosluzeb` (the weekly ohlášky PDF, into `ohlasky.ts`), `farnost-create-galerie` (a Zonerama
 album, into `gallery.ts`) and `farnost-create-petrklic` (a newsletter PDF, into `petrklic.ts`). Each finishes with
-`farnost-publish-content`: check, commit and release with `farnost-release`.
+`farnost-publish-content`: commit and release with `farnost-release`.
 
 Uploaded files are not in git: they are staged in `uploads/` (git-ignored, mirrors `/uploads/` on the server) and
 linked root-relative as `/uploads/…` (`pnpm pull-uploads` downloads the server's files you lack). Album photos stay on

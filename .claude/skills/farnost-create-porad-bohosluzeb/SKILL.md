@@ -116,8 +116,7 @@ content test fails otherwise): the sheet now holds those days.
 
 ## 6. Publish
 
-Follow **`farnost-publish-content`**; check `/porad_bohosluzeb/` (ohlášky, weekly schedule, "změna" tags, hidden
-intentions) and the homepage next mass. Remind the user to mirror changed or cancelled services in the "Mše,
+Follow **`farnost-publish-content`**. Remind the user to mirror changed or cancelled services in the "Mše,
 adorace" Google Calendar, which the Kalendář reads.
 
 ## Common mistakes
