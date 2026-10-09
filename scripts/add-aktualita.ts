@@ -154,6 +154,9 @@ const tsFiles = (dir: string) =>
     .filter((file) => file.endsWith(".ts") && !file.endsWith(".test.ts"))
     .map((file) => join(dir, file));
 
+/** The IDs of every aktualita in the news folder `newsDir`. */
+export const newsIds = (newsDir: string) => existingIds(tsFiles(newsDir).map((f) => readFileSync(f, "utf8")));
+
 /**
  * Adds `input` to the news folder `newsDir` and returns the files it wrote (relative to newsDir); `check` only
  * validates. Throws with every problem found.
@@ -163,7 +166,7 @@ export function addAktualita(newsDir: string, input: unknown, { check = false, n
   const parsed = newsEventSchema.safeParse(withDate);
   if (!parsed.success) throw new Error(`the record is not valid:\n${z.prettifyError(parsed.error)}`);
   const record = parsed.data;
-  if (existingIds(tsFiles(newsDir).map((f) => readFileSync(f, "utf8"))).has(record.id)) {
+  if (newsIds(newsDir).has(record.id)) {
     throw new Error(`id ${record.id} is already taken`);
   }
   const target = monthFile(record.start);
@@ -206,13 +209,13 @@ export const targetLine = ({ target, newYear }: { target: string; newYear: boole
   (newYear ? ` (new year: creates news/${target.slice(0, 4)}/)` : "");
 
 /**
- * Formats the files `addAktualita` wrote and runs the news tests (with Node itself, so no shell is needed to start
- * pnpm on Windows). Throws when a test fails.
+ * Formats `files` (absolute paths) and runs the content tests under `tests` (with Node itself, so no shell is needed
+ * to start pnpm on Windows). Throws when a test fails.
  */
-export async function formatAndTest(written: string[]) {
-  await formatFiles(written.map((file) => join(NEWS_DIR, file)));
+export async function formatAndTest(files: string[], tests: string) {
+  await formatFiles(files);
   const vitest = join(root, "node_modules/vitest/vitest.mjs");
-  execFileSync(process.execPath, [vitest, "run", "src/content/news"], { cwd: root, stdio: "inherit" });
+  execFileSync(process.execPath, [vitest, "run", tests], { cwd: root, stdio: "inherit" });
 }
 
 // No top-level await: tsx runs the scripts as CommonJS (package.json has no "type": "module").
@@ -228,7 +231,10 @@ async function main() {
     const result = addAktualita(NEWS_DIR, input, { check });
     console.log(targetLine(result, check));
     if (!check) {
-      await formatAndTest(result.written);
+      await formatAndTest(
+        result.written.map((f) => join(NEWS_DIR, f)),
+        "src/content/news",
+      );
       await reportCalendar(result.record);
     }
   } catch (error) {

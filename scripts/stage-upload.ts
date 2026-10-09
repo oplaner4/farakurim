@@ -361,7 +361,11 @@ async function main() {
   try {
     const { lines, written, event } = await runCommand(defaultEnv(), process.argv.slice(2));
     console.log(lines.join("\n"));
-    if (written.length > 0) await formatAndTest(written);
+    if (written.length > 0)
+      await formatAndTest(
+        written.map((f) => join(NEWS_DIR, f)),
+        "src/content/news",
+      );
     if (event) await reportCalendar(event);
   } catch (error) {
     console.error(`stage-upload: ${error instanceof Error ? error.message : error}`);
