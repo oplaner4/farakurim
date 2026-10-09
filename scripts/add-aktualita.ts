@@ -10,18 +10,17 @@
 // `pnpm stage aktualita … --record <file>` (scripts/stage-upload.ts) adds the staged poster and attachments and
 // calls addAktualita(), formatAndTest() and the calendar check itself.
 
-import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import * as prettier from "prettier";
 import * as z from "zod";
 import type { NewsEvent } from "@/content/types/news";
 import { NEWS_EVENT_FIELDS, newsEventSchema } from "@/lib/news/schema";
 import { pragueDate } from "@/lib/shared/prague";
 import { reportCalendar } from "./aktualita-calendar";
+import { entries, formatAndTest, NEWS_DIR, newsIds } from "./content-files";
 
-export const MONTHS = [
+const MONTHS = [
   "january",
   "february",
   "march",
@@ -36,25 +35,7 @@ export const MONTHS = [
   "december",
 ];
 
-const UPLOADS_PATH = "/uploads/aktuality/";
 const UPLOADS_IMPORT = 'import { UPLOADS } from "../uploads";';
-
-/** A JS expression for `value`: plain object keys, upload paths as `${UPLOADS}/…`. Prettier formats it later. */
-export function toSource(value: unknown): string {
-  if (typeof value === "string") {
-    const file = value.startsWith(UPLOADS_PATH) ? value.slice(UPLOADS_PATH.length) : null;
-    return file !== null && /^[\w.-]+$/.test(file) ? `\`\${UPLOADS}/${file}\`` : JSON.stringify(value);
-  }
-  if (Array.isArray(value)) return `[${value.map(toSource).join(", ")}]`;
-  if (value !== null && typeof value === "object") return `{ ${entries(value as Record<string, unknown>).join(", ")} }`;
-  return JSON.stringify(value);
-}
-
-/** The `key: value` sources of an object's defined fields, in `keys` order. */
-const entries = (object: Record<string, unknown>, keys = Object.keys(object)) =>
-  keys
-    .filter((key) => object[key] !== undefined)
-    .map((key) => `${/^[A-Za-z_$][\w$]*$/.test(key) ? key : JSON.stringify(key)}: ${toSource(object[key])}`);
 
 /**
  * A record as a month file's array item: one field per line in the schema's order, indented as Prettier writes it
@@ -143,20 +124,6 @@ export function addYear(index: string, year: string): string {
   );
 }
 
-/** The IDs of every record in the news files' sources. */
-export function existingIds(sources: string[]): Set<string> {
-  return new Set(sources.flatMap((source) => [...source.matchAll(/^\s+id: "([^"]+)",$/gm)].map((m) => m[1])));
-}
-
-/** Every content .ts file under `dir`, recursively. */
-const tsFiles = (dir: string) =>
-  readdirSync(dir, { recursive: true, encoding: "utf8" })
-    .filter((file) => file.endsWith(".ts") && !file.endsWith(".test.ts"))
-    .map((file) => join(dir, file));
-
-/** The IDs of every aktualita in the news folder `newsDir`. */
-export const newsIds = (newsDir: string) => existingIds(tsFiles(newsDir).map((f) => readFileSync(f, "utf8")));
-
 /**
  * Adds `input` to the news folder `newsDir` and returns the files it wrote (relative to newsDir); `check` only
  * validates. Throws with every problem found.
@@ -192,31 +159,10 @@ export function addAktualita(newsDir: string, input: unknown, { check = false, n
   return { record, target: target.path, newYear, written };
 }
 
-const root = fileURLToPath(new URL("..", import.meta.url));
-export const NEWS_DIR = join(root, "src/content/news");
-
-/** Formats `files` (absolute paths) with the repo's Prettier config, wherever they are. */
-export async function formatFiles(files: string[]) {
-  const options = await prettier.resolveConfig(root, { config: join(root, ".prettierrc.json") });
-  for (const file of files) {
-    writeFileSync(file, await prettier.format(readFileSync(file, "utf8"), { ...options, filepath: file }));
-  }
-}
-
 /** The line saying where the record went (or would go) in src/content/news/. */
 export const targetLine = ({ target, newYear }: { target: string; newYear: boolean }, check: boolean) =>
   `${check ? "Would add" : "Added"} the record to src/content/news/${target}` +
   (newYear ? ` (new year: creates news/${target.slice(0, 4)}/)` : "");
-
-/**
- * Formats `files` (absolute paths) and runs the content tests under `tests` (with Node itself, so no shell is needed
- * to start pnpm on Windows). Throws when a test fails.
- */
-export async function formatAndTest(files: string[], tests: string) {
-  await formatFiles(files);
-  const vitest = join(root, "node_modules/vitest/vitest.mjs");
-  execFileSync(process.execPath, [vitest, "run", tests], { cwd: root, stdio: "inherit" });
-}
 
 // No top-level await: tsx runs the scripts as CommonJS (package.json has no "type": "module").
 async function main() {

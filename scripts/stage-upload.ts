@@ -30,12 +30,12 @@ import { parseArgs } from "node:util";
 import { addDays, differenceInCalendarDays, format, getISODay } from "date-fns";
 import type { NewsEvent } from "@/content/types/news";
 import { fold } from "@/lib/shared/czech";
-import { addOhlasky, OHLASKY_DIR, ohlaskyLines } from "./add-ohlasky";
-import { addAktualita, formatAndTest, NEWS_DIR, targetLine } from "./add-aktualita";
+import { addOhlasky, ohlaskyLines } from "./add-ohlasky";
+import { addAktualita, targetLine } from "./add-aktualita";
 import { reportCalendar } from "./aktualita-calendar";
+import { formatAndTest, NEWS_DIR, OHLASKY_DIR, ROOT } from "./content-files";
 import { pdfFirstPageText, pdfPageCount, renderPetrklic, renderPoster } from "./upload-images";
 
-const root = fileURLToPath(new URL("..", import.meta.url));
 const MB = 1024 * 1024;
 /** The largest source file each command stages, in MB; the usage and the size error name them. */
 const MAX_MB = { aktualita: 10, porad: 20, petrklic: 40 };
@@ -79,10 +79,10 @@ export function siteFromDeployScript(script: string): string {
 }
 
 export const defaultEnv = (): StageEnv => ({
-  uploadsDir: join(root, "uploads"),
+  uploadsDir: join(ROOT, "uploads"),
   newsDir: NEWS_DIR,
   ohlaskyDir: OHLASKY_DIR,
-  site: siteFromDeployScript(readFileSync(join(root, "scripts/deploy.sh"), "utf8")),
+  site: siteFromDeployScript(readFileSync(join(ROOT, "scripts/deploy.sh"), "utf8")),
   fetch,
   home: homedir(),
 });

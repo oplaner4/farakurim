@@ -27,8 +27,7 @@ import {
 } from "@/lib/calendar/google-calendar";
 import { eventCalendar } from "@/lib/news/ics";
 import { eventEnd, eventHref, eventMeetings, type Meeting } from "@/lib/news/events";
-
-const root = fileURLToPath(new URL("..", import.meta.url));
+import { ROOT } from "./content-files";
 
 /** The days the aktualita takes place: each meeting of a series, the first day of a weekly one, else its span. */
 export function meetingsOf(event: NewsEvent): Meeting[] {
@@ -136,7 +135,7 @@ export async function checkCalendar(event: NewsEvent, { apiKey, outDir }: CheckO
 /** Loads .env.local and prints the check; never throws, so it cannot fail the command that added the record. */
 export async function reportCalendar(event: NewsEvent, outDir = join(homedir(), "Downloads")) {
   try {
-    const env = join(root, ".env.local");
+    const env = join(ROOT, ".env.local");
     if (existsSync(env)) process.loadEnvFile(env);
     console.log(
       (await checkCalendar(event, { apiKey: process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY, outDir })).join("\n"),

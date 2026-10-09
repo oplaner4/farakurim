@@ -7,17 +7,13 @@
 
 import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 import * as z from "zod";
 import type { ServiceSheet } from "@/content/types/services";
 import type { IsoDate } from "@/content/types/shared";
 import { serviceSheetSchema } from "@/lib/services/schema";
 import { currentSheet, sheetOrderProblems } from "@/lib/services/service-sheet";
 import { pragueDate } from "@/lib/shared/prague";
-import { newsIds, toSource } from "./add-aktualita";
-
-const root = fileURLToPath(new URL("..", import.meta.url));
-export const OHLASKY_DIR = join(root, "src/content/ohlasky");
+import { newsIds, toSource } from "./content-files";
 
 /** The fields the script takes from the staged PDF, never from the record. */
 const WEEK_FIELDS = ["pdfUrl", "validFrom", "validTo"] as const;

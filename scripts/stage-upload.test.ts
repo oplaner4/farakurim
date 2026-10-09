@@ -1,7 +1,6 @@
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
@@ -17,9 +16,8 @@ import {
   type StageEnv,
   weekDays,
 } from "./stage-upload";
+import { NEWS_DIR, OHLASKY_DIR, ROOT } from "./content-files";
 import { hasPoppler, pdfWithText } from "./test-helpers";
-
-const root = fileURLToPath(new URL("..", import.meta.url));
 
 describe("labelSuffix", () => {
   it("turns any label into an ASCII kebab-case suffix", () => {
@@ -33,7 +31,7 @@ describe("labelSuffix", () => {
 
 describe("siteFromDeployScript", () => {
   it("reads SITE from scripts/deploy.sh", () => {
-    expect(siteFromDeployScript(readFileSync(join(root, "scripts/deploy.sh"), "utf8"))).toMatch(/^https:\/\/\S+$/);
+    expect(siteFromDeployScript(readFileSync(join(ROOT, "scripts/deploy.sh"), "utf8"))).toMatch(/^https:\/\/\S+$/);
     expect(() => siteFromDeployScript("TARGET=x")).toThrow("no SITE");
   });
 });
@@ -85,8 +83,8 @@ describe("on a temp uploads/, news/ and home", { timeout: 30_000 }, () => {
   beforeEach(() => {
     dir = mkdtempSync(join(tmpdir(), "stage-upload-"));
     mkdirSync(join(dir, "home", "Downloads"), { recursive: true });
-    cpSync(join(root, "src/content/news"), join(dir, "news"), { recursive: true });
-    cpSync(join(root, "src/content/ohlasky"), join(dir, "ohlasky"), { recursive: true });
+    cpSync(NEWS_DIR, join(dir, "news"), { recursive: true });
+    cpSync(OHLASKY_DIR, join(dir, "ohlasky"), { recursive: true });
     fetchMock = vi.fn();
     status(404);
     env = {

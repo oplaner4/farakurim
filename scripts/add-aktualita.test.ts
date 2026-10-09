@@ -1,27 +1,15 @@
 import { cpSync, existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { NewsEvent } from "@/content/types/news";
-import {
-  addAktualita,
-  addYear,
-  existingIds,
-  formatFiles,
-  insertRecord,
-  monthFile,
-  recordSource,
-  toSource,
-  yearFiles,
-} from "./add-aktualita";
-
-const root = fileURLToPath(new URL("..", import.meta.url));
+import { addAktualita, addYear, insertRecord, monthFile, recordSource, yearFiles } from "./add-aktualita";
+import { existingIds, formatFiles, NEWS_DIR } from "./content-files";
 
 // The newest year folder in news/ and the one after it, which does not exist yet: the new-year tests must keep
 // passing after a real event of that year adds its folder.
 const LAST_YEAR = Math.max(
-  ...readdirSync(join(root, "src/content/news"), { withFileTypes: true })
+  ...readdirSync(NEWS_DIR, { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && /^\d{4}$/.test(entry.name))
     .map((entry) => Number(entry.name)),
 );
@@ -51,25 +39,6 @@ const october = (...starts: string[]) =>
 
 /** The record IDs in a month file's source, in file order. */
 const ids = (source: string) => [...existingIds([source])];
-
-describe("toSource", () => {
-  it("writes upload paths with the UPLOADS constant", () => {
-    expect(toSource("/uploads/aktuality/hody-ceska-plakat.webp")).toBe("`${UPLOADS}/hody-ceska-plakat.webp`");
-    expect(toSource("/uploads/petrklic/1/cover.webp")).toBe('"/uploads/petrklic/1/cover.webp"');
-    expect(toSource("https://example.cz/uploads/aktuality/x.pdf")).toBe('"https://example.cz/uploads/aktuality/x.pdf"');
-  });
-
-  it("escapes text and keeps Czech letters", () => {
-    expect(toSource('Zveme na „hody“ – a "koncert"\n')).toBe('"Zveme na „hody“ – a \\"koncert\\"\\n"');
-  });
-
-  it("writes nested values", () => {
-    expect(toSource({ program: [{ time: "9:30", title: "Mše" }], longTerm: { weeklyAt: "18:30" }, sessions: 4 })).toBe(
-      '{ program: [{ time: "9:30", title: "Mše" }], longTerm: { weeklyAt: "18:30" }, sessions: 4 }',
-    );
-    expect(toSource({ longTerm: true, pinned: true })).toBe("{ longTerm: true, pinned: true }");
-  });
-});
 
 describe("recordSource", () => {
   it("writes one field per line, in the schema's order", () => {
@@ -148,7 +117,7 @@ describe("yearFiles and addYear", () => {
   });
 
   it("lists the new year first in news/index.ts", () => {
-    const updated = addYear(readFileSync(join(root, "src/content/news/index.ts"), "utf8"), NEW_YEAR);
+    const updated = addYear(readFileSync(join(NEWS_DIR, "index.ts"), "utf8"), NEW_YEAR);
     expect(updated).toContain(
       `import { events${LAST_YEAR} } from "./${LAST_YEAR}";\nimport { events${NEW_YEAR} } from "./${NEW_YEAR}";`,
     );
@@ -167,7 +136,7 @@ describe("addAktualita on a copy of news/", { timeout: 30_000 }, () => {
   beforeEach(() => {
     dir = mkdtempSync(join(tmpdir(), "add-aktualita-"));
     news = join(dir, "news");
-    cpSync(join(root, "src/content/news"), news, { recursive: true });
+    cpSync(NEWS_DIR, news, { recursive: true });
   });
   afterEach(() => rmSync(dir, { recursive: true, force: true }));
 
