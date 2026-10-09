@@ -3,6 +3,7 @@ import { ContactsPanel } from "@/components/home/ContactsPanel";
 import { GallerySection } from "@/components/home/GallerySection";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { NewsSection } from "@/components/home/NewsSection";
+import { serviceSheets } from "@/content/ohlasky";
 import { NextMass } from "@/components/home/NextMass";
 import { PetrklicPanel } from "@/components/home/PetrklicPanel";
 import { WeekCalendar } from "@/components/home/WeekCalendar";
@@ -17,7 +18,7 @@ import { weekRange } from "@/lib/calendar/agenda";
 import { pragueDate } from "@/lib/shared/prague";
 import { jsonLdScript, parishJsonLd } from "@/lib/shared/structured-data";
 import { linkablePages, loadCalendarEntries } from "@/server/calendar";
-import { buildSheet, currentExceptions } from "@/server/services";
+import { currentExceptions } from "@/server/services";
 
 // Title and description come from the root layout.
 export const metadata: Metadata = {
@@ -46,7 +47,7 @@ export default async function HomePage() {
           <NextMass
             renderedAt={BUILD_TIME}
             exceptions={currentExceptions}
-            sheet={{ pdfUrl: buildSheet.pdfUrl, validFrom: buildSheet.validFrom, validTo: buildSheet.validTo }}
+            sheets={serviceSheets.map(({ pdfUrl, validFrom, validTo }) => ({ pdfUrl, validFrom, validTo }))}
           />
         </div>
         <div className="container-page">

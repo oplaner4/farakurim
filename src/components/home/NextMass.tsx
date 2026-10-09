@@ -6,9 +6,9 @@ import { links } from "@/content/site";
 import type { ScheduleException, ServiceSheet } from "@/content/types/services";
 import { formatDateRange, formatWeekdayDate } from "@/lib/shared/czech";
 import { countdown, formatMassDay, upcomingServices } from "@/lib/services/masses";
-import { isOneWeek } from "@/lib/services/service-sheet";
+import { currentSheet, isOneWeek } from "@/lib/services/service-sheet";
 import { inPrague, pragueDateTime } from "@/lib/shared/prague";
-import { useHydrated, useNow } from "@/hooks/use-now";
+import { useHydrated, useNow, useToday } from "@/hooks/use-now";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { PinIcon } from "@/components/ui/icons/contact-icons";
 import { FileDownloadIcon } from "@/components/ui/icons/media-icons";
@@ -22,7 +22,8 @@ type Props = {
   renderedAt: number;
   /** From the server: the ohlášky module is server-only (non-public rows). */
   exceptions: ScheduleException[];
-  sheet: Pick<ServiceSheet, "pdfUrl" | "validFrom" | "validTo">;
+  /** Every ohlášky sheet (sorted by `validFrom`): the one valid today gives the PDF link and its dates. */
+  sheets: Pick<ServiceSheet, "pdfUrl" | "validFrom" | "validTo">[];
   showCountdown?: boolean;
 };
 
@@ -32,9 +33,10 @@ type Props = {
  *   their children into one column;
  * - tablet: the wrappers become two grid columns.
  */
-export function NextMass({ renderedAt, exceptions, sheet, showCountdown = true }: Props) {
+export function NextMass({ renderedAt, exceptions, sheets, showCountdown = true }: Props) {
   const now = useNow(renderedAt);
   const hydrated = useHydrated();
+  const sheet = currentSheet(sheets, useToday(renderedAt));
   const [next, ...following] = upcomingServices(now, { regular: regularServices, exceptions }, 3);
   const left = next ? countdown(next.startsAt, now) : null;
   // A mass is the usual case; adoration or "Velikonoční obřady" are "bohoslužba".
@@ -80,14 +82,18 @@ export function NextMass({ renderedAt, exceptions, sheet, showCountdown = true }
         )}
 
         {/* On desktop the PDF button lives in the header. */}
-        <ButtonLink href={sheet.pdfUrl} className="order-5 lg:hidden">
-          <FileDownloadIcon />
-          Pořad bohoslužeb (PDF)
-        </ButtonLink>
-        <p className="order-6 -mt-2 text-center text-13 text-muted lg:hidden">
-          Ohlášky {isOneWeek(sheet) && "na týden "}
-          {formatDateRange(sheet.validFrom, sheet.validTo)}
-        </p>
+        {sheet && (
+          <>
+            <ButtonLink href={sheet.pdfUrl} className="order-5 lg:hidden">
+              <FileDownloadIcon />
+              Pořad bohoslužeb (PDF)
+            </ButtonLink>
+            <p className="order-6 -mt-2 text-center text-13 text-muted lg:hidden">
+              Ohlášky {isOneWeek(sheet) && "na týden "}
+              {formatDateRange(sheet.validFrom, sheet.validTo)}
+            </p>
+          </>
+        )}
       </div>
 
       <div className="contents md:flex md:flex-col md:gap-5 md:pt-11 lg:contents">

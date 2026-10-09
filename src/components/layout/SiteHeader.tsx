@@ -1,5 +1,7 @@
 import { clsx } from "clsx";
-import { buildSheet } from "@/server/services";
+import { serviceSheets } from "@/content/ohlasky";
+import { CurrentSheet } from "@/components/services/CurrentSheet";
+import { BUILD_TIME } from "@/lib/shared/build-time";
 import { links, mainNav } from "@/content/site";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ColorStripe } from "@/components/ui/ColorStripe";
@@ -87,10 +89,18 @@ export function SiteHeader({
               </li>
             </ul>
           </nav>
-          <ButtonLink href={buildSheet.pdfUrl} size="compact" className="max-md:hidden">
-            <FileDownloadIcon size={18} />
-            Ohlášky
-          </ButtonLink>
+          <CurrentSheet
+            renderedAt={BUILD_TIME}
+            items={serviceSheets.map((sheet) => ({
+              validFrom: sheet.validFrom,
+              node: (
+                <ButtonLink href={sheet.pdfUrl} size="compact" className="max-md:hidden">
+                  <FileDownloadIcon size={18} />
+                  Ohlášky
+                </ButtonLink>
+              ),
+            }))}
+          />
           <ThemeToggle />
           <MenuButton id={MENU_BUTTON_ID} controls={MENU_ID} variant="hamburger" />
         </div>
