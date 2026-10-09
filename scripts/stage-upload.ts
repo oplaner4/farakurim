@@ -7,8 +7,8 @@
 //
 // Usage: pnpm stage <command> ... [--check]
 //   aktualita <source> <id> <label> [--title "<title>"] [--poster | --no-poster] [--record <record.json>]
-//       uploads/aktuality/<id>-<label>.<ext>, plus <id>-<label>.webp (page 1 / scaled image) for a visual label
-//       (Plakát, Pozvánka, Leták); prints the `poster` and `attachments` lines. --record adds them to the confirmed
+//       uploads/aktuality/<id>-<label in ASCII>.<ext>, plus .webp (page 1 / scaled image) for an image or PDF
+//       unless --no-poster; prints the `poster` and `attachments` lines. --record adds them to the confirmed
 //       NewsEvent in the JSON file and adds it to src/content/news/ (scripts/add-aktualita.ts; with --check it only
 //       validates the record).
 //   porad <pdf> [--from YYYY-MM-DD --to YYYY-MM-DD] [--rev N]
@@ -27,24 +27,16 @@ import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { addDays, differenceInCalendarDays, format, getISODay } from "date-fns";
 import type { NewsEvent } from "@/content/types/news";
+import { fold } from "@/lib/shared/czech";
 import { addAktualita, formatAndTest, NEWS_DIR, targetLine } from "./add-aktualita";
 import { reportCalendar } from "./aktualita-calendar";
 import { pdfFirstPageText, pdfPageCount, renderPetrklic, renderPoster } from "./upload-images";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const MB = 1024 * 1024;
+/** The largest source file each command stages, in MB; the usage and the size error name them. */
+const MAX_MB = { aktualita: 10, porad: 20, petrklic: 40 };
 
-/** Attachment label → file name suffix; the visual ones also become the event's poster. */
-export const LABELS = {
-  Plakát: "plakat",
-  Pozvánka: "pozvanka",
-  Program: "program",
-  Leták: "letak",
-  Informace: "informace",
-  Oznámení: "oznameni",
-} as const;
-export type Label = keyof typeof LABELS;
-const VISUAL = new Set<string>(["Plakát", "Pozvánka", "Leták"]);
 const EXTENSIONS = new Set([
   ".pdf",
   ".png",
@@ -90,11 +82,13 @@ export const defaultEnv = (): StageEnv => ({
   home: homedir(),
 });
 
-/** The label given by its name or its suffix ("Plakát" or "plakat"). */
-export function parseLabel(value: string): Label {
-  const label = (Object.keys(LABELS) as Label[]).find((l) => value === l || value === LABELS[l]);
-  if (!label) throw new Error(`unknown label "${value}": one of ${Object.keys(LABELS).join(", ")}`);
-  return label;
+/** An attachment label's file name suffix: "Plakát" → "plakat", "Mapka trasy" → "mapka-trasy". */
+export function labelSuffix(label: string): string {
+  const suffix = fold(label)
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+  if (!suffix) throw new Error(`the label "${label}" has no letters or digits for the file name`);
+  return suffix;
 }
 
 /** The source file: `path` (with ~ for the home folder), or a bare file name in ~/Downloads/; at most `maxMb`. */
@@ -149,7 +143,7 @@ export interface AktualitaOptions {
   id: string;
   label: string;
   title?: string;
-  /** Renders a poster WebP; by default for the visual labels. */
+  /** Renders a poster WebP; by default for an image or PDF. */
   poster?: boolean;
   /** The confirmed NewsEvent (without the files), added to src/content/news/. */
   record?: Record<string, unknown>;
@@ -165,13 +159,13 @@ export async function stageAktualita(
   options: AktualitaOptions,
 ): Promise<{ lines: string[]; written: string[]; event?: NewsEvent }> {
   const { id, record: input, check = false } = options;
-  const label = parseLabel(options.label);
+  const label = options.label.trim();
   if (!KEBAB.test(id)) throw new Error(`"${id}" is not an ASCII kebab-case id`);
-  const src = sourceFile(options.source, 10, env.home);
+  const name = `${id}-${labelSuffix(label)}`;
+  const src = sourceFile(options.source, MAX_MB.aktualita, env.home);
   const ext = extname(src).toLowerCase().replace(".jpeg", ".jpg");
   if (!EXTENSIONS.has(ext)) throw new Error(`${extname(src)} is not an image, PDF, audio or video file`);
-  const name = `${id}-${LABELS[label]}`;
-  const poster = options.poster ?? VISUAL.has(label);
+  const poster = options.poster ?? POSTER_EXTENSIONS.has(ext);
   if (poster && !POSTER_EXTENSIONS.has(ext)) throw new Error(`a ${ext} file cannot be a poster: pass --no-poster`);
   const { size } = statSync(src);
   const title = options.title ?? (input?.title as string | undefined) ?? "<title>";
@@ -252,7 +246,7 @@ export interface PoradOptions {
 /** Stages the weekly PDF; returns the lines to print (pdfUrl, the week and its days). */
 export async function stagePorad(env: StageEnv, options: PoradOptions) {
   const { rev, check = false } = options;
-  const src = sourceFile(options.source, 20, env.home);
+  const src = sourceFile(options.source, MAX_MB.porad, env.home);
   if (extname(src).toLowerCase() !== ".pdf") throw new Error("the pořad bohoslužeb is a PDF");
   let week: { validFrom: string; validTo: string } | null = null;
   if (options.validFrom && options.validTo) {
@@ -298,7 +292,7 @@ export interface PetrklicOptions {
 export async function stagePetrklic(env: StageEnv, options: PetrklicOptions) {
   const { id, note, check = false } = options;
   const { year, number } = parsePetrklicId(id);
-  const src = sourceFile(options.source, 40, env.home);
+  const src = sourceFile(options.source, MAX_MB.petrklic, env.home);
   if (extname(src).toLowerCase() !== ".pdf") throw new Error("the Petrklíč is a PDF");
   const dest = await stage(env, src, `petrklic/${id}/petrklic-${id}.pdf`, check);
   const pages = check ? pdfPageCount(src) : await renderPetrklic(dirname(dest), { pages: true });
@@ -311,7 +305,10 @@ export async function stagePetrklic(env: StageEnv, options: PetrklicOptions) {
 
 const USAGE = `Usage: pnpm stage aktualita <source> <id> <label> [--title "<title>"] [--poster | --no-poster] [--record <json>] [--check]
        pnpm stage porad <pdf> [--from YYYY-MM-DD --to YYYY-MM-DD] [--rev N] [--check]
-       pnpm stage petrklic <pdf> <id> [--note "<note>"] [--check]`;
+       pnpm stage petrklic <pdf> <id> [--note "<note>"] [--check]
+Largest source file: ${Object.entries(MAX_MB)
+  .map(([command, mb]) => `${command} ${mb} MB`)
+  .join(", ")}`;
 
 /** Each command's positional arguments and options. */
 const COMMANDS: Record<string, { positionals: number; options: string[] }> = {

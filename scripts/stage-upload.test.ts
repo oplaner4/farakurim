@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  parseLabel,
+  labelSuffix,
   parsePetrklicId,
   parseWeek,
   runCommand,
@@ -21,11 +21,13 @@ import { hasPoppler, pdfWithText } from "./test-helpers";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 
-describe("parseLabel", () => {
-  it("takes the label or its file name suffix", () => {
-    expect(parseLabel("Plakát")).toBe("Plakát");
-    expect(parseLabel("oznameni")).toBe("Oznámení");
-    expect(() => parseLabel("plakát")).toThrow('unknown label "plakát": one of Plakát, Pozvánka');
+describe("labelSuffix", () => {
+  it("turns any label into an ASCII kebab-case suffix", () => {
+    expect(labelSuffix("Plakát")).toBe("plakat");
+    expect(labelSuffix("Oznámení")).toBe("oznameni");
+    expect(labelSuffix("Mapka trasy")).toBe("mapka-trasy");
+    expect(labelSuffix("Petrklíč 1/2020")).toBe("petrklic-1-2020");
+    expect(() => labelSuffix("–")).toThrow('the label "–" has no letters or digits');
   });
 });
 
@@ -128,7 +130,7 @@ describe("on a temp uploads/, news/ and home", { timeout: 30_000 }, () => {
       const { lines, written } = await stageAktualita(env, {
         source,
         id: "hody-ceska",
-        label: "plakat",
+        label: "Plakát",
         title: "Hody v České",
         check: true,
       });
@@ -161,23 +163,27 @@ describe("on a temp uploads/, news/ and home", { timeout: 30_000 }, () => {
       );
     });
 
-    it("renders no poster for a text label or with poster: false", async () => {
+    it("takes any label, and renders no poster for audio or video or with poster: false", async () => {
       const source = await poster();
-      expect((await stageAktualita(env, { source, id: "a", label: "Informace" })).lines[0]).toBe(
-        "Staged uploads/aktuality/a-informace.jpg",
+      const { lines } = await stageAktualita(env, { source, id: "a", label: " Mapka trasy ", check: true });
+      expect(lines[0]).toBe("Would stage uploads/aktuality/a-mapka-trasy.jpg and .webp");
+      expect(lines.at(-1)).toContain('attachments: [{ label: "Mapka trasy", file: `${UPLOADS}/a-mapka-trasy.jpg`');
+      const audio = download("koncert.mp3", "x");
+      expect((await stageAktualita(env, { source: audio, id: "b", label: "Záznam koncertu" })).lines[0]).toBe(
+        "Staged uploads/aktuality/b-zaznam-koncertu.mp3",
       );
-      await stageAktualita(env, { source, id: "b", label: "Plakát", poster: false });
-      expect(readdirSync(uploaded("aktuality")).sort()).toEqual(["a-informace.jpg", "b-plakat.jpg"]);
+      await stageAktualita(env, { source, id: "c", label: "Informace", poster: false });
+      expect(readdirSync(uploaded("aktuality")).sort()).toEqual(["b-zaznam-koncertu.mp3", "c-informace.jpg"]);
     });
 
     it("refuses a bad id, label or file type", async () => {
       const source = await poster();
-      const stageAs = (options: { id?: string; label?: string; source?: string }) =>
+      const stageAs = (options: { id?: string; label?: string; source?: string; poster?: boolean }) =>
         stageAktualita(env, { source, id: "hody", label: "Plakát", check: true, ...options });
       await expect(stageAs({ id: "Hody-České" })).rejects.toThrow('"Hody-České" is not an ASCII kebab-case id');
-      await expect(stageAs({ label: "Foto" })).rejects.toThrow('unknown label "Foto"');
+      await expect(stageAs({ label: " " })).rejects.toThrow('the label "" has no letters or digits');
       await expect(stageAs({ source: download("a.txt", "x") })).rejects.toThrow(".txt is not an image");
-      await expect(stageAs({ source: download("a.mp3", "x") })).rejects.toThrow(
+      await expect(stageAs({ source: download("a.mp3", "x"), poster: true })).rejects.toThrow(
         "a .mp3 file cannot be a poster: pass --no-poster",
       );
     });
@@ -334,6 +340,9 @@ describe("on a temp uploads/, news/ and home", { timeout: 30_000 }, () => {
 
     it("refuses missing arguments, another command's options and a bad --rev", async () => {
       await expect(runCommand(env, ["aktualita", "a.jpg", "x"])).rejects.toThrow("wrong arguments\nUsage: pnpm stage");
+      await expect(runCommand(env, [])).rejects.toThrow(
+        /Largest source file: aktualita \d+ MB, porad \d+ MB, petrklic \d+ MB/,
+      );
       await expect(runCommand(env, ["petrklic", "a.pdf", "2026-1", "--rev", "2"])).rejects.toThrow("wrong arguments");
       await expect(runCommand(env, ["tisk", "a.pdf"])).rejects.toThrow("wrong arguments");
       await expect(runCommand(env, ["porad", "a.pdf", "--rev", "1"])).rejects.toThrow("--rev is a number from 2");

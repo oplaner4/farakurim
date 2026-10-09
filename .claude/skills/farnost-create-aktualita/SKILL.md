@@ -43,27 +43,31 @@ Write the text from the source, in Czech; do not invent facts. Leave out what th
 
 ## 3. Pick the label
 
-The source file is attached under one of these labels (shown on the page; the script names the file
-`<id>-<label in ASCII>.<ext>`):
+The source file is attached under a label, shown on the page as written (with its accents); the script names the
+file `<id>-<label in ASCII>.<ext>`. Prefer one of these; another short Czech label is fine when none fits
+(`Mapka trasy`, `Záznam koncertu`):
 
-| Label       | When                                      |
-| ----------- | ----------------------------------------- |
-| `Plakát`    | Poster or visual flyer                    |
-| `Pozvánka`  | Invitation to a specific event            |
-| `Program`   | Schedule or order of proceedings          |
-| `Leták`     | Handout-style flyer                       |
-| `Informace` | General information                       |
-| `Oznámení`  | Plain announcement without strong visuals |
+| Label       | When                                      | Poster |
+| ----------- | ----------------------------------------- | ------ |
+| `Plakát`    | Poster or visual flyer                    | yes    |
+| `Pozvánka`  | Invitation to a specific event            | yes    |
+| `Leták`     | Handout-style flyer                       | yes    |
+| `Program`   | Schedule or order of proceedings          | no     |
+| `Informace` | General information                       | no     |
+| `Oznámení`  | Plain announcement without strong visuals | no     |
 
-Check the name before confirming (it refuses a taken name, a bad id or label, and files over 10 MB):
+An image or PDF becomes the event's poster unless you pass `--no-poster`: pass it for a "no" label and for any
+other text-only document (audio and video never become one). Check the name before confirming (it refuses a taken
+name, a bad id and a label without letters or digits):
 
 ```sh
-pnpm stage aktualita "<source>" <id> <label> --title "<title>" --check
+pnpm stage aktualita "<source>" <id> "<label>" --title "<title>" [--no-poster] --check
 ```
 
 ## 4. Confirm with the user
 
-Show the extracted fields (and the label) in a short list. Point out guesses: the year, an inferred end date,
+Show the extracted fields, the label as written and whether the file becomes the poster in a short list (the
+script takes any label, so a typo like `Plakat` would go on the page). Point out guesses: the year, an inferred end date,
 `longTerm`. Wait for corrections before writing anything.
 
 ## 5. Stage the files and add the record
@@ -86,14 +90,13 @@ kept; otherwise it is `"<label>: <title>"`.
 Then run the step 3 command without `--check`, with the record:
 
 ```sh
-pnpm stage aktualita "<source>" <id> <label> --record <scratchpad>/record.json
+pnpm stage aktualita "<source>" <id> "<label>" [--no-poster] --record <scratchpad>/record.json
 ```
 
 It validates the record first against `newsEventSchema` (`src/lib/news/schema.ts`: required fields, dates,
 times, links, unknown fields) and checks the `id` is free, so a bad record stages nothing; the error names each
-field. Then it copies the file to `uploads/aktuality/` and, for `Plakát`, `Pozvánka` and `Leták`, renders the
-poster WebP next to it (`--poster` / `--no-poster` overrides that; a text-only document gets the designed
-placeholder). Last, `scripts/add-aktualita.ts` adds the record with `poster`, `attachments` and `published` to
+field. Then it copies the file to `uploads/aktuality/` and, for an image or PDF, renders the poster WebP next to
+it (unless `--no-poster`; an event without a poster gets the designed placeholder). Last, `scripts/add-aktualita.ts` adds the record with `poster`, `attachments` and `published` to
 the file of its **start month** (`src/content/news/<year>/<MM>.ts`) in start-date order, with the `UPLOADS`
 constant, formats it and runs the news tests. The first event of a new year creates `news/<year>/` and adds it to
 `news/index.ts`. Read the diff of the month file before going on.
@@ -134,3 +137,5 @@ Follow **`farnost-publish-content`** (commit, upload and push). Until the calend
 - Editing the month file by hand for a new event instead of `--record`: the order, the `UPLOADS` import and
   `published` are then up to you.
 - Pinning a second event without unpinning the first.
+- Forgetting `--no-poster` for a text-only PDF (`Program`, `Informace`, `Oznámení`): its first page becomes the
+  poster.

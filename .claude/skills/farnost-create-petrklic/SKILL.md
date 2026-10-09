@@ -19,7 +19,7 @@ The user gives at least a file name; without a folder, look in `~/Downloads/`. R
 ## 2. Confirm with the user
 
 The cover usually says the number and year ("1/2026", "Velikonoce 2026"). Check the id and get the page count
-(it refuses a taken id, a malformed one and files over 40 MB):
+(it refuses a taken id and a malformed one):
 
 ```sh
 pnpm stage petrklic "<source>" <id> [--note "<note>"] --check
