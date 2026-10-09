@@ -8,9 +8,7 @@ description: Publish the weekly pořad bohoslužeb (ohlášky) on the new faraku
 The weekly PDF ("ROZPIS BOHOSLUŽEB V TÝDNU od … do …") becomes **structured content**: one `ServiceSheet`
 (`src/content/types/services.ts`), generated into `src/content/ohlasky/<validFrom>.ts`. It can be published any day
 before its week: the site shows each sheet from its `validFrom` (the newer one on the Sunday two sheets share), and the
-script removes the sheets before the current one. It feeds the "Tento týden" ohlášky, the weekly schedule, and, for
-every day of its week, the next-mass countdown and the schedule exceptions (design/DESIGN.md §14.5–14.7). Finish with
-**`farnost-publish-content`**.
+script removes the sheets before the current one. Finish with **`farnost-publish-content`**.
 
 ## 1. Read the PDF
 
@@ -36,8 +34,7 @@ Write the confirmed sheet as `record.json` in the session's scratchpad (never in
 
 **Week**: the week `--check` printed from the heading (not part of the record): enter every date of it in `days`.
 A PDF can cover **two weeks** (around Christmas, Easter or a holiday): it is still **one** `ServiceSheet` with
-every day of both weeks, never split into two. The site drops "tento týden" from its labels by itself (`isOneWeek()`,
-more than 8 days). Everything below that says "the week" means the sheet's whole period.
+every day of both weeks, never split into two. Everything below that says "the week" means the sheet's whole period.
 
 **Days** (`days[]`, one per date, in order):
 
@@ -66,9 +63,9 @@ linked PDF is public anyway. Set `public: false` only on a row the user asks to 
 its intention off the web); that row's `detail` then stays in the PDF only.
 
 **The sheet drives the week**: for every date from `validFrom` to `validTo` (the newer sheet wins a shared Sunday),
-the day's `mass` and `service` rows are its only services (`sheetExceptions()`); the regular schedule is never mixed in, and applies again only after the
-last sheet. So enter **every day of the week** with all its rows, as the PDF does: a missing mass is a cancelled mass, a
-missing day has no services. A cancellation within the week needs no `laterExceptions` entry; mention it to the user.
+the day's `mass` and `service` rows are its only services; the regular schedule is never mixed in, and applies again
+only after the last sheet. So enter **every day of the week** with all its rows, as the PDF does: a missing mass is a
+cancelled mass, a missing day has no services. A cancellation within the week needs no `laterExceptions` entry; mention it to the user.
 
 **Later changes** (`laterExceptions`, in `src/content/ohlasky/index.ts`, after the **last** sheet's `validTo`): an
 announcement of a change **after** `validTo` ("v neděli 25. 10. mše svatá nebude", a moved time) can go into
@@ -76,9 +73,6 @@ announcement of a change **after** `validTo` ("v neděli 25. 10. mše svatá neb
 (masses as `{ time, place }`, titled ones with `title`), `services: []` for none, and a short `reason`. Ask the user
 before adding one, and remind them to change Google Calendar too (the Kalendář reads it). Keep the entries in date
 order, one per date.
-
-**Changes**: the "změna" tag is computed (`markChanges()`): a mass whose time and place are not in `regularServices`
-for that date is a change, except on a weekday without any regular mass (e.g. a Tuesday morning mass).
 
 **Announcements** (`announcements[]`, word for word, in the PDF's order):
 
