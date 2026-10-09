@@ -1,6 +1,6 @@
 import "server-only";
 import { places } from "@/content/masses";
-import { laterExceptions, serviceSheets } from "@/content/ohlasky";
+import { laterExceptions, serviceSheets } from "@/server/ohlasky";
 import { scheduleExceptions } from "@/lib/services/service-sheet";
 import type { PlaceId } from "@/content/types/services";
 

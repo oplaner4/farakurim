@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import { serviceSheets } from "@/content/ohlasky";
+import { serviceSheets } from "@/server/ohlasky";
 import { CurrentSheet } from "@/components/services/CurrentSheet";
 import { BUILD_TIME } from "@/lib/shared/build-time";
 import { links, mainNav } from "@/content/site";

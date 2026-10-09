@@ -10,7 +10,7 @@ import { WeekSchedule } from "@/components/services/WeekSchedule";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { intentions, places, regularServices, sacraments } from "@/content/masses";
 import { events } from "@/content/news";
-import { serviceSheets } from "@/content/ohlasky";
+import { serviceSheets } from "@/server/ohlasky";
 import { links } from "@/content/site";
 import type { PlaceId, ServiceSheet } from "@/content/types/services";
 import { BUILD_TIME } from "@/lib/shared/build-time";
