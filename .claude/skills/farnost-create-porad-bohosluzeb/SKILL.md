@@ -98,7 +98,8 @@ pnpm stage porad "<source>" --record <scratchpad>/record.json
 
 It validates the record first (the error names each field), stages the PDF, adds the sheet to
 `src/content/ohlasky.json`, removes the outdated sheets and the `laterExceptions` entries the sheets now cover, formats
-the file and runs the ohlášky test.
+the file and runs the ohlášky test. An entry it removes "between the sheets" (a gap the new sheet leaves) was announced
+for a day no sheet covers, where the site shows the regular schedule: tell the user.
 
 **Corrections**: never edit a sheet in `src/content/ohlasky.json` by hand.
 

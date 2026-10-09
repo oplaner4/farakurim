@@ -39,8 +39,10 @@ export type AddOhlaskyResult = {
   replaced: boolean;
   /** The periods of the outdated sheets removed (or that would be). */
   removed: string[];
-  /** The laterExceptions dates the sheets now cover, removed (or that would be). */
+  /** The laterExceptions dates on or before the last sheet's validTo, removed (or that would be). */
   removedExceptions: IsoDate[];
+  /** Those of `removedExceptions` in no kept sheet's period (a gap between sheets): the site ignored them. */
+  betweenSheets: IsoDate[];
   /** The file written, for formatAndTest; empty with `check`. */
   written: string[];
 };
@@ -89,23 +91,31 @@ export function addOhlasky(
   const lastDay = kept.at(-1)!.validTo;
   const removed = all.filter((s) => !kept.includes(s)).map(period);
   const removedExceptions = laterExceptions.filter((x) => x.date <= lastDay).map((x) => x.date);
+  const betweenSheets = removedExceptions.filter((d) => !kept.some((s) => s.validFrom <= d && d <= s.validTo));
   const written: string[] = [];
   if (!check) {
     const data: OhlaskyFile = { sheets: kept, laterExceptions: laterExceptions.filter((x) => x.date > lastDay) };
     writeFileSync(ohlaskyFile, `${JSON.stringify(data, null, 2)}\n`);
     written.push(ohlaskyFile);
   }
-  return { sheet, replaced, removed, removedExceptions, written };
+  return { sheet, replaced, removed, removedExceptions, betweenSheets, written };
 }
 
 /** The lines the command prints for `result`. */
 export function ohlaskyLines(result: AddOhlaskyResult, check: boolean): string[] {
-  const { sheet, replaced, removed, removedExceptions } = result;
+  const { sheet, replaced, removed, removedExceptions, betweenSheets } = result;
   const verb = replaced ? (check ? "Would replace" : "Replaced") : check ? "Would add" : "Added";
   const remove = check ? "Would remove" : "Removed";
   return [
     `${verb} the sheet ${period(sheet)} ${replaced ? "in" : "to"} src/content/ohlasky.json`,
     ...removed.map((p) => `${remove} the outdated sheet ${p}`),
-    ...removedExceptions.map((date) => `${remove} the laterExceptions entry on ${date} (the sheet covers it)`),
+    ...removedExceptions.map(
+      (date) =>
+        `${remove} the laterExceptions entry on ${date} (${
+          betweenSheets.includes(date)
+            ? "between the sheets, so the site ignores it: ask the user whether it still holds"
+            : "the sheet covers it"
+        })`,
+    ),
   ];
 }

@@ -144,6 +144,17 @@ describe("addOhlasky on a temp ohlasky.json and news/", () => {
     expect(raw()).toBe(wrongPlace);
   });
 
+  it("says when a removed exception falls between sheets instead of in one", () => {
+    // 25.–31. 10. leaves a gap after 4.–11. 10.: both entries (18. and 19. 10.) are in it, before the last sheet's end.
+    const result = addOhlasky(file, news, record(datesOf(25, 31)), week("2026-10-25", "2026-10-31"), { now });
+    expect(sheets()).toEqual(["2026-10-04", "2026-10-25"]);
+    expect(readOhlasky(file).laterExceptions).toEqual([]);
+    expect(ohlaskyLines(result, false).slice(-2)).toEqual([
+      "Removed the laterExceptions entry on 2026-10-18 (between the sheets, so the site ignores it: ask the user whether it still holds)",
+      "Removed the laterExceptions entry on 2026-10-19 (between the sheets, so the site ignores it: ask the user whether it still holds)",
+    ]);
+  });
+
   it("only validates with check", () => {
     const before = raw();
     const result = addOhlasky(file, news, record(datesOf(11, 18)), week("2026-10-11", "2026-10-18"), {
