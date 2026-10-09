@@ -3,7 +3,7 @@ import type { PetrklicIssue } from "@/content/types/petrklic";
 // The issues of the old site's archive (farakurim.cz/petrklic/archiv), plus new ones added with the
 // farnost-create-petrklic skill. Each issue is a folder /uploads/petrklic/<id>/ with the PDF petrklic-<id>.pdf
 // (its name is the downloaded file's name), cover.webp and, for the current issue, pages/<n>.webp, rendered from
-// the PDF (`pnpm petrklic`, scripts/petrklic-images.py).
+// the PDF (`pnpm petrklic`, scripts/upload-images.ts).
 
 const dir = (id: string) => `/uploads/petrklic/${id}`;
 

@@ -1,4 +1,3 @@
-import { execFileSync } from "node:child_process";
 import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -9,6 +8,7 @@ import {
   addAktualita,
   addYear,
   existingIds,
+  formatFiles,
   insertRecord,
   monthFile,
   recordSource,
@@ -19,17 +19,7 @@ import {
 const root = fileURLToPath(new URL("..", import.meta.url));
 
 /** Formats `files` (relative to `dir`) with the repo's Prettier config, as the command does. */
-const prettier = (dir: string, files: string[]) =>
-  execFileSync(
-    "pnpm",
-    ["exec", "prettier", "--config", ".prettierrc.json", "--write", ...files.map((f) => join(dir, f))],
-    {
-      cwd: root,
-      stdio: "ignore",
-      // pnpm is pnpm.cmd on Windows, which Node starts only through a shell.
-      shell: process.platform === "win32",
-    },
-  );
+const prettier = (dir: string, files: string[]) => formatFiles(files.map((f) => join(dir, f)));
 
 const record = (fields: Partial<NewsEvent> = {}): NewsEvent => ({
   id: "hody-ceska",
@@ -183,9 +173,9 @@ describe("addAktualita on a copy of news/", { timeout: 30_000 }, () => {
   it("writes a record that reads back unchanged, in a formatted file", async () => {
     const { written } = addAktualita(news, full, { now });
     expect(written).toEqual(["2026/10.ts"]);
-    prettier(news, written);
+    await prettier(news, written);
     const formatted = readFileSync(join(news, "2026/10.ts"), "utf8");
-    prettier(news, written);
+    await prettier(news, written);
     expect(readFileSync(join(news, "2026/10.ts"), "utf8")).toBe(formatted);
     expect(formatted).toContain('    published: "2026-10-07",\n');
     expect(formatted).toContain(
@@ -232,7 +222,7 @@ describe("addAktualita on a copy of news/", { timeout: 30_000 }, () => {
     expect(result.newYear).toBe(true);
     expect(result.written).toEqual([...Object.keys(yearFiles("2027")).map((f) => `2027/${f}`), "index.ts"]);
     expect(existsSync(join(news, "2027/12.ts"))).toBe(true);
-    prettier(news, result.written);
+    await prettier(news, result.written);
 
     const { events } = (await import(`${join(news, "index.ts")}?t=${Date.now()}`)) as { events: NewsEvent[] };
     expect(events[0].id).toBe("trikralova-sbirka-2027");

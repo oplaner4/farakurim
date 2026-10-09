@@ -6,12 +6,14 @@
 // Usage: pnpm add-aktualita <record.json | -> [--check]
 // The record is a NewsEvent as JSON; upload paths are root-relative ("/uploads/aktuality/x.webp") and become
 // `${UPLOADS}/x.webp`. --check only validates the record and prints the target file, without writing.
-// `pnpm stage aktualita … --record <file>` adds the staged poster and attachments and runs this.
+// `pnpm stage aktualita … --record <file>` (scripts/stage-upload.ts) adds the staged poster and attachments and
+// calls addAktualita() and formatAndTest() itself.
 
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import * as prettier from "prettier";
 import * as z from "zod";
 import type { NewsEvent } from "@/content/types/news";
 import { NEWS_EVENT_FIELDS, newsEventSchema } from "@/lib/news/schema";
@@ -185,32 +187,50 @@ export function addAktualita(newsDir: string, input: unknown, { check = false, n
   return { record, target: target.path, newYear, written };
 }
 
-// Run as a command, not imported by the tests.
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+const root = fileURLToPath(new URL("..", import.meta.url));
+export const NEWS_DIR = join(root, "src/content/news");
+
+/** Formats `files` (absolute paths) with the repo's Prettier config, wherever they are. */
+export async function formatFiles(files: string[]) {
+  const options = await prettier.resolveConfig(root, { config: join(root, ".prettierrc.json") });
+  for (const file of files) {
+    writeFileSync(file, await prettier.format(readFileSync(file, "utf8"), { ...options, filepath: file }));
+  }
+}
+
+/** The line saying where the record went (or would go) in src/content/news/. */
+export const targetLine = ({ target, newYear }: { target: string; newYear: boolean }, check: boolean) =>
+  `${check ? "Would add" : "Added"} the record to src/content/news/${target}` +
+  (newYear ? ` (new year: creates news/${target.slice(0, 4)}/)` : "");
+
+/**
+ * Formats the files `addAktualita` wrote and runs the news tests (with Node itself, so no shell is needed to start
+ * pnpm on Windows). Throws when a test fails.
+ */
+export async function formatAndTest(written: string[]) {
+  await formatFiles(written.map((file) => join(NEWS_DIR, file)));
+  const vitest = join(root, "node_modules/vitest/vitest.mjs");
+  execFileSync(process.execPath, [vitest, "run", "src/content/news"], { cwd: root, stdio: "inherit" });
+}
+
+// No top-level await: tsx runs the scripts as CommonJS (package.json has no "type": "module").
+async function main() {
   const [file] = process.argv.slice(2).filter((arg) => !arg.startsWith("--"));
   const check = process.argv.includes("--check");
   if (!file) {
     console.error("Usage: pnpm add-aktualita <record.json | -> [--check]");
     process.exit(2);
   }
-  const root = fileURLToPath(new URL("..", import.meta.url));
-  const newsDir = join(root, "src/content/news");
   try {
     const input: unknown = JSON.parse(readFileSync(file === "-" ? 0 : file, "utf8"));
-    const { target, newYear, written } = addAktualita(newsDir, input, { check });
-    const year = newYear ? ` (new year: creates news/${target.slice(0, 4)}/)` : "";
-    if (check) {
-      console.log(`Would add the record to src/content/news/${target}${year}`);
-    } else {
-      const paths = written.map((f) => join("src/content/news", f));
-      // pnpm is pnpm.cmd on Windows, which Node starts only through a shell (the arguments have no spaces).
-      const shell = process.platform === "win32";
-      execFileSync("pnpm", ["exec", "prettier", "--write", ...paths], { cwd: root, stdio: "ignore", shell });
-      console.log(`Added the record to src/content/news/${target}${year}`);
-      execFileSync("pnpm", ["exec", "vitest", "run", "src/content/news"], { cwd: root, stdio: "inherit", shell });
-    }
+    const result = addAktualita(NEWS_DIR, input, { check });
+    console.log(targetLine(result, check));
+    if (!check) await formatAndTest(result.written);
   } catch (error) {
     console.error(`add-aktualita: ${error instanceof Error ? error.message : error}`);
     process.exit(1);
   }
 }
+
+// Run as a command, not imported by the tests.
+if (process.argv[1] === fileURLToPath(import.meta.url)) void main();
