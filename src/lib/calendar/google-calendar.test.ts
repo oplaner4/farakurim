@@ -1,5 +1,13 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { eventsUrl, fetchGoogleCalendar, parseEventsPage, toEntries } from "./google-calendar";
+import {
+  aktualitaPaths,
+  type CalendarLinks,
+  eventsUrl,
+  fetchGoogleCalendar,
+  parseEventsPage,
+  refererInit,
+  toEntries,
+} from "./google-calendar";
 
 describe("eventsUrl", () => {
   it("asks for expanded events of the Prague days", () => {
@@ -47,8 +55,30 @@ describe("parseEventsPage", () => {
   });
 });
 
+describe("aktualitaPaths", () => {
+  it("finds the detail page URLs in a description, also in Google's HTML", () => {
+    expect(aktualitaPaths("Zveme.\n\nhttps://farakurim.cz/aktuality/hody-ceska/")).toEqual(["/aktuality/hody-ceska/"]);
+    expect(
+      aktualitaPaths('<a href="https://www.farakurim.cz/aktuality/hody">https://www.farakurim.cz/aktuality/hody</a>'),
+    ).toEqual(["/aktuality/hody/", "/aktuality/hody/"]);
+    expect(aktualitaPaths("farakurim.cz/aktuality/a-1 a /aktuality/b/")).toEqual(["/aktuality/a-1/", "/aktuality/b/"]);
+  });
+
+  it("ignores other sites and descriptions without a link", () => {
+    expect(aktualitaPaths("https://example.cz/aktuality/hody/ a https://stary.farakurim.cz/aktuality/x/")).toEqual([]);
+    expect(aktualitaPaths("Sraz na faře")).toEqual([]);
+    expect(aktualitaPaths(undefined)).toEqual([]);
+  });
+});
+
+describe("refererInit", () => {
+  it("sends the site as the referrer", () => {
+    expect(refererInit("https://farakurim.cz")).toEqual({ headers: { Referer: "https://farakurim.cz/" } });
+  });
+});
+
 describe("toEntries", () => {
-  const hrefs = new Map([["series", "/aktuality/vecery/"]]);
+  const hrefs: CalendarLinks = { byEventId: { series: "/aktuality/vecery/" }, pages: ["/aktuality/hody/"] };
 
   it("converts timed, all-day and multi-day events", () => {
     const entries = toEntries(
@@ -78,6 +108,32 @@ describe("toEntries", () => {
       { id: "h", calendar: "events", title: "Hody", date: "2026-10-02", end: "2026-10-04" },
       { id: "k", calendar: "events", title: "Koláč", date: "2026-10-07" },
       { id: "v_1", calendar: "events", title: "Večery", href: "/aktuality/vecery/", date: "2026-10-11", time: "18:00" },
+    ]);
+  });
+
+  it("links an Události event by its ID, else by the first built page in its description", () => {
+    const event = (id: string, description?: string) => ({
+      id,
+      description,
+      start: { date: "2026-10-04" },
+      end: { date: "2026-10-05" },
+    });
+    const href = (calendar: "events" | "services", ...events: ReturnType<typeof event>[]) =>
+      toEntries(events, calendar, hrefs).map((e) => e.href);
+    expect(
+      href(
+        "events",
+        event("a", "https://farakurim.cz/aktuality/hody/"),
+        event("b", "/aktuality/neni-postaveno/ a /aktuality/hody/"),
+        event("c", "https://farakurim.cz/aktuality/neni-postaveno/"),
+        event("series", "https://farakurim.cz/aktuality/hody/"),
+        event("d"),
+      ),
+    ).toEqual(["/aktuality/hody/", "/aktuality/hody/", undefined, "/aktuality/vecery/", undefined]);
+    // Bohoslužby events never link.
+    expect(href("services", event("a", "https://farakurim.cz/aktuality/hody/"), event("series"))).toEqual([
+      undefined,
+      undefined,
     ]);
   });
 

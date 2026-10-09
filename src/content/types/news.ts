@@ -96,7 +96,8 @@ export type NewsEvent = {
   archiveHidden?: boolean;
   /**
    * ID of the matching event in the Události Google Calendar (for a recurring event, the series' ID), so the
-   * Kalendář links the event to this detail page (design/DESIGN.md §16.4).
+   * Kalendář links the event to this detail page (design/DESIGN.md §16.4). Usually left out: the event links the
+   * page by the page's URL in its description (`pnpm aktualita-calendar <id>` checks it).
    */
   calendarEventId?: string;
   /**

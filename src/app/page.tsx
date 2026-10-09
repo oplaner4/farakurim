@@ -17,7 +17,7 @@ import { currentNews } from "@/lib/news/events";
 import { weekRange } from "@/lib/calendar/agenda";
 import { pragueDate } from "@/lib/shared/prague";
 import { jsonLdScript, parishJsonLd } from "@/lib/shared/structured-data";
-import { calendarHrefs, loadCalendarEntries } from "@/server/calendar";
+import { calendarLinks, loadCalendarEntries } from "@/server/calendar";
 import { currentExceptions } from "@/server/services";
 
 // Title and description come from the root layout.
@@ -51,7 +51,12 @@ export default async function HomePage() {
           />
         </div>
         <div className="container-page">
-          <WeekCalendar entries={weekEntries} range={calendarRange} hrefs={calendarHrefs} renderedAt={BUILD_TIME} />
+          <WeekCalendar
+            entries={weekEntries}
+            range={calendarRange}
+            calendarLinks={calendarLinks}
+            renderedAt={BUILD_TIME}
+          />
           <NewsSection events={upcomingNews} renderedAt={BUILD_TIME} />
           <GallerySection albums={albums} />
           <div className="grid grid-cols-1 gap-12 pt-10 pb-12 md:grid-cols-2 md:gap-4 md:py-14 lg:grid-fit-440 lg:gap-6 lg:py-20">

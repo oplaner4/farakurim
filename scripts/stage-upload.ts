@@ -26,7 +26,9 @@ import { basename, dirname, extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { addDays, differenceInCalendarDays, format, getISODay } from "date-fns";
+import type { NewsEvent } from "@/content/types/news";
 import { addAktualita, formatAndTest, NEWS_DIR, targetLine } from "./add-aktualita";
+import { reportCalendar } from "./aktualita-calendar";
 import { pdfFirstPageText, pdfPageCount, renderPetrklic, renderPoster } from "./upload-images";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -156,9 +158,12 @@ export interface AktualitaOptions {
 
 /**
  * Stages an aktualita's file (and its poster WebP) and, with a record, adds the record with the files. Returns the
- * lines to print and the news files written (for formatAndTest).
+ * lines to print, the news files written (for formatAndTest) and the added event.
  */
-export async function stageAktualita(env: StageEnv, options: AktualitaOptions) {
+export async function stageAktualita(
+  env: StageEnv,
+  options: AktualitaOptions,
+): Promise<{ lines: string[]; written: string[]; event?: NewsEvent }> {
   const { id, record: input, check = false } = options;
   const label = parseLabel(options.label);
   if (!KEBAB.test(id)) throw new Error(`"${id}" is not an ASCII kebab-case id`);
@@ -197,7 +202,7 @@ export async function stageAktualita(env: StageEnv, options: AktualitaOptions) {
   if (check) return { lines, written: [] };
   const result = addAktualita(env.newsDir, record);
   lines.push(targetLine(result, false));
-  return { lines, written: result.written };
+  return { lines, written: result.written, event: result.record };
 }
 
 /** An ISO date of a valid day, month and year; throws for 31. 2. */
@@ -357,9 +362,10 @@ export async function runCommand(env: StageEnv, argv: string[]) {
 // No top-level await: tsx runs the scripts as CommonJS (package.json has no "type": "module").
 async function main() {
   try {
-    const { lines, written } = await runCommand(defaultEnv(), process.argv.slice(2));
+    const { lines, written, event } = await runCommand(defaultEnv(), process.argv.slice(2));
     console.log(lines.join("\n"));
     if (written.length > 0) await formatAndTest(written);
+    if (event) await reportCalendar(event);
   } catch (error) {
     console.error(`stage-upload: ${error instanceof Error ? error.message : error}`);
     process.exit(1);

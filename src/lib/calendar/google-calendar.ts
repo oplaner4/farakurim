@@ -3,10 +3,13 @@ import * as z from "zod";
 import type { CalendarEntry, CalendarId } from "@/content/types/calendar";
 import type { DateRange } from "./agenda";
 import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
+import { links as siteLinks, SITE_URL } from "@/content/site";
 
 // Reads the parish's public Google Calendars with the Calendar API (`events.list`, design/DESIGN.md §16.4).
 // `singleEvents=true` makes Google expand recurring events and apply their exceptions, so no RRULE handling
 // is needed here. Runs at build time and in the browser (the key is restricted to the site's referrer).
+// An event of the Události calendar links to an Aktuality detail page when its description holds the page's URL
+// (pasted, or imported with the page's "Přidat do kalendáře" file), or by its ID (`calendarEventId`).
 
 const API = "https://www.googleapis.com/calendar/v3/calendars";
 
@@ -20,6 +23,7 @@ const googleEvent = z.object({
   status: z.string().optional(),
   summary: z.string().optional(),
   location: z.string().optional(),
+  description: z.string().optional(),
   start: googleTime,
   end: googleTime,
 });
@@ -57,35 +61,75 @@ export function eventsUrl(calendarId: string, apiKey: string, { from, to }: Date
   return `${API}/${encodeURIComponent(calendarId)}/events?${params}`;
 }
 
-const dayBefore = (date: string) => pragueDate(addDays(pragueDateTime(date, "12:00"), -1, { in: inPrague }));
+/**
+ * Fetch options for the API outside the browser: the key is restricted to the site's referrer, which a build or a
+ * script has to send itself.
+ */
+export const refererInit = (siteUrl: string): RequestInit => ({ headers: { Referer: `${siteUrl}/` } });
 
 /**
- * Turns Google events into calendar entries. `hrefs` maps an event ID (a recurring event's series ID) to the
- * detail page of the matching Aktuality record.
+ * How Události events link to Aktuality detail pages: `byEventId` maps an event ID (a recurring event's series ID)
+ * to its page, and `pages` lists the detail pages a description's URL may link to (pages not built yet are left out,
+ * so a URL pasted before the release links nothing instead of a missing page).
  */
-export function toEntries(events: GoogleEvent[], calendar: CalendarId, hrefs: Map<string, string>): CalendarEntry[] {
+export type CalendarLinks = { byEventId: Record<string, string>; pages: string[] };
+
+/** For calendars shown without links to detail pages. */
+export const NO_LINKS: CalendarLinks = { byEventId: {}, pages: [] };
+
+const SITE_HOST = new URL(SITE_URL).host.replace(/^www\./, "").replaceAll(".", "\\.");
+// The site's URL (with or without the scheme and www.), or a bare root-relative path, then /aktuality/<slug>.
+const PAGE_URL = new RegExp(
+  `(?<![\\w.-])(?:(?:https?://)?(?:www\\.)?${SITE_HOST}|(?<![\\w./:-]))(${siteLinks.news}[a-z0-9-]+)/?`,
+  "g",
+);
+
+/** The Aktuality detail paths ("/aktuality/<slug>/") an event description links to, also inside Google's HTML. */
+export const aktualitaPaths = (description: string | undefined): string[] =>
+  [...(description ?? "").matchAll(PAGE_URL)].map((m) => `${m[1]}/`);
+
+const dayBefore = (date: string) => pragueDate(addDays(pragueDateTime(date, "12:00"), -1, { in: inPrague }));
+
+/** The Prague days of an event (`end` only when it spans several days) and its start time, if it is timed. */
+export function eventDays({ start, end }: GoogleEvent): { date: string; end?: string; time?: string } | undefined {
+  if (start.date) {
+    // All-day events end on the day after their last day.
+    const last = end.date ? dayBefore(end.date) : start.date;
+    return { date: start.date, ...(last > start.date && { end: last }) };
+  }
+  if (!start.dateTime) return undefined;
+  const date = pragueDate(new Date(start.dateTime));
+  // An event ending at midnight belongs to the day before.
+  const last = end.dateTime ? pragueDate(subMinutes(new Date(end.dateTime), 1)) : date;
+  const time = format(new Date(start.dateTime), "H:mm", { in: inPrague });
+  return { date, time, ...(last > date && { end: last }) };
+}
+
+/**
+ * Turns Google events into calendar entries. An Události event links to an Aktuality detail page by its ID, else
+ * by the first built page its description links to.
+ */
+export function toEntries(events: GoogleEvent[], calendar: CalendarId, links: CalendarLinks): CalendarEntry[] {
+  const pages = new Set(links.pages);
   return events.flatMap((event): CalendarEntry[] => {
     if (event.status === "cancelled") return [];
-    const href = hrefs.get(event.recurringEventId ?? event.id);
-    const base = {
-      id: event.id,
-      calendar,
-      title: event.summary?.trim() || "Bez názvu",
-      ...(event.location && { place: event.location }),
-      ...(href && { href }),
-    };
-    const { start, end } = event;
-    if (start.date) {
-      // All-day events end on the day after their last day.
-      const last = end.date ? dayBefore(end.date) : start.date;
-      return [{ ...base, date: start.date, ...(last > start.date && { end: last }) }];
-    }
-    if (!start.dateTime) return [];
-    const date = pragueDate(new Date(start.dateTime));
-    // An event ending at midnight belongs to the day before.
-    const last = end.dateTime ? pragueDate(subMinutes(new Date(end.dateTime), 1)) : date;
-    const time = format(new Date(start.dateTime), "H:mm", { in: inPrague });
-    return [{ ...base, date, time, ...(last > date && { end: last }) }];
+    const days = eventDays(event);
+    if (!days) return [];
+    const href =
+      calendar === "events"
+        ? (links.byEventId[event.recurringEventId ?? event.id] ??
+          aktualitaPaths(event.description).find((path) => pages.has(path)))
+        : undefined;
+    return [
+      {
+        id: event.id,
+        calendar,
+        title: event.summary?.trim() || "Bez názvu",
+        ...(event.location && { place: event.location }),
+        ...(href && { href }),
+        ...days,
+      },
+    ];
   });
 }
 

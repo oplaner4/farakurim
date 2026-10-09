@@ -6,8 +6,9 @@
 // Usage: pnpm add-aktualita <record.json | -> [--check]
 // The record is a NewsEvent as JSON; upload paths are root-relative ("/uploads/aktuality/x.webp") and become
 // `${UPLOADS}/x.webp`. --check only validates the record and prints the target file, without writing.
+// Then it checks the event in the Události calendar (scripts/aktualita-calendar.ts).
 // `pnpm stage aktualita … --record <file>` (scripts/stage-upload.ts) adds the staged poster and attachments and
-// calls addAktualita() and formatAndTest() itself.
+// calls addAktualita(), formatAndTest() and the calendar check itself.
 
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -18,6 +19,7 @@ import * as z from "zod";
 import type { NewsEvent } from "@/content/types/news";
 import { NEWS_EVENT_FIELDS, newsEventSchema } from "@/lib/news/schema";
 import { pragueDate } from "@/lib/shared/prague";
+import { reportCalendar } from "./aktualita-calendar";
 
 export const MONTHS = [
   "january",
@@ -225,7 +227,10 @@ async function main() {
     const input: unknown = JSON.parse(readFileSync(file === "-" ? 0 : file, "utf8"));
     const result = addAktualita(NEWS_DIR, input, { check });
     console.log(targetLine(result, check));
-    if (!check) await formatAndTest(result.written);
+    if (!check) {
+      await formatAndTest(result.written);
+      await reportCalendar(result.record);
+    }
   } catch (error) {
     console.error(`add-aktualita: ${error instanceof Error ? error.message : error}`);
     process.exit(1);

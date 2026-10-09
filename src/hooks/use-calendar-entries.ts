@@ -12,7 +12,7 @@ import {
   type DateRange,
   mergeEntries,
 } from "@/lib/calendar/agenda";
-import { fetchGoogleCalendar, toEntries } from "@/lib/calendar/google-calendar";
+import { type CalendarLinks, fetchGoogleCalendar, toEntries } from "@/lib/calendar/google-calendar";
 
 // The prerendered calendars hold the entries of the build's date range. With an API key, the browser re-reads
 // every range it shows from Google Calendar (one TanStack query per range), so changes appear without a redeploy.
@@ -21,8 +21,7 @@ import { fetchGoogleCalendar, toEntries } from "@/lib/calendar/google-calendar";
 
 type Read = { range: DateRange; entries: CalendarEntry[] };
 
-async function readRange(range: DateRange, hrefs: Record<string, string>): Promise<Read> {
-  const links = new Map(Object.entries(hrefs));
+async function readRange(range: DateRange, links: CalendarLinks): Promise<Read> {
   const ids = Object.keys(parishCalendars) as CalendarId[];
   const lists = await Promise.all(
     ids.map(async (id) =>
@@ -32,8 +31,8 @@ async function readRange(range: DateRange, hrefs: Record<string, string>): Promi
   return { range, entries: lists.flat() };
 }
 
-const rangeQuery = (range: DateRange, hrefs: Record<string, string>) =>
-  queryOptions({ queryKey: ["calendar", range.from, range.to], queryFn: () => readRange(range, hrefs) });
+const rangeQuery = (range: DateRange, links: CalendarLinks) =>
+  queryOptions({ queryKey: ["calendar", range.from, range.to], queryFn: () => readRange(range, links) });
 
 /** Prerendered entries and the days they cover. */
 export type InitialCalendar = { entries: CalendarEntry[]; range: DateRange };
@@ -43,12 +42,12 @@ const combineReads = (results: UseQueryResult<Read>[]) => results.flatMap((r) =>
 
 /**
  * Entries for `range` and around it: the prerendered `initial` ones, with the days of every range read from
- * Google Calendar replaced by Google's entries. `hrefs` maps event IDs to Aktuality detail pages.
+ * Google Calendar replaced by Google's entries. `links` links Události events to Aktuality detail pages.
  */
 export function useCalendarEntries(
   initial: InitialCalendar,
   range: DateRange,
-  hrefs: Record<string, string>,
+  links: CalendarLinks,
 ): { entries: CalendarEntry[]; status: CalendarStatus } {
   // Every range shown so far, in order.
   const [shown, setShown] = useState<DateRange[]>([]);
@@ -56,10 +55,10 @@ export function useCalendarEntries(
   if (GOOGLE_CALENDAR_API_KEY && withRange !== shown) setShown(withRange);
 
   // The shown range is read (and a failed read tried again) here; going back to it starts as loading, not as failed.
-  const current = useQuery({ ...rangeQuery(range, hrefs), enabled: !!GOOGLE_CALENDAR_API_KEY });
+  const current = useQuery({ ...rangeQuery(range, links), enabled: !!GOOGLE_CALENDAR_API_KEY });
   // Only collects what the ranges shown so far have read.
   const reads = useQueries({
-    queries: shown.map((r) => ({ ...rangeQuery(r, hrefs), enabled: false })),
+    queries: shown.map((r) => ({ ...rangeQuery(r, links), enabled: false })),
     combine: combineReads,
   });
 

@@ -85,8 +85,9 @@ PHP, so they show the build's verse. The "Zdroj: www.vira.cz" link is vira.cz's 
 | `python3 scripts/zonerama-album.py <album-url>`     | Read a Zonerama album (title, date, photo counts) as JSON; `--write` adds it to `gallery.ts`                                                                        |
 | `pnpm stage aktualita\|porad\|petrklic … [--check]` | Stage an aktualita file, the weekly PDF or a Petrklíč issue in `uploads/` and print its lines for `src/content/`; `aktualita … --record <json>` also adds the event |
 | `pnpm add-aktualita <record.json> [--check]`        | Add an aktualita to its month file in `src/content/news/`, in date order, with today's `published` date; checks it with `newsEventSchema`                           |
+| `pnpm aktualita-calendar <id> [--out <dir>]`        | Check that an aktualita's Události event links its page (the URL in the description); writes its `.ics` to import when it is missing                                |
 
-The last five are used by the content skills (`farnost-create-petrklic`, `-aktualita`, `-galerie`, `-porad-bohosluzeb`).
+The last six are used by the content skills (`farnost-create-petrklic`, `-aktualita`, `-galerie`, `-porad-bohosluzeb`).
 
 Before you commit, run the full check and compare the change with the mockups: see
 [docs/conventions.md](docs/conventions.md).

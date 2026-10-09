@@ -3,7 +3,7 @@ import { MonthCalendar } from "@/components/calendar/MonthCalendar";
 import { SubscribePanel } from "@/components/calendar/SubscribePanel";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { PageHeading } from "@/components/ui/PageHeading";
-import { calendarHrefs, loadCalendarEntries } from "@/server/calendar";
+import { calendarLinks, loadCalendarEntries } from "@/server/calendar";
 import { links } from "@/content/site";
 import { BUILD_TIME } from "@/lib/shared/build-time";
 import { addToMonth, monthGridRange } from "@/lib/calendar/agenda";
@@ -36,7 +36,7 @@ export default async function CalendarPage() {
           size="standard"
           intro="Bohoslužby i farní akce na jednom místě. Klepněte na den a uvidíte program."
         />
-        <MonthCalendar entries={entries} months={months} hrefs={calendarHrefs} renderedAt={BUILD_TIME}>
+        <MonthCalendar entries={entries} months={months} calendarLinks={calendarLinks} renderedAt={BUILD_TIME}>
           <SubscribePanel />
         </MonthCalendar>
         <noscript>
