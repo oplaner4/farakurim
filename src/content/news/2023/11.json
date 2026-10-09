@@ -1,0 +1,154 @@
+[
+  {
+    "id": "nadechni-se-2023",
+    "title": "Nadechni se",
+    "start": "2023-11-04",
+    "place": "Brno, Lidická 24",
+    "text": "Duchovní obnova komunity Emmanuel pro rodiče malých dětí: přednáška, chvály, sdílení, čas pro pár a přímluvná modlitba.",
+    "body": "<p>Hlídání dětí je možné zajistit.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/nadechni-se-2023-letak.webp",
+      "alt": "Leták: Nadechni se – duchovní obnova pro rodiče malých dětí"
+    },
+    "attachments": [
+      {
+        "label": "Leták",
+        "file": "/uploads/aktuality/nadechni-se-2023-letak.pdf",
+        "size": 871752
+      }
+    ],
+    "links": [
+      {
+        "label": "rodiny@emmanuel.cz",
+        "href": "mailto:rodiny@emmanuel.cz"
+      },
+      {
+        "label": "Komunita Emmanuel",
+        "href": "https://www.emmanuel.cz/"
+      }
+    ]
+  },
+  {
+    "id": "martinske-hody-2023",
+    "title": "Martinské hody",
+    "start": "2023-11-11",
+    "end": "2023-11-12",
+    "place": "Moravské Knínice",
+    "text": "Přijměte pozvání na Martinské hody a den obce v Moravských Knínicích.",
+    "program": [
+      {
+        "time": "so 14:00",
+        "title": "Předání hodového práva a zvaní na hody"
+      },
+      {
+        "time": "so 20:00",
+        "title": "Hodová zábava v sokolovně"
+      },
+      {
+        "time": "ne 11:00",
+        "title": "Hodová mše svatá",
+        "note": "kostel sv. Markéty"
+      },
+      {
+        "time": "ne 14:00",
+        "title": "Slavnostní jízda sv. Martina a průvod krojované chasy"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/martinske-hody-2023-plakat.webp",
+      "alt": "Plakát: Martinské hody Moravské Knínice 11.–12. listopadu 2023"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/martinske-hody-2023-plakat.pdf",
+        "size": 1030395
+      }
+    ]
+  },
+  {
+    "id": "tyden-modliteb-za-mladez-2023",
+    "title": "Týden modliteb za mládež",
+    "start": "2023-11-19",
+    "end": "2023-11-25",
+    "text": "Církev se v těchto dnech zvláště modlí za mladé lidi, kteří tvoří její živou součást.",
+    "poster": {
+      "src": "/uploads/aktuality/tyden-modliteb-za-mladez-2023-plakat.webp",
+      "alt": "Plakát: Týden modliteb za mládež 19.–25. 11. 2023"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/tyden-modliteb-za-mladez-2023-plakat.pdf",
+        "size": 4586723
+      }
+    ]
+  },
+  {
+    "id": "charitativni-jarmark-a-beh-2023",
+    "title": "Charitativní jarmark a běh",
+    "start": "2023-11-25",
+    "end": "2023-11-26",
+    "place": "Česká a Lelekovice",
+    "text": "23. farní charitativní jarmark v České a 7. charitativní běh v Lelekovicích. Výtěžek půjde na pomoc seniorům na Ukrajině.",
+    "program": [
+      {
+        "time": "so 10:30",
+        "title": "Charitativní běh",
+        "note": "start u vodojemu na Pasekách v Lelekovicích, prezence od 10:00"
+      },
+      {
+        "time": "so 15:00–18:00",
+        "title": "Příjem výrobků do jarmarku",
+        "note": "sokolovna v České"
+      },
+      {
+        "time": "so 16:00",
+        "title": "Beseda o pomoci Ukrajině",
+        "note": "s Evženem Adámkem, ředitelem Oblastní charity Znojmo"
+      },
+      {
+        "time": "ne 13:30–17:30",
+        "title": "Jarmark",
+        "note": "sokolovna v České"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/charitativni-jarmark-a-beh-2023-letak.webp",
+      "alt": "Leták: 23. charitativní jarmark v České a 7. charitativní běh"
+    },
+    "attachments": [
+      {
+        "label": "Leták",
+        "file": "/uploads/aktuality/charitativni-jarmark-a-beh-2023-letak.pdf",
+        "size": 706024
+      }
+    ]
+  },
+  {
+    "id": "cervena-streda-2023",
+    "title": "Červená středa",
+    "start": "2023-11-29",
+    "time": "17:00–20:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Mezinárodní připomínka lidí pronásledovaných pro víru. Sháníme dobrovolníky pro organizaci akce.",
+    "body": "<p>Kostel bude po celou dobu akce nasvícen červeně. V 18 hodin bude mše svatá za pronásledované, pak tichá adorace a modlitba při svíčkách.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/cervena-streda-2023-plakat.webp",
+      "alt": "Plakát: Červená středa 29. listopadu 2023"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/cervena-streda-2023-plakat.jpg",
+        "size": 3146320
+      }
+    ],
+    "links": [
+      {
+        "label": "Červená středa",
+        "href": "https://www.cervenastreda.cz/"
+      }
+    ]
+  }
+]

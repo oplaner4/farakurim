@@ -1,0 +1,35 @@
+[
+  {
+    "id": "farni-tabor-2023",
+    "title": "Farní tábor 2023",
+    "start": "2023-08-12",
+    "end": "2023-08-19",
+    "place": "Čachnov",
+    "text": "Již 5. ročník farního tábora pro děti od 8 do 14 let.",
+    "poster": {
+      "src": "/uploads/aktuality/farni-tabor-2023-plakat.webp",
+      "alt": "Plakát: Farní tábor Čachnov 2023"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/farni-tabor-2023-plakat.png",
+        "size": 2604741
+      }
+    ]
+  },
+  {
+    "id": "stanovy-pastoracnich-rad-2023",
+    "title": "Stanovy pastoračních rad farností",
+    "start": "2023-08-19",
+    "text": "Biskupství vydalo stanovy pastoračních rad farností. Podle nich proběhnou i u nás volby nové pastorační rady.",
+    "body": "<p>Návrhy kandidátů, kteří jsou ochotni pět let pracovat v pastorační radě farnosti, můžete předat panu faráři do 17. září.</p>",
+    "attachments": [
+      {
+        "label": "Stanovy pastoračních rad",
+        "file": "/uploads/aktuality/stanovy-pastoracnich-rad-2023-stanovy.pdf",
+        "size": 85184
+      }
+    ]
+  }
+]

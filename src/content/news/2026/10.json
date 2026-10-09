@@ -1,0 +1,358 @@
+[
+  {
+    "id": "setkani-prvokomunikantu-2026",
+    "title": "Setkání prvokomunikantů s biskupem Pavlem",
+    "start": "2026-10-01",
+    "time": "9:00–14:30",
+    "place": "Brno, Petrov",
+    "text": "Setkání prvokomunikantů s otcem biskupem Pavlem na Petrově v Brně s mottem „Dám vám nové srdce“.",
+    "program": [
+      {
+        "time": "9:00",
+        "title": "Příchod na Petrov"
+      },
+      {
+        "time": "10:00",
+        "title": "Mše svatá"
+      },
+      {
+        "time": "11:00–13:50",
+        "title": "Stanoviště a hry",
+        "note": "vlastní svačina"
+      },
+      {
+        "time": "14:00–14:30",
+        "title": "Adorace a ukončení"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/setkani-prvokomunikantu-2026-plakat.webp",
+      "alt": "Plakát: Setkání prvokomunikantů s biskupem Pavlem 1. 10. 2026"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/setkani-prvokomunikantu-2026-plakat.png",
+        "size": 1843554
+      }
+    ]
+  },
+  {
+    "id": "obnova-v-duchu-svatem-2026",
+    "title": "Obnova v Duchu svatém",
+    "start": "2026-10-01",
+    "end": "2027-04-29",
+    "place": "Brno, Lidická",
+    "text": "Seminář obnovy v Duchu svatém s Komunitou Emmanuel: každý čtvrtek přednášky, adorace a modlitba.",
+    "longTerm": {
+      "weeklyAt": "18:30"
+    },
+    "attachments": [
+      {
+        "label": "Pozvánka",
+        "file": "/uploads/aktuality/obnova-v-duchu-svatem-2026-pozvanka.png",
+        "size": 217722
+      }
+    ],
+    "links": [
+      {
+        "label": "Obnova v Duchu svatém",
+        "href": "https://www.emmanuel.cz/obnova/"
+      }
+    ]
+  },
+  {
+    "id": "hody-ceska-2026",
+    "title": "Hody v České",
+    "start": "2026-10-02",
+    "end": "2026-10-04",
+    "place": "Česká",
+    "text": "Srdečně zveme na tradiční hody v České: stavění máje, průvod obcí, česká beseda, hodová zábava a hodová mše svatá.",
+    "program": [
+      {
+        "time": "pá 16:00",
+        "title": "Stavění máje stárky a hodovou chasou"
+      },
+      {
+        "time": "pá 17:00",
+        "title": "Posezení pod májou",
+        "note": "s HCM Kubíci a Staňou Rosypalem"
+      },
+      {
+        "time": "so 9:00",
+        "title": "Zvaní na hody"
+      },
+      {
+        "time": "so 15:00",
+        "title": "Průvod obcí od sokolovny",
+        "note": "předání hodového práva, svěcení práva a vína u kapličky"
+      },
+      {
+        "time": "so 18:00",
+        "title": "Česká beseda pod májou"
+      },
+      {
+        "time": "so 20:00",
+        "title": "Hodová zábava s DH Blučiňáci",
+        "note": "vstupné 200 Kč, krojovaní zdarma"
+      },
+      {
+        "time": "ne 11:00",
+        "title": "Mše svatá v kostele sv. Maří Magdalény v Kuřimi",
+        "note": "zpívá chrámový sbor Magnificat, autobus v 10:30 z návsi"
+      },
+      {
+        "time": "ne 18:00",
+        "title": "Hodové dozvuky s CM Primáš",
+        "note": "dobrovolné vstupné"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/hody-ceska-2026-plakat.webp",
+      "alt": "Plakát: Hody v České 2.–4. října 2026"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/hody-ceska-2026-plakat.png",
+        "size": 482268
+      }
+    ]
+  },
+  {
+    "id": "novy-web-farnosti-2026",
+    "title": "Nový web farnosti",
+    "start": "2026-10-05",
+    "end": "2026-10-31",
+    "text": "Farní web dostal novou podobu. Některé méně navštěvované stránky ještě připravujeme.",
+    "lead": "Vítejte na novém webu farnosti Kuřim.",
+    "body": "<p>Farní web prošel úplnou proměnou: nový vzhled, přehlednější aktuality, pořad bohoslužeb, kalendář a fotogalerie a pohodlné čtení na mobilu.</p><p>Některé vedlejší stránky ještě připravujeme a budeme je postupně doplňovat. Do té doby najdete jejich obsah na původním webu.</p>",
+    "links": [
+      {
+        "label": "Původní web farnosti",
+        "href": "https://stary.farakurim.cz/"
+      }
+    ]
+  },
+  {
+    "id": "kolac-pro-hospic-2026",
+    "title": "Koláč pro hospic",
+    "start": "2026-10-07",
+    "place": "Kuřim, Tišnov a Veverská Bítýška",
+    "text": "Podpořte svým darem Domácí hospic Porta Vitae a za příspěvek dostanete chutný koláč.",
+    "body": "<p>Domácí hospic Porta Vitae poskytuje na Tišnovsku a Kuřimsku péči nevyléčitelně nemocným a umírajícím. Přispět je možné i online.</p><ul><li><strong>Kuřim</strong> – před prodejnou Kaufland, 7:00–15:00</li><li><strong>Tišnov</strong> – před prodejnou Albert, 7:00–16:00, a v Domácím hospici Porta Vitae, 8:00–15:00</li><li><strong>Veverská Bítýška</strong> – nám. Na Městečku, 9:00–12:00</li></ul>",
+    "poster": {
+      "src": "/uploads/aktuality/kolac-pro-hospic-2026-plakat.webp",
+      "alt": "Plakát: Koláč pro hospic 7. 10. 2026"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/kolac-pro-hospic-2026-plakat.png",
+        "size": 3418665
+      }
+    ],
+    "links": [
+      {
+        "label": "Koláč pro hospic",
+        "href": "https://tisnov.charita.cz/kolac-pro-hospic"
+      }
+    ]
+  },
+  {
+    "id": "setkani-lektoru-2026",
+    "title": "Děkanátní setkání lektorů Božího slova",
+    "start": "2026-10-09",
+    "end": "2026-10-10",
+    "place": "Tišnov, kostel sv. Václava",
+    "text": "Formační setkání lektorů Božího slova tišnovského děkanství. Provází MgA. Martina Pavlíková.",
+    "program": [
+      {
+        "time": "pá 18:00",
+        "title": "Mše svatá"
+      },
+      {
+        "time": "pá 19:00–20:30",
+        "title": "I. formační setkání"
+      },
+      {
+        "time": "so 9:00–12:00",
+        "title": "II. formační setkání",
+        "note": "praktické čtení v kostele"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/setkani-lektoru-2026-pozvanka.webp",
+      "alt": "Pozvánka: Děkanátní setkání lektorů Božího slova 9.–10. 10. 2026"
+    },
+    "attachments": [
+      {
+        "label": "Pozvánka",
+        "file": "/uploads/aktuality/setkani-lektoru-2026-pozvanka.png",
+        "size": 1807834
+      }
+    ]
+  },
+  {
+    "id": "manzelske-vecery-2026",
+    "title": "Manželské večery pro Tišnov a okolí",
+    "start": "2026-10-11",
+    "end": "2026-11-22",
+    "time": "18:00–20:30",
+    "place": "Tišnov, děkanství",
+    "text": "Sedm nedělních setkání pro posílení vašeho vztahu.",
+    "body": "<p>Přihlášky se otevřely 1. 6. 2026 v 8:00 přes web nebo QR kód na plakátu. Kontakt: M. Lavičková, tel. 733 741 739.</p>",
+    "sessions": ["2026-10-11", "2026-10-18", "2026-10-25", "2026-11-01", "2026-11-08", "2026-11-15", "2026-11-22"],
+    "poster": {
+      "src": "/uploads/aktuality/manzelske-vecery-2026-plakat.webp",
+      "alt": "Plakát: Manželské večery pro Tišnov a okolí"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/manzelske-vecery-2026-plakat.pdf",
+        "size": 461974
+      }
+    ],
+    "links": [
+      {
+        "label": "Přihláška",
+        "href": "https://bit.ly/randeprovsechny"
+      }
+    ]
+  },
+  {
+    "id": "adoracni-den-2026",
+    "title": "Adorační den kuřimské farnosti",
+    "start": "2026-10-12",
+    "time": "13:00–18:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Adorační den naší farnosti v kostele sv. Maří Magdalény.",
+    "published": "2026-10-09",
+    "poster": {
+      "src": "/uploads/aktuality/adoracni-den-2026-plakat.webp",
+      "alt": "Plakát: Adorační den kuřimské farnosti 12. října 2026"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/adoracni-den-2026-plakat.jpg",
+        "size": 171441
+      }
+    ]
+  },
+  {
+    "id": "setkani-varhaniku-a-schol-2026",
+    "title": "Děkanátní setkání varhaníků a schol",
+    "start": "2026-10-17",
+    "time": "9:30–11:30",
+    "place": "Tišnov, fara",
+    "text": "Setkání varhaníků a schol tišnovského děkanství na téma Jak prožívat mši svatou jako služebník při mši.",
+    "body": "<p>Setkání se koná v novém farním sále na faře v Tišnově. Lektorem je P. Mgr. Marcel Javora. Drobné občerstvení je zajištěno, přihlásit se můžete přes QR kód na plakátu.</p>",
+    "price": "zdarma",
+    "poster": {
+      "src": "/uploads/aktuality/setkani-varhaniku-a-schol-2026-plakat.webp",
+      "alt": "Plakát: Děkanátní setkání varhaníků a schol 17. 10. 2026"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/setkani-varhaniku-a-schol-2026-plakat.png",
+        "size": 1455515
+      }
+    ]
+  },
+  {
+    "id": "jubileum-800-2026",
+    "title": "Slavnostní mše k jubileu 800 let",
+    "start": "2026-10-18",
+    "time": "9:30",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "mapQuery": "kostel sv. Maří Magdalény Kuřim",
+    "text": "Zveme vás na slavnostní mši k jubileu 800 let kostela sv. Maří Magdalény za doprovodu dětské scholy.",
+    "lead": "Kostel sv. Maří Magdalény stojí v Kuřimi od roku 1226. Oslavte s námi jeho 800. výročí.",
+    "body": "<p>Po mši jste všichni srdečně zváni do misijní kavárny na faře.</p>",
+    "program": [
+      {
+        "time": "9:30",
+        "title": "Slavnostní mše svatá",
+        "note": "zpívá dětská schola"
+      },
+      {
+        "time": "po mši",
+        "title": "Misijní kavárna",
+        "note": "fara, Křížkovského 55/5"
+      }
+    ],
+    "highlights": {
+      "title": "800 let v datech",
+      "items": [
+        {
+          "value": "1226",
+          "label": "založení kostela"
+        },
+        {
+          "value": "1772",
+          "label": "benedikce"
+        },
+        {
+          "value": "1889",
+          "label": "konsekrace"
+        }
+      ]
+    },
+    "pinned": true,
+    "poster": {
+      "src": "/uploads/aktuality/jubileum-800-2026-plakat.webp",
+      "alt": "Plakát: Slavnostní mše k jubileu 800 let 18. října 2026"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/jubileum-800-2026-plakat.png",
+        "size": 2245169
+      }
+    ]
+  },
+  {
+    "id": "koncert-at-svoboda-zni-2026",
+    "title": "Koncert duchovní hudby Ať svoboda zní",
+    "start": "2026-10-18",
+    "time": "18:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Koncert duchovní hudby k výročí projevu Martina Luthera Kinga „Mám sen“. Zpívají Dej Nám Akord – DNA (Brno) a Danielis (Rousínov).",
+    "body": "<p>Koncert duchovní hudby k výročí projevu Martina Luthera Kinga „Mám sen“.</p><ul><li><strong>Dej Nám Akord – DNA</strong> (Brno)</li><li><strong>Danielis</strong> (Rousínov)</li></ul><p>Akce s podporou města Kuřim.</p>",
+    "price": "dobrovolné vstupné",
+    "published": "2026-10-09",
+    "poster": {
+      "src": "/uploads/aktuality/koncert-at-svoboda-zni-2026-plakat.webp",
+      "alt": "Plakát: Koncert duchovní hudby Ať svoboda zní"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/koncert-at-svoboda-zni-2026-plakat.jpg",
+        "size": 520991
+      }
+    ]
+  },
+  {
+    "id": "hubertska-mse-2026",
+    "title": "Hubertská mše",
+    "start": "2026-10-25",
+    "time": "9:30",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Společnost Lesy města Brna, a. s., srdečně zve na Hubertskou mši.",
+    "poster": {
+      "src": "/uploads/aktuality/hubertska-mse-2026-pozvanka.webp",
+      "alt": "Pozvánka: Hubertská mše 25. 10. 2026"
+    },
+    "attachments": [
+      {
+        "label": "Pozvánka",
+        "file": "/uploads/aktuality/hubertska-mse-2026-pozvanka.pdf",
+        "size": 2594721
+      }
+    ]
+  }
+]

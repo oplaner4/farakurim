@@ -1,0 +1,172 @@
+[
+  {
+    "id": "vranovske-pouti-2022",
+    "title": "Vranovské poutě k Panně Marii",
+    "start": "2022-09-03",
+    "end": "2022-10-02",
+    "place": "Vranov u Brna",
+    "text": "Přehled všech zářijových poutí k Panně Marii na Vranově.",
+    "attachments": [
+      {
+        "label": "Program poutí",
+        "file": "/uploads/aktuality/vranovske-pouti-2022-program.pdf",
+        "size": 304343
+      }
+    ]
+  },
+  {
+    "id": "medovy-den-2022",
+    "title": "Medový den",
+    "start": "2022-09-04",
+    "time": "10:00",
+    "place": "Kuřim, areál ZŠ Komenského",
+    "text": "Tradiční celodenní akce plná zábavy, pestrého programu a medu."
+  },
+  {
+    "id": "cyklopout-na-vranov-2022",
+    "title": "Cyklopouť na Vranov",
+    "start": "2022-09-11",
+    "time": "12:30",
+    "place": "Kuřim, park na ulici Havlíčkova",
+    "text": "Cyklopouť z Kuřimi na odpolední mši svatou na Vranově v 15 hodin.",
+    "body": "<p>Tempo skupiny bude přizpůsobeno dětem. Ostatní poutníky rádi potkáme na Vranově na mši. Na kolech jedeme jen za nedeštivého počasí.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/cyklopout-na-vranov-2022-plakat.webp",
+      "alt": "Plakát: Cyklopouť Kuřim – Vranov 11. 9. 2022"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/cyklopout-na-vranov-2022-plakat.pdf",
+        "size": 472161
+      }
+    ]
+  },
+  {
+    "id": "vystava-clovek-a-vira-2022",
+    "title": "Výstava fotografií Člověk a Víra",
+    "start": "2022-09-14",
+    "end": "2022-09-25",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Výstava velkoformátových fotografií společenství Člověk a Víra. Vstup zdarma.",
+    "body": "<p>Člověk a Víra je společenství fotografů, kteří ve svém volném čase bez nároku na odměnu dokumentují život církve, sakrální architekturu a víru člověka obecně.</p><p>Výstavu si můžete prohlédnout před bohoslužbami a po nich a v neděli 18. září od 14:00 při Dni národnostních menšin.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/vystava-clovek-a-vira-2022-plakat.webp",
+      "alt": "Plakát: Výstava velkoformátových fotografií Člověk a Víra"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/vystava-clovek-a-vira-2022-plakat.pdf",
+        "size": 4118986
+      }
+    ],
+    "links": [
+      {
+        "label": "Člověk a Víra",
+        "href": "https://www.clovekavira.cz/"
+      }
+    ]
+  },
+  {
+    "id": "den-narodnostnich-mensin-2022",
+    "title": "Den národnostních menšin",
+    "start": "2022-09-18",
+    "time": "14:00",
+    "place": "Kuřim, areál zámku",
+    "text": "Přijměte pozvání na Den národnostních menšin v areálu kuřimského zámku.",
+    "poster": {
+      "src": "/uploads/aktuality/den-narodnostnich-mensin-2022-plakat.webp",
+      "alt": "Plakát: Den národnostních menšin 18. 9. 2022 v areálu zámku Kuřim"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/den-narodnostnich-mensin-2022-plakat.jpg",
+        "size": 1758856
+      }
+    ]
+  },
+  {
+    "id": "pesi-pout-na-vranov-2022",
+    "title": "Pěší pouť na Vranov",
+    "start": "2022-09-25",
+    "time": "7:00",
+    "place": "Moravské Knínice a Kuřim",
+    "text": "Tradiční pěší pouť s krojovaným procesím a Pannou Marií Vranovskou na mši svatou v 11 hodin.",
+    "program": [
+      {
+        "time": "7:00",
+        "title": "Odchod z Moravských Knínic",
+        "note": "u č. p. 2"
+      },
+      {
+        "time": "7:20",
+        "title": "Odchod z Kuřimi",
+        "note": "u kostela, požehnání"
+      },
+      {
+        "time": "11:00",
+        "title": "Mše svatá na Vranově"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/pesi-pout-na-vranov-2022-plakat.webp",
+      "alt": "Plakát: Pěší pouť na Vranov 25. září 2022"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/pesi-pout-na-vranov-2022-plakat.pdf",
+        "size": 1989129
+      }
+    ]
+  },
+  {
+    "id": "hody-v-ceske-2022",
+    "title": "Hody v České",
+    "start": "2022-09-30",
+    "end": "2022-10-02",
+    "place": "Česká",
+    "text": "Stavění máje, krojovaný průvod obcí, hodová zábava a mše svatá v Kuřimi.",
+    "body": "<p>Žehnání obci a hodovníkům bude po příchodu krojovaného průvodu ke kapli Panny Marie Růžencové v sobotu přibližně v 15 hodin.</p>",
+    "program": [
+      {
+        "time": "pá 16:00",
+        "title": "Stavění máje",
+        "note": "stárci a hodová chasa"
+      },
+      {
+        "time": "so po 15:00",
+        "title": "Průvod obcí od sokolovny",
+        "note": "předání hodového práva, svěcení práva a vína u kapličky"
+      },
+      {
+        "time": "so 20:00",
+        "title": "Hodová zábava",
+        "note": "hraje DH Blučiňáci"
+      },
+      {
+        "time": "ne 11:00",
+        "title": "Mše svatá",
+        "note": "kostel sv. Maří Magdalény v Kuřimi, autobus odjíždí v 10:30 z návsi"
+      },
+      {
+        "time": "ne 17:00",
+        "title": "Posezení u cimbálu v sokolovně",
+        "note": "CM Primáš"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/hody-v-ceske-2022-plakat.webp",
+      "alt": "Plakát: Hody v České 30. 9. – 2. 10. 2022"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/hody-v-ceske-2022-plakat.pdf",
+        "size": 2313217
+      }
+    ]
+  }
+]

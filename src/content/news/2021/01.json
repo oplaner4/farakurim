@@ -1,0 +1,38 @@
+[
+  {
+    "id": "trikralova-sbirka-2021",
+    "title": "Tříkrálová sbírka 2021",
+    "start": "2021-01-01",
+    "end": "2021-01-24",
+    "place": "Kuřim",
+    "text": "Letos se sbírka přesunula převážně do online prostoru. Přispět ale můžete i do pokladniček na vybraných místech v Kuřimi.",
+    "body": "<p>Pokladničky jsou v kostele sv. Maří Magdalény (v čase pravidelných bohoslužeb), na podatelně městského úřadu a v řadě kuřimských obchodů a lékáren, které budou označeny informačními letáky. Z bezpečnostních důvodů je nutné si pokladničku v prodejně vyžádat.</p><p>Seznam všech míst najdete v přílohách.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/trikralova-sbirka-2021-letak.webp",
+      "alt": "Leták: Tříkrálová sbírka 2021"
+    },
+    "attachments": [
+      {
+        "label": "Leták",
+        "file": "/uploads/aktuality/trikralova-sbirka-2021-letak.pdf",
+        "size": 314872
+      },
+      {
+        "label": "Místa pokladniček",
+        "file": "/uploads/aktuality/trikralova-sbirka-2021-mista.pdf",
+        "size": 392006
+      },
+      {
+        "label": "Informace",
+        "file": "/uploads/aktuality/trikralova-sbirka-2021-informace.pdf",
+        "size": 127861
+      }
+    ],
+    "links": [
+      {
+        "label": "Tříkrálová sbírka",
+        "href": "https://www.trikralovasbirka.cz/"
+      }
+    ]
+  }
+]

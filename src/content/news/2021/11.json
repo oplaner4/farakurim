@@ -1,0 +1,194 @@
+[
+  {
+    "id": "odpustky-za-zemrele-2021",
+    "title": "Odpustky za zemřelé po celý listopad",
+    "start": "2021-11-01",
+    "end": "2021-11-30",
+    "text": "Kvůli pandemii je možné získat plnomocné odpustky za zemřelé nejen během oktávu Všech svatých, ale po celý listopad.",
+    "body": "<p>Dekret v tomto smyslu oznámila Apoštolská penitenciárie.</p>",
+    "links": [
+      {
+        "label": "Zpráva na webu cirkev.cz",
+        "href": "https://www.cirkev.cz/cs/aktuality/211029odpustky-za-zemrele-rozsireny-na-cely-listopad"
+      }
+    ]
+  },
+  {
+    "id": "petrklic-2021-1",
+    "title": "Petrklíč 1/2021",
+    "start": "2021-11-07",
+    "text": "Právě vyšlo první letošní vydání farního časopisu Petrklíč.",
+    "attachments": [
+      {
+        "label": "Petrklíč 1/2021",
+        "file": "/uploads/petrklic/2021-1/petrklic-2021-1.pdf",
+        "size": 10829180
+      }
+    ]
+  },
+  {
+    "id": "novena-ke-sv-josefovi-2021",
+    "title": "Novéna ke sv. Josefovi",
+    "start": "2021-11-10",
+    "text": "Rok sv. Josefa končí 8. prosince 2021. Devítidenní novénu k svatému Josefovi si můžete kdykoli poslechnout.",
+    "links": [
+      {
+        "label": "Novéna na YouTube",
+        "href": "https://www.youtube.com/results?search_query=nov%C3%A9na+k+svat%C3%A9mu+josefovi"
+      }
+    ]
+  },
+  {
+    "id": "martinske-hody-2021",
+    "title": "Martinské hody",
+    "start": "2021-11-13",
+    "end": "2021-11-14",
+    "place": "Moravské Knínice",
+    "text": "Přijměte pozvání na Martinské hody v Moravských Knínicích.",
+    "poster": {
+      "src": "/uploads/aktuality/martinske-hody-2021-plakat.webp",
+      "alt": "Plakát: Martinské hody v Moravských Knínicích 13.–14. 11. 2021"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/martinske-hody-2021-plakat.pdf",
+        "size": 377032
+      }
+    ]
+  },
+  {
+    "id": "svata-anezka-porta-coeli-2021",
+    "title": "Výročí kanonizace svaté Anežky České",
+    "start": "2021-11-14",
+    "time": "10:15",
+    "place": "Předklášteří, bazilika Porta Coeli",
+    "text": "Oslava 32. výročí kanonizace svaté Anežky České mší svatou v bazilice Nanebevzetí Panny Marie kláštera Porta Coeli.",
+    "body": "<p>Mši svatou bude sloužit P. PharmDr. Mgr. Josef Šedivý, O.Cr. Zvou farnosti Tišnov a Předklášteří.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/svata-anezka-porta-coeli-2021-plakat.webp",
+      "alt": "Plakát: 32. výročí kanonizace svaté Anežky České v Porta Coeli"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/svata-anezka-porta-coeli-2021-plakat.pdf",
+        "size": 2555209
+      }
+    ]
+  },
+  {
+    "id": "charitativni-beh-a-jarmark-2021",
+    "title": "Charitativní běh a jarmark",
+    "start": "2021-11-20",
+    "end": "2021-11-21",
+    "place": "Lelekovice a Česká",
+    "text": "Běh a 21. ročník charitativního jarmarku v České na pomoc dětem v Jižním Súdánu.",
+    "body": "<p>Jarmark se kvůli pandemii koná ve venkovních prostorách sokolovny v České. Prodej zboží pak pokračuje až do konce roku online a na sociálních sítích. Výtěžek podpoří projekt pomoci dětem v Jižním Súdánu cestou Papežských misijních děl.</p>",
+    "program": [
+      {
+        "time": "20. 11. 10:30",
+        "title": "Charitativní běh",
+        "note": "start u vodojemu Na Pasekách v Lelekovicích, prezentace od 10:00"
+      },
+      {
+        "time": "21. 11. 13:30–16:30",
+        "title": "Charitativní jarmark",
+        "note": "dvůr sokolovny v České"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/charitativni-beh-a-jarmark-2021-plakat-jarmark.webp",
+      "alt": "Plakát: 21. tradiční farní charitativní jarmark v České"
+    },
+    "attachments": [
+      {
+        "label": "Plakát: Charitativní jarmark",
+        "file": "/uploads/aktuality/charitativni-beh-a-jarmark-2021-plakat-jarmark.pdf",
+        "size": 364271
+      },
+      {
+        "label": "Plakát: Charitativní běh",
+        "file": "/uploads/aktuality/charitativni-beh-a-jarmark-2021-plakat-beh.pdf",
+        "size": 128233
+      }
+    ],
+    "links": [
+      {
+        "label": "Charitativní jarmark",
+        "href": "https://www.dc-vranov.cz/index.php/charitativni-jarmark"
+      }
+    ]
+  },
+  {
+    "id": "film-o-sv-anezce-2021",
+    "title": "Film o sv. Anežce České",
+    "start": "2021-11-21",
+    "time": "10:30",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Promítání dokumentárního filmu o sv. Anežce České po mši svaté.",
+    "body": "<p>Promítání pořádá senátorka Jaromíra Vítková společně s farností Kuřim.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/film-o-sv-anezce-2021-pozvanka.webp",
+      "alt": "Pozvánka: promítání dokumentárního filmu o sv. Anežce České"
+    },
+    "attachments": [
+      {
+        "label": "Pozvánka",
+        "file": "/uploads/aktuality/film-o-sv-anezce-2021-pozvanka.jpg",
+        "size": 1902520
+      }
+    ]
+  },
+  {
+    "id": "cervena-streda-2021",
+    "title": "Červená středa",
+    "start": "2021-11-24",
+    "time": "19:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Společenství mladých zve na mši svatou za pronásledované pro víru s hudebním doprovodem. Kostel bude nasvícen červeně.",
+    "body": "<p>Po mši následuje výstava s možností modlitby až do 21 hodin.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/cervena-streda-2021-plakat.webp",
+      "alt": "Plakát: Červená středa 24. listopadu 2021"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/cervena-streda-2021-plakat.pdf",
+        "size": 615368
+      }
+    ],
+    "links": [
+      {
+        "label": "Červená středa",
+        "href": "https://www.cervenastreda.cz/"
+      }
+    ]
+  },
+  {
+    "id": "vecer-boziho-milosrdenstvi-2021",
+    "title": "Večer Božího milosrdenství",
+    "start": "2021-11-27",
+    "time": "18:00",
+    "place": "Brno-Žebětín, kostel sv. Bartoloměje",
+    "text": "Večer Božího milosrdenství pod záštitou komunity Emmanuel.",
+    "poster": {
+      "src": "/uploads/aktuality/vecer-boziho-milosrdenstvi-2021-pozvanka.webp",
+      "alt": "Pozvánka: Večer Božího milosrdenství v Brně-Žebětíně"
+    },
+    "attachments": [
+      {
+        "label": "Pozvánka",
+        "file": "/uploads/aktuality/vecer-boziho-milosrdenstvi-2021-pozvanka.pdf",
+        "size": 678797
+      }
+    ]
+  },
+  {
+    "id": "katecheze-advent-vanoce-2021",
+    "title": "Katecheze k adventu a Vánocům",
+    "start": "2021-11-27",
+    "text": "Kdo je nemocný nebo nemůže přijít do kostela, může si prohlédnout loňské katecheze pro děti k adventu a Vánocům."
+  }
+]

@@ -1,0 +1,92 @@
+[
+  {
+    "id": "cyrilometodejska-pout-2022",
+    "title": "Cyrilometodějská pouť ke sv. Klimentu",
+    "start": "2022-07-05",
+    "time": "14:00",
+    "place": "Lipůvka, kaple sv. Klimenta",
+    "text": "Pouť ke sv. Klimentu u Lipůvky začíná u kříže nad Lipůvkou (směr Nuzířov).",
+    "poster": {
+      "src": "/uploads/aktuality/cyrilometodejska-pout-2022-plakat.webp",
+      "alt": "Plakát: Cyrilometodějská pouť ke sv. Klimentu u Lipůvky"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/cyrilometodejska-pout-2022-plakat.jpg",
+        "size": 216667
+      }
+    ]
+  },
+  {
+    "id": "koncert-good-work-2022",
+    "title": "Koncert Good Work",
+    "start": "2022-07-09",
+    "time": "17:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Koncert skupiny Good Work, jehož výtěžek bude věnován na opravy fary.",
+    "poster": {
+      "src": "/uploads/aktuality/koncert-good-work-2022-plakat.webp",
+      "alt": "Plakát: Koncert Good Work 9. 7. 2022 v Kuřimi"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/koncert-good-work-2022-plakat.jpg",
+        "size": 237950
+      }
+    ],
+    "links": [
+      {
+        "label": "Good Work",
+        "href": "https://www.goodwork.cz/"
+      }
+    ]
+  },
+  {
+    "id": "hody-2022",
+    "title": "Hody v obcích farnosti",
+    "start": "2022-07-15",
+    "end": "2022-07-24",
+    "place": "Moravské Knínice, Kuřim a Jinačovice",
+    "text": "Přijměte pozvání na Markétské hody v Moravských Knínicích, Babské hody v Kuřimi a Mladé hody v Jinačovicích.",
+    "program": [
+      {
+        "time": "15.–17. 7.",
+        "title": "Markétské hody",
+        "note": "Moravské Knínice"
+      },
+      {
+        "time": "22.–24. 7.",
+        "title": "Mladé hody a den obce",
+        "note": "Jinačovice"
+      },
+      {
+        "time": "23. 7.",
+        "title": "Babské hody",
+        "note": "Kuřim, areál ZŠ Komenského"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/hody-2022-plakat-kninice.webp",
+      "alt": "Plakát: Markétské hody v Moravských Knínicích 15.–17. 7. 2022"
+    },
+    "attachments": [
+      {
+        "label": "Plakát: Markétské hody v Moravských Knínicích",
+        "file": "/uploads/aktuality/hody-2022-plakat-kninice.pdf",
+        "size": 644133
+      },
+      {
+        "label": "Plakát: Mladé hody v Jinačovicích",
+        "file": "/uploads/aktuality/hody-2022-plakat-jinacovice.pdf",
+        "size": 364780
+      },
+      {
+        "label": "Plakát: Babské hody v Kuřimi",
+        "file": "/uploads/aktuality/hody-2022-plakat-kurim.pdf",
+        "size": 535418
+      }
+    ]
+  }
+]

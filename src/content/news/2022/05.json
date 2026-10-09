@@ -1,0 +1,42 @@
+[
+  {
+    "id": "den-pro-rodinu-2022",
+    "title": "Den pro rodinu",
+    "start": "2022-05-15",
+    "time": "14:00",
+    "place": "Kuřim, areál zámku",
+    "text": "Oslava Dne rodin se soutěžemi, skákacím hradem a hudebními vystoupeními.",
+    "body": "<p>Občerstvení je zajištěno, vstupné dobrovolné. Za nepříznivého počasí proběhne jen hudební vystoupení v kostele sv. Maří Magdalény.</p>",
+    "program": [
+      {
+        "time": "14:00",
+        "title": "Začátek akce",
+        "note": "soutěže a hry, skákací hrad, malování na obličej"
+      },
+      {
+        "time": "14:30",
+        "title": "Vystoupení žáků ZUŠ Kuřim"
+      },
+      {
+        "time": "15:15",
+        "title": "Kuřimská schola"
+      },
+      {
+        "time": "16:00",
+        "title": "Pavel Helan"
+      }
+    ],
+    "price": "dobrovolné vstupné",
+    "poster": {
+      "src": "/uploads/aktuality/den-pro-rodinu-2022-plakat.webp",
+      "alt": "Plakát: Den pro rodinu 15. 5. 2022 v areálu zámku Kuřim"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/den-pro-rodinu-2022-plakat.pdf",
+        "size": 1092639
+      }
+    ]
+  }
+]

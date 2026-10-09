@@ -1,0 +1,77 @@
+[
+  {
+    "id": "marianske-pouti-2024",
+    "title": "Mariánské poutě",
+    "start": "2024-09-01",
+    "end": "2024-09-22",
+    "place": "Vranov u Brna a Žarošice",
+    "text": "Přijměte pozvání na pouť Sedmiradostnou cestou, Zlatou sobotu v Žarošicích a pěší pouť na Vranov.",
+    "program": [
+      {
+        "time": "1. 9.",
+        "title": "6. pouť Sedmiradostnou cestou Česká – Lelekovice – Vranov",
+        "note": "mše svatá v 11:00"
+      },
+      {
+        "time": "14. 9.",
+        "title": "Zlatá sobota v Žarošicích",
+        "note": "krojovaný světelný průvod se soškami Panny Marie"
+      },
+      {
+        "time": "22. 9.",
+        "title": "12. tradiční pěší pouť Moravské Knínice – Kuřim – Vranov",
+        "note": "s krojovaným procesím, mše svatá v 11:00"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/marianske-pouti-2024-plakat-pesi-pout.webp",
+      "alt": "Plakát: Pěší pouť na Vranov 22. září 2024"
+    },
+    "attachments": [
+      {
+        "label": "Plakát: Pěší pouť na Vranov",
+        "file": "/uploads/aktuality/marianske-pouti-2024-plakat-pesi-pout.pdf",
+        "size": 865734
+      },
+      {
+        "label": "Plakát: Sedmiradostná cesta",
+        "file": "/uploads/aktuality/marianske-pouti-2024-plakat-sedmiradostna-cesta.pdf",
+        "size": 311560
+      },
+      {
+        "label": "Plakát: Zlatá sobota v Žarošicích",
+        "file": "/uploads/aktuality/marianske-pouti-2024-plakat-zlata-sobota.pdf",
+        "size": 583352
+      }
+    ]
+  },
+  {
+    "id": "aznaveky-2024-09-14",
+    "title": "Ažnavěky: třetí díl videozpravodaje",
+    "start": "2024-09-14",
+    "text": "Videozpravodaj brněnského biskupství Ažnavěky pokračuje třetím dílem.",
+    "links": [
+      {
+        "label": "Ažnavěky na YouTube",
+        "href": "https://www.youtube.com/watch?v=5fpZWepkA1I"
+      }
+    ]
+  },
+  {
+    "id": "sbirka-na-cirkevni-skolstvi-2024",
+    "title": "Sbírka na církevní školství a na bohoslovce",
+    "start": "2024-09-15",
+    "text": "Sbírkou podpoříte aktivity církve a modlitbou doprovodíte budoucí kněze. Přispět můžete i přes portál Donátor.",
+    "poster": {
+      "src": "/uploads/aktuality/sbirka-na-cirkevni-skolstvi-2024-letak.webp",
+      "alt": "Leták: Sbírka na církevní školství a na bohoslovce 15. září 2024"
+    },
+    "attachments": [
+      {
+        "label": "Leták",
+        "file": "/uploads/aktuality/sbirka-na-cirkevni-skolstvi-2024-letak.jpg",
+        "size": 484882
+      }
+    ]
+  }
+]

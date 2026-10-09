@@ -1,0 +1,27 @@
+[
+  {
+    "id": "noc-kostelu-2021",
+    "title": "Noc kostelů",
+    "start": "2021-05-28",
+    "time": "19:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Naše farnost se do Noci kostelů zapojuje virtuální prohlídkou kuřimského kostela a zpěvem chrámového sboru.",
+    "poster": {
+      "src": "/uploads/aktuality/noc-kostelu-2021-plakat.webp",
+      "alt": "Plakát: Noc kostelů 2021 v kuřimském kostele"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/noc-kostelu-2021-plakat.pdf",
+        "size": 2169663
+      }
+    ],
+    "links": [
+      {
+        "label": "Noc kostelů",
+        "href": "https://www.nockostelu.cz/"
+      }
+    ]
+  }
+]

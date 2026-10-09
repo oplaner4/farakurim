@@ -1,0 +1,121 @@
+[
+  {
+    "id": "noc-kostelu-2023",
+    "title": "Noc kostelů",
+    "start": "2023-06-02",
+    "time": "18:30",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Noc kostelů v kuřimském kostele: zpěvy dětské scholy, duchovní písně neduchovních autorů a večer s komunitou Emmanuel.",
+    "program": [
+      {
+        "time": "18:30",
+        "title": "Zpěvy kuřimské dětské scholy"
+      },
+      {
+        "time": "19:30",
+        "title": "Duchovní písně neduchovních autorů",
+        "note": "kapela Church Knights s pěveckým sborem, host Hana Ulrychová"
+      },
+      {
+        "time": "21:00",
+        "title": "Kdo zpívá, dvakrát se modlí",
+        "note": "hudba komunity Emmanuel a tichá adorace"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/noc-kostelu-2023-plakat.webp",
+      "alt": "Plakát: Noc kostelů v Kuřimi 2. 6. 2023"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/noc-kostelu-2023-plakat.png",
+        "size": 171495
+      }
+    ],
+    "links": [
+      {
+        "label": "Noc kostelů",
+        "href": "https://www.nockostelu.cz/"
+      }
+    ]
+  },
+  {
+    "id": "koncert-coelum-et-terra-2023",
+    "title": "Koncert Coelum et terra laetentur alleluia",
+    "start": "2023-06-04",
+    "time": "17:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Brněnský ekumenický sbor a komorní orchestr barokních nástrojů uvedou díla barokních a renesančních skladatelů.",
+    "price": "dobrovolné vstupné",
+    "poster": {
+      "src": "/uploads/aktuality/koncert-coelum-et-terra-2023-plakat.webp",
+      "alt": "Plakát: koncert duchovní hudby Coelum et terra laetentur alleluia"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/koncert-coelum-et-terra-2023-plakat.pdf",
+        "size": 312907
+      }
+    ]
+  },
+  {
+    "id": "farni-den-2023",
+    "title": "Farní den",
+    "start": "2023-06-10",
+    "time": "15:00",
+    "place": "Kuřim, farní dvorek a orlovna",
+    "text": "Farní den s mší svatou na farním dvorku a bohatým programem pro děti i dospělé.",
+    "body": "<p>Celé odpoledne se hraje rodinná hra v celém areálu a turnaj ve stolním fotbale, večer posezení u ohně s živou hudbou a špekáčky. Drobné občerstvení, které přinesete, je vítáno.</p>",
+    "program": [
+      {
+        "time": "15:00",
+        "title": "Mše svatá na farním dvorku"
+      },
+      {
+        "time": "15:45",
+        "title": "Zahájení turnaje ve stolním fotbale a rodinné hry"
+      },
+      {
+        "time": "16:00",
+        "title": "Přednáška o léčivých bylinách",
+        "note": "Marek Motyčka"
+      },
+      {
+        "time": "17:00",
+        "title": "Hudební překvapení",
+        "note": "Ukulele Band"
+      },
+      {
+        "time": "17:30",
+        "title": "Pomáháme psím srdcem",
+        "note": "asistenční pes"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/farni-den-2023-program.webp",
+      "alt": "Plakát: Farní den Kuřim 10. 6. 2023"
+    },
+    "attachments": [
+      {
+        "label": "Program",
+        "file": "/uploads/aktuality/farni-den-2023-program.pdf",
+        "size": 11854
+      }
+    ]
+  },
+  {
+    "id": "petrklic-2023-2",
+    "title": "Petrklíč 2/2023",
+    "start": "2023-06-25",
+    "text": "Právě vyšlo nové vydání farního časopisu Petrklíč.",
+    "attachments": [
+      {
+        "label": "Petrklíč 2/2023",
+        "file": "/uploads/petrklic/2023-2/petrklic-2023-2.pdf",
+        "size": 20273811
+      }
+    ]
+  }
+]

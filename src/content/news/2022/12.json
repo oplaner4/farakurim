@@ -1,0 +1,150 @@
+[
+  {
+    "id": "adventni-duchovni-obnova-2022",
+    "title": "Adventní duchovní obnova",
+    "start": "2022-12-03",
+    "time": "9:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Adventní duchovní obnova s P. Zdeňkem Jančaříkem, salesiánem a spisovatelem.",
+    "program": [
+      {
+        "time": "9:00",
+        "title": "Mše svatá",
+        "note": "kostel sv. Maří Magdalény"
+      },
+      {
+        "time": "10:00",
+        "title": "Promluva a diskuse",
+        "note": "sál fary"
+      },
+      {
+        "time": "11:30",
+        "title": "Adorace a závěrečné požehnání"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/adventni-duchovni-obnova-2022-plakat.webp",
+      "alt": "Plakát: Adventní duchovní obnova s P. Zdeňkem Jančaříkem 3. 12. 2022"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/adventni-duchovni-obnova-2022-plakat.jpg",
+        "size": 174307
+      }
+    ]
+  },
+  {
+    "id": "zbigniew-czendlik-2022",
+    "title": "P. Zbigniew Czendlik v Kuřimi",
+    "start": "2022-12-07",
+    "time": "16:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Na mši svaté bude hostovat P. Zbigniew Czendlik, děkan v Lanškrouně.",
+    "body": "<p>Večer v 17:00 následuje setkání se Zbigniewem Czendlikem, které pořádá Společenské a kulturní centrum Kuřim.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/zbigniew-czendlik-2022-pozvanka.webp",
+      "alt": "Pozvánka: Zbigniew Czendlik, středa 7. 12. 2022 v 17:00"
+    },
+    "attachments": [
+      {
+        "label": "Pozvánka",
+        "file": "/uploads/aktuality/zbigniew-czendlik-2022-pozvanka.pdf",
+        "size": 179167
+      }
+    ]
+  },
+  {
+    "id": "petrklic-2022-4",
+    "title": "Petrklíč 4/2022",
+    "start": "2022-12-17",
+    "text": "Vyšlo nové vydání farního časopisu Petrklíč. Výtisky za 20 Kč jsou k dispozici v kuřimském kostele pod kůrem.",
+    "attachments": [
+      {
+        "label": "Petrklíč 4/2022",
+        "file": "/uploads/petrklic/2022-4/petrklic-2022-4.pdf",
+        "size": 6587270
+      }
+    ]
+  },
+  {
+    "id": "vystava-betlemu-2022",
+    "title": "Výstava betlémů",
+    "start": "2022-12-18",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Srdečně zveme na výstavu betlémů v oratořích kuřimského kostela.",
+    "links": [
+      {
+        "label": "Křesťanské Vánoce",
+        "href": "https://www.krestanskevanoce.cz/kostel/470/"
+      }
+    ]
+  },
+  {
+    "id": "stedry-den-2022",
+    "title": "Štědrý den v kuřimském kostele",
+    "start": "2022-12-24",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Výstava betlémů, dětská katecheze s divadelní vánoční hrou a „půlnoční“ mše svatá se zpěvem chrámového sboru.",
+    "program": [
+      {
+        "time": "13:00–15:00",
+        "title": "Výstava betlémů"
+      },
+      {
+        "time": "15:00",
+        "title": "Dětská katecheze",
+        "note": "s divadelní vánoční hrou a koledami"
+      },
+      {
+        "time": "22:00",
+        "title": "„Půlnoční“ mše svatá",
+        "note": "chrámový sbor zpívá Missu pastoralis J. Schreiera"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/stedry-den-2022-program.webp",
+      "alt": "Program: Štědrý den v kuřimském kostele 2022"
+    },
+    "attachments": [
+      {
+        "label": "Program",
+        "file": "/uploads/aktuality/stedry-den-2022-program.pdf",
+        "size": 1170927
+      }
+    ]
+  },
+  {
+    "id": "zaznam-mse-bozi-hod-2022",
+    "title": "Zvukový záznam mše svaté na Boží hod",
+    "start": "2022-12-25",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Poslechněte si záznam mše svaté na Boží hod vánoční se zpěvem chrámového sboru.",
+    "attachments": [
+      {
+        "label": "Záznam mše svaté",
+        "file": "/uploads/aktuality/zaznam-mse-bozi-hod-2022-zaznam.mp3",
+        "size": 32684452
+      }
+    ]
+  },
+  {
+    "id": "vanocni-zpivani-zs-divizna-2022",
+    "title": "Vánoční zpívání ZŠ DiviZna",
+    "start": "2022-12-26",
+    "time": "16:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Přijměte pozvání na vánoční zpívání základní školy DiviZna.",
+    "poster": {
+      "src": "/uploads/aktuality/vanocni-zpivani-zs-divizna-2022-plakat.webp",
+      "alt": "Plakát: Vánoční zpívání ZŠ DiviZna"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/vanocni-zpivani-zs-divizna-2022-plakat.jpg",
+        "size": 313278
+      }
+    ]
+  }
+]

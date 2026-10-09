@@ -1,0 +1,78 @@
+[
+  {
+    "id": "at-svoboda-zni-2020",
+    "title": "Ať svoboda zní",
+    "start": "2020-10-04",
+    "time": "18:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Koncert duchovní hudby k výročí projevu Martina Luthera Kinga „Mám sen“. Vystoupí brněnská skupina DNA a pražská Let’s Go.",
+    "price": "dobrovolné vstupné",
+    "poster": {
+      "src": "/uploads/aktuality/at-svoboda-zni-2020-plakat.webp",
+      "alt": "Plakát: Koncert duchovní hudby Ať svoboda zní"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/at-svoboda-zni-2020-plakat.jpg",
+        "size": 397648
+      }
+    ]
+  },
+  {
+    "id": "vystava-kardinal-spidlik-2020",
+    "title": "Výstava o kardinálu Špidlíkovi",
+    "start": "2020-10-11",
+    "time": "14:00–18:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Výstava o kardinálu Tomáši Špidlíkovi a beseda se senátorkou Jaromírou Vítkovou.",
+    "program": [
+      {
+        "time": "14:00",
+        "title": "Otevření výstavy"
+      },
+      {
+        "time": "15:00",
+        "title": "Beseda se senátorkou Ing. Jaromírou Vítkovou",
+        "note": "s prezentací fotografií"
+      }
+    ]
+  },
+  {
+    "id": "adoracni-den-2020",
+    "title": "Adorační den farnosti",
+    "start": "2020-10-12",
+    "time": "8:00–19:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Adorační den naší farnosti. Zapište se pod kůrem, kdy přijdete adorovat.",
+    "body": "<p>Děkujeme všem, kdo se zapsali do rozpisu adorací, a vybízíme i ostatní, aby se také zapojili.</p>",
+    "program": [
+      {
+        "time": "8:00",
+        "title": "Mše svatá",
+        "note": "zahájení"
+      },
+      {
+        "time": "8:30–19:00",
+        "title": "Tichá adorace"
+      },
+      {
+        "time": "19:00",
+        "title": "Modlitba růžence a požehnání farnosti"
+      }
+    ]
+  },
+  {
+    "id": "vyzva-biskupu-nebojte-se-2020",
+    "title": "Výzva biskupů: Nebojte se!",
+    "start": "2020-10-25",
+    "text": "Biskupové Čech, Moravy a Slezska se obracejí na věřící slovy sv. Jana Pavla II.: Nebojte se!",
+    "attachments": [
+      {
+        "label": "Výzva biskupů",
+        "file": "/uploads/aktuality/vyzva-biskupu-nebojte-se-2020-vyzva.pdf",
+        "size": 119429
+      }
+    ]
+  }
+]

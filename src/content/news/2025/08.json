@@ -1,0 +1,112 @@
+[
+  {
+    "id": "farni-tabor-2025",
+    "title": "Farní tábor 2025",
+    "start": "2025-08-09",
+    "end": "2025-08-16",
+    "place": "Velké Vrbno, chata Olšanka",
+    "text": "Letní farní tábor pro děti od 8 do 15 let.",
+    "body": "<p>Předtáborová víkendovka se konala 7.–8. června na faře v Kuřimi.</p>",
+    "price": "3 700 Kč",
+    "poster": {
+      "src": "/uploads/aktuality/farni-tabor-2025-plakat.webp",
+      "alt": "Plakát: Farní letní tábor 9.–16. 8. 2025"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/farni-tabor-2025-plakat.pdf",
+        "size": 2418984
+      }
+    ]
+  },
+  {
+    "id": "diecezni-pout-rodin-2025",
+    "title": "Diecézní pouť rodin",
+    "start": "2025-08-30",
+    "time": "9:30",
+    "place": "Brno, bazilika Nanebevzetí Panny Marie",
+    "mapQuery": "Mendlovo náměstí, Brno",
+    "text": "Diecézní pouť rodin k Jubileu 2025: mši svatou celebruje biskup Pavel Konzbul, potom následuje program pro rodiny.",
+    "program": [
+      {
+        "time": "9:30",
+        "title": "Mše svatá",
+        "note": "celebruje brněnský biskup Mons. Pavel Konzbul"
+      },
+      {
+        "time": "od 10:30",
+        "title": "Program pro rodiny v areálu Augustiniánského opatství",
+        "note": "stanoviště pro děti, divadlo Mikro-teatro, volný vstup do Mendelova muzea, malování na obličej"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/diecezni-pout-rodin-2025-plakat.webp",
+      "alt": "Plakát: Diecézní pouť rodin k Jubileu 2025"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/diecezni-pout-rodin-2025-plakat.jpg",
+        "size": 223819
+      }
+    ],
+    "links": [
+      {
+        "label": "Program pouti",
+        "href": "https://www.crsp.cz/nabizime/duchovni-programy/diecezni-pout-rodin"
+      }
+    ]
+  },
+  {
+    "id": "marianske-pouti-2025",
+    "title": "Mariánské poutě na Vranově a v Žarošicích",
+    "start": "2025-08-31",
+    "end": "2025-09-21",
+    "place": "Vranov u Brna a Žarošice",
+    "text": "Kuřimská farnost organizuje nebo podporuje tři tradiční mariánské poutě.",
+    "program": [
+      {
+        "time": "31. 8. 7:00",
+        "title": "7. pouť Sedmiradostnou cestou Česká – Lelekovice – Vranov",
+        "note": "z České od kapličky, z Lelekovic v 7:45, mše svatá v 11:00"
+      },
+      {
+        "time": "13. 9.",
+        "title": "Zlatá sobota v Žarošicích",
+        "note": "krojovaný světelný průvod se soškami Panny Marie po hlavní mši"
+      },
+      {
+        "time": "21. 9. 7:00",
+        "title": "13. pěší pouť Moravské Knínice – Kuřim – Vranov",
+        "note": "z Kuřimi v 7:20 po požehnání u kostela, krojované procesí na mši v 11:00"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/marianske-pouti-2025-plakat-pesi-pout.webp",
+      "alt": "Plakát: Pěší pouť kuřimské farnosti na Vranov 21. září 2025"
+    },
+    "attachments": [
+      {
+        "label": "Plakát: Pěší pouť na Vranov",
+        "file": "/uploads/aktuality/marianske-pouti-2025-plakat-pesi-pout.pdf",
+        "size": 897287
+      },
+      {
+        "label": "Plakát: Sedmiradostná cesta",
+        "file": "/uploads/aktuality/marianske-pouti-2025-plakat-sedmiradostna-cesta.pdf",
+        "size": 333651
+      },
+      {
+        "label": "Plakát: Zlatá sobota v Žarošicích",
+        "file": "/uploads/aktuality/marianske-pouti-2025-plakat-zlata-sobota.jpg",
+        "size": 130513
+      },
+      {
+        "label": "Program vranovských poutí",
+        "file": "/uploads/aktuality/marianske-pouti-2025-program-vranov.pdf",
+        "size": 239743
+      }
+    ]
+  }
+]

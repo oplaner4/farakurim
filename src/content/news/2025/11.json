@@ -1,0 +1,164 @@
+[
+  {
+    "id": "ministrantska-olympiada-2025",
+    "title": "Ministrantská olympiáda",
+    "start": "2025-11-08",
+    "time": "8:00",
+    "place": "Újezd u Brna",
+    "text": "Šlapanické děkanství pořádá pro všechny ministranty Ministrantskou olympiádu v Újezdě u Brna a okolí.",
+    "price": "200 Kč za osobu",
+    "registrationDeadline": "2025-10-12",
+    "poster": {
+      "src": "/uploads/aktuality/ministrantska-olympiada-2025-plakat.webp",
+      "alt": "Plakát: Ministrantská olympiáda 8. listopadu 2025"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/ministrantska-olympiada-2025-plakat.jpg",
+        "size": 212928
+      }
+    ]
+  },
+  {
+    "id": "predstaveni-vysledku-dotazniku-2025",
+    "title": "Představení výsledků dotazníku",
+    "start": "2025-11-09",
+    "time": "10:45",
+    "place": "Kuřim, fara",
+    "text": "Pastorační rada zve na představení výsledků dotazníku k životu farnosti. Prostor bude i pro vaše otázky, názory a komentáře."
+  },
+  {
+    "id": "setkani-pastoracnich-rad-2025",
+    "title": "Setkání členů pastoračních rad tišnovského děkanství",
+    "start": "2025-11-18",
+    "time": "18:00–19:30",
+    "place": "Tišnov, sál pod kinem",
+    "text": "2. setkání členů pastoračních rad Děkanství tišnovské. Vstup zdarma, drobné občerstvení zajištěno.",
+    "body": "<p>Na programu jsou témata „Kde jsme“ a „Učíme se vidět dobré věci“, novinky a očekávané akce v brněnské diecézi, jedinečnost děkanství a práce ve skupinách.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/setkani-pastoracnich-rad-2025-plakat.webp",
+      "alt": "Plakát: 2. setkání členů pastoračních rad Děkanství tišnovské"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/setkani-pastoracnich-rad-2025-plakat.jpg",
+        "size": 316521
+      }
+    ]
+  },
+  {
+    "id": "charitativni-beh-a-jarmark-2025",
+    "title": "Charitativní běh a jarmark",
+    "start": "2025-11-22",
+    "end": "2025-11-23",
+    "place": "Lelekovice a Česká",
+    "text": "9. charitativní běh a 25. farní charitativní jarmark. Výtěžek bude zaslán na sbírku SOS Ukrajina organizace Člověk v tísni.",
+    "program": [
+      {
+        "time": "22. 11. 10:00",
+        "title": "Charitativní běh",
+        "note": "prezence u vodojemu Na Pasekách v Lelekovicích, start v 10:30"
+      },
+      {
+        "time": "23. 11. 14:00–18:00",
+        "title": "Charitativní jarmark",
+        "note": "sokolovna v České, neděle Krista Krále"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/charitativni-beh-a-jarmark-2025-plakat-jarmark.webp",
+      "alt": "Plakát: 25. farní charitativní jarmark 23. 11. 2025 v sokolovně v České"
+    },
+    "attachments": [
+      {
+        "label": "Plakát: Charitativní běh",
+        "file": "/uploads/aktuality/charitativni-beh-a-jarmark-2025-plakat-beh.jpg",
+        "size": 398700
+      },
+      {
+        "label": "Plakát: Charitativní jarmark",
+        "file": "/uploads/aktuality/charitativni-beh-a-jarmark-2025-plakat-jarmark.jpg",
+        "size": 444664
+      }
+    ]
+  },
+  {
+    "id": "jubilejni-pout-hnuti-a-spolecenstvi-2025",
+    "title": "Jubilejní pouť hnutí a společenství",
+    "start": "2025-11-28",
+    "time": "17:30",
+    "place": "Brno, Petrov",
+    "text": "Brněnská diecéze zve hnutí a modlitební společenství na jubilejní pouť na Petrov.",
+    "program": [
+      {
+        "time": "17:30",
+        "title": "Mše svatá s biskupem Pavlem"
+      },
+      {
+        "time": "18:15",
+        "title": "Svědectví Zdeňka Nekuly"
+      },
+      {
+        "time": "18:30",
+        "title": "Modlitba chval",
+        "note": "kapela For HIM"
+      },
+      {
+        "time": "20:00",
+        "title": "Nikodémova noc"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/jubilejni-pout-hnuti-a-spolecenstvi-2025-plakat.webp",
+      "alt": "Plakát: Jubilejní pouť hnutí a modlitebních společenství v brněnské diecézi"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/jubilejni-pout-hnuti-a-spolecenstvi-2025-plakat.jpg",
+        "size": 361075
+      }
+    ]
+  },
+  {
+    "id": "farni-silvestr-2025",
+    "title": "Farní silvestr",
+    "start": "2025-11-29",
+    "time": "17:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény a fara",
+    "text": "Společenství mladých zve na Farní silvestr na konci liturgického roku, letos k 20. výročí Petrklíče.",
+    "program": [
+      {
+        "time": "17:00",
+        "title": "Zahajovací mše svatá",
+        "note": "kostel sv. Maří Magdalény"
+      },
+      {
+        "time": "18:00",
+        "title": "Program na faře k 20. výročí Petrklíče"
+      },
+      {
+        "time": "18:30",
+        "title": "Panelová diskuse redaktorů Petrklíče"
+      },
+      {
+        "time": "19:30",
+        "title": "Kvíz",
+        "note": "tvůrčí koutek pro děti a soutěž o nejlepšího „šneka“"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/farni-silvestr-2025-plakat.webp",
+      "alt": "Plakát: Farní silvestr 29. 11. 2025"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/farni-silvestr-2025-plakat.pdf",
+        "size": 403452
+      }
+    ]
+  }
+]

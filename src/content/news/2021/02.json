@@ -1,0 +1,75 @@
+[
+  {
+    "id": "narodni-tyden-manzelstvi-2021",
+    "title": "Národní týden manželství",
+    "start": "2021-02-08",
+    "end": "2021-02-14",
+    "text": "Patnáctý ročník Národního týdne manželství nese motto O manželství a dětech.",
+    "body": "<p>Každý rok se v rámci tohoto týdne koná více než sto akcí po celé republice. Organizátoři v době lockdownu nabízejí také sérii webinářů pro manželské páry.</p>",
+    "attachments": [
+      {
+        "label": "Tisková zpráva",
+        "file": "/uploads/aktuality/narodni-tyden-manzelstvi-2021-zprava.pdf",
+        "size": 1009692
+      }
+    ],
+    "links": [
+      {
+        "label": "Národní týden manželství",
+        "href": "https://www.tydenmanzelstvi.cz/"
+      }
+    ]
+  },
+  {
+    "id": "poselstvi-papeze-den-nemocnych-2021",
+    "title": "Poselství papeže Františka ke Světovému dni nemocných",
+    "start": "2021-02-11",
+    "text": "Přečtěte si poselství papeže Františka k 29. Světovému dni nemocných.",
+    "links": [
+      {
+        "label": "Poselství na webu cirkev.cz",
+        "href": "https://www.cirkev.cz/cs/aktuality/210121poselstvi-svateho-otce-frantiska-k-29-svetovemu-dni-nemocnych"
+      }
+    ]
+  },
+  {
+    "id": "daruj-lasku-z-kufru-auta-2021",
+    "title": "Daruj lásku z kufru auta",
+    "start": "2021-02-13",
+    "end": "2021-02-14",
+    "place": "Kuřim, u kostela sv. Maří Magdalény",
+    "text": "Prodej ručně vyráběných výrobků ke svátku sv. Valentýna, jehož výtěžek půjde na opravu fary.",
+    "body": "<p>Kufr auta se u kuřimského kostela otevře v sobotu <strong>13. 2.</strong> od 14:00 do 15:00 a v neděli <strong>14. 2.</strong> od 9:00 do 9:30, od 10:15 do 10:45 a od 14:00 do 15:00.</p><p>Bližší informace podá Lucie Sádlíková.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/daruj-lasku-z-kufru-auta-2021-plakat.webp",
+      "alt": "Plakát: Daruj lásku z kufru auta"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/daruj-lasku-z-kufru-auta-2021-plakat.pdf",
+        "size": 430221
+      },
+      {
+        "label": "Foto výrobků",
+        "file": "/uploads/aktuality/daruj-lasku-z-kufru-auta-2021-vyrobky.jpg",
+        "size": 74288
+      }
+    ]
+  },
+  {
+    "id": "mimoradne-katecheze-2021",
+    "title": "Mimořádné katecheze pro děti",
+    "start": "2021-02-21",
+    "text": "V době, kdy se děti nemohly scházet, pro ně byly každý týden připravovány příběhy a úkoly."
+  },
+  {
+    "id": "adoracni-odpoledne-2021",
+    "title": "Adorační odpoledne",
+    "start": "2021-02-28",
+    "time": "13:00–20:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Adorace v kuřimském kostele s rozpisem adorujících po půlhodinách.",
+    "body": "<p>Zapisujte se prosím do rozpisu, aby byl v kostele po celou dobu někdo přítomen. Příležitost ke svaté zpovědi bude při adoraci od 14 do 16 hodin.</p>"
+  }
+]

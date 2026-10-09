@@ -1,0 +1,136 @@
+[
+  {
+    "id": "koncert-dej-nam-akord-mosty-2023",
+    "title": "Koncert skupin Dej nám akord a Mosty",
+    "start": "2023-10-01",
+    "time": "18:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Ve farním kostele zahrají skupiny Dej nám akord z Brna a Mosty ze Znojma."
+  },
+  {
+    "id": "hody-v-ceske-2023",
+    "title": "Hody v České",
+    "start": "2023-10-06",
+    "end": "2023-10-08",
+    "place": "Česká",
+    "text": "Přijměte pozvání na hody do České se stavěním máje, průvodem obcí a hodovou mší svatou.",
+    "program": [
+      {
+        "time": "pá 16:00",
+        "title": "Stavění máje starou hodovou chasou"
+      },
+      {
+        "time": "so 15:00",
+        "title": "Průvod obcí, předání hodového práva a svěcení práva a vína u kapličky"
+      },
+      {
+        "time": "so 20:00",
+        "title": "Hodová zábava"
+      },
+      {
+        "time": "ne 11:00",
+        "title": "Mše svatá v kostele sv. Maří Magdalény v Kuřimi",
+        "note": "autobus z návsi v 10:40"
+      },
+      {
+        "time": "ne 18:00",
+        "title": "Hodové dozvuky"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/hody-v-ceske-2023-plakat.webp",
+      "alt": "Plakát: Hody v České 6.–8. 10. 2023"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/hody-v-ceske-2023-plakat.pdf",
+        "size": 4539538
+      }
+    ]
+  },
+  {
+    "id": "adoracni-den-2023",
+    "title": "Adorační den farnosti",
+    "start": "2023-10-12",
+    "time": "9:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Adorační den naší farnosti. Zapište se pod kůrem do rozpisu adorantů, abychom pokryli celou dobu adorace.",
+    "program": [
+      {
+        "time": "9:00",
+        "title": "Výstav Nejsvětější svátosti"
+      },
+      {
+        "time": "18:00",
+        "title": "Mše svatá"
+      }
+    ]
+  },
+  {
+    "id": "petrklic-2023-3",
+    "title": "Petrklíč 3/2023",
+    "start": "2023-10-14",
+    "text": "Právě vyšlo nové vydání farního časopisu Petrklíč.",
+    "attachments": [
+      {
+        "label": "Petrklíč 3/2023",
+        "file": "/uploads/petrklic/2023-3/petrklic-2023-3.pdf",
+        "size": 21970236
+      }
+    ]
+  },
+  {
+    "id": "misijni-klubko-2023",
+    "title": "Misijní klubko nabízí koláčky",
+    "start": "2023-10-15",
+    "place": "Kuřim, před kostelem sv. Maří Magdalény",
+    "text": "Po mších svatých budou děti z Misijního klubka před kostelem nabízet koláčky a perníčky na podporu Papežských misijních děl dětí."
+  },
+  {
+    "id": "zpravodaj-proglas-2023",
+    "title": "Zpravodaj Radia Proglas",
+    "start": "2023-10-15",
+    "text": "Přečtěte si elektronické vydání podzimního zpravodaje Radia Proglas č. 69.",
+    "attachments": [
+      {
+        "label": "Zpravodaj Radia Proglas č. 69",
+        "file": "/uploads/aktuality/zpravodaj-proglas-2023-zpravodaj.pdf",
+        "size": 1580386
+      }
+    ]
+  },
+  {
+    "id": "laska-a-pravda-2023",
+    "title": "Duchovní obnova pro manžele Láska a pravda",
+    "start": "2023-10-21",
+    "end": "2023-12-02",
+    "place": "Tišnov, fara",
+    "mapQuery": "Kostelní 16, Tišnov",
+    "text": "Farnost Tišnov a Předklášteří ve spolupráci s komunitou Emmanuel zve manžele všeho věku na tři sobotní setkání.",
+    "body": "<p>Obnova se koná v soboty 21. 10., 18. 11. a 2. 12. na faře v Tišnově (Kostelní 16). Hlídání dětí bude zajištěno.</p>",
+    "registrationDeadline": "2023-10-15",
+    "sessions": ["2023-10-21", "2023-11-18", "2023-12-02"],
+    "poster": {
+      "src": "/uploads/aktuality/laska-a-pravda-2023-pozvanka.webp",
+      "alt": "Pozvánka: duchovní obnova pro manžele Láska a pravda"
+    },
+    "attachments": [
+      {
+        "label": "Pozvánka",
+        "file": "/uploads/aktuality/laska-a-pravda-2023-pozvanka.pdf",
+        "size": 286133
+      }
+    ],
+    "links": [
+      {
+        "label": "lap@emmanuel.cz",
+        "href": "mailto:lap@emmanuel.cz"
+      },
+      {
+        "label": "Komunita Emmanuel – manželé",
+        "href": "https://www.emmanuel.cz/manzele/"
+      }
+    ]
+  }
+]

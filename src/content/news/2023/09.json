@@ -1,0 +1,90 @@
+[
+  {
+    "id": "marianske-pouti-2023",
+    "title": "Mariánské poutě",
+    "start": "2023-09-02",
+    "end": "2023-09-30",
+    "place": "Vranov u Brna a Žarošice",
+    "text": "Přijměte pozvání na zářijové mariánské poutě na Vranov a do Žarošic.",
+    "poster": {
+      "src": "/uploads/aktuality/marianske-pouti-2023-plakat-zarosice.webp",
+      "alt": "Plakát: Zlatá sobota u Staré Matky Boží v Žarošicích 2023"
+    },
+    "attachments": [
+      {
+        "label": "Plakát: Zlatá sobota v Žarošicích",
+        "file": "/uploads/aktuality/marianske-pouti-2023-plakat-zarosice.pdf",
+        "size": 245216
+      },
+      {
+        "label": "Program vranovských poutí",
+        "file": "/uploads/aktuality/marianske-pouti-2023-program-vranov.pdf",
+        "size": 263303
+      }
+    ]
+  },
+  {
+    "id": "pesi-pout-na-vranov-2023",
+    "title": "Pěší pouť na Vranov",
+    "start": "2023-09-03",
+    "time": "7:00",
+    "place": "Moravské Knínice, Kuřim a Česká",
+    "mapQuery": "Vranov u Brna",
+    "text": "Letošní pouť na Vranov je již v neděli 3. září. Zvláště vítáni jsou krojovaní.",
+    "body": "<p>Vyrazit můžete v 7:00 od kapličky v České, nebo tradiční cestou přes Podlesí a Babí lom v 7:00 z Moravských Knínic od domu čp. 2. V 7:20 se můžete přidat v Kuřimi při požehnání poutníkům.</p><p>Na Vranově slouží mši svatou s krojovanými poutníky v 11:00 kuřimský farář P. Jaroslav Filka.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/pesi-pout-na-vranov-2023-plakat.webp",
+      "alt": "Plakát: Pěší pouť na Vranov 3. září 2023"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/pesi-pout-na-vranov-2023-plakat.pdf",
+        "size": 1988000
+      },
+      {
+        "label": "Plakát: Sedmiradostná cesta",
+        "file": "/uploads/aktuality/pesi-pout-na-vranov-2023-plakat-sedmiradostna-cesta.pdf",
+        "size": 311846
+      }
+    ]
+  },
+  {
+    "id": "den-narodnostnich-mensin-2023",
+    "title": "Den národnostních menšin",
+    "start": "2023-09-17",
+    "time": "14:00",
+    "place": "Kuřim, areál zámku",
+    "text": "Srdečně zveme na Den národnostních menšin v areálu kuřimského zámku.",
+    "poster": {
+      "src": "/uploads/aktuality/den-narodnostnich-mensin-2023-plakat.webp",
+      "alt": "Plakát: Den národnostních menšin v areálu zámku Kuřim"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/den-narodnostnich-mensin-2023-plakat.jpg",
+        "size": 3327476
+      }
+    ]
+  },
+  {
+    "id": "medovy-den-2023",
+    "title": "Medový den",
+    "start": "2023-09-24",
+    "time": "10:00–17:00",
+    "place": "Kuřim, u kulturního domu",
+    "text": "Farnost bude mít opět svůj stánek s občerstvením, perníčky, drobnými výrobky a věcmi na podporu cystické fibrózy.",
+    "poster": {
+      "src": "/uploads/aktuality/medovy-den-2023-plakat.webp",
+      "alt": "Plakát: Medový den 2023 v Kuřimi"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/medovy-den-2023-plakat.pdf",
+        "size": 638006
+      }
+    ]
+  }
+]

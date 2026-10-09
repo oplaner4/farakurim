@@ -1,0 +1,108 @@
+[
+  {
+    "id": "promena-farnosti-2025",
+    "title": "Proměna farnosti",
+    "start": "2025-12-08",
+    "time": "19:00",
+    "place": "Tišnov, fara",
+    "text": "Kurz Launch Point se Zuzanou Palátovou pro všechny, kdo chtějí být motorem farnosti.",
+    "body": "<p>Kurz nabízí modlitbu, rozjímání, video a diskusi i čas skupinového rozlišování. Přejděte z udržovacího režimu k misijnímu zápalu!</p>",
+    "poster": {
+      "src": "/uploads/aktuality/promena-farnosti-2025-plakat.webp",
+      "alt": "Plakát: Proměna farnosti 8. 12. 2025 v Tišnově"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/promena-farnosti-2025-plakat.jpg",
+        "size": 328784
+      }
+    ],
+    "links": [
+      {
+        "label": "Proměna farnosti",
+        "href": "https://www.promenafarnosti.cz/"
+      }
+    ]
+  },
+  {
+    "id": "petrklic-2025-4",
+    "title": "Petrklíč 4/2025",
+    "start": "2025-12-12",
+    "text": "Právě vyšlo nové vydání farního zpravodaje Petrklíč.",
+    "attachments": [
+      {
+        "label": "Petrklíč 4/2025",
+        "file": "/uploads/petrklic/2025-4/petrklic-2025-4.pdf",
+        "size": 21913779
+      }
+    ]
+  },
+  {
+    "id": "adventni-duchovni-obnova-2025",
+    "title": "Adventní duchovní obnova",
+    "start": "2025-12-13",
+    "time": "9:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Adventní duchovní obnova s P. Michaelem Martinkem na téma Naděje v současném světě a v adventu.",
+    "body": "<p>Obnova začíná mší svatou, po ní následuje promluva a prostor pro otázky. P. Michael Martinek je salesián, teolog, cestovatel a autor videí Očima křesťana.</p>"
+  },
+  {
+    "id": "vanocni-pribeh-2025",
+    "title": "Vánoční příběh",
+    "start": "2025-12-24",
+    "time": "15:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Na Štědrý den vás zveme na Vánoční příběh. Přijďte prožít vánoční atmosféru.",
+    "poster": {
+      "src": "/uploads/aktuality/vanocni-pribeh-2025-plakat.webp",
+      "alt": "Plakát: Vánoční příběh 24. prosince 2025 v 15 hodin"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/vanocni-pribeh-2025-plakat.pdf",
+        "size": 12033092
+      }
+    ]
+  },
+  {
+    "id": "pastorely-2025",
+    "title": "Pastorely",
+    "start": "2025-12-25",
+    "time": "8:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Pastorely při mši svaté o slavnosti Narození Páně.",
+    "body": "<p>Zazní „Poslyšte, bratři jen“ Petra Chaloupského, „Quem vidistis pastores“ F. X. Brixiho a „Vzhůru, pastýřové“ J. J. Ryby. Sólový zpěv Anna Keprtová, varhanní doprovod Jan Čáp.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/pastorely-2025-plakat.webp",
+      "alt": "Plakát: Pastorely při mši svaté o slavnosti Narození Páně"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/pastorely-2025-plakat.pdf",
+        "size": 73402
+      }
+    ]
+  },
+  {
+    "id": "vanocni-zpivani-zs-divizna-2025",
+    "title": "Vánoční zpívání ZŠ DiviZna",
+    "start": "2025-12-26",
+    "time": "16:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Přijměte pozvání na vánoční zpívání Základní školy DiviZna.",
+    "poster": {
+      "src": "/uploads/aktuality/vanocni-zpivani-zs-divizna-2025-pozvanka.webp",
+      "alt": "Pozvánka: Vánoční zpívání ZŠ DiviZna"
+    },
+    "attachments": [
+      {
+        "label": "Pozvánka",
+        "file": "/uploads/aktuality/vanocni-zpivani-zs-divizna-2025-pozvanka.jpg",
+        "size": 1532840
+      }
+    ]
+  }
+]

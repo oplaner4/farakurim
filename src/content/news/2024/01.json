@@ -1,0 +1,125 @@
+[
+  {
+    "id": "aznaveky-2024-01-08",
+    "title": "Ažnavěky: nový videolist brněnské diecéze",
+    "start": "2024-01-08",
+    "text": "Biskup Pavel Konzbul s generálním vikářem a vikářem pro pastoraci mluví ve videolistu Ažnavěky o všem důležitém, co se v diecézi událo.",
+    "body": "<p>Až na věky? Ano! <strong>Ažnavěky</strong> – tak se jmenuje nově vzniklý videolist brněnské diecéze, ve kterém biskup Pavel Konzbul společně s generálním vikářem Pavlem Kafkou a vikářem pro pastoraci a vzdělávání Pavlem Šenkyříkem mluví o všem důležitém, co se v posledních měsících událo na biskupství a v diecézi. Všichni tři jako bonus přidávají vlastní postřehy a místy i tajemství a zvyky, o kterých se odjinud nedozvíte.</p>",
+    "links": [
+      {
+        "label": "Videolist na YouTube",
+        "href": "https://www.youtube.com/watch?v=W4rDTN74Zuw"
+      }
+    ]
+  },
+  {
+    "id": "zpravodaj-puls-2024",
+    "title": "Zpravodaj fondu Puls",
+    "start": "2024-01-08",
+    "text": "Přečtěte si lednové číslo zpravodaje fondu Puls (ImPULSy brněnské diecéze).",
+    "attachments": [
+      {
+        "label": "Zpravodaj Puls, leden 2024",
+        "file": "/uploads/aktuality/zpravodaj-puls-2024-zpravodaj.pdf",
+        "size": 1294216
+      }
+    ]
+  },
+  {
+    "id": "trikralovy-koncert-zus-2024",
+    "title": "Tříkrálový koncert ZUŠ",
+    "start": "2024-01-10",
+    "time": "18:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Základní umělecká škola a Klub přátel ZUŠ Kuřim zvou na Tříkrálový koncert.",
+    "poster": {
+      "src": "/uploads/aktuality/trikralovy-koncert-zus-2024-plakat.webp",
+      "alt": "Plakát: Tříkrálový koncert ZUŠ Kuřim 10. 1. 2024"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/trikralovy-koncert-zus-2024-plakat.jpg",
+        "size": 708190
+      }
+    ]
+  },
+  {
+    "id": "kurz-alfa-tisnov-2024",
+    "title": "Kurz Alfa v Tišnově",
+    "start": "2024-01-16",
+    "time": "19:00",
+    "place": "Tišnov, fara",
+    "mapQuery": "Kostelní 16, Tišnov",
+    "text": "Kurz Alfa „Jiný pohled“ pro lidi, kteří se chtějí bavit o hlubších otázkách života a o křesťanské víře.",
+    "poster": {
+      "src": "/uploads/aktuality/kurz-alfa-tisnov-2024-plakat.webp",
+      "alt": "Plakát: Kurz Alfa – Jiný pohled, Tišnov 16. 1. 2024"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/kurz-alfa-tisnov-2024-plakat.pdf",
+        "size": 4219384
+      }
+    ],
+    "links": [
+      {
+        "label": "b.vitam@post.cz",
+        "href": "mailto:b.vitam@post.cz"
+      }
+    ]
+  },
+  {
+    "id": "mission-possible-2024",
+    "title": "Mission Possible",
+    "start": "2024-01-20",
+    "end": "2024-03-26",
+    "place": "Kuřim, fara",
+    "text": "Kurz dialogu a misie komunity Emmanuel pro angažované křesťany na kuřimské faře.",
+    "body": "<p>Kurz má dvě soboty (20. 1. a 16. 3. od 9:00 do 18:30) a čtyři úterní večery (30. 1., 13. 2., 27. 2. a 26. 3. od 19:00 do 21:30). Setkání obsahují impulz k tématu, sdílení ve skupinkách, společnou modlitbu a vlastní projekt.</p>",
+    "sessions": [
+      {
+        "date": "2024-01-20",
+        "time": "9:00–18:30"
+      },
+      {
+        "date": "2024-01-30",
+        "time": "19:00–21:30"
+      },
+      {
+        "date": "2024-02-13",
+        "time": "19:00–21:30"
+      },
+      {
+        "date": "2024-02-27",
+        "time": "19:00–21:30"
+      },
+      {
+        "date": "2024-03-16",
+        "time": "9:00–18:30"
+      },
+      {
+        "date": "2024-03-26",
+        "time": "19:00–21:30"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/mission-possible-2024-letak.webp",
+      "alt": "Leták: Mission Possible – kurz dialogu a misie"
+    },
+    "attachments": [
+      {
+        "label": "Leták",
+        "file": "/uploads/aktuality/mission-possible-2024-letak.pdf",
+        "size": 2100559
+      }
+    ],
+    "links": [
+      {
+        "label": "Mission Possible",
+        "href": "https://www.emmanuel.cz/mp/"
+      }
+    ]
+  }
+]

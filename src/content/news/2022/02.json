@@ -1,0 +1,130 @@
+[
+  {
+    "id": "valentinska-pout-2022",
+    "title": "Valentinská pouť",
+    "start": "2022-02-13",
+    "time": "17:00",
+    "place": "Brno, kostel sv. Michala",
+    "mapQuery": "kostel sv. Michala, Dominikánské náměstí, Brno",
+    "text": "Pouť ke svatému Valentinovi v kostele sv. Michala na Dominikánském náměstí v Brně.",
+    "body": "<p>Po přednášce manželů Kvapilíkových „Zamilovanost je zadarmo, ale láska je dřina“ následuje bohoslužba k patronu lásky svatému Valentinovi, jehož jméno dalo základ „svátku všech zamilovaných“.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/valentinska-pout-2022-plakat.webp",
+      "alt": "Plakát: Valentinská pouť 13. 2. 2022 v kostele sv. Michala v Brně"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/valentinska-pout-2022-plakat.pdf",
+        "size": 507154
+      }
+    ]
+  },
+  {
+    "id": "narodni-tyden-manzelstvi-2022",
+    "title": "Národní týden manželství",
+    "start": "2022-02-14",
+    "end": "2022-02-20",
+    "text": "Nechte se inspirovat, jak ze svého dobrého manželství udělat ještě lepší, nebo obnovit to, co se časem ve vztahu vytratilo.",
+    "body": "<p>Ve valentýnském týdnu každý rok společně oslavujeme, jak moc pro nás manželství znamená.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/narodni-tyden-manzelstvi-2022-plakat.webp",
+      "alt": "Plakát: Národní týden manželství 2022"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/narodni-tyden-manzelstvi-2022-plakat.pdf",
+        "size": 149155
+      }
+    ],
+    "links": [
+      {
+        "label": "Národní týden manželství",
+        "href": "https://www.tydenmanzelstvi.cz/"
+      }
+    ]
+  },
+  {
+    "id": "vecery-pro-dva-2022",
+    "title": "Večery pro dva",
+    "start": "2022-02-16",
+    "end": "2022-03-30",
+    "time": "19:00",
+    "place": "Brno, restaurace Era cafe",
+    "text": "Otevřená setkání pro páry zaměřená na podporu a rozvoj vztahu: večeře u stolků po dvou, krátká promluva a rozhovory v páru.",
+    "program": [
+      {
+        "time": "16. 2.",
+        "title": "Přežít, nebo prožít?"
+      },
+      {
+        "time": "1. 3.",
+        "title": "Jak s růzností?"
+      },
+      {
+        "time": "16. 3.",
+        "title": "Nové začátky"
+      },
+      {
+        "time": "30. 3.",
+        "title": "Radost z lásky"
+      }
+    ],
+    "sessions": ["2022-02-16", "2022-03-01", "2022-03-16", "2022-03-30"],
+    "poster": {
+      "src": "/uploads/aktuality/vecery-pro-dva-2022-informace.webp",
+      "alt": "Leták: Večery pro dva"
+    },
+    "attachments": [
+      {
+        "label": "Informace",
+        "file": "/uploads/aktuality/vecery-pro-dva-2022-informace.pdf",
+        "size": 1015226
+      }
+    ],
+    "links": [
+      {
+        "label": "Komunita Emmanuel",
+        "href": "https://www.emmanuel.cz/"
+      }
+    ]
+  },
+  {
+    "id": "koncert-ucednici-2022",
+    "title": "Charitativní koncert skupiny Učedníci",
+    "start": "2022-02-20",
+    "time": "14:30",
+    "place": "Boskovice, kino Panorama",
+    "text": "Přijměte pozvání na charitativní koncert skupiny Učedníci v kině Panorama v Boskovicích.",
+    "poster": {
+      "src": "/uploads/aktuality/koncert-ucednici-2022-plakat.webp",
+      "alt": "Plakát: Charitativní koncert skupiny Učedníci 20. 2. 2022"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/koncert-ucednici-2022-plakat.pdf",
+        "size": 1307930
+      }
+    ]
+  },
+  {
+    "id": "pomoc-ukrajine-2022",
+    "title": "Pomoc Ukrajině",
+    "start": "2022-02-27",
+    "text": "Přispět můžete převodem na účet Charity, nebo nabídnout ubytování lidem, kteří utíkají před válkou.",
+    "body": "<p>Dar na humanitární pomoc pošlete na účet <strong>55660022/0800</strong>, variabilní symbol <strong>104</strong>.</p><p>Ubytování pro lidi, kteří utíkají před válkou, nabízejte na krizové lince Charity 516 410 668 nebo 737 234 078: počet osob, které můžete ubytovat, na jak dlouho a zda jim zajistíte stravu. Krizová linka přijímá i další nabídky pomoci, například zdravotnický materiál nebo hygienické pomůcky.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/pomoc-ukrajine-2022-letak.webp",
+      "alt": "Leták: Charita pro Ukrajinu"
+    },
+    "attachments": [
+      {
+        "label": "Leták",
+        "file": "/uploads/aktuality/pomoc-ukrajine-2022-letak.pdf",
+        "size": 1515516
+      }
+    ]
+  }
+]

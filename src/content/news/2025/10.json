@@ -1,0 +1,202 @@
+[
+  {
+    "id": "hody-ceska-2025",
+    "title": "Hody v České",
+    "start": "2025-10-03",
+    "end": "2025-10-05",
+    "place": "Česká",
+    "text": "Přijměte pozvání na tradiční hody v České.",
+    "poster": {
+      "src": "/uploads/aktuality/hody-ceska-2025-plakat.webp",
+      "alt": "Plakát: Hody v České 3.–5. 10. 2025"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/hody-ceska-2025-plakat.pdf",
+        "size": 1970857
+      }
+    ]
+  },
+  {
+    "id": "obnova-pro-rodice-s-detmi-2025",
+    "title": "Duchovní obnova pro rodiče s dětmi",
+    "start": "2025-10-04",
+    "place": "Brno, Lidická 24",
+    "text": "Nadechni se: duchovní obnova pro rodiče malých dětí, kterou pořádá komunita Emmanuel. Přednáška, chvály, sdílení a čas pro pár.",
+    "poster": {
+      "src": "/uploads/aktuality/obnova-pro-rodice-s-detmi-2025-plakat.webp",
+      "alt": "Plakát: Nadechni se, duchovní obnova pro rodiče malých dětí"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/obnova-pro-rodice-s-detmi-2025-plakat.jpg",
+        "size": 137136
+      }
+    ],
+    "links": [
+      {
+        "label": "Komunita Emmanuel",
+        "href": "https://www.emmanuel.cz/"
+      }
+    ]
+  },
+  {
+    "id": "at-svoboda-zni-2025",
+    "title": "Ať svoboda zní",
+    "start": "2025-10-05",
+    "time": "18:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Koncert duchovní hudby k výročí projevu Martina Luthera Kinga „Mám sen“. Vystoupí Dej Nám Akord – DNA a Simply Gospel.",
+    "body": "<p>Akce se koná s podporou města Kuřimi.</p>",
+    "price": "dobrovolné vstupné",
+    "poster": {
+      "src": "/uploads/aktuality/at-svoboda-zni-2025-plakat.webp",
+      "alt": "Plakát: Koncert duchovní hudby Ať svoboda zní 5. 10. 2025"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/at-svoboda-zni-2025-plakat.pdf",
+        "size": 4668134
+      }
+    ]
+  },
+  {
+    "id": "obnova-o-odpusteni-krtiny-2025",
+    "title": "Duchovní obnova o odpuštění ve Křtinách",
+    "start": "2025-10-11",
+    "time": "9:00",
+    "place": "Křtiny, kostel Jména Panny Marie",
+    "text": "Duchovní obnovu o odpuštění povede Vendula Zachovalová s hosty. Zváni jsou všichni, zvláště snoubenci a manželské páry.",
+    "program": [
+      {
+        "time": "9:00",
+        "title": "První přednáška"
+      },
+      {
+        "time": "10:00",
+        "title": "Druhá přednáška"
+      },
+      {
+        "time": "11:00",
+        "title": "Mše svatá"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/obnova-o-odpusteni-krtiny-2025-plakat.webp",
+      "alt": "Plakát: Duchovní obnova o odpuštění ve Křtinách 11. října 2025"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/obnova-o-odpusteni-krtiny-2025-plakat.pdf",
+        "size": 1043856
+      }
+    ]
+  },
+  {
+    "id": "adoracni-den-2025",
+    "title": "Adorační den farnosti",
+    "start": "2025-10-12",
+    "time": "13:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Adorační den naší farnosti s adoračními strážemi po půlhodinách.",
+    "body": "<p>Na adoraci se bylo možné zapsat do archu pod kůrem nebo do sdílené tabulky.</p>",
+    "program": [
+      {
+        "time": "13:00",
+        "title": "Výstav Nejsvětější svátosti"
+      },
+      {
+        "time": "18:00",
+        "title": "Modlitba růžence a požehnání"
+      }
+    ]
+  },
+  {
+    "id": "prednaska-tomase-petracka-2025",
+    "title": "Přednáška prof. Tomáše Petráčka v Tišnově",
+    "start": "2025-10-16",
+    "time": "19:00",
+    "place": "Tišnov, sál pod kinem",
+    "text": "Přednáška katolického teologa prof. Tomáše Petráčka „Víra a naděje v rozdělené společnosti: role církve a charity v minulosti a dnes“.",
+    "body": "<p>Vstupné je dobrovolné a podpoří Oblastní charitu Tišnov.</p>",
+    "price": "dobrovolné vstupné",
+    "poster": {
+      "src": "/uploads/aktuality/prednaska-tomase-petracka-2025-plakat.webp",
+      "alt": "Plakát: Přednáška prof. Tomáše Petráčka Víra a naděje v rozdělené společnosti"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/prednaska-tomase-petracka-2025-plakat.png",
+        "size": 3926335
+      }
+    ]
+  },
+  {
+    "id": "setkani-modliteb-matek-2025",
+    "title": "Setkání Modliteb matek",
+    "start": "2025-10-17",
+    "time": "17:45",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Setkání hnutí křesťanských žen Modlitby matek. Zvány jsou všechny ženy.",
+    "program": [
+      {
+        "time": "17:45",
+        "title": "Slovo koordinátorek a svědectví"
+      },
+      {
+        "time": "18:45",
+        "title": "Společná modlitba matek",
+        "note": "a dotazy"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/setkani-modliteb-matek-2025-pozvanka.webp",
+      "alt": "Pozvánka: Setkání Modliteb matek v kostele sv. Maří Magdalény v Kuřimi"
+    },
+    "attachments": [
+      {
+        "label": "Pozvánka",
+        "file": "/uploads/aktuality/setkani-modliteb-matek-2025-pozvanka.pdf",
+        "size": 907784
+      }
+    ]
+  },
+  {
+    "id": "laborator-pastoracnich-prilezitosti-2025",
+    "title": "Laboratoř pastoračních příležitostí a projektů",
+    "start": "2025-10-18",
+    "place": "Brno, Biskupské gymnázium",
+    "mapQuery": "Biskupské gymnázium Brno, Barvičova",
+    "text": "Jednodenní seminář brněnské diecéze o vizích, plánování a propagaci farních aktivit.",
+    "body": "<p>Seminář dále nabídne pastorační náměty pro budování farních společenství a prorodinnou pastoraci. Přihlášení bylo možné přes web Biskupství brněnského.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/laborator-pastoracnich-prilezitosti-2025-plakat.webp",
+      "alt": "Plakát: Laboratoř pastoračních příležitostí a projektů 18. 10. 2025"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/laborator-pastoracnich-prilezitosti-2025-plakat.jpg",
+        "size": 765445
+      }
+    ]
+  },
+  {
+    "id": "petrklic-2025-3",
+    "title": "Petrklíč 3/2025",
+    "start": "2025-10-23",
+    "text": "Právě vyšlo nové vydání farního zpravodaje Petrklíč.",
+    "attachments": [
+      {
+        "label": "Petrklíč 3/2025",
+        "file": "/uploads/petrklic/2025-3/petrklic-2025-3.pdf",
+        "size": 22934136
+      }
+    ]
+  }
+]

@@ -1,0 +1,43 @@
+[
+  {
+    "id": "hody-ceska-2021",
+    "title": "Hody v České",
+    "start": "2021-10-01",
+    "end": "2021-10-03",
+    "place": "Česká",
+    "text": "Přijměte pozvání na tradiční hody do České.",
+    "poster": {
+      "src": "/uploads/aktuality/hody-ceska-2021-plakat.webp",
+      "alt": "Plakát: Hody v České 1.–3. října 2021"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/hody-ceska-2021-plakat.pdf",
+        "size": 9250764
+      }
+    ]
+  },
+  {
+    "id": "koncert-duchovni-hudby-2021",
+    "title": "Koncert duchovní hudby",
+    "start": "2021-10-03",
+    "time": "18:00",
+    "text": "Sbory Dej Nám Akord a K-dur zazpívají duchovní skladby a spirituály."
+  },
+  {
+    "id": "adoracni-den-2021",
+    "title": "Adorační den farnosti",
+    "start": "2021-10-12",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Adorační den naší farnosti. Zapište se pod kůrem, kdy budete v kostele držet adorační stráž.",
+    "body": "<p>Je potřeba, aby byli v kostele stále přítomni alespoň dva lidé. Eucharistická adorace je zdrojem velkých milostí a požehnání nejen pro ty, kdo před Pánem Ježíšem prodlévají, ale i pro všechny, které Bohu předkládáme, a pro celou církev.</p>"
+  },
+  {
+    "id": "respiratory-v-kostele-2021",
+    "title": "Respirátory v kostele",
+    "start": "2021-10-25",
+    "text": "Od pondělí 25. října 2021 je ve vnitřních prostorách povinnost nosit respirátor.",
+    "body": "<p>Respirátor je povinný ve vnitřních prostorách staveb, kde jsou přítomny alespoň dvě osoby vzdálené méně než 1,5 metru, pokud nejde o členy domácnosti. Výjimku mají celebrant, kazatel a ti, kdo přednášejí čtení, přímluvy a modlitby. Žalmisté a zpěváci nemusí mít respirátor po dobu zpěvu.</p>"
+  }
+]

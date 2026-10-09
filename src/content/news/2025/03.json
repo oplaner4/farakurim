@@ -1,0 +1,182 @@
+[
+  {
+    "id": "postni-obnova-lomnice-2025",
+    "title": "Postní duchovní obnova v Lomnici",
+    "start": "2025-03-14",
+    "end": "2025-04-11",
+    "time": "17:30",
+    "place": "Lomnice u Tišnova, Orlovna",
+    "text": "Farnost Lomnice u Tišnova zve na postní duchovní obnovu na téma Jubilejní rok: mše svatá a po ní přednáška.",
+    "program": [
+      {
+        "time": "14. 3.",
+        "title": "JUDr. Mgr. Václav Kotlár",
+        "note": "jáhen, Tišnov"
+      },
+      {
+        "time": "28. 3.",
+        "title": "S. M. Marka OP",
+        "note": "Žernůvka"
+      },
+      {
+        "time": "11. 4.",
+        "title": "P. Jiří Landa, ISch",
+        "note": "farní vikář, Tišnov"
+      }
+    ],
+    "sessions": ["2025-03-14", "2025-03-28", "2025-04-11"],
+    "poster": {
+      "src": "/uploads/aktuality/postni-obnova-lomnice-2025-plakat.webp",
+      "alt": "Plakát: Postní duchovní obnova v Lomnici, téma Jubilejní rok"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/postni-obnova-lomnice-2025-plakat.jpg",
+        "size": 504241
+      }
+    ]
+  },
+  {
+    "id": "koncert-scholy-brnenske-mladeze-2025",
+    "title": "Koncert Scholy brněnské mládeže",
+    "start": "2025-03-16",
+    "time": "18:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Zazpívá Schola brněnské mládeže (SBM) za doprovodu kapely a komorního orchestru.",
+    "body": "<p>Akci finančně podpořilo město Kuřim.</p>",
+    "price": "dobrovolné vstupné",
+    "poster": {
+      "src": "/uploads/aktuality/koncert-scholy-brnenske-mladeze-2025-plakat.webp",
+      "alt": "Plakát: Koncert Scholy brněnské mládeže 16. března 2025"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/koncert-scholy-brnenske-mladeze-2025-plakat.jpg",
+        "size": 415057
+      }
+    ]
+  },
+  {
+    "id": "postni-duchovni-obnova-kurim-2025",
+    "title": "Postní duchovní obnova v Kuřimi",
+    "start": "2025-03-22",
+    "time": "17:00",
+    "place": "Kuřim, fara",
+    "text": "Duchovní obnova na téma Křížová cesta našeho Pána Ježíše Krista jako příprava na Velikonoce. Vede P. Jaroslav Filka.",
+    "body": "<p>Volně navážeme na téma z loňského roku.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/postni-duchovni-obnova-kurim-2025-plakat.webp",
+      "alt": "Plakát: Postní duchovní obnova na téma Křížová cesta našeho Pána Ježíše Krista"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/postni-duchovni-obnova-kurim-2025-plakat.pdf",
+        "size": 125945
+      }
+    ]
+  },
+  {
+    "id": "dekovna-mse-pierre-goursat-2025",
+    "title": "Děkovná mše za ctihodného Pierra Goursata",
+    "start": "2025-03-24",
+    "time": "17:30",
+    "place": "Brno, kostel sv. Tomáše",
+    "text": "Děkovná mše svatá za uznání hrdinských ctností Pierra Goursata, zakladatele komunity Emmanuel.",
+    "body": "<p>Papež František uznal hrdinské ctnosti Pierra Goursata na konci roku 2024. Mše se slaví v předvečer slavnosti Zvěstování Páně, která je zároveň dnem Pierrova návratu k Otci.</p><p>Pierre Goursat je spolu s Martine Laffitte-Catta zakladatelem komunity Emmanuel. Modlitební společenství, které původně založili, se rychle rozrostlo na komunitu po celé Francii a následně do celého světa.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/dekovna-mse-pierre-goursat-2025-plakat.webp",
+      "alt": "Plakát: Ctihodný Pierre Goursat, děkovná mše svatá"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/dekovna-mse-pierre-goursat-2025-plakat.pdf",
+        "size": 833149
+      }
+    ]
+  },
+  {
+    "id": "postni-obnova-pro-zeny-2025",
+    "title": "Postní duchovní obnova pro ženy",
+    "start": "2025-03-27",
+    "end": "2025-03-28",
+    "place": "Brno-Husovice, fara",
+    "text": "Duchovní obnova pro ženy s Pavlou Cenkovou na téma Učednictví ve světle zjevení Nejsvětějšího srdce Ježíšova.",
+    "body": "<p>Program zahrnuje promluvy, adoraci (také soukromou celonoční), mši svatou a sdílení ve skupinkách. V sobotu bude možnost svátosti smíření a duchovního rozhovoru s bratrem Didakem.</p>",
+    "program": [
+      {
+        "time": "pátek 19:00",
+        "title": "Úvodní informace a večeře"
+      },
+      {
+        "time": "pátek 20:00",
+        "title": "I. promluva a adorace"
+      },
+      {
+        "time": "sobota 9:00",
+        "title": "II. promluva a společná adorace"
+      },
+      {
+        "time": "sobota 12:00",
+        "title": "Mše svatá"
+      },
+      {
+        "time": "sobota 14:00",
+        "title": "III. promluva"
+      },
+      {
+        "time": "sobota 17:00",
+        "title": "Závěr"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/postni-obnova-pro-zeny-2025-informace.webp",
+      "alt": "Leták: Postní duchovní obnova pro ženy s Pavlou Cenkovou"
+    },
+    "attachments": [
+      {
+        "label": "Informace",
+        "file": "/uploads/aktuality/postni-obnova-pro-zeny-2025-informace.pdf",
+        "size": 3754252
+      }
+    ]
+  },
+  {
+    "id": "kurz-pro-pruvodce-2025",
+    "title": "Kurz pro průvodce v sakrálním prostoru",
+    "start": "2025-03-29",
+    "time": "9:00–16:00",
+    "place": "Brno, Biskupství brněnské",
+    "mapQuery": "Petrov 2, Brno",
+    "text": "Diecézní muzeum Brno pořádá kurz pro průvodce v kostelech a dalších sakrálních prostorech.",
+    "body": "<p>Na kurzu se seznámíte s historií a uměním sakrálních prostor a naučíte se provádět návštěvníky a předávat jim informace o daném místě. Kurz se koná v sále Biskupství brněnského, Petrov 2.</p>",
+    "registrationDeadline": "2025-03-23",
+    "poster": {
+      "src": "/uploads/aktuality/kurz-pro-pruvodce-2025-plakat.webp",
+      "alt": "Plakát: Kurz pro průvodce v sakrálním prostoru"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/kurz-pro-pruvodce-2025-plakat.jpg",
+        "size": 639231
+      }
+    ]
+  },
+  {
+    "id": "pastyrsky-list-o-nadeji-2025",
+    "title": "Pastýřský list biskupa Pavla o naději",
+    "start": "2025-03-30",
+    "text": "Pastýřský list biskupa Pavla Konzbula o naději, čtený při bohoslužbách na neděli Laetare.",
+    "attachments": [
+      {
+        "label": "Pastýřský list",
+        "file": "/uploads/aktuality/pastyrsky-list-o-nadeji-2025-pastyrsky-list.pdf",
+        "size": 67701
+      }
+    ]
+  }
+]

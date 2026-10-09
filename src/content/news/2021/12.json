@@ -1,0 +1,87 @@
+[
+  {
+    "id": "adventni-koncert-bara-basikova-2021",
+    "title": "Adventní koncert Báry Basikové",
+    "start": "2021-12-06",
+    "time": "17:30",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Tradiční adventní koncert: vystoupí Bára Basiková a skupina Shot-C.",
+    "body": "<p>Koncert pořádají ZŠ Jungmannova, Římskokatolická farnost Kuřim a Společenské a kulturní centrum Kuřim. Vstupenky jsou v předprodeji na ZŠ Jungmannova a ve Společenském a kulturním centru Kuřim.</p>",
+    "price": "300 Kč v předprodeji, 350 Kč na místě",
+    "poster": {
+      "src": "/uploads/aktuality/adventni-koncert-bara-basikova-2021-plakat.webp",
+      "alt": "Plakát: Bára Basiková a Shot-C, 6. 12. 2021"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/adventni-koncert-bara-basikova-2021-plakat.pdf",
+        "size": 220385
+      }
+    ]
+  },
+  {
+    "id": "koncert-ucednici-2021",
+    "title": "Koncert skupiny Učedníci (zrušeno)",
+    "start": "2021-12-11",
+    "time": "15:00",
+    "place": "Boskovice, kino Panorama",
+    "text": "Koncert byl zrušen. Charitativní koncert skupiny Učedníci, zaměřené na křesťanský folk.",
+    "body": "<p>Výtěžek z koncertu měl podpořit salesiánskou misii v Bulharsku, kterou vykonává P. Petr Cvrkal.</p>",
+    "tags": [
+      {
+        "label": "Zrušeno"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/koncert-ucednici-2021-plakat.webp",
+      "alt": "Plakát: Charitativní koncert skupiny Učedníci 11. 12. 2021"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/koncert-ucednici-2021-plakat.jpg",
+        "size": 554815
+      }
+    ]
+  },
+  {
+    "id": "uklid-kostela-2021",
+    "title": "Vánoční úklid kostela",
+    "start": "2021-12-18",
+    "time": "8:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Vánoční zdobení a úklid kuřimského kostela před svátky. Předem děkujeme za vaši pomoc."
+  },
+  {
+    "id": "petrklic-2021-2",
+    "title": "Petrklíč 2/2021",
+    "start": "2021-12-19",
+    "text": "Právě vyšlo nové vydání farního časopisu Petrklíč.",
+    "attachments": [
+      {
+        "label": "Petrklíč 2/2021",
+        "file": "/uploads/petrklic/2021-2/petrklic-2021-2.pdf",
+        "size": 7924318
+      }
+    ]
+  },
+  {
+    "id": "zpivani-chramoveho-sboru-vanoce-2021",
+    "title": "Chrámový sbor o Vánocích",
+    "start": "2021-12-24",
+    "end": "2021-12-25",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Mše svaté na Štědrý den a na slavnost Narození Páně doprovodí chrámový sbor.",
+    "program": [
+      {
+        "time": "24. 12. 22:00",
+        "title": "Noční mše svatá na Štědrý den"
+      },
+      {
+        "time": "25. 12. 9:30",
+        "title": "Mše svatá o slavnosti Narození Páně"
+      }
+    ]
+  }
+]

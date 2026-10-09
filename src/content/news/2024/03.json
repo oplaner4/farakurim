@@ -1,0 +1,140 @@
+[
+  {
+    "id": "24-hodin-pro-pana-2024",
+    "title": "24 hodin pro Pána v Tišnově",
+    "start": "2024-03-08",
+    "end": "2024-03-09",
+    "place": "Tišnov, kostel sv. Václava",
+    "text": "Den modliteb, adorace a návštěv kostela s příležitostí ke svaté zpovědi.",
+    "body": "<p>Příležitost ke svaté zpovědi je v pátek od 17 do 21 hodin a v sobotu od 19 do 20 hodin.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/24-hodin-pro-pana-2024-plakat.webp",
+      "alt": "Plakát: 24 hodin pro Pána v Tišnově 8.–9. 3. 2024"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/24-hodin-pro-pana-2024-plakat.pdf",
+        "size": 143421
+      }
+    ]
+  },
+  {
+    "id": "postni-duchovni-obnova-2024",
+    "title": "Postní duchovní obnova",
+    "start": "2024-03-10",
+    "time": "14:30",
+    "place": "Kuřim, fara",
+    "text": "Postní duchovní obnova na téma Ježíšova křížová cesta s P. Jaroslavem Filkou.",
+    "poster": {
+      "src": "/uploads/aktuality/postni-duchovni-obnova-2024-plakat.webp",
+      "alt": "Plakát: Postní duchovní obnova na téma Ježíšova křížová cesta"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/postni-duchovni-obnova-2024-plakat.png",
+        "size": 881523
+      }
+    ]
+  },
+  {
+    "id": "nejlepe-opravena-pamatka-2024",
+    "title": "Hlasujte pro kostel sv. Markéty",
+    "start": "2024-03-11",
+    "end": "2024-03-31",
+    "text": "Kostel sv. Markéty v Moravských Knínicích soutěží o nejlépe opravenou kulturní památku Jihomoravského kraje v roce 2023.",
+    "body": "<p>Hlasovat lze do 31. března odesláním SMS s textem <strong>PAMATKA 14</strong> na číslo <strong>736 301 599</strong>. Z jednoho telefonu je možné hlasovat jen jednou, SMS stojí podle tarifu hlasujícího.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/nejlepe-opravena-pamatka-2024-letak.webp",
+      "alt": "Leták: Kostel sv. Markéty v soutěži o nejlépe opravenou památku"
+    },
+    "attachments": [
+      {
+        "label": "Leták",
+        "file": "/uploads/aktuality/nejlepe-opravena-pamatka-2024-letak.pdf",
+        "size": 306167
+      }
+    ],
+    "links": [
+      {
+        "label": "Soutěž na webu kraje",
+        "href": "https://www.kr-jihomoravsky.cz/pamatky"
+      }
+    ]
+  },
+  {
+    "id": "velikonoce-2024",
+    "title": "Velikonoce 2024",
+    "start": "2024-03-21",
+    "end": "2024-04-01",
+    "place": "Kuřim a Moravské Knínice",
+    "text": "Pořad velikonočních bohoslužeb a zpovídání a pozvání na obřady se zpěvy chrámového sboru.",
+    "program": [
+      {
+        "time": "Zelený čtvrtek 18:00",
+        "title": "Mše svatá",
+        "note": "M. Praetorius: Anima mea, Taizé: Zůstaňte"
+      },
+      {
+        "time": "Velký pátek 18:00",
+        "title": "Obřady Velkého pátku",
+        "note": "zpívané pašije podle sv. Marka, A. Mička: Improperia, J. Berthier: Per crucem, F. H. Kedrut: Vexilla regis"
+      },
+      {
+        "time": "Bílá sobota 19:00",
+        "title": "Velikonoční vigilie",
+        "note": "J. Olejník: Exsultet, A. S. Maškov: Alleluja, A. Lotti: Regina coeli"
+      },
+      {
+        "time": "Velikonoční neděle 9:30",
+        "title": "Mše svatá",
+        "note": "V. K. H. Rovenský: Zazpívejme Kristu Pánu, B. Korejs: Velikonoční, M. Praetorius: Dnes je den Páně vítězství"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/velikonoce-2024-pozvanka.webp",
+      "alt": "Pozvánka: Svátky velikonoční se zpěvy chrámového sboru"
+    },
+    "attachments": [
+      {
+        "label": "Pozvánka",
+        "file": "/uploads/aktuality/velikonoce-2024-pozvanka.pdf",
+        "size": 781226
+      },
+      {
+        "label": "Pořad bohoslužeb a zpovídání",
+        "file": "/uploads/aktuality/velikonoce-2024-porad-bohosluzeb.pdf",
+        "size": 107128
+      }
+    ]
+  },
+  {
+    "id": "krizova-cesta-rodin-2024",
+    "title": "Křížová cesta rodin",
+    "start": "2024-03-23",
+    "time": "10:00",
+    "place": "Kuřim, kaple sv. Jana Nepomuckého",
+    "text": "Křížová cesta rodin vychází od vodní kaple sv. Jana Nepomuckého a končí na faře u ohně.",
+    "body": "<p>Doneste si něco na opečení.</p>"
+  },
+  {
+    "id": "misijni-kavarna-2024",
+    "title": "Misijní kavárna",
+    "start": "2024-03-24",
+    "place": "Kuřim, fara",
+    "text": "Na Květnou neděli ochutnáte kávu Agapé z produkce Papežských misijních děl a děti si vytvoří velikonoční přání.",
+    "body": "<p>Káva pochází z česko-ugandské spolupráce. Výtěžek půjde na aktuální projekty Papežských misijních děl.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/misijni-kavarna-2024-plakat.webp",
+      "alt": "Plakát: Misijní kavárna na Květnou neděli"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/misijni-kavarna-2024-plakat.pdf",
+        "size": 2275304
+      }
+    ]
+  }
+]

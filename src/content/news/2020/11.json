@@ -1,0 +1,132 @@
+[
+  {
+    "id": "pastyrsky-list-vsech-svatych-2020",
+    "title": "Pastýřský list biskupa Vojtěcha",
+    "start": "2020-11-01",
+    "text": "K slavnosti Všech svatých posílá biskup Vojtěch Cikrle věřícím pastýřský list „Všichni jsme na cestě ke svatosti“.",
+    "attachments": [
+      {
+        "label": "Pastýřský list",
+        "file": "/uploads/aktuality/pastyrsky-list-vsech-svatych-2020-pastyrsky-list.pdf",
+        "size": 182691
+      }
+    ]
+  },
+  {
+    "id": "zivy-prenos-mse-svate-2020-11-15",
+    "title": "Živý přenos mše svaté 15. listopadu",
+    "start": "2020-11-15",
+    "time": "9:30",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Nedělní mši svatou zkušebně vysíláme na YouTube.",
+    "links": [
+      {
+        "label": "Záznam na YouTube",
+        "href": "https://youtu.be/YSz_Yj9PWF0"
+      }
+    ]
+  },
+  {
+    "id": "adoracni-odpoledne-kurim-2020",
+    "title": "Adorační odpoledne v Kuřimi",
+    "start": "2020-11-15",
+    "time": "13:00–20:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Výstav Nejsvětější svátosti s rozpisem adorujících po půlhodinách.",
+    "body": "<p>Adorovat se bude po dvojicích (případně členové jedné domácnosti). Příležitost ke svaté zpovědi bude během adorace od 15 do 17 hodin.</p>"
+  },
+  {
+    "id": "adoracni-odpoledne-kninice-2020",
+    "title": "Adorační odpoledne v Moravských Knínicích",
+    "start": "2020-11-22",
+    "time": "12:00–20:00",
+    "place": "Moravské Knínice, kostel sv. Markéty",
+    "text": "Výstav Nejsvětější svátosti v knínickém kostele. Rozpis pro střídání je vyvěšen na kostelních dveřích.",
+    "body": "<p>Příležitost ke svaté zpovědi bude během adorace od 14:00 do 15:30 v sakristii.</p>"
+  },
+  {
+    "id": "charitativni-jarmark-ceska-2020",
+    "title": "Charitativní jarmark v České",
+    "start": "2020-11-22",
+    "place": "Česká",
+    "text": "Jubilejní 20. ročník jarmarku se letos koná netradičně formou sbírky, do které může přispět každý.",
+    "poster": {
+      "src": "/uploads/aktuality/charitativni-jarmark-ceska-2020-letak.webp",
+      "alt": "Leták: 20. netradiční farní charitativní jarmark"
+    },
+    "attachments": [
+      {
+        "label": "Leták",
+        "file": "/uploads/aktuality/charitativni-jarmark-ceska-2020-letak.pdf",
+        "size": 450138
+      }
+    ]
+  },
+  {
+    "id": "cervena-streda-2020",
+    "title": "Červená středa",
+    "start": "2020-11-25",
+    "time": "18:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Mezinárodní připomínka lidí pronásledovaných pro víru: kostel nasvícený červeně, mše svatá a adorace.",
+    "program": [
+      {
+        "time": "13:00",
+        "title": "Online konference",
+        "note": "s českými i zahraničními hosty a svědky pronásledování"
+      },
+      {
+        "time": "17:00",
+        "title": "Kostel se rozsvítí červeně"
+      },
+      {
+        "time": "18:00",
+        "title": "Mše svatá za lidi pronásledované pro víru"
+      },
+      {
+        "time": "po mši",
+        "title": "Adorace do 20:00",
+        "note": "s příležitostí ke svaté zpovědi"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/cervena-streda-2020-plakat.webp",
+      "alt": "Plakát: Červená středa 25. listopadu 2020"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/cervena-streda-2020-plakat.jpg",
+        "size": 433885
+      }
+    ],
+    "links": [
+      {
+        "label": "Červená středa",
+        "href": "https://www.cervenastreda.cz/"
+      }
+    ]
+  },
+  {
+    "id": "krabice-od-bot-2020",
+    "title": "Krabice od bot",
+    "start": "2020-11-29",
+    "end": "2020-12-06",
+    "place": "Kuřim a Moravské Knínice",
+    "text": "Charitativní sbírka dárků pro děti z dětských a azylových domů.",
+    "body": "<p>Do krabice od bot můžete zabalit dárky, které by dětem udělaly radost, například hračky, školní a výtvarné potřeby, kosmetiku a doplňky, vše v bezvadném stavu. Na krabici napište, zda je určena pro kluka, nebo děvče, a věk dítěte. Pod mašličku vložte fotografii obsahu (i černobílou), nebo ji pošlete e-mailem.</p><p>Krabice předejte v neděli <strong>29. 11.</strong> a <strong>6. 12.</strong> od 7:30 do 10:30 v bočním vchodu kuřimského kostela, v Moravských Knínicích v sakristii před mší svatou nebo po ní. V neděli 6. 12. odpoledne je pracovník Charity odveze na sběrné místo.</p>",
+    "links": [
+      {
+        "label": "prokopovahanka@seznam.cz",
+        "href": "mailto:prokopovahanka@seznam.cz"
+      }
+    ]
+  },
+  {
+    "id": "adventni-pribehy-pro-deti-2020",
+    "title": "Krátké adventní příběhy pro děti",
+    "start": "2020-11-29",
+    "end": "2020-12-20",
+    "text": "Každou adventní neděli je pro děti připraven příběh, ve kterém se posuneme vždy o kousek blíže k Betlému."
+  }
+]

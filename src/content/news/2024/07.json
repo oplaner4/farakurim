@@ -1,0 +1,24 @@
+[
+  {
+    "id": "konference-charis-2024",
+    "title": "Katolická charismatická konference",
+    "start": "2024-07-10",
+    "end": "2024-07-14",
+    "place": "Brno, Výstaviště",
+    "text": "Katolická charismatická konference Charis na brněnském výstavišti. Přijet se dá i bez přihlášení.",
+    "registrationDeadline": "2024-06-25",
+    "attachments": [
+      {
+        "label": "Informace",
+        "file": "/uploads/aktuality/konference-charis-2024-informace.pdf",
+        "size": 120476
+      }
+    ],
+    "links": [
+      {
+        "label": "Konference Charis",
+        "href": "https://konferencecharis.cz/"
+      }
+    ]
+  }
+]

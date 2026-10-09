@@ -1,0 +1,85 @@
+[
+  {
+    "id": "postni-duchovni-obnova-2022",
+    "title": "Postní duchovní obnova",
+    "start": "2022-04-02",
+    "time": "9:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Postní duchovní obnova s P. Janem Pacnerem, dlouholetým vojenským kaplanem.",
+    "body": "<p>Drobné občerstvení bude zajištěno.</p>",
+    "program": [
+      {
+        "time": "9:00",
+        "title": "Mše svatá",
+        "note": "kostel sv. Maří Magdalény"
+      },
+      {
+        "time": "10:00",
+        "title": "Promluva a prostor pro diskusi",
+        "note": "sál fary"
+      },
+      {
+        "time": "11:30",
+        "title": "Adorace a závěrečné požehnání"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/postni-duchovni-obnova-2022-plakat.webp",
+      "alt": "Plakát: Postní duchovní obnova s P. Janem Pacnerem 2. 4. 2022"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/postni-duchovni-obnova-2022-plakat.pdf",
+        "size": 18273
+      }
+    ]
+  },
+  {
+    "id": "petrklic-2022-1",
+    "title": "Petrklíč 1/2022",
+    "start": "2022-04-08",
+    "text": "Vyšlo nové vydání farního časopisu Petrklíč. Tištěné výtisky jsou k dispozici pod kůrem v kuřimském kostele.",
+    "attachments": [
+      {
+        "label": "Petrklíč 1/2022",
+        "file": "/uploads/petrklic/2022-1/petrklic-2022-1.pdf",
+        "size": 4374333
+      }
+    ]
+  },
+  {
+    "id": "diecezni-setkani-mladeze-2022",
+    "title": "Diecézní setkání mládeže",
+    "start": "2022-04-09",
+    "place": "Brno, katedrála sv. Petra a Pavla",
+    "text": "Setkání mladých s biskupem Vojtěchem v brněnské katedrále.",
+    "poster": {
+      "src": "/uploads/aktuality/diecezni-setkani-mladeze-2022-plakat.webp",
+      "alt": "Plakát: Diecézní setkání mládeže 9. 4. 2022 v Brně"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/diecezni-setkani-mladeze-2022-plakat.pdf",
+        "size": 838571
+      }
+    ]
+  },
+  {
+    "id": "krizova-cesta-prirodou-s-detmi-2022",
+    "title": "Křížová cesta přírodou s dětmi",
+    "start": "2022-04-09",
+    "time": "10:00",
+    "place": "Kuřim, kaple sv. Jana Nepomuckého",
+    "text": "Křížová cesta pro rodiny s dětmi, vhodná i pro kočárky, zakončená opékáním špekáčků na faře.",
+    "body": "<p>Sejdeme se u vodní kaple sv. Jana Nepomuckého. Po skončení cesty si na faře můžeme opéct špekáčky a ještě společně strávit pěkné chvíle. Špekáčky a pečivo si prosím vezměte vlastní, nezapomeňte na pití a na něco na psaní.</p><p>Budeme moc rádi, když se k rodinám připojíte i vy ostatní.</p>"
+  },
+  {
+    "id": "katecheze-ke-svatemu-tydnu-2022",
+    "title": "Katecheze ke Svatému týdnu",
+    "start": "2022-04-10",
+    "end": "2022-04-17",
+    "text": "K prohlédnutí jsou loňské katecheze pro děti k Velikonocům."
+  }
+]

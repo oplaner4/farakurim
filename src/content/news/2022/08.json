@@ -1,0 +1,77 @@
+[
+  {
+    "id": "farni-tabor-2022",
+    "title": "Farní tábor 2022",
+    "start": "2022-08-13",
+    "end": "2022-08-20",
+    "place": "Hostinné",
+    "text": "Již čtvrtý farní tábor pro kluky a holky od 7 do 14 let.",
+    "body": "<p>Před táborem se koná seznamovací víkendovka 18.–19. června 2022 na kuřimské faře. Kontaktní osobou je Štěpánka Kytnerová.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/farni-tabor-2022-plakat.webp",
+      "alt": "Plakát: Farní tábor 2022 pro kluky a holky od 7 do 14 let"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/farni-tabor-2022-plakat.pdf",
+        "size": 672929
+      }
+    ]
+  },
+  {
+    "id": "diecezni-pout-rodin-2022",
+    "title": "Diecézní pouť rodin",
+    "start": "2022-08-27",
+    "time": "10:15",
+    "place": "Předklášteří, klášter Porta coeli",
+    "text": "18. diecézní pouť rodin s pontifikální mší svatou a bohatým programem pro všechny generace.",
+    "body": "<p>Zpovídat se bude dopoledne od 9:30 do 11:00 během růžence a mše svaté a odpoledne při adoraci od 13:00 do 14:00. Občerstvení lze zakoupit přímo v areálu.</p>",
+    "program": [
+      {
+        "time": "10:15",
+        "title": "Pontifikální mše svatá",
+        "note": "hlavní celebrant biskup Pavel Konzbul"
+      },
+      {
+        "time": "od 12:15",
+        "title": "Duchovní a doprovodný program",
+        "note": "přednáška, divadélko, prohlídky, aktivity pro děti, adorace"
+      },
+      {
+        "time": "15:30",
+        "title": "Zakončení pouti a požehnání"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/diecezni-pout-rodin-2022-plakat.webp",
+      "alt": "Plakát: 18. diecézní pouť rodin 27. 8. 2022 v Předklášteří"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/diecezni-pout-rodin-2022-plakat.pdf",
+        "size": 570647
+      }
+    ]
+  },
+  {
+    "id": "pout-sedmiradostnou-cestou-2022",
+    "title": "Pouť sedmiradostnou cestou",
+    "start": "2022-08-28",
+    "time": "7:00",
+    "place": "Česká, kaple Panny Marie Růžencové",
+    "text": "Pěší pouť po sedmiradostné cestě z České na Vranov, mše svatá na Vranově je v 11 hodin.",
+    "poster": {
+      "src": "/uploads/aktuality/pout-sedmiradostnou-cestou-2022-plakat.webp",
+      "alt": "Plakát: IV. výročí Vranovská pouť sedmiradostnou cestou 28. 8. 2022"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/pout-sedmiradostnou-cestou-2022-plakat.pdf",
+        "size": 328734
+      }
+    ]
+  }
+]

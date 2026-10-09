@@ -1,0 +1,84 @@
+[
+  {
+    "id": "24-hodin-pro-pana-2023",
+    "title": "24 hodin pro Pána v Tišnově",
+    "start": "2023-03-17",
+    "end": "2023-03-18",
+    "place": "Tišnov, kostel sv. Václava",
+    "text": "Děkanství Tišnov zve do kostela sv. Václava k modlitbě, adoraci a svátosti smíření.",
+    "body": "<p>Ke svátosti smíření nebo k rozhovoru s knězem je možné přijít v pátek od 17:00 do 17:50 a od 19:00 do 21:00 a v sobotu od 19:00 do 21:00.</p>",
+    "program": [
+      {
+        "time": "pá 17:30",
+        "title": "Růženec"
+      },
+      {
+        "time": "pá 18:00",
+        "title": "Mše svatá"
+      },
+      {
+        "time": "pá 19:00 – so 21:00",
+        "title": "Adorace"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/24-hodin-pro-pana-2023-plakat.webp",
+      "alt": "Plakát: 24 hodin pro Pána v kostele sv. Václava v Tišnově"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/24-hodin-pro-pana-2023-plakat.pdf",
+        "size": 1701151
+      }
+    ]
+  },
+  {
+    "id": "duchovni-obnova-pro-zeny-2023",
+    "title": "Postní duchovní obnova pro ženy",
+    "start": "2023-03-17",
+    "end": "2023-03-18",
+    "place": "Brno-Husovice, fara",
+    "text": "Postní duchovní obnova pro ženy „Žena, nositelka Boží krásy“ s Pavlou Cenkovou na faře v Husovicích.",
+    "poster": {
+      "src": "/uploads/aktuality/duchovni-obnova-pro-zeny-2023-pozvanka.webp",
+      "alt": "Pozvánka: Žena, nositelka Boží krásy – postní duchovní obnova pro ženy"
+    },
+    "attachments": [
+      {
+        "label": "Pozvánka",
+        "file": "/uploads/aktuality/duchovni-obnova-pro-zeny-2023-pozvanka.jpg",
+        "size": 538309
+      }
+    ]
+  },
+  {
+    "id": "velikonoce-2023",
+    "title": "Velikonoce 2023",
+    "start": "2023-03-30",
+    "end": "2023-04-10",
+    "place": "Kuřim a Moravské Knínice",
+    "text": "Pořad velikonočních bohoslužeb a zpovídání v Kuřimi a v Moravských Knínicích.",
+    "body": "<p>Pašije se zpívají na Květnou neděli (2. 4.) v 8:00 a na Velký pátek (7. 4.) při obřadech v 18:00. Chrámový sbor zpívá při vigilii na Bílou sobotu (8. 4.) ve 20:00 a o slavnosti Zmrtvýchvstání Páně (9. 4.) v 9:30.</p>",
+    "attachments": [
+      {
+        "label": "Pořad bohoslužeb a zpovídání",
+        "file": "/uploads/aktuality/velikonoce-2023-porad-bohosluzeb.pdf",
+        "size": 78593
+      }
+    ]
+  },
+  {
+    "id": "petrklic-2023-1",
+    "title": "Petrklíč 1/2023",
+    "start": "2023-03-31",
+    "text": "Právě vyšlo nové vydání farního časopisu Petrklíč.",
+    "attachments": [
+      {
+        "label": "Petrklíč 1/2023",
+        "file": "/uploads/petrklic/2023-1/petrklic-2023-1.pdf",
+        "size": 5690248
+      }
+    ]
+  }
+]

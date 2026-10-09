@@ -1,0 +1,99 @@
+[
+  {
+    "id": "pout-ke-sv-anezce-ceske-2024",
+    "title": "Pouť ke sv. Anežce České",
+    "start": "2024-11-17",
+    "time": "10:15",
+    "place": "Předklášteří, bazilika Porta Coeli",
+    "text": "Mše svatá k 35. výročí sametové revoluce v bazilice Nanebevzetí Panny Marie kláštera Porta Coeli.",
+    "body": "<p>Mši svatou slouží P. Mgr. Michael Maria Roman Frič, OCart. Zpívá brněnský katedrální sbor Magnificat.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/pout-ke-sv-anezce-ceske-2024-plakat.webp",
+      "alt": "Plakát: Pouť ke svaté Anežce České 17. 11. 2024"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/pout-ke-sv-anezce-ceske-2024-plakat.jpg",
+        "size": 474993
+      }
+    ]
+  },
+  {
+    "id": "cervena-streda-2024",
+    "title": "Červená středa",
+    "start": "2024-11-27",
+    "time": "18:00",
+    "place": "Moravské Knínice, kostel sv. Markéty",
+    "text": "Připojíme se k iniciativě Červená středa na podporu tolerance a solidarity s pronásledovanými pro víru.",
+    "program": [
+      {
+        "time": "od soumraku",
+        "title": "Kostel nasvícený červeným světlem"
+      },
+      {
+        "time": "18:00",
+        "title": "Mše svatá"
+      },
+      {
+        "time": "18:45",
+        "title": "Videoprojekce a zapálení červených svíček"
+      }
+    ]
+  },
+  {
+    "id": "nove-stranky-biskupstvi-2024",
+    "title": "Nové stránky brněnského biskupství",
+    "start": "2024-11-27",
+    "text": "Brněnské biskupství spustilo nové webové stránky.",
+    "links": [
+      {
+        "label": "Biskupství brněnské",
+        "href": "https://www.biskupstvi.cz/"
+      }
+    ]
+  },
+  {
+    "id": "farni-silvestr-2024",
+    "title": "Farní silvestr",
+    "start": "2024-11-30",
+    "time": "17:00",
+    "place": "Kuřim",
+    "text": "Oslava začátku nového církevního roku, kterou letos připravuje společenství mladých.",
+    "body": "<p>Pro děti bude připravena dílnička a proběhne soutěž o nejlepší jednohubky.</p>",
+    "program": [
+      {
+        "time": "17:00",
+        "title": "Mše svatá"
+      },
+      {
+        "time": "18:00",
+        "title": "Zahájení"
+      },
+      {
+        "time": "18:30",
+        "title": "Hudební kvíz"
+      },
+      {
+        "time": "19:30",
+        "title": "Život s vírou",
+        "note": "Anna Macková"
+      },
+      {
+        "time": "20:30",
+        "title": "Zakončení s prskavkami"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/farni-silvestr-2024-plakat.webp",
+      "alt": "Plakát: Farní silvestr 2024"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/farni-silvestr-2024-plakat.pdf",
+        "size": 3112616
+      }
+    ]
+  }
+]

@@ -1,0 +1,115 @@
+[
+  {
+    "id": "velikonocni-prani-dusana-hladika-2020",
+    "title": "Velikonoční přání Mons. Dušana Hladíka",
+    "start": "2020-05-02",
+    "text": "Prohlédněte si přání k Velikonocům od kuřimského rodáka Mons. Dušana Hladíka.",
+    "poster": {
+      "src": "/uploads/aktuality/velikonocni-prani-dusana-hladika-2020-prani.webp",
+      "alt": "Velikonoční přání Mons. Dušana Hladíka"
+    },
+    "attachments": [
+      {
+        "label": "Přání",
+        "file": "/uploads/aktuality/velikonocni-prani-dusana-hladika-2020-prani.png",
+        "size": 8562135
+      }
+    ]
+  },
+  {
+    "id": "zivy-prenos-mse-svate-2020-05-03",
+    "title": "Živý přenos mše svaté z Moravských Knínic",
+    "start": "2020-05-03",
+    "time": "11:00",
+    "place": "Moravské Knínice, kostel sv. Markéty",
+    "text": "Přenos nedělní mše svaté z knínického kostela, tentokrát s lepší kamerou a dopředu vyzkoušený.",
+    "links": [
+      {
+        "label": "Záznam na YouTube",
+        "href": "https://youtu.be/04eqa-zMdE8"
+      }
+    ]
+  },
+  {
+    "id": "list-papeze-k-mesici-kvetnu-2020",
+    "title": "List Svatého otce k měsíci květnu",
+    "start": "2020-05-04",
+    "text": "Papež František zve v měsíci květnu všechny ke znovuobjevení krásy domácí modlitby růžence.",
+    "attachments": [
+      {
+        "label": "List Svatého otce",
+        "file": "/uploads/aktuality/list-papeze-k-mesici-kvetnu-2020-list.pdf",
+        "size": 80973
+      }
+    ]
+  },
+  {
+    "id": "koncert-violoncellistu-2020",
+    "title": "Koncert violoncellistů Filharmonie Brno",
+    "start": "2020-05-24",
+    "time": "17:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Violoncellisté Filharmonie Brno zahrají skladby Vivaldiho, Grafa, Mahlera a Rossiniho.",
+    "body": "<p>Koncert pod uměleckým vedením koncertního mistra Pavla Šabackého se koná ku příležitosti znovuzahájení koncertní činnosti a je věnován spoluobčanům jako poděkování. Koncert se koná s podporou města Kuřimi.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/koncert-violoncellistu-2020-plakat.webp",
+      "alt": "Plakát: Brněnští violoncellisté v Kuřimi 24. 5. 2020"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/koncert-violoncellistu-2020-plakat.pdf",
+        "size": 155115
+      }
+    ]
+  },
+  {
+    "id": "pouti-na-vranov-2020",
+    "title": "Putování na Vranov",
+    "start": "2020-05-30",
+    "end": "2020-08-30",
+    "place": "Vranov u Brna",
+    "text": "K 780. výročí poutního místa Vranov u Brna zve vranovská farnost na čtyři poutě z okolních obcí.",
+    "body": "<p>Vranovská farnost by ráda umožnila lidem vžít se do mentality poutníků, kteří po staletí putovali s vděčností za dobro, kterého se jim dostávalo, a s touhou svěřit své starosti někomu, kdo osobně zakusil, že u Boha není nic nemožné.</p><p>Více se dozvíte z plakátu a z dopisu vranovského faráře Pavla Kříže.</p>",
+    "sessions": [
+      {
+        "date": "2020-05-30",
+        "time": "15:00"
+      },
+      {
+        "date": "2020-07-06",
+        "time": "15:00"
+      },
+      {
+        "date": "2020-08-15",
+        "time": "9:00"
+      },
+      {
+        "date": "2020-08-30",
+        "time": "7:00"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/pouti-na-vranov-2020-plakat.webp",
+      "alt": "Plakát: Putování na Vranov s vděčností a prosbou"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/pouti-na-vranov-2020-plakat.pdf",
+        "size": 469016
+      },
+      {
+        "label": "Dopis vranovského faráře",
+        "file": "/uploads/aktuality/pouti-na-vranov-2020-dopis.pdf",
+        "size": 102937
+      }
+    ],
+    "links": [
+      {
+        "label": "Poutní místo Vranov",
+        "href": "https://www.dc-vranov.cz/"
+      }
+    ]
+  }
+]

@@ -1,0 +1,49 @@
+[
+  {
+    "id": "trikralova-sbirka-2022",
+    "title": "Tříkrálová sbírka 2022",
+    "start": "2022-01-01",
+    "end": "2022-01-16",
+    "place": "Kuřim",
+    "text": "Letos koledníci opět přijdou k vám, budou rozdávat radost a požehnání a prosit o příspěvek na lidi v nouzi.",
+    "body": "<p>Při posledním ročníku jsme se museli obejít bez koledníků. Letos přijdou (za dodržení epidemických opatření) a budou rozdávat radost a požehnání a prosit o příspěvek na lidi v nouzi. Jak přispět, pokud se s koledníky minete, najdete na webu sbírky.</p>",
+    "links": [
+      {
+        "label": "Tříkrálová sbírka",
+        "href": "https://www.trikralovasbirka.cz/"
+      }
+    ]
+  },
+  {
+    "id": "vanocni-koncert-magnificat-2022",
+    "title": "Vánoční koncert",
+    "start": "2022-01-09",
+    "time": "18:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Chrámový sbor Magnificat a orchestr z Lelekovic zvou na koncert: V. J. Kopřiva, Missa pastoralis in D.",
+    "poster": {
+      "src": "/uploads/aktuality/vanocni-koncert-magnificat-2022-plakat.webp",
+      "alt": "Plakát: Vánoční koncert chrámového sboru Magnificat 9. 1. 2022"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/vanocni-koncert-magnificat-2022-plakat.pdf",
+        "size": 107878
+      }
+    ]
+  },
+  {
+    "id": "den-modliteb-za-mir-na-ukrajine-2022",
+    "title": "Den modliteb za mír na Ukrajině",
+    "start": "2022-01-26",
+    "text": "Papež František vyhlásil středu 26. ledna dnem modliteb za mír na Ukrajině.",
+    "attachments": [
+      {
+        "label": "Výzva papeže",
+        "file": "/uploads/aktuality/den-modliteb-za-mir-na-ukrajine-2022-vyzva.pdf",
+        "size": 193387
+      }
+    ]
+  }
+]

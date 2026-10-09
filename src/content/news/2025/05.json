@@ -1,0 +1,152 @@
+[
+  {
+    "id": "ministrantsky-den-2025",
+    "title": "Ministrantský den v Olomouci",
+    "start": "2025-05-03",
+    "place": "Olomouc",
+    "text": "Setkání ministrantů v Olomouci.",
+    "registrationDeadline": "2025-03-24",
+    "poster": {
+      "src": "/uploads/aktuality/ministrantsky-den-2025-plakat.webp",
+      "alt": "Plakát: Ministrantský den v Olomouci 3. května 2025"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/ministrantsky-den-2025-plakat.jpg",
+        "size": 471528
+      }
+    ]
+  },
+  {
+    "id": "den-rodin-2025",
+    "title": "Den rodin",
+    "start": "2025-05-18",
+    "time": "14:00",
+    "place": "Kuřim, areál ZŠ Komenského",
+    "text": "Zábavné odpoledne pro celé rodiny: soutěže pro děti, skákací hrady, malování na obličej, bublinový workshop, kouzelník a taneční vystoupení.",
+    "program": [
+      {
+        "time": "14:00",
+        "title": "Zahájení"
+      },
+      {
+        "time": "14:15",
+        "title": "Vystoupení T-Group Dance"
+      },
+      {
+        "time": "15:00",
+        "title": "Vystoupení kouzelníka"
+      },
+      {
+        "time": "15:30",
+        "title": "Bublinová show"
+      },
+      {
+        "time": "16:15",
+        "title": "Taneční vystoupení Lumíku"
+      },
+      {
+        "time": "17:00",
+        "title": "Vystoupení T-Group Dance"
+      }
+    ],
+    "price": "dobrovolné vstupné",
+    "poster": {
+      "src": "/uploads/aktuality/den-rodin-2025-plakat.webp",
+      "alt": "Plakát: Den rodin v areálu ZŠ Komenského 18. 5. 2025"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/den-rodin-2025-plakat.pdf",
+        "size": 137222
+      }
+    ]
+  },
+  {
+    "id": "setkani-katechetu-2025",
+    "title": "Setkání katechetů",
+    "start": "2025-05-22",
+    "time": "17:30",
+    "place": "Tišnov, fara",
+    "text": "Setkání katechetů tišnovského děkanství: vzájemné sdílení a účast Diecézního katechetického centra.",
+    "poster": {
+      "src": "/uploads/aktuality/setkani-katechetu-2025-plakat.webp",
+      "alt": "Plakát: Setkání katechetů tišnovského děkanství 22. května 2025"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/setkani-katechetu-2025-plakat.pdf",
+        "size": 489700
+      }
+    ]
+  },
+  {
+    "id": "noc-kostelu-2025",
+    "title": "Noc kostelů",
+    "start": "2025-05-23",
+    "place": "Vranov u Brna a Česká",
+    "text": "Noc kostelů na Vranově a v kapli Panny Marie Růžencové v České.",
+    "body": "<p>Kaple v České je otevřena od 18:00 do 22:00: prohlídka, výklad o historii kapličky a obce Česká, staré dokumenty a fotografie, růženec a malé občerstvení.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/noc-kostelu-2025-program-vranov.webp",
+      "alt": "Program Noci kostelů 23. 5. 2025 na Vranově"
+    },
+    "attachments": [
+      {
+        "label": "Program: Vranov",
+        "file": "/uploads/aktuality/noc-kostelu-2025-program-vranov.jpg",
+        "size": 217218
+      },
+      {
+        "label": "Program: Česká",
+        "file": "/uploads/aktuality/noc-kostelu-2025-program-ceska.pdf",
+        "size": 165221
+      }
+    ],
+    "links": [
+      {
+        "label": "Noc kostelů",
+        "href": "https://www.nockostelu.cz/"
+      }
+    ]
+  },
+  {
+    "id": "noc-kostelu-full-of-life-2025",
+    "title": "Noc kostelů a festival Full of Life v Řečkovicích",
+    "start": "2025-05-23",
+    "end": "2025-05-24",
+    "place": "Brno-Řečkovice",
+    "text": "Tradiční Noc kostelů a farní festival Full of Life v Řečkovicích.",
+    "links": [
+      {
+        "label": "Farnost Řečkovice",
+        "href": "https://farnostreckovice.cz/2025/03/06/noc-kostelu-a-festival-full-of-life/"
+      }
+    ]
+  },
+  {
+    "id": "promitani-filmu-chatrc-2025",
+    "title": "Promítání filmu Chatrč",
+    "start": "2025-05-29",
+    "time": "16:00–19:30",
+    "place": "Kuřim, kinosál SKC",
+    "mapQuery": "Společenské a kulturní centrum Kuřim",
+    "text": "Promítání filmu Chatrč s následnou diskusí a občerstvením pro mladé od 15 do 25 let. Pořádá společenství mladých.",
+    "body": "<p>Je možné odpustit neodpustitelné? Proč je to důležité? Kým je pro křesťany Bůh a jak může vypadat snaha filmařsky ho přiblížit? Diskuse po filmu se soustředí na témata a poselství snímku. Vstup byl zdarma po registraci.</p>",
+    "price": "zdarma",
+    "poster": {
+      "src": "/uploads/aktuality/promitani-filmu-chatrc-2025-plakat.webp",
+      "alt": "Plakát: Tam, kde končí bolest… promítání filmu Chatrč"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/promitani-filmu-chatrc-2025-plakat.pdf",
+        "size": 573979
+      }
+    ]
+  }
+]

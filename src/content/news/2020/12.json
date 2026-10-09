@@ -1,0 +1,89 @@
+[
+  {
+    "id": "petrklic-2020-2",
+    "title": "Vánoční Petrklíč 2/2020",
+    "start": "2020-12-19",
+    "text": "Právě vyšlo nové, vánoční vydání farního časopisu Petrklíč.",
+    "attachments": [
+      {
+        "label": "Petrklíč 2/2020",
+        "file": "/uploads/petrklic/2020-2/petrklic-2020-2.pdf",
+        "size": 917356
+      }
+    ]
+  },
+  {
+    "id": "adorace-pred-vanoci-2020",
+    "title": "Adorace před Vánoci",
+    "start": "2020-12-20",
+    "time": "13:00–20:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Adorace v kuřimském kostele s rozpisem adorujících."
+  },
+  {
+    "id": "prodej-vyrobku-pro-farnost-2020",
+    "title": "Prodej ručně vyráběných výrobků pro farnost",
+    "start": "2020-12-20",
+    "time": "14:30–15:30",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Zakoupením ručně vyráběných výrobků můžete přispět na opravu fary. Výrobky budou k mání při adoraci.",
+    "body": "<p>Osobní předání lze domluvit i na jinou dobu. Bližší informace podá Lucie Sádlíková.</p>",
+    "attachments": [
+      {
+        "label": "Katalog výrobků",
+        "file": "/uploads/aktuality/prodej-vyrobku-pro-farnost-2020-katalog.pdf",
+        "size": 644987
+      }
+    ],
+    "links": [
+      {
+        "label": "luciesadlikova@email.cz",
+        "href": "mailto:luciesadlikova@email.cz"
+      }
+    ]
+  },
+  {
+    "id": "porad-bohosluzeb-vanoce-2020",
+    "title": "Pořad bohoslužeb o Vánocích",
+    "start": "2020-12-20",
+    "end": "2021-01-10",
+    "place": "Kuřim a Moravské Knínice",
+    "text": "Pořad předvánočních a vánočních bohoslužeb včetně rozpisu zpovídání.",
+    "attachments": [
+      {
+        "label": "Pořad bohoslužeb a zpovídání",
+        "file": "/uploads/aktuality/porad-bohosluzeb-vanoce-2020-porad-bohosluzeb.pdf",
+        "size": 136783
+      }
+    ]
+  },
+  {
+    "id": "betlemske-svetlo-2020",
+    "title": "Betlémské světlo",
+    "start": "2020-12-23",
+    "place": "Kuřim",
+    "text": "Skauti i letos přivezou do Kuřimi Betlémské světlo a dopoledne ho roznesou až před dům.",
+    "body": "<p>Pokud o donesení světla stojíte, napište e-mail se svým jménem a adresou, nebo nechte lísteček v kuřimském kostele.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/betlemske-svetlo-2020-plakat.webp",
+      "alt": "Plakát: Betlémské světlo"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/betlemske-svetlo-2020-plakat.png",
+        "size": 2405336
+      }
+    ],
+    "links": [
+      {
+        "label": "betlemskesvetlo@skautkurim.cz",
+        "href": "mailto:betlemskesvetlo@skautkurim.cz"
+      },
+      {
+        "label": "Betlémské světlo",
+        "href": "https://www.betlemskesvetlo.cz/"
+      }
+    ]
+  }
+]

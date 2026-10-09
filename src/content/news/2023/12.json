@@ -1,0 +1,163 @@
+[
+  {
+    "id": "modlitebni-vecer-emmanuel-2023",
+    "title": "Modlitební večer s komunitou Emmanuel",
+    "start": "2023-12-01",
+    "time": "19:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Modlitební večer s adorací a hudebním doprovodem komunity Emmanuel.",
+    "poster": {
+      "src": "/uploads/aktuality/modlitebni-vecer-emmanuel-2023-plakat.webp",
+      "alt": "Plakát: Modlitební večer s komunitou Emmanuel 1. 12. 2023"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/modlitebni-vecer-emmanuel-2023-plakat.jpg",
+        "size": 139490
+      }
+    ]
+  },
+  {
+    "id": "oceneni-kukuc-2023",
+    "title": "Ocenění KuKuč pro farníky",
+    "start": "2023-12-13",
+    "time": "18:00",
+    "place": "Kuřim, kulturní dům",
+    "text": "Při vyhlášení Kuřimských kulturních činů za rok 2023 budou oceněny i dvě aktivity lidí z farnosti.",
+    "body": "<ul><li>Pavel Rajmic a kapela Church Knights za vystoupení na Noci kostelů 2023,</li><li>výstava betlémů, kterou připravili Jana Kytnerová, Lucie Sádlíková a Milan Císař.</li></ul>"
+  },
+  {
+    "id": "petrklic-2023-4",
+    "title": "Petrklíč 4/2023",
+    "start": "2023-12-14",
+    "text": "Právě vyšlo nové vydání farního časopisu Petrklíč.",
+    "attachments": [
+      {
+        "label": "Petrklíč 4/2023",
+        "file": "/uploads/petrklic/2023-4/petrklic-2023-4.pdf",
+        "size": 21626677
+      }
+    ]
+  },
+  {
+    "id": "vanoce-2023",
+    "title": "Bohoslužby o Vánocích 2023",
+    "start": "2023-12-17",
+    "end": "2024-01-07",
+    "place": "Kuřim a Moravské Knínice",
+    "text": "Rozpis vánočních bohoslužeb a zpovídání v kuřimské farnosti.",
+    "body": "<p>Chrámový sbor zpívá při noční mši na Štědrý den ve 22:00 a na Boží hod v 9:30. Dětská schola zpívá na Štědrý den v 15:00 při programu pro děti.</p>",
+    "attachments": [
+      {
+        "label": "Pořad bohoslužeb",
+        "file": "/uploads/aktuality/vanoce-2023-porad-bohosluzeb.pdf",
+        "size": 58947
+      }
+    ]
+  },
+  {
+    "id": "vystava-betlemu-2023",
+    "title": "Výstava betlémů",
+    "start": "2023-12-17",
+    "end": "2024-01-07",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "V době vánoční zveme na výstavu betlémů v kuřimském kostele.",
+    "program": [
+      {
+        "time": "ne 17. 12.",
+        "title": "10:30–11:30"
+      },
+      {
+        "time": "ne 24. 12.",
+        "title": "13:00–15:00"
+      },
+      {
+        "time": "út 26. 12.",
+        "title": "10:30–11:30"
+      },
+      {
+        "time": "po 1. 1.",
+        "title": "14:30–16:30"
+      },
+      {
+        "time": "ne 7. 1.",
+        "title": "10:30–11:30"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/vystava-betlemu-2023-plakat.webp",
+      "alt": "Plakát: Výstava betlémů v kuřimském kostele"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/vystava-betlemu-2023-plakat.pdf",
+        "size": 1059871
+      }
+    ]
+  },
+  {
+    "id": "betlemske-svetlo-2023",
+    "title": "Betlémské světlo",
+    "start": "2023-12-23",
+    "place": "Kuřim",
+    "text": "Skauti budou v sobotu dopoledne roznášet Betlémské světlo až k vám domů.",
+    "body": "<p>Pokud máte zájem, aby přišli i k vám nebo k vašim blízkým, nechte lístek se jménem a adresou v krabičce pod kůrem, nebo napište e-mail.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/betlemske-svetlo-2023-letak.webp",
+      "alt": "Leták: Betlémské světlo v Kuřimi"
+    },
+    "attachments": [
+      {
+        "label": "Leták",
+        "file": "/uploads/aktuality/betlemske-svetlo-2023-letak.jpg",
+        "size": 400749
+      }
+    ],
+    "links": [
+      {
+        "label": "betlemskesvetlo@skautkurim.cz",
+        "href": "mailto:betlemskesvetlo@skautkurim.cz"
+      }
+    ]
+  },
+  {
+    "id": "vanocni-pribeh-2023",
+    "title": "Vánoční příběh",
+    "start": "2023-12-24",
+    "time": "15:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Štědrovečerní bohoslužba slova a Vánoční příběh s doprovodem kuřimské dětské scholy.",
+    "poster": {
+      "src": "/uploads/aktuality/vanocni-pribeh-2023-plakat.webp",
+      "alt": "Plakát: Vánoční příběh, Štědrý den v 15 hodin"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/vanocni-pribeh-2023-plakat.pdf",
+        "size": 950270
+      }
+    ]
+  },
+  {
+    "id": "vanocni-zpivani-zs-divizna-2023",
+    "title": "Vánoční zpívání ZŠ DiviZna",
+    "start": "2023-12-26",
+    "time": "15:30",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Základní škola DiviZna zve na vánoční zpívání.",
+    "poster": {
+      "src": "/uploads/aktuality/vanocni-zpivani-zs-divizna-2023-plakat.webp",
+      "alt": "Plakát: Vánoční zpívání ZŠ DiviZna 26. 12. 2023"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/vanocni-zpivani-zs-divizna-2023-plakat.pdf",
+        "size": 5082648
+      }
+    ]
+  }
+]

@@ -1,0 +1,51 @@
+[
+  {
+    "id": "sbirka-na-charitu-2024",
+    "title": "Sbírka na Charitu",
+    "start": "2024-04-07",
+    "text": "O neděli Božího milosrdenství můžete svým darem podpořit dílo Charity a pomoci lidem v nouzi.",
+    "poster": {
+      "src": "/uploads/aktuality/sbirka-na-charitu-2024-letak.webp",
+      "alt": "Leták: Sbírka na Charitu 7. 4. 2024"
+    },
+    "attachments": [
+      {
+        "label": "Leták",
+        "file": "/uploads/aktuality/sbirka-na-charitu-2024-letak.pdf",
+        "size": 276361
+      }
+    ],
+    "links": [
+      {
+        "label": "Diecézní charita Brno",
+        "href": "https://www.dchb.charita.cz/"
+      }
+    ]
+  },
+  {
+    "id": "diecezni-ministrantska-pout-2024",
+    "title": "Diecézní ministrantská pouť",
+    "start": "2024-04-27",
+    "time": "13:00",
+    "place": "Rajhrad, benediktinský klášter",
+    "text": "Diecézní ministrantská pouť do Rajhradu. Sraz je ve 13:00 před kostelem sv. Petra a Pavla.",
+    "registrationDeadline": "2024-03-27",
+    "poster": {
+      "src": "/uploads/aktuality/diecezni-ministrantska-pout-2024-plakat.webp",
+      "alt": "Plakát: Diecézní ministrantská pouť, Rajhrad 27. dubna 2024"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/diecezni-ministrantska-pout-2024-plakat.pdf",
+        "size": 429702
+      }
+    ],
+    "links": [
+      {
+        "label": "Ministranti brněnské diecéze",
+        "href": "https://www.biskupstvi.cz/ministranti"
+      }
+    ]
+  }
+]

@@ -1,0 +1,102 @@
+[
+  {
+    "id": "at-svoboda-zni-2022",
+    "title": "Ať svoboda zní",
+    "start": "2022-10-02",
+    "time": "18:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Srdečně zveme na koncert duchovní hudby Ať svoboda zní.",
+    "poster": {
+      "src": "/uploads/aktuality/at-svoboda-zni-2022-plakat.webp",
+      "alt": "Plakát: Koncert duchovní hudby Ať svoboda zní 2. 10. 2022"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/at-svoboda-zni-2022-plakat.jpg",
+        "size": 541213
+      }
+    ]
+  },
+  {
+    "id": "petrklic-2022-3",
+    "title": "Petrklíč 3/2022",
+    "start": "2022-10-09",
+    "text": "Vyšlo nové vydání farního časopisu Petrklíč.",
+    "attachments": [
+      {
+        "label": "Petrklíč 3/2022",
+        "file": "/uploads/petrklic/2022-3/petrklic-2022-3.pdf",
+        "size": 16921150
+      }
+    ]
+  },
+  {
+    "id": "kurz-samuel-2022",
+    "title": "Kurz Samuel",
+    "start": "2022-10-09",
+    "end": "2023-08-29",
+    "text": "Jednoletý kurz pro mladé od 16 do 33 let, který pomáhá rozlišit a zvolit životní povolání. Přihlášky do 31. srpna.",
+    "body": "<p>Kurz připravil tým pastorace povolání v brněnské diecézi a vedou ho kněží a řeholní sestry z různých kongregací. Součástí je modlitba, ztišení, sdílení a duchovní doprovázení, na konci kurzu duchovní cvičení a pěší pouť.</p><p>Setkání jsou jednou měsíčně v neděli od 15 do 19 hodin na různých místech diecéze. Účast je bezplatná. Přihlášku s motivačním dopisem pošlete do 31. srpna 2022.</p>",
+    "registrationDeadline": "2022-08-31",
+    "sessions": [
+      "2022-10-09",
+      "2022-11-13",
+      "2022-12-11",
+      "2023-01-15",
+      "2023-02-12",
+      "2023-03-12",
+      "2023-04-23",
+      "2023-05-14",
+      "2023-06-11",
+      {
+        "date": "2023-08-27",
+        "end": "2023-08-29"
+      }
+    ],
+    "attachments": [
+      {
+        "label": "Informace",
+        "file": "/uploads/aktuality/kurz-samuel-2022-informace.pdf",
+        "size": 355514
+      }
+    ],
+    "links": [
+      {
+        "label": "Kurz Samuel na webu biskupství",
+        "href": "https://www.biskupstvi.cz/2022-05-23-kurz-samuel"
+      },
+      {
+        "label": "kurz.samuel@seznam.cz",
+        "href": "mailto:kurz.samuel@seznam.cz"
+      }
+    ]
+  },
+  {
+    "id": "adoracni-den-2022",
+    "title": "Adorační den farnosti",
+    "start": "2022-10-12",
+    "time": "9:00–17:30",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Celodenní adorace v kuřimském kostele. Zapište se do archu pod kůrem, kdy přijdete adorovat.",
+    "body": "<p>Rozpis adoračních stráží je po půlhodinách. Adorace bude zakončena modlitbou růžence a v 18:00 mší svatou se zpěvem chrámového sboru.</p>"
+  },
+  {
+    "id": "misijni-nedele-2022",
+    "title": "Misijní neděle",
+    "start": "2022-10-23",
+    "text": "Světový den misií si letos připomíná 200. výročí Papežského misijního díla šíření víry. Podpořit ho můžete modlitbou i darem.",
+    "body": "<p>Dar můžete poslat na účet Papežského misijního díla šíření víry <strong>72540444/2700</strong>, variabilní symbol <strong>10</strong>. Za vaše modlitby a dary děkujeme.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/misijni-nedele-2022-plakat.webp",
+      "alt": "Plakát: Misijní neděle 23. 10. 2022"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/misijni-nedele-2022-plakat.pdf",
+        "size": 219156
+      }
+    ]
+  }
+]

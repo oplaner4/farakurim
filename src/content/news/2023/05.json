@@ -1,0 +1,68 @@
+[
+  {
+    "id": "diecezni-setkani-mladeze-2023",
+    "title": "Diecézní setkání mládeže",
+    "start": "2023-05-13",
+    "place": "Žarošice",
+    "text": "Diecézní setkání mládeže s brněnským biskupem Pavlem Konzbulem v Žarošicích.",
+    "poster": {
+      "src": "/uploads/aktuality/diecezni-setkani-mladeze-2023-plakat.webp",
+      "alt": "Plakát: Diecézní setkání mládeže 13. 5. Žarošice"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/diecezni-setkani-mladeze-2023-plakat.jpg",
+        "size": 48645
+      }
+    ],
+    "links": [
+      {
+        "label": "Diecézní setkání mládeže",
+        "href": "https://mladez.biskupstvi.cz/dsm"
+      }
+    ]
+  },
+  {
+    "id": "rodinny-den-2023",
+    "title": "Rodinný den",
+    "start": "2023-05-21",
+    "time": "14:00",
+    "place": "Kuřim, areál zámku",
+    "text": "Zveme vás na Rodinný den do areálu kuřimského zámku a na prostranství kolem kostela sv. Maří Magdalény.",
+    "body": "<p>Po celou dobu akce budou probíhat soutěže a hry, malování na obličej a skákací hrady pro malé i větší. Občerstvení zajištěno, vstupné dobrovolné.</p>",
+    "program": [
+      {
+        "time": "14:00",
+        "title": "Zahájení"
+      },
+      {
+        "time": "14:30",
+        "title": "Vystoupení ZUŠ Kuřim"
+      },
+      {
+        "time": "15:15",
+        "title": "Skotačení s klaunem"
+      },
+      {
+        "time": "16:00",
+        "title": "Hudební okénko s Petrem a Pavlem"
+      },
+      {
+        "time": "16:45",
+        "title": "Žonglování s klaunem"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/rodinny-den-2023-plakat.webp",
+      "alt": "Plakát: Rodinný den v areálu kuřimského zámku 21. května 2023"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/rodinny-den-2023-plakat.pdf",
+        "size": 1069183
+      }
+    ]
+  }
+]

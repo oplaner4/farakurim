@@ -1,0 +1,99 @@
+[
+  {
+    "id": "krizova-cesta-prirodou-s-obrazy-2021",
+    "title": "Křížová cesta přírodou s obrazy",
+    "start": "2021-03-05",
+    "end": "2021-04-05",
+    "place": "Moravské Knínice",
+    "text": "Zveme na křížovou cestu lesní stezkou z Mezihoří na Strážnou s obrazy akademického malíře Milivoje Husáka.",
+    "body": "<p>Křížová cesta začíná u první lípy na cestě k „Výletišti“ v Mezihoří a pokračuje přes potok Kuřimku po lesní stezce až na kopec Strážná. Obrazy vytvořil akademický malíř Milivoj Husák z Lelekovic v letech 1993–1994.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/krizova-cesta-prirodou-s-obrazy-2021-plakat.webp",
+      "alt": "Plakát: Křížová cesta přírodou s obrazy v Moravských Knínicích"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/krizova-cesta-prirodou-s-obrazy-2021-plakat.pdf",
+        "size": 126582
+      },
+      {
+        "label": "Mapka trasy",
+        "file": "/uploads/aktuality/krizova-cesta-prirodou-s-obrazy-2021-mapka.pdf",
+        "size": 321003
+      }
+    ]
+  },
+  {
+    "id": "sms-pro-vranov-2021",
+    "title": "I jedna SMS může pomoci Vranovu",
+    "start": "2021-03-15",
+    "end": "2021-03-31",
+    "text": "Poutní kostel Narození Panny Marie ve Vranově soutěží o Nejlépe opravenou kulturní památku Jihomoravského kraje. Podpořte ho jednou SMS.",
+    "body": "<p>Hlasovat lze od 15. do 31. března 2021 jednou SMS z jednoho telefonního čísla za cenu běžného tarifu. Pošlete SMS ve tvaru <strong>HLA PAMATKY 43</strong> na číslo <strong>736 301 599</strong>. Případnou finanční odměnu chce farnost využít k dalším opravám památky.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/sms-pro-vranov-2021-plakat.webp",
+      "alt": "Plakát: I jedna SMS může pomoci v péči o poutní místo Vranov u Brna"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/sms-pro-vranov-2021-plakat.pdf",
+        "size": 5856302
+      }
+    ],
+    "links": [
+      {
+        "label": "Výzva na webu poutního místa",
+        "href": "https://www.dc-vranov.cz/index.php/894-153-213-2021-podporte-jednou-sms-vranovsky-kostel-v-soutezi-qnejlepe-opravena-kulturni-pamatka-jihomoravskeho-kraje-v-roce-2020q"
+      },
+      {
+        "label": "Soutěž na webu Jihomoravského kraje",
+        "href": "https://www.kr-jihomoravsky.cz/pamatky/index.php"
+      }
+    ]
+  },
+  {
+    "id": "kvetna-nedele-2021",
+    "title": "Květná neděle",
+    "start": "2021-03-28",
+    "time": "9:30",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Mši svatou vysíláme živě na YouTube. Odpoledne je výstav Nejsvětější svátosti a příležitost ke svaté zpovědi.",
+    "program": [
+      {
+        "time": "9:30",
+        "title": "Mše svatá",
+        "note": "živě na YouTube"
+      },
+      {
+        "time": "13:30–19:00",
+        "title": "Výstav Nejsvětější svátosti"
+      },
+      {
+        "time": "14:00–16:00",
+        "title": "Svatá zpověď",
+        "note": "od 14 do 15 hodin i s cizím zpovědníkem"
+      }
+    ],
+    "links": [
+      {
+        "label": "Záznam na YouTube",
+        "href": "https://youtu.be/IK2dNVg2Gto"
+      }
+    ]
+  },
+  {
+    "id": "reportaz-hospic-sv-alzbety-2021",
+    "title": "Reportáž o Hospici sv. Alžběty",
+    "start": "2021-03-31",
+    "time": "20:15",
+    "text": "Radio Proglas odvysílá v pořadu Studio Brno reportáž o projektu rekonstrukce a dostavby Hospice sv. Alžběty.",
+    "links": [
+      {
+        "label": "Projekt rekonstrukce a dostavby",
+        "href": "https://www.hospicbrno.cz/gallery/projekt-rekonstrukce-a-dostavby/"
+      }
+    ]
+  }
+]

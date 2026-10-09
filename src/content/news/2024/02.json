@@ -1,0 +1,87 @@
+[
+  {
+    "id": "narodni-tyden-manzelstvi-2024",
+    "title": "Národní týden manželství",
+    "start": "2024-02-12",
+    "end": "2024-02-18",
+    "text": "Týden věnovaný manželství s online webinářem Manželství – cesta vzájemného respektu a dalšími akcemi.",
+    "body": "<p>Ve čtvrtek <strong>15. 2.</strong> od <strong>19:30</strong> je možné navštívit jednorázový online webinář <strong>Manželství – cesta vzájemného respektu</strong>. Program akcí v tišnovském děkanství najdete v přílohách.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/narodni-tyden-manzelstvi-2024-plakat-webinar.webp",
+      "alt": "Plakát: Národní týden manželství, webinář Manželství – cesta vzájemného respektu"
+    },
+    "attachments": [
+      {
+        "label": "Plakát: webinář",
+        "file": "/uploads/aktuality/narodni-tyden-manzelstvi-2024-plakat-webinar.pdf",
+        "size": 400296
+      },
+      {
+        "label": "Program v děkanství Tišnov",
+        "file": "/uploads/aktuality/narodni-tyden-manzelstvi-2024-program-tisnov.jpg",
+        "size": 302353
+      }
+    ],
+    "links": [
+      {
+        "label": "CENAP",
+        "href": "https://www.cenap.cz/"
+      }
+    ]
+  },
+  {
+    "id": "krizova-cesta-v-prirode-2024",
+    "title": "Křížová cesta v přírodě",
+    "start": "2024-02-14",
+    "end": "2024-03-28",
+    "place": "Moravské Knínice, Mezihoří",
+    "text": "Obnovená křížová cesta pro osobní modlitbu vede od výletiště v Mezihoří na kopec Strážná.",
+    "body": "<p>Letos vychází z knihy kardinála Miloslava Vlka „Meditace nad křížovou cestou“ a ilustrace k jednotlivým zastavením vytvořila paní Jindra Hubková.</p>",
+    "attachments": [
+      {
+        "label": "Pozvánka",
+        "file": "/uploads/aktuality/krizova-cesta-v-prirode-2024-pozvanka.pdf",
+        "size": 39789
+      },
+      {
+        "label": "Mapa trasy",
+        "file": "/uploads/aktuality/krizova-cesta-v-prirode-2024-mapa.pdf",
+        "size": 321003
+      }
+    ]
+  },
+  {
+    "id": "postni-obnova-pro-manzele-2024",
+    "title": "Postní duchovní obnova pro manžele",
+    "start": "2024-02-16",
+    "end": "2024-02-17",
+    "place": "Vranov u Brna, duchovní centrum",
+    "text": "Postní duchovní obnova pro manžele v duchovním centru na Vranově.",
+    "links": [
+      {
+        "label": "Duchovní obnovy pro manžele",
+        "href": "https://www.crsp.cz/nabizime/duchovni-programy/duchovni-obnovy-pro-manzele/"
+      }
+    ]
+  },
+  {
+    "id": "beneficni-varhanni-koncert-2024",
+    "title": "Benefiční varhanní koncert",
+    "start": "2024-02-25",
+    "time": "16:00",
+    "place": "Moravské Knínice, kostel sv. Markéty",
+    "text": "Zahraje Přemysl Kšica, varhaník chrámu sv. Mikuláše na Malé Straně v Praze.",
+    "price": "dobrovolné vstupné",
+    "poster": {
+      "src": "/uploads/aktuality/beneficni-varhanni-koncert-2024-plakat.webp",
+      "alt": "Plakát: Benefiční varhanní koncert, Přemysl Kšica"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/beneficni-varhanni-koncert-2024-plakat.png",
+        "size": 3648112
+      }
+    ]
+  }
+]

@@ -1,0 +1,48 @@
+[
+  {
+    "id": "vecer-boziho-milosrdenstvi-2023",
+    "title": "Večer Božího milosrdenství",
+    "start": "2023-04-15",
+    "time": "16:30",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Večer Božího milosrdenství s komunitou Emmanuel: mše svatá, chvály, přímluvná modlitba, žehnání a adorace.",
+    "poster": {
+      "src": "/uploads/aktuality/vecer-boziho-milosrdenstvi-2023-plakat.webp",
+      "alt": "Plakát: Večer Božího milosrdenství 15. 4. 2023"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/vecer-boziho-milosrdenstvi-2023-plakat.pdf",
+        "size": 130362
+      }
+    ]
+  },
+  {
+    "id": "koncert-listovej-2023",
+    "title": "Koncert skupiny Listověj",
+    "start": "2023-04-23",
+    "time": "18:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Skupina Listověj uvede vlastní písně a zhudebněné básně Jana Zahradníčka a Bohuslava Reynka.",
+    "body": "<p>Písně vyprávějí o duchovně silných místech v krajině, o zaniklých a znovu obnovených kostelích a o obětech komunistického režimu. Hrají Jiří Nohel (kytara, zpěv), Markéta Štouračová (flétny, klávesy, zpěv) a Aleš Tomek (housle, zpěv).</p>",
+    "price": "dobrovolné vstupné",
+    "poster": {
+      "src": "/uploads/aktuality/koncert-listovej-2023-pozvanka.webp",
+      "alt": "Pozvánka: koncert skupiny Listověj v Kuřimi"
+    },
+    "attachments": [
+      {
+        "label": "Pozvánka",
+        "file": "/uploads/aktuality/koncert-listovej-2023-pozvanka.pdf",
+        "size": 631156
+      }
+    ],
+    "links": [
+      {
+        "label": "Listověj",
+        "href": "https://www.listovej.cz/"
+      }
+    ]
+  }
+]

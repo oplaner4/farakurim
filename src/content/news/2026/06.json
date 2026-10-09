@@ -1,0 +1,98 @@
+[
+  {
+    "id": "farni-den-2026",
+    "title": "Farní den k výročí 800 let",
+    "start": "2026-06-13",
+    "time": "14:00",
+    "place": "Kuřim, fara",
+    "mapQuery": "Křížkovského 55/5, Kuřim",
+    "text": "Farní den k výročí 800 let Kuřimi: mše svatá venku, diskuse s pamětníky, workshopy a táborák.",
+    "body": "<p>Od 15:30 do 17:00 probíhají workshopy (hudební, výtvarný, sportovní, retrohry), od 15:00 do 18:00 je otevřen stánek čajovny s možností rozhovoru a sdílení. Pro děti a rodiny je připraven odpolední katechetický program.</p>",
+    "program": [
+      {
+        "time": "14:00",
+        "title": "Mše svatá venku"
+      },
+      {
+        "time": "14:45",
+        "title": "Zahájení programu"
+      },
+      {
+        "time": "15:00",
+        "title": "Moderovaná diskuse s pamětníky z farnosti"
+      },
+      {
+        "time": "15:45",
+        "title": "Špeky z farní kroniky",
+        "note": "Adam Janík"
+      },
+      {
+        "time": "16:15",
+        "title": "Povídání o historii fary a kostela",
+        "note": "p. Laurincová"
+      },
+      {
+        "time": "16:45",
+        "title": "Prezentace výstupů workshopů"
+      },
+      {
+        "time": "od 17:00",
+        "title": "Táborák s hudebním doprovodem"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/farni-den-2026-plakat.webp",
+      "alt": "Plakát: Farní den 13. června 2026, výročí 800 let"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/farni-den-2026-plakat.jpg",
+        "size": 205047
+      }
+    ]
+  },
+  {
+    "id": "slavnostni-mse-800-let-kurimi-2026",
+    "title": "Slavnostní mše k 800 letům Kuřimi",
+    "start": "2026-06-28",
+    "time": "9:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Slavnostní mše svatá k výročí 800 let od první zmínky o Kuřimi, výjimečně v 9:00. Mše se nakonec přesunula z náměstí do kostela.",
+    "program": [
+      {
+        "time": "9:00",
+        "title": "Mše svatá",
+        "note": "zpívá kuřimská dětská schola"
+      },
+      {
+        "time": "10:15",
+        "title": "Divadlo"
+      },
+      {
+        "time": "11:30",
+        "title": "Vystoupení Pavla Helana"
+      }
+    ]
+  },
+  {
+    "id": "malhostovska-pout-2026",
+    "title": "Malhostovská pouť",
+    "start": "2026-06-28",
+    "time": "14:00",
+    "place": "Malhostovice, kostel sv. Vavřince",
+    "text": "Slavnostní mší poděkujeme za 45 let obětavé kněžské služby pana faráře Pavla Kopeckého.",
+    "body": "<p>Od 15 hodin je sousedské posezení před kostelem s drobným občerstvením.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/malhostovska-pout-2026-plakat.webp",
+      "alt": "Plakát: Malhostovská pouť 28. 6. 2026"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/malhostovska-pout-2026-plakat.png",
+        "size": 133455
+      }
+    ]
+  }
+]

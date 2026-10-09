@@ -1,0 +1,35 @@
+[
+  {
+    "id": "vanocni-zpivani-zs-divizna-2019",
+    "title": "Vánoční zpívání ZŠ DiviZna",
+    "start": "2019-12-26",
+    "time": "16:30",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Základní škola DiviZna zve na vánoční zpívání Dárek pro Ježíška.",
+    "poster": {
+      "src": "/uploads/aktuality/vanocni-zpivani-zs-divizna-2019-plakat.webp",
+      "alt": "Plakát: Dárek pro Ježíška, vánoční zpívání ZŠ DiviZna"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/vanocni-zpivani-zs-divizna-2019-plakat.pdf",
+        "size": 2002213
+      }
+    ]
+  },
+  {
+    "id": "rybova-mse-vanocni-2019",
+    "title": "Rybova mše vánoční",
+    "start": "2019-12-29",
+    "place": "Drásov, kostel Povýšení sv. Kříže",
+    "text": "Záznam společného koncertu kuřimského, čebínského a drásovského chrámového sboru: Česká mše vánoční Jakuba Jana Ryby.",
+    "attachments": [
+      {
+        "label": "Záznam koncertu",
+        "file": "/uploads/aktuality/rybova-mse-vanocni-2019-zaznam.mp3",
+        "size": 51781632
+      }
+    ]
+  }
+]

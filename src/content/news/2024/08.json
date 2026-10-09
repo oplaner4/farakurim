@@ -1,0 +1,108 @@
+[
+  {
+    "id": "duchovni-obnova-mary-healy-2024",
+    "title": "Duchovní obnova s Dr. Mary Healy",
+    "start": "2024-08-09",
+    "end": "2024-08-11",
+    "text": "Duchovní obnova na téma Duchovní dary a uzdravení pod záštitou brněnského biskupa.",
+    "links": [
+      {
+        "label": "Duchovní obnova",
+        "href": "https://obnova.credonf.cz/"
+      }
+    ]
+  },
+  {
+    "id": "farni-tabor-2024",
+    "title": "Farní tábor 2024",
+    "start": "2024-08-10",
+    "end": "2024-08-17",
+    "place": "Čachnov",
+    "text": "Šestý ročník farního tábora pro děti od 8 do 14 let.",
+    "body": "<p>Od 1. června se na faře koná předtáborová víkendovka.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/farni-tabor-2024-plakat.webp",
+      "alt": "Plakát: Farní tábor Čachnov 2024"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/farni-tabor-2024-plakat.pdf",
+        "size": 1274692
+      }
+    ]
+  },
+  {
+    "id": "primestsky-tabor-2024",
+    "title": "Letní příměstský tábor pro nejmenší",
+    "start": "2024-08-12",
+    "end": "2024-08-23",
+    "place": "Kuřim, fara",
+    "mapQuery": "Křížkovského 55, Kuřim",
+    "text": "Dva turnusy příměstského tábora pro děti od 3 do 5 let na téma Poznáváme IZS.",
+    "body": "<p>Tábor probíhá od <strong>12. do 16. 8.</strong> a od <strong>19. do 23. 8.</strong> pod záštitou farnosti a za podpory města Kuřimi.</p><p>Hledáme dobrovolníky – „čtecí babičky a dědečky“ – pro odpolední pauzu od 13:00 do 14:30. Přihlášky a informace u Mgr. Ing. Jany Němečkové.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/primestsky-tabor-2024-plakat.webp",
+      "alt": "Plakát: Příměstský tábor pro mrňata 2024, Kuřim"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/primestsky-tabor-2024-plakat.pdf",
+        "size": 4253832
+      }
+    ],
+    "links": [
+      {
+        "label": "detitaborkurim@seznam.cz",
+        "href": "mailto:detitaborkurim@seznam.cz"
+      }
+    ]
+  },
+  {
+    "id": "diecezni-pout-rodin-2024",
+    "title": "Diecézní pouť rodin",
+    "start": "2024-08-31",
+    "time": "10:30",
+    "place": "Předklášteří, klášter Porta Coeli",
+    "text": "Dvacátá diecézní pouť rodin s pontifikální mší svatou, kterou slouží biskup Pavel Konzbul.",
+    "program": [
+      {
+        "time": "10:30",
+        "title": "Modlitba růžence, svátost smíření"
+      },
+      {
+        "time": "11:00",
+        "title": "Pontifikální mše svatá",
+        "note": "biskup Pavel Konzbul"
+      },
+      {
+        "time": "12:00",
+        "title": "Zábavná stanoviště s úkoly pro děti a mládež"
+      },
+      {
+        "time": "13:00",
+        "title": "Divadlo Mikro-teatro: Vítr z plachet!"
+      },
+      {
+        "time": "14:00",
+        "title": "Adorace s komunitou Emmanuel, svátost smíření"
+      },
+      {
+        "time": "15:30",
+        "title": "Slavnostní zakončení s požehnáním do nového školního roku"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/diecezni-pout-rodin-2024-plakat.webp",
+      "alt": "Plakát: 20. diecézní pouť rodin, Předklášteří 31. 8. 2024"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/diecezni-pout-rodin-2024-plakat.pdf",
+        "size": 3380491
+      }
+    ]
+  }
+]

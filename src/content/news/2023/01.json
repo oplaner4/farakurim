@@ -1,0 +1,39 @@
+[
+  {
+    "id": "trikralovy-koncert-zus-2023",
+    "title": "Tříkrálový koncert ZUŠ Kuřim",
+    "start": "2023-01-11",
+    "time": "18:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Základní umělecká škola Kuřim zve na tříkrálový koncert ve farním kostele.",
+    "poster": {
+      "src": "/uploads/aktuality/trikralovy-koncert-zus-2023-plakat.webp",
+      "alt": "Plakát: Tříkrálový koncert ZUŠ Kuřim 11. 1. 2023"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/trikralovy-koncert-zus-2023-plakat.pdf",
+        "size": 925966
+      }
+    ]
+  },
+  {
+    "id": "tyden-modliteb-za-jednotu-krestanu-2023",
+    "title": "Týden modliteb za jednotu křesťanů",
+    "start": "2023-01-18",
+    "end": "2023-01-25",
+    "text": "Letošní týden modliteb za jednotu křesťanů má motto z proroka Izaiáše: „Učte se činit dobro, hledejte právo“ (Iz 1,17).",
+    "poster": {
+      "src": "/uploads/aktuality/tyden-modliteb-za-jednotu-krestanu-2023-plakat.webp",
+      "alt": "Plakát: Týden modliteb za jednotu křesťanů 18.–25. ledna 2023"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/tyden-modliteb-za-jednotu-krestanu-2023-plakat.pdf",
+        "size": 2908825
+      }
+    ]
+  }
+]

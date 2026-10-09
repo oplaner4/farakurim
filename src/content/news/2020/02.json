@@ -1,0 +1,45 @@
+[
+  {
+    "id": "on-je-zivy-2020",
+    "title": "On je živý",
+    "start": "2020-02-07",
+    "end": "2020-02-09",
+    "place": "Trenčín, Slovensko",
+    "text": "Zveme mladé na setkání On je živý v Trenčíně na Slovensku.",
+    "links": [
+      {
+        "label": "On je živý",
+        "href": "https://www.onjezivy.sk/"
+      }
+    ]
+  },
+  {
+    "id": "valentinska-pout-2020",
+    "title": "Valentinská pouť",
+    "start": "2020-02-14",
+    "time": "17:00",
+    "place": "Brno, kostel sv. Michala",
+    "mapQuery": "kostel sv. Michala, Dominikánské náměstí, Brno",
+    "text": "Valentinská pouť v kostele sv. Michala na Dominikánském náměstí v Brně.",
+    "poster": {
+      "src": "/uploads/aktuality/valentinska-pout-2020-plakat.webp",
+      "alt": "Plakát: Valentinská pouť 14. 2. 2020"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/valentinska-pout-2020-plakat.jpg",
+        "size": 467347
+      }
+    ]
+  },
+  {
+    "id": "postni-zpovidani-2020",
+    "title": "Postní zpovídání",
+    "start": "2020-02-27",
+    "end": "2020-03-01",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Využijte příležitosti ke svátosti smíření na začátku postní doby.",
+    "body": "<p>Zpovídat se bude <strong>27. 2.</strong>, <strong>29. 2.</strong> a <strong>1. 3.</strong> vždy v <strong>7:30</strong> před mší svatou a <strong>28. 2.</strong> v <strong>18:30</strong> po mši svaté.</p>"
+  }
+]

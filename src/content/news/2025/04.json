@@ -1,0 +1,118 @@
+[
+  {
+    "id": "uprava-dopravy-kurim-2025",
+    "title": "Úprava dopravy u fary",
+    "start": "2025-04-02",
+    "end": "2025-08-31",
+    "place": "Kuřim, ulice Zámecká a Křížkovského",
+    "text": "Kvůli stavbě nové autobusové zastávky v ulici Zámecká bude v okolí fary dočasně upravený provoz.",
+    "body": "<p>Ulice Zámecká a Křížkovského budou jednosměrné. Pro osobní dopravu bude zavedena objízdná trasa ulicí Křížkovského s náhradní zastávkou u fary, nákladní doprava pojede přes Moravské Knínice.</p><p>Výstavba proběhne ve dvou etapách, druhá krátkodobě omezí vjezd ke garážím.</p>",
+    "attachments": [
+      {
+        "label": "Informace města Kuřimi",
+        "file": "/uploads/aktuality/uprava-dopravy-kurim-2025-informace.pdf",
+        "size": 695415
+      }
+    ]
+  },
+  {
+    "id": "dotaznik-farnost-2025",
+    "title": "Dotazník k životu v kuřimské farnosti",
+    "start": "2025-04-06",
+    "end": "2025-05-04",
+    "text": "Dotazník shromažďuje podněty k prohloubení života naší farnosti a pomáhá rozpoznat, na co se do budoucna zaměřit. Vyplnit jej bylo možné do 4. května."
+  },
+  {
+    "id": "velikonoce-2025",
+    "title": "Pořad velikonočních bohoslužeb a zpovídání",
+    "start": "2025-04-10",
+    "end": "2025-04-21",
+    "place": "Kuřim a Moravské Knínice",
+    "text": "Bohoslužby, zpovídání, adorace a křížové cesty o Velikonocích v Kuřimi a v Moravských Knínicích.",
+    "body": "<ul><li><strong>Zelený čtvrtek 17. 4.:</strong> mše svatá v 18:00, adorace a zpovídání do 22:00 v Kuřimi</li><li><strong>Velký pátek 18. 4.:</strong> křížová cesta ve 14:00 v Chudčicích, velkopáteční obřady v 18:00 v Kuřimi, křížová cesta ulicemi Kuřimi ve 20:00</li><li><strong>Bílá sobota 19. 4.:</strong> adorace u Božího hrobu 8:00–10:00, vigilie ve 20:00 v Kuřimi</li><li><strong>Neděle Zmrtvýchvstání 20. 4.:</strong> mše svaté v 8:00 a 9:30 v Kuřimi, v 11:00 v Moravských Knínicích</li></ul><p>Pašije se zpívají na Květnou neděli v 8:00 a na Velký pátek při obřadech. Chrámový sbor zpívá na Bílou sobotu ve 20:00 a o slavnosti Zmrtvýchvstání v 9:30.</p>",
+    "attachments": [
+      {
+        "label": "Pořad bohoslužeb a zpovídání",
+        "file": "/uploads/aktuality/velikonoce-2025-porad-bohosluzeb.pdf",
+        "size": 78482
+      }
+    ]
+  },
+  {
+    "id": "petrklic-2025-1",
+    "title": "Petrklíč 1/2025",
+    "start": "2025-04-11",
+    "text": "Právě vyšlo nové vydání farního zpravodaje Petrklíč.",
+    "attachments": [
+      {
+        "label": "Petrklíč 1/2025",
+        "file": "/uploads/petrklic/2025-1/petrklic-2025-1.pdf",
+        "size": 1363130
+      }
+    ]
+  },
+  {
+    "id": "velikonoce-v-altottingu-2025",
+    "title": "Velikonoce v Altöttingu",
+    "start": "2025-04-17",
+    "end": "2025-04-21",
+    "place": "Altötting, Německo",
+    "text": "Velikonoční setkání pro mladé v bavorském poutním místě Altötting.",
+    "poster": {
+      "src": "/uploads/aktuality/velikonoce-v-altottingu-2025-plakat.webp",
+      "alt": "Plakát: Velikonoce v Altöttingu, velikonoční setkání pro mladé"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/velikonoce-v-altottingu-2025-plakat.png",
+        "size": 1748263
+      }
+    ]
+  },
+  {
+    "id": "dekanatni-setkani-mladeze-2025",
+    "title": "Děkanátní setkání mládeže",
+    "start": "2025-04-26",
+    "time": "10:00",
+    "place": "Lomnice u Tišnova, kostel Navštívení Panny Marie",
+    "text": "Děkanátní setkání mládeže s mottem „Jsem poutníkem naděje“.",
+    "program": [
+      {
+        "time": "10:00",
+        "title": "Registrace"
+      },
+      {
+        "time": "10:30",
+        "title": "Mše svatá"
+      },
+      {
+        "time": "11:30",
+        "title": "Herní putování Lomnicí"
+      },
+      {
+        "time": "13:15",
+        "title": "Oběd"
+      },
+      {
+        "time": "14:30",
+        "title": "Přednášky podle výběru"
+      },
+      {
+        "time": "16:00",
+        "title": "Koncert v synagoze"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/dekanatni-setkani-mladeze-2025-plakat.webp",
+      "alt": "Plakát: Děkanátní setkání mládeže 2025 v Lomnici u Tišnova"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/dekanatni-setkani-mladeze-2025-plakat.png",
+        "size": 754122
+      }
+    ]
+  }
+]

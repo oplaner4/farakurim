@@ -1,0 +1,156 @@
+[
+  {
+    "id": "pout-do-predklasteri-2024",
+    "title": "Pouť do Předklášteří",
+    "start": "2024-05-11",
+    "time": "9:00",
+    "place": "Předklášteří, klášter Porta Coeli",
+    "text": "Komunita Emmanuel a kuřimská farnost zvou na pěší pouť k Bráně nebes, do kláštera Porta Coeli v Předklášteří.",
+    "program": [
+      {
+        "time": "9:00",
+        "title": "Modlitba chval v kuřimském kostele"
+      },
+      {
+        "time": "dopoledne",
+        "title": "Putování do Předklášteří",
+        "note": "z Hradčan asi 10 km"
+      },
+      {
+        "time": "asi 14:30",
+        "title": "Růženec a mše svatá v Porta Coeli"
+      },
+      {
+        "time": "potom",
+        "title": "Posezení v klášterním pivovaru Vorkloster",
+        "note": "po předchozí rezervaci"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/pout-do-predklasteri-2024-plakat.webp",
+      "alt": "Plakát: Pouť k Bráně nebes, sobota 11. května"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/pout-do-predklasteri-2024-plakat.pdf",
+        "size": 28174
+      }
+    ],
+    "links": [
+      {
+        "label": "Pouť na webu komunity Emmanuel",
+        "href": "https://www.emmanuel.cz/pout-do-predklasteri"
+      }
+    ]
+  },
+  {
+    "id": "diecezni-setkani-mladeze-2024",
+    "title": "Diecézní setkání mládeže",
+    "start": "2024-05-18",
+    "place": "Třebíč",
+    "text": "Diecézní setkání mládeže se letos koná v Třebíči.",
+    "poster": {
+      "src": "/uploads/aktuality/diecezni-setkani-mladeze-2024-plakat.webp",
+      "alt": "Plakát: Diecézní setkání mládeže, Třebíč 18. 5. 2024"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/diecezni-setkani-mladeze-2024-plakat.pdf",
+        "size": 5255800
+      }
+    ]
+  },
+  {
+    "id": "den-rodin-2024",
+    "title": "Den rodin",
+    "start": "2024-05-19",
+    "time": "14:00",
+    "place": "Kuřim, areál zámku",
+    "text": "Odpoledne pro rodiny s vystoupeními, soutěžemi, malováním na obličej a skákacími hrady. Vstupné dobrovolné.",
+    "program": [
+      {
+        "time": "14:00",
+        "title": "Zahájení"
+      },
+      {
+        "time": "14:10",
+        "title": "Taneční vystoupení Lumíku"
+      },
+      {
+        "time": "14:45",
+        "title": "Vystoupení kouzelníka"
+      },
+      {
+        "time": "15:15",
+        "title": "Dětská rocková skupina MAD"
+      },
+      {
+        "time": "16:00",
+        "title": "Skotačení s klaunem"
+      },
+      {
+        "time": "16:45",
+        "title": "Kuřimská schola"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/den-rodin-2024-plakat.webp",
+      "alt": "Plakát: Den rodin v areálu kuřimského zámku 19. 5. 2024"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/den-rodin-2024-plakat.pdf",
+        "size": 2035495
+      }
+    ]
+  },
+  {
+    "id": "dekanatni-setkani-ministrantu-2024",
+    "title": "Děkanátní setkání ministrantů",
+    "start": "2024-05-25",
+    "time": "14:00",
+    "place": "Veverská Bítýška, kostel sv. Jakuba",
+    "text": "Setkání ministrantů děkanství se mší svatou, fotbalem, lukostřelbou a táborákem.",
+    "program": [
+      {
+        "time": "14:00",
+        "title": "Mše svatá",
+        "note": "lze ministrovat"
+      },
+      {
+        "time": "15:00–17:00",
+        "title": "Fotbal a lukostřelba"
+      },
+      {
+        "time": "17:00–18:30",
+        "title": "Táborák s opékáním buřtů a další hry"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/dekanatni-setkani-ministrantu-2024-plakat.webp",
+      "alt": "Plakát: Děkanátní setkání ministrantů, Veverská Bítýška 25. 5. 2024"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/dekanatni-setkani-ministrantu-2024-plakat.pdf",
+        "size": 560674
+      }
+    ]
+  },
+  {
+    "id": "aznaveky-2024-05-30",
+    "title": "Ažnavěky: druhý díl videozpravodaje",
+    "start": "2024-05-30",
+    "text": "Druhý díl videozpravodaje brněnského biskupství Ažnavěky je ke zhlédnutí na YouTube.",
+    "links": [
+      {
+        "label": "Ažnavěky na YouTube",
+        "href": "https://www.youtube.com/watch?v=PZHhswrbXME"
+      }
+    ]
+  }
+]

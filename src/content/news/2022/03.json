@@ -1,0 +1,118 @@
+[
+  {
+    "id": "postni-katecheze-2022",
+    "title": "Postní katecheze pro děti",
+    "start": "2022-03-02",
+    "end": "2022-04-16",
+    "text": "K prohlédnutí jsou postní katecheze pro děti z minulého roku."
+  },
+  {
+    "id": "krizova-cesta-za-mir-2022",
+    "title": "Křížová cesta za mír",
+    "start": "2022-03-02",
+    "end": "2022-04-16",
+    "place": "Moravské Knínice, Mezihoří",
+    "text": "Křížová cesta přírodou z Mezihoří na Strážnou, letos s naléhavou prosbou za mír na celém světě.",
+    "body": "<p>Trasa je stejná jako loni a vede lesní stezkou z Mezihoří na Strážnou (viz mapka). Text je přizpůsoben především rodinám s dětmi, obrázky pocházejí od dětí z náboženství z let 2001/2002. Děkujeme všem, kteří se k modlitbě za mír připojí.</p>",
+    "attachments": [
+      {
+        "label": "Mapka trasy",
+        "file": "/uploads/aktuality/krizova-cesta-za-mir-2022-mapka.pdf",
+        "size": 321003
+      }
+    ]
+  },
+  {
+    "id": "sedm-slov-vykupitelovych-2022",
+    "title": "Sedm slov Vykupitelových",
+    "start": "2022-03-20",
+    "time": "15:00",
+    "place": "Čebín, kostel sv. Jiří",
+    "text": "Koncert smíšeného pěveckého sboru Rastislav v kostele sv. Jiří v Čebíně.",
+    "body": "<p>Koncert pořádá obec Čebín za podpory senátorky Jaromíry Vítkové. Dobrovolné vstupné bude věnováno Domácímu hospici Oblastní charity Tišnov.</p>",
+    "price": "dobrovolné vstupné",
+    "poster": {
+      "src": "/uploads/aktuality/sedm-slov-vykupitelovych-2022-plakat.webp",
+      "alt": "Plakát: Sedm slov Vykupitelových, koncert sboru Rastislav v Čebíně"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/sedm-slov-vykupitelovych-2022-plakat.pdf",
+        "size": 644985
+      }
+    ]
+  },
+  {
+    "id": "dopisy-biskupa-vojtecha-2022",
+    "title": "Dopisy biskupa Vojtěcha",
+    "start": "2022-03-20",
+    "text": "Dva dopisy biskupa Vojtěcha: k zasvěcení Ruska a Ukrajiny Neposkvrněnému Srdci Panny Marie a s prosbou o pomoc uprchlíkům.",
+    "attachments": [
+      {
+        "label": "Zasvěcení Ruska a Ukrajiny",
+        "file": "/uploads/aktuality/dopisy-biskupa-vojtecha-2022-zasveceni.pdf",
+        "size": 70354
+      },
+      {
+        "label": "Pomoc uprchlíkům",
+        "file": "/uploads/aktuality/dopisy-biskupa-vojtecha-2022-pomoc-uprchlikum.pdf",
+        "size": 322651
+      }
+    ]
+  },
+  {
+    "id": "zasveceni-ruska-a-ukrajiny-2022",
+    "title": "Zasvěcení Ruska a Ukrajiny",
+    "start": "2022-03-25",
+    "time": "17:30",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Modlitbou růžence se na dálku připojíme k zasvěcení Ruska a Ukrajiny Neposkvrněnému Srdci Panny Marie.",
+    "body": "<p>Papež František zasvětí Rusko a Ukrajinu Neposkvrněnému Srdci Panny Marie v pátek 25. března od 17:00 během modliteb za mír v bazilice sv. Petra v Římě. Přijďte se s námi pomodlit.</p>",
+    "attachments": [
+      {
+        "label": "Pozvánka",
+        "file": "/uploads/aktuality/zasveceni-ruska-a-ukrajiny-2022-pozvanka.pdf",
+        "size": 205449
+      }
+    ]
+  },
+  {
+    "id": "24-hodin-pro-pana-2022",
+    "title": "24 hodin pro Pána",
+    "start": "2022-03-25",
+    "end": "2022-03-26",
+    "place": "Tišnov, kostel sv. Václava",
+    "text": "Děkanství Tišnov zve do kostela sv. Václava k celodenní adoraci a ke svátosti smíření.",
+    "program": [
+      {
+        "time": "pá 18:30",
+        "title": "Růženec"
+      },
+      {
+        "time": "pá 19:00",
+        "title": "Mše svatá"
+      },
+      {
+        "time": "pá 20:00 – so 21:00",
+        "title": "Adorace"
+      },
+      {
+        "time": "pá 18:00–22:00, so 19:00–21:00",
+        "title": "Svátost smíření",
+        "note": "nebo rozhovor s knězem"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/24-hodin-pro-pana-2022-plakat.webp",
+      "alt": "Plakát: 24 hodin pro Pána v kostele sv. Václava v Tišnově"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/24-hodin-pro-pana-2022-plakat.pdf",
+        "size": 1717570
+      }
+    ]
+  }
+]

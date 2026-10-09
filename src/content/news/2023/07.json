@@ -1,0 +1,48 @@
+[
+  {
+    "id": "hody-2023",
+    "title": "Hody v obcích farnosti",
+    "start": "2023-07-14",
+    "end": "2023-07-23",
+    "place": "Moravské Knínice, Jinačovice a Kuřim",
+    "text": "Přijměte pozvání na Markétské hody v Moravských Knínicích, Mladé hody v Jinačovicích a Babské hody v Kuřimi.",
+    "program": [
+      {
+        "time": "14.–16. 7.",
+        "title": "Markétské hody",
+        "note": "Moravské Knínice"
+      },
+      {
+        "time": "21.–23. 7.",
+        "title": "Mladé hody a den obce",
+        "note": "Jinačovice"
+      },
+      {
+        "time": "22. 7.",
+        "title": "Babské hody k poctě sv. Maří Magdalény",
+        "note": "Kuřim, areál ZŠ Komenského"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/hody-2023-plakat-kurim.webp",
+      "alt": "Plakát: 11. Babské hody Kuřim 22. 7. 2023"
+    },
+    "attachments": [
+      {
+        "label": "Plakát: Markétské hody v Moravských Knínicích",
+        "file": "/uploads/aktuality/hody-2023-plakat-kninice.pdf",
+        "size": 349653
+      },
+      {
+        "label": "Plakát: Mladé hody v Jinačovicích",
+        "file": "/uploads/aktuality/hody-2023-plakat-jinacovice.pdf",
+        "size": 803519
+      },
+      {
+        "label": "Plakát: Babské hody v Kuřimi",
+        "file": "/uploads/aktuality/hody-2023-plakat-kurim.pdf",
+        "size": 324130
+      }
+    ]
+  }
+]

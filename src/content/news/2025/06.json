@@ -1,0 +1,112 @@
+[
+  {
+    "id": "oslavy-790-let-moravskych-kninic-2025",
+    "title": "790 let Moravských Knínic",
+    "start": "2025-06-06",
+    "end": "2025-06-08",
+    "place": "Moravské Knínice",
+    "text": "Moravské Knínice oslavují 790 let obce. Oslavy vyvrcholí nedělní mší svatou a koncertem Jiřího Pavlici s Hradišťanem.",
+    "body": "<p>Program zahrnuje taneční zábavu, den otevřených dveří, program pro děti, divadelní představení a besedu u cimbálu.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/oslavy-790-let-moravskych-kninic-2025-plakat.webp",
+      "alt": "Plakát: 790 let obce Moravské Knínice"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/oslavy-790-let-moravskych-kninic-2025-plakat.jpg",
+        "size": 162746
+      }
+    ]
+  },
+  {
+    "id": "farni-den-2025",
+    "title": "Farní den",
+    "start": "2025-06-14",
+    "time": "14:00",
+    "place": "Kuřim, areál fary",
+    "text": "Farní den s mottem „Být poutníky naděje“. Novinkou je dopolední evangelizace ve spolupráci s komunitou Emmanuel.",
+    "body": "<p>Všichni jste srdečně zváni zapojit se do misijní iniciativy i do upevňování vztahů v naší farnosti.</p>",
+    "program": [
+      {
+        "time": "10:00",
+        "title": "Mše svatá",
+        "note": "kostel sv. Maří Magdalény"
+      },
+      {
+        "time": "15:00",
+        "title": "Program v areálu fary",
+        "note": "Radovan Voříšek: Impuls o naději, prezentace Charity Tišnov, zážitky z evangelizace, aktivity pro děti"
+      },
+      {
+        "time": "17:30",
+        "title": "Zpívání u táboráku"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/farni-den-2025-plakat.webp",
+      "alt": "Plakát: Farní den 14. 6. 2025, motto být poutníky naděje"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/farni-den-2025-plakat.png",
+        "size": 1958683
+      }
+    ]
+  },
+  {
+    "id": "zalmy-nejsou-zalozpevy-2025",
+    "title": "Žalmy nejsou žalozpěvy",
+    "start": "2025-06-15",
+    "time": "17:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Tradiční koncert duchovní hudby: Brněnský ekumenický sbor a komorní orchestr barokních nástrojů pod vedením Luboše Rause uvedou díla renesančních a barokních skladatelů.",
+    "price": "dobrovolné vstupné",
+    "poster": {
+      "src": "/uploads/aktuality/zalmy-nejsou-zalozpevy-2025-plakat.webp",
+      "alt": "Plakát: Brněnský ekumenický sbor – Žalmy nejsou žalozpěvy"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/zalmy-nejsou-zalozpevy-2025-plakat.pdf",
+        "size": 592596
+      }
+    ]
+  },
+  {
+    "id": "zpivejte-hospodinu-pisen-novou-2025",
+    "title": "Zpívejte Hospodinu píseň novou",
+    "start": "2025-06-15",
+    "time": "17:00",
+    "place": "Moravské Knínice, kostel sv. Markéty",
+    "text": "Koncert Brněnského varhanního festivalu: na varhany hraje Přemysl Kšica, zpívá sopranistka Karolína Janů.",
+    "body": "<p>Koncert pořádají Římskokatolická farnost Kuřim a Klub moravských skladatelů.</p>",
+    "price": "dobrovolné vstupné",
+    "poster": {
+      "src": "/uploads/aktuality/zpivejte-hospodinu-pisen-novou-2025-plakat.webp",
+      "alt": "Plakát: Zpívejte Hospodinu píseň novou, varhanní koncert v Moravských Knínicích"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/zpivejte-hospodinu-pisen-novou-2025-plakat.pdf",
+        "size": 246478
+      }
+    ]
+  },
+  {
+    "id": "petrklic-2025-2",
+    "title": "Petrklíč 2/2025",
+    "start": "2025-06-22",
+    "text": "Právě vyšlo nové vydání farního zpravodaje Petrklíč.",
+    "attachments": [
+      {
+        "label": "Petrklíč 2/2025",
+        "file": "/uploads/petrklic/2025-2/petrklic-2025-2.pdf",
+        "size": 4311596
+      }
+    ]
+  }
+]

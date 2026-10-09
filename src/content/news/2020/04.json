@@ -1,0 +1,110 @@
+[
+  {
+    "id": "velikonoce-2020",
+    "title": "Velikonoce 2020",
+    "start": "2020-04-05",
+    "end": "2020-04-12",
+    "text": "Velikonoce bez veřejných bohoslužeb: přenos mše svaté z kuřimského kostela, texty k domácí liturgii a zpověď touhy.",
+    "body": "<p>Na Boží hod velikonoční <strong>12. dubna v 9:30</strong> můžete živě sledovat mši svatou z kuřimského kostela na YouTube kanálu Kuřimského magazínu. Kuřimská kabelová televize Kotva připravila pořad s poselstvím k letošním velikonočním svátkům, natáčený v kuřimském kostele.</p><p><strong>Velikonoční zpověď – „zpověď touhy“:</strong> v nouzovém stavu je mimořádná možnost získat odpuštění hříchů, a to i smrtelných, dokonalou lítostí vycházející z lásky k Bohu milovanému nade všechno, vyjádřenou upřímnou žádostí o odpuštění a doprovázenou pevným předsevzetím jít ke svátostné zpovědi, jakmile to bude možné.</p>",
+    "attachments": [
+      {
+        "label": "Bohoslužba domácí církve",
+        "file": "/uploads/aktuality/velikonoce-2020-liturgie.pdf",
+        "size": 195507
+      },
+      {
+        "label": "Křížová cesta v době pandemie",
+        "file": "/uploads/aktuality/velikonoce-2020-krizova-cesta.pdf",
+        "size": 333726
+      },
+      {
+        "label": "Pastýřský list biskupa Vojtěcha",
+        "file": "/uploads/aktuality/velikonoce-2020-pastyrsky-list.pdf",
+        "size": 80637
+      },
+      {
+        "label": "Velikonoční výzva biskupů",
+        "file": "/uploads/aktuality/velikonoce-2020-vyzva-biskupu.pdf",
+        "size": 1083141
+      }
+    ],
+    "links": [
+      {
+        "label": "Kuřimský magazín na YouTube",
+        "href": "https://www.youtube.com/channel/UCx_BAFyPjTICyoOeRDy18VA/videos"
+      }
+    ]
+  },
+  {
+    "id": "petrklic-2020-1",
+    "title": "Velikonoční Petrklíč 1/2020",
+    "start": "2020-04-06",
+    "text": "Vyšlo nové, velikonoční vydání farního časopisu Petrklíč.",
+    "attachments": [
+      {
+        "label": "Petrklíč 1/2020",
+        "file": "/uploads/petrklic/2020-1/petrklic-2020-1.pdf",
+        "size": 1171053
+      }
+    ]
+  },
+  {
+    "id": "zivy-prenos-mse-svate-2020-04-19",
+    "title": "Živý přenos mše svaté 19. dubna",
+    "start": "2020-04-19",
+    "time": "9:30",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Opět živě přenášíme nedělní mši svatou z kuřimského kostela.",
+    "links": [
+      {
+        "label": "Záznam na YouTube",
+        "href": "https://youtu.be/Egsz1VeojxY"
+      }
+    ]
+  },
+  {
+    "id": "zivy-prenos-mse-svate-2020-04-26",
+    "title": "Živý přenos mše svaté 26. dubna",
+    "start": "2020-04-26",
+    "time": "11:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Další přenos nedělní mše svaté z kuřimského kostela, opět na YouTube kanálu Kuřimského magazínu.",
+    "links": [
+      {
+        "label": "Kuřimský magazín na YouTube",
+        "href": "https://www.youtube.com/channel/UCx_BAFyPjTICyoOeRDy18VA/videos"
+      }
+    ]
+  },
+  {
+    "id": "farni-pout-polsko-2020",
+    "title": "Farní pouť do Polska",
+    "start": "2020-04-30",
+    "end": "2020-05-03",
+    "place": "Čenstochová, Licheň a Křešov",
+    "text": "Pouť na mariánská poutní místa v Polsku, kterou chceme společně vstoupit do májového měsíce pod ochranou Panny Marie.",
+    "body": "<p>Navštívíme Čenstochovou, Starý Licheň a Křešov. Cena zahrnuje cestu autobusem, tři noclehy, stravu a skupinové vstupné. Odjíždí se ve čtvrtek 30. dubna v 7:45 od kuřimské fary.</p><p>Přihlášky jsou na stolečku pod kůrem.</p>",
+    "price": "2 800 Kč, děti do 6 let 2 500 Kč",
+    "poster": {
+      "src": "/uploads/aktuality/farni-pout-polsko-2020-plakat.webp",
+      "alt": "Plakát: Farní pouť do Polska 30. dubna – 3. května 2020"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/farni-pout-polsko-2020-plakat.pdf",
+        "size": 2045883
+      },
+      {
+        "label": "Informace",
+        "file": "/uploads/aktuality/farni-pout-polsko-2020-informace.pdf",
+        "size": 78866
+      },
+      {
+        "label": "Přihláška",
+        "file": "/uploads/aktuality/farni-pout-polsko-2020-prihlaska.pdf",
+        "size": 36536
+      }
+    ]
+  }
+]

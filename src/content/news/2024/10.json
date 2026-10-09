@@ -1,0 +1,214 @@
+[
+  {
+    "id": "beta-kurz-2024",
+    "title": "Beta kurz",
+    "start": "2024-10-01",
+    "time": "19:00",
+    "place": "Tišnov, fara",
+    "mapQuery": "Kostelní 16, Tišnov",
+    "text": "Beta kurz pro absolventy kurzu Alfa: každé úterý od 19:00 na tišnovské faře.",
+    "longTerm": {
+      "weeklyAt": "19:00"
+    },
+    "poster": {
+      "src": "/uploads/aktuality/beta-kurz-2024-plakat.webp",
+      "alt": "Plakát: Beta kurz 2024 na tišnovské faře"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/beta-kurz-2024-plakat.pdf",
+        "size": 109152
+      }
+    ]
+  },
+  {
+    "id": "hody-ceska-2024",
+    "title": "Hody v České",
+    "start": "2024-10-04",
+    "end": "2024-10-06",
+    "place": "Česká",
+    "text": "Tradiční hody v České se stavěním máje, průvodem obcí, hodovou zábavou a mší svatou v Kuřimi.",
+    "program": [
+      {
+        "time": "pá 16:00",
+        "title": "Stavění máje stárky a hodovou chasou"
+      },
+      {
+        "time": "so 15:00",
+        "title": "Průvod obcí od sokolovny",
+        "note": "předání hodového práva, svěcení práva a vína u kapličky"
+      },
+      {
+        "time": "so 20:00",
+        "title": "Hodová zábava",
+        "note": "hraje DH Blučiňáci"
+      },
+      {
+        "time": "ne 11:00",
+        "title": "Mše svatá v kostele sv. Maří Magdalény v Kuřimi",
+        "note": "autobus odjíždí v 10:30 z návsi"
+      },
+      {
+        "time": "ne 18:00",
+        "title": "Hodové dozvuky s CM Primáš"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/hody-ceska-2024-plakat.webp",
+      "alt": "Plakát: Hody v České 4.–6. 10. 2024"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/hody-ceska-2024-plakat.pdf",
+        "size": 8452270
+      }
+    ]
+  },
+  {
+    "id": "nadechni-se-2024",
+    "title": "Nadechni se",
+    "start": "2024-10-05",
+    "place": "Brno, Lidická 24",
+    "text": "Duchovní obnova pro rodiče malých dětí: přednáška, chvály, sdílení, čas pro pár a přímluvná modlitba.",
+    "body": "<p>Je možné zajistit hlídání dětí.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/nadechni-se-2024-plakat.webp",
+      "alt": "Plakát: Nadechni se, duchovní obnova pro rodiče malých dětí"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/nadechni-se-2024-plakat.pdf",
+        "size": 481331
+      }
+    ],
+    "links": [
+      {
+        "label": "Komunita Emmanuel",
+        "href": "https://www.emmanuel.cz/"
+      },
+      {
+        "label": "rodiny@emmanuel.cz",
+        "href": "mailto:rodiny@emmanuel.cz"
+      }
+    ]
+  },
+  {
+    "id": "at-svoboda-zni-2024",
+    "title": "Ať svoboda zní",
+    "start": "2024-10-06",
+    "time": "18:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Koncert duchovní hudby k výročí projevu Martina Luthera Kinga „Mám sen“. Vystoupí Dej Nám Akord – DNA a Soumrak ze Zbraslavi.",
+    "price": "dobrovolné vstupné",
+    "poster": {
+      "src": "/uploads/aktuality/at-svoboda-zni-2024-plakat.webp",
+      "alt": "Plakát: Koncert duchovní hudby Ať svoboda zní 6. 10. 2024"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/at-svoboda-zni-2024-plakat.pdf",
+        "size": 2399456
+      }
+    ]
+  },
+  {
+    "id": "den-narodnostnich-mensin-2024",
+    "title": "Den národnostních menšin",
+    "start": "2024-10-06",
+    "time": "14:00",
+    "place": "Kuřim, areál zámku",
+    "text": "Den národnostních menšin v areálu kuřimského zámku.",
+    "body": "<p>Akce byla kvůli nepříznivému počasí přesunuta z 15. září na 6. října.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/den-narodnostnich-mensin-2024-plakat.webp",
+      "alt": "Plakát: Den národnostních menšin v areálu zámku Kuřim"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/den-narodnostnich-mensin-2024-plakat.jpg",
+        "size": 1700179
+      }
+    ]
+  },
+  {
+    "id": "adoracni-den-2024",
+    "title": "Adorační den farnosti",
+    "start": "2024-10-12",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Adorační den naší farnosti. Na adorační stráž se zapisujte po půlhodinách do tabulky vzadu v kostele."
+  },
+  {
+    "id": "pastoracni-veletrh-2024",
+    "title": "Pastorační veletrh",
+    "start": "2024-10-19",
+    "time": "9:00",
+    "place": "Brno, Biskupské gymnázium",
+    "text": "Pastorační veletrh brněnské diecéze s přednáškami a workshopy.",
+    "registrationDeadline": "2024-10-13",
+    "poster": {
+      "src": "/uploads/aktuality/pastoracni-veletrh-2024-plakat.webp",
+      "alt": "Plakát: Pastorační veletrh 19. 10. 2024, Biskupské gymnázium Brno"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/pastoracni-veletrh-2024-plakat.jpg",
+        "size": 4439366
+      }
+    ]
+  },
+  {
+    "id": "misijni-nedele-2024",
+    "title": "Misijní neděle",
+    "start": "2024-10-20",
+    "text": "Světový den misií: sbírka této neděle je určena na podporu Papežských misijních děl.",
+    "poster": {
+      "src": "/uploads/aktuality/misijni-nedele-2024-plakat.webp",
+      "alt": "Plakát: Misijní neděle 20. října 2024"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/misijni-nedele-2024-plakat.jpg",
+        "size": 4492277
+      }
+    ]
+  },
+  {
+    "id": "petrklic-2024-3",
+    "title": "Petrklíč 3/2024",
+    "start": "2024-10-20",
+    "text": "Právě vyšlo nové vydání farního zpravodaje Petrklíč.",
+    "attachments": [
+      {
+        "label": "Petrklíč 3/2024",
+        "file": "/uploads/petrklic/2024-3/petrklic-2024-3.pdf",
+        "size": 4650094
+      }
+    ]
+  },
+  {
+    "id": "godzone-2024",
+    "title": "Godzone: Nejsi na to sám",
+    "start": "2024-10-24",
+    "time": "18:00",
+    "place": "Brno, Výstaviště, pavilon B",
+    "text": "Evangelizační koncert pro mladé skupiny Godzone, doprovázený slovem a svědectvími. Vstup zdarma.",
+    "poster": {
+      "src": "/uploads/aktuality/godzone-2024-plakat.webp",
+      "alt": "Plakát: Godzone tour Nejsi na to sám"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/godzone-2024-plakat.jpg",
+        "size": 5168366
+      }
+    ]
+  }
+]

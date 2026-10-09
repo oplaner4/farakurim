@@ -1,0 +1,190 @@
+[
+  {
+    "id": "noc-kostelu-2024",
+    "title": "Noc kostelů",
+    "start": "2024-06-07",
+    "time": "17:00–22:30",
+    "place": "Kuřim a Moravské Knínice",
+    "text": "Noc kostelů v Kuřimi a v Moravských Knínicích s bohatým programem.",
+    "body": "<p>V Moravských Knínicích je kostel otevřen od 18 do 22 hodin: prohlídky věže, zvonice, ochozu a půdy, fresky a varhany, výstava liturgických předmětů a rouch, ochutnávka mešních vín a hostií, varhanní improvizace v 18:30 a ve 20:00, knínická schola v 19:00 a program pro děti v okolí kostela.</p>",
+    "program": [
+      {
+        "time": "17:00–20:15",
+        "title": "Individuální prohlídka kostela",
+        "note": "Kuřim"
+      },
+      {
+        "time": "17:00–22:00",
+        "title": "Výstava „Cesta časem“"
+      },
+      {
+        "time": "18:15–19:15",
+        "title": "Slavnostní bohoslužba",
+        "note": "se zpěvy chrámového sboru a hostů"
+      },
+      {
+        "time": "19:30–20:00",
+        "title": "Zpěvy kuřimské dětské scholy"
+      },
+      {
+        "time": "20:10–20:25",
+        "title": "Divadelní představení Deset egyptských ran"
+      },
+      {
+        "time": "20:30–21:00",
+        "title": "Videoprojekce k 350 letům od zjevení v Paray-le-Monial"
+      },
+      {
+        "time": "21:00–22:00",
+        "title": "Kdo zpívá, dvakrát se modlí"
+      },
+      {
+        "time": "22:00–22:30",
+        "title": "Zakončení Noci kostelů"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/noc-kostelu-2024-program-kurim.webp",
+      "alt": "Plakát: Noc kostelů 7. 6. 2024 v kostele sv. Maří Magdalény v Kuřimi"
+    },
+    "attachments": [
+      {
+        "label": "Program: Kuřim",
+        "file": "/uploads/aktuality/noc-kostelu-2024-program-kurim.pdf",
+        "size": 845075
+      },
+      {
+        "label": "Program: Moravské Knínice",
+        "file": "/uploads/aktuality/noc-kostelu-2024-program-kninice.pdf",
+        "size": 638575
+      }
+    ],
+    "links": [
+      {
+        "label": "Noc kostelů v Kuřimi",
+        "href": "https://www.nockostelu.cz/kostel/470/"
+      }
+    ]
+  },
+  {
+    "id": "farni-den-2024",
+    "title": "Farní piknikový den",
+    "start": "2024-06-09",
+    "time": "10:30–15:00",
+    "place": "Kuřim, farní zahrada",
+    "text": "Farní den letos netradičně formou pikniku na farní zahradě, hned po druhé mši svaté.",
+    "body": "<p>Na programu je představení služeb Oblastní charity Tišnov, živá hudba a táborák. Přineste si své oblíbené pochoutky, špekáčky a deku.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/farni-den-2024-pozvanka.webp",
+      "alt": "Pozvánka: Farní piknikový den 9. 6. 2024"
+    },
+    "attachments": [
+      {
+        "label": "Pozvánka",
+        "file": "/uploads/aktuality/farni-den-2024-pozvanka.pdf",
+        "size": 1211360
+      }
+    ]
+  },
+  {
+    "id": "koncert-co-cini-buh-2024",
+    "title": "Koncert barokní a renesanční hudby",
+    "start": "2024-06-09",
+    "time": "17:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Brněnský ekumenický sbor a komorní orchestr barokních nástrojů uvedou koncert duchovní hudby Co činí Bůh, vše dobré jest.",
+    "poster": {
+      "src": "/uploads/aktuality/koncert-co-cini-buh-2024-plakat.webp",
+      "alt": "Plakát: Koncert duchovní hudby Co činí Bůh, vše dobré jest"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/koncert-co-cini-buh-2024-plakat.png",
+        "size": 454901
+      }
+    ],
+    "links": [
+      {
+        "label": "Brněnský ekumenický sbor",
+        "href": "https://www.besbrno.cz/cs"
+      }
+    ]
+  },
+  {
+    "id": "putovani-mezi-staletimi-2024",
+    "title": "Putování mezi staletími",
+    "start": "2024-06-09",
+    "time": "17:00",
+    "place": "Moravské Knínice, kostel sv. Markéty",
+    "text": "Koncert Brněnského varhanního festivalu: Hana Bartošová (varhany) a Barbora Štěflová (hoboj).",
+    "price": "dobrovolné vstupné",
+    "poster": {
+      "src": "/uploads/aktuality/putovani-mezi-staletimi-2024-plakat.webp",
+      "alt": "Plakát: Putování mezi staletími, Brněnský varhanní festival"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/putovani-mezi-staletimi-2024-plakat.pdf",
+        "size": 2868184
+      }
+    ]
+  },
+  {
+    "id": "dekanatni-setkani-katechetu-2024",
+    "title": "Děkanátní setkání katechetů",
+    "start": "2024-06-11",
+    "time": "18:30",
+    "place": "Tišnov, fara",
+    "text": "Přednáška Mgr. Jitky Šebkové na téma „Jak nepřijít o motivaci ve službě“ a vzájemné sdílení.",
+    "body": "<p>Jste srdečně zváni už na mši svatou v 17:30 v kostele sv. Václava.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/dekanatni-setkani-katechetu-2024-pozvanka.webp",
+      "alt": "Pozvánka: Děkanátní setkání katechetů 11. 6. 2024"
+    },
+    "attachments": [
+      {
+        "label": "Pozvánka",
+        "file": "/uploads/aktuality/dekanatni-setkani-katechetu-2024-pozvanka.pdf",
+        "size": 3557583
+      }
+    ]
+  },
+  {
+    "id": "petrklic-2024-2",
+    "title": "Petrklíč 2/2024",
+    "start": "2024-06-22",
+    "text": "Právě vyšlo nové vydání farního časopisu Petrklíč.",
+    "attachments": [
+      {
+        "label": "Petrklíč 2/2024",
+        "file": "/uploads/petrklic/2024-2/petrklic-2024-2.pdf",
+        "size": 2616368
+      }
+    ]
+  },
+  {
+    "id": "tvurci-pokoje-2024",
+    "title": "Tvůrci pokoje",
+    "start": "2024-06-30",
+    "text": "Pastorační středisko brněnské diecéze zve leadery farních společenství na vzdělávací program Stávat se tvůrci pokoje.",
+    "poster": {
+      "src": "/uploads/aktuality/tvurci-pokoje-2024-letak.webp",
+      "alt": "Leták: Stávat se tvůrci pokoje, vzdělávací program pro leadery farních společenství"
+    },
+    "attachments": [
+      {
+        "label": "Leták",
+        "file": "/uploads/aktuality/tvurci-pokoje-2024-letak.pdf",
+        "size": 6268959
+      }
+    ],
+    "links": [
+      {
+        "label": "Tvůrci pokoje",
+        "href": "https://www.tvurcipokoje.cz/"
+      }
+    ]
+  }
+]

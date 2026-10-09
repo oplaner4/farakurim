@@ -1,0 +1,147 @@
+[
+  {
+    "id": "vanocni-koncert-magnificat-2025",
+    "title": "Vánoční koncert sboru Magnificat",
+    "start": "2025-01-05",
+    "end": "2025-01-12",
+    "place": "Lelekovice a Štěpánov nad Svratkou",
+    "text": "Chrámový sbor Magnificat a orchestr z Lelekovic zvou na vánoční koncert: Adam Michna z Otradovic, Missa super „Již Slunce z Hvězdy vyšlo“.",
+    "program": [
+      {
+        "time": "5. 1. 17:00",
+        "title": "Koncert v Lelekovicích",
+        "note": "kostel sv. Filipa a Jakuba"
+      },
+      {
+        "time": "12. 1. 15:00",
+        "title": "Koncert ve Štěpánově nad Svratkou",
+        "note": "kostel sv. Petra a Pavla"
+      }
+    ],
+    "sessions": [
+      {
+        "date": "2025-01-05",
+        "time": "17:00"
+      },
+      {
+        "date": "2025-01-12",
+        "time": "15:00"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/vanocni-koncert-magnificat-2025-plakat.webp",
+      "alt": "Plakát: Vánoční koncert, Adam Michna z Otradovic – Missa super Již Slunce z Hvězdy vyšlo"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/vanocni-koncert-magnificat-2025-plakat.jpg",
+        "size": 405248
+      }
+    ]
+  },
+  {
+    "id": "diecezni-setkani-katechetu-2025",
+    "title": "Diecézní setkání katechetů",
+    "start": "2025-01-18",
+    "time": "9:00–15:30",
+    "place": "Brno, CMCZŠ Lerchova 65",
+    "text": "Diecézní setkání katechetů s biskupem, přednáškami a mší svatou.",
+    "poster": {
+      "src": "/uploads/aktuality/diecezni-setkani-katechetu-2025-plakat.webp",
+      "alt": "Plakát: Diecézní setkání katechetů 18. ledna 2025"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/diecezni-setkani-katechetu-2025-plakat.png",
+        "size": 644632
+      }
+    ]
+  },
+  {
+    "id": "ekumenicke-setkani-2025",
+    "title": "Ekumenické setkání",
+    "start": "2025-01-22",
+    "time": "18:00",
+    "place": "Kuřim, Sbor Dr. Karla Farského",
+    "mapQuery": "Farského 349/22, Kuřim",
+    "text": "Ekumenické setkání v rámci Týdne modliteb za jednotu křesťanů, ve spolupráci s Církví československou husitskou.",
+    "body": "<p>Setkání se koná ve Sboru Dr. Karla Farského v ulici Farského 22 (u kuřimského nádraží). Letošní motto zní „Věříš tomu?“ (Jan 11,26).</p><p>Texty k setkání připravila ekumenická mnišská komunita v Bose v severozápadní Itálii.</p>",
+    "attachments": [
+      {
+        "label": "Pozvánka",
+        "file": "/uploads/aktuality/ekumenicke-setkani-2025-pozvanka.pdf",
+        "size": 68443
+      }
+    ]
+  },
+  {
+    "id": "dekanatni-setkani-pomocniku-v-kostele-2025",
+    "title": "Děkanátní setkání pomocníků v kostele",
+    "start": "2025-01-24",
+    "time": "18:00–20:00",
+    "place": "Tišnov, sál pod kinem Svratka",
+    "text": "Setkání floristů, květinářů, výzdobářů a uklízečů v kostele tišnovského děkanství.",
+    "program": [
+      {
+        "time": "18:00",
+        "title": "Mše svatá v kostele sv. Václava"
+      },
+      {
+        "time": "19:00–20:00",
+        "title": "Setkání v sále pod kinem",
+        "note": "poděkování za službu, malé překvapení a sdílení"
+      },
+      {
+        "time": "20:00",
+        "title": "Závěrečné požehnání"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/dekanatni-setkani-pomocniku-v-kostele-2025-plakat.webp",
+      "alt": "Plakát: Děkanátní setkání floristů, květinářů, výzdobářů a uklízečů v kostele"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/dekanatni-setkani-pomocniku-v-kostele-2025-plakat.png",
+        "size": 1969671
+      }
+    ]
+  },
+  {
+    "id": "seminar-zivot-v-duchu-2025",
+    "title": "Seminář Život v Duchu",
+    "start": "2025-01-26",
+    "end": "2025-03-30",
+    "time": "19:00",
+    "place": "Tišnov, fara",
+    "mapQuery": "Kostelní 16, Tišnov",
+    "text": "Desetitýdenní duchovní obnova v Tišnově pod vedením P. Petra Beneše, vždy v neděli večer.",
+    "body": "<p>Náplní zhruba dvouhodinových setkání je společná modlitba chval, uvedení do tématu, sdílení a adorace. Účastníci věnují také každý den čtvrthodinku modlitbě s Písmem svatým k tématům semináře. Seminář pomáhá obnovit vztah s Bohem a objevit vlastní obdarování.</p>",
+    "sessions": [
+      "2025-01-26",
+      "2025-02-02",
+      "2025-02-09",
+      "2025-02-16",
+      "2025-02-23",
+      "2025-03-02",
+      "2025-03-09",
+      "2025-03-16",
+      "2025-03-23",
+      "2025-03-30"
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/seminar-zivot-v-duchu-2025-plakat.webp",
+      "alt": "Plakát: Seminář Život v Duchu, Tišnov"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/seminar-zivot-v-duchu-2025-plakat.pdf",
+        "size": 2646507
+      }
+    ]
+  }
+]

@@ -1,0 +1,31 @@
+[
+  {
+    "id": "farni-den-2021",
+    "title": "Farní den",
+    "start": "2021-06-05",
+    "time": "15:00",
+    "place": "Kuřim, areál za farou",
+    "text": "Farní odpoledne s hrami pro děti, prezentací fotografií o naší farnosti a písničkami u táboráku.",
+    "body": "<p>Přijďte posedět, povykládat a pobýt s námi. Občerstvení je zajištěno.</p>"
+  },
+  {
+    "id": "life-of-cellos-live-2021",
+    "title": "Life of Cellos Live",
+    "start": "2021-06-06",
+    "time": "17:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Tradiční jarní koncert violoncellistů Filharmonie Brno, po dlouhé době jeden z prvních před živým publikem.",
+    "body": "<p>Zazní Bachovy suity pro violoncello, Haydnův Koncert D dur a Popperova Koncertní polonéza. Koncert pod uměleckým vedením koncertního mistra Pavla Šabackého je věnován všem zdravotníkům jako poděkování za jejich obětavou práci. Vstupné dobrovolné.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/life-of-cellos-live-2021-plakat.webp",
+      "alt": "Plakát: Life of Cellos Live 6. 6. 2021"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/life-of-cellos-live-2021-plakat.pdf",
+        "size": 289408
+      }
+    ]
+  }
+]

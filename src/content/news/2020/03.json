@@ -1,0 +1,166 @@
+[
+  {
+    "id": "zruseni-bohosluzeb-koronavirus-2020",
+    "title": "Zrušení bohoslužeb kvůli pandemii koronaviru",
+    "start": "2020-03-12",
+    "text": "Do odvolání se ruší všechny bohoslužby a jiná shromáždění v kostelích brněnské diecéze.",
+    "body": "<p>Od čtvrtka 12. března 2020 od 14:00 se do odvolání ruší všechny (tedy nejen nedělní) bohoslužby, společné pobožnosti, duchovní obnovy, modlitební setkání a jiná shromáždění v kostelích, kaplích a jiných prostorách římskokatolické církve na území brněnské diecéze. Kněží budou slavit mše svaté bez účasti lidu na úmysly, na které by byly slouženy veřejně.</p><p>Ježíše Krista je možné v těchto případech přijímat duchovně, tedy vyjádřením touhy po jeho přijetí a spojením se s ním v duchovní jednotě.</p>",
+    "attachments": [
+      {
+        "label": "Rozhodnutí biskupa",
+        "file": "/uploads/aktuality/zruseni-bohosluzeb-koronavirus-2020-rozhodnuti.pdf",
+        "size": 110791
+      },
+      {
+        "label": "Manuál ke koronaviru",
+        "file": "/uploads/aktuality/zruseni-bohosluzeb-koronavirus-2020-manual.pdf",
+        "size": 93458
+      }
+    ],
+    "links": [
+      {
+        "label": "Rozhodnutí biskupa na webu biskupství",
+        "href": "https://www.biskupstvi.cz/2020-03-12-rozhodnuti-biskupa-covid"
+      }
+    ]
+  },
+  {
+    "id": "postni-duchovni-obnova-2020",
+    "title": "Postní duchovní obnova",
+    "start": "2020-03-21",
+    "time": "13:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Duchovní obnova na téma Zpytování (s)vědomí, kterou provede o. Michael Macek.",
+    "body": "<p>Přijďte se v postní době ztišit, načerpat sílu a zůstat pár chvil s Pánem v Nejsvětější svátosti. Během obnovy bude možnost přistoupit ke svátosti smíření.</p>",
+    "program": [
+      {
+        "time": "13:00",
+        "title": "Začátek duchovní obnovy",
+        "note": "téma Zpytování (s)vědomí, o. Michael Macek"
+      },
+      {
+        "time": "16:00",
+        "title": "Mše svatá"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/postni-duchovni-obnova-2020-plakat.webp",
+      "alt": "Plakát: Postní duchovní obnova – Zpytování (s)vědomí"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/postni-duchovni-obnova-2020-plakat.pdf",
+        "size": 114191
+      }
+    ]
+  },
+  {
+    "id": "prenosy-bohosluzeb-2020",
+    "title": "Přenosy bohoslužeb na internetu",
+    "start": "2020-03-22",
+    "text": "Využijte nabídky přenosů bohoslužeb, zvláště nedělních, v televizi, rozhlase a na internetu.",
+    "body": "<p>TV Noe přenáší nedělní mši svatou v 10:30 a v 18:00, Radio Proglas v 9:00 a v 19:30. Přehled přenosů najdete také na webu Mše online.</p>",
+    "links": [
+      {
+        "label": "Mše online",
+        "href": "https://mseonline.cz/"
+      },
+      {
+        "label": "TV Noe – živé vysílání",
+        "href": "https://www.tvnoe.cz/live"
+      },
+      {
+        "label": "Radio Proglas – příjem vysílání",
+        "href": "https://www.proglas.cz/kontakty-a-info/prijem-vysilani/internet/"
+      }
+    ]
+  },
+  {
+    "id": "iniciativy-papeze-frantiska-2020",
+    "title": "Iniciativy papeže Františka v době pandemie",
+    "start": "2020-03-25",
+    "end": "2020-03-27",
+    "text": "Papež František zve ke společné modlitbě Otče náš a k modlitebnímu zastavení s požehnáním Urbi et orbi.",
+    "body": "<p>„Všechny vyzývám, aby se ve středu <strong>25. března v poledne</strong> pomodlili všichni zároveň Otče náš. V den, kdy si mnozí křesťané připomínají, že bylo Panně Marii zvěstováno Vtělení Slova, kéž Pán vyslyší jednomyslnou modlitbu všech svých učedníků.</p><p>S tímtéž úmyslem budu v pátek <strong>27. března v 18 hodin</strong> předsedat modlitebnímu zastavení na prázdném náměstí před bazilikou sv. Petra. Budeme naslouchat Božímu slovu, vzneseme svoji úpěnlivou prosbu a budeme adorovat Nejsvětější svátost, kterou na závěr udělím požehnání Urbi et orbi, spojené s příležitostí obdržet plnomocné odpustky.“</p><p>Modlitební zastavení mimořádně vysílá TV Noe.</p>",
+    "attachments": [
+      {
+        "label": "Celá zpráva",
+        "file": "/uploads/aktuality/iniciativy-papeze-frantiska-2020-zprava.pdf",
+        "size": 171840
+      }
+    ],
+    "links": [
+      {
+        "label": "TV Noe – požehnání Urbi et orbi",
+        "href": "https://www.tvnoe.cz/porad/27687-mimoradne-pozehnani-urbi-et-orbi"
+      }
+    ]
+  },
+  {
+    "id": "planovane-opravy-2020",
+    "title": "Plánované opravy v roce 2020",
+    "start": "2020-03-28",
+    "text": "Letos se opravuje krov a střecha kostela v Moravských Knínicích, ohradní zeď a přístavba kuřimské fary. Budeme vděční za jakoukoliv podporu.",
+    "body": "<p>V Moravských Knínicích na kostele sv. Markéty proběhnou opravy krovu a střechy nad chrámovou lodí a fixace vrcholu věže. Na kuřimské faře se dokončuje oprava ohradní zdi, proběhne oprava kanalizace, zavedení plynu a další navazující práce. V přístavbě se připravuje sociální zázemí. V kuřimském kostele se předpokládá běžná údržba, na kapli pod kostelem obnova nátěrů okenních rámů a ošetření omítky soklu.</p><p>Budeme vděční za jakoukoliv podporu. Dárcům bude na požádání vystaven doklad pro daňové přiznání. Účet farnosti: <strong>247704317/0300</strong>, variabilní symbol:</p><ul><li><strong>4444</strong> pro dary na opravy knínického kostela,</li><li><strong>5555</strong> pro dary na opravy kuřimské fary.</li></ul>",
+    "attachments": [
+      {
+        "label": "Informace",
+        "file": "/uploads/aktuality/planovane-opravy-2020-informace.pdf",
+        "size": 66718
+      },
+      {
+        "label": "Foto: krov knínického kostela",
+        "file": "/uploads/aktuality/planovane-opravy-2020-foto-1.jpg",
+        "size": 3793026
+      },
+      {
+        "label": "Foto: půda knínického kostela",
+        "file": "/uploads/aktuality/planovane-opravy-2020-foto-2.jpg",
+        "size": 2732187
+      },
+      {
+        "label": "Foto: půda u věže knínického kostela",
+        "file": "/uploads/aktuality/planovane-opravy-2020-foto-3.jpg",
+        "size": 2693716
+      },
+      {
+        "label": "Foto: stará zeď fary",
+        "file": "/uploads/aktuality/planovane-opravy-2020-foto-4.jpg",
+        "size": 2650692
+      },
+      {
+        "label": "Foto: otloukání omítky zdi",
+        "file": "/uploads/aktuality/planovane-opravy-2020-foto-5.jpg",
+        "size": 4599645
+      },
+      {
+        "label": "Foto: zdění přístavby fary",
+        "file": "/uploads/aktuality/planovane-opravy-2020-foto-6.jpg",
+        "size": 3350764
+      },
+      {
+        "label": "Foto: betonování stropu přístavby",
+        "file": "/uploads/aktuality/planovane-opravy-2020-foto-7.jpg",
+        "size": 2449324
+      },
+      {
+        "label": "Foto: věnec přístavby fary",
+        "file": "/uploads/aktuality/planovane-opravy-2020-foto-8.jpg",
+        "size": 3419551
+      }
+    ]
+  },
+  {
+    "id": "katolicky-tydenik-zdarma-2020",
+    "title": "Katolický týdeník zdarma",
+    "start": "2020-03-29",
+    "text": "Kvůli nouzovému stavu je Katolický týdeník dočasně k dispozici zdarma ke stažení v PDF.",
+    "links": [
+      {
+        "label": "Katolický týdeník ke stažení",
+        "href": "https://www.katyd.cz/clanky/novy-kt-ke-stazeni-zdarma-vzdy-od-soboty-1.html"
+      }
+    ]
+  }
+]

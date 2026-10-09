@@ -3,9 +3,10 @@ import type { NewsEvent } from "@/content/types/news";
 import { eventMeetings } from "./events";
 import { parseClock } from "./ics";
 
-// The rules of one Aktuality record, in one place: news.test.ts checks every record in src/content/news/ with
-// them, and scripts/add-aktualita.ts checks a new record before the farnost-create-aktualita skill stages its files.
-// The rules across records (unique IDs, one pinned event, the month files' order) stay in news.test.ts.
+// The rules of one Aktuality record, in one place: src/content/news/index.ts checks every month file with them on
+// import (a broken file fails the tests, the build and the scripts), and scripts/add-aktualita.ts checks a new record
+// before the farnost-create-aktualita skill stages its files. The rules across records (unique IDs, one pinned
+// event, the month files' order) stay in news.test.ts.
 
 const date = z.iso.date();
 const CLOCK = /^([01]?\d|2[0-3]):[0-5]\d$/;
@@ -25,7 +26,7 @@ const readableTime = (time: string) => {
   return !!span && times.every((t) => CLOCK.test(t)) && !(span.to && minutes(span.to) <= minutes(span.from));
 };
 
-/** A NewsEvent (src/content/types/news.ts); its fields are listed in the order the month files write them. */
+/** A NewsEvent (src/content/types/news.ts); the month files keep its fields in this order. */
 export const newsEventSchema = z
   .strictObject({
     id: z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "must be ASCII kebab-case"),
@@ -102,5 +103,5 @@ export const newsEventSchema = z
     }
   }) satisfies z.ZodType<NewsEvent>;
 
-/** The record's fields in the order the month files write them. */
+/** The record's fields in the order the month files keep them. */
 export const NEWS_EVENT_FIELDS = Object.keys(newsEventSchema.shape);

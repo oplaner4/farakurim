@@ -1,0 +1,46 @@
+[
+  {
+    "id": "hody-2021",
+    "title": "Hody v obcích farnosti",
+    "start": "2021-07-17",
+    "end": "2021-07-25",
+    "place": "Moravské Knínice, Kuřim a Jinačovice",
+    "text": "Přijměte pozvání na hody v Moravských Knínicích, v Kuřimi a v Jinačovicích.",
+    "program": [
+      {
+        "time": "17.–18. 7.",
+        "title": "Markétské hody v Moravských Knínicích"
+      },
+      {
+        "time": "23.–25. 7.",
+        "title": "Mladé hody a den obce v Jinačovicích"
+      },
+      {
+        "time": "24. 7.",
+        "title": "Babské hody v Kuřimi",
+        "note": "areál ZŠ Komenského"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/hody-2021-plakat-kninice.webp",
+      "alt": "Plakát: Markétské hody v Moravských Knínicích 17.–18. 7. 2021"
+    },
+    "attachments": [
+      {
+        "label": "Plakát: Markétské hody v Moravských Knínicích",
+        "file": "/uploads/aktuality/hody-2021-plakat-kninice.pdf",
+        "size": 2261629
+      },
+      {
+        "label": "Plakát: Babské hody v Kuřimi",
+        "file": "/uploads/aktuality/hody-2021-plakat-kurim.pdf",
+        "size": 1165436
+      },
+      {
+        "label": "Plakát: Mladé hody v Jinačovicích",
+        "file": "/uploads/aktuality/hody-2021-plakat-jinacovice.pdf",
+        "size": 2220190
+      }
+    ]
+  }
+]

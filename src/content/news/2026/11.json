@@ -1,0 +1,53 @@
+[
+  {
+    "id": "pokoj-srdce-2026",
+    "title": "Pokoj srdce – víkendové setkání pro mladé ženy",
+    "start": "2026-11-06",
+    "end": "2026-11-08",
+    "place": "Žernůvka u Tišnova",
+    "text": "Sestry františkánky pod ochranou Svaté rodiny zvou mladé ženy od 18 let na víkend s tématem Pokoj srdce… kde jej nacházím a kde ztrácím.",
+    "poster": {
+      "src": "/uploads/aktuality/pokoj-srdce-2026-plakat.webp",
+      "alt": "Plakát: Pokoj srdce, víkendové setkání pro mladé ženy"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/pokoj-srdce-2026-plakat.pdf",
+        "size": 298911
+      }
+    ],
+    "links": [
+      {
+        "label": "frantiska@frantiskanky.cz",
+        "href": "mailto:frantiska@frantiskanky.cz"
+      }
+    ]
+  },
+  {
+    "id": "konference-o-evangelizaci-2026",
+    "title": "Konference o evangelizaci – Riskujme lásce",
+    "start": "2026-11-13",
+    "end": "2026-11-14",
+    "place": "Olomouc",
+    "text": "Konference s přednáškami, kulatým stolem, duchovním programem a praktickými workshopy evangelizace.",
+    "body": "<p>Hlavním hostem je P. Patrick Gonyeau a Encounter Ministries (USA), dále mimo jiné P. Vojtěch Koukal, manželé Strežovi, P. Daniel Vícha, P. Libor Všetula, Pavel Vopalecký, sr. Dominika Konečná, Lámačské chvály a Gedeon worship.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/konference-o-evangelizaci-2026-plakat.webp",
+      "alt": "Plakát: Konference o evangelizaci Riskujme lásce, Olomouc 13.–14. 11. 2026"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/konference-o-evangelizaci-2026-plakat.jpg",
+        "size": 304654
+      }
+    ],
+    "links": [
+      {
+        "label": "evangelizace.cz",
+        "href": "https://evangelizace.cz/"
+      }
+    ]
+  }
+]

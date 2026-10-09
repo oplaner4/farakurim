@@ -1,0 +1,139 @@
+[
+  {
+    "id": "farni-den-2022",
+    "title": "Farní den",
+    "start": "2022-06-04",
+    "time": "14:00",
+    "place": "Kuřim, areál za farou",
+    "text": "Farní den s představením komunity Emmanuel, ukulele bandem, posezením u ohně a hrami pro děti.",
+    "body": "<p>Čeká vás soutěž o nej… jednohubku (doneste alespoň 20 kusů), posezení u ohně s živou hudbou a zábavné hry pro děti. Drobné občerstvení, které přinesete, je vítáno.</p>",
+    "program": [
+      {
+        "time": "14:00",
+        "title": "Zahájení"
+      },
+      {
+        "time": "15:00",
+        "title": "Představení komunity Emmanuel"
+      },
+      {
+        "time": "16:00",
+        "title": "Představení projektu Mariánská triáda",
+        "note": "senátorka Ing. Jaromíra Vítková"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/farni-den-2022-program.webp",
+      "alt": "Plakát: Farní den 4. 6. 2022"
+    },
+    "attachments": [
+      {
+        "label": "Program",
+        "file": "/uploads/aktuality/farni-den-2022-program.pdf",
+        "size": 31679
+      }
+    ]
+  },
+  {
+    "id": "jarni-koncert-2022",
+    "title": "Jarní koncert violoncellistů",
+    "start": "2022-06-05",
+    "time": "17:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Tradiční jarní koncert: Solitutticelli Brno Cello Sextet zahraje chrámovou a romantickou hudbu pro šest violoncell.",
+    "body": "<p>Na programu jsou skladby J. S. Bacha, D. Poppera, J. Haydna, F. Schuberta a C. Saint-Saënse. Vstupné dobrovolné.</p>",
+    "price": "dobrovolné vstupné",
+    "poster": {
+      "src": "/uploads/aktuality/jarni-koncert-2022-plakat.webp",
+      "alt": "Plakát: Chrámová a romantická hudba pro 6 violoncell, Solitutticelli Brno Cello Sextet"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/jarni-koncert-2022-plakat.pdf",
+        "size": 239772
+      }
+    ]
+  },
+  {
+    "id": "noc-kostelu-2022",
+    "title": "Noc kostelů",
+    "start": "2022-06-10",
+    "time": "18:45–21:05",
+    "place": "Kuřim a Moravské Knínice",
+    "text": "Prohlídky kostelů, zpěvy chrámového sboru a modlitba za naše město.",
+    "program": [
+      {
+        "time": "18:45–20:00",
+        "title": "Komentované prohlídky kostela sv. Markéty",
+        "note": "interiér, varhany, zvonice; zpívá místní schola"
+      },
+      {
+        "time": "19:00–20:00",
+        "title": "Prohlídka kostela sv. Maří Magdalény",
+        "note": "výklad na požádání"
+      },
+      {
+        "time": "19:00–19:30",
+        "title": "Zpěvy chrámového sboru",
+        "note": "Kuřim"
+      },
+      {
+        "time": "20:00–21:00",
+        "title": "Kdo zpívá, dvakrát se modlí",
+        "note": "Kuřim"
+      },
+      {
+        "time": "21:00–21:05",
+        "title": "Zakončení, modlitba a požehnání pro naše město",
+        "note": "Kuřim"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/noc-kostelu-2022-program.webp",
+      "alt": "Program: Noc kostelů 10. 6. 2022"
+    },
+    "attachments": [
+      {
+        "label": "Program",
+        "file": "/uploads/aktuality/noc-kostelu-2022-program.pdf",
+        "size": 468729
+      }
+    ],
+    "links": [
+      {
+        "label": "Noc kostelů",
+        "href": "https://www.nockostelu.cz/"
+      }
+    ]
+  },
+  {
+    "id": "dekanatni-setkani-mladeze-2022",
+    "title": "Děkanátní setkání mládeže",
+    "start": "2022-06-18",
+    "time": "13:00",
+    "place": "Tišnov",
+    "text": "Mladé zveme na děkanátní setkání v Tišnově a ostatní prosíme o podporu modlitbou."
+  },
+  {
+    "id": "petrklic-2022-2",
+    "title": "Petrklíč 2/2022",
+    "start": "2022-06-19",
+    "text": "Vyšlo nové vydání farního časopisu Petrklíč.",
+    "attachments": [
+      {
+        "label": "Petrklíč 2/2022",
+        "file": "/uploads/petrklic/2022-2/petrklic-2022-2.pdf",
+        "size": 10529739
+      }
+    ]
+  },
+  {
+    "id": "varhanni-koncert-kninice-2022",
+    "title": "Varhanní koncert v Moravských Knínicích",
+    "start": "2022-06-26",
+    "time": "17:00",
+    "place": "Moravské Knínice, kostel sv. Markéty",
+    "text": "Varhanní koncert Hany Bartošové. Výtěžek bude věnován na opravy knínického kostela."
+  }
+]

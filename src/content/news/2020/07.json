@@ -1,0 +1,65 @@
+[
+  {
+    "id": "svatomarketske-hody-2020",
+    "title": "Svatomarkétské hody",
+    "start": "2020-07-17",
+    "end": "2020-07-19",
+    "place": "Moravské Knínice",
+    "text": "Zveme všechny farníky do Moravských Knínic na oslavu patronky místního kostela sv. Markéty.",
+    "poster": {
+      "src": "/uploads/aktuality/svatomarketske-hody-2020-program.webp",
+      "alt": "Plakát: Markétské hody v Moravských Knínicích 17.–19. července 2020"
+    },
+    "attachments": [
+      {
+        "label": "Program",
+        "file": "/uploads/aktuality/svatomarketske-hody-2020-program.pdf",
+        "size": 1097717
+      }
+    ]
+  },
+  {
+    "id": "hody-kurim-jinacovice-2020",
+    "title": "Hody v Kuřimi a Jinačovicích",
+    "start": "2020-07-24",
+    "end": "2020-07-26",
+    "place": "Kuřim a Jinačovice",
+    "text": "Přijměte pozvání na Babské hody v Kuřimi a na Mladé hody a den obce v Jinačovicích.",
+    "poster": {
+      "src": "/uploads/aktuality/hody-kurim-jinacovice-2020-plakat-kurim.webp",
+      "alt": "Plakát: 8. Babské hody Kuřim"
+    },
+    "attachments": [
+      {
+        "label": "Plakát: Babské hody v Kuřimi",
+        "file": "/uploads/aktuality/hody-kurim-jinacovice-2020-plakat-kurim.pdf",
+        "size": 119158
+      },
+      {
+        "label": "Plakát: Mladé hody v Jinačovicích",
+        "file": "/uploads/aktuality/hody-kurim-jinacovice-2020-plakat-jinacovice.pdf",
+        "size": 356778
+      }
+    ]
+  },
+  {
+    "id": "koncert-pro-jasminku-2020",
+    "title": "Koncert pro Jasmínku",
+    "start": "2020-07-26",
+    "time": "18:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Koncert mladých muzikantů, jehož výtěžek je věnován Jasmínce a její rodině.",
+    "body": "<p>Zazní skladby například od Telemanna, Vranického a Bacha. Ze známých tváří uslyšíte Tomáše Novotného či Dorotku a Štěpánku Kytnerovy.</p><p>Jasmínka je téměř dvanáctiletá usměvavá slečna. Když jí bylo pět let, srazil ji na přechodu nepozorný řidič a od té doby je upoutána na vozík. Úsměv, optimismus a smysl pro humor ji ale neopustily.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/koncert-pro-jasminku-2020-plakat.webp",
+      "alt": "Plakát: Koncert pro Jasmínku 26. 7. 2020"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/koncert-pro-jasminku-2020-plakat.pdf",
+        "size": 1008259
+      }
+    ]
+  }
+]

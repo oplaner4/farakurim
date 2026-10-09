@@ -1,0 +1,104 @@
+[
+  {
+    "id": "farni-tabor-2021",
+    "title": "Farní tábor 2021",
+    "start": "2021-08-14",
+    "end": "2021-08-21",
+    "text": "Další ročník letního farního tábora pro děti."
+  },
+  {
+    "id": "pochod-po-stopach-p-sevcika-2021",
+    "title": "Pochod po stopách P. Ševčíka",
+    "start": "2021-08-14",
+    "time": "9:00",
+    "place": "Boskovice, Modrá věž",
+    "text": "XVII. ročník pochodu pro turisty, cyklisty a všechny, kdo rádi putují krajinou. Start je od Modré věže v Boskovicích.",
+    "body": "<p>Pěší trasa vede přes kapli sv. Otýlie, Bačov a Ohradu do Vísek, cyklisté si mohou vybrat trasu od 10 do 50 km. Startovné 20 Kč, děti a senioři zdarma.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/pochod-po-stopach-p-sevcika-2021-plakat.webp",
+      "alt": "Plakát: XVII. ročník pochodu po stopách P. Ševčíka"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/pochod-po-stopach-p-sevcika-2021-plakat.pdf",
+        "size": 464084
+      }
+    ]
+  },
+  {
+    "id": "beneficni-koncert-boskovice-2021",
+    "title": "Benefiční koncert na podporu jižní Moravy",
+    "start": "2021-08-15",
+    "time": "17:00",
+    "place": "Boskovice, za Muzeem regionu Boskovicka",
+    "text": "Vystoupí sbor BaczBand a výtěžek bude věnován na obnovu postižené jižní Moravy.",
+    "poster": {
+      "src": "/uploads/aktuality/beneficni-koncert-boskovice-2021-plakat.webp",
+      "alt": "Plakát: Benefiční koncert BaczBand na podporu jižní Moravy"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/beneficni-koncert-boskovice-2021-plakat.pdf",
+        "size": 740249
+      }
+    ]
+  },
+  {
+    "id": "marianske-pouti-2021",
+    "title": "Mariánské poutě",
+    "start": "2021-08-29",
+    "end": "2021-09-26",
+    "place": "Vranov u Brna a Žarošice",
+    "text": "Přijměte pozvání na pouť Sedmiradostnou cestou, cyklopouť a pěší pouť na Vranov a na Zlatou sobotu v Žarošicích.",
+    "program": [
+      {
+        "time": "29. 8. 7:15",
+        "title": "Pouť Sedmiradostnou cestou Česká – Lelekovice – Vranov",
+        "note": "mše svatá v 11:00"
+      },
+      {
+        "time": "5. 9. 12:30",
+        "title": "Cyklopouť z Kuřimi na Vranov",
+        "note": "z parku na ulici Havlíčkova, mše svatá v 15:00"
+      },
+      {
+        "time": "11. 9.",
+        "title": "Zlatá sobota v Žarošicích",
+        "note": "s krojovaným procesím"
+      },
+      {
+        "time": "26. 9. 7:30",
+        "title": "Pěší pouť Moravské Knínice – Kuřim – Vranov",
+        "note": "s krojovaným procesím, mše svatá v 11:00"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/marianske-pouti-2021-plakat-pesi-pout.webp",
+      "alt": "Plakát: Tradiční pěší pouť na Vranov 26. září 2021"
+    },
+    "attachments": [
+      {
+        "label": "Plakát: Pěší pouť na Vranov",
+        "file": "/uploads/aktuality/marianske-pouti-2021-plakat-pesi-pout.pdf",
+        "size": 2280433
+      },
+      {
+        "label": "Plakát: Sedmiradostná cesta",
+        "file": "/uploads/aktuality/marianske-pouti-2021-plakat-sedmiradostna-cesta.pdf",
+        "size": 327534
+      },
+      {
+        "label": "Plakát: Cyklopouť na Vranov",
+        "file": "/uploads/aktuality/marianske-pouti-2021-plakat-cyklopout.pdf",
+        "size": 634558
+      },
+      {
+        "label": "Plakát: Zlatá sobota v Žarošicích",
+        "file": "/uploads/aktuality/marianske-pouti-2021-plakat-zlata-sobota.pdf",
+        "size": 1243156
+      }
+    ]
+  }
+]

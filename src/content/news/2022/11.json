@@ -1,0 +1,218 @@
+[
+  {
+    "id": "konference-o-evangelizaci-2022",
+    "title": "Konference o evangelizaci",
+    "start": "2022-11-11",
+    "end": "2022-11-12",
+    "place": "Olomouc, Clarion Congress Hotel",
+    "text": "V. konference o evangelizaci „Přinášejme naději, kterou máme v Bohu živém“: přednášky, workshopy, svědectví a chvály.",
+    "price": "200 Kč/den, studenti a mládež 100 Kč/den",
+    "poster": {
+      "src": "/uploads/aktuality/konference-o-evangelizaci-2022-plakat.webp",
+      "alt": "Plakát: V. konference o evangelizaci v Olomouci"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/konference-o-evangelizaci-2022-plakat.pdf",
+        "size": 4279152
+      }
+    ],
+    "links": [
+      {
+        "label": "Konference o evangelizaci",
+        "href": "https://www.evangelizace.cz/"
+      }
+    ]
+  },
+  {
+    "id": "tyden-modliteb-za-mladez-2022",
+    "title": "Týden modliteb za mládež",
+    "start": "2022-11-13",
+    "end": "2022-11-20",
+    "text": "Spojme se ve vzájemné modlitbě s mladými lidmi za mladé lidi.",
+    "poster": {
+      "src": "/uploads/aktuality/tyden-modliteb-za-mladez-2022-plakat.webp",
+      "alt": "Plakát: Týden modliteb za mládež 13.–20. 11. 2022"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/tyden-modliteb-za-mladez-2022-plakat.pdf",
+        "size": 180886
+      }
+    ],
+    "links": [
+      {
+        "label": "Týden modliteb za mládež",
+        "href": "https://www.cirkev.cz/cs/aktuality/220915tyden-modliteb-za-mladez-2022"
+      }
+    ]
+  },
+  {
+    "id": "charitativni-beh-2022",
+    "title": "Charitativní běh pro Ukrajinu",
+    "start": "2022-11-19",
+    "time": "10:00",
+    "place": "Lelekovice, vodojem Na Pasekách",
+    "text": "Přijďte si zaběhat a přispět na dobrou věc: 6. charitativní běh, jehož výtěžek půjde na konto SOS Ukrajina Člověka v tísni.",
+    "program": [
+      {
+        "time": "10:00",
+        "title": "Prezence"
+      },
+      {
+        "time": "10:30",
+        "title": "Start",
+        "note": "u vodojemu Na Pasekách"
+      }
+    ],
+    "price": "dobrovolné startovné",
+    "poster": {
+      "src": "/uploads/aktuality/charitativni-beh-2022-plakat.webp",
+      "alt": "Plakát: 6. charitativní běh pro Ukrajinu 19. 11. 2022"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/charitativni-beh-2022-plakat.pdf",
+        "size": 311298
+      }
+    ]
+  },
+  {
+    "id": "charitativni-jarmark-ceska-2022",
+    "title": "Charitativní jarmark v České",
+    "start": "2022-11-20",
+    "time": "13:30–16:30",
+    "place": "Česká, sokolovna",
+    "text": "Tradiční 22. farní charitativní jarmark, letos pro Ukrajinu. Výtěžek půjde na konto SOS Ukrajina Člověka v tísni.",
+    "body": "<p>Přispějte svým ručně vyrobeným zbožím nebo nabídněte své speciality do stánku s občerstvením. Příspěvky se shromažďují v sobotu 19. 11. od 17 do 18 hodin v sokolovně v České.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/charitativni-jarmark-ceska-2022-plakat.webp",
+      "alt": "Plakát: 22. tradiční farní charitativní jarmark pro Ukrajinu"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/charitativni-jarmark-ceska-2022-plakat.pdf",
+        "size": 701586
+      }
+    ]
+  },
+  {
+    "id": "cervena-streda-2022",
+    "title": "Červená středa",
+    "start": "2022-11-23",
+    "time": "17:00–20:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Připomeňme si všechny, kdo jsou pronásledováni pro víru: nasvícený kostel, mše svatá a tichá adorace.",
+    "program": [
+      {
+        "time": "17:00–20:00",
+        "title": "Kostel nasvícený červeně"
+      },
+      {
+        "time": "18:00",
+        "title": "Mše svatá za lidi pronásledované pro víru"
+      },
+      {
+        "time": "po mši",
+        "title": "Tichá adorace a modlitba při svíčkách"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/cervena-streda-2022-plakat.webp",
+      "alt": "Plakát: Červená středa 23. listopadu 2022"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/cervena-streda-2022-plakat.pdf",
+        "size": 4787221
+      }
+    ],
+    "links": [
+      {
+        "label": "Červená středa",
+        "href": "https://www.cervenastreda.cz/"
+      }
+    ]
+  },
+  {
+    "id": "farni-silvestr-2022",
+    "title": "Farní silvestr",
+    "start": "2022-11-26",
+    "time": "15:00",
+    "place": "Kuřim",
+    "text": "Farní silvestr na konci církevního roku: mše svatá, vyprávění o pouti do Říma, dražba dortu, kvíz a ohňostroj.",
+    "program": [
+      {
+        "time": "15:00",
+        "title": "Mše svatá"
+      },
+      {
+        "time": "16:30",
+        "title": "Pouť do Říma Petry Šiprové"
+      },
+      {
+        "time": "18:00",
+        "title": "Dražba dortu a kvíz"
+      },
+      {
+        "time": "19:00",
+        "title": "Hudba a ohňostroj"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/farni-silvestr-2022-plakat.webp",
+      "alt": "Plakát: Farní silvestr 26. listopadu 2022"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/farni-silvestr-2022-plakat.pdf",
+        "size": 25860
+      }
+    ]
+  },
+  {
+    "id": "rozsviceni-vanocniho-stromu-2022",
+    "title": "Rozsvícení vánočního stromu",
+    "start": "2022-11-27",
+    "place": "Kuřim a Česká",
+    "text": "Slavnostní rozsvícení vánočního stromu v Kuřimi a v České.",
+    "program": [
+      {
+        "time": "16:30",
+        "title": "Rozsvícení stromu v České",
+        "note": "u lípy, vystoupení dětí z MŠ Česká a sboru Lelkováček"
+      },
+      {
+        "time": "17:30",
+        "title": "Vystoupení ZUŠ Kuřim",
+        "note": "Kuřim, náměstí 1. května"
+      },
+      {
+        "time": "18:00",
+        "title": "Rozsvícení stromu v Kuřimi"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/rozsviceni-vanocniho-stromu-2022-plakat-kurim.webp",
+      "alt": "Plakát: Rozsvícení vánočního stromu 2022 v Kuřimi"
+    },
+    "attachments": [
+      {
+        "label": "Plakát: Kuřim",
+        "file": "/uploads/aktuality/rozsviceni-vanocniho-stromu-2022-plakat-kurim.pdf",
+        "size": 904712
+      },
+      {
+        "label": "Plakát: Česká",
+        "file": "/uploads/aktuality/rozsviceni-vanocniho-stromu-2022-plakat-ceska.pdf",
+        "size": 1480829
+      }
+    ]
+  }
+]

@@ -1,0 +1,140 @@
+[
+  {
+    "id": "marianske-pouti-2020",
+    "title": "Mariánské poutě",
+    "start": "2020-09-06",
+    "end": "2020-09-20",
+    "place": "Vranov u Brna a Žarošice",
+    "text": "Přijměte pozvání na cyklopouť a pěší pouť na Vranov a na Zlatou sobotu v Žarošicích.",
+    "program": [
+      {
+        "time": "6. 9. 12:30",
+        "title": "Cyklopouť z Kuřimi na Vranov",
+        "note": "z parku na ulici Havlíčkova, mše svatá v 15:00"
+      },
+      {
+        "time": "12. 9.",
+        "title": "Zlatá sobota v Žarošicích",
+        "note": "odpoledne"
+      },
+      {
+        "time": "20. 9. 7:30",
+        "title": "Tradiční pěší pouť Moravské Knínice – Kuřim – Vranov",
+        "note": "mše svatá v 11:00"
+      }
+    ],
+    "poster": {
+      "src": "/uploads/aktuality/marianske-pouti-2020-plakat-pesi-pout.webp",
+      "alt": "Plakát: Tradiční pěší pouť na Vranov 20. září 2020"
+    },
+    "attachments": [
+      {
+        "label": "Plakát: Pěší pouť na Vranov",
+        "file": "/uploads/aktuality/marianske-pouti-2020-plakat-pesi-pout.pdf",
+        "size": 682311
+      },
+      {
+        "label": "Plakát: Cyklopouť na Vranov",
+        "file": "/uploads/aktuality/marianske-pouti-2020-plakat-cyklopout.pdf",
+        "size": 333088
+      },
+      {
+        "label": "Plakát: Zlatá sobota v Žarošicích",
+        "file": "/uploads/aktuality/marianske-pouti-2020-plakat-zlata-sobota.pdf",
+        "size": 2265750
+      },
+      {
+        "label": "Plakát: Sedmiradostná cesta",
+        "file": "/uploads/aktuality/marianske-pouti-2020-plakat-sedmiradostna-cesta.pdf",
+        "size": 327454
+      }
+    ]
+  },
+  {
+    "id": "varhanni-koncert-kninice-2020",
+    "title": "Varhanní koncert v Moravských Knínicích",
+    "start": "2020-09-13",
+    "time": "17:00",
+    "place": "Moravské Knínice, kostel sv. Markéty",
+    "text": "Dobročinný koncert varhanice Hany Bartošové a flétnistky Hany Hána, výtěžek je určen na opravy kostela.",
+    "body": "<p>Podvečer u varhan se starými mistry v rámci Brněnského varhanního festivalu. Na programu jsou skladby L. Vinciho, M. Weckmanna, J. K. Vaňhala, J. Segera a J. K. Kuchaře. Vstupné dobrovolné.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/varhanni-koncert-kninice-2020-plakat.webp",
+      "alt": "Plakát: Varhanní koncert v Moravských Knínicích 13. září 2020"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/varhanni-koncert-kninice-2020-plakat.pdf",
+        "size": 340327
+      },
+      {
+        "label": "O Haně Bartošové",
+        "file": "/uploads/aktuality/varhanni-koncert-kninice-2020-hana-bartosova.pdf",
+        "size": 180618
+      },
+      {
+        "label": "O Haně Hána",
+        "file": "/uploads/aktuality/varhanni-koncert-kninice-2020-hana-hana.pdf",
+        "size": 284126
+      }
+    ]
+  },
+  {
+    "id": "diktatura-versus-nadeje-2020",
+    "title": "Výstava Diktatura versus naděje",
+    "start": "2020-09-18",
+    "end": "2020-10-08",
+    "place": "Brno, kostel sv. Jakuba",
+    "text": "Výstava o pronásledování římskokatolické církve v Československu v letech 1948–1989. Vstup volný.",
+    "body": "<p>Výstavu uspořádal Ústav pro studium totalitních režimů a Archiv Kanceláře prezidenta republiky ve spolupráci s brněnským biskupstvím.</p>",
+    "poster": {
+      "src": "/uploads/aktuality/diktatura-versus-nadeje-2020-plakat.webp",
+      "alt": "Plakát: výstava Diktatura versus naděje"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/diktatura-versus-nadeje-2020-plakat.pdf",
+        "size": 4029188
+      },
+      {
+        "label": "Pozvánka",
+        "file": "/uploads/aktuality/diktatura-versus-nadeje-2020-pozvanka.jpg",
+        "size": 509478
+      }
+    ],
+    "links": [
+      {
+        "label": "Výstava na webu cirkev.cz",
+        "href": "https://www.cirkev.cz/cs/aktuality/200810diktatura-versus-nadeje"
+      }
+    ]
+  },
+  {
+    "id": "concentus-moraviae-2020",
+    "title": "Concentus Moraviae",
+    "start": "2020-09-23",
+    "time": "19:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Koncert XXV. ročníku festivalu Concentus Moraviae: na varhany hraje Kateřina Chroboková. Vstupenky v předprodeji.",
+    "links": [
+      {
+        "label": "Program festivalu",
+        "href": "https://concentus-moraviae.cz/program-2020/"
+      }
+    ]
+  },
+  {
+    "id": "rozhovor-o-sv-vaclavu-2020",
+    "title": "Rozhovor o sv. Václavu",
+    "start": "2020-09-28",
+    "text": "Kuřimská televize Kotva odvysílala rozhovor o sv. Václavu, patronu českého národa.",
+    "links": [
+      {
+        "label": "Kotva TV na YouTube",
+        "href": "https://www.youtube.com/user/kotvaka/videos"
+      }
+    ]
+  }
+]
