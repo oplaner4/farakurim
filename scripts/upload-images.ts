@@ -1,6 +1,6 @@
 // Renders the WebP images of uploaded content: event posters for the Aktuality pages (design/DESIGN.md §11, §13)
 // and the Petrklíč cover and viewer pages (§17–18). PDF pages are rendered with poppler, images resized with sharp.
-// scripts/stage-upload.ts renders them while staging; the commands re-render files already in uploads/.
+// `pnpm stage` (scripts/stage/) renders them while staging; the commands re-render files already in uploads/.
 //
 // Usage: pnpm petrklic <id-or-folder> ... [--pages]
 //   uploads/petrklic/<id>/cover.webp (page 1) and, with --pages, every page as pages/<n>.webp for the viewer.

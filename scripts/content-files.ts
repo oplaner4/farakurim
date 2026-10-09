@@ -1,4 +1,4 @@
-// The helpers the content scripts share (add-aktualita, add-ohlasky, aktualita-calendar, stage-upload): the repo's
+// The helpers the content scripts share (add-aktualita, add-ohlasky, aktualita-calendar, stage/): the repo's
 // paths, the source of a record as a JS expression, the aktuality IDs, and formatting and testing the files written.
 
 import { execFileSync } from "node:child_process";

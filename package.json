@@ -11,7 +11,7 @@
     "icons": "tsx scripts/generate-icons.ts",
     "fonts": "python3 scripts/build-fonts.py",
     "petrklic": "tsx scripts/upload-images.ts petrklic",
-    "stage": "tsx scripts/stage-upload.ts",
+    "stage": "tsx scripts/stage/cli.ts",
     "add-aktualita": "tsx scripts/add-aktualita.ts",
     "aktualita-calendar": "tsx scripts/aktualita-calendar.ts",
     "format": "prettier --write .",

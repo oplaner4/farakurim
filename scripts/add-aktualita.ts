@@ -7,7 +7,7 @@
 // The record is a NewsEvent as JSON; upload paths are root-relative ("/uploads/aktuality/x.webp") and become
 // `${UPLOADS}/x.webp`. --check only validates the record and prints the target file, without writing.
 // Then it checks the event in the Události calendar (scripts/aktualita-calendar.ts).
-// `pnpm stage aktualita … --record <file>` (scripts/stage-upload.ts) adds the staged poster and attachments and
+// `pnpm stage aktualita … --record <file>` (scripts/stage/cli.ts) adds the staged poster and attachments and
 // calls addAktualita(), formatAndTest() and the calendar check itself.
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";

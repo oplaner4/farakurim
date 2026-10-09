@@ -23,7 +23,7 @@ Files that go to the server are prepared in `uploads/` (git-ignored), which mirr
 | Pořad bohoslužeb | `uploads/porady_bohosluzeb/<file>`           | `/uploads/porady_bohosluzeb/<file>`           |
 | Petrklíč         | `uploads/petrklic/<id>/` (PDF, cover, pages) | `/uploads/petrklic/<id>/petrklic-<id>.pdf`, … |
 
-`pnpm stage aktualita|porad|petrklic` (`scripts/stage-upload.ts`) stages them: it names a file in **ASCII,
+`pnpm stage aktualita|porad|petrklic` (`scripts/stage/`) stages them: it names a file in **ASCII,
 lower-case kebab-case**, prefixed with its record (`hody-ceska-plakat.png`, `2026-10-04-porad-bohosluzeb.pdf`), and
 refuses a name already on the server, since files there are never overwritten. Diacritics break in some SFTP
 clients, and the prefix keeps names unique. Stage files by hand only for content
