@@ -1,10 +1,11 @@
 import * as z from "zod";
-import type { ServiceSheet } from "@/content/types/services";
+import type { OhlaskyFile, PlaceId, ScheduleException, ServiceSheet } from "@/content/types/services";
 import { periodDates } from "./service-sheet";
 
-// The rules of one ohlášky sheet, in one place: ohlasky.test.ts checks every sheet in src/content/ohlasky/ with them,
-// and scripts/add-ohlasky.ts checks a new record before the farnost-create-porad-bohosluzeb skill stages its PDF.
-// The rules across sheets (their order, the aktuality an announcement links) are sheetOrderProblems() and the script's.
+// The rules of the ohlášky, in one place: src/server/ohlasky.ts checks src/content/ohlasky.json with them when the
+// site loads it, and scripts/add-ohlasky.ts checks a new record and the file before the farnost-create-porad-bohosluzeb
+// skill stages its PDF. The rules across sheets (their order, the aktuality an announcement links) are
+// sheetOrderProblems() and the content test's.
 
 const date = z.iso.date();
 const clock = z.string().regex(/^(1?\d|2[0-3]):[0-5]\d$/, "must be H:MM");
@@ -78,3 +79,26 @@ export const serviceSheetSchema = z
       }
     });
   }) satisfies z.ZodType<ServiceSheet>;
+
+/** Every PlaceId once: a place added to the type must be added here too, or this does not compile. */
+const PARISH_CHURCHES: Record<PlaceId, true> = { kurim: true, "moravske-kninice": true, jinacovice: true };
+
+const serviceEntrySchema = z.strictObject({
+  time: clock,
+  place: z.enum(Object.keys(PARISH_CHURCHES) as PlaceId[]),
+  title: text.optional(),
+  note: text.optional(),
+});
+
+/** A hand-entered ScheduleException (`laterExceptions` in src/content/ohlasky.json). */
+export const scheduleExceptionSchema = z.strictObject({
+  date,
+  services: z.array(serviceEntrySchema),
+  reason: text.optional(),
+}) satisfies z.ZodType<ScheduleException>;
+
+/** The whole of src/content/ohlasky.json; src/server/ohlasky.ts and scripts/add-ohlasky.ts parse it. */
+export const ohlaskyFileSchema = z.strictObject({
+  sheets: z.array(serviceSheetSchema),
+  laterExceptions: z.array(scheduleExceptionSchema),
+}) satisfies z.ZodType<OhlaskyFile>;

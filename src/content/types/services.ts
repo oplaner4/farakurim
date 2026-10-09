@@ -52,6 +52,12 @@ export type ScheduleException = {
   reason?: string;
 };
 
+/** The ohlášky (src/content/ohlasky.json): the sheets by `validFrom` and the hand-entered later changes. */
+export type OhlaskyFile = {
+  sheets: ServiceSheet[];
+  laterExceptions: ScheduleException[];
+};
+
 /** Category of an announcement in the ohlášky (design/DESIGN.md §14.5); it sets the label and its colour. */
 export type AnnouncementCategory = "zmena" | "smireni" | "pozvanka" | "podekovani" | "info";
 
