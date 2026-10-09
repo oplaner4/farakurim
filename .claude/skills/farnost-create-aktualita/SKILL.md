@@ -103,7 +103,8 @@ The attachment is the original file (the full-size link); the poster is only the
 the file: the archive lists them. An event without a source file is added with
 `pnpm add-aktualita <scratchpad>/record.json` alone. Without `--record`, `pnpm stage` only prints the `"poster"`
 and `"attachments"` entries as JSON, to paste into an existing record. A correction to an existing record is an
-edit of its month file; `pnpm test src/content/news` checks it.
+edit of its month file; `pnpm test src/content/news` checks it. `pnpm dev` reads the files once, so restart it
+to see a hand edit.
 
 If the record is refused after staging (it should not be: it is checked first), fix `record.json` and run the same
 command again: staging the same file again is allowed.
