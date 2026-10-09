@@ -5,10 +5,10 @@
 
 New website of **Římskokatolická farnost Kuřim** (farakurim.cz). The project conventions (language, stack, static
 export, commits, the check before a commit) are imported above from `docs/conventions.md`. `README.md` describes the
-rest: the requirements, the commands, the layout, the content workflow and how deployment works. **Read it first.**
-This file holds only what an agent must follow on top of them. Pages not rebuilt yet have placeholders ("Stránku
-připravujeme"); the design spec is `design/DESIGN.md` (the shared lightbox is §21, the header and footer §20, nav
-groups in `navGroups`).
+rest: the requirements, the commands, the layout and the content workflow, and `docs/deployment.md` how deployment
+works. **Read the README first.** This file holds only what an agent must follow on top of them. Pages not rebuilt
+yet have placeholders ("Stránku připravujeme"); the design spec is `design/DESIGN.md` (the shared lightbox is §21, the
+header and footer §20, nav groups in `navGroups`).
 
 ## Working rules
 
@@ -34,8 +34,8 @@ Use the content skills listed in [README.md § Content](README.md#content).
 
 ## Deployment
 
-`pnpm release` (`scripts/release.sh`) releases, and the `farnost-release` skill says how an agent runs it.
-What an agent must never get wrong:
+`pnpm release` (`scripts/release.sh`) releases (how it works: `docs/deployment.md`), and the `farnost-release` skill
+says how an agent runs it. What an agent must never get wrong:
 
 - Pushing a release tag `vX.Y.Z` **publishes the site** (GitHub Actions deploys it; pushes to `main` are only a
   backup), and so do `pnpm release --yes` (it pushes the tag), `pnpm release --local --yes`, `scripts/deploy.sh out`
