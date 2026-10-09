@@ -50,6 +50,24 @@ RedirectMatch 301 ^/(?:aktivity/)?katecheze_pro_deti/mimoradne/(.+?)(?:\.php)?/?
 RedirectMatch 301 ^/farni_tabor/(2019|202[0-6])(?:\.php)?/?$ https://stary.farakurim.cz/farni_tabor/$1
 RedirectMatch 301 ^/betlemy/(2024|2025)(?:\.php)?/?$ https://stary.farakurim.cz/betlemy/$1
 
+# Aktuality detail pages moved from a URL made from the title to the record's ID (/aktuality/<id>/). The records
+# still current when the new site went live (5 October 2026) were released under the title URLs, so each one, with its
+# kalendar.ics, leads to the new one. Never reuse one of these paths as an ID: the redirect would hide its page
+# (news.test.ts checks it).
+RedirectMatch 301 ^/aktuality/seminar-otcovo-srdce/?(.*)$ /aktuality/seminar-otcovo-srdce-2026/$1
+RedirectMatch 301 ^/aktuality/obnova-v-duchu-svatem/?(.*)$ /aktuality/obnova-v-duchu-svatem-2026/$1
+RedirectMatch 301 ^/aktuality/novy-web-farnosti/?(.*)$ /aktuality/novy-web-farnosti-2026/$1
+RedirectMatch 301 ^/aktuality/kolac-pro-hospic/?(.*)$ /aktuality/kolac-pro-hospic-2026/$1
+RedirectMatch 301 ^/aktuality/dekanatni-setkani-lektoru-boziho-slova/?(.*)$ /aktuality/setkani-lektoru-2026/$1
+RedirectMatch 301 ^/aktuality/manzelske-vecery-pro-tisnov-a-okoli/?(.*)$ /aktuality/manzelske-vecery-2026/$1
+RedirectMatch 301 ^/aktuality/adoracni-den-kurimske-farnosti/?(.*)$ /aktuality/adoracni-den-2026/$1
+RedirectMatch 301 ^/aktuality/dekanatni-setkani-varhaniku-a-schol/?(.*)$ /aktuality/setkani-varhaniku-a-schol-2026/$1
+RedirectMatch 301 ^/aktuality/slavnostni-mse-k-jubileu-800-let/?(.*)$ /aktuality/jubileum-800-2026/$1
+RedirectMatch 301 ^/aktuality/hubertska-mse/?(.*)$ /aktuality/hubertska-mse-2026/$1
+RedirectMatch 301 ^/aktuality/pokoj-srdce-vikendove-setkani-pro-mlade-zeny/?(.*)$ /aktuality/pokoj-srdce-2026/$1
+RedirectMatch 301 ^/aktuality/konference-o-evangelizaci-riskujme-lasce/?(.*)$ /aktuality/konference-o-evangelizaci-2026/$1
+RedirectMatch 301 ^/aktuality/farni-pout-do-lukova-a-adventni-trebice/?(.*)$ /aktuality/pout-lukov-trebic-2026/$1
+
 # The old site served each Petrklíč PDF from /petrklic/pdf?id=<id of its database row> (also pdf.php); its sitemap
 # and old emails link there. Each old id opens its issue's PDF (ids from the old database's petrklice table), and
 # /petrklic/pdf without a known id, which used to send the newest issue, opens the current issue's page. The query

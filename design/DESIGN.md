@@ -568,7 +568,7 @@ The archive uses the same event record as section 11.7. An event appears in the
 archive the day after its end date. A manual "archived" flag is no longer needed,
 though an admin may still hide an event.
 
-## 13. Detail akce (`/aktuality/<slug>`)
+## 13. Detail akce (`/aktuality/<id>`)
 
 Mockups: `mockups/detail/`. The example is "Slavnostní mše k jubileu 800 let".
 Section colour: magenta. The header's current item stays "Aktuality".
@@ -588,7 +588,7 @@ Section colour: magenta. The header's current item stays "Aktuality".
 
 - Magenta-tint panel with magenta and orange triangles top-right, radius 24 / 28 / 28.
 - Rows with icons (magenta-ink): **Kdy** (label muted, value bold) and **Kde** (place bold + "Zobrazit na mapě" link to Mapy.cz with the place as a query).
-- **"Přidat do kalendáře"**: magenta filled button, 52 px. It downloads an `.ics` file (`/aktuality/<slug>.ics`) with title, start/end, place and the page URL; for a series of meetings it contains one `VEVENT` per meeting, each at its own time (11.7). This is a new feature.
+- **"Přidat do kalendáře"**: magenta filled button, 52 px. It downloads an `.ics` file (`/aktuality/<id>/kalendar.ics`) with title, start/end, place and the page URL; for a series of meetings it contains one `VEVENT` per meeting, each at its own time (11.7). This is a new feature.
 - **"Sdílet"**: magenta outline button. It uses `navigator.share()` where available, and otherwise copies the URL and shows "Odkaz je zkopírovaný." (`role="status"`).
 
 ### 13.3 Content blocks
@@ -603,7 +603,6 @@ Section colour: magenta. The header's current item stays "Aktuality".
 
 | Field | Notes |
 |---|---|
-| slug | URL part, generated from the title, editable |
 | lead | one sentence under the title |
 | body | rich text |
 | program[] | time text, title, note (optional) |

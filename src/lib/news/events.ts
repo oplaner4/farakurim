@@ -2,7 +2,7 @@ import { endOfMonth, endOfWeek } from "date-fns";
 import { links } from "@/content/site";
 import type { NewsEvent, TagColor } from "@/content/types/news";
 import type { IsoDate } from "@/content/types/shared";
-import { fold, formatEventWhen, formatShortDate } from "@/lib/shared/czech";
+import { formatEventWhen, formatShortDate } from "@/lib/shared/czech";
 import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
 
 // ISO dates (`YYYY-MM-DD`) compare correctly as strings, so the date maths here stays on strings.
@@ -152,16 +152,8 @@ export function groupEvents(events: NewsEvent[], today: IsoDate): EventGroup[] {
   return groups;
 }
 
-/** "Slavnostní mše k jubileu 800 let" → "slavnostni-mse-k-jubileu-800-let" */
-export const slugify = (text: string) =>
-  fold(text)
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-
-export const eventSlug = (event: NewsEvent) => event.slug ?? slugify(event.title);
-
-/** Detail page (design/DESIGN.md §13). */
-export const eventHref = (event: NewsEvent) => `${links.news}${eventSlug(event)}/`;
+/** Detail page (design/DESIGN.md §13): `/aktuality/<id>/`, so it stays when the title is reworded. */
+export const eventHref = (event: NewsEvent) => `${links.news}${event.id}/`;
 
 /** The `.ics` download of "Přidat do kalendáře" (§13.2). */
 export const eventCalendarHref = (event: NewsEvent) => `${eventHref(event)}kalendar.ics`;
@@ -175,7 +167,7 @@ export function eventPageTitle(event: NewsEvent, events: NewsEvent[]): string {
   return shared ? `${event.title} ${event.start.slice(0, 4)}` : event.title;
 }
 
-export const findEventBySlug = (events: NewsEvent[], slug: string) => events.find((e) => eventSlug(e) === slug);
+export const findEventById = (events: NewsEvent[], id: string) => events.find((e) => e.id === id);
 
 /** "Další akce" on a detail page: the nearest unfinished events other than this one. */
 export const otherEvents = <T extends Pick<NewsEvent, "id" | "start" | "end" | "longTerm">>(

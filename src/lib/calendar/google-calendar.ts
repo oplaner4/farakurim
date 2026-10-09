@@ -68,13 +68,13 @@ export function eventsUrl(calendarId: string, apiKey: string, { from, to }: Date
 export const refererInit = (siteUrl: string): RequestInit => ({ headers: { Referer: `${siteUrl}/` } });
 
 const SITE_HOST = new URL(SITE_URL).host.replace(/^www\./, "").replaceAll(".", "\\.");
-// The site's URL (with or without the scheme and www.), or a bare root-relative path, then /aktuality/<slug>.
+// The site's URL (with or without the scheme and www.), or a bare root-relative path, then /aktuality/<id>.
 const PAGE_URL = new RegExp(
   `(?<![\\w.-])(?:(?:https?://)?(?:www\\.)?${SITE_HOST}|(?<![\\w./:-]))(${siteLinks.news}[a-z0-9-]+)/?`,
   "g",
 );
 
-/** The Aktuality detail paths ("/aktuality/<slug>/") an event description links to, also inside Google's HTML. */
+/** The Aktuality detail paths ("/aktuality/<id>/") an event description links to, also inside Google's HTML. */
 export const aktualitaPaths = (description: string | undefined): string[] =>
   [...(description ?? "").matchAll(PAGE_URL)].map((m) => `${m[1]}/`);
 

@@ -201,7 +201,7 @@ describe("on a temp uploads/, news/ and home", { timeout: 30_000 }, () => {
     });
 
     const record = {
-      id: "test-hody",
+      id: "test-hody-2026",
       title: "Hody v České",
       start: "2026-10-20",
       place: "Česká",
@@ -210,7 +210,7 @@ describe("on a temp uploads/, news/ and home", { timeout: 30_000 }, () => {
 
     it("adds the record with the poster and attachment", async () => {
       const source = await poster();
-      const options = { source, id: "test-hody", label: "Plakát", record };
+      const options = { source, id: "test-hody-2026", label: "Plakát", record };
       expect((await stageAktualita(env, { ...options, check: true })).lines[0]).toBe(
         "Would add the record to src/content/news/2026/10.ts",
       );
@@ -219,25 +219,25 @@ describe("on a temp uploads/, news/ and home", { timeout: 30_000 }, () => {
         record: { ...record, poster: { alt: "Plakát: Hody v České 20. října" } },
       });
       expect(lines).toEqual([
-        "Staged uploads/aktuality/test-hody-plakat.jpg and .webp",
+        "Staged uploads/aktuality/test-hody-2026-plakat.jpg and .webp",
         "Added the record to src/content/news/2026/10.ts",
       ]);
       expect(written).toEqual(["2026/10.ts"]);
       const month = readFileSync(join(env.newsDir, "2026/10.ts"), "utf8");
-      expect(month).toContain('id: "test-hody",');
+      expect(month).toContain('id: "test-hody-2026",');
       expect(month).toContain(
-        'poster: { src: `${UPLOADS}/test-hody-plakat.webp`, alt: "Plakát: Hody v České 20. října" }',
+        'poster: { src: `${UPLOADS}/test-hody-2026-plakat.webp`, alt: "Plakát: Hody v České 20. října" }',
       );
-      expect(month).toContain('attachments: [{ label: "Plakát", file: `${UPLOADS}/test-hody-plakat.jpg`, size: ');
+      expect(month).toContain('attachments: [{ label: "Plakát", file: `${UPLOADS}/test-hody-2026-plakat.jpg`, size: ');
     });
 
     it("stages nothing for a record it refuses", async () => {
       const source = await poster();
       await expect(
-        stageAktualita(env, { source, id: "test-hody", label: "Plakát", record: { ...record, id: "jine" } }),
-      ).rejects.toThrow('the record\'s id "jine" is not "test-hody"');
+        stageAktualita(env, { source, id: "test-hody-2026", label: "Plakát", record: { ...record, id: "jine" } }),
+      ).rejects.toThrow('the record\'s id "jine" is not "test-hody-2026"');
       await expect(
-        stageAktualita(env, { source, id: "test-hody", label: "Plakát", record: { ...record, start: "20. 10." } }),
+        stageAktualita(env, { source, id: "test-hody-2026", label: "Plakát", record: { ...record, start: "20. 10." } }),
       ).rejects.toThrow("the record is not valid");
       expect(existsSync(uploaded())).toBe(false);
     });
@@ -321,11 +321,14 @@ describe("on a temp uploads/, news/ and home", { timeout: 30_000 }, () => {
       expect(lines[0]).toBe("Would stage uploads/porady_bohosluzeb/2026-10-04-porad-bohosluzeb-3.pdf");
 
       const recordFile = join(dir, "record.json");
-      writeFileSync(recordFile, JSON.stringify({ id: "x", title: "T", start: "2026-10-20", place: "P", text: "T" }));
+      writeFileSync(
+        recordFile,
+        JSON.stringify({ id: "x-2026", title: "T", start: "2026-10-20", place: "P", text: "T" }),
+      );
       const aktualita = await runCommand(env, [
         "aktualita",
         await poster(),
-        "x",
+        "x-2026",
         "Leták",
         "--no-poster",
         "--record",
@@ -334,7 +337,7 @@ describe("on a temp uploads/, news/ and home", { timeout: 30_000 }, () => {
       ]);
       expect(aktualita.lines).toEqual([
         "Would add the record to src/content/news/2026/10.ts",
-        "Would stage uploads/aktuality/x-letak.jpg",
+        "Would stage uploads/aktuality/x-2026-letak.jpg",
       ]);
     });
 

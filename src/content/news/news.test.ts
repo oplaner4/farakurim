@@ -1,5 +1,5 @@
-import { readdirSync } from "node:fs";
-import { dirname } from "node:path";
+import { readdirSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import * as z from "zod";
@@ -19,6 +19,21 @@ describe("Aktuality (news/)", () => {
   it("has unique IDs and at most one pinned event", () => {
     expect(duplicates(events.map((e) => e.id))).toEqual([]);
     expect(events.filter((e) => e.pinned).length).toBeLessThanOrEqual(1);
+  });
+
+  // public/.htaccess redirects the 2026 records' old title URLs to their IDs: an ID must never be an old path (its
+  // page would be hidden), and every redirect must lead to a record.
+  it("keeps the redirected old detail URLs apart from the IDs", () => {
+    const htaccess = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "../../../public/.htaccess"), "utf8");
+    const redirects = [
+      ...htaccess.matchAll(
+        /^RedirectMatch 301 \^\/aktuality\/([a-z0-9-]+)\/\?\(\.\*\)\$ \/aktuality\/([a-z0-9-]+)\/\$1$/gm,
+      ),
+    ];
+    const ids = new Set(events.map((e) => e.id));
+    expect(redirects.length).toBeGreaterThan(0);
+    expect(redirects.map((r) => r[1]).filter((from) => ids.has(from))).toEqual([]);
+    expect(redirects.map((r) => r[2]).filter((to) => !ids.has(to))).toEqual([]);
   });
 
   // news/<year>/<MM>.ts: the skill adds an event to the file of its start month, in start-date order.

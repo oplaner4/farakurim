@@ -26,7 +26,7 @@ import {
   refererInit,
 } from "@/lib/calendar/google-calendar";
 import { eventCalendar } from "@/lib/news/ics";
-import { eventEnd, eventHref, eventMeetings, eventSlug, type Meeting } from "@/lib/news/events";
+import { eventEnd, eventHref, eventMeetings, type Meeting } from "@/lib/news/events";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 
@@ -81,7 +81,7 @@ export function matchMeetings(event: NewsEvent, calendar: GoogleEvent[]): Meetin
 /** Writes the aktualita's .ics (as "Přidat do kalendáře" serves it) to `outDir`; returns its path. */
 export function writeIcs(event: NewsEvent, outDir: string): string {
   mkdirSync(outDir, { recursive: true });
-  const path = join(outDir, `${eventSlug(event)}.ics`);
+  const path = join(outDir, `${event.id}.ics`);
   writeFileSync(path, eventCalendar(event, `${SITE_URL}${eventHref(event)}`));
   return path;
 }

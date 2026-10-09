@@ -7,7 +7,7 @@ import type { NewsEvent } from "@/content/types/news";
 import type { GoogleEvent } from "@/lib/calendar/google-calendar";
 import { checkCalendar, matchMeetings, meetingsOf, writeIcs } from "./aktualita-calendar";
 
-const URL_OF = "https://farakurim.cz/aktuality/adoracni-den-kurimske-farnosti/";
+const URL_OF = "https://farakurim.cz/aktuality/adoracni-den-2026/";
 
 const aktualita = (fields: Partial<NewsEvent> = {}): NewsEvent => ({
   id: "adoracni-den-2026",
@@ -66,7 +66,11 @@ describe("matchMeetings", () => {
   });
 
   it("checks every meeting of a series", () => {
-    const event = aktualita({ title: "Manželské večery", sessions: ["2026-10-11", "2026-10-18", "2026-10-25"] });
+    const event = aktualita({
+      id: "manzelske-vecery",
+      title: "Manželské večery",
+      sessions: ["2026-10-11", "2026-10-18", "2026-10-25"],
+    });
     const statuses = matchMeetings(event, [
       google("a", "2026-10-11", "Manželské večery", "https://farakurim.cz/aktuality/manzelske-vecery/"),
       google("b", "2026-10-18", "Manželské večery"),
@@ -94,7 +98,7 @@ describe("with a temp folder", () => {
 
   it("writes the .ics of the detail page", () => {
     const path = writeIcs(aktualita(), dir);
-    expect(path).toBe(join(dir, "adoracni-den-kurimske-farnosti.ics"));
+    expect(path).toBe(join(dir, "adoracni-den-2026.ics"));
     const ics = readFileSync(path, "utf8");
     expect(ics).toContain("SUMMARY:Adorační den kuřimské farnosti");
     // Long lines are folded with a CRLF and a space or tab.
@@ -124,8 +128,8 @@ describe("with a temp folder", () => {
     stubCalendar([]);
     const lines = await checkCalendar(aktualita(), { apiKey: "KEY", outDir: dir });
     expect(lines[0]).toBe("Události: no event on 2026-10-12.");
-    expect(lines[1]).toMatch(/^Wrote .*adoracni-den-kurimske-farnosti\.ics: import it into "Události"/);
-    expect(readdirSync(dir)).toEqual(["adoracni-den-kurimske-farnosti.ics"]);
+    expect(lines[1]).toMatch(/^Wrote .*adoracni-den-2026\.ics: import it into "Události"/);
+    expect(readdirSync(dir)).toEqual(["adoracni-den-2026.ics"]);
   });
 
   it("writes the .ics, saying why, without a key or when Google fails", async () => {
@@ -136,6 +140,6 @@ describe("with a temp folder", () => {
     const lines = await checkCalendar(aktualita(), { apiKey: "KEY", outDir: dir });
     expect(lines[0]).toMatch(/^Události: not checked \(Google Calendar .*: HTTP 403\)\.$/);
     expect(lines[1]).toContain(`unless the event is there already; then add ${URL_OF} to its description.`);
-    expect(readdirSync(dir)).toEqual(["adoracni-den-kurimske-farnosti.ics"]);
+    expect(readdirSync(dir)).toEqual(["adoracni-den-2026.ics"]);
   });
 });

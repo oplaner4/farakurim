@@ -3,7 +3,7 @@ import { addDays, format } from "date-fns";
 import { createEvents, type DateArray, type DateTime, type EventAttributes } from "ics";
 import type { NewsEvent } from "@/content/types/news";
 import type { ClockTime, IsoDate } from "@/content/types/shared";
-import { eventMeetings, eventSlug, type Meeting } from "./events";
+import { eventMeetings, type Meeting } from "./events";
 import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
 
 // "Přidat do kalendáře" (design/DESIGN.md §13.2): one .ics file per event, generated at build time.
@@ -50,14 +50,13 @@ function timing({ start, end, time }: Meeting): Timing {
  */
 function occurrences(event: NewsEvent): (Timing & { uid: string })[] {
   const { start, end = start, longTerm } = event;
-  const slug = eventSlug(event);
   if (event.sessions) {
     return eventMeetings(event).map((meeting) => ({
       ...timing(meeting),
-      uid: `${slug}-${meeting.start}@farakurim.cz`,
+      uid: `${event.id}-${meeting.start}@farakurim.cz`,
     }));
   }
-  const uid = `${slug}@farakurim.cz`;
+  const uid = `${event.id}@farakurim.cz`;
   if (longTerm && longTerm !== true) {
     const until = utcStamp(pragueDateTime(end, "23:59"));
     return [

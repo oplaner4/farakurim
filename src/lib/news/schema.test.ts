@@ -3,7 +3,7 @@ import * as z from "zod";
 import { NEWS_EVENT_FIELDS, newsEventSchema } from "./schema";
 
 const event = {
-  id: "hody-ceska",
+  id: "hody-ceska-2026",
   title: "Hody v České",
   start: "2026-10-02",
   place: "Česká",
@@ -39,10 +39,13 @@ describe("newsEventSchema", () => {
     ]);
   });
 
-  it("requires the main fields and an ASCII id", () => {
+  it("requires the main fields and an ASCII id with the start year", () => {
     expect(problems({ title: " " })).toHaveLength(1);
     expect(problems({ text: undefined })).toHaveLength(1);
-    expect(problems({ id: "Hody České" })).toEqual(["id: must be ASCII kebab-case"]);
+    expect(problems({ id: "Hody-Ceska-2026" })).toEqual(["id: must be ASCII kebab-case"]);
+    expect(problems({ id: "hody-ceska" })).toEqual(["id: must contain the start year (2026)"]);
+    expect(problems({ id: "hody-ceska-2025" })).toEqual(["id: must contain the start year (2026)"]);
+    expect(problems({ id: "kurz-2026-10-02" })).toEqual([]);
   });
 
   it("checks the dates", () => {
@@ -105,7 +108,7 @@ describe("newsEventSchema", () => {
 
 describe("NEWS_EVENT_FIELDS", () => {
   it("lists the fields in the month files' order", () => {
-    expect(NEWS_EVENT_FIELDS.slice(0, 4)).toEqual(["id", "slug", "title", "start"]);
+    expect(NEWS_EVENT_FIELDS.slice(0, 4)).toEqual(["id", "title", "start", "end"]);
     expect(NEWS_EVENT_FIELDS.indexOf("published")).toBeLessThan(NEWS_EVENT_FIELDS.indexOf("poster"));
   });
 });

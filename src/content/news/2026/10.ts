@@ -61,7 +61,7 @@ export const october: NewsEvent[] = [
     attachments: [{ label: "Plakát", file: `${UPLOADS}/hody-ceska-2026-plakat.png`, size: 482268 }],
   },
   {
-    id: "novy-web-farnosti",
+    id: "novy-web-farnosti-2026",
     title: "Nový web farnosti",
     start: "2026-10-05",
     end: "2026-10-31",

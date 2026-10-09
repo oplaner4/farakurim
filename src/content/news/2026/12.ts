@@ -3,7 +3,7 @@ import { UPLOADS } from "../uploads";
 
 export const december: NewsEvent[] = [
   {
-    id: "pout-lukov-trebic",
+    id: "pout-lukov-trebic-2026",
     title: "Farní pouť do Lukova a adventní Třebíče",
     start: "2026-12-19",
     place: "Lukov a Třebíč",

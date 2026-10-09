@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import type { NewsEvent } from "@/content/types/news";
 import { eventCalendar, eventClock } from "./ics";
 
-const URL = "https://farakurim.cz/aktuality/x/";
+const URL = "https://farakurim.cz/aktuality/hody-v-ceske/";
 
 const event = (extra: Partial<NewsEvent>): NewsEvent => ({
-  id: "x",
+  id: "hody-v-ceske",
   title: "Hody v České",
   place: "Česká, náves",
   text: "Stavění máje.",

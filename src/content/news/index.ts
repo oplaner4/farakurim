@@ -12,9 +12,13 @@ import { events2026 } from "./2026";
 // old site's database (farakurim.cz), one file per year. Which ones are current and which archived is decided
 // by date (src/lib/news/), not by the file they are in.
 
-// The old years repeat their titles every year ("Farní den"), so their detail URL is the ID, which ends with the year.
-const pastYears = [events2019, events2020, events2021, events2022, events2023, events2024, events2025]
-  .flat()
-  .map((e) => ({ ...e, slug: e.slug ?? e.id }));
-
-export const events: NewsEvent[] = [...events2026, ...pastYears];
+export const events: NewsEvent[] = [
+  ...events2026,
+  ...events2025,
+  ...events2024,
+  ...events2023,
+  ...events2022,
+  ...events2021,
+  ...events2020,
+  ...events2019,
+];

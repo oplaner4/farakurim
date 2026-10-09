@@ -47,9 +47,8 @@ export type EventTag = { label: string; color?: TagColor };
  * the nearest ones; the archive (§12) lists them from the day after they end.
  */
 export type NewsEvent = {
+  /** Also the URL part of the detail page (`/aktuality/<id>/`). */
   id: string;
-  /** URL part of the detail page (`/aktuality/<slug>/`); generated from the title when omitted. */
-  slug?: string;
   title: string;
   start: IsoDate;
   /** Last day of a multi-day event; omit for single-day events. */

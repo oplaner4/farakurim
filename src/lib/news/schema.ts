@@ -29,7 +29,6 @@ const readableTime = (time: string) => {
 export const newsEventSchema = z
   .strictObject({
     id: z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "must be ASCII kebab-case"),
-    slug: z.string().optional(),
     title: text,
     start: date,
     end: date.optional(),
@@ -65,6 +64,14 @@ export const newsEventSchema = z
       .optional(),
   })
   .superRefine((event, ctx) => {
+    // The ID is the detail URL: the start year keeps a title that repeats every year ("Farní den") on its own page.
+    if (!event.id.split("-").includes(event.start.slice(0, 4))) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["id"],
+        message: `must contain the start year (${event.start.slice(0, 4)})`,
+      });
+    }
     if (event.end !== undefined && event.end <= event.start) {
       ctx.addIssue({ code: "custom", path: ["end"], message: "must be after start (omit it for one day)" });
     }

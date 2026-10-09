@@ -64,7 +64,7 @@ export const serviceSheet: ServiceSheet = {
     {
       category: "pozvanka",
       html: '<p>Připravujeme <strong>farní pouť</strong> do Lukova, rodiště blahoslaveného Jana Buly, a na adventní trhy do Třebíče. Pojede se v sobotu <strong>19. prosince</strong>, cena 300 Kč, přihláška do <strong>10. října</strong> na <a href="mailto:poutnicimkk@seznam.cz">poutnicimkk@seznam.cz</a></p>',
-      newsId: "pout-lukov-trebic",
+      newsId: "pout-lukov-trebic-2026",
     },
     {
       category: "pozvanka",

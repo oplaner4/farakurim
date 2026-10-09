@@ -22,7 +22,7 @@ const root = fileURLToPath(new URL("..", import.meta.url));
 const prettier = (dir: string, files: string[]) => formatFiles(files.map((f) => join(dir, f)));
 
 const record = (fields: Partial<NewsEvent> = {}): NewsEvent => ({
-  id: "hody-ceska",
+  id: "hody-ceska-2026",
   title: "Hody v České",
   start: "2026-10-02",
   place: "Česká",
@@ -141,7 +141,8 @@ describe("yearFiles and addYear", () => {
   it("lists the new year first in news/index.ts", () => {
     const updated = addYear(readFileSync(join(root, "src/content/news/index.ts"), "utf8"), "2027");
     expect(updated).toContain('import { events2026 } from "./2026";\nimport { events2027 } from "./2027";');
-    expect(updated).toContain("export const events: NewsEvent[] = [...events2027, ...events2026, ");
+    // Prettier wraps the list, and the command formats the file afterwards.
+    expect(updated.replace(/\s+/g, " ")).toContain("export const events: NewsEvent[] = [...events2027, ...events2026,");
     expect(() => addYear("export const x = 1;", "2027")).toThrow(/unexpected shape/);
   });
 });
@@ -159,15 +160,15 @@ describe("addAktualita on a copy of news/", { timeout: 30_000 }, () => {
 
   const now = new Date("2026-10-07T10:00:00Z");
   const full = record({
-    id: "hody-ceska-test",
+    id: "hody-ceska-test-2026",
     start: "2026-10-03",
     end: "2026-10-04",
     time: "18:00–20:30",
     body: "<p>Program pro <strong>celou rodinu</strong>.</p>",
     program: [{ time: "18:00", title: "Stavění máje", note: "u obecního úřadu" }],
     links: [{ label: "obec@ceska.cz", href: "mailto:obec@ceska.cz" }],
-    poster: { src: "/uploads/aktuality/hody-ceska-test-plakat.webp", alt: "Plakát: Hody v České" },
-    attachments: [{ label: "Plakát", file: "/uploads/aktuality/hody-ceska-test-plakat.png", size: 1240000 }],
+    poster: { src: "/uploads/aktuality/hody-ceska-test-2026-plakat.webp", alt: "Plakát: Hody v České" },
+    attachments: [{ label: "Plakát", file: "/uploads/aktuality/hody-ceska-test-2026-plakat.png", size: 1240000 }],
   });
 
   it("writes a record that reads back unchanged, in a formatted file", async () => {
@@ -179,7 +180,7 @@ describe("addAktualita on a copy of news/", { timeout: 30_000 }, () => {
     expect(readFileSync(join(news, "2026/10.ts"), "utf8")).toBe(formatted);
     expect(formatted).toContain('    published: "2026-10-07",\n');
     expect(formatted).toContain(
-      '    poster: { src: `${UPLOADS}/hody-ceska-test-plakat.webp`, alt: "Plakát: Hody v České" },',
+      '    poster: { src: `${UPLOADS}/hody-ceska-test-2026-plakat.webp`, alt: "Plakát: Hody v České" },',
     );
 
     const { october: list } = (await import(`${join(news, "2026/10.ts")}?t=${Date.now()}`)) as {
@@ -191,8 +192,8 @@ describe("addAktualita on a copy of news/", { timeout: 30_000 }, () => {
 
   it("sets published to the Prague date and keeps one it is given", () => {
     // 22:30 UTC on 6 October is already 7 October in Prague.
-    addAktualita(news, record({ id: "x-test" }), { now: new Date("2026-10-06T22:30:00Z") });
-    addAktualita(news, record({ id: "y-test", published: "2026-09-21" }), { now });
+    addAktualita(news, record({ id: "x-2026" }), { now: new Date("2026-10-06T22:30:00Z") });
+    addAktualita(news, record({ id: "y-2026", published: "2026-09-21" }), { now });
     const source = readFileSync(join(news, "2026/10.ts"), "utf8");
     expect(source).toContain('published: "2026-10-07"');
     expect(source).toContain('published: "2026-09-21"');
@@ -212,7 +213,7 @@ describe("addAktualita on a copy of news/", { timeout: 30_000 }, () => {
     expect(() => addAktualita(news, record({ id: "setkani-prvokomunikantu-2026" }), { now })).toThrow(
       "id setkani-prvokomunikantu-2026 is already taken",
     );
-    expect(() => addAktualita(news, record({ id: "x-test", start: "2025-10-02" }), { now })).toThrow(
+    expect(() => addAktualita(news, record({ id: "x-2025", start: "2025-10-02" }), { now })).toThrow(
       /2025 is a migrated year/,
     );
   });
@@ -226,7 +227,5 @@ describe("addAktualita on a copy of news/", { timeout: 30_000 }, () => {
 
     const { events } = (await import(`${join(news, "index.ts")}?t=${Date.now()}`)) as { events: NewsEvent[] };
     expect(events[0].id).toBe("trikralova-sbirka-2027");
-    // The new year keeps title slugs: only the migrated years get their ID as the slug.
-    expect(events[0].slug).toBeUndefined();
   });
 });

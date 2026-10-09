@@ -4,18 +4,16 @@ import {
   currentNews,
   eventHref,
   eventPageTitle,
-  eventSlug,
   eventStatus,
   eventTags,
   featuredEvent,
   filterEvents,
-  findEventBySlug,
+  findEventById,
   groupEvents,
   NEWS_FILTER_META,
   NEWS_FILTERS,
   otherEvents,
   posterAlt,
-  slugify,
 } from "./events";
 import { event, events, ids, TODAY } from "./test-fixtures";
 
@@ -80,24 +78,16 @@ describe("groupEvents", () => {
   });
 });
 
-describe("slugs", () => {
-  it("turns a Czech title into a URL part, unless the event sets its own", () => {
-    expect(slugify("Slavnostní mše k jubileu 800 let")).toBe("slavnostni-mse-k-jubileu-800-let");
-    expect(slugify("Proměna farnosti – Patrik (Tchaj-wan)!")).toBe("promena-farnosti-patrik-tchaj-wan");
-    expect(eventSlug(event("x", TODAY, undefined, { title: "Hody v České", slug: "hody" }))).toBe("hody");
-  });
-
-  it("are unique and never clash with the Aktuality filter or archive pages", () => {
-    const slugs = allEvents.map(eventSlug);
-    expect(new Set(slugs).size).toBe(slugs.length);
+describe("detail URLs", () => {
+  it("are the IDs and never clash with the Aktuality filter or archive pages", () => {
     const reserved = [...NEWS_FILTERS.map((f) => NEWS_FILTER_META[f].slug), "archiv"];
-    expect(slugs.filter((s) => reserved.includes(s))).toEqual([]);
+    expect(allEvents.map((e) => e.id).filter((id) => reserved.includes(id))).toEqual([]);
   });
 
-  it("finds an event by its slug", () => {
-    const jubilee = findEventBySlug(allEvents, "slavnostni-mse-k-jubileu-800-let");
-    expect(jubilee?.id).toBe("jubileum-800-2026");
-    expect(eventHref(jubilee!)).toBe("/aktuality/slavnostni-mse-k-jubileu-800-let/");
+  it("finds an event by its ID", () => {
+    const jubilee = findEventById(allEvents, "jubileum-800-2026");
+    expect(jubilee?.title).toBe("Slavnostní mše k jubileu 800 let");
+    expect(eventHref(jubilee!)).toBe("/aktuality/jubileum-800-2026/");
   });
 });
 
