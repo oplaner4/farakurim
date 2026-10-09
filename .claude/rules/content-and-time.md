@@ -35,14 +35,14 @@ build-time next mass.
   the title otherwise. First-Friday/Saturday variants use `rule: "first-in-month"` (and `"not-first-in-month"` for
   what they replace). Exceptions (`scheduleExceptions()`) **replace the whole day's services**, titled ones included;
   never hard-code those variants in logic.
-- Ohlášky (`content/ohlasky/`, design §14.5–14.7): one generated `ServiceSheet` file per week (a week, or two weeks around holidays; `isOneWeek()` switches the labels; `<validFrom>.ts`, joined by `index.ts` with `laterExceptions`), added in advance with `pnpm stage porad … --record`, which removes the sheets before the current one. A sheet has `days[].rows[]` and
+- Ohlášky (`content/ohlasky.json`, design §14.5–14.7): one `ServiceSheet` per week (a week, or two weeks around holidays; `isOneWeek()` switches the labels) and the hand-entered `laterExceptions`, loaded and checked by `server/ohlasky.ts` (`ohlaskyFileSchema`); a sheet is added in advance with `pnpm stage porad … --record`, which removes the sheets before the current one and the `laterExceptions` the sheets cover. A sheet has `days[].rows[]` and
   `announcements[]`. For every day of every sheet (the newer sheet wins the Sunday two sheets share) the `mass` and `service` rows (adoration,
   "Velikonoční obřady"; never funerals, baptisms, weddings) are the day's only services (`sheetExceptions()`), never
   combined with `regularServices`; after the last sheet the regular schedule applies, except on the hand-entered
   `laterExceptions` (changes announced for later dates; `scheduleExceptions()` puts them after the sheet's days and
   drops the ones a sheet covers or that are past). The site shows the sheet whose week has started last (`currentSheet()`), chosen in the browser by `CurrentSheet` / `NextMass` from the build day's choice. Only the sheets and `laterExceptions` are content: the combined
   exceptions are `currentExceptions` in `server/services.ts` (homepage, `server/calendar.ts`). `changed` only adds the "změna" tag; `markChanges()` sets it on masses that are not in the regular schedule. Intentions are published word for word, names included (the parish's decision: the PDF
-  is public too). A row the user asks to hide gets `public: false`, which keeps its `detail` off the web: the module
+  is public too). A row the user asks to hide gets `public: false`, which keeps its `detail` off the web: `server/ohlasky.ts`
   is `server-only`, pages pass `publicDays()` and client components get only props, never the module.
 - Petrklíč (`content/petrklic.ts`): one record per issue, newest first, added with `farnost-create-petrklic`; the
   volume is computed (`volumeOf()`). Each issue is one folder uploaded to `/uploads/petrklic/<id>/`: the PDF

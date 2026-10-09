@@ -2,7 +2,7 @@ import type { ParishChapel, ParishChurch } from "@/content/types/contacts";
 import type { Intentions, Place, PlaceId, RegularService } from "@/content/types/services";
 
 // The parish's churches and its regular weekly schedule. Edit here when the schedule changes; the current ohlášky
-// (`content/ohlasky.ts`) override it day by day.
+// (`content/ohlasky.json`) override it day by day.
 
 /** In display order (design/DESIGN.md §14.3). */
 export const places: Record<PlaceId, Place> = {
@@ -72,7 +72,7 @@ export const parishChurches: ParishChurch[] = [
 
 /**
  * Regular weekly schedule (source: /porad_bohosluzeb/). First-Friday and first-Saturday variants use `rule`;
- * the days of the current ohlášky and the hand-entered `laterExceptions` (`content/ohlasky.ts`) replace it through
+ * the days of the current ohlášky and the hand-entered `laterExceptions` (`content/ohlasky.json`) replace it through
  * `scheduleExceptions()`.
  */
 export const regularServices: RegularService[] = [

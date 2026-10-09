@@ -1,6 +1,6 @@
 import type { ClockTime, IsoDate, Weekday } from "./shared";
 
-// Pořad bohoslužeb (masses.ts, ohlasky.ts): the parish churches, the weekly schedule and the ohlášky.
+// Pořad bohoslužeb (masses.ts, ohlasky.json): the parish churches, the weekly schedule and the ohlášky.
 
 export type PlaceId = "kurim" | "moravske-kninice" | "jinacovice";
 

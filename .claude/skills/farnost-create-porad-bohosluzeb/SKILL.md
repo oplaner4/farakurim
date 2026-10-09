@@ -6,7 +6,7 @@ description: Publish the weekly pořad bohoslužeb (ohlášky) on the new faraku
 # Create the pořad bohoslužeb
 
 The weekly PDF ("ROZPIS BOHOSLUŽEB V TÝDNU od … do …") becomes **structured content**: one `ServiceSheet`
-(`src/content/types/services.ts`), generated into `src/content/ohlasky/<validFrom>.ts`. It can be published any day
+(`src/content/types/services.ts`) in `src/content/ohlasky.json`. It can be published any day
 before its week: the site shows each sheet from its `validFrom` (the newer one on the Sunday two sheets share), and the
 script removes the sheets before the current one. Finish with **`farnost-publish-content`**.
 
@@ -67,7 +67,7 @@ the day's `mass` and `service` rows are its only services; the regular schedule 
 only after the last sheet. So enter **every day of the week** with all its rows, as the PDF does: a missing mass is a
 cancelled mass, a missing day has no services. A cancellation within the week needs no `laterExceptions` entry; mention it to the user.
 
-**Later changes** (`laterExceptions`, in `src/content/ohlasky/index.ts`, after the **last** sheet's `validTo`): an
+**Later changes** (`laterExceptions` in `src/content/ohlasky.json`, after the **last** sheet's `validTo`): an
 announcement of a change **after** `validTo` ("v neděli 25. 10. mše svatá nebude", a moved time) can go into
 `laterExceptions` right away, so the next-mass countdown is right before that week's ohlášky arrive. Each entry replaces its whole day: list every service of that date at the parish churches
 (masses as `{ time, place }`, titled ones with `title`), `services: []` for none, and a short `reason`. Ask the user
@@ -96,11 +96,11 @@ unreadable rows, cancellations.
 pnpm stage porad "<source>" --record <scratchpad>/record.json
 ```
 
-It validates the record first (the error names each field), stages the PDF, writes the sheet file and the index,
-removes the outdated sheets, formats them and runs the ohlášky tests. When it names a `laterExceptions` entry the new
-sheet covers, remove that entry from `src/content/ohlasky/index.ts` and rerun `pnpm exec vitest run src/content/ohlasky`.
+It validates the record first (the error names each field), stages the PDF, adds the sheet to
+`src/content/ohlasky.json`, removes the outdated sheets and the `laterExceptions` entries the sheets now cover, formats
+the file and runs the ohlášky test.
 
-**Corrections**: never edit the generated sheet file by hand.
+**Corrections**: never edit a sheet in `src/content/ohlasky.json` by hand.
 
 - Before the release: fix `record.json` and rerun the same command (restaging the identical PDF is allowed, and the
   sheet of the same week is replaced).
@@ -127,8 +127,7 @@ sheet covers, remove that entry from `src/content/ohlasky/index.ts` and rerun `p
 
 ## 5. Publish
 
-Follow **`farnost-publish-content`**; the commit must include the whole `src/content/ohlasky/` folder, with the sheet
-files the script removed (deletions): `git add src/content/ohlasky`. Remind the user to mirror changed or cancelled services in the "Mše,
+Follow **`farnost-publish-content`**; the commit includes `src/content/ohlasky.json`. Remind the user to mirror changed or cancelled services in the "Mše,
 adorace" Google Calendar, which the Kalendář reads.
 
 ## Common mistakes
@@ -144,5 +143,5 @@ adorace" Google Calendar, which the Kalendář reads.
 - `service: true` on a funeral, baptism or wedding: personal events never count for the countdown.
 - Publishing placeholder dots from an unfinished PDF.
 - Putting `pdfUrl`, `validFrom` or `validTo` into `record.json`: the script reads them from the PDF.
-- Editing a generated sheet file instead of rerunning the command with a corrected record (or `--rev 2` after the
+- Editing a sheet in `ohlasky.json` by hand instead of rerunning the command with a corrected record (or `--rev 2` after the
   release).
