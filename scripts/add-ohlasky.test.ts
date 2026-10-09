@@ -164,6 +164,35 @@ describe("addOhlasky on a temp ohlasky/ and news/", () => {
     expect(files()).toEqual(["2026-09-27.ts", "2026-10-04.ts", "index.ts"]);
   });
 
+  it("names a covered exception in the one-line and the expanded form", () => {
+    const next = () =>
+      addOhlasky(ohlasky, news, record(datesOf(11, 18)), week("2026-10-11", "2026-10-18"), { now, check: true });
+    const inline = INDEX.replace(
+      /laterExceptions: ScheduleException\[\] = \[[^]*\];/,
+      () => 'laterExceptions: ScheduleException[] = [{ date: "2026-10-18", reason: "x", services: [] }];',
+    );
+    writeFileSync(join(ohlasky, "index.ts"), inline);
+    expect(next().covered).toEqual(["2026-10-18"]);
+    const expanded = INDEX.replace(
+      /laterExceptions: ScheduleException\[\] = \[[^]*\];/,
+      () =>
+        'laterExceptions: ScheduleException[] = [\n  {\n    date: "2026-10-18",\n    reason: "x",\n    services: [],\n  },\n];',
+    );
+    writeFileSync(join(ohlasky, "index.ts"), expanded);
+    expect(next().covered).toEqual(["2026-10-18"]);
+  });
+
+  it("refuses an index of another shape, also with check, and leaves the files unchanged", () => {
+    writeFileSync(join(ohlasky, "index.ts"), "export const x = 1;\n");
+    for (const check of [true, false]) {
+      expect(() =>
+        addOhlasky(ohlasky, news, record(datesOf(11, 18)), week("2026-10-11", "2026-10-18"), { now, check }),
+      ).toThrow("unexpected shape");
+    }
+    expect(files()).toEqual(["2026-09-27.ts", "2026-10-04.ts", "index.ts"]);
+    expect(readFileSync(join(ohlasky, "index.ts"), "utf8")).toBe("export const x = 1;\n");
+  });
+
   it("only validates with check", () => {
     const result = addOhlasky(ohlasky, news, record(datesOf(11, 18)), week("2026-10-11", "2026-10-18"), {
       now,

@@ -30,7 +30,7 @@ describe("Ohlášky (ohlasky/)", () => {
   it("has valid hand-entered exceptions after the last sheet, one per date, in order", () => {
     // The sheets replace a covered entry anyway: remove it when the stage script names it.
     const lastDay = serviceSheets.at(-1)!.validTo;
-    expect(laterExceptions.every((x) => x.date > lastDay)).toBe(true);
+    expect(laterExceptions.filter((x) => x.date <= lastDay).map((x) => x.date)).toEqual([]);
     expect(isSorted(laterExceptions, (a, b) => a.date < b.date)).toBe(true);
     for (const x of laterExceptions) {
       expect(isIsoDate(x.date), x.date).toBe(true);

@@ -7,7 +7,7 @@ import { periodDates } from "./service-sheet";
 // The rules across sheets (their order, the aktuality an announcement links) are sheetOrderProblems() and the script's.
 
 const date = z.iso.date();
-const clock = z.string().regex(/^([01]?\d|2[0-3]):[0-5]\d$/, "must be H:MM");
+const clock = z.string().regex(/^(1?\d|2[0-3]):[0-5]\d$/, "must be H:MM");
 const text = z.string().trim().min(1);
 const minutes = (time: string) => {
   const [h, m] = time.split(":").map(Number);

@@ -127,20 +127,20 @@ export function addOhlasky(
   const indexPath = join(ohlaskyDir, "index.ts");
   const index = readFileSync(indexPath, "utf8");
   const lastDay = kept.at(-1)!.validTo;
-  const covered = [...index.matchAll(/^\s+\{ date: "(\d{4}-\d{2}-\d{2})"|^\s+date: "(\d{4}-\d{2}-\d{2})"/gm)]
-    .map((m) => m[1] ?? m[2])
+  // Only laterExceptions carries `date:` in index.ts, in the one-line and in the expanded form.
+  const covered = [...index.matchAll(/\bdate: "(\d{4}-\d{2}-\d{2})"/g)]
+    .map((m) => m[1])
     .filter((date) => date <= lastDay);
+  // Before anything is written: a shape problem must fail the check too and leave the files unchanged.
+  const nextIndex = setSheets(
+    index,
+    kept.map((s) => s.validFrom),
+  );
   const written: string[] = [];
   if (!check) {
     writeFileSync(join(ohlaskyDir, target), sheetSource(sheet));
     for (const file of removed) if (existsSync(join(ohlaskyDir, file))) rmSync(join(ohlaskyDir, file));
-    writeFileSync(
-      indexPath,
-      setSheets(
-        index,
-        kept.map((s) => s.validFrom),
-      ),
-    );
+    writeFileSync(indexPath, nextIndex);
     written.push(join(ohlaskyDir, target), indexPath);
   }
   return { sheet, target, replaced, removed, covered, written };

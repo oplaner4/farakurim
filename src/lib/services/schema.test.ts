@@ -40,6 +40,8 @@ describe("serviceSheetSchema", () => {
     const bad = sheet();
     bad.days[0].rows[0] = { ...bad.days[0].rows[0], time: "8.00" };
     expect(problems(bad)).toContain("days[0].rows[0].time");
+    bad.days[0].rows[0].time = "08:00";
+    expect(problems(bad)).toContain("days[0].rows[0].time");
     expect(problems({ ...sheet(), note: "x" })).toContain('Unrecognized key: "note"');
     expect(problems(sheet({ pdfUrl: "/uploads/x.pdf" }))).toContain("pdfUrl");
     expect(problems({ ...sheet(), announcements: [{ category: "jine", html: "<p>x</p>" }] })).toContain(
