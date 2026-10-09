@@ -128,7 +128,7 @@ Content lives in `src/content/` and is added with the Claude Code project skills
 | Skill                             | Adds                                          |
 | --------------------------------- | --------------------------------------------- |
 | `farnost-create-aktualita`        | An event from a poster or PDF, into `news/`   |
-| `farnost-create-porad-bohosluzeb` | The weekly ohlášky PDF, into `ohlasky.ts`     |
+| `farnost-create-porad-bohosluzeb` | The weekly ohlášky PDF, into `ohlasky/`       |
 | `farnost-create-galerie`          | A Zonerama album, into `gallery.ts`           |
 | `farnost-create-petrklic`         | A Petrklíč newsletter PDF, into `petrklic.ts` |
 
