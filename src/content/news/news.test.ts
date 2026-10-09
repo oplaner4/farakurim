@@ -21,19 +21,34 @@ describe("Aktuality (news/)", () => {
     expect(events.filter((e) => e.pinned).length).toBeLessThanOrEqual(1);
   });
 
-  // public/.htaccess redirects the 2026 records' old title URLs to their IDs: an ID must never be an old path (its
-  // page would be hidden), and every redirect must lead to a record.
-  it("keeps the redirected old detail URLs apart from the IDs", () => {
+  // public/.htaccess redirects the 2026 records' old title URLs to their IDs. Its rules run here as JS regexes: a
+  // rule matching a detail page would hide it (an old path that prefixes its ID looped), and every old path, also
+  // its kalendar.ics and without the slash, must lead to a record's page.
+  describe("the redirected old detail URLs", () => {
     const htaccess = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "../../../public/.htaccess"), "utf8");
-    const redirects = [
-      ...htaccess.matchAll(
-        /^RedirectMatch 301 \^\/aktuality\/([a-z0-9-]+)\/\?\(\.\*\)\$ \/aktuality\/([a-z0-9-]+)\/\$1$/gm,
-      ),
-    ];
-    const ids = new Set(events.map((e) => e.id));
-    expect(redirects.length).toBeGreaterThan(0);
-    expect(redirects.map((r) => r[1]).filter((from) => ids.has(from))).toEqual([]);
-    expect(redirects.map((r) => r[2]).filter((to) => !ids.has(to))).toEqual([]);
+    const rules = [...htaccess.matchAll(/^RedirectMatch 301 (\^\/aktuality\/([a-z0-9-]+)\S*) (\S+)$/gm)].map(
+      ([, from, old, to]) => ({ from: new RegExp(from), old, to }),
+    );
+    /** Where the first matching rule sends `path`, as Apache's RedirectMatch does (`$1` is the same in JS). */
+    const redirect = (path: string) => {
+      const rule = rules.find((r) => r.from.test(path));
+      return rule && path.replace(rule.from, rule.to);
+    };
+    const pages = events.flatMap((e) => [`/aktuality/${e.id}/`, `/aktuality/${e.id}/kalendar.ics`]);
+
+    it("never catch a detail page", () => {
+      expect(rules.length).toBeGreaterThan(0);
+      expect(pages.filter((page) => redirect(page) !== undefined)).toEqual([]);
+    });
+
+    it("lead each old path to a record's page", () => {
+      const paths = rules.flatMap(({ old: o }) => [
+        `/aktuality/${o}`,
+        `/aktuality/${o}/`,
+        `/aktuality/${o}/kalendar.ics`,
+      ]);
+      expect(paths.filter((path) => !pages.includes(redirect(path) ?? ""))).toEqual([]);
+    });
   });
 
   // news/<year>/<MM>.ts: the skill adds an event to the file of its start month, in start-date order.
