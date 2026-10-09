@@ -478,7 +478,7 @@ was posted.
   - attachments: file icon in magenta-ink, label plus type in muted ("Plakát PNG", "Pozvánka PDF");
   - external links and e-mail: arrow-out icon in blue-ink.
 - **Poster thumbnail**: rendered with `object-fit: contain` on the event's tint, so portrait posters are never cropped. Dark theme: add 8–12 px padding (section 10).
-- The **card title is a link** to the event's detail page (section 13). Keep the attachment and link buttons as separate targets; don't make the whole card one link.
+- The **card title is a link** to the event's detail page (section 13), stretched over the whole card: a click anywhere on the card opens the detail, and hovering the card underlines the title. The attachment and link buttons stay separate targets above it; don't wrap the card in one link (screen readers announce only the title).
 
 ### 11.6 Paging
 

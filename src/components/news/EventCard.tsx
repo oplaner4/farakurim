@@ -53,7 +53,7 @@ export function EventCard({ event, status, today, index, more }: Props) {
       data-more={more || undefined}
       aria-labelledby={`${eventAnchor(event.id)}-nazev`}
       className={clsx(
-        "flex flex-wrap gap-x-3.5 gap-y-3 rounded-20 border border-line bg-raised p-4",
+        "relative flex flex-wrap gap-x-3.5 gap-y-3 rounded-20 border border-line bg-raised p-4",
         "md:flex-nowrap md:items-start md:gap-5 md:rounded-24 md:p-5 lg:gap-7 lg:rounded-28 lg:p-6",
         past && "opacity-72",
         more && "hidden",
@@ -93,7 +93,12 @@ export function EventCard({ event, status, today, index, more }: Props) {
             id={`${eventAnchor(event.id)}-nazev`}
             className="text-17 leading-card font-bold md:text-20 lg:text-24 lg:leading-snug lg:tracking-heading"
           >
-            <a href={eventHref(event)} className="text-ink no-underline hover:text-ink hover:underline">
+            {/* Stretched link: its ::after covers the card, so a click anywhere opens the detail page and hovering
+                the card underlines the title; the action buttons sit above it (DESIGN.md §11.5). */}
+            <a
+              href={eventHref(event)}
+              className="text-ink no-underline after:absolute after:inset-0 after:rounded-20 hover:text-ink hover:underline md:after:rounded-24 lg:after:rounded-28"
+            >
               {event.title}
             </a>
           </h4>
@@ -131,7 +136,8 @@ export function EventCard({ event, status, today, index, more }: Props) {
                 </>
               );
               return (
-                <li key={action.href}>
+                <li key={action.href} className="relative">
+                  {/* relative: above the title's stretched link, so the button stays its own target. */}
                   {/* An image (a poster) opens in the lightbox (§21), anything else as a link. */}
                   {action.type && isImageFile(action.href) ? (
                     <PosterLink
@@ -155,11 +161,11 @@ export function EventCard({ event, status, today, index, more }: Props) {
         )}
       </div>
 
-      {/* Mobile: no thumbnail, the poster is one of the attachments. */}
+      {/* Mobile: no thumbnail, the poster is one of the attachments. Clicks pass through to the title's link. */}
       <span
         aria-hidden="true"
         className={clsx(
-          "relative hidden h-38 w-27 shrink-0 items-center justify-center overflow-hidden rounded-12 md:flex lg:h-46.5 lg:w-33 lg:rounded-14",
+          "pointer-events-none relative hidden h-38 w-27 shrink-0 items-center justify-center overflow-hidden rounded-12 md:flex lg:h-46.5 lg:w-33 lg:rounded-14",
           past ? "bg-surface text-muted" : POSTER_TINTS[index % POSTER_TINTS.length],
           /* Dark: posters (often white paper) get a margin of the tint around them. */
           event.poster && "dark:p-2",
