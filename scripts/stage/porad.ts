@@ -1,6 +1,6 @@
 // `pnpm stage porad` (scripts/stage/cli.ts): reads the week from the pořad bohoslužeb heading ("od 4. 10. 2026
-// do 11. 10. 2026"), stages uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-r<rev>].pdf and, with a record,
-// adds the sheet to src/content/ohlasky.json (scripts/add-ohlasky.ts). The sheet stores the rev, so a rerun keeps it
+// do 11. 10. 2026"), stages uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-r<rev>].pdf and adds the sheet
+// to src/content/ohlasky.json (scripts/add-ohlasky.ts); without a record it only checks and prints the week. The sheet stores the rev, so a rerun keeps it
 // and --corrected picks a corrected PDF's.
 
 import { extname } from "node:path";
@@ -59,9 +59,14 @@ export interface PoradOptions {
   check?: boolean;
 }
 
-/** Stages the weekly PDF and, with a record, adds the sheet; returns the lines to print and the files written. */
+/**
+ * Stages the weekly PDF and adds its sheet (the record); without a record, `check` only prints the week and its days.
+ * Returns the lines to print and the files written.
+ */
 export async function stagePorad(env: StageEnv, options: PoradOptions) {
   const { corrected = false, check = false } = options;
+  // A PDF staged without its sheet would go to the server with nothing linking it, and take the week's name there.
+  if (!options.record && !check) throw new Error("--record is required to stage the PDF; without it, only --check");
   const src = sourceFile(options.source, MAX_MB.porad, env.home);
   if (extname(src).toLowerCase() !== ".pdf") throw new Error("the pořad bohoslužeb is a PDF");
   let week: { validFrom: string; validTo: string } | null = null;
@@ -80,8 +85,6 @@ export async function stagePorad(env: StageEnv, options: PoradOptions) {
   if (corrected && !current) {
     throw new Error(`no sheet of ${validFrom} in ohlasky.json: --corrected is for a week already there`);
   }
-  // The sheet stores the rev, so it has to be written with the corrected PDF.
-  if (corrected && !options.record) throw new Error("--corrected needs the week's --record: the sheet stores the rev");
   const rev = corrected
     ? await correctedRev(env, current?.rev, (r) => sheetPdfFile({ validFrom, rev: r }))
     : current?.rev;

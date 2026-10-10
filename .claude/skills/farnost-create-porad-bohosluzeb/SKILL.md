@@ -105,7 +105,7 @@ for a day no sheet covers, where the site shows the regular schedule: tell the u
 
 - A corrected record: fix `record.json` and rerun the same command (restaging the identical PDF is allowed, and the
   sheet of the same week is replaced). After the release the PDF's name is taken: add `--corrected`.
-- A corrected PDF: rerun the command with `--corrected` and the week's `--record`. Once the week is on the server it
+- A corrected PDF: rerun the command with `--corrected` (and the week's `--record`, as always). Once the week is on the server it
   stages `…-porad-bohosluzeb-r2.pdf` (then `-r3`, …) and stores the sheet's `rev`; before the release it replaces
   the staged PDF.
 

@@ -35,38 +35,39 @@ describe("weekDays", () => {
 describe("stagePorad", { timeout: 30_000 }, () => {
   const { env, status, download, uploaded, fetchMock } = useStageFixture();
 
-  it("stages the PDF of the given week and lists its days", async () => {
+  it("lists the week's days with check and refuses to stage without a record", async () => {
     const source = download("porad.pdf", "%PDF");
-    const { lines } = await stagePorad(env, { source, validFrom: "2026-10-04", validTo: "2026-10-11" });
-    expect(lines).toEqual([
-      "Staged uploads/porady_bohosluzeb/2026-10-04-porad-bohosluzeb.pdf",
+    const week = { source, validFrom: "2026-10-04", validTo: "2026-10-11" };
+    expect((await stagePorad(env, { ...week, check: true })).lines).toEqual([
+      "Would stage uploads/porady_bohosluzeb/2026-10-04-porad-bohosluzeb.pdf",
       '  validFrom: "2026-10-04",\n  validTo: "2026-10-11",',
       `days: ${weekDays("2026-10-04", "2026-10-11").join(", ")}`,
     ]);
-    expect(existsSync(uploaded("porady_bohosluzeb", "2026-10-04-porad-bohosluzeb.pdf"))).toBe(true);
+    await expect(stagePorad(env, week)).rejects.toThrow("--record is required to stage the PDF");
+    expect(existsSync(uploaded("porady_bohosluzeb"))).toBe(false);
   });
 
   it("hints at --corrected when the week is published", async () => {
     const source = download("porad.pdf", "%PDF");
     status(200);
-    await expect(stagePorad(env, { source, validFrom: "2026-10-04", validTo: "2026-10-11" })).rejects.toThrow(
-      "this week is already published; for a corrected PDF pass --corrected",
-    );
+    await expect(
+      stagePorad(env, { source, validFrom: "2026-10-04", validTo: "2026-10-11", check: true }),
+    ).rejects.toThrow("this week is already published; for a corrected PDF pass --corrected");
   });
 
   it("refuses a period that is not one or two weeks, and a file that is not a PDF", async () => {
     const source = download("porad.pdf", "%PDF");
-    await expect(stagePorad(env, { source, validFrom: "2026-10-04", validTo: "2026-11-04" })).rejects.toThrow(
-      "the period 2026-10-04 – 2026-11-04 looks wrong",
-    );
-    await expect(stagePorad(env, { source: download("porad.docx", "x") })).rejects.toThrow("is a PDF");
+    await expect(
+      stagePorad(env, { source, validFrom: "2026-10-04", validTo: "2026-11-04", check: true }),
+    ).rejects.toThrow("the period 2026-10-04 – 2026-11-04 looks wrong");
+    await expect(stagePorad(env, { source: download("porad.docx", "x"), check: true })).rejects.toThrow("is a PDF");
   });
 
   it.skipIf(!hasPoppler)("reads the week from the PDF heading", async () => {
     const source = download("porad.pdf", pdfWithText(["Porad bohosluzeb od 4. 10. do 11. 10. 2026"]));
     expect((await stagePorad(env, { source, check: true })).lines[1]).toContain('validFrom: "2026-10-04"');
     const blank = download("prazdny.pdf", pdfWithText(["Farnost Kurim"]));
-    await expect(stagePorad(env, { source: blank })).rejects.toThrow("no 'od … do …' week");
+    await expect(stagePorad(env, { source: blank, check: true })).rejects.toThrow("no 'od … do …' week");
   });
   /** A record covering 2099-10-04 – 2099-10-11, after every real sheet, so the tests keep passing. */
   const record = () => ({
@@ -100,7 +101,7 @@ describe("stagePorad", { timeout: 30_000 }, () => {
     const fixed = download("porad oprava.pdf", "%PDF fixed");
     await expect(
       stagePorad(env, { source: fixed, validFrom: "2099-10-04", validTo: "2099-10-11", corrected: true }),
-    ).rejects.toThrow("--corrected needs the week's --record");
+    ).rejects.toThrow("--record is required to stage the PDF");
     const { lines } = await stagePorad(env, { ...week, source: fixed, corrected: true });
     expect(lines[0]).toBe("Staged uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb-r2.pdf");
     expect(lines[1]).toBe("Replaced the sheet 2099-10-04 – 2099-10-11 with rev 2 in src/content/ohlasky.json");

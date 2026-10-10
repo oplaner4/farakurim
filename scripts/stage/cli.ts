@@ -14,11 +14,11 @@
 //       validates the record).
 //   porad <pdf> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected] [--record <record.json>]
 //       reads the week from the heading ("od 4. 10. 2026 do 11. 10. 2026"), stages
-//       uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-r<rev>].pdf; prints the week and its days.
-//       --record adds the confirmed sheet (days and announcements as JSON) to src/content/ohlasky.json and removes
-//       the outdated sheets and the covered laterExceptions (scripts/add-ohlasky.ts; with --check it only validates
-//       the record). --corrected (with --record) stages a corrected PDF of a week already there, in the next
-//       -r<rev> once the week is on the server, else under its name.
+//       uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-r<rev>].pdf and adds the confirmed sheet (--record:
+//       days and announcements as JSON) to src/content/ohlasky.json, removing the outdated sheets and the covered
+//       laterExceptions (scripts/add-ohlasky.ts). --record is required, except with --check, which then prints the
+//       week and its days (with a record, --check only validates it). --corrected stages a corrected PDF of a week
+//       already there, in the next -r<rev> once the week is on the server, else under its name.
 //   petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--corrected]
 //       checks the issue, stages uploads/petrklic/<id>/petrklic-<id>.pdf with cover.webp and pages/ and adds the
 //       issue to src/content/petrklic.json (scripts/add-petrklic.ts; with --check it only validates). --corrected
