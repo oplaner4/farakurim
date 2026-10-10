@@ -5,12 +5,9 @@ description: Add a new issue of the Petrklíč parish newsletter to the new fara
 
 # Create a Petrklíč issue
 
-One issue is one record (`year`, `number`, `note`, `pageCount`; `PetrklicRecord` in `src/content/types/petrklic.ts`)
-in `src/content/petrklic.json`, newest first (design/DESIGN.md §17–18). The first record is the current issue
-(aktuální číslo): the Petrklíč page shows its pages in the viewer, the homepage card shows its cover. The PDF, its
-cover and the viewer pages (WebP images rendered from it) are staged in `uploads/petrklic/` and uploaded to
-`/uploads/petrklic/`; none of them is committed.
-Finish with **`farnost-publish-content`**.
+One issue is one record (`PetrklicRecord` in `src/content/types/petrklic.ts`) in `src/content/petrklic.json`. The
+first record is the current issue (aktuální číslo): the Petrklíč page shows its pages in the viewer and the homepage
+card shows its cover. The PDF and its images go only to `uploads/` and the server.
 
 ## 1. Read the PDF
 
