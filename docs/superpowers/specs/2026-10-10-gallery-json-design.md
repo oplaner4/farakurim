@@ -43,10 +43,11 @@ homepage the 4 newest; older ones stay on Zonerama). `src/app/fotogalerie/page.t
 
 - `albumSchema` (`z.strictObject`): `id` ASCII kebab-case; `title` non-empty trimmed text; `date` `z.iso.date()`;
   `href` matching `^https://(www|eu)\.zonerama\.com/FarnostKurim/Album/\d+$`; `photoCount` a positive integer;
-  `photos` optional, an array of `{ small, large }`, each an `https://eu.zonerama.com/photos/…` URL; a `.check`
+  `photos` optional, an array of `{ small, large }`, each an `https://eu.zonerama.com/photos/…` URL; a `superRefine`
   refuses more photos than `photoCount`.
-- `galleryFileSchema`: `{ albums: albumSchema[] }` with a `.check` refusing duplicate ids, duplicate `href`s and
-  albums out of newest-first order (equal dates allowed).
+- `galleryFileSchema`: `{ albums: albumSchema[] }` with a `superRefine` refusing duplicate ids, the same Zonerama
+  album twice (compared by its number, `albumNumber(href)`, so `eu.` and `www.` match) and albums out of
+  newest-first order (equal dates allowed).
 
 The schema does not limit the number of albums: a file over `MAX_ALBUMS` still loads, the content test fails on it,
 and the next `pnpm add-album` removes the extra ones.
@@ -121,8 +122,8 @@ old export, order included.
 - `src/lib/gallery/schema.test.ts` (new): a valid album passes; a non-kebab id, an invalid date, a non-Zonerama
   `href` or photo URL, an unknown field, more photos than `photoCount`, duplicate ids or `href`s and albums out of
   order are refused.
-- `scripts/add-album.test.ts` (new), on a small saved album page `scripts/fixtures/zonerama-album.html` (a title with
-  a date prefix, 3:2 and 4:3 landscape photos, a portrait, a video):
+- `scripts/add-album.test.ts` (new), on a small album page built in the test with Zonerama's markup (a title with a
+  date prefix, 3:2 and 4:3 landscape photos, a portrait, a video, a banner):
   - `titleAndDate` with and without the prefix; `photoItems` skips the video; `selectPhotos` picks the common ratio
     and puts the common size first; `photoUrl` fills the size; `slug` of a Czech title;
   - `addAlbum` on a temp copy of `gallery.json`: inserts in date order; a 7th album removes the oldest and reports
