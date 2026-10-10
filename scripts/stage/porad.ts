@@ -62,13 +62,9 @@ export async function stagePorad(env: StageEnv, options: PoradOptions) {
   const src = sourceFile(options.source, MAX_MB.porad, env.home);
   if (extname(src).toLowerCase() !== ".pdf") throw new Error("the pořad bohoslužeb is a PDF");
   let week: { validFrom: string; validTo: string } | null = null;
+  // --from and --to are checked by the command line (scripts/stage/cli.ts): real dates, both or neither.
   if (options.validFrom && options.validTo) {
     week = { validFrom: options.validFrom, validTo: options.validTo };
-    for (const date of [week.validFrom, week.validTo]) {
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error(`${date} is not a YYYY-MM-DD date`);
-      const [year, month, day] = date.split("-").map(Number);
-      isoDate(day, month, year);
-    }
   } else {
     week = parseWeek(pdfFirstPageText(src));
     if (!week) throw new Error("no 'od … do …' week in the PDF heading: pass --from and --to");

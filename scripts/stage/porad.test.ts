@@ -61,9 +61,6 @@ describe("stagePorad", { timeout: 30_000 }, () => {
     await expect(stagePorad(env, { source, validFrom: "2026-10-04", validTo: "2026-11-04" })).rejects.toThrow(
       "the period 2026-10-04 – 2026-11-04 looks wrong",
     );
-    await expect(stagePorad(env, { source, validFrom: "2026-10-04", validTo: "2026-10-32" })).rejects.toThrow(
-      "32. 10. 2026 is not a date",
-    );
     await expect(stagePorad(env, { source: download("porad.docx", "x") })).rejects.toThrow("is a PDF");
   });
 

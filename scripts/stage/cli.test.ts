@@ -84,4 +84,15 @@ describe("runCommand", { timeout: 30_000 }, () => {
     await expect(runCommand(env, ["tisk", "a.pdf"])).rejects.toThrow("wrong arguments");
     await expect(runCommand(env, ["porad", "a.pdf", "--rev", "1"])).rejects.toThrow("--rev is a number from 2");
   });
+
+  it("refuses a lone --from or --to, a date that does not exist and a --rev that is not digits", async () => {
+    const porad = (...options: string[]) => runCommand(env, ["porad", "a.pdf", ...options]);
+    const dates = "wrong arguments: --from and --to are YYYY-MM-DD dates, both or neither";
+    await expect(porad("--from", "2026-10-04")).rejects.toThrow(dates);
+    await expect(porad("--to", "2026-10-11")).rejects.toThrow(dates);
+    await expect(porad("--from", "2026-10-04", "--to", "2026-10-32")).rejects.toThrow(dates);
+    await expect(porad("--from", "4. 10. 2026", "--to", "2026-10-11")).rejects.toThrow(dates);
+    await expect(porad("--rev", "0x2")).rejects.toThrow("--rev is a number from 2");
+    await expect(porad("--rev", " 3")).rejects.toThrow("--rev is a number from 2");
+  });
 });

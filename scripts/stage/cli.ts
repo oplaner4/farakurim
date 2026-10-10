@@ -49,6 +49,12 @@ Largest source file: ${Object.entries(MAX_MB)
 const digits = z.string().regex(/^\d+$/).transform(Number);
 /** The --year and --number of `stage petrklic`. */
 const petrklicArgsSchema = z.object({ year: digits, number: digits });
+/** The --from and --to of `stage porad`: real dates, both or neither (one alone would be ignored for the heading). */
+const poradWeekSchema = z
+  .object({ from: z.iso.date().optional(), to: z.iso.date().optional() })
+  .refine(({ from, to }) => (from === undefined) === (to === undefined));
+/** The --rev of `stage porad`: a corrected PDF of a week already on the server is number 2 or later. */
+const revSchema = digits.pipe(z.int().min(2)).optional();
 
 /** Each command's positional arguments and options. */
 const COMMANDS: Record<string, { positionals: number; options: string[] }> = {
@@ -102,13 +108,17 @@ export async function runCommand(
     return { ...result, format: files.length > 0 ? { files, tests: "src/content/news" } : undefined };
   }
   if (command === "porad") {
-    const rev = values.rev === undefined ? undefined : Number(values.rev);
-    if (rev !== undefined && !(Number.isInteger(rev) && rev > 1)) throw new Error("--rev is a number from 2");
+    const week = poradWeekSchema.safeParse(values);
+    if (!week.success) {
+      throw new Error(`wrong arguments: --from and --to are YYYY-MM-DD dates, both or neither\n${USAGE}`);
+    }
+    const rev = revSchema.safeParse(values.rev);
+    if (!rev.success) throw new Error("--rev is a number from 2");
     const { lines, written } = await stagePorad(env, {
       source: args[0],
-      validFrom: values.from,
-      validTo: values.to,
-      rev,
+      validFrom: week.data.from,
+      validTo: week.data.to,
+      rev: rev.data,
       record,
       check,
     });
