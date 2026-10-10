@@ -82,6 +82,8 @@ Validate the record first: `pnpm stage porad "<source>" --record <scratchpad>/re
 week, a compact day-by-day list of rows, and the announcements with their categories. Ask about anything uncertain:
 unreadable rows, cancellations.
 
+Wait for the user's yes or corrections to these before staging anything.
+
 ## 4. Stage the PDF and add the sheet
 
 ```sh

@@ -26,7 +26,9 @@ pnpm pin-aktualita <id> --check   # or --none --check to unpin every record
 It prints `Would pin <id> (<title>)` and a `Would unpin …` line for each record that loses the pin, or
 `<id> (<title>) is already the only pinned aktualita` (nothing to do: say so and stop). Show the user, in Czech,
 which event becomes "Doporučujeme" and which one stops being it (say so when that one has not ended yet: it leaves
-the panel early), and wait for their yes.
+the panel early).
+
+Wait for the user's yes or corrections to these before pinning anything.
 
 ## 3. Pin
 

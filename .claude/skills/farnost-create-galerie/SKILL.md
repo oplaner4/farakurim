@@ -32,6 +32,8 @@ If the title had no date prefix, `date` is empty: ask the user for the date of t
 Show the title (fix the wording if Zonerama's is a working name, e.g. lower-case or abbreviated), the date, the id
 and "N of M photos (ratio 1.5)". Ask before continuing if fewer than 6 photos fit: the user may prefer another album.
 
+Wait for the user's yes or corrections to these before adding anything.
+
 ## 4. Add the record
 
 ```sh

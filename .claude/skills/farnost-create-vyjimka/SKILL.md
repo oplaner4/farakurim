@@ -41,7 +41,9 @@ pnpm add-exception <scratchpad>/exception.json --check
 
 It refuses a date the ohlášky already cover (correct that week with `farnost-correct-porad-bohosluzeb` instead), a
 past date and a record that breaks the schema, and says whether it adds or replaces the výjimka of that date. Show
-the user, in Czech, the date and the day's services as they will be, and wait for their yes.
+the user, in Czech, the date and the day's services as they will be.
+
+Wait for the user's yes or corrections to these before adding anything.
 
 ## 4. Add
 

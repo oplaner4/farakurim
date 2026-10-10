@@ -80,7 +80,9 @@ pnpm add-aktualita <scratchpad>/record.json --check
 Show the extracted fields and, with a file, the label as written and whether the file becomes the poster in a short
 list (the script takes any label, so a typo like `Plakat` would go on the page). Point out guesses: the year, an
 inferred end date, `longTerm`. For a pinned event, say which event loses "Doporučujeme" (the `Would unpin …` line of
-the step 3a command run with `--record`, or of step 3b). Wait for corrections before writing anything.
+the step 3a command run with `--record`, or of step 3b).
+
+Wait for the user's yes or corrections to these before staging or adding anything.
 
 ## 5a. Stage the file and add the record (only with a file)
 

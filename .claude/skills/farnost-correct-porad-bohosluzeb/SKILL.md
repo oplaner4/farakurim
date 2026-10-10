@@ -36,7 +36,9 @@ pnpm stage porad "<source>" --record <scratchpad>/record.json [--corrected] --ch
 `<source>` is the corrected PDF, which always takes `--corrected`. When only the record changes, it is the week's
 staged PDF in `uploads/porady_bohosluzeb/` (`pnpm pull-uploads` fetches it from the server): `--corrected` only once
 the week is on the server, as the check refuses the taken name otherwise. Show the user what changes
-(day by day, the rows and announcements that differ) and wait for their yes.
+(day by day, the rows and announcements that differ).
+
+Wait for the user's yes or corrections to these before staging anything.
 
 ## 4. Stage
 
