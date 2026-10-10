@@ -1,6 +1,18 @@
 import { describe, expect, it } from "vitest";
 import type { PetrklicIssue } from "@/content/types/petrklic";
-import { groupByYear, issueLabel, parsePetrklicId, stepPage, toRoman, viewerSpread, volumeOf } from "./issues";
+import {
+  groupByYear,
+  isNewerIssue,
+  issueId,
+  issueLabel,
+  pageImages,
+  parsePetrklicId,
+  stepPage,
+  toIssue,
+  toRoman,
+  viewerSpread,
+  volumeOf,
+} from "./issues";
 
 const issue = (year: number, number: number, note?: string): PetrklicIssue => ({
   id: `${year}-${number}${note ?? ""}`,
@@ -71,5 +83,49 @@ describe("parsePetrklicId", () => {
     expect(parsePetrklicId("2026-12")).toEqual({ year: 2026, number: 12 });
     expect(() => parsePetrklicId("26-2")).toThrow("is not <year>-<number>");
     expect(() => parsePetrklicId("2026-1x")).toThrow("is not <year>-<number>");
+  });
+});
+
+describe("issueId", () => {
+  it("is the year and number, with the note's slug for a special issue", () => {
+    expect(issueId({ year: 2026, number: 2 })).toBe("2026-2");
+    expect(issueId({ year: 2012, number: 4, note: "mimořádné" })).toBe("2012-4-mimoradne");
+    expect(issueId({ year: 2012, number: 1, note: "2. část" })).toBe("2012-1-2-cast");
+  });
+});
+
+describe("toIssue", () => {
+  it("adds the id and the URLs of the PDF and the cover", () => {
+    expect(toIssue({ year: 2026, number: 1, pageCount: 36 })).toEqual({
+      id: "2026-1",
+      year: 2026,
+      number: 1,
+      pageCount: 36,
+      pdfUrl: "/uploads/petrklic/2026-1/petrklic-2026-1.pdf",
+      cover: "/uploads/petrklic/2026-1/cover.webp",
+    });
+    expect(toIssue({ year: 2012, number: 4, note: "mimořádné", pageCount: 4 })).toMatchObject({
+      id: "2012-4-mimoradne",
+      note: "mimořádné",
+      pdfUrl: "/uploads/petrklic/2012-4-mimoradne/petrklic-2012-4-mimoradne.pdf",
+    });
+  });
+});
+
+describe("pageImages", () => {
+  it("lists one image per page", () => {
+    expect(pageImages({ id: "2026-1", pageCount: 2 })).toEqual([
+      "/uploads/petrklic/2026-1/pages/1.webp",
+      "/uploads/petrklic/2026-1/pages/2.webp",
+    ]);
+  });
+});
+
+describe("isNewerIssue", () => {
+  it("compares the year, then the number", () => {
+    expect(isNewerIssue({ year: 2026, number: 1 }, { year: 2025, number: 4 })).toBe(true);
+    expect(isNewerIssue({ year: 2026, number: 2 }, { year: 2026, number: 1 })).toBe(true);
+    expect(isNewerIssue({ year: 2026, number: 1 }, { year: 2026, number: 1 })).toBe(false);
+    expect(isNewerIssue({ year: 2025, number: 4 }, { year: 2026, number: 1 })).toBe(false);
   });
 });

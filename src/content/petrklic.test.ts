@@ -1,27 +1,30 @@
 import { describe, expect, it } from "vitest";
-import { parsePetrklicId } from "@/lib/petrklic/issues";
-import { duplicates, isSorted, UPLOAD } from "@/lib/test/content-checks";
+import * as z from "zod";
+import { petrklicFileSchema, petrklicRecordSchema } from "@/lib/petrklic/schema";
+import { UPLOAD } from "@/lib/test/content-checks";
 import { petrklicIssues } from "./petrklic";
+import data from "./petrklic.json";
 
-describe("Petrklíč (petrklic.ts)", () => {
-  it("has unique IDs named after the year and number", () => {
-    expect(duplicates(petrklicIssues.map((i) => i.id))).toEqual([]);
-    // Parsed, not a prefix check: "2026-12" starts with "2026-1" but is issue 12.
-    for (const i of petrklicIssues) expect(parsePetrklicId(i.id), i.id).toEqual({ year: i.year, number: i.number });
+const problems = (result: z.ZodSafeParseResult<unknown>) => (result.success ? "" : z.prettifyError(result.error));
+
+describe("Petrklíč (petrklic.json)", () => {
+  it.each(data.issues.map((record, i) => [petrklicIssues[i].id, record] as const))(
+    "issue %s matches the schema",
+    (_, record) => {
+      expect(problems(petrklicRecordSchema.safeParse(record))).toBe("");
+    },
+  );
+
+  it("has unique ids, newest first", () => {
+    expect(problems(petrklicFileSchema.safeParse(data))).toBe("");
   });
 
-  it("lists the issues newest first", () => {
-    const newer = (a: (typeof petrklicIssues)[number], b: (typeof petrklicIssues)[number]) =>
-      a.year > b.year || (a.year === b.year && a.number >= b.number);
-    expect(isSorted(petrklicIssues, newer)).toBe(true);
-  });
-
-  it("has uploaded files and a page image per page", () => {
+  it("has uploaded files and a page image per page of the current issue", () => {
     for (const i of petrklicIssues) {
-      expect(Number.isInteger(i.pageCount) && i.pageCount > 0, i.id).toBe(true);
-      expect(i.pdfUrl).toMatch(UPLOAD);
-      if (i.cover) expect(i.cover).toMatch(UPLOAD);
-      if (i.pageImages) expect(i.pageImages, i.id).toHaveLength(i.pageCount);
+      expect(i.pdfUrl, i.id).toMatch(UPLOAD);
+      if (i.cover) expect(i.cover, i.id).toMatch(UPLOAD);
     }
+    expect(petrklicIssues[0].pageImages).toHaveLength(petrklicIssues[0].pageCount);
+    expect(petrklicIssues.slice(1).every((i) => i.pageImages === undefined)).toBe(true);
   });
 });

@@ -1,10 +1,11 @@
 import { links } from "@/content/site";
-import type { PetrklicIssue } from "@/content/types/petrklic";
+import type { PetrklicIssue, PetrklicRecord } from "@/content/types/petrklic";
+import { slug } from "@/lib/shared/slug";
 
 // Petrklíč issues (design/DESIGN.md §17–18).
 
 /** The first volume (ročník I) came out in 2006. */
-const FIRST_YEAR = 2006;
+export const FIRST_YEAR = 2006;
 
 const ROMAN: [number, string][] = [
   [1000, "M"],
@@ -37,6 +38,26 @@ export const volumeOf = (year: number) => toRoman(year - FIRST_YEAR + 1);
 /** "1/2026", "1/2012 (2. část)". */
 export const issueLabel = (issue: Pick<PetrklicIssue, "year" | "number" | "note">) =>
   `${issue.number}/${issue.year}${issue.note ? ` (${issue.note})` : ""}`;
+
+/** "2026-2", or "2012-4-mimoradne" with a note: names the issue's upload folder and PDF. */
+export const issueId = ({ year, number, note }: Pick<PetrklicRecord, "year" | "number" | "note">) =>
+  `${year}-${number}${note ? `-${slug(note)}` : ""}`;
+
+const issueDir = (id: string) => `/uploads/petrklic/${id}`;
+
+/** The full issue of a stored record: its id and the URLs of its PDF and cover. */
+export function toIssue(record: PetrklicRecord): PetrklicIssue {
+  const id = issueId(record);
+  return { id, ...record, pdfUrl: `${issueDir(id)}/petrklic-${id}.pdf`, cover: `${issueDir(id)}/cover.webp` };
+}
+
+/** The viewer's page images (only the current issue has them). */
+export const pageImages = (issue: Pick<PetrklicIssue, "id" | "pageCount">) =>
+  Array.from({ length: issue.pageCount }, (_, i) => `${issueDir(issue.id)}/pages/${i + 1}.webp`);
+
+/** `a` is newer than `b`: a later year, or a higher number in the same year. */
+export const isNewerIssue = (a: Pick<PetrklicRecord, "year" | "number">, b: Pick<PetrklicRecord, "year" | "number">) =>
+  a.year > b.year || (a.year === b.year && a.number > b.number);
 
 /** The year and number of a Petrklíč id: `2026-2`, or `2026-3-mimoradne` with a note. */
 export function parsePetrklicId(id: string): { year: number; number: number } {

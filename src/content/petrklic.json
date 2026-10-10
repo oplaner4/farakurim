@@ -1,0 +1,437 @@
+{
+  "issues": [
+    {
+      "year": 2026,
+      "number": 1,
+      "pageCount": 36
+    },
+    {
+      "year": 2025,
+      "number": 4,
+      "pageCount": 36
+    },
+    {
+      "year": 2025,
+      "number": 3,
+      "pageCount": 36
+    },
+    {
+      "year": 2025,
+      "number": 2,
+      "pageCount": 36
+    },
+    {
+      "year": 2025,
+      "number": 1,
+      "pageCount": 32
+    },
+    {
+      "year": 2024,
+      "number": 4,
+      "pageCount": 28
+    },
+    {
+      "year": 2024,
+      "number": 3,
+      "pageCount": 28
+    },
+    {
+      "year": 2024,
+      "number": 2,
+      "pageCount": 28
+    },
+    {
+      "year": 2024,
+      "number": 1,
+      "pageCount": 24
+    },
+    {
+      "year": 2023,
+      "number": 4,
+      "pageCount": 32
+    },
+    {
+      "year": 2023,
+      "number": 3,
+      "pageCount": 24
+    },
+    {
+      "year": 2023,
+      "number": 2,
+      "pageCount": 28
+    },
+    {
+      "year": 2023,
+      "number": 1,
+      "pageCount": 20
+    },
+    {
+      "year": 2022,
+      "number": 4,
+      "pageCount": 24
+    },
+    {
+      "year": 2022,
+      "number": 3,
+      "pageCount": 24
+    },
+    {
+      "year": 2022,
+      "number": 2,
+      "pageCount": 24
+    },
+    {
+      "year": 2022,
+      "number": 1,
+      "pageCount": 16
+    },
+    {
+      "year": 2021,
+      "number": 2,
+      "pageCount": 20
+    },
+    {
+      "year": 2021,
+      "number": 1,
+      "pageCount": 20
+    },
+    {
+      "year": 2020,
+      "number": 2,
+      "pageCount": 20
+    },
+    {
+      "year": 2020,
+      "number": 1,
+      "pageCount": 10
+    },
+    {
+      "year": 2019,
+      "number": 4,
+      "pageCount": 20
+    },
+    {
+      "year": 2019,
+      "number": 3,
+      "pageCount": 12
+    },
+    {
+      "year": 2019,
+      "number": 2,
+      "pageCount": 20
+    },
+    {
+      "year": 2019,
+      "number": 1,
+      "pageCount": 16
+    },
+    {
+      "year": 2018,
+      "number": 4,
+      "pageCount": 12
+    },
+    {
+      "year": 2018,
+      "number": 3,
+      "pageCount": 20
+    },
+    {
+      "year": 2018,
+      "number": 2,
+      "pageCount": 20
+    },
+    {
+      "year": 2018,
+      "number": 1,
+      "pageCount": 16
+    },
+    {
+      "year": 2017,
+      "number": 4,
+      "pageCount": 12
+    },
+    {
+      "year": 2017,
+      "number": 3,
+      "pageCount": 20
+    },
+    {
+      "year": 2017,
+      "number": 2,
+      "pageCount": 12
+    },
+    {
+      "year": 2017,
+      "number": 1,
+      "pageCount": 16
+    },
+    {
+      "year": 2016,
+      "number": 4,
+      "pageCount": 16
+    },
+    {
+      "year": 2016,
+      "number": 3,
+      "pageCount": 16
+    },
+    {
+      "year": 2016,
+      "number": 2,
+      "pageCount": 16
+    },
+    {
+      "year": 2016,
+      "number": 1,
+      "pageCount": 12
+    },
+    {
+      "year": 2015,
+      "number": 4,
+      "pageCount": 16
+    },
+    {
+      "year": 2015,
+      "number": 3,
+      "pageCount": 12
+    },
+    {
+      "year": 2015,
+      "number": 2,
+      "pageCount": 12
+    },
+    {
+      "year": 2015,
+      "number": 1,
+      "pageCount": 12
+    },
+    {
+      "year": 2014,
+      "number": 4,
+      "pageCount": 8
+    },
+    {
+      "year": 2014,
+      "number": 3,
+      "pageCount": 8
+    },
+    {
+      "year": 2014,
+      "number": 2,
+      "pageCount": 8
+    },
+    {
+      "year": 2014,
+      "number": 1,
+      "pageCount": 12
+    },
+    {
+      "year": 2013,
+      "number": 4,
+      "pageCount": 20
+    },
+    {
+      "year": 2013,
+      "number": 3,
+      "pageCount": 20
+    },
+    {
+      "year": 2013,
+      "number": 2,
+      "pageCount": 16
+    },
+    {
+      "year": 2013,
+      "number": 1,
+      "pageCount": 12
+    },
+    {
+      "year": 2012,
+      "number": 6,
+      "pageCount": 16
+    },
+    {
+      "year": 2012,
+      "number": 5,
+      "pageCount": 12
+    },
+    {
+      "year": 2012,
+      "number": 4,
+      "note": "mimořádné",
+      "pageCount": 4
+    },
+    {
+      "year": 2012,
+      "number": 3,
+      "pageCount": 16
+    },
+    {
+      "year": 2012,
+      "number": 2,
+      "pageCount": 16
+    },
+    {
+      "year": 2012,
+      "number": 1,
+      "note": "2. část",
+      "pageCount": 8
+    },
+    {
+      "year": 2012,
+      "number": 1,
+      "note": "1. část",
+      "pageCount": 8
+    },
+    {
+      "year": 2011,
+      "number": 4,
+      "pageCount": 16
+    },
+    {
+      "year": 2011,
+      "number": 3,
+      "pageCount": 20
+    },
+    {
+      "year": 2011,
+      "number": 2,
+      "pageCount": 8
+    },
+    {
+      "year": 2011,
+      "number": 1,
+      "pageCount": 12
+    },
+    {
+      "year": 2010,
+      "number": 6,
+      "pageCount": 16
+    },
+    {
+      "year": 2010,
+      "number": 5,
+      "pageCount": 16
+    },
+    {
+      "year": 2010,
+      "number": 4,
+      "pageCount": 20
+    },
+    {
+      "year": 2010,
+      "number": 3,
+      "pageCount": 12
+    },
+    {
+      "year": 2010,
+      "number": 2,
+      "pageCount": 12
+    },
+    {
+      "year": 2010,
+      "number": 1,
+      "pageCount": 16
+    },
+    {
+      "year": 2009,
+      "number": 4,
+      "pageCount": 16
+    },
+    {
+      "year": 2009,
+      "number": 3,
+      "pageCount": 16
+    },
+    {
+      "year": 2009,
+      "number": 2,
+      "pageCount": 16
+    },
+    {
+      "year": 2009,
+      "number": 1,
+      "pageCount": 20
+    },
+    {
+      "year": 2008,
+      "number": 5,
+      "pageCount": 12
+    },
+    {
+      "year": 2008,
+      "number": 4,
+      "pageCount": 16
+    },
+    {
+      "year": 2008,
+      "number": 3,
+      "pageCount": 20
+    },
+    {
+      "year": 2008,
+      "number": 2,
+      "pageCount": 20
+    },
+    {
+      "year": 2008,
+      "number": 1,
+      "pageCount": 12
+    },
+    {
+      "year": 2007,
+      "number": 6,
+      "pageCount": 20
+    },
+    {
+      "year": 2007,
+      "number": 5,
+      "pageCount": 16
+    },
+    {
+      "year": 2007,
+      "number": 4,
+      "pageCount": 20
+    },
+    {
+      "year": 2007,
+      "number": 3,
+      "pageCount": 12
+    },
+    {
+      "year": 2007,
+      "number": 2,
+      "pageCount": 20
+    },
+    {
+      "year": 2007,
+      "number": 1,
+      "pageCount": 16
+    },
+    {
+      "year": 2006,
+      "number": 5,
+      "pageCount": 24
+    },
+    {
+      "year": 2006,
+      "number": 4,
+      "pageCount": 17
+    },
+    {
+      "year": 2006,
+      "number": 3,
+      "pageCount": 20
+    },
+    {
+      "year": 2006,
+      "number": 2,
+      "pageCount": 21
+    },
+    {
+      "year": 2006,
+      "number": 1,
+      "pageCount": 13
+    }
+  ]
+}
