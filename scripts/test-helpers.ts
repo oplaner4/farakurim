@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import sharp from "sharp";
 import { afterEach, beforeEach, vi } from "vitest";
-import { NEWS_DIR, OHLASKY_FILE } from "./content-files";
+import { NEWS_DIR, OHLASKY_FILE, PETRKLIC_FILE } from "./content-files";
 import type { StageEnv } from "./stage/core";
 
 /** Whether poppler's tools are installed; the PDF tests skip without them. */
@@ -40,8 +40,8 @@ export function pdfWithText(pages: string[]): Buffer {
 }
 
 /**
- * A temp uploads/, news/, ohlasky.json and home for the `pnpm stage` tests, fresh for each test: `env` points there and
- * asks a fetch stub that answers 404 (the name is free) until `status()` changes it.
+ * A temp uploads/, news/, ohlasky.json, petrklic.json and home for the `pnpm stage` tests, fresh for each test: `env`
+ * points there and asks a fetch stub that answers 404 (the name is free) until `status()` changes it.
  */
 export function useStageFixture() {
   const fetchMock = vi.fn();
@@ -54,12 +54,14 @@ export function useStageFixture() {
     mkdirSync(join(dir, "home", "Downloads"), { recursive: true });
     cpSync(NEWS_DIR, join(dir, "news"), { recursive: true });
     cpSync(OHLASKY_FILE, join(dir, "ohlasky.json"));
+    cpSync(PETRKLIC_FILE, join(dir, "petrklic.json"));
     fetchMock.mockReset();
     status(404);
     Object.assign(env, {
       uploadsDir: join(dir, "uploads"),
       newsDir: join(dir, "news"),
       ohlaskyFile: join(dir, "ohlasky.json"),
+      petrklicFile: join(dir, "petrklic.json"),
       home: join(dir, "home"),
     });
   });

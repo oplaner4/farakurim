@@ -1,30 +1,40 @@
-// `pnpm stage petrklic` (scripts/stage/cli.ts): stages a Petrklíč issue as
-// uploads/petrklic/<id>/petrklic-<id>.pdf, renders cover.webp and pages/ (scripts/upload-images.ts) and prints the
-// `issue(...)` line for src/content/petrklic.ts.
+// `pnpm stage petrklic` (scripts/stage/cli.ts): checks the issue (scripts/add-petrklic.ts), stages its PDF as
+// uploads/petrklic/<id>/petrklic-<id>.pdf, renders cover.webp and pages/ (scripts/upload-images.ts) and adds the
+// issue to src/content/petrklic.json.
 
 import { dirname, extname } from "node:path";
-import { parsePetrklicId } from "@/lib/petrklic/issues";
+import { addPetrklic, petrklicLines } from "../add-petrklic";
 import { MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
 import { pdfPageCount, renderPetrklic } from "../upload-images";
 
 export interface PetrklicOptions {
   source: string;
-  id: string;
+  year: number;
+  number: number;
   note?: string;
   check?: boolean;
 }
 
-/** Stages a Petrklíč PDF and renders its cover and pages; returns the lines to print (with the `issue()` line). */
+/**
+ * Stages a Petrklíč PDF, renders its cover and pages and adds the issue; returns the lines to print and the file
+ * written. The issue is checked before anything is copied.
+ */
 export async function stagePetrklic(env: StageEnv, options: PetrklicOptions) {
-  const { id, note, check = false } = options;
-  const { year, number } = parsePetrklicId(id);
+  const { year, number, note, check = false } = options;
   const src = sourceFile(options.source, MAX_MB.petrklic, env.home);
   if (extname(src).toLowerCase() !== ".pdf") throw new Error("the Petrklíč is a PDF");
+  const pageCount = pdfPageCount(src);
+  const record = { year, number, ...(note !== undefined && { note }), pageCount };
+  const checked = addPetrklic(env.petrklicFile, record, { check: true });
+  const { id } = checked;
   const dest = await stage(env, src, `petrklic/${id}/petrklic-${id}.pdf`, check);
-  const pages = check ? pdfPageCount(src) : await renderPetrklic(dirname(dest), { pages: true });
-  const extra = note ? `, { note: ${JSON.stringify(note)} }` : "";
-  return [
-    stagedLine(check, `uploads/petrklic/${id}/ (PDF${check ? "" : ", cover.webp, pages/"}), ${pages} pages`),
-    `  issue("${id}", ${year}, ${number}, ${pages}${extra}),`,
-  ];
+  if (!check) await renderPetrklic(dirname(dest), { pages: true });
+  const result = check ? checked : addPetrklic(env.petrklicFile, record);
+  return {
+    lines: [
+      stagedLine(check, `uploads/petrklic/${id}/ (PDF${check ? "" : ", cover.webp, pages/"}), ${pageCount} pages`),
+      ...petrklicLines(result, check),
+    ],
+    written: result.written,
+  };
 }

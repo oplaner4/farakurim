@@ -59,13 +59,6 @@ export const pageImages = (issue: Pick<PetrklicIssue, "id" | "pageCount">) =>
 export const isNewerIssue = (a: Pick<PetrklicRecord, "year" | "number">, b: Pick<PetrklicRecord, "year" | "number">) =>
   a.year > b.year || (a.year === b.year && a.number > b.number);
 
-/** The year and number of a Petrklíč id: `2026-2`, or `2026-3-mimoradne` with a note. */
-export function parsePetrklicId(id: string): { year: number; number: number } {
-  const m = /^(\d{4})-(\d{1,2})(-[a-z0-9]+(-[a-z0-9]+)*)?$/.exec(id);
-  if (!m) throw new Error(`"${id}" is not <year>-<number>[-<note>], e.g. 2026-2 or 2026-3-mimoradne`);
-  return { year: Number(m[1]), number: Number(m[2]) };
-}
-
 export type PetrklicYear = { year: number; volume: string; issues: PetrklicIssue[] };
 
 /** Issues grouped by year, in the given order (newest first). */

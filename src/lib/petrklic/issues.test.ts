@@ -6,7 +6,6 @@ import {
   issueId,
   issueLabel,
   pageImages,
-  parsePetrklicId,
   stepPage,
   toIssue,
   toRoman,
@@ -73,16 +72,6 @@ describe("stepPage", () => {
     expect(stepPage(3, -1, 16, true)).toBe(1);
     expect(stepPage(14, 1, 16, true)).toBe(16);
     expect(stepPage(16, 1, 16, true)).toBe(16);
-  });
-});
-
-describe("parsePetrklicId", () => {
-  it("takes the year and number, with an optional note", () => {
-    expect(parsePetrklicId("2026-2")).toEqual({ year: 2026, number: 2 });
-    expect(parsePetrklicId("2026-3-mimoradne")).toEqual({ year: 2026, number: 3 });
-    expect(parsePetrklicId("2026-12")).toEqual({ year: 2026, number: 12 });
-    expect(() => parsePetrklicId("26-2")).toThrow("is not <year>-<number>");
-    expect(() => parsePetrklicId("2026-1x")).toThrow("is not <year>-<number>");
   });
 });
 

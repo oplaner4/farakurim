@@ -18,8 +18,9 @@
 //       --rev 2 names a corrected PDF of a week already on the server. --record adds the confirmed sheet (days and
 //       announcements as JSON) to src/content/ohlasky.json and removes the outdated sheets and the covered
 //       laterExceptions (scripts/add-ohlasky.ts; with --check it only validates the record).
-//   petrklic <pdf> <id> [--note "<note>"]
-//       uploads/petrklic/<id>/petrklic-<id>.pdf with cover.webp and pages/; prints the `issue(...)` line.
+//   petrklic <pdf> --year <year> --number <number> [--note "<note>"]
+//       checks the issue, stages uploads/petrklic/<id>/petrklic-<id>.pdf with cover.webp and pages/ and adds the
+//       issue to src/content/petrklic.json (scripts/add-petrklic.ts; with --check it only validates).
 // A source without a folder is also looked for in ~/Downloads/.
 // Requires pdftoppm, pdfinfo and pdftotext (poppler-utils) for PDFs.
 
@@ -37,7 +38,7 @@ import { stagePorad } from "./porad";
 
 const USAGE = `Usage: pnpm stage aktualita <source> <id> <label> [--title "<title>"] [--poster | --no-poster] [--record <json>] [--check]
        pnpm stage porad <pdf> [--from YYYY-MM-DD --to YYYY-MM-DD] [--rev N] [--record <json>] [--check]
-       pnpm stage petrklic <pdf> <id> [--note "<note>"] [--check]
+       pnpm stage petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--check]
 Largest source file: ${Object.entries(MAX_MB)
   .map(([command, mb]) => `${command} ${mb} MB`)
   .join(", ")}`;
@@ -46,7 +47,7 @@ Largest source file: ${Object.entries(MAX_MB)
 const COMMANDS: Record<string, { positionals: number; options: string[] }> = {
   aktualita: { positionals: 3, options: ["title", "poster", "record", "check"] },
   porad: { positionals: 1, options: ["from", "to", "rev", "record", "check"] },
-  petrklic: { positionals: 2, options: ["note", "check"] },
+  petrklic: { positionals: 1, options: ["year", "number", "note", "check"] },
 };
 
 /** Runs a command line (without the program); returns the lines to print, the files to format and the added event. */
@@ -65,6 +66,8 @@ export async function runCommand(
       from: { type: "string" },
       to: { type: "string" },
       rev: { type: "string" },
+      year: { type: "string" },
+      number: { type: "string" },
       note: { type: "string" },
       check: { type: "boolean" },
     },
@@ -104,8 +107,13 @@ export async function runCommand(
     });
     return { lines, format: written.length > 0 ? { files: written, tests: "src/content/ohlasky.test.ts" } : undefined };
   }
-  const lines = await stagePetrklic(env, { source: args[0], id: args[1], note: values.note, check });
-  return { lines };
+  const year = Number(values.year);
+  const number = Number(values.number);
+  if (!Number.isInteger(year) || !Number.isInteger(number)) {
+    throw new Error(`wrong arguments: --year and --number are whole numbers\n${USAGE}`);
+  }
+  const { lines, written } = await stagePetrklic(env, { source: args[0], year, number, note: values.note, check });
+  return { lines, format: written.length > 0 ? { files: written, tests: "src/content/petrklic.test.ts" } : undefined };
 }
 
 // No top-level await: tsx runs the scripts as CommonJS (package.json has no "type": "module").
