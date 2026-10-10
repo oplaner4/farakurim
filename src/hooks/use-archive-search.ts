@@ -1,7 +1,7 @@
 "use client";
 
 import type { SetValues } from "nuqs";
-import { type ChangeEvent, type FormEvent, useRef } from "react";
+import { type ChangeEvent, type SubmitEvent, useRef } from "react";
 import { useDebounce } from "use-debounce";
 import type { archiveParams } from "@/lib/news/query-params";
 
@@ -20,7 +20,7 @@ export function useArchiveSearch(query: string, setParams?: SetValues<typeof arc
     void setParams?.({ query: e.target.value || null, page: null });
   }
 
-  function onSubmit(e: FormEvent<HTMLFormElement>) {
+  function onSubmit(e: SubmitEvent<HTMLFormElement>) {
     if (!setParams) return;
     e.preventDefault();
     flush();

@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import { type ChangeEvent, type FormEvent, type RefObject, useEffect, useRef } from "react";
+import { type ChangeEvent, type RefObject, type SubmitEvent, useEffect, useRef } from "react";
 import Link from "next/link";
 import { links } from "@/content/site";
 import { archiveYearHref, type ArchiveYear } from "@/lib/news/archive";
@@ -11,7 +11,7 @@ type Props = {
   value: string;
   inputRef: RefObject<HTMLInputElement | null>;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  onSubmit: (e: FormEvent<HTMLFormElement>) => void;
+  onSubmit: (e: SubmitEvent<HTMLFormElement>) => void;
   years: (ArchiveYear & { count: number })[];
   /** The current year's button; none while searching (a search covers all years). */
   activeSlug?: string;
