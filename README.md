@@ -131,6 +131,7 @@ Content lives in `src/content/` and is added with the Claude Code project skills
 | Skill                              | Adds                                                                                     |
 | ---------------------------------- | ---------------------------------------------------------------------------------------- |
 | `farnost-create-aktualita`         | An event from a poster or PDF, into `news/`                                              |
+| `farnost-correct-aktualita`        | A corrected aktualita (record, poster or attachment)                                     |
 | `farnost-pin-aktualita`            | The "Doporučujeme" pin, moved to an existing event or removed                            |
 | `farnost-create-porad-bohosluzeb`  | The weekly ohlášky PDF, into `ohlasky.json`                                              |
 | `farnost-correct-porad-bohosluzeb` | A corrected week of ohlášky (record or PDF)                                              |
