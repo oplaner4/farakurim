@@ -84,14 +84,14 @@ they show the build's verse. The "Zdroj: www.vira.cz" link is vira.cz's conditio
 
 Content tooling, used by the content skills (see [Content](#content)):
 
-| Command                                             | What it does                                                                                       |
-| --------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `pnpm stage aktualita\|porad\|petrklic … [--check]` | Stage a file in `uploads/` and print its lines for `src/content/`                                  |
-| `pnpm add-aktualita <record.json> [--check]`        | Add an aktualita to its month's JSON file in `src/content/news/`, checked by its schema            |
-| `pnpm aktualita-calendar <id> [--out <dir>]`        | Check that the aktualita's Události event links its page; else write the `.ics`                    |
-| `pnpm petrklic <id> [--pages]`                      | Render a Petrklíč issue's `cover.webp` (and viewer `pages/`) from its PDF                          |
-| `tsx scripts/upload-images.ts poster <in> <out>`    | Render an event poster (PDF page 1 or image) to WebP                                               |
-| `pnpm add-album <album-url> [--write …]`            | Read a Zonerama album as JSON; `--write` adds it to `gallery.json` and removes the oldest beyond 6 |
+| Command                                             | What it does                                                                                                                                    |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm stage aktualita\|porad\|petrklic … [--check]` | Stage a file in `uploads/` and print its lines for `src/content/`                                                                               |
+| `pnpm add-aktualita <record.json> [--check]`        | Add an aktualita to its month's JSON file in `src/content/news/`, checked by its schema                                                         |
+| `pnpm aktualita-calendar <id> [--out <dir>]`        | Check that the aktualita's Události event links its page; else write the `.ics`                                                                 |
+| `pnpm petrklic <id> [--pages]`                      | Render a Petrklíč issue's `cover.webp` (and viewer `pages/`) from its PDF                                                                       |
+| `tsx scripts/upload-images.ts poster <in> <out>`    | Render an event poster (PDF page 1 or image) to WebP                                                                                            |
+| `pnpm add-album <album-url> [--write \| --check …]` | Read a Zonerama album as JSON; `--write` adds it to `gallery.json` and removes the oldest beyond 6, `--check` only says what `--write` would do |
 
 Before you commit, run the full check and compare the change with the mockups: see
 [docs/conventions.md](docs/conventions.md), which also holds the language, stack, static-export and commit conventions.
