@@ -5,10 +5,9 @@ description: Publish the weekly pořad bohoslužeb (ohlášky) on the new faraku
 
 # Create the pořad bohoslužeb
 
-The weekly PDF ("ROZPIS BOHOSLUŽEB V TÝDNU od … do …") becomes **structured content**: one `ServiceSheet`
-(`src/content/types/services.ts`) in `src/content/ohlasky.json`. It can be published any day
-before its week: the site shows each sheet from its `validFrom` (the newer one on the Sunday two sheets share), and the
-script removes the sheets before the current one. Finish with **`farnost-publish-content`**.
+The weekly PDF ("ROZPIS BOHOSLUŽEB V TÝDNU od … do …") becomes **structured content**: one sheet, added by
+`pnpm stage porad`. It can be published any day before its week: the site shows each sheet from its `validFrom` (the
+newer one on the Sunday two sheets share), and the script removes the sheets before the current one. Finish with **`farnost-publish-content`**.
 
 ## 1. Read the PDF
 
@@ -96,9 +95,8 @@ unreadable rows, cancellations.
 pnpm stage porad "<source>" --record <scratchpad>/record.json
 ```
 
-It validates the record first (the error names each field), stages the PDF, adds the sheet to
-`src/content/ohlasky.json`, removes the outdated sheets and the `laterExceptions` entries the sheets now cover, formats
-the file and runs the ohlášky test. An entry it removes "between the sheets" (a gap the new sheet leaves) was announced
+It validates the record first (the error names each field), stages the PDF, adds the sheet, removes the outdated
+sheets and the `laterExceptions` entries the sheets now cover, and runs the ohlášky test. An entry it removes "between the sheets" (a gap the new sheet leaves) was announced
 for a day no sheet covers, where the site shows the regular schedule: tell the user.
 
 ```json
@@ -122,7 +120,7 @@ for a day no sheet covers, where the site shows the regular schedule: tell the u
 
 ## 5. Publish
 
-Follow **`farnost-publish-content`**; the commit includes `src/content/ohlasky.json`. Remind the user to mirror changed or cancelled services in the "Mše,
+Follow **`farnost-publish-content`**. Remind the user to mirror changed or cancelled services in the "Mše,
 adorace" Google Calendar, which the Kalendář reads.
 
 ## Common mistakes

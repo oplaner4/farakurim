@@ -1,13 +1,12 @@
 ---
 name: farnost-create-galerie
-description: Add a photo album to the Fotogalerie of the new farakurim.cz site from a Zonerama album URL under eu.zonerama.com/FarnostKurim - read the album, pick up to 15 photos of one shape, add an Album to src/content/gallery.json, then publish. Use whenever the user wants to add a gallery, album or photos from Zonerama.
+description: Add a photo album to the Fotogalerie of the new farakurim.cz site from a Zonerama album URL under eu.zonerama.com/FarnostKurim - read the album, pick up to 15 photos of one shape, add the album, then publish. Use whenever the user wants to add a gallery, album or photos from Zonerama.
 ---
 
 # Create a gallery album
 
-The photos stay on Zonerama: the site links Zonerama's image URLs, so nothing is downloaded or uploaded. An album is
-one `Album` record (`src/content/types/gallery.ts`) in `src/content/gallery.json` (design/DESIGN.md §19.2). Finish with
-**`farnost-publish-content`** (no files to stage).
+The photos stay on Zonerama: the site links Zonerama's image URLs, so nothing is downloaded or uploaded
+(design/DESIGN.md §19.2). Finish with **`farnost-publish-content`** (no files to stage).
 
 ## 1. Check the URL
 
@@ -39,12 +38,9 @@ and "N of M photos (ratio 1.5)". Ask before continuing if fewer than 6 photos fi
 pnpm add-album "<album URL>" --write --title "<title>" --date <YYYY-MM-DD> --id <id>
 ```
 
-Pass the confirmed values (each only when it differs from the JSON). It adds the album to `src/content/gallery.json`,
-newest first, with `photoCount` equal to the photos and the `{ small, large }` URLs (800 and 1600 px wide), checks it
-with the album schema, removes the albums beyond `MAX_ALBUMS` (`src/lib/gallery/albums.ts`; the page shows them all,
-the homepage 4; older ones stay on Zonerama) and prints each album it removed, then formats the file and runs the
-gallery test. It refuses an id or album already in the file, and an album older than all the kept ones. Do not edit
-the photo URLs by hand.
+Pass the confirmed values (each only when it differs from the JSON). It adds the album, removes the oldest albums
+beyond the site's limit (they stay on Zonerama) and prints each one it removed, then runs the gallery test. It refuses
+an id or album already on the site, and an album older than all the kept ones.
 
 ## 5. Publish
 
@@ -53,6 +49,5 @@ Follow **`farnost-publish-content`**.
 ## Common mistakes
 
 - Using the profile or tab URL instead of the album URL (the script refuses it).
-- Writing the record by hand instead of `--write`: `photoCount` must equal `photos.length` and the albums stay in
-  date order (the homepage shows `albums[0]` as the newest).
+- Writing the record or its photo URLs by hand instead of `--write`.
 - Downloading photos or hosting them on the server: the URLs point at Zonerama.

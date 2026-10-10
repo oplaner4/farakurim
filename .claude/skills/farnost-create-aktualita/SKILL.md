@@ -1,12 +1,12 @@
 ---
 name: farnost-create-aktualita
-description: Add a new aktualita (event) to the new farakurim.cz site from a poster, invitation or announcement given as a PDF, PNG or JPG, or from the details alone - extract the event, confirm it with the user, add a NewsEvent to its month's JSON file in src/content/news/, stage the poster and attachments for the server, then publish. Use whenever the user wants to add, post or publish an aktualita, event, plakát or pozvánka.
+description: Add a new aktualita (event) to the new farakurim.cz site from a poster, invitation or announcement given as a PDF, PNG or JPG, or from the details alone - extract the event, confirm it with the user, add it, stage the poster and attachments for the server, then publish. Use whenever the user wants to add, post or publish an aktualita, event, plakát or pozvánka.
 ---
 
 # Create an aktualita
 
-Read the source, extract one event as a `NewsEvent` (`src/content/types/news.ts`), confirm it with the user, add it
-to `src/content/news/<year>/<MM>.json`, stage its file if it has one, then finish with **`farnost-publish-content`**.
+Read the source, extract one event, confirm it with the user, add it (with its file, if it has one, staged by
+`pnpm stage aktualita`), then finish with **`farnost-publish-content`**.
 The fields and how they are shown are specified in `design/DESIGN.md` §11.7 and §13.4.
 
 ## 1. Read the source
@@ -46,8 +46,7 @@ Write the text from the source, in Czech; do not invent facts. Leave out what th
 
 ## 3a. Pick the label (only with a file)
 
-The source file is attached under a label, shown on the page as written (with its accents); the script names the
-file `<id>-<label in ASCII>.<ext>`. Prefer one of these; another short Czech label is fine when none fits
+The source file is attached under a label, shown on the page as written (with its accents). Prefer one of these; another short Czech label is fine when none fits
 (`Mapka trasy`, `Záznam koncertu`):
 
 | Label       | When                                      | Poster |
@@ -133,8 +132,8 @@ Follow **`farnost-publish-content`** (commit, upload and push). Until the calend
 - Guessing a year or end date silently: say it in the confirmation.
 - Going on without a file and without the warning in step 1: the user may have a poster to add.
 - Staging (without `--check`) before the user confirms: an abandoned file would go out with the next release.
-- Editing the month file by hand for a new event instead of `--record` (or `pnpm add-aktualita`): the order and
-  `published` are then up to you.
-- Editing `pinned` in a month file by hand: a pinned `--record` moves the pin itself.
+- Adding a new event by hand instead of `--record` (or `pnpm add-aktualita`): the order and `published` are then up
+  to you.
+- Editing `pinned` by hand: a pinned `--record` moves the pin itself.
 - Forgetting `--no-poster` for a text-only PDF (`Program`, `Informace`, `Oznámení`): its first page becomes the
   poster.

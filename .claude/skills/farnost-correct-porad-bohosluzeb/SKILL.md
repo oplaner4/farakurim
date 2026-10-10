@@ -1,15 +1,13 @@
 ---
 name: farnost-correct-porad-bohosluzeb
-description: Correct a week's pořad bohoslužeb (ohlášky) already in src/content/ohlasky.json on the new farakurim.cz site - fix its sheet through a corrected record, or stage a corrected PDF with --corrected, then publish. Use whenever the user brings a corrected or replaced pořad bohoslužeb / ohlášky PDF, or says a service, intention or announcement of a published week is wrong. A new week is added with farnost-create-porad-bohosluzeb.
+description: Correct a week's pořad bohoslužeb (ohlášky) already on the new farakurim.cz site - fix its sheet through a corrected record, or stage a corrected PDF with --corrected, then publish. Use whenever the user brings a corrected or replaced pořad bohoslužeb / ohlášky PDF, or says a service, intention or announcement of a published week is wrong. A new week is added with farnost-create-porad-bohosluzeb.
 ---
 
 # Correct the pořad bohoslužeb
 
-A week is one `ServiceSheet` in `src/content/ohlasky.json`, its PDF in
-`uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-r<rev>].pdf`. Never edit a sheet in `ohlasky.json` by hand:
-a correction reruns `pnpm stage porad` with a corrected record, which replaces the sheet of the same week. Files on
-the server are never overwritten, so once the week is released its PDF's name is taken and the rerun takes
-`--corrected`.
+Never edit a sheet in `src/content/ohlasky.json` by hand: a correction reruns `pnpm stage porad` with a corrected
+record, which replaces the sheet of the same week. Files on the server are never overwritten, so once the week is
+released its PDF's name is taken and the rerun takes `--corrected`.
 
 ## 1. Find the week
 
