@@ -8,6 +8,8 @@ export type PetrklicIssue = {
   number: number;
   /** Extra label for special issues: "1. část", "mimořádné". */
   note?: string;
+  /** Revision of a corrected PDF, from 2 (`--rev`): a new upload folder, as the server's files are never overwritten. */
+  rev?: number;
   pdfUrl: string;
   /** Image of PDF page 1 (about 600 px wide, WebP); a tinted placeholder without it. */
   cover?: string;
@@ -20,7 +22,7 @@ export type PetrklicIssue = {
  * One issue as stored in src/content/petrklic.json: what cannot be computed. The id, the file URLs and the viewer
  * pages are computed (toIssue() in src/lib/petrklic/issues.ts).
  */
-export type PetrklicRecord = Pick<PetrklicIssue, "year" | "number" | "note" | "pageCount">;
+export type PetrklicRecord = Pick<PetrklicIssue, "year" | "number" | "note" | "rev" | "pageCount">;
 
 /** src/content/petrklic.json: the issues, newest first; the first is the current issue. */
 export type PetrklicFile = {

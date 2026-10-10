@@ -14,9 +14,10 @@ const problemPaths = (result: { success: boolean; error?: { issues: { path: Prop
   result.success ? [] : result.error!.issues.map((issue) => issue.path.join("."));
 
 describe("petrklicRecordSchema", () => {
-  it("accepts an issue, with and without a note", () => {
+  it("accepts an issue, with and without a note and a rev", () => {
     expect(petrklicRecordSchema.parse(record())).toEqual(record());
     expect(petrklicRecordSchema.parse(record({ note: "mimořádné" }))).toEqual(record({ note: "mimořádné" }));
+    expect(petrklicRecordSchema.parse(record({ rev: 2 }))).toEqual(record({ rev: 2 }));
   });
 
   it.each<[string, Partial<PetrklicRecord>, string]>([
@@ -26,6 +27,7 @@ describe("petrklicRecordSchema", () => {
     ["no pages", { pageCount: 0 }, "pageCount"],
     ["an empty note", { note: " " }, "note"],
     ["a note without a letter or digit", { note: "–!" }, "note"],
+    ["rev 1", { rev: 1 }, "rev"],
   ])("refuses %s", (_, fields, path) => {
     expect(problemPaths(petrklicRecordSchema.safeParse(record(fields)))).toContain(path);
   });

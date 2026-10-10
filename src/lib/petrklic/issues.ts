@@ -39,21 +39,25 @@ export const volumeOf = (year: number) => toRoman(year - FIRST_YEAR + 1);
 export const issueLabel = (issue: Pick<PetrklicIssue, "year" | "number" | "note">) =>
   `${issue.number}/${issue.year}${issue.note ? ` (${issue.note})` : ""}`;
 
-/** "2026-2", or "2012-4-mimoradne" with a note: names the issue's upload folder and PDF. */
+/** "2026-2", or "2012-4-mimoradne" with a note: names the issue's PDF and, with its rev, its upload folder. */
 export const issueId = ({ year, number, note }: Pick<PetrklicRecord, "year" | "number" | "note">) =>
   `${year}-${number}${note ? `-${slug(note)}` : ""}`;
 
-const issueDir = (id: string) => `/uploads/petrklic/${id}`;
+/** The issue's upload folder: "2026-2", or "2026-2-r2" for a corrected PDF (the PDF keeps its name). */
+export const issueFolder = ({ id, rev }: Pick<PetrklicIssue, "id" | "rev">) => `${id}${rev ? `-r${rev}` : ""}`;
+
+const issueDir = (issue: Pick<PetrklicIssue, "id" | "rev">) => `/uploads/petrklic/${issueFolder(issue)}`;
 
 /** The full issue of a stored record: its id and the URLs of its PDF and cover. */
 export function toIssue(record: PetrklicRecord): PetrklicIssue {
   const id = issueId(record);
-  return { id, ...record, pdfUrl: `${issueDir(id)}/petrklic-${id}.pdf`, cover: `${issueDir(id)}/cover.webp` };
+  const dir = issueDir({ id, rev: record.rev });
+  return { id, ...record, pdfUrl: `${dir}/petrklic-${id}.pdf`, cover: `${dir}/cover.webp` };
 }
 
 /** The viewer's page images (only the current issue has them). */
-export const pageImages = (issue: Pick<PetrklicIssue, "id" | "pageCount">) =>
-  Array.from({ length: issue.pageCount }, (_, i) => `${issueDir(issue.id)}/pages/${i + 1}.webp`);
+export const pageImages = (issue: Pick<PetrklicIssue, "id" | "rev" | "pageCount">) =>
+  Array.from({ length: issue.pageCount }, (_, i) => `${issueDir(issue)}/pages/${i + 1}.webp`);
 
 /** `a` is newer than `b`: a later year, or a higher number in the same year. */
 export const isNewerIssue = (a: Pick<PetrklicRecord, "year" | "number">, b: Pick<PetrklicRecord, "year" | "number">) =>

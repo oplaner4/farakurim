@@ -47,9 +47,10 @@ build-time next mass.
   is public too). A row the user asks to hide gets `public: false`, which keeps its `detail` off the web: `server/ohlasky.ts`
   is `server-only`, pages pass `publicDays()` and client components get only props, never the module.
 - Petrklíč (`content/petrklic.json`, loaded and checked by `content/petrklic.ts` with `petrklicFileSchema` from
-  `src/lib/petrklic/schema.ts`): one record per issue (`year`, `number`, `note`, `pageCount`), newest first, added
-  by `pnpm stage petrklic` (`farnost-create-petrklic`); the id (`issueId()`), the URLs (`toIssue()`) and the
-  volume are computed (`volumeOf()`). Each issue is one folder uploaded to `/uploads/petrklic/<id>/`: the PDF
+  `src/lib/petrklic/schema.ts`): one record per issue (`year`, `number`, `note`, `rev`, `pageCount`), newest
+  first, added by `pnpm stage petrklic` (`farnost-create-petrklic`); the id (`issueId()`), the URLs (`toIssue()`)
+  and the volume are computed (`volumeOf()`). Each issue is one folder uploaded to `/uploads/petrklic/<id>/`
+  (`<id>-r<rev>/` for a corrected PDF, `issueFolder()`, as the server's files are never overwritten): the PDF
   `petrklic-<id>.pdf`, `cover.webp` and the current issue's viewer `pages/<n>.webp` (rendered by
   `pnpm stage petrklic`).
 - Calendars (Kalendář, homepage "Tento týden"): the parish's two Google Calendars ("Bohoslužby" = `services`,

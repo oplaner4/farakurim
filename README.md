@@ -14,8 +14,8 @@ Working on it with Claude Code: `CLAUDE.md` adds the rules an agent follows on t
 - **Node.js ≥ 20.9** (required by Next.js 16)
 - **pnpm 10** (`corepack enable` picks up the version in `package.json`). Do not use npm or yarn.
 - **Python 3** for `pnpm preview` and `pnpm mockups`
-- **poppler-utils** (`pdftoppm`, `pdfinfo`, `pdftotext`) for the PDFs of `pnpm stage` and `pnpm petrklic`; their
-  tests skip the PDF cases without it
+- **poppler-utils** (`pdftoppm`, `pdfinfo`, `pdftotext`) for the PDFs of `pnpm stage`; its tests skip the PDF cases
+  without it
 - Optional: `pip install --user fonttools brotli` to regenerate the web fonts (`pnpm fonts`), and PHP to try
   `public/biblicky-citat.php` locally (`php -S`)
 
@@ -86,11 +86,9 @@ Content tooling, used by the content skills (see [Content](#content)):
 
 | Command                                             | What it does                                                                                                                                    |
 | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm stage aktualita\|porad\|petrklic … [--check]` | Stage a file in `uploads/`; petrklic adds the issue to `petrklic.json`, the others print their lines or add a `--record`                        |
+| `pnpm stage aktualita\|porad\|petrklic … [--check]` | Stage a file in `uploads/`; petrklic adds the issue to `petrklic.json` (`--rev N` for a corrected PDF), the others print or add a `--record`    |
 | `pnpm add-aktualita <record.json> [--check]`        | Add an aktualita to its month's JSON file in `src/content/news/`, checked by its schema                                                         |
 | `pnpm aktualita-calendar <id> [--out <dir>]`        | Check that the aktualita's Události event links its page; else write the `.ics`                                                                 |
-| `pnpm petrklic <id> [--pages]`                      | Render a Petrklíč issue's `cover.webp` (and viewer `pages/`) from its PDF                                                                       |
-| `tsx scripts/upload-images.ts poster <in> <out>`    | Render an event poster (PDF page 1 or image) to WebP                                                                                            |
 | `pnpm add-album <album-url> [--write \| --check …]` | Read a Zonerama album as JSON; `--write` adds it to `gallery.json` and removes the oldest beyond 6, `--check` only says what `--write` would do |
 
 Before you commit, run the full check and compare the change with the mockups: see

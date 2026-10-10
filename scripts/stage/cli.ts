@@ -1,7 +1,7 @@
 // Stages a content file in uploads/ for /uploads/ on the server and prints the lines for src/content/
 // (farnost-create-aktualita, farnost-create-porad-bohosluzeb and farnost-create-petrklic skills).
 // Every command checks the name is still free on the site (files on the server are never overwritten), copies the
-// file under its ASCII name and renders the images (scripts/upload-images.ts). --check only validates and prints,
+// file under its ASCII name and renders the images (images.ts). --check only validates and prints,
 // without copying or rendering: use it before the user confirms, so nothing unconfirmed is left in uploads/ for the
 // next release. This file parses the command line; each command lives in its own file in scripts/stage/ and
 // the staging they share in core.ts.
@@ -18,9 +18,10 @@
 //       --rev 2 names a corrected PDF of a week already on the server. --record adds the confirmed sheet (days and
 //       announcements as JSON) to src/content/ohlasky.json and removes the outdated sheets and the covered
 //       laterExceptions (scripts/add-ohlasky.ts; with --check it only validates the record).
-//   petrklic <pdf> --year <year> --number <number> [--note "<note>"]
+//   petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--rev N]
 //       checks the issue, stages uploads/petrklic/<id>/petrklic-<id>.pdf with cover.webp and pages/ and adds the
-//       issue to src/content/petrklic.json (scripts/add-petrklic.ts; with --check it only validates).
+//       issue to src/content/petrklic.json (scripts/add-petrklic.ts; with --check it only validates). --rev 2 stages
+//       a corrected PDF of an issue already there in uploads/petrklic/<id>-r2/ and replaces its record.
 // A source without a folder is also looked for in ~/Downloads/.
 // Requires pdftoppm, pdfinfo and pdftotext (poppler-utils) for PDFs.
 
@@ -39,7 +40,7 @@ import { stagePorad } from "./porad";
 
 const USAGE = `Usage: pnpm stage aktualita <source> <id> <label> [--title "<title>"] [--poster | --no-poster] [--record <json>] [--check]
        pnpm stage porad <pdf> [--from YYYY-MM-DD --to YYYY-MM-DD] [--rev N] [--record <json>] [--check]
-       pnpm stage petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--check]
+       pnpm stage petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--rev N] [--check]
 Largest source file: ${Object.entries(MAX_MB)
   .map(([command, mb]) => `${command} ${mb} MB`)
   .join(", ")}`;
@@ -53,14 +54,14 @@ const petrklicArgsSchema = z.object({ year: digits, number: digits });
 const poradWeekSchema = z
   .object({ from: z.iso.date().optional(), to: z.iso.date().optional() })
   .refine(({ from, to }) => (from === undefined) === (to === undefined));
-/** The --rev of `stage porad`: a corrected PDF of a week already on the server is number 2 or later. */
+/** The --rev of `stage porad` and `stage petrklic`: a corrected PDF of a file already on the server is 2 or later. */
 const revSchema = digits.pipe(z.int().min(2)).optional();
 
 /** Each command's positional arguments and options. */
 const COMMANDS: Record<string, { positionals: number; options: string[] }> = {
   aktualita: { positionals: 3, options: ["title", "poster", "record", "check"] },
   porad: { positionals: 1, options: ["from", "to", "rev", "record", "check"] },
-  petrklic: { positionals: 1, options: ["year", "number", "note", "check"] },
+  petrklic: { positionals: 1, options: ["year", "number", "note", "rev", "check"] },
 };
 
 /** Runs a command line (without the program); returns the lines to print, the files to format and the added event. */
@@ -90,6 +91,8 @@ export async function runCommand(
   const unknown = Object.keys(values).filter((option) => !spec?.options.includes(option));
   if (!spec || args.length !== spec.positionals || unknown.length > 0) throw new Error(`wrong arguments\n${USAGE}`);
   const check = values.check ?? false;
+  const rev = revSchema.safeParse(values.rev);
+  if (!rev.success) throw new Error("--rev is a number from 2");
   const record = values.record
     ? (JSON.parse(readFileSync(values.record, "utf8")) as Record<string, unknown>)
     : undefined;
@@ -112,8 +115,6 @@ export async function runCommand(
     if (!week.success) {
       throw new Error(`wrong arguments: --from and --to are YYYY-MM-DD dates, both or neither\n${USAGE}`);
     }
-    const rev = revSchema.safeParse(values.rev);
-    if (!rev.success) throw new Error("--rev is a number from 2");
     const { lines, written } = await stagePorad(env, {
       source: args[0],
       validFrom: week.data.from,
@@ -127,7 +128,14 @@ export async function runCommand(
   const issue = petrklicArgsSchema.safeParse(values);
   if (!issue.success) throw new Error(`wrong arguments: --year and --number are whole numbers\n${USAGE}`);
   const { year, number } = issue.data;
-  const { lines, written } = await stagePetrklic(env, { source: args[0], year, number, note: values.note, check });
+  const { lines, written } = await stagePetrklic(env, {
+    source: args[0],
+    year,
+    number,
+    note: values.note,
+    rev: rev.data,
+    check,
+  });
   return { lines, format: written.length > 0 ? { files: written, tests: "src/content/petrklic.test.ts" } : undefined };
 }
 

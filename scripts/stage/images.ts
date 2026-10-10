@@ -1,21 +1,12 @@
-// Renders the WebP images of uploaded content: event posters for the Aktuality pages (design/DESIGN.md §11, §13)
-// and the Petrklíč cover and viewer pages (§17–18). PDF pages are rendered with poppler, images resized with sharp.
-// `pnpm stage` (scripts/stage/) renders them while staging; the commands re-render files already in uploads/.
-//
-// Usage: pnpm petrklic <id-or-folder> ... [--pages]
-//   uploads/petrklic/<id>/cover.webp (page 1) and, with --pages, every page as pages/<n>.webp for the viewer.
-//   Issues are given by id or by folder (`2026-2`, `uploads/petrklic/2026-2/`, `uploads/petrklic/*/`). Prints
-//   `<id> <page count>` per issue.
-// Usage: tsx scripts/upload-images.ts poster <poster.pdf|png|jpg> <out.webp>
-//   Page 1 of a PDF, or the image, as a WebP; prints its path and `<width>x<height>`.
+// Renders the WebP images of staged content for the `pnpm stage` commands: event posters for the Aktuality pages
+// (design/DESIGN.md §11, §13) and the Petrklíč cover and viewer pages (§17–18), and reads a PDF's page count and
+// first-page text. PDF pages are rendered with poppler, images resized with sharp.
 // Requires pdftoppm, pdfinfo and pdftotext (poppler-utils) for PDFs.
 
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { basename, dirname, extname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-import { parseArgs } from "node:util";
+import { dirname, extname, join } from "node:path";
 import sharp from "sharp";
 
 export const POSTER_WIDTH = 680; // 2× the largest poster box (340 px wide on the detail page)
@@ -59,7 +50,7 @@ async function pdfToWebp(
   dest: (page: number) => string,
   options: { width: number; quality: number },
 ) {
-  const tmp = mkdtempSync(join(tmpdir(), "upload-images-"));
+  const tmp = mkdtempSync(join(tmpdir(), "images-"));
   try {
     const size = String(options.width);
     poppler("pdftoppm", [
@@ -96,13 +87,12 @@ export async function renderPoster(src: string, dest: string) {
 }
 
 /**
- * The images of the Petrklíč issue folder `issueDir` (with petrklic-<id>.pdf): cover.webp and, with `pages`, every
- * page as pages/<n>.webp (the old pages are removed first). Returns the page count.
+ * The images of the Petrklíč issue `pdf`, next to it in its folder: cover.webp and, with `pages`, every page as
+ * pages/<n>.webp (the old pages are removed first). Returns the page count.
  */
-export async function renderPetrklic(issueDir: string, { pages = false } = {}) {
-  const id = basename(issueDir);
-  const pdf = join(issueDir, `petrklic-${id}.pdf`);
+export async function renderPetrklic(pdf: string, { pages = false } = {}) {
   if (!existsSync(pdf)) throw new Error(`missing ${pdf}`);
+  const issueDir = dirname(pdf);
   const count = pdfPageCount(pdf);
   const options = { width: PETRKLIC_WIDTH, quality: PETRKLIC_QUALITY };
   await pdfToWebp(pdf, [1, 1], () => join(issueDir, "cover.webp"), options);
@@ -112,55 +102,3 @@ export async function renderPetrklic(issueDir: string, { pages = false } = {}) {
   }
   return count;
 }
-
-const USAGE =
-  "Usage: pnpm petrklic <id-or-folder> ... [--pages]\n       tsx scripts/upload-images.ts poster <in> <out.webp>";
-
-type Command =
-  { command: "petrklic"; ids: string[]; pages: boolean } | { command: "poster"; src: string; dest: string };
-
-/**
- * Reads the command line `args`. An unknown option, --pages with poster or a wrong number of files throws with the
- * usage, so a typo is never taken for an issue id.
- */
-export function parseCommand(args: string[]): Command {
-  let parsed;
-  try {
-    parsed = parseArgs({ args, allowPositionals: true, options: { pages: { type: "boolean" } } });
-  } catch (error) {
-    throw new Error(`${error instanceof Error ? error.message : error}\n${USAGE}`);
-  }
-  const [command, ...files] = parsed.positionals;
-  const pages = parsed.values.pages ?? false;
-  if (command === "petrklic" && files.length > 0) return { command, ids: files.map((file) => basename(file)), pages };
-  if (command === "poster" && files.length === 2 && !pages) return { command, src: files[0], dest: files[1] };
-  throw new Error(USAGE);
-}
-
-// No top-level await: tsx runs the scripts as CommonJS (package.json has no "type": "module").
-async function main() {
-  let command: Command;
-  try {
-    command = parseCommand(process.argv.slice(2));
-  } catch (error) {
-    console.error(`upload-images: ${error instanceof Error ? error.message : error}`);
-    process.exit(2);
-  }
-  try {
-    if (command.command === "poster") {
-      const { width, height } = await renderPoster(command.src, command.dest);
-      console.log(`${command.dest} ${width}x${height}`);
-    } else {
-      const issues = fileURLToPath(new URL("../uploads/petrklic/", import.meta.url));
-      for (const id of command.ids) {
-        console.log(id, await renderPetrklic(join(issues, id), { pages: command.pages }));
-      }
-    }
-  } catch (error) {
-    console.error(`upload-images: ${error instanceof Error ? error.message : error}`);
-    process.exit(1);
-  }
-}
-
-// Run as a command, not imported by the tests.
-if (process.argv[1] === fileURLToPath(import.meta.url)) void main();

@@ -1,5 +1,6 @@
 // Adds a Petrklíč issue to src/content/petrklic.json for `pnpm stage petrklic` (scripts/stage/petrklic.ts,
-// farnost-create-petrklic skill): newest first, before the issues it is not older than. The issue's rules are
+// farnost-create-petrklic skill): newest first, before the issues it is not older than; a corrected PDF (`rev`)
+// replaces the issue's record where it is. The issue's rules are
 // petrklicRecordSchema's (src/lib/petrklic/schema.ts); its id and URLs are computed (toIssue()).
 
 import { readFileSync, writeFileSync } from "node:fs";
@@ -28,13 +29,17 @@ export type AddPetrklicResult = {
   id: string;
   /** 1-based, newest first: 1 is the current issue. */
   position: number;
+  /** The record replaced the issue's record (a corrected PDF, `rev`). */
+  replaced: boolean;
   /** The file written, for formatAndTest; empty with `check`. */
   written: string[];
 };
 
 /**
- * Adds `input` (year, number, note, pageCount) to `file` before the first issue it is not older than (a new part
- * goes before the older parts) and returns what it did; `check` only validates. Throws before writing anything.
+ * Adds `input` (year, number, note, rev, pageCount) to `file` before the first issue it is not older than (a new
+ * part goes before the older parts) and returns what it did; `check` only validates. With a `rev` (a corrected PDF)
+ * it replaces the issue's record instead, which must be there with no later rev; the same rev again is allowed, for
+ * rerunning the command before the release. Throws before writing anything.
  */
 export function addPetrklic(file: string, input: unknown, { check = false } = {}): AddPetrklicResult {
   const parsed = petrklicRecordSchema.safeParse(input);
@@ -42,16 +47,31 @@ export function addPetrklic(file: string, input: unknown, { check = false } = {}
   const record = parsed.data;
   const id = issueId(record);
   const { issues } = readPetrklic(file);
-  if (issues.some((issue) => issueId(issue) === id)) throw new Error(`the issue ${id} is already in petrklic.json`);
-  const at = issues.findIndex((issue) => !isNewerIssue(issue, record));
-  const list = at === -1 ? [...issues, record] : issues.toSpliced(at, 0, record);
+  const at = issues.findIndex((issue) => issueId(issue) === id);
+  let list: PetrklicRecord[];
+  if (record.rev === undefined) {
+    if (at !== -1) {
+      const next = (issues[at].rev ?? 1) + 1;
+      throw new Error(`the issue ${id} is already in petrklic.json; for a corrected PDF pass --rev ${next}`);
+    }
+    const before = issues.findIndex((issue) => !isNewerIssue(issue, record));
+    list = before === -1 ? [...issues, record] : issues.toSpliced(before, 0, record);
+  } else {
+    if (at === -1) throw new Error(`the issue ${id} is not in petrklic.json: --rev is for a corrected PDF of an issue`);
+    const current = issues[at].rev ?? 1;
+    if (record.rev < current) throw new Error(`the issue ${id} already has rev ${current}: pass --rev ${current + 1}`);
+    list = issues.toSpliced(at, 1, record);
+  }
   if (!check) writeFileSync(file, `${JSON.stringify({ issues: list } satisfies PetrklicFile, null, 2)}\n`);
-  return { record, id, position: list.indexOf(record) + 1, written: check ? [] : [file] };
+  return { record, id, position: list.indexOf(record) + 1, replaced: at !== -1, written: check ? [] : [file] };
 }
 
 /** The line the stage command prints for `result`. */
-export function petrklicLines({ record, position }: AddPetrklicResult, check: boolean): string[] {
+export function petrklicLines({ record, position, replaced }: AddPetrklicResult, check: boolean): string[] {
   const where = position === 1 ? "the current issue" : "not the current issue: newer issues come first";
-  const added = `${check ? "Would add" : "Added"} ${issueLabel(record)} (${record.pageCount} pages)`;
-  return [`${added} at position ${position} in src/content/petrklic.json (${where})`];
+  const verb = replaced ? (check ? "Would replace" : "Replaced") : check ? "Would add" : "Added";
+  const rev = replaced ? ` with rev ${record.rev}` : "";
+  return [
+    `${verb} ${issueLabel(record)}${rev} (${record.pageCount} pages) at position ${position} in src/content/petrklic.json (${where})`,
+  ];
 }

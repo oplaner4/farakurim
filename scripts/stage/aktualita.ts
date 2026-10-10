@@ -8,7 +8,7 @@ import type { NewsEvent } from "@/content/types/news";
 import { fold } from "@/lib/shared/czech";
 import { addAktualita, targetLine } from "../add-aktualita";
 import { MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
-import { renderPoster } from "../upload-images";
+import { renderPoster } from "./images";
 
 const EXTENSIONS = new Set([
   ".pdf",

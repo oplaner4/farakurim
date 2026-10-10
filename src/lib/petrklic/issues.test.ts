@@ -99,6 +99,15 @@ describe("toIssue", () => {
       pdfUrl: "/uploads/petrklic/2012-4-mimoradne/petrklic-2012-4-mimoradne.pdf",
     });
   });
+
+  it("puts a corrected PDF in the rev's folder, under the same name", () => {
+    expect(toIssue({ year: 2026, number: 2, rev: 2, pageCount: 36 })).toMatchObject({
+      id: "2026-2",
+      rev: 2,
+      pdfUrl: "/uploads/petrklic/2026-2-r2/petrklic-2026-2.pdf",
+      cover: "/uploads/petrklic/2026-2-r2/cover.webp",
+    });
+  });
 });
 
 describe("pageImages", () => {
@@ -107,6 +116,7 @@ describe("pageImages", () => {
       "/uploads/petrklic/2026-1/pages/1.webp",
       "/uploads/petrklic/2026-1/pages/2.webp",
     ]);
+    expect(pageImages({ id: "2026-1", rev: 3, pageCount: 1 })).toEqual(["/uploads/petrklic/2026-1-r3/pages/1.webp"]);
   });
 });
 

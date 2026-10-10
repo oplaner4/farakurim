@@ -23,7 +23,7 @@ pnpm stage petrklic "<source>" --year <year> --number <number> [--note "<note>"]
 ```
 
 It prints the folder it would stage (`uploads/petrklic/<id>/`, so the id), the page count and where the issue would
-go, and refuses an issue already in the file.
+go, and refuses an issue already in the file (for a corrected PDF, see [Corrections](#corrections)).
 
 Then show:
 
@@ -62,12 +62,19 @@ Only the current issue's pages are linked; the previous issue's `pages/` on the 
 
 Follow **`farnost-publish-content`**. Upload the whole `uploads/petrklic/<id>/` folder.
 
+## Corrections
+
+- A wrong year, number, note or pageCount: edit the issue's record in `src/content/petrklic.json`. A new year, number
+  or note changes the id, so the folder in `uploads/petrklic/` and on the server must be renamed too.
+- A corrected PDF of an issue already on the server: stage it with `--rev 2` (a taken name's error names the next
+  rev). It goes to `uploads/petrklic/<id>-r2/`, with the PDF under the same name, and sets the issue's `rev` and
+  `pageCount`; the old folder stays on the server. Upload the whole new folder.
+- A corrected PDF before the release: delete `uploads/petrklic/<id>/` and the issue's record, then stage again.
+
 ## Common mistakes
 
-- Correcting an issue: edit its record in `src/content/petrklic.json`. Changing a note changes the id, so the folder
-  in `uploads/petrklic/` and on the server must be renamed too.
-- Re-rendering by hand with `pnpm petrklic` without `--pages` after replacing the PDF: only the cover is redrawn,
-  and the viewer keeps the old pages.
+- Replacing the PDF in an issue's folder after the release: the server keeps the old files, so stage it with
+  `--rev` instead.
 - Staging (without `--check`) before the user confirms: an abandoned issue would go out with the next release.
 - Committing the PDF or the images: they go only to `uploads/` and the server.
 - Uploading only the PDF instead of the whole `<id>/` folder: the covers and the viewer show broken images.

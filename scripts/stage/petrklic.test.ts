@@ -7,8 +7,8 @@ import { hasPoppler, pdfWithText, useStageFixture } from "../test-helpers";
 
 // renderPetrklic renders for real unless a test makes it fail once.
 const render = vi.hoisted(() => ({ fail: false }));
-vi.mock("../upload-images", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../upload-images")>();
+vi.mock("./images", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./images")>();
   return {
     ...actual,
     renderPetrklic: async (...args: Parameters<typeof actual.renderPetrklic>) => {
@@ -19,7 +19,7 @@ vi.mock("../upload-images", async (importOriginal) => {
 });
 
 describe.skipIf(!hasPoppler)("stagePetrklic", { timeout: 30_000 }, () => {
-  const { env, download, uploaded } = useStageFixture();
+  const { env, download, uploaded, status } = useStageFixture();
   const firstId = () => issueId(readPetrklic(env.petrklicFile).issues[0]);
 
   it("stages the PDF with its cover and pages and adds the issue", async () => {
@@ -55,6 +55,27 @@ describe.skipIf(!hasPoppler)("stagePetrklic", { timeout: 30_000 }, () => {
     const { year, number, note } = readPetrklic(env.petrklicFile).issues[0];
     await expect(stagePetrklic(env, { source, year, number, note })).rejects.toThrow(/is already in petrklic\.json/);
     expect(existsSync(env.uploadsDir) ? readdirSync(env.uploadsDir) : []).toEqual([]);
+  });
+
+  it("stages a corrected PDF in the rev's folder and replaces the issue's record", async () => {
+    const source = download("Petrklic oprava.pdf", pdfWithText(["Petrklic", "Strana 2", "Strana 3"]));
+    const current = readPetrklic(env.petrklicFile).issues[0];
+    const id = issueId(current);
+    const { year, number, note } = current;
+    // The first PDF is on the server, so staging it again under the same name is refused with the next rev.
+    status(200);
+    await expect(stagePetrklic(env, { source, year, number, note })).rejects.toThrow(/is already in petrklic\.json/);
+    status(404);
+    const result = await stagePetrklic(env, { source, year, number, note, rev: 2 });
+    expect(result.lines[0]).toBe(`Staged uploads/petrklic/${id}-r2/ (PDF, cover.webp, pages/), 3 pages`);
+    expect(result.lines[1]).toMatch(/^Replaced .* with rev 2 \(3 pages\) at position 1 /);
+    expect(readPetrklic(env.petrklicFile).issues[0]).toEqual({ ...current, rev: 2, pageCount: 3 });
+    expect(readdirSync(uploaded("petrklic", `${id}-r2`)).sort()).toEqual(["cover.webp", "pages", `petrklic-${id}.pdf`]);
+    // rev 2 taken on the server: the hint names the next one.
+    status(200);
+    await expect(stagePetrklic(env, { source: "Petrklic oprava.pdf", year, number, note, rev: 2 })).rejects.toThrow(
+      /uploads\/petrklic\/.*-r2\/petrklic-.*\.pdf already exists on the server: .*pass --rev 3/,
+    );
   });
 
   it("removes the folder it staged when rendering fails, so no half issue goes out", async () => {

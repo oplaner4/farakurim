@@ -6,7 +6,7 @@ import { extname } from "node:path";
 import { addDays, differenceInCalendarDays, format, getISODay } from "date-fns";
 import { addOhlasky, ohlaskyLines } from "../add-ohlasky";
 import { MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
-import { pdfFirstPageText } from "../upload-images";
+import { pdfFirstPageText } from "./images";
 
 const WEEKDAYS = ["po", "út", "st", "čt", "pá", "so", "ne"];
 
