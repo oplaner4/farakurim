@@ -14,7 +14,7 @@ import {
   formatPercent,
   formatWeekdayDate,
   plural,
-  relativeEventLabel,
+  relativeDayName,
 } from "./czech";
 
 describe("eventCount", () => {
@@ -144,21 +144,12 @@ describe("formatCompactDate", () => {
   });
 });
 
-describe("relativeEventLabel", () => {
-  const at = (start: string, end?: string) => ({ id: "", title: "", place: "", text: "", start, end });
-  it("counts Prague calendar days to the start", () => {
-    expect(relativeEventLabel(at("2026-10-18"), "2026-10-03")).toBe("Za 15 dní");
-    expect(relativeEventLabel(at("2026-10-06"), "2026-10-03")).toBe("Za 3 dny");
-    // Across the change to winter time on 25. 10.
-    expect(relativeEventLabel(at("2026-10-27"), "2026-10-24")).toBe("Za 3 dny");
-    expect(relativeEventLabel(at("2026-10-04"), "2026-10-03")).toBe("Zítra");
-    expect(relativeEventLabel(at("2026-10-03"), "2026-10-03")).toBe("Dnes");
-  });
-
-  it("marks ongoing and finished events", () => {
-    expect(relativeEventLabel(at("2026-10-02", "2026-10-04"), "2026-10-04")).toBe("Právě probíhá");
-    expect(relativeEventLabel(at("2026-10-02", "2026-10-04"), "2026-10-05")).toBe("Proběhlo");
-    expect(relativeEventLabel(at("2026-10-02"), "2026-10-03")).toBe("Proběhlo");
+describe("relativeDayName", () => {
+  it("names today and tomorrow only", () => {
+    expect(relativeDayName(0)).toBe("Dnes");
+    expect(relativeDayName(1)).toBe("Zítra");
+    expect(relativeDayName(2)).toBeUndefined();
+    expect(relativeDayName(-1)).toBeUndefined();
   });
 });
 

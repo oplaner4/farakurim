@@ -1,7 +1,7 @@
 import { addDays, differenceInCalendarDays } from "date-fns";
 import type { PlaceId, RegularService, ScheduleException, ServiceEntry, ServiceRule } from "@/content/types/services";
 import type { ClockTime, IsoDate, Weekday } from "@/content/types/shared";
-import { capitalize, formatShortDate, plural, WEEKDAY_NAMES, weekdayName } from "@/lib/shared/czech";
+import { capitalize, formatShortDate, plural, relativeDayName, WEEKDAY_NAMES, weekdayName } from "@/lib/shared/czech";
 import { inPrague, pragueDate, pragueDateTime, pragueWeekday } from "@/lib/shared/prague";
 
 export type UpcomingService = {
@@ -96,8 +96,8 @@ export function upcomingServices(now: number, source: ScheduleSource, count: num
 export function formatMassDay(date: IsoDate, now: number): string {
   const diff = differenceInCalendarDays(pragueDateTime(date, "12:00"), now, { in: inPrague });
   const weekday = weekdayName(date);
-  if (diff === 0) return `Dnes · ${weekday} ${formatShortDate(date)}`;
-  if (diff === 1) return `Zítra · ${weekday} ${formatShortDate(date)}`;
+  const name = relativeDayName(diff);
+  if (name) return `${name} · ${weekday} ${formatShortDate(date)}`;
   return `${capitalize(weekday)} · ${formatShortDate(date)}`;
 }
 

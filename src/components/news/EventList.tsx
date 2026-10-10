@@ -8,6 +8,7 @@ import type { NewsEvent } from "@/content/types/news";
 import { links } from "@/content/site";
 import { eventCount, formatMonthYear } from "@/lib/shared/czech";
 import {
+  EVENT_STATUS_LABEL,
   type EventGroup,
   eventStatus,
   filterEvents,
@@ -28,7 +29,7 @@ const groupHeading = (group: EventGroup) =>
     ? { label: formatMonthYear(group.month), color: "text-magenta-ink" }
     : group.kind === "long"
       ? { label: "Dlouhodobé akce", color: "text-blue-ink" }
-      : { label: "Proběhlo", color: "text-muted" };
+      : { label: EVENT_STATUS_LABEL.past, color: "text-muted" };
 
 const filterHref = (filter: NewsFilter) => {
   const { slug } = NEWS_FILTER_META[filter];

@@ -15,7 +15,7 @@ import type { Place, PlaceId } from "@/content/types/services";
 import type { ClockTime, IsoDate } from "@/content/types/shared";
 import { eventMeetings } from "@/lib/news/events";
 import { eventClock, parseClock } from "@/lib/news/ics";
-import { capitalize, plural } from "@/lib/shared/czech";
+import { capitalize, plural, relativeDayName } from "@/lib/shared/czech";
 import { servicesOnDate, type ScheduleSource } from "@/lib/services/masses";
 import { inPrague, pragueDate, pragueDateTime, pragueWeekday } from "@/lib/shared/prague";
 
@@ -169,18 +169,15 @@ const daysFrom = (today: IsoDate, date: IsoDate) => differenceInCalendarDays(noo
 /** Day detail heading: "Dnes · Sobota 3. října", "Zítra · Neděle 4. října", "Neděle 18. října". */
 export function dayHeading(date: IsoDate, today: IsoDate): string {
   const day = capitalize(fmt(date, "EEEE d. MMMM"));
-  const diff = daysFrom(today, date);
-  if (diff === 0) return `Dnes · ${day}`;
-  if (diff === 1) return `Zítra · ${day}`;
-  return day;
+  const name = relativeDayName(daysFrom(today, date));
+  return name ? `${name} · ${day}` : day;
 }
 
 /** Week calendar card header: "Dnes" + "so 3. 10.", "Zítra" + "ne 4. 10.", "Pondělí" + "5. 10.". */
 export function weekCardLabels(date: IsoDate, today: IsoDate): { label: string; date: string } {
-  const diff = daysFrom(today, date);
+  const name = relativeDayName(daysFrom(today, date));
   const short = fmt(date, "d. M.");
-  if (diff === 0) return { label: "Dnes", date: `${fmt(date, "EEEEEE")} ${short}` };
-  if (diff === 1) return { label: "Zítra", date: `${fmt(date, "EEEEEE")} ${short}` };
+  if (name) return { label: name, date: `${fmt(date, "EEEEEE")} ${short}` };
   return { label: capitalize(fmt(date, "EEEE")), date: short };
 }
 

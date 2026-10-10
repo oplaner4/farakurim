@@ -1,4 +1,4 @@
-import { differenceInCalendarDays, format, getDay, isLastDayOfMonth } from "date-fns";
+import { format, getDay, isLastDayOfMonth } from "date-fns";
 import { cs } from "date-fns/locale";
 import type { NewsEvent } from "@/content/types/news";
 import type { IsoDate } from "@/content/types/shared";
@@ -191,17 +191,11 @@ export function formatCompactDate(start: IsoDate, end: IsoDate = start): string 
   return `${formatShortDate(start)} – ${formatShortDate(end)}`;
 }
 
-/**
- * Relative label of a detail page (§13.1), by Prague calendar days: "Za 15 dní", "Za 3 dny", "Zítra",
- * "Dnes", "Právě probíhá" (multi-day and long-term events), "Proběhlo".
- */
-export function relativeEventLabel(event: Pick<NewsEvent, "start" | "end">, today: IsoDate): string {
-  const { start, end = start } = event;
-  if (end < today) return "Proběhlo";
-  if (start <= today) return end === start ? "Dnes" : "Právě probíhá";
-  const days = differenceInCalendarDays(asDate(start), asDate(today), { in: inPrague });
+/** "Dnes" and "Zítra" for a day `days` calendar days from today; other days have no name. */
+export function relativeDayName(days: number): "Dnes" | "Zítra" | undefined {
+  if (days === 0) return "Dnes";
   if (days === 1) return "Zítra";
-  return `Za ${days} ${plural(days, ["den", "dny", "dní"])}`;
+  return undefined;
 }
 
 const sizeFormat = new Intl.NumberFormat("cs", { maximumFractionDigits: 1 });

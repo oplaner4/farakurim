@@ -1,8 +1,8 @@
-import { endOfMonth, endOfWeek } from "date-fns";
+import { differenceInCalendarDays, endOfMonth, endOfWeek } from "date-fns";
 import { links } from "@/content/site";
 import type { NewsEvent, TagColor } from "@/content/types/news";
 import type { IsoDate } from "@/content/types/shared";
-import { formatEventWhen, formatShortDate } from "@/lib/shared/czech";
+import { formatEventWhen, formatShortDate, plural, relativeDayName } from "@/lib/shared/czech";
 import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
 
 // ISO dates (`YYYY-MM-DD`) compare correctly as strings, so the date maths here stays on strings.
@@ -33,6 +33,9 @@ export type EventStatus = "past" | "now" | "upcoming";
 
 export const eventEnd = (event: Pick<NewsEvent, "start" | "end">): IsoDate => event.end ?? event.start;
 
+/** The label of a finished and a running event: card tags, the "Proběhlo" group and the detail page. */
+export const EVENT_STATUS_LABEL = { past: "Proběhlo", now: "Právě probíhá" } as const;
+
 /** Computed, never stored. Long-term series are never "now", they get their own group instead. */
 export function eventStatus(event: NewsEvent, today: IsoDate): EventStatus {
   if (eventEnd(event) < today) return "past";
@@ -53,7 +56,7 @@ export function eventTags(
   today: IsoDate,
 ): { kind: EventTagKind; label: string }[] {
   const tags: { kind: EventTagKind; label: string }[] = [];
-  if (status === "now") tags.push({ kind: "now", label: "Právě probíhá" });
+  if (status === "now") tags.push({ kind: "now", label: EVENT_STATUS_LABEL.now });
   if (event.registrationDeadline && event.registrationDeadline >= today) {
     tags.push({ kind: "orange", label: `Přihlášky do ${formatShortDate(event.registrationDeadline)}` });
   }
@@ -62,8 +65,23 @@ export function eventTags(
   if (event.sessions) tags.push({ kind: "blue", label: `${event.sessions.length} setkání` });
   if (event.longTerm && event.longTerm !== true) tags.push({ kind: "blue", label: "Každý týden" });
   for (const tag of event.tags ?? []) tags.push({ kind: tag.color ?? "blue", label: tag.label });
-  if (status === "past") tags.push({ kind: "grey", label: "Proběhlo" });
+  if (status === "past") tags.push({ kind: "grey", label: EVENT_STATUS_LABEL.past });
   return tags;
+}
+
+/**
+ * Relative label of a detail page (§13.1), by Prague calendar days: "Za 15 dní", "Za 3 dny", "Zítra",
+ * "Dnes", "Právě probíhá" (multi-day and long-term events), "Proběhlo".
+ */
+export function relativeEventLabel(event: Pick<NewsEvent, "start" | "end">, today: IsoDate): string {
+  const { start } = event;
+  const end = eventEnd(event);
+  if (end < today) return EVENT_STATUS_LABEL.past;
+  if (start <= today) return end === start ? "Dnes" : EVENT_STATUS_LABEL.now;
+  const days = differenceInCalendarDays(pragueDateTime(start, "12:00"), pragueDateTime(today, "12:00"), {
+    in: inPrague,
+  });
+  return relativeDayName(days) ?? `Za ${days} ${plural(days, ["den", "dny", "dní"])}`;
 }
 
 /** A meeting of a series with its defaults filled in: its last day and its time text. */
