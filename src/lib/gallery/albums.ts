@@ -3,6 +3,12 @@ import { plural } from "@/lib/shared/czech";
 
 // Fotogalerie (design/DESIGN.md §19) and the homepage carousel (§4.5).
 
+/**
+ * The albums the site keeps, newest first: the Fotogalerie shows them all, the homepage the 4 newest; older ones stay
+ * on Zonerama (design/DESIGN.md §19.1). `pnpm add-album` removes the older ones.
+ */
+export const MAX_ALBUMS = 6;
+
 /** "12 fotografií", "3 fotografie", "1 fotografie" */
 export const photoCountLabel = (count: number) =>
   `${count} ${plural(count, ["fotografie", "fotografie", "fotografií"])}`;

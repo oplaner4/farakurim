@@ -1,6 +1,6 @@
 import type { IsoDate } from "./shared";
 
-// Fotogalerie (gallery.ts): Zonerama albums.
+// Fotogalerie (gallery.json): Zonerama albums.
 
 /** One photo of an album, in the two sizes Zonerama serves (design/DESIGN.md §19.2). */
 export type AlbumPhoto = {
@@ -30,4 +30,9 @@ export type Album = PhotoSet & {
   date: IsoDate;
   /** The album on Zonerama ("Otevřít album"). */
   href: string;
+};
+
+/** src/content/gallery.json: the albums the site keeps, newest first. */
+export type GalleryFile = {
+  albums: Album[];
 };

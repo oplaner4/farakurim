@@ -5,9 +5,7 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { albums } from "@/content/gallery";
 import { links } from "@/content/site";
-
-/** The newest albums shown here; older ones are on Zonerama (design/DESIGN.md §19.1). */
-const ALBUMS_SHOWN = 6;
+import { MAX_ALBUMS } from "@/lib/gallery/albums";
 
 const lead = "Fotografie z farních akcí. Starší alba najdete na Zonerama.";
 
@@ -28,7 +26,7 @@ export default function GalleryPage() {
       >
         <PageHeading title="Fotogalerie" color="green" size="standard" intro={lead} />
         <div className="flex flex-col gap-7 md:gap-9">
-          {albums.slice(0, ALBUMS_SHOWN).map((album, i) => (
+          {albums.slice(0, MAX_ALBUMS).map((album, i) => (
             <AlbumStrip key={album.id} album={album} position={i} />
           ))}
         </div>
