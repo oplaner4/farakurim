@@ -72,6 +72,15 @@ describe("runCommand", { timeout: 30_000 }, () => {
       "wrong arguments",
     );
     await expect(runCommand(env, ["petrklic", "a.pdf", "2026-1"])).rejects.toThrow("wrong arguments");
+    await expect(runCommand(env, ["petrklic", "a.pdf", "--year", "", "--number", "1"])).rejects.toThrow(
+      "wrong arguments",
+    );
+    await expect(runCommand(env, ["petrklic", "a.pdf", "--year", "2026", "--number", " "])).rejects.toThrow(
+      "wrong arguments",
+    );
+    await expect(runCommand(env, ["petrklic", "a.pdf", "--year", "0x7EA", "--number", "1"])).rejects.toThrow(
+      "wrong arguments",
+    );
     await expect(runCommand(env, ["tisk", "a.pdf"])).rejects.toThrow("wrong arguments");
     await expect(runCommand(env, ["porad", "a.pdf", "--rev", "1"])).rejects.toThrow("--rev is a number from 2");
   });

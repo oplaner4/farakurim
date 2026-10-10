@@ -28,6 +28,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
+import * as z from "zod";
 import type { NewsEvent } from "@/content/types/news";
 import { reportCalendar } from "../aktualita-calendar";
 import { formatAndTest } from "../content-files";
@@ -42,6 +43,12 @@ const USAGE = `Usage: pnpm stage aktualita <source> <id> <label> [--title "<titl
 Largest source file: ${Object.entries(MAX_MB)
   .map(([command, mb]) => `${command} ${mb} MB`)
   .join(", ")}`;
+
+// Digits only, not z.coerce.number(): Number() reads "" and " " as 0 and "0x7EA" as 2026. The range (from 2006,
+// from 1) is petrklicRecordSchema's, checked by addPetrklic().
+const digits = z.string().regex(/^\d+$/).transform(Number);
+/** The --year and --number of `stage petrklic`. */
+const petrklicArgsSchema = z.object({ year: digits, number: digits });
 
 /** Each command's positional arguments and options. */
 const COMMANDS: Record<string, { positionals: number; options: string[] }> = {
@@ -107,11 +114,9 @@ export async function runCommand(
     });
     return { lines, format: written.length > 0 ? { files: written, tests: "src/content/ohlasky.test.ts" } : undefined };
   }
-  const year = Number(values.year);
-  const number = Number(values.number);
-  if (!Number.isInteger(year) || !Number.isInteger(number)) {
-    throw new Error(`wrong arguments: --year and --number are whole numbers\n${USAGE}`);
-  }
+  const issue = petrklicArgsSchema.safeParse(values);
+  if (!issue.success) throw new Error(`wrong arguments: --year and --number are whole numbers\n${USAGE}`);
+  const { year, number } = issue.data;
   const { lines, written } = await stagePetrklic(env, { source: args[0], year, number, note: values.note, check });
   return { lines, format: written.length > 0 ? { files: written, tests: "src/content/petrklic.test.ts" } : undefined };
 }
