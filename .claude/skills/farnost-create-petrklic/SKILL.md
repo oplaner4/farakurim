@@ -52,9 +52,9 @@ uploads/petrklic/<id>/
 pnpm stage petrklic "<source>" --year <year> --number <number> [--note "<note>"]
 ```
 
-It copies the PDF, renders `cover.webp` and every page (`pnpm petrklic <id> --pages`), and adds the issue to
-`src/content/petrklic.json` (newest first), then formats it and runs the Petrklíč test. It says whether the issue is
-now the current one: an older issue goes lower in the list.
+It copies the PDF, renders `cover.webp` and every page, and adds the issue to `src/content/petrklic.json` (newest
+first), then formats it and runs the Petrklíč test. It says whether the issue is now the current one: an older issue
+goes lower in the list.
 
 Only the current issue's pages are linked; the previous issue's `pages/` on the server may stay.
 
@@ -66,7 +66,8 @@ Follow **`farnost-publish-content`**. Upload the whole `uploads/petrklic/<id>/` 
 
 - Correcting an issue: edit its record in `src/content/petrklic.json`. Changing a note changes the id, so the folder
   in `uploads/petrklic/` and on the server must be renamed too.
-- Re-rendering by hand with `pnpm petrklic` without `--pages`: the viewer shows empty pages.
+- Re-rendering by hand with `pnpm petrklic` without `--pages` after replacing the PDF: only the cover is redrawn,
+  and the viewer keeps the old pages.
 - Staging (without `--check`) before the user confirms: an abandoned issue would go out with the next release.
 - Committing the PDF or the images: they go only to `uploads/` and the server.
 - Uploading only the PDF instead of the whole `<id>/` folder: the covers and the viewer show broken images.

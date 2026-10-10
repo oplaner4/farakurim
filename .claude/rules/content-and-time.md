@@ -50,7 +50,8 @@ build-time next mass.
   `src/lib/petrklic/schema.ts`): one record per issue (`year`, `number`, `note`, `pageCount`), newest first, added
   by `pnpm stage petrklic` (`farnost-create-petrklic`); the id (`issueId()`), the URLs (`toIssue()`) and the
   volume are computed (`volumeOf()`). Each issue is one folder uploaded to `/uploads/petrklic/<id>/`: the PDF
-  `petrklic-<id>.pdf`, `cover.webp` and the current issue's viewer `pages/<n>.webp` (rendered by `pnpm petrklic`).
+  `petrklic-<id>.pdf`, `cover.webp` and the current issue's viewer `pages/<n>.webp` (rendered by
+  `pnpm stage petrklic`).
 - Calendars (Kalendář, homepage "Tento týden"): the parish's two Google Calendars ("Bohoslužby" = `services`,
   "Události" = `events`, `parishCalendars` in `content/site.ts`) are the source, because visitors subscribe to
   them. `loadCalendarEntries()` (`server/calendar.ts`) reads them at build time with `singleEvents=true` (Google
