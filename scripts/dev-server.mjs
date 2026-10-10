@@ -1,51 +1,31 @@
 // `pnpm dev`: the Next dev server (Turbopack, hot reload) behind a custom server
-// (node_modules/next/dist/docs/01-app/02-guides/custom-server.md) that also answers /uploads/… like the web host:
-// files staged in the local uploads/ folder are served from there, anything else is redirected to the live site.
-// /virtualni_prohlidka/ (on the server only, not in the build) is redirected to the live site too.
+// (node_modules/next/dist/docs/01-app/02-guides/custom-server.md) that also answers /uploads/… and
+// /virtualni_prohlidka/ like the web host (scripts/server-files.mjs).
 // /favicon.ico, which browsers request by default, is redirected to the SVG icon: the site has no .ico, and the
 // [...stranka] catch-all would answer it with a "missing param in generateStaticParams()" error in dev.
-// Only `pnpm dev` uses it; `pnpm build` stays a plain static export. `pnpm preview` does the same in scripts/preview.py.
+// Only `pnpm dev` uses it; `pnpm build` stays a plain static export, which `pnpm preview` serves (scripts/preview.mjs).
 import { createServer } from "node:http";
 import { fileURLToPath } from "node:url";
 import next from "next";
-import sirv from "sirv";
+import { redirect, SERVER_FILES_NOTE, serverFiles } from "./server-files.mjs";
 
-const PREFIX = "/uploads/";
-const TOUR = "/virtualni_prohlidka/";
 const FAVICON = "/favicon.ico";
 const ICON = "/icon.svg";
-const LIVE = "https://farakurim.cz"; // SITE_URL (src/content/site.ts), which plain Node cannot import
 const port = Number(process.env.PORT) || 3000;
 const hostname = "localhost";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const app = next({ dev: true, turbopack: true, dir: root, hostname, port });
 const handle = app.getRequestHandler();
-const uploads = sirv(fileURLToPath(new URL("../uploads", import.meta.url)), { dev: true });
+const files = serverFiles(root);
 
 await app.prepare();
 
 const server = createServer((req, res) => {
-  const url = req.url ?? "/";
-  if (url === FAVICON) {
-    res.writeHead(302, { Location: ICON });
-    res.end();
-    return;
-  }
-  if (url.startsWith(TOUR)) {
-    res.writeHead(302, { Location: LIVE + url });
-    res.end();
-    return;
-  }
-  if (!url.startsWith(PREFIX)) return handle(req, res);
-  // sirv looks the path up inside uploads/, so it gets the URL without the /uploads prefix.
-  req.url = url.slice(PREFIX.length - 1);
-  uploads(req, res, () => {
-    res.writeHead(302, { Location: LIVE + url });
-    res.end();
-  });
+  if (req.url === FAVICON) return redirect(res, ICON);
+  files(req, res, () => handle(req, res));
 });
 server.on("upgrade", app.getUpgradeHandler());
 server.listen(port, () => {
-  console.log(`> Dev server at http://${hostname}:${port} (${PREFIX} from uploads/, else ${LIVE})`);
+  console.log(`> Dev server at http://${hostname}:${port} (${SERVER_FILES_NOTE})`);
 });

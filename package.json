@@ -15,7 +15,7 @@
     "add-album": "tsx scripts/add-album.ts",
     "aktualita-calendar": "tsx scripts/aktualita-calendar.ts",
     "format": "prettier --write .",
-    "preview": "python3 scripts/preview.py 4173",
+    "preview": "node scripts/preview.mjs 4173",
     "release": "scripts/release.sh",
     "pull-uploads": "scripts/deploy.sh pull-uploads",
     "mockups": "python3 scripts/render-mockups.py && python3 -m http.server -d .design-preview 4174",

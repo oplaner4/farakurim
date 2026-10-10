@@ -13,7 +13,7 @@ Working on it with Claude Code: `CLAUDE.md` adds the rules an agent follows on t
 
 - **Node.js ≥ 20.9** (required by Next.js 16)
 - **pnpm 10** (`corepack enable` picks up the version in `package.json`). Do not use npm or yarn.
-- **Python 3** for `pnpm preview` and `pnpm mockups`
+- **Python 3** for `pnpm mockups`
 - **poppler-utils** (`pdftoppm`, `pdfinfo`, `pdftotext`) for the PDFs of `pnpm stage`; its tests skip the PDF cases
   without it
 - Optional: `pip install --user fonttools brotli` to regenerate the web fonts (`pnpm fonts`), and PHP to try
