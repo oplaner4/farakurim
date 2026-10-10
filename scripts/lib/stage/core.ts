@@ -5,7 +5,7 @@
 import { copyFileSync, existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { basename, dirname, join } from "node:path";
-import { NEWS_DIR, OHLASKY_FILE, PETRKLIC_FILE, ROOT } from "../content-files";
+import { EXCEPTIONS_FILE, NEWS_DIR, OHLASKY_FILE, PETRKLIC_FILE, ROOT } from "../content-files";
 import { errorMessage } from "../command";
 
 const MB = 1024 * 1024;
@@ -17,6 +17,7 @@ export interface StageEnv {
   uploadsDir: string;
   newsDir: string;
   ohlaskyFile: string;
+  exceptionsFile: string;
   petrklicFile: string;
   /** The site's address, e.g. https://farakurim.cz. */
   site: string;
@@ -37,6 +38,7 @@ export const defaultEnv = (): StageEnv => ({
   uploadsDir: join(ROOT, "uploads"),
   newsDir: NEWS_DIR,
   ohlaskyFile: OHLASKY_FILE,
+  exceptionsFile: EXCEPTIONS_FILE,
   petrklicFile: PETRKLIC_FILE,
   site: siteFromDeployScript(readFileSync(join(ROOT, "scripts/deploy.sh"), "utf8")),
   fetch,

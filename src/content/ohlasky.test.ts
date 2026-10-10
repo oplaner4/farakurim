@@ -1,8 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { sheetOrderProblems } from "@/lib/services/service-sheet";
 import { events } from "@/content/news";
-import { isSorted } from "@/lib/test/content-checks";
-import { laterExceptions, serviceSheets } from "@/server/ohlasky";
+import { serviceSheets } from "@/server/ohlasky";
 
 vi.mock("server-only", () => ({}));
 
@@ -18,12 +17,5 @@ describe("Ohlášky (ohlasky.json)", () => {
     const ids = new Set(events.map((e) => e.id));
     const missing = serviceSheets.flatMap((s) => s.announcements.filter((a) => a.newsId && !ids.has(a.newsId)));
     expect(missing.map((a) => a.newsId)).toEqual([]);
-  });
-
-  it("has hand-entered exceptions after the last sheet, one per date, in order", () => {
-    // `pnpm stage porad … --record` removes the entries a new sheet covers.
-    const lastDay = serviceSheets.at(-1)!.validTo;
-    expect(laterExceptions.filter((x) => x.date <= lastDay).map((x) => x.date)).toEqual([]);
-    expect(isSorted(laterExceptions, (a, b) => a.date < b.date)).toBe(true);
   });
 });

@@ -1,6 +1,7 @@
 import type { ClockTime, IsoDate, Weekday } from "./shared";
 
-// Pořad bohoslužeb (masses.ts, ohlasky.json): the parish churches, the weekly schedule and the ohlášky.
+// Pořad bohoslužeb (masses.ts, ohlasky.json, schedule-exceptions.json): the parish churches, the weekly schedule,
+// the ohlášky and the changes announced for later.
 
 export type PlaceId = "kurim" | "moravske-kninice" | "jinacovice";
 
@@ -52,10 +53,17 @@ export type ScheduleException = {
   reason?: string;
 };
 
-/** The ohlášky (src/content/ohlasky.json): the sheets by `validFrom` and the hand-entered later changes. */
+/** The ohlášky (src/content/ohlasky.json): the sheets by `validFrom`. */
 export type OhlaskyFile = {
   sheets: ServiceSheetRecord[];
-  laterExceptions: ScheduleException[];
+};
+
+/**
+ * The changes announced for days after the last sheet (src/content/schedule-exceptions.json), by date: a sheet that
+ * covers one replaces it.
+ */
+export type ScheduleExceptionsFile = {
+  exceptions: ScheduleException[];
 };
 
 /** Category of an announcement in the ohlášky (design/DESIGN.md §14.5); it sets the label and its colour. */

@@ -93,7 +93,7 @@ export async function stagePorad(env: StageEnv, options: PoradOptions) {
   const lines: string[] = [];
   // Validate before anything is copied, so a bad record leaves nothing staged.
   if (options.record) {
-    const checked = addOhlasky(env.ohlaskyFile, env.newsDir, options.record, sheetWeek, { check: true });
+    const checked = addOhlasky(env, options.record, sheetWeek, { check: true });
     if (check) lines.push(...ohlaskyLines(checked, true));
   }
   await stage(env, src, rel, check, correctedHint("this week"), corrected);
@@ -106,7 +106,7 @@ export async function stagePorad(env: StageEnv, options: PoradOptions) {
     return { lines, written: [] };
   }
   if (check) return { lines, written: [] };
-  const result = addOhlasky(env.ohlaskyFile, env.newsDir, options.record, sheetWeek);
+  const result = addOhlasky(env, options.record, sheetWeek);
   lines.push(...ohlaskyLines(result, false));
   return { lines, written: result.written };
 }

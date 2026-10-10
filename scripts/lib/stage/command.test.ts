@@ -1,6 +1,7 @@
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { OHLASKY_TESTS } from "../content-files";
 import { weekDays } from "./porad";
 import { runStage } from "./command";
 import { useStageFixture } from "../test-helpers";
@@ -31,7 +32,7 @@ describe("runStage", { timeout: 30_000 }, () => {
       "--record",
       sheetFile,
     ]);
-    expect(sheet.format).toEqual({ files: [env.ohlaskyFile], tests: "src/content/ohlasky.test.ts" });
+    expect(sheet.format).toEqual({ files: [env.ohlaskyFile], tests: OHLASKY_TESTS });
 
     const recordFile = join(env.home, "record.json");
     writeFileSync(recordFile, JSON.stringify({ id: "x-2026", title: "T", start: "2026-10-20", place: "P", text: "T" }));

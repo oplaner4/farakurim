@@ -3,27 +3,15 @@
 // the issue's record where it is. The issue's rules are
 // petrklicRecordSchema's (src/lib/petrklic/schema.ts); its id and URLs are computed (toIssue()).
 
-import { readFileSync, writeFileSync } from "node:fs";
-import { relative } from "node:path";
 import * as z from "zod";
 import type { PetrklicFile, PetrklicRecord } from "@/content/types/petrklic";
 import { isNewerIssue, issueId, issueLabel } from "@/lib/petrklic/issues";
 import { petrklicFileSchema, petrklicRecordSchema } from "@/lib/petrklic/schema";
-import { errorMessage } from "../command";
+import { readJsonFile } from "@/lib/shared/json-file";
+import { writeContentFile } from "../content-files";
 
 /** The issues in `file`, checked by petrklicFileSchema; a broken file throws, naming it. */
-export function readPetrklic(file: string): PetrklicFile {
-  const name = relative(process.cwd(), file);
-  let data: unknown;
-  try {
-    data = JSON.parse(readFileSync(file, "utf8"));
-  } catch (error) {
-    throw new Error(`${name} is not valid JSON: ${errorMessage(error)}`);
-  }
-  const parsed = petrklicFileSchema.safeParse(data);
-  if (!parsed.success) throw new Error(`${name} is not valid:\n${z.prettifyError(parsed.error)}`);
-  return parsed.data;
-}
+export const readPetrklic = (file: string): PetrklicFile => readJsonFile(file, petrklicFileSchema);
 
 export type AddPetrklicResult = {
   record: PetrklicRecord;
@@ -58,7 +46,7 @@ export function addPetrklic(file: string, input: unknown, { check = false, repla
     const before = issues.findIndex((issue) => !isNewerIssue(issue, record));
     list = before === -1 ? [...issues, record] : issues.toSpliced(before, 0, record);
   }
-  if (!check) writeFileSync(file, `${JSON.stringify({ issues: list } satisfies PetrklicFile, null, 2)}\n`);
+  if (!check) writeContentFile(file, { issues: list } satisfies PetrklicFile);
   return { record, id, position: list.indexOf(record) + 1, replaced: replace, written: check ? [] : [file] };
 }
 

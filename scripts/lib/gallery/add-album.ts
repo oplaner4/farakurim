@@ -10,8 +10,6 @@
 // Usage: pnpm add-album https://eu.zonerama.com/FarnostKurim/Album/<n>
 //          [--write | --check] [--title "<title>"] [--date YYYY-MM-DD] [--id <kebab-id>]
 
-import { readFileSync, writeFileSync } from "node:fs";
-import { relative } from "node:path";
 import { parseArgs } from "node:util";
 import { decodeHTML } from "entities";
 import * as z from "zod";
@@ -19,8 +17,9 @@ import type { Album, AlbumPhoto, GalleryFile } from "@/content/types/gallery";
 import { MAX_ALBUMS } from "@/lib/gallery/albums";
 import { albumNumber, albumSchema, galleryFileSchema } from "@/lib/gallery/schema";
 import { slug } from "@/lib/shared/slug";
+import { readJsonFile } from "@/lib/shared/json-file";
 import { errorMessage } from "../command";
-import { formatAndTest, GALLERY_FILE } from "../content-files";
+import { formatAndTest, GALLERY_FILE, writeContentFile } from "../content-files";
 
 const MAX_PHOTOS = 15;
 /** Photo widths: 2× a strip tile (about 390 px), and the homepage carousel and the lightbox. */
@@ -156,18 +155,7 @@ export function readAlbumPage(
 }
 
 /** The albums in `galleryFile`, checked by galleryFileSchema; a broken file throws, naming it. */
-export function readGallery(galleryFile: string): GalleryFile {
-  const name = relative(process.cwd(), galleryFile);
-  let data: unknown;
-  try {
-    data = JSON.parse(readFileSync(galleryFile, "utf8"));
-  } catch (error) {
-    throw new Error(`${name} is not valid JSON: ${errorMessage(error)}`);
-  }
-  const parsed = galleryFileSchema.safeParse(data);
-  if (!parsed.success) throw new Error(`${name} is not valid:\n${z.prettifyError(parsed.error)}`);
-  return parsed.data;
-}
+export const readGallery = (galleryFile: string): GalleryFile => readJsonFile(galleryFile, galleryFileSchema);
 
 export type AddAlbumResult = {
   album: Album;
@@ -205,7 +193,7 @@ export function addAlbum(galleryFile: string, input: unknown, { check = false } 
     );
   }
   const removed = all.slice(MAX_ALBUMS).map(({ id, date }) => ({ id, date }));
-  if (!check) writeFileSync(galleryFile, `${JSON.stringify({ albums: kept } satisfies GalleryFile, null, 2)}\n`);
+  if (!check) writeContentFile(galleryFile, { albums: kept } satisfies GalleryFile);
   return { album, position: kept.indexOf(album) + 1, removed, written: check ? [] : [galleryFile] };
 }
 

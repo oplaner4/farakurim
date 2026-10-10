@@ -16,9 +16,10 @@
 //       reads the week from the heading ("od 4. 10. 2026 do 11. 10. 2026"), stages
 //       uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-r<rev>].pdf and adds the confirmed sheet (--record:
 //       days and announcements as JSON) to src/content/ohlasky.json, removing the outdated sheets and the covered
-//       laterExceptions (scripts/lib/services/add-ohlasky.ts). --record is required, except with --check, which then prints the
-//       week and its days (with a record, --check only validates it). --corrected stages a corrected PDF of a week
-//       already there, in the next -r<rev> once the week is on the server, else under its name.
+//       changes in src/content/schedule-exceptions.json (scripts/lib/services/add-ohlasky.ts). --record is required,
+//       except with --check, which then prints the week and its days (with a record, --check only validates it).
+//       --corrected stages a corrected PDF of a week already there, in the next -r<rev> once the week is on the
+//       server, else under its name.
 //   petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--corrected]
 //       checks the issue, stages uploads/petrklic/<id>/petrklic-<id>.pdf with cover.webp and pages/ and adds the
 //       issue to src/content/petrklic.json (scripts/lib/petrklic/add-petrklic.ts; with --check it only validates). --corrected
@@ -33,7 +34,7 @@ import { parseArgs } from "node:util";
 import * as z from "zod";
 import type { NewsEvent } from "@/content/types/news";
 import { reportCalendar } from "../news/aktualita-calendar";
-import { formatAndTest } from "../content-files";
+import { formatAndTest, OHLASKY_TESTS } from "../content-files";
 import { stageAktualita } from "./aktualita";
 import { defaultEnv, MAX_MB, type StageEnv } from "./core";
 import { stagePetrklic } from "./petrklic";
@@ -67,7 +68,7 @@ const COMMANDS: Record<string, { positionals: number; options: string[] }> = {
 export async function runStage(
   env: StageEnv,
   argv: string[],
-): Promise<{ lines: string[]; format?: { files: string[]; tests: string }; event?: NewsEvent }> {
+): Promise<{ lines: string[]; format?: { files: string[]; tests: string | string[] }; event?: NewsEvent }> {
   const { values, positionals } = parseArgs({
     args: argv,
     allowPositionals: true,
@@ -120,7 +121,7 @@ export async function runStage(
       record,
       check,
     });
-    return { lines, format: written.length > 0 ? { files: written, tests: "src/content/ohlasky.test.ts" } : undefined };
+    return { lines, format: written.length > 0 ? { files: written, tests: OHLASKY_TESTS } : undefined };
   }
   const issue = petrklicArgsSchema.safeParse(values);
   if (!issue.success) throw new Error(`wrong arguments: --year and --number are whole numbers\n${USAGE}`);

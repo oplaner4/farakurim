@@ -28,7 +28,7 @@ rada and Kněží – rodáci; content in `parish-council.ts` and `native-priest
   `lib/news/archive.ts`, `lib/news/ics.ts`, `lib/services/masses.ts`, `lib/contacts/office-hours.ts`,
   `lib/layout/bible-quote.ts`. `lib/shared/` holds the cross-domain helpers: `prague.ts` (time zone),
   `czech.ts` (Czech grammar and formats), `build-time.ts` (`BUILD_TIME`, `BUILD_YEAR`), `links.ts`, `slug.ts` (ASCII
-  ids from Czech titles), `query-params.ts`, `revision.ts` (the `-r2` names of corrected PDFs), `planned-pages.ts`
+  ids from Czech titles), `query-params.ts`, `revision.ts` (the `-r2` names of corrected PDFs), `json-file.ts` (`readJsonFile()`, a JSON content file read rather than imported, for the news month files and the scripts), `planned-pages.ts`
   (the placeholder routes), `structured-data.ts` (JSON-LD) and `analytics.ts` (Matomo commands). `lib` may import `@/content/site` for URLs and
   `@/content/types/*` for types, never the content data itself (tests may, to check real records).
   `lib/test/content-checks.ts` holds the checks the content tests share (dates, times, order, `/uploads/` links).

@@ -1,5 +1,11 @@
 import * as z from "zod";
-import type { OhlaskyFile, PlaceId, ScheduleException, ServiceSheetRecord } from "@/content/types/services";
+import type {
+  OhlaskyFile,
+  PlaceId,
+  ScheduleException,
+  ScheduleExceptionsFile,
+  ServiceSheetRecord,
+} from "@/content/types/services";
 import { revSchema } from "@/lib/shared/revision";
 import { periodDates } from "./service-sheet";
 
@@ -89,7 +95,7 @@ const serviceEntrySchema = z.strictObject({
   note: text.optional(),
 });
 
-/** A hand-entered ScheduleException (`laterExceptions` in src/content/ohlasky.json). */
+/** A ScheduleException announced for later (src/content/schedule-exceptions.json). */
 export const scheduleExceptionSchema = z.strictObject({
   date,
   services: z.array(serviceEntrySchema),
@@ -99,5 +105,9 @@ export const scheduleExceptionSchema = z.strictObject({
 /** The whole of src/content/ohlasky.json; src/server/ohlasky.ts and scripts/lib/services/add-ohlasky.ts parse it. */
 export const ohlaskyFileSchema = z.strictObject({
   sheets: z.array(serviceSheetSchema),
-  laterExceptions: z.array(scheduleExceptionSchema),
 }) satisfies z.ZodType<OhlaskyFile>;
+
+/** The whole of src/content/schedule-exceptions.json; src/content/schedule-exceptions.ts and the scripts parse it. */
+export const scheduleExceptionsFileSchema = z.strictObject({
+  exceptions: z.array(scheduleExceptionSchema),
+}) satisfies z.ZodType<ScheduleExceptionsFile>;

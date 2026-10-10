@@ -25,8 +25,8 @@ only, without `validFrom`, `validTo` and `rev` (they come from the PDF). Change 
 - a correction the user describes: change those rows or announcements.
 
 The fields follow **`farnost-create-porad-bohosluzeb`** step 2 (rows, `mass` and `service`, privacy, announcements).
-A cancelled or moved service changes the week's `rows` only; a change after `validTo` goes to `laterExceptions` as
-described there.
+A cancelled or moved service changes the week's `rows` only; a change after the last sheet is a later change, added with
+`pnpm add-exception` as described there.
 
 ## 3. Confirm with the user
 

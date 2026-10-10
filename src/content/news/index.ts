@@ -1,8 +1,9 @@
-import { readdirSync, readFileSync } from "node:fs";
-import { join, relative } from "node:path";
+import { readdirSync } from "node:fs";
+import { join } from "node:path";
 import * as z from "zod";
 import type { NewsEvent } from "@/content/types/news";
 import { newsEventSchema } from "@/lib/news/schema";
+import { readJsonFile } from "@/lib/shared/json-file";
 
 // Every aktualita, one JSON file per start month: news/<year>/<MM>.json, each in start-date order. 2019–2025 were
 // migrated once from the old site's database (farakurim.cz); scripts/lib/news/add-aktualita.ts (farnost-create-aktualita
@@ -29,19 +30,7 @@ export function monthFiles(dir: string): string[] {
 }
 
 /** The records of the month file `file` (`<year>/<MM>.json`) under `dir`, checked by the record schema. */
-export function readMonth(dir: string, file: string): NewsEvent[] {
-  const path = join(dir, file);
-  const name = relative(process.cwd(), path);
-  let data: unknown;
-  try {
-    data = JSON.parse(readFileSync(path, "utf8"));
-  } catch (error) {
-    throw new Error(`${name} is not valid JSON: ${error instanceof Error ? error.message : error}`);
-  }
-  const parsed = monthSchema.safeParse(data);
-  if (!parsed.success) throw new Error(`${name} is not valid:\n${z.prettifyError(parsed.error)}`);
-  return parsed.data;
-}
+export const readMonth = (dir: string, file: string): NewsEvent[] => readJsonFile(join(dir, file), monthSchema);
 
 /** Every aktualita under `dir`: newest year first, each year's months in order, each file in its order. */
 export const readEvents = (dir: string): NewsEvent[] => monthFiles(dir).flatMap((file) => readMonth(dir, file));
