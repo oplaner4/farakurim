@@ -6,9 +6,10 @@ description: Add a new issue of the Petrklíč parish newsletter to the new fara
 # Create a Petrklíč issue
 
 One issue is one record (`year`, `number`, `note`, `pageCount`; `PetrklicRecord` in `src/content/types/petrklic.ts`)
-at the top of `src/content/petrklic.json` (design/DESIGN.md §17–18). The first record is the current issue (aktuální číslo): the Petrklíč page shows its
-pages in the viewer, the homepage card shows its cover. The PDF, its cover and the viewer pages (WebP images
-rendered from it) are staged in `uploads/petrklic/` and uploaded to `/uploads/petrklic/`; none of them is committed.
+in `src/content/petrklic.json`, newest first (design/DESIGN.md §17–18). The first record is the current issue
+(aktuální číslo): the Petrklíč page shows its pages in the viewer, the homepage card shows its cover. The PDF, its
+cover and the viewer pages (WebP images rendered from it) are staged in `uploads/petrklic/` and uploaded to
+`/uploads/petrklic/`; none of them is committed.
 Finish with **`farnost-publish-content`**.
 
 ## 1. Read the PDF
@@ -24,7 +25,8 @@ The cover usually says the number and year ("1/2026", "Velikonoce 2026"). Check 
 pnpm stage petrklic "<source>" --year <year> --number <number> [--note "<note>"] --check
 ```
 
-It prints the id, the page count and where the issue would go, and refuses an issue already in the file.
+It prints the folder it would stage (`uploads/petrklic/<id>/`, so the id), the page count and where the issue would
+go, and refuses an issue already in the file.
 
 Then show:
 

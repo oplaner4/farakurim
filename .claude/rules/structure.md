@@ -26,8 +26,9 @@ rada and Kněží – rodáci; content in `parish-council.ts` and `native-priest
 - **`src/lib`** files are named after their topic inside the group, not after the group: `lib/news/events.ts`,
   `lib/news/archive.ts`, `lib/news/ics.ts`, `lib/services/masses.ts`, `lib/contacts/office-hours.ts`,
   `lib/layout/bible-quote.ts`. `lib/shared/` holds the cross-domain helpers: `prague.ts` (time zone),
-  `czech.ts` (Czech grammar and formats), `build-time.ts` (`BUILD_TIME`, `BUILD_YEAR`), `links.ts`, `slug.ts` (ASCII ids from Czech titles), `query-params.ts`,
-  `planned-pages.ts` (the placeholder routes), `structured-data.ts` (JSON-LD) and `analytics.ts` (Matomo commands). `lib` may import `@/content/site` for URLs and
+  `czech.ts` (Czech grammar and formats), `build-time.ts` (`BUILD_TIME`, `BUILD_YEAR`), `links.ts`, `slug.ts` (ASCII
+  ids from Czech titles), `query-params.ts`, `planned-pages.ts` (the placeholder routes), `structured-data.ts`
+  (JSON-LD) and `analytics.ts` (Matomo commands). `lib` may import `@/content/site` for URLs and
   `@/content/types/*` for types, never the content data itself (tests may, to check real records).
   `lib/test/content-checks.ts` holds the checks the content tests share (dates, times, order, `/uploads/` links).
 - When a `lib` file grows two independent topics, split it by topic (as `news/events.ts` and `news/archive.ts`)
