@@ -4,7 +4,7 @@ import { join } from "node:path";
 import sharp from "sharp";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { hasPoppler, pdfWithText } from "./test-helpers";
-import { pdfPageCount, POSTER_WIDTH, renderPetrklic, renderPoster, toWebp } from "./upload-images";
+import { parseCommand, pdfPageCount, POSTER_WIDTH, renderPetrklic, renderPoster, toWebp } from "./upload-images";
 
 let dir: string;
 beforeEach(() => {
@@ -92,5 +92,35 @@ describe.skipIf(!hasPoppler)("renderPetrklic", () => {
   it("refuses a folder without the issue's PDF", async () => {
     mkdirSync(join(dir, "2026-3"));
     await expect(renderPetrklic(join(dir, "2026-3"))).rejects.toThrow("missing");
+  });
+});
+
+describe("parseCommand", () => {
+  it("reads the Petrklíč issues by id or folder, and --pages", () => {
+    expect(parseCommand(["petrklic", "2026-2", "uploads/petrklic/2026-1/"])).toEqual({
+      command: "petrklic",
+      ids: ["2026-2", "2026-1"],
+      pages: false,
+    });
+    expect(parseCommand(["petrklic", "2026-2", "--pages"])).toMatchObject({ pages: true });
+  });
+
+  it("reads the poster and its WebP", () => {
+    expect(parseCommand(["poster", "plakat.pdf", "plakat.webp"])).toEqual({
+      command: "poster",
+      src: "plakat.pdf",
+      dest: "plakat.webp",
+    });
+  });
+
+  it("refuses an unknown option, so a typo of --pages is not taken for an issue", () => {
+    expect(() => parseCommand(["petrklic", "2026-2", "--page"])).toThrow(/--page[^]*\nUsage: pnpm petrklic/);
+  });
+
+  it("refuses no issue, a wrong number of poster files, --pages with poster and an unknown command", () => {
+    expect(() => parseCommand(["petrklic"])).toThrow(/^Usage: pnpm petrklic/);
+    expect(() => parseCommand(["poster", "plakat.pdf"])).toThrow(/^Usage: pnpm petrklic/);
+    expect(() => parseCommand(["poster", "plakat.pdf", "plakat.webp", "--pages"])).toThrow(/^Usage: pnpm petrklic/);
+    expect(() => parseCommand(["cover", "2026-2"])).toThrow(/^Usage: pnpm petrklic/);
   });
 });

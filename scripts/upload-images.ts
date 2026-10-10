@@ -15,6 +15,7 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync }
 import { tmpdir } from "node:os";
 import { basename, dirname, extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseArgs } from "node:util";
 import sharp from "sharp";
 
 export const POSTER_WIDTH = 680; // 2× the largest poster box (340 px wide on the detail page)
@@ -112,24 +113,48 @@ export async function renderPetrklic(issueDir: string, { pages = false } = {}) {
   return count;
 }
 
+const USAGE =
+  "Usage: pnpm petrklic <id-or-folder> ... [--pages]\n       tsx scripts/upload-images.ts poster <in> <out.webp>";
+
+type Command =
+  { command: "petrklic"; ids: string[]; pages: boolean } | { command: "poster"; src: string; dest: string };
+
+/**
+ * Reads the command line `args`. An unknown option, --pages with poster or a wrong number of files throws with the
+ * usage, so a typo is never taken for an issue id.
+ */
+export function parseCommand(args: string[]): Command {
+  let parsed;
+  try {
+    parsed = parseArgs({ args, allowPositionals: true, options: { pages: { type: "boolean" } } });
+  } catch (error) {
+    throw new Error(`${error instanceof Error ? error.message : error}\n${USAGE}`);
+  }
+  const [command, ...files] = parsed.positionals;
+  const pages = parsed.values.pages ?? false;
+  if (command === "petrklic" && files.length > 0) return { command, ids: files.map((file) => basename(file)), pages };
+  if (command === "poster" && files.length === 2 && !pages) return { command, src: files[0], dest: files[1] };
+  throw new Error(USAGE);
+}
+
 // No top-level await: tsx runs the scripts as CommonJS (package.json has no "type": "module").
 async function main() {
-  const [command, ...rest] = process.argv.slice(2);
-  const args = rest.filter((arg) => arg !== "--pages");
+  let command: Command;
   try {
-    if (command === "poster" && args.length === 2) {
-      const { width, height } = await renderPoster(args[0], args[1]);
-      console.log(`${args[1]} ${width}x${height}`);
-    } else if (command === "petrklic" && args.length > 0) {
-      const issues = fileURLToPath(new URL("../uploads/petrklic/", import.meta.url));
-      for (const id of args.map((arg) => basename(arg))) {
-        console.log(id, await renderPetrklic(join(issues, id), { pages: rest.includes("--pages") }));
-      }
+    command = parseCommand(process.argv.slice(2));
+  } catch (error) {
+    console.error(`upload-images: ${error instanceof Error ? error.message : error}`);
+    process.exit(2);
+  }
+  try {
+    if (command.command === "poster") {
+      const { width, height } = await renderPoster(command.src, command.dest);
+      console.log(`${command.dest} ${width}x${height}`);
     } else {
-      console.error(
-        "Usage: pnpm petrklic <id-or-folder> ... [--pages]\n       tsx scripts/upload-images.ts poster <in> <out.webp>",
-      );
-      process.exit(2);
+      const issues = fileURLToPath(new URL("../uploads/petrklic/", import.meta.url));
+      for (const id of command.ids) {
+        console.log(id, await renderPetrklic(join(issues, id), { pages: command.pages }));
+      }
     }
   } catch (error) {
     console.error(`upload-images: ${error instanceof Error ? error.message : error}`);
