@@ -5,8 +5,8 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { readEvents, readMonth } from "@/content/news";
 import type { NewsEvent } from "@/content/types/news";
 import { addAktualita, insertRecord, monthFile, parseCommand, targetLine } from "./add-aktualita";
-import { formatFiles, NEWS_DIR } from "./content-files";
-import { useNewsFixture } from "./test-helpers";
+import { formatFiles, NEWS_DIR } from "../content-files";
+import { useNewsFixture } from "../test-helpers";
 
 // The newest year folder in news/ and the one after it, which does not exist yet: the new-year test must keep
 // passing after a real event of that year adds its folder.

@@ -1,12 +1,12 @@
-// `pnpm stage porad` (scripts/stage/cli.ts): reads the week from the pořad bohoslužeb heading ("od 4. 10. 2026
+// `pnpm stage porad` (scripts/lib/stage/command.ts): reads the week from the pořad bohoslužeb heading ("od 4. 10. 2026
 // do 11. 10. 2026"), stages uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-r<rev>].pdf and adds the sheet
-// to src/content/ohlasky.json (scripts/add-ohlasky.ts); without a record it only checks and prints the week. The sheet stores the rev, so a rerun keeps it
+// to src/content/ohlasky.json (scripts/lib/services/add-ohlasky.ts); without a record it only checks and prints the week. The sheet stores the rev, so a rerun keeps it
 // and --corrected picks a corrected PDF's.
 
 import { extname } from "node:path";
 import { addDays, differenceInCalendarDays, format, getISODay } from "date-fns";
 import { sheetPdfFile } from "@/lib/services/service-sheet";
-import { addOhlasky, ohlaskyLines, readOhlasky } from "../add-ohlasky";
+import { addOhlasky, ohlaskyLines, readOhlasky } from "../services/add-ohlasky";
 import { correctedHint, correctedRev, MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
 import { pdfFirstPageText } from "./images";
 
@@ -70,7 +70,7 @@ export async function stagePorad(env: StageEnv, options: PoradOptions) {
   const src = sourceFile(options.source, MAX_MB.porad, env.home);
   if (extname(src).toLowerCase() !== ".pdf") throw new Error("the pořad bohoslužeb is a PDF");
   let week: { validFrom: string; validTo: string } | null = null;
-  // --from and --to are checked by the command line (scripts/stage/cli.ts): real dates, both or neither.
+  // --from and --to are checked by the command line (scripts/lib/stage/command.ts): real dates, both or neither.
   if (options.validFrom && options.validTo) {
     week = { validFrom: options.validFrom, validTo: options.validTo };
   } else {

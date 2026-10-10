@@ -4,7 +4,7 @@ import { revSchema } from "@/lib/shared/revision";
 import { periodDates } from "./service-sheet";
 
 // The rules of the ohlášky, in one place: src/server/ohlasky.ts checks src/content/ohlasky.json with them when the
-// site loads it, and scripts/add-ohlasky.ts checks a new record and the file before the farnost-create-porad-bohosluzeb
+// site loads it, and scripts/lib/services/add-ohlasky.ts checks a new record and the file before the farnost-create-porad-bohosluzeb
 // skill stages its PDF. The rules across sheets (their order, the aktuality an announcement links) are
 // sheetOrderProblems() and the content test's.
 
@@ -96,7 +96,7 @@ export const scheduleExceptionSchema = z.strictObject({
   reason: text.optional(),
 }) satisfies z.ZodType<ScheduleException>;
 
-/** The whole of src/content/ohlasky.json; src/server/ohlasky.ts and scripts/add-ohlasky.ts parse it. */
+/** The whole of src/content/ohlasky.json; src/server/ohlasky.ts and scripts/lib/services/add-ohlasky.ts parse it. */
 export const ohlaskyFileSchema = z.strictObject({
   sheets: z.array(serviceSheetSchema),
   laterExceptions: z.array(scheduleExceptionSchema),

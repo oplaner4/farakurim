@@ -108,7 +108,8 @@ src/content/         Content, one file per domain (hand-edited data only); news/
 src/content/types/   The content types, one file per domain
 src/server/          Server-only build-time code: Google Calendar, the vira.cz verse, the schedule exceptions
 public/              Static assets, plus .htaccess (404 page, caching, redirects of moved URLs) and biblicky-citat.php
-scripts/             Dev and preview servers, release and deploy, icon, font, mockup and content tooling
+scripts/             One entry point per pnpm command: dev and preview servers, release and deploy, icon, font, mockup and content tooling
+scripts/lib/         The scripts' logic with its tests, by the same groups (news/, gallery/, …) plus stage/ and the shared helpers
 fonts-source/        Original Oxygen TTFs and their OFL licence (input for `pnpm fonts`)
 .github/workflows/   check.yml checks pushes and pull requests; deploy.yml deploys (see Deployment)
 .claude/             Claude Code project skills (content, release, commit, design) and rules by topic

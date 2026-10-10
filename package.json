@@ -10,7 +10,7 @@
     "test": "vitest run",
     "icons": "tsx scripts/generate-icons.ts",
     "fonts": "python3 scripts/build-fonts.py",
-    "stage": "tsx scripts/stage/cli.ts",
+    "stage": "tsx scripts/stage.ts",
     "add-aktualita": "tsx scripts/add-aktualita.ts",
     "add-album": "tsx scripts/add-album.ts",
     "pin-aktualita": "tsx scripts/pin-aktualita.ts",

@@ -91,7 +91,7 @@ export type NewsEvent = {
   longTerm?: true | { weeklyAt: ClockTime };
   /**
    * Shown in the "Doporučujeme" panel while it is not finished. At most one record is pinned: set it with
-   * `pnpm pin-aktualita` (scripts/pin-aktualita.ts), never by hand.
+   * `pnpm pin-aktualita` (scripts/lib/news/pin-aktualita.ts), never by hand.
    */
   pinned?: boolean;
   /** Hidden by an admin from the archive; the detail page stays reachable by its URL. */

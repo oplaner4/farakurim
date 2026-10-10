@@ -53,11 +53,11 @@ describe("nextVersion", () => {
 
 // Each call starts Node, slower than the unit tests when the whole suite runs.
 describe("command line", { timeout: 30_000 }, () => {
-  const script = fileURLToPath(new URL("./release-version.ts", import.meta.url));
-  const { version } = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as {
+  const script = fileURLToPath(new URL("../release-version.ts", import.meta.url));
+  const { version } = JSON.parse(readFileSync(new URL("../../package.json", import.meta.url), "utf8")) as {
     version: string;
   };
-  // tsx as scripts/release.sh runs it, loaded into Node directly (no pnpm start per call).
+  // The entry point, with tsx as scripts/release.sh runs it, loaded into Node directly (no pnpm start per call).
   const run = (input: string, ...args: string[]) =>
     execFileSync(process.execPath, ["--import", "tsx", script, ...args], { input, encoding: "utf8" });
 

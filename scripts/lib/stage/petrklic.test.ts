@@ -1,7 +1,7 @@
 import { existsSync, readdirSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
 import { issueId } from "@/lib/petrklic/issues";
-import { readPetrklic } from "../add-petrklic";
+import { readPetrklic } from "../petrklic/add-petrklic";
 import { stagePetrklic } from "./petrklic";
 import { hasPoppler, pdfWithText, useStageFixture } from "../test-helpers";
 

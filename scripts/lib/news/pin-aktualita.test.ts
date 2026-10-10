@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { readEvents } from "@/content/news";
 import type { NewsEvent } from "@/content/types/news";
 import { assertPinnable, parseCommand, pinAktualita, pinLines } from "./pin-aktualita";
-import { useNewsFixture } from "./test-helpers";
+import { useNewsFixture } from "../test-helpers";
 
 const event = (id: string, start: string, fields: Partial<NewsEvent> = {}): NewsEvent => ({
   id,

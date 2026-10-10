@@ -1,4 +1,4 @@
-// `pnpm stage petrklic` (scripts/stage/cli.ts): checks the issue (scripts/add-petrklic.ts), stages its PDF as
+// `pnpm stage petrklic` (scripts/lib/stage/command.ts): checks the issue (scripts/lib/petrklic/add-petrklic.ts), stages its PDF as
 // uploads/petrklic/<folder>/petrklic-<id>.pdf, renders cover.webp and pages/ (images.ts) and adds the issue to
 // src/content/petrklic.json. The folder is the id, or <id>-r<rev> for a corrected PDF (--corrected), which replaces
 // the issue's record: files on the server are never overwritten, so a corrected PDF of a released issue needs a new
@@ -7,7 +7,7 @@
 import { existsSync, rmSync } from "node:fs";
 import { dirname, extname, join } from "node:path";
 import { issueFolder, issueId } from "@/lib/petrklic/issues";
-import { addPetrklic, petrklicLines, readPetrklic } from "../add-petrklic";
+import { addPetrklic, petrklicLines, readPetrklic } from "../petrklic/add-petrklic";
 import { correctedHint, correctedRev, MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
 import { pdfPageCount, renderPetrklic } from "./images";
 

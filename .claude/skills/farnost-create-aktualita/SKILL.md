@@ -96,7 +96,7 @@ pnpm stage aktualita "<source>" <id> "<label>" [--no-poster] --record <scratchpa
 It validates the record first against `newsEventSchema` (`src/lib/news/schema.ts`: required fields, dates,
 times, links, unknown fields) and checks the `id` is free, so a bad record stages nothing; the error names each
 field. Then it copies the file to `uploads/aktuality/` and, for an image or PDF, renders the poster WebP next to
-it (unless `--no-poster`; an event without a poster gets the designed placeholder). Last, `scripts/add-aktualita.ts` adds the record with `poster`, `attachments` and `published` to
+it (unless `--no-poster`; an event without a poster gets the designed placeholder). Last, `scripts/lib/news/add-aktualita.ts` adds the record with `poster`, `attachments` and `published` to
 the JSON file of its **start month** (`src/content/news/<year>/<MM>.json`, any year) in start-date order, formats it
 and runs the news tests. The month's first event creates its file (and the year's folder). A pinned record also
 unpins every other record (`Unpinned <id> (<title>)`, its month file is written too); an event that has already
@@ -113,7 +113,7 @@ If the record is refused after staging (it should not be: it is checked first), 
 command again: staging the same file again is allowed.
 
 After adding the record, the command checks the event in the "Události" Google Calendar
-(`scripts/aktualita-calendar.ts`; `pnpm aktualita-calendar <id>` runs it again later). The Kalendář links a calendar
+(`scripts/lib/news/aktualita-calendar.ts`; `pnpm aktualita-calendar <id>` runs it again later). The Kalendář links a calendar
 event to the detail page when the event's description holds the page's URL. Show the user its output as printed:
 it says what, if anything, they need to do.
 

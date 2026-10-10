@@ -5,7 +5,7 @@ import { slug } from "@/lib/shared/slug";
 import { FIRST_YEAR, isNewerIssue, issueId, issueLabel } from "./issues";
 
 // The rules of the Petrklíč issues, in one place: src/content/petrklic.ts checks src/content/petrklic.json with them
-// when the site loads it, and scripts/add-petrklic.ts checks a new issue and the file before `pnpm stage petrklic`
+// when the site loads it, and scripts/lib/petrklic/add-petrklic.ts checks a new issue and the file before `pnpm stage petrklic`
 // copies its PDF.
 
 const count = z.int().positive();

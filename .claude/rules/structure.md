@@ -2,6 +2,7 @@
 paths:
   - "src/**/*.ts"
   - "src/**/*.tsx"
+  - "scripts/**/*.ts"
 ---
 
 # Where code goes
@@ -42,3 +43,12 @@ rada and Kněží – rodáci; content in `parish-council.ts` and `native-priest
   There is no `types` index file (no barrel). A type used by two domains lives in the domain that owns the data
   (`ChurchColor` in `services.ts`, used by `contacts.ts`).
 - **Imports:** same folder `./x`, anything else `@/…` (no `../`).
+
+## Scripts
+
+`scripts/` holds only the entry points: one `<command>.ts` per `pnpm` command (plus the shell, Python and `.mjs`
+tooling), each a `runCommand()` call (`scripts/lib/command.ts`) with no logic of its own. The logic and its tests go
+in `scripts/lib/`: by the same domain groups as `src/` (`lib/news/add-aktualita.ts`), `lib/stage/` for `pnpm stage`,
+and the helpers several scripts share at its top (`content-files.ts`, `command.ts`, `test-helpers.ts`). A module
+exports `parseCommand` (wrong arguments throw, exit 2) and `execute` (a failure throws, exit 1). **Why:** what you
+can run is what you see in `scripts/`, and the tests import the logic without starting a command.

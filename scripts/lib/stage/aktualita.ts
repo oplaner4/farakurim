@@ -1,13 +1,13 @@
-// `pnpm stage aktualita` (scripts/stage/cli.ts): stages an aktualita's file as
+// `pnpm stage aktualita` (scripts/lib/stage/command.ts): stages an aktualita's file as
 // uploads/aktuality/<id>-<label in ASCII>.<ext> with its poster WebP and, with a record, adds the event with its
-// files to its month file in src/content/news/ (scripts/add-aktualita.ts), moving the pin to it when it is pinned.
+// files to its month file in src/content/news/ (scripts/lib/news/add-aktualita.ts), moving the pin to it when it is pinned.
 
 import { statSync } from "node:fs";
 import { extname } from "node:path";
 import type { NewsEvent } from "@/content/types/news";
 import { fold } from "@/lib/shared/czech";
-import { addAktualita, targetLine } from "../add-aktualita";
-import { unpinnedLines } from "../pin-aktualita";
+import { addAktualita, targetLine } from "../news/add-aktualita";
+import { unpinnedLines } from "../news/pin-aktualita";
 import { MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
 import { renderPoster } from "./images";
 

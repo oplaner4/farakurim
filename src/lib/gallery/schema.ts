@@ -2,7 +2,7 @@ import * as z from "zod";
 import type { Album, GalleryFile } from "@/content/types/gallery";
 
 // The rules of the Fotogalerie albums, in one place: src/content/gallery.ts checks src/content/gallery.json with them
-// when the site loads it, and scripts/add-album.ts checks a new album and the file before it writes. How many albums
+// when the site loads it, and scripts/lib/gallery/add-album.ts checks a new album and the file before it writes. How many albums
 // the site keeps (MAX_ALBUMS) is the content test's rule and the script's, not the loader's.
 
 const text = z.string().trim().min(1);

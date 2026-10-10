@@ -3,7 +3,7 @@ import { join } from "node:path";
 import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 import { readEvents, readMonth } from "@/content/news";
-import { addAktualita } from "../add-aktualita";
+import { addAktualita } from "../news/add-aktualita";
 import { labelSuffix, stageAktualita } from "./aktualita";
 import { POSTER_WIDTH } from "./images";
 import { useStageFixture } from "../test-helpers";

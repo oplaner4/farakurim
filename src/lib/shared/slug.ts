@@ -1,4 +1,4 @@
-// ASCII ids from Czech titles: the Fotogalerie album ids (scripts/add-album.ts) and the Petrklíč issue ids
+// ASCII ids from Czech titles: the Fotogalerie album ids (scripts/lib/gallery/add-album.ts) and the Petrklíč issue ids
 // (issueId() in src/lib/petrklic/issues.ts).
 
 /** "Pouť na Vranov" → "pout-na-vranov", "2. část" → "2-cast"; empty without a letter or digit. */

@@ -1,7 +1,7 @@
 // Generates PNG app icons from the SVG logo. Run: pnpm icons
 import { readFile } from "node:fs/promises";
 import sharp, { type Colour } from "sharp";
-import { runCommand } from "./command";
+import { runCommand } from "./lib/command";
 
 const transparent: Colour = { r: 0, g: 0, b: 0, alpha: 0 };
 const white: Colour = { r: 255, g: 255, b: 255, alpha: 1 };

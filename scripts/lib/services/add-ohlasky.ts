@@ -12,8 +12,8 @@ import type { IsoDate } from "@/content/types/shared";
 import { ohlaskyFileSchema, serviceSheetSchema } from "@/lib/services/schema";
 import { currentSheet, sheetOrderProblems } from "@/lib/services/service-sheet";
 import { pragueDate } from "@/lib/shared/prague";
-import { newsIds } from "./content-files";
-import { errorMessage } from "./command";
+import { newsIds } from "../content-files";
+import { errorMessage } from "../command";
 
 /** The fields the script takes from the staged PDF, never from the record. */
 const WEEK_FIELDS = ["validFrom", "validTo", "rev"] as const;

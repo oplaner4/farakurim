@@ -10,7 +10,7 @@ import * as prettier from "prettier";
 import { readEvents } from "@/content/news";
 import type { NewsEvent } from "@/content/types/news";
 
-export const ROOT = fileURLToPath(new URL("..", import.meta.url));
+export const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 export const NEWS_DIR = join(ROOT, "src/content/news");
 export const OHLASKY_FILE = join(ROOT, "src/content/ohlasky.json");
 export const GALLERY_FILE = join(ROOT, "src/content/gallery.json");

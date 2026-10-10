@@ -3,25 +3,25 @@
 // Every command checks the name is still free on the site (files on the server are never overwritten), copies the
 // file under its ASCII name and renders the images (images.ts). --check only validates and prints,
 // without copying or rendering: use it before the user confirms, so nothing unconfirmed is left in uploads/ for the
-// next release. This file parses the command line; each command lives in its own file in scripts/stage/ and
+// next release. This file parses the command line; each command lives in its own file in scripts/lib/stage/ and
 // the staging they share in core.ts.
 //
 // Usage: pnpm stage <command> ... [--check]
 //   aktualita <source> <id> <label> [--title "<title>"] [--poster | --no-poster] [--record <record.json>]
 //       uploads/aktuality/<id>-<label in ASCII>.<ext>, plus .webp (page 1 / scaled image) for an image or PDF
 //       unless --no-poster; prints the `poster` and `attachments` lines. --record adds them to the confirmed
-//       NewsEvent in the JSON file and adds it to src/content/news/ (scripts/add-aktualita.ts; with --check it only
+//       NewsEvent in the JSON file and adds it to src/content/news/ (scripts/lib/news/add-aktualita.ts; with --check it only
 //       validates the record). A pinned record takes the pin from the record pinned before (named in the output).
 //   porad <pdf> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected] [--record <record.json>]
 //       reads the week from the heading ("od 4. 10. 2026 do 11. 10. 2026"), stages
 //       uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-r<rev>].pdf and adds the confirmed sheet (--record:
 //       days and announcements as JSON) to src/content/ohlasky.json, removing the outdated sheets and the covered
-//       laterExceptions (scripts/add-ohlasky.ts). --record is required, except with --check, which then prints the
+//       laterExceptions (scripts/lib/services/add-ohlasky.ts). --record is required, except with --check, which then prints the
 //       week and its days (with a record, --check only validates it). --corrected stages a corrected PDF of a week
 //       already there, in the next -r<rev> once the week is on the server, else under its name.
 //   petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--corrected]
 //       checks the issue, stages uploads/petrklic/<id>/petrklic-<id>.pdf with cover.webp and pages/ and adds the
-//       issue to src/content/petrklic.json (scripts/add-petrklic.ts; with --check it only validates). --corrected
+//       issue to src/content/petrklic.json (scripts/lib/petrklic/add-petrklic.ts; with --check it only validates). --corrected
 //       stages a corrected PDF of an issue already there and replaces its record: in the next uploads/petrklic/
 //       <id>-r<rev>/ once the issue is on the server, else in its folder.
 // A source without a folder is also looked for in ~/Downloads/.
@@ -32,8 +32,7 @@ import { join } from "node:path";
 import { parseArgs } from "node:util";
 import * as z from "zod";
 import type { NewsEvent } from "@/content/types/news";
-import { reportCalendar } from "../aktualita-calendar";
-import { runCommand } from "../command";
+import { reportCalendar } from "../news/aktualita-calendar";
 import { formatAndTest } from "../content-files";
 import { stageAktualita } from "./aktualita";
 import { defaultEnv, MAX_MB, type StageEnv } from "./core";
@@ -137,14 +136,10 @@ export async function runStage(
   return { lines, format: written.length > 0 ? { files: written, tests: "src/content/petrklic.test.ts" } : undefined };
 }
 
-runCommand(
-  "stage",
-  import.meta.url,
-  (args) => args,
-  async (args) => {
-    const { lines, format, event } = await runStage(defaultEnv(), args);
-    console.log(lines.join("\n"));
-    if (format) await formatAndTest(format.files, format.tests);
-    if (event) await reportCalendar(event);
-  },
-);
+/** Runs `pnpm stage` (scripts/stage.ts) on the command line `args`. */
+export async function execute(args: string[]) {
+  const { lines, format, event } = await runStage(defaultEnv(), args);
+  console.log(lines.join("\n"));
+  if (format) await formatAndTest(format.files, format.tests);
+  if (event) await reportCalendar(event);
+}
