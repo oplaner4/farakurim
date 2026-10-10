@@ -176,11 +176,12 @@ export function addAlbum(galleryFile: string, input: unknown, { check = false } 
   if (!parsed.success) throw new Error(`the album is not valid:\n${z.prettifyError(parsed.error)}`);
   const album = parsed.data;
   const { albums } = readGallery(galleryFile);
-  if (albums.some((a) => a.id === album.id)) {
-    throw new Error(`the id ${album.id} is already in gallery.json: pass another one with --id`);
-  }
+  // The album first: added again, its proposed id is the stored one, and "pass another id" would mislead.
   if (albums.some((a) => albumNumber(a.href) === albumNumber(album.href))) {
     throw new Error(`the album ${album.href} is already in gallery.json`);
+  }
+  if (albums.some((a) => a.id === album.id)) {
+    throw new Error(`the id ${album.id} is already in gallery.json: pass another one with --id`);
   }
   const at = albums.findIndex((a) => a.date <= album.date);
   const all = at === -1 ? [...albums, album] : albums.toSpliced(at, 0, album);
@@ -208,22 +209,42 @@ const USAGE =
   "Usage: pnpm add-album https://eu.zonerama.com/FarnostKurim/Album/<n> " +
   '[--write [--title "<title>"] [--date YYYY-MM-DD] [--id <kebab-id>]]';
 
+/** The command line: the album URL and the options. */
+export type Command = { url: string; write: boolean; title?: string; date?: string; id?: string };
+
+/** Reads the command line `args`; a missing URL, a missing option value or an unknown option throws with the usage. */
+export function parseCommand(args: string[]): Command {
+  let parsed;
+  try {
+    parsed = parseArgs({
+      args,
+      allowPositionals: true,
+      options: {
+        write: { type: "boolean" },
+        title: { type: "string" },
+        date: { type: "string" },
+        id: { type: "string" },
+      },
+    });
+  } catch (error) {
+    throw new Error(`${error instanceof Error ? error.message : error}\n${USAGE}`);
+  }
+  const [url] = parsed.positionals;
+  if (!url) throw new Error(USAGE);
+  const { write = false, ...overrides } = parsed.values;
+  return { url, write, ...overrides };
+}
+
 // No top-level await: tsx runs the scripts as CommonJS (package.json has no "type": "module").
 async function main() {
-  const { values, positionals } = parseArgs({
-    allowPositionals: true,
-    options: {
-      write: { type: "boolean" },
-      title: { type: "string" },
-      date: { type: "string" },
-      id: { type: "string" },
-    },
-  });
-  const [url] = positionals;
-  if (!url) {
-    console.error(USAGE);
+  let command: Command;
+  try {
+    command = parseCommand(process.argv.slice(2));
+  } catch (error) {
+    console.error(`add-album: ${error instanceof Error ? error.message : error}`);
     process.exit(2);
   }
+  const { url, write, ...overrides } = command;
   try {
     const number = url.match(ALBUM_URL)?.[2];
     if (!number) {
@@ -233,9 +254,8 @@ async function main() {
     }
     const response = await fetch(url);
     if (!response.ok) throw new Error(`${url} answered ${response.status}`);
-    const { title, date, id } = values;
-    const { proposal, album } = readAlbumPage(await response.text(), number, { title, date, id });
-    if (!values.write) {
+    const { proposal, album } = readAlbumPage(await response.text(), number, overrides);
+    if (!write) {
       console.log(JSON.stringify(proposal, null, 2));
       return;
     }

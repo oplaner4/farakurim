@@ -7,6 +7,7 @@ import { MAX_ALBUMS } from "@/lib/gallery/albums";
 import {
   addAlbum,
   albumLines,
+  parseCommand,
   photoItems,
   photoUrl,
   readAlbumPage,
@@ -231,6 +232,13 @@ describe("addAlbum on a temp gallery.json", () => {
     );
   });
 
+  it("says the album is already there when it is added again, not that its id is taken", () => {
+    save([stored(2), stored(1)]);
+    expect(() => addAlbum(file, stored(2))).toThrow(
+      "the album https://www.zonerama.com/FarnostKurim/Album/2 is already in gallery.json",
+    );
+  });
+
   it("refuses an invalid album", () => {
     save([stored(1)]);
     expect(() => addAlbum(file, stored(20, { photoCount: 0 }))).toThrow(/the album is not valid/);
@@ -276,5 +284,26 @@ describe("albumLines", () => {
       "Would add album-20 (1 photos) at position 1 in src/content/gallery.json",
       "Would remove the old album album-1 (2026-06-11)",
     ]);
+  });
+});
+
+describe("parseCommand", () => {
+  const URL = "https://eu.zonerama.com/FarnostKurim/Album/16583642";
+
+  it("reads the URL and the options", () => {
+    expect(parseCommand([URL])).toEqual({ url: URL, write: false });
+    expect(parseCommand([URL, "--write", "--title", "Pouť", "--date", "2026-09-27", "--id", "pout"])).toEqual({
+      url: URL,
+      write: true,
+      title: "Pouť",
+      date: "2026-09-27",
+      id: "pout",
+    });
+  });
+
+  it("refuses a missing URL, a missing option value and an unknown option with the usage", () => {
+    expect(() => parseCommand([])).toThrow(/^Usage: pnpm add-album/m);
+    expect(() => parseCommand([URL, "--write", "--title"])).toThrow(/--title[^]*\nUsage: pnpm add-album/);
+    expect(() => parseCommand([URL, "--dryrun"])).toThrow(/--dryrun[^]*\nUsage: pnpm add-album/);
   });
 });
