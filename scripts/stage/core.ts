@@ -58,6 +58,12 @@ export function sourceFile(path: string, maxMb: number, home: string): string {
 
 /** Refuses a name that is already on the server. */
 async function checkFree(env: StageEnv, rel: string, takenHint: string) {
+  if (await onServer(env, rel))
+    throw new Error(`${env.site}/uploads/${rel} already exists on the server: ${takenHint}`);
+}
+
+/** Whether uploads/`rel` is on the server (a HEAD request); throws when the server cannot tell. */
+export async function onServer(env: StageEnv, rel: string): Promise<boolean> {
   const url = `${env.site}/uploads/${rel}`;
   let status: number;
   try {
@@ -66,17 +72,25 @@ async function checkFree(env: StageEnv, rel: string, takenHint: string) {
     const reason = error instanceof Error ? error.message : String(error);
     throw new Error(`cannot reach ${env.site} (${reason}): cannot tell whether the name is free`);
   }
-  if (status < 400) throw new Error(`${url} already exists on the server: ${takenHint}`);
-  if (status !== 404) throw new Error(`${url} answered ${status}: cannot tell whether the name is free`);
+  if (status !== 404 && status >= 400)
+    throw new Error(`${url} answered ${status}: cannot tell whether the name is free`);
+  return status < 400;
 }
 
 /**
  * Copies `src` to uploads/`rel` unless `check`, after making sure the name is free on the server. Staging the same
- * file again is allowed. Returns the staged path.
+ * file again is allowed, and another file only with `replace` (a corrected PDF). Returns the staged path.
  */
-export async function stage(env: StageEnv, src: string, rel: string, check: boolean, takenHint = "pick another id") {
+export async function stage(
+  env: StageEnv,
+  src: string,
+  rel: string,
+  check: boolean,
+  takenHint = "pick another id",
+  replace = false,
+) {
   const dest = join(env.uploadsDir, rel);
-  if (existsSync(dest) && !readFileSync(dest).equals(readFileSync(src))) {
+  if (!replace && existsSync(dest) && !readFileSync(dest).equals(readFileSync(src))) {
     throw new Error(`uploads/${rel} is already staged with other content`);
   }
   await checkFree(env, rel, takenHint);

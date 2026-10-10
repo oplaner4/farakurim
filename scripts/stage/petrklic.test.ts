@@ -19,7 +19,7 @@ vi.mock("./images", async (importOriginal) => {
 });
 
 describe.skipIf(!hasPoppler)("stagePetrklic", { timeout: 30_000 }, () => {
-  const { env, download, uploaded, status } = useStageFixture();
+  const { env, download, uploaded, fetchMock } = useStageFixture();
   const firstId = () => issueId(readPetrklic(env.petrklicFile).issues[0]);
 
   it("stages the PDF with its cover and pages and adds the issue", async () => {
@@ -57,24 +57,49 @@ describe.skipIf(!hasPoppler)("stagePetrklic", { timeout: 30_000 }, () => {
     expect(existsSync(env.uploadsDir) ? readdirSync(env.uploadsDir) : []).toEqual([]);
   });
 
-  it("stages a corrected PDF in the rev's folder and replaces the issue's record", async () => {
-    const source = download("Petrklic oprava.pdf", pdfWithText(["Petrklic", "Strana 2", "Strana 3"]));
+  it("stages a released issue's corrected PDF in the next rev's folder, then replaces it there", async () => {
     const current = readPetrklic(env.petrklicFile).issues[0];
     const id = issueId(current);
     const { year, number, note } = current;
-    // The first PDF is on the server, so staging it again under the same name is refused with the next rev.
-    status(200);
-    await expect(stagePetrklic(env, { source, year, number, note })).rejects.toThrow(/is already in petrklic\.json/);
-    status(404);
-    const result = await stagePetrklic(env, { source, year, number, note, rev: 2 });
+    // Only the issue's first PDF is on the server.
+    fetchMock.mockImplementation(async (url: string) => {
+      const released = url.endsWith(`/uploads/petrklic/${id}/petrklic-${id}.pdf`);
+      return new Response(null, { status: released ? 200 : 404 });
+    });
+    const source = download("Petrklic oprava.pdf", pdfWithText(["Petrklic", "Strana 2", "Strana 3"]));
+    await expect(stagePetrklic(env, { source, year, number, note })).rejects.toThrow("pass --corrected");
+    const result = await stagePetrklic(env, { source, year, number, note, corrected: true });
     expect(result.lines[0]).toBe(`Staged uploads/petrklic/${id}-r2/ (PDF, cover.webp, pages/), 3 pages`);
     expect(result.lines[1]).toMatch(/^Replaced .* with rev 2 \(3 pages\) at position 1 /);
     expect(readPetrklic(env.petrklicFile).issues[0]).toEqual({ ...current, rev: 2, pageCount: 3 });
     expect(readdirSync(uploaded("petrklic", `${id}-r2`)).sort()).toEqual(["cover.webp", "pages", `petrklic-${id}.pdf`]);
-    // rev 2 taken on the server: the hint names the next one.
-    status(200);
-    await expect(stagePetrklic(env, { source: "Petrklic oprava.pdf", year, number, note, rev: 2 })).rejects.toThrow(
-      /uploads\/petrklic\/.*-r2\/petrklic-.*\.pdf already exists on the server: .*pass --rev 3/,
+
+    // Corrected again before the release: rev 2 is not on the server yet, so its folder is replaced.
+    const again = download("Petrklic oprava 2.pdf", pdfWithText(["Petrklic", "Strana 2"]));
+    await stagePetrklic(env, { source: again, year, number, note, corrected: true });
+    expect(readPetrklic(env.petrklicFile).issues[0]).toEqual({ ...current, rev: 2, pageCount: 2 });
+    expect(readdirSync(uploaded("petrklic", `${id}-r2`, "pages")).sort()).toEqual(["1.webp", "2.webp"]);
+    expect(readdirSync(uploaded("petrklic")).sort()).toEqual([`${id}-r2`]);
+  });
+
+  it("replaces an unreleased issue's PDF in its folder, without a rev", async () => {
+    await stagePetrklic(env, { source: download("Petrklic.pdf", pdfWithText(["Petrklic"])), year: 2099, number: 1 });
+    const source = download("Petrklic oprava.pdf", pdfWithText(["Petrklic", "Strana 2"]));
+    const check = await stagePetrklic(env, { source, year: 2099, number: 1, corrected: true, check: true });
+    expect(check.lines).toEqual([
+      "Would stage uploads/petrklic/2099-1/ (PDF), 2 pages",
+      "Would replace 1/2099 (2 pages) at position 1 in src/content/petrklic.json (the current issue)",
+    ]);
+    expect(readPetrklic(env.petrklicFile).issues[0]).toEqual({ year: 2099, number: 1, pageCount: 1 });
+    await stagePetrklic(env, { source, year: 2099, number: 1, corrected: true });
+    expect(readPetrklic(env.petrklicFile).issues[0]).toEqual({ year: 2099, number: 1, pageCount: 2 });
+    expect(readdirSync(uploaded("petrklic", "2099-1", "pages")).sort()).toEqual(["1.webp", "2.webp"]);
+  });
+
+  it("refuses --corrected for an issue not in petrklic.json", async () => {
+    const source = download("Petrklic.pdf", pdfWithText(["Petrklic"]));
+    await expect(stagePetrklic(env, { source, year: 2099, number: 1, corrected: true })).rejects.toThrow(
+      "the issue 2099-1 is not in petrklic.json",
     );
   });
 

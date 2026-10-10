@@ -18,10 +18,11 @@
 //       --rev 2 names a corrected PDF of a week already on the server. --record adds the confirmed sheet (days and
 //       announcements as JSON) to src/content/ohlasky.json and removes the outdated sheets and the covered
 //       laterExceptions (scripts/add-ohlasky.ts; with --check it only validates the record).
-//   petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--rev N]
+//   petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--corrected]
 //       checks the issue, stages uploads/petrklic/<id>/petrklic-<id>.pdf with cover.webp and pages/ and adds the
-//       issue to src/content/petrklic.json (scripts/add-petrklic.ts; with --check it only validates). --rev 2 stages
-//       a corrected PDF of an issue already there in uploads/petrklic/<id>-r2/ and replaces its record.
+//       issue to src/content/petrklic.json (scripts/add-petrklic.ts; with --check it only validates). --corrected
+//       stages a corrected PDF of an issue already there and replaces its record: in the next uploads/petrklic/
+//       <id>-r<rev>/ once the issue is on the server, else in its folder.
 // A source without a folder is also looked for in ~/Downloads/.
 // Requires pdftoppm, pdfinfo and pdftotext (poppler-utils) for PDFs.
 
@@ -40,7 +41,7 @@ import { stagePorad } from "./porad";
 
 const USAGE = `Usage: pnpm stage aktualita <source> <id> <label> [--title "<title>"] [--poster | --no-poster] [--record <json>] [--check]
        pnpm stage porad <pdf> [--from YYYY-MM-DD --to YYYY-MM-DD] [--rev N] [--record <json>] [--check]
-       pnpm stage petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--rev N] [--check]
+       pnpm stage petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--corrected] [--check]
 Largest source file: ${Object.entries(MAX_MB)
   .map(([command, mb]) => `${command} ${mb} MB`)
   .join(", ")}`;
@@ -54,14 +55,14 @@ const petrklicArgsSchema = z.object({ year: digits, number: digits });
 const poradWeekSchema = z
   .object({ from: z.iso.date().optional(), to: z.iso.date().optional() })
   .refine(({ from, to }) => (from === undefined) === (to === undefined));
-/** The --rev of `stage porad` and `stage petrklic`: a corrected PDF of a file already on the server is 2 or later. */
+/** The --rev of `stage porad`: a corrected PDF of a week already on the server is number 2 or later. */
 const revSchema = digits.pipe(z.int().min(2)).optional();
 
 /** Each command's positional arguments and options. */
 const COMMANDS: Record<string, { positionals: number; options: string[] }> = {
   aktualita: { positionals: 3, options: ["title", "poster", "record", "check"] },
   porad: { positionals: 1, options: ["from", "to", "rev", "record", "check"] },
-  petrklic: { positionals: 1, options: ["year", "number", "note", "rev", "check"] },
+  petrklic: { positionals: 1, options: ["year", "number", "note", "corrected", "check"] },
 };
 
 /** Runs a command line (without the program); returns the lines to print, the files to format and the added event. */
@@ -83,6 +84,7 @@ export async function runCommand(
       year: { type: "string" },
       number: { type: "string" },
       note: { type: "string" },
+      corrected: { type: "boolean" },
       check: { type: "boolean" },
     },
   });
@@ -91,8 +93,6 @@ export async function runCommand(
   const unknown = Object.keys(values).filter((option) => !spec?.options.includes(option));
   if (!spec || args.length !== spec.positionals || unknown.length > 0) throw new Error(`wrong arguments\n${USAGE}`);
   const check = values.check ?? false;
-  const rev = revSchema.safeParse(values.rev);
-  if (!rev.success) throw new Error("--rev is a number from 2");
   const record = values.record
     ? (JSON.parse(readFileSync(values.record, "utf8")) as Record<string, unknown>)
     : undefined;
@@ -115,6 +115,8 @@ export async function runCommand(
     if (!week.success) {
       throw new Error(`wrong arguments: --from and --to are YYYY-MM-DD dates, both or neither\n${USAGE}`);
     }
+    const rev = revSchema.safeParse(values.rev);
+    if (!rev.success) throw new Error("--rev is a number from 2");
     const { lines, written } = await stagePorad(env, {
       source: args[0],
       validFrom: week.data.from,
@@ -133,7 +135,7 @@ export async function runCommand(
     year,
     number,
     note: values.note,
-    rev: rev.data,
+    corrected: values.corrected,
     check,
   });
   return { lines, format: written.length > 0 ? { files: written, tests: "src/content/petrklic.test.ts" } : undefined };

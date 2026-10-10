@@ -56,23 +56,24 @@ describe("addPetrklic on a temp petrklic.json", () => {
     expect(() => addPetrklic(file, record(2026, 0))).toThrow(/the issue is not valid/);
   });
 
-  it("replaces the issue's record with a corrected PDF's rev, where it is", () => {
-    const result = addPetrklic(file, record(2025, 4, { rev: 2, pageCount: 28 }));
+  it("replaces the issue's record with a corrected PDF's, where it is", () => {
+    const result = addPetrklic(file, record(2025, 4, { rev: 2, pageCount: 28 }), { replace: true });
     expect(readPetrklic(file).issues[1]).toEqual(record(2025, 4, { rev: 2, pageCount: 28 }));
     expect(ids()).toEqual(["2026-1", "2025-4", "2025-3"]);
     expect(petrklicLines(result, false)).toEqual([
       "Replaced 4/2025 with rev 2 (28 pages) at position 2 in src/content/petrklic.json" +
         " (not the current issue: newer issues come first)",
     ]);
-    // The same rev again (rerunning before the release); a lower one is refused.
-    expect(addPetrklic(file, record(2025, 4, { rev: 2 }), { check: true }).replaced).toBe(true);
-    addPetrklic(file, record(2025, 4, { rev: 3 }));
-    expect(() => addPetrklic(file, record(2025, 4, { rev: 2 }))).toThrow("already has rev 3: pass --rev 4");
+    // An unreleased issue's corrected PDF keeps its folder, so no rev.
+    const same = addPetrklic(file, record(2026, 1, { pageCount: 30 }), { replace: true, check: true });
+    expect(petrklicLines(same, true)[0]).toMatch(/^Would replace 1\/2026 \(30 pages\) at position 1 /);
   });
 
-  it("asks for a rev for an issue already there and refuses a rev for a new one", () => {
-    expect(() => addPetrklic(file, record(2025, 4))).toThrow("for a corrected PDF pass --rev 2");
-    expect(() => addPetrklic(file, record(2026, 2, { rev: 2 }))).toThrow("the issue 2026-2 is not in petrklic.json");
+  it("asks for --corrected for an issue already there and refuses it for a new one", () => {
+    expect(() => addPetrklic(file, record(2025, 4))).toThrow("for a corrected PDF pass --corrected");
+    expect(() => addPetrklic(file, record(2026, 2), { replace: true })).toThrow(
+      "the issue 2026-2 is not in petrklic.json",
+    );
   });
 
   it("only says what it would do with check", () => {

@@ -8,7 +8,7 @@ export type PetrklicIssue = {
   number: number;
   /** Extra label for special issues: "1. část", "mimořádné". */
   note?: string;
-  /** Revision of a corrected PDF, from 2 (`--rev`): a new upload folder, as the server's files are never overwritten. */
+  /** Revision of a released issue's corrected PDF, from 2: a new upload folder, as the server's files stay. */
   rev?: number;
   pdfUrl: string;
   /** Image of PDF page 1 (about 600 px wide, WebP); a tinted placeholder without it. */

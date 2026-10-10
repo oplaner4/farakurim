@@ -66,15 +66,14 @@ Follow **`farnost-publish-content`**. Upload the whole `uploads/petrklic/<id>/` 
 
 - A wrong year, number, note or pageCount: edit the issue's record in `src/content/petrklic.json`. A new year, number
   or note changes the id, so the folder in `uploads/petrklic/` and on the server must be renamed too.
-- A corrected PDF of an issue already on the server: stage it with `--rev 2` (a taken name's error names the next
-  rev). It goes to `uploads/petrklic/<id>-r2/`, with the PDF under the same name, and sets the issue's `rev` and
-  `pageCount`; the old folder stays on the server. Upload the whole new folder.
-- A corrected PDF before the release: delete `uploads/petrklic/<id>/` and the issue's record, then stage again.
+- A corrected PDF: stage it with `--corrected` (and `--check` first). It replaces the issue's `pageCount` and, once
+  the issue is on the server, goes to the next `uploads/petrklic/<id>-r<rev>/` (the PDF keeps its name) and sets the
+  issue's `rev`; the old folder stays on the server. Before the release it replaces the staged PDF in its folder.
+  Upload the whole folder it prints.
 
 ## Common mistakes
 
-- Replacing the PDF in an issue's folder after the release: the server keeps the old files, so stage it with
-  `--rev` instead.
+- Replacing the PDF in an issue's folder by hand: the server keeps the old files, so stage it with `--corrected`.
 - Staging (without `--check`) before the user confirms: an abandoned issue would go out with the next release.
 - Committing the PDF or the images: they go only to `uploads/` and the server.
 - Uploading only the PDF instead of the whole `<id>/` folder: the covers and the viewer show broken images.
