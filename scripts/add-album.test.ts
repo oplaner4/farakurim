@@ -8,7 +8,6 @@ import {
   addAlbum,
   albumLines,
   albumNumberFromUrl,
-  errorMessage,
   parseCommand,
   photoItems,
   photoUrl,
@@ -341,17 +340,5 @@ describe("albumNumberFromUrl", () => {
     ]) {
       expect(() => albumNumberFromUrl(url), url).toThrow(/expected an album URL/);
     }
-  });
-});
-
-describe("errorMessage", () => {
-  it("adds the cause, as fetch() reports a network failure", () => {
-    const error = new TypeError("fetch failed", { cause: new Error("getaddrinfo ENOTFOUND eu.zonerama.com") });
-    expect(errorMessage(error)).toBe("fetch failed (getaddrinfo ENOTFOUND eu.zonerama.com)");
-  });
-
-  it("is the message alone without a cause, and the value itself for a non-error", () => {
-    expect(errorMessage(new Error("the album has no photos"))).toBe("the album has no photos");
-    expect(errorMessage("oops")).toBe("oops");
   });
 });

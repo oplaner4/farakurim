@@ -6,6 +6,7 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, statSync } from "nod
 import { homedir } from "node:os";
 import { basename, dirname, join } from "node:path";
 import { NEWS_DIR, OHLASKY_FILE, PETRKLIC_FILE, ROOT } from "../content-files";
+import { errorMessage } from "../command";
 
 const MB = 1024 * 1024;
 /** The largest source file each command stages, in MB; the usage and the size error name them. */
@@ -69,8 +70,7 @@ export async function onServer(env: StageEnv, rel: string): Promise<boolean> {
   try {
     ({ status } = await env.fetch(url, { method: "HEAD", signal: AbortSignal.timeout(15_000) }));
   } catch (error) {
-    const reason = error instanceof Error ? error.message : String(error);
-    throw new Error(`cannot reach ${env.site} (${reason}): cannot tell whether the name is free`);
+    throw new Error(`cannot reach ${env.site} (${errorMessage(error)}): cannot tell whether the name is free`);
   }
   if (status !== 404 && status >= 400)
     throw new Error(`${url} answered ${status}: cannot tell whether the name is free`);

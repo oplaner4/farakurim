@@ -12,7 +12,6 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { relative } from "node:path";
-import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { decodeHTML } from "entities";
 import * as z from "zod";
@@ -20,6 +19,7 @@ import type { Album, AlbumPhoto, GalleryFile } from "@/content/types/gallery";
 import { MAX_ALBUMS } from "@/lib/gallery/albums";
 import { albumNumber, albumSchema, galleryFileSchema } from "@/lib/gallery/schema";
 import { slug } from "@/lib/shared/slug";
+import { errorMessage, runCommand } from "./command";
 import { formatAndTest, GALLERY_FILE } from "./content-files";
 
 const MAX_PHOTOS = 15;
@@ -162,7 +162,7 @@ export function readGallery(galleryFile: string): GalleryFile {
   try {
     data = JSON.parse(readFileSync(galleryFile, "utf8"));
   } catch (error) {
-    throw new Error(`${name} is not valid JSON: ${error instanceof Error ? error.message : error}`);
+    throw new Error(`${name} is not valid JSON: ${errorMessage(error)}`);
   }
   const parsed = galleryFileSchema.safeParse(data);
   if (!parsed.success) throw new Error(`${name} is not valid:\n${z.prettifyError(parsed.error)}`);
@@ -241,7 +241,7 @@ export function parseCommand(args: string[]): Command {
       },
     });
   } catch (error) {
-    throw new Error(`${error instanceof Error ? error.message : error}\n${USAGE}`);
+    throw new Error(`${errorMessage(error)}\n${USAGE}`);
   }
   const [url] = parsed.positionals;
   if (!url) throw new Error(USAGE);
@@ -249,41 +249,17 @@ export function parseCommand(args: string[]): Command {
   return { url, write, check, ...overrides };
 }
 
-/** The error's message, with its cause: fetch() reports a network failure as "fetch failed" with the reason there. */
-export function errorMessage(error: unknown): string {
-  if (!(error instanceof Error)) return String(error);
-  const { cause } = error;
-  return cause === undefined ? error.message : `${error.message} (${cause instanceof Error ? cause.message : cause})`;
-}
-
-// No top-level await: tsx runs the scripts as CommonJS (package.json has no "type": "module").
-async function main() {
-  let command: Command;
-  try {
-    command = parseCommand(process.argv.slice(2));
-  } catch (error) {
-    console.error(`add-album: ${errorMessage(error)}`);
-    process.exit(2);
+runCommand("add-album", import.meta.url, parseCommand, async ({ url, write, check, ...overrides }) => {
+  const number = albumNumberFromUrl(url);
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`${url} answered ${response.status}`);
+  const { proposal, album } = readAlbumPage(await response.text(), number, overrides);
+  if (!write && !check) {
+    console.log(JSON.stringify(proposal, null, 2));
+    return;
   }
-  const { url, write, check, ...overrides } = command;
-  try {
-    const number = albumNumberFromUrl(url);
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`${url} answered ${response.status}`);
-    const { proposal, album } = readAlbumPage(await response.text(), number, overrides);
-    if (!write && !check) {
-      console.log(JSON.stringify(proposal, null, 2));
-      return;
-    }
-    if (!album.date) throw new Error("the album title has no date: pass the date of the event with --date YYYY-MM-DD");
-    const result = addAlbum(GALLERY_FILE, album, { check });
-    console.log(albumLines(result, check).join("\n"));
-    if (!check) await formatAndTest(result.written, "src/content/gallery.test.ts");
-  } catch (error) {
-    console.error(`add-album: ${errorMessage(error)}`);
-    process.exit(1);
-  }
-}
-
-// Run as a command, not imported by the tests.
-if (process.argv[1] === fileURLToPath(import.meta.url)) void main();
+  if (!album.date) throw new Error("the album title has no date: pass the date of the event with --date YYYY-MM-DD");
+  const result = addAlbum(GALLERY_FILE, album, { check });
+  console.log(albumLines(result, check).join("\n"));
+  if (!check) await formatAndTest(result.written, "src/content/gallery.test.ts");
+});

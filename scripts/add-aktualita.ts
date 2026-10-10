@@ -12,15 +12,14 @@
 // calls addAktualita(), formatAndTest() and the calendar check itself.
 
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import * as z from "zod";
 import type { NewsEvent } from "@/content/types/news";
 import { newsEventSchema } from "@/lib/news/schema";
 import { pragueDate } from "@/lib/shared/prague";
 import { reportCalendar } from "./aktualita-calendar";
-import { formatAndTest, NEWS_DIR, writeMonth } from "./content-files";
+import { errorMessage, runCommand } from "./command";
+import { formatAndTestNews, NEWS_DIR, writeMonth } from "./content-files";
 import { assertPinnable, movePin, readMonths, unpinnedLines, withoutPin } from "./pin-aktualita";
 
 /** The month file inside news/ for a record starting on `start`. */
@@ -73,38 +72,18 @@ export function parseCommand(args: string[]): { file: string; check: boolean } {
   try {
     parsed = parseArgs({ args, allowPositionals: true, options: { check: { type: "boolean" } } });
   } catch (error) {
-    throw new Error(`${error instanceof Error ? error.message : error}\n${USAGE}`);
+    throw new Error(`${errorMessage(error)}\n${USAGE}`);
   }
   if (parsed.positionals.length !== 1) throw new Error(USAGE);
   return { file: parsed.positionals[0], check: parsed.values.check ?? false };
 }
 
-// No top-level await: tsx runs the scripts as CommonJS (package.json has no "type": "module").
-async function main() {
-  let command: { file: string; check: boolean };
-  try {
-    command = parseCommand(process.argv.slice(2));
-  } catch (error) {
-    console.error(`add-aktualita: ${error instanceof Error ? error.message : error}`);
-    process.exit(2);
+runCommand("add-aktualita", import.meta.url, parseCommand, async ({ file, check }) => {
+  const input: unknown = JSON.parse(readFileSync(file === "-" ? 0 : file, "utf8"));
+  const result = addAktualita(NEWS_DIR, input, { check });
+  console.log([targetLine(result, check), ...unpinnedLines(result.unpinned, check)].join("\n"));
+  if (!check) {
+    await formatAndTestNews(result.written);
+    await reportCalendar(result.record);
   }
-  const { file, check } = command;
-  try {
-    const input: unknown = JSON.parse(readFileSync(file === "-" ? 0 : file, "utf8"));
-    const result = addAktualita(NEWS_DIR, input, { check });
-    console.log([targetLine(result, check), ...unpinnedLines(result.unpinned, check)].join("\n"));
-    if (!check) {
-      await formatAndTest(
-        result.written.map((f) => join(NEWS_DIR, f)),
-        "src/content/news",
-      );
-      await reportCalendar(result.record);
-    }
-  } catch (error) {
-    console.error(`add-aktualita: ${error instanceof Error ? error.message : error}`);
-    process.exit(1);
-  }
-}
-
-// Run as a command, not imported by the tests.
-if (process.argv[1] === fileURLToPath(import.meta.url)) void main();
+});

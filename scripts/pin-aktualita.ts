@@ -6,15 +6,14 @@
 // Usage: pnpm pin-aktualita <id> | --none [--check]
 // --none unpins every record. --check only validates and prints what would change, without writing.
 
-import { fileURLToPath } from "node:url";
-import { join } from "node:path";
 import { parseArgs } from "node:util";
 import { monthFiles, readMonth } from "@/content/news";
 import type { IsoDate } from "@/content/types/shared";
 import type { NewsEvent } from "@/content/types/news";
 import { eventEnd } from "@/lib/news/events";
 import { pragueDate } from "@/lib/shared/prague";
-import { formatAndTest, NEWS_DIR, writeMonth } from "./content-files";
+import { errorMessage, runCommand } from "./command";
+import { formatAndTestNews, NEWS_DIR, writeMonth } from "./content-files";
 
 /** Every month file under `newsDir` (`<year>/<MM>.json` → its records), in readEvents() order. */
 export const readMonths = (newsDir: string) =>
@@ -108,37 +107,15 @@ export function parseCommand(args: string[]): { id: string | null; check: boolea
       options: { none: { type: "boolean" }, check: { type: "boolean" } },
     });
   } catch (error) {
-    throw new Error(`${error instanceof Error ? error.message : error}\n${USAGE}`);
+    throw new Error(`${errorMessage(error)}\n${USAGE}`);
   }
   const { positionals, values } = parsed;
   if (positionals.length !== (values.none ? 0 : 1)) throw new Error(USAGE);
   return { id: values.none ? null : positionals[0], check: values.check ?? false };
 }
 
-// No top-level await: tsx runs the scripts as CommonJS (package.json has no "type": "module").
-async function main() {
-  let command: { id: string | null; check: boolean };
-  try {
-    command = parseCommand(process.argv.slice(2));
-  } catch (error) {
-    console.error(`pin-aktualita: ${error instanceof Error ? error.message : error}`);
-    process.exit(2);
-  }
-  const { id, check } = command;
-  try {
-    const result = pinAktualita(NEWS_DIR, id, { check });
-    console.log(pinLines(result, check).join("\n"));
-    if (result.written.length > 0) {
-      await formatAndTest(
-        result.written.map((f) => join(NEWS_DIR, f)),
-        "src/content/news",
-      );
-    }
-  } catch (error) {
-    console.error(`pin-aktualita: ${error instanceof Error ? error.message : error}`);
-    process.exit(1);
-  }
-}
-
-// Run as a command, not imported by the tests.
-if (process.argv[1] === fileURLToPath(import.meta.url)) void main();
+runCommand("pin-aktualita", import.meta.url, parseCommand, async ({ id, check }) => {
+  const result = pinAktualita(NEWS_DIR, id, { check });
+  console.log(pinLines(result, check).join("\n"));
+  await formatAndTestNews(result.written);
+});

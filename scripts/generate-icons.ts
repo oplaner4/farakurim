@@ -1,6 +1,7 @@
 // Generates PNG app icons from the SVG logo. Run: pnpm icons
 import { readFile } from "node:fs/promises";
 import sharp, { type Colour } from "sharp";
+import { runCommand } from "./command";
 
 const transparent: Colour = { r: 0, g: 0, b: 0, alpha: 0 };
 const white: Colour = { r: 255, g: 255, b: 255, alpha: 1 };
@@ -17,12 +18,14 @@ async function render(logo: Buffer, size: number, padding: number, background: C
     .toFile(new URL(out, import.meta.url).pathname);
 }
 
-// No top-level await: tsx runs the scripts as CommonJS (package.json has no "type": "module").
-async function main() {
-  const logo = await readFile(new URL("../src/app/icon.svg", import.meta.url));
-  await render(logo, 32, 1, transparent, "../src/app/icon.png");
-  await render(logo, 180, 22, white, "../src/app/apple-icon.png");
-  console.log("Icons generated.");
-}
-
-void main();
+runCommand(
+  "icons",
+  import.meta.url,
+  () => undefined,
+  async () => {
+    const logo = await readFile(new URL("../src/app/icon.svg", import.meta.url));
+    await render(logo, 32, 1, transparent, "../src/app/icon.png");
+    await render(logo, 180, 22, white, "../src/app/apple-icon.png");
+    console.log("Icons generated.");
+  },
+);

@@ -6,7 +6,7 @@
 // Prints the bump and the version, e.g. "minor 1.2.0", for the version in package.json.
 
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { runCommand } from "./command";
 
 /** Subject of a new feature: `feat:`, `feat(scope):` or `feat!:`. */
 const FEAT = /^feat(\(([^)]*)\))?!?:/;
@@ -33,12 +33,16 @@ export function nextVersion(version: string, bump: Bump): string {
   return { major: [a + 1, 0, 0], minor: [a, b + 1, 0], patch: [a, b, c + 1] }[bump].join(".");
 }
 
-// Run as a command, not imported by the tests.
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const subjects = readFileSync(0, "utf8").split("\n").filter(Boolean);
-  const bump = releaseBump(subjects, { major: process.argv.includes("--major") });
-  const { version } = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as {
-    version: string;
-  };
-  console.log(`${bump} ${nextVersion(version, bump)}`);
-}
+runCommand(
+  "release-version",
+  import.meta.url,
+  (args) => ({ major: args.includes("--major") }),
+  ({ major }) => {
+    const subjects = readFileSync(0, "utf8").split("\n").filter(Boolean);
+    const bump = releaseBump(subjects, { major });
+    const { version } = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as {
+      version: string;
+    };
+    console.log(`${bump} ${nextVersion(version, bump)}`);
+  },
+);

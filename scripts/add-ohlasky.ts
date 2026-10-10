@@ -13,6 +13,7 @@ import { ohlaskyFileSchema, serviceSheetSchema } from "@/lib/services/schema";
 import { currentSheet, sheetOrderProblems } from "@/lib/services/service-sheet";
 import { pragueDate } from "@/lib/shared/prague";
 import { newsIds } from "./content-files";
+import { errorMessage } from "./command";
 
 /** The fields the script takes from the staged PDF, never from the record. */
 const WEEK_FIELDS = ["validFrom", "validTo", "rev"] as const;
@@ -26,7 +27,7 @@ export function readOhlasky(ohlaskyFile: string): OhlaskyFile {
   try {
     data = JSON.parse(readFileSync(ohlaskyFile, "utf8"));
   } catch (error) {
-    throw new Error(`${ohlaskyFile} is not valid JSON: ${error instanceof Error ? error.message : error}`);
+    throw new Error(`${ohlaskyFile} is not valid JSON: ${errorMessage(error)}`);
   }
   const parsed = ohlaskyFileSchema.safeParse(data);
   if (!parsed.success) throw new Error(`${ohlaskyFile} is not valid:\n${z.prettifyError(parsed.error)}`);

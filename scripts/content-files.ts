@@ -34,6 +34,15 @@ export async function formatFiles(files: string[]) {
   }
 }
 
+/** Formats the news month files `written` (relative to NEWS_DIR) and runs the news tests; nothing when none. */
+export async function formatAndTestNews(written: string[]) {
+  if (written.length > 0)
+    await formatAndTest(
+      written.map((f) => join(NEWS_DIR, f)),
+      "src/content/news",
+    );
+}
+
 /**
  * Formats `files` (absolute paths) and runs the content tests under `tests` (with Node itself, so no shell is needed
  * to start pnpm on Windows). Throws when a test fails.

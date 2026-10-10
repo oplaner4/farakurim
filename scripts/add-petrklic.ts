@@ -9,6 +9,7 @@ import * as z from "zod";
 import type { PetrklicFile, PetrklicRecord } from "@/content/types/petrklic";
 import { isNewerIssue, issueId, issueLabel } from "@/lib/petrklic/issues";
 import { petrklicFileSchema, petrklicRecordSchema } from "@/lib/petrklic/schema";
+import { errorMessage } from "./command";
 
 /** The issues in `file`, checked by petrklicFileSchema; a broken file throws, naming it. */
 export function readPetrklic(file: string): PetrklicFile {
@@ -17,7 +18,7 @@ export function readPetrklic(file: string): PetrklicFile {
   try {
     data = JSON.parse(readFileSync(file, "utf8"));
   } catch (error) {
-    throw new Error(`${name} is not valid JSON: ${error instanceof Error ? error.message : error}`);
+    throw new Error(`${name} is not valid JSON: ${errorMessage(error)}`);
   }
   const parsed = petrklicFileSchema.safeParse(data);
   if (!parsed.success) throw new Error(`${name} is not valid:\n${z.prettifyError(parsed.error)}`);

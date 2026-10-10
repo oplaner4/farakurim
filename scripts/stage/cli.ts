@@ -29,11 +29,11 @@
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import * as z from "zod";
 import type { NewsEvent } from "@/content/types/news";
 import { reportCalendar } from "../aktualita-calendar";
+import { runCommand } from "../command";
 import { formatAndTest } from "../content-files";
 import { stageAktualita } from "./aktualita";
 import { defaultEnv, MAX_MB, type StageEnv } from "./core";
@@ -65,7 +65,7 @@ const COMMANDS: Record<string, { positionals: number; options: string[] }> = {
 };
 
 /** Runs a command line (without the program); returns the lines to print, the files to format and the added event. */
-export async function runCommand(
+export async function runStage(
   env: StageEnv,
   argv: string[],
 ): Promise<{ lines: string[]; format?: { files: string[]; tests: string }; event?: NewsEvent }> {
@@ -137,18 +137,14 @@ export async function runCommand(
   return { lines, format: written.length > 0 ? { files: written, tests: "src/content/petrklic.test.ts" } : undefined };
 }
 
-// No top-level await: tsx runs the scripts as CommonJS (package.json has no "type": "module").
-async function main() {
-  try {
-    const { lines, format, event } = await runCommand(defaultEnv(), process.argv.slice(2));
+runCommand(
+  "stage",
+  import.meta.url,
+  (args) => args,
+  async (args) => {
+    const { lines, format, event } = await runStage(defaultEnv(), args);
     console.log(lines.join("\n"));
     if (format) await formatAndTest(format.files, format.tests);
     if (event) await reportCalendar(event);
-  } catch (error) {
-    console.error(`stage: ${error instanceof Error ? error.message : error}`);
-    process.exit(1);
-  }
-}
-
-// Run as a command, not imported by the tests.
-if (process.argv[1] === fileURLToPath(import.meta.url)) void main();
+  },
+);

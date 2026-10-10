@@ -14,7 +14,6 @@
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import type { NewsEvent } from "@/content/types/news";
 import { parishCalendars, SITE_URL } from "@/content/site";
@@ -27,6 +26,7 @@ import {
 } from "@/lib/calendar/google-calendar";
 import { eventCalendar } from "@/lib/news/ics";
 import { eventEnd, eventHref, eventMeetings, type Meeting } from "@/lib/news/events";
+import { errorMessage, runCommand } from "./command";
 import { ROOT } from "./content-files";
 
 /** The days the aktualita takes place: each meeting of a series, the first day of a weekly one, else its span. */
@@ -112,7 +112,7 @@ export async function checkCalendar(event: NewsEvent, { apiKey, outDir }: CheckO
   try {
     calendar = await fetchGoogleCalendar(parishCalendars.events.googleId, apiKey, range, refererInit(SITE_URL));
   } catch (error) {
-    return unchecked(error instanceof Error ? error.message : String(error));
+    return unchecked(errorMessage(error));
   }
   const matches = matchMeetings(event, calendar);
   if (matches.every((m) => m.status === "missing")) {
@@ -141,26 +141,23 @@ export async function reportCalendar(event: NewsEvent, outDir = join(homedir(), 
       (await checkCalendar(event, { apiKey: process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY, outDir })).join("\n"),
     );
   } catch (error) {
-    console.error(`aktualita-calendar: ${error instanceof Error ? error.message : error}`);
+    console.error(`aktualita-calendar: ${errorMessage(error)}`);
   }
 }
 
-// No top-level await: tsx runs the scripts as CommonJS (package.json has no "type": "module").
-async function main() {
-  const { values, positionals } = parseArgs({ allowPositionals: true, options: { out: { type: "string" } } });
-  // Imported here, so the commands that import this module do not load every aktualita.
-  const { events } = await import("@/content/news");
-  const event = events.find((e) => e.id === positionals[0]);
-  if (positionals.length !== 1 || !event) {
-    console.error(
-      positionals.length === 1
-        ? `aktualita-calendar: no aktualita with the id ${positionals[0]}`
-        : "Usage: pnpm aktualita-calendar <id> [--out <dir>]",
-    );
-    process.exit(2);
-  }
-  await reportCalendar(event, values.out);
-}
+const USAGE = "Usage: pnpm aktualita-calendar <id> [--out <dir>]";
 
-// Run as a command, not imported by the tests.
-if (process.argv[1] === fileURLToPath(import.meta.url)) void main();
+runCommand(
+  "aktualita-calendar",
+  import.meta.url,
+  async (args) => {
+    const { values, positionals } = parseArgs({ args, allowPositionals: true, options: { out: { type: "string" } } });
+    if (positionals.length !== 1) throw new Error(USAGE);
+    // Imported here, so the commands that import this module do not load every aktualita.
+    const { events } = await import("@/content/news");
+    const event = events.find((e) => e.id === positionals[0]);
+    if (!event) throw new Error(`no aktualita with the id ${positionals[0]}`);
+    return { event, out: values.out };
+  },
+  ({ event, out }) => reportCalendar(event, out),
+);
