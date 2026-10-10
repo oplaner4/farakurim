@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { PetrklicIssue } from "@/content/types/petrklic";
-import { groupByYear, issueLabel, stepPage, toRoman, viewerSpread, volumeOf } from "./issues";
+import { groupByYear, issueLabel, parsePetrklicId, stepPage, toRoman, viewerSpread, volumeOf } from "./issues";
 
 const issue = (year: number, number: number, note?: string): PetrklicIssue => ({
   id: `${year}-${number}${note ?? ""}`,
@@ -61,5 +61,15 @@ describe("stepPage", () => {
     expect(stepPage(3, -1, 16, true)).toBe(1);
     expect(stepPage(14, 1, 16, true)).toBe(16);
     expect(stepPage(16, 1, 16, true)).toBe(16);
+  });
+});
+
+describe("parsePetrklicId", () => {
+  it("takes the year and number, with an optional note", () => {
+    expect(parsePetrklicId("2026-2")).toEqual({ year: 2026, number: 2 });
+    expect(parsePetrklicId("2026-3-mimoradne")).toEqual({ year: 2026, number: 3 });
+    expect(parsePetrklicId("2026-12")).toEqual({ year: 2026, number: 12 });
+    expect(() => parsePetrklicId("26-2")).toThrow("is not <year>-<number>");
+    expect(() => parsePetrklicId("2026-1x")).toThrow("is not <year>-<number>");
   });
 });

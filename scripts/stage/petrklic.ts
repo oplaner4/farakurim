@@ -3,15 +3,9 @@
 // `issue(...)` line for src/content/petrklic.ts.
 
 import { dirname, extname } from "node:path";
+import { parsePetrklicId } from "@/lib/petrklic/issues";
 import { MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
 import { pdfPageCount, renderPetrklic } from "../upload-images";
-
-/** The year and number of a Petrklíč id: `2026-2`, or `2026-3-mimoradne` with a note. */
-export function parsePetrklicId(id: string): { year: number; number: number } {
-  const m = /^(\d{4})-(\d{1,2})(-[a-z0-9]+(-[a-z0-9]+)*)?$/.exec(id);
-  if (!m) throw new Error(`"${id}" is not <year>-<number>[-<note>], e.g. 2026-2 or 2026-3-mimoradne`);
-  return { year: Number(m[1]), number: Number(m[2]) };
-}
 
 export interface PetrklicOptions {
   source: string;

@@ -1,15 +1,7 @@
 import { readdirSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { parsePetrklicId, stagePetrklic } from "./petrklic";
+import { stagePetrklic } from "./petrklic";
 import { hasPoppler, pdfWithText, useStageFixture } from "../test-helpers";
-
-describe("parsePetrklicId", () => {
-  it("takes the year and number, with an optional note", () => {
-    expect(parsePetrklicId("2026-2")).toEqual({ year: 2026, number: 2 });
-    expect(parsePetrklicId("2026-3-mimoradne")).toEqual({ year: 2026, number: 3 });
-    expect(() => parsePetrklicId("26-2")).toThrow("is not <year>-<number>");
-  });
-});
 
 describe.skipIf(!hasPoppler)("stagePetrklic", { timeout: 30_000 }, () => {
   const { env, download, uploaded } = useStageFixture();
