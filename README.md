@@ -125,13 +125,15 @@ links, hooks, checking against the design) are in `.claude/rules/`.
 
 Content lives in `src/content/` and is added with the Claude Code project skills in `.claude/skills/`:
 
-| Skill                             | Adds                                                          |
-| --------------------------------- | ------------------------------------------------------------- |
-| `farnost-create-aktualita`        | An event from a poster or PDF, into `news/`                   |
-| `farnost-pin-aktualita`           | The "Doporučujeme" pin, moved to an existing event or removed |
-| `farnost-create-porad-bohosluzeb` | The weekly ohlášky PDF, into `ohlasky.json`                   |
-| `farnost-create-galerie`          | A Zonerama album, into `gallery.json`                         |
-| `farnost-create-petrklic`         | A Petrklíč newsletter PDF, into `petrklic.json`               |
+| Skill                              | Adds                                                          |
+| ---------------------------------- | ------------------------------------------------------------- |
+| `farnost-create-aktualita`         | An event from a poster or PDF, into `news/`                   |
+| `farnost-pin-aktualita`            | The "Doporučujeme" pin, moved to an existing event or removed |
+| `farnost-create-porad-bohosluzeb`  | The weekly ohlášky PDF, into `ohlasky.json`                   |
+| `farnost-correct-porad-bohosluzeb` | A corrected week of ohlášky (record or PDF)                   |
+| `farnost-create-galerie`           | A Zonerama album, into `gallery.json`                         |
+| `farnost-create-petrklic`          | A Petrklíč newsletter PDF, into `petrklic.json`               |
+| `farnost-correct-petrklic`         | A corrected Petrklíč PDF or issue record                      |
 
 Each finishes with `farnost-publish-content`, which commits and releases with `farnost-release`.
 

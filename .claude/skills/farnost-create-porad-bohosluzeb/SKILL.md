@@ -20,7 +20,7 @@ The user gives at least a file name; without a folder, look in `~/Downloads/`. U
 
 Read the **whole** page: the announcements are the paragraphs below the table.
 
-Get the week and its dates (it refuses a week already on the server; a corrected PDF of it takes `--corrected`):
+Get the week and its dates (it refuses a week already on the server):
 
 ```sh
 pnpm stage porad "<source>" --check
@@ -101,14 +101,6 @@ It validates the record first (the error names each field), stages the PDF, adds
 the file and runs the ohlášky test. An entry it removes "between the sheets" (a gap the new sheet leaves) was announced
 for a day no sheet covers, where the site shows the regular schedule: tell the user.
 
-**Corrections**: never edit a sheet in `src/content/ohlasky.json` by hand.
-
-- A corrected record: fix `record.json` and rerun the same command (restaging the identical PDF is allowed, and the
-  sheet of the same week is replaced). After the release the PDF's name is taken: add `--corrected`.
-- A corrected PDF: rerun the command with `--corrected` (and the week's `--record`, as always). Once the week is on the server it
-  stages `…-porad-bohosluzeb-r2.pdf` (then `-r3`, …) and stores the sheet's `rev`; before the release it replaces
-  the staged PDF.
-
 ```json
 {
   "days": [
@@ -146,5 +138,3 @@ adorace" Google Calendar, which the Kalendář reads.
 - `service: true` on a funeral, baptism or wedding: personal events never count for the countdown.
 - Publishing placeholder dots from an unfinished PDF.
 - Putting `validFrom`, `validTo` or `rev` into `record.json`: the script reads them from the PDF.
-- Editing a sheet in `ohlasky.json` by hand instead of rerunning the command with a corrected record (with
-  `--corrected` after the release).

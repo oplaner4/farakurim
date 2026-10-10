@@ -12,25 +12,29 @@ card shows its cover. The PDF and its images go only to `uploads/` and the serve
 ## 1. Read the PDF
 
 The user gives at least a file name; without a folder, look in `~/Downloads/`. Read page 1 with the `Read` tool
-(`pages: "1"`) for the number and year.
+(`pages: "1"`) for the year and the number within the year: the cover usually says them ("1/2026", "Velikonoce
+2026"). If the cover does not give both, ask the user for them before going on; never guess them.
 
 ## 2. Confirm with the user
 
-The cover usually says the number and year ("1/2026", "Velikonoce 2026"). Check the issue and get the page count:
+Check the issue from step 1 and get the page count:
 
 ```sh
-pnpm stage petrklic "<source>" --year <year> --number <number> [--note "<note>"] --check
+pnpm stage petrklic "<source>" --year <year> --number <number> --check
 ```
 
 It prints the folder it would stage (`uploads/petrklic/<id>/`, so the id), the page count and where the issue would
-go, and refuses an issue already in the file (for a corrected PDF, see [Corrections](#corrections)).
+go, and refuses an issue already in the file.
+
+The issue is taken as a regular one: tell the user that a special issue needs them to say so, which sets the note
+(`"mimořádné"` for an extra issue, `"1. část"` or `"2. část"` for an issue in two parts). The note changes the id, so
+when they name one, run `--check` again with `--note "<note>"`. A refused issue may be a special one (a
+`"mimořádné"` issue shares its number with a regular one): say so when you report the refusal.
 
 Then show:
 
-- **year** and **number** within the year. Without one on the cover, propose the next after the first issue in
-  `src/content/petrklic.json`
-  (after 4/2025 comes 1/2026) and say it is a guess.
-- **note**, only for special issues: `"mimořádné"`, `"1. část"`, `"2. část"`.
+- **year** and **number** within the year, from step 1.
+- **note**, only for special issues.
 - **id**, as `--check` printed it: computed from the year, number and note (`2026-2`, `2026-3-mimoradne`,
   `2026-1-2-cast`). It names the PDF and the images.
 - **pageCount**, as `--check` printed it.
@@ -62,18 +66,8 @@ Only the current issue's pages are linked; the previous issue's `pages/` on the 
 
 Follow **`farnost-publish-content`**. Upload the whole `uploads/petrklic/<id>/` folder.
 
-## Corrections
-
-- A wrong year, number, note or pageCount: edit the issue's record in `src/content/petrklic.json`. A new year, number
-  or note changes the id, so the folder in `uploads/petrklic/` and on the server must be renamed too.
-- A corrected PDF: stage it with `--corrected` (and `--check` first). It replaces the issue's `pageCount` and, once
-  the issue is on the server, goes to the next `uploads/petrklic/<id>-r<rev>/` (the PDF keeps its name) and sets the
-  issue's `rev`; the old folder stays on the server. Before the release it replaces the staged PDF in its folder.
-  Upload the whole folder it prints.
-
 ## Common mistakes
 
-- Replacing the PDF in an issue's folder by hand: the server keeps the old files, so stage it with `--corrected`.
 - Staging (without `--check`) before the user confirms: an abandoned issue would go out with the next release.
 - Committing the PDF or the images: they go only to `uploads/` and the server.
 - Uploading only the PDF instead of the whole `<id>/` folder: the covers and the viewer show broken images.
