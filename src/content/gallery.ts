@@ -3,7 +3,7 @@ import type { Album } from "@/content/types/gallery";
 import { galleryFileSchema } from "@/lib/gallery/schema";
 import data from "./gallery.json";
 
-// The Fotogalerie albums (src/content/gallery.json, written by `pnpm add-album`, farnost-create-galerie skill):
+// The Fotogalerie albums (src/content/gallery.json, written by `pnpm add-album`, farnost-create-album skill):
 // Zonerama albums, newest first, the photos linked from Zonerama. Checked on import, so a broken file fails the build
 // naming the field.
 

@@ -133,7 +133,7 @@ Content lives in `src/content/` and is added with the Claude Code project skills
 | `farnost-create-porad-bohosluzeb`  | The weekly ohlášky PDF, into `ohlasky.json`                                              |
 | `farnost-correct-porad-bohosluzeb` | A corrected week of ohlášky (record or PDF)                                              |
 | `farnost-create-vyjimka`           | A change to the mass schedule on a day no ohlášky cover, into `schedule-exceptions.json` |
-| `farnost-create-galerie`           | A Zonerama album, into `gallery.json`                                                    |
+| `farnost-create-album`             | A Zonerama album, into `gallery.json`                                                    |
 | `farnost-create-petrklic`          | A Petrklíč newsletter PDF, into `petrklic.json`                                          |
 | `farnost-correct-petrklic`         | A corrected Petrklíč PDF or issue record                                                 |
 

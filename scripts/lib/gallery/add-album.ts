@@ -1,4 +1,4 @@
-// Adds a Zonerama album of the parish to the Fotogalerie (farnost-create-galerie skill, design/DESIGN.md §19.2).
+// Adds a Zonerama album of the parish to the Fotogalerie (farnost-create-album skill, design/DESIGN.md §19.2).
 // Without --write it prints the proposal as JSON to confirm with the user: the title (first letter upper-cased,
 // without Zonerama's "YYYY_MM_DD" prefix), the date from that prefix, the proposed id, the chosen aspect ratio and the
 // photo counts. With --write it adds the album (up to MAX_PHOTOS photos as { small, large } Zonerama URLs) to
