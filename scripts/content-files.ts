@@ -1,5 +1,5 @@
-// The helpers the content scripts share (add-aktualita, add-ohlasky, aktualita-calendar, stage/): the repo's
-// paths, the aktuality IDs, and formatting and testing the files written.
+// The helpers the content scripts share (add-aktualita, add-album, add-ohlasky, aktualita-calendar, stage/): the
+// repo's paths, the aktuality IDs, and formatting and testing the files written.
 
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
@@ -11,6 +11,7 @@ import { readEvents } from "@/content/news";
 export const ROOT = fileURLToPath(new URL("..", import.meta.url));
 export const NEWS_DIR = join(ROOT, "src/content/news");
 export const OHLASKY_FILE = join(ROOT, "src/content/ohlasky.json");
+export const GALLERY_FILE = join(ROOT, "src/content/gallery.json");
 
 /** The IDs of every aktualita in the news folder `newsDir`; a broken month file throws, naming it. */
 export const newsIds = (newsDir: string) => new Set(readEvents(newsDir).map((e) => e.id));

@@ -9,8 +9,16 @@
 // Usage: pnpm add-album https://eu.zonerama.com/FarnostKurim/Album/<n>
 //          [--write [--title "<title>"] [--date YYYY-MM-DD] [--id <kebab-id>]]
 
+import { readFileSync, writeFileSync } from "node:fs";
+import { relative } from "node:path";
+import { fileURLToPath } from "node:url";
+import { parseArgs } from "node:util";
 import { decodeHTML } from "entities";
-import type { Album, AlbumPhoto } from "@/content/types/gallery";
+import * as z from "zod";
+import type { Album, AlbumPhoto, GalleryFile } from "@/content/types/gallery";
+import { MAX_ALBUMS } from "@/lib/gallery/albums";
+import { albumNumber, albumSchema, galleryFileSchema } from "@/lib/gallery/schema";
+import { formatAndTest, GALLERY_FILE } from "./content-files";
 
 const MAX_PHOTOS = 15;
 /** Photo widths: 2× a strip tile (about 390 px), and the homepage carousel and the lightbox. */
@@ -25,7 +33,10 @@ export type ZoneramaItem = { photoId: number; width: number; height: number; ima
 
 const NOT_ALBUM = "is it an album page?";
 
-/** "2026_08_30 pouť na Vranov | Zonerama.com" → { title: "Pouť na Vranov", date: "2026-08-30" }; no prefix, no date. */
+/**
+ * "2026_08_30 pouť na Vranov | Zonerama.com" → { title: "Pouť na Vranov", date: "2026-08-30" }; without the prefix
+ * the date is empty.
+ */
 export function titleAndDate(page: string): { title: string; date: string } {
   const raw = page.match(/<title>([^]*?) \| Zonerama/)?.[1];
   if (raw === undefined) throw new Error(`the page has no Zonerama title: ${NOT_ALBUM}`);
@@ -130,3 +141,113 @@ export function readAlbumPage(
     },
   };
 }
+
+/** The albums in `galleryFile`, checked by galleryFileSchema; a broken file throws, naming it. */
+export function readGallery(galleryFile: string): GalleryFile {
+  const name = relative(process.cwd(), galleryFile);
+  let data: unknown;
+  try {
+    data = JSON.parse(readFileSync(galleryFile, "utf8"));
+  } catch (error) {
+    throw new Error(`${name} is not valid JSON: ${error instanceof Error ? error.message : error}`);
+  }
+  const parsed = galleryFileSchema.safeParse(data);
+  if (!parsed.success) throw new Error(`${name} is not valid:\n${z.prettifyError(parsed.error)}`);
+  return parsed.data;
+}
+
+export type AddAlbumResult = {
+  album: Album;
+  /** 1-based, newest first. */
+  position: number;
+  /** The albums beyond MAX_ALBUMS, removed (or that would be). */
+  removed: Pick<Album, "id" | "date">[];
+  /** The file written, for formatAndTest; empty with `check`. */
+  written: string[];
+};
+
+/**
+ * Adds `input` (an Album) to `galleryFile` newest first, before the albums of its day, removes the albums beyond
+ * MAX_ALBUMS and returns what it did; `check` only validates. Throws with the problem found, before anything is
+ * written.
+ */
+export function addAlbum(galleryFile: string, input: unknown, { check = false } = {}): AddAlbumResult {
+  const parsed = albumSchema.safeParse(input);
+  if (!parsed.success) throw new Error(`the album is not valid:\n${z.prettifyError(parsed.error)}`);
+  const album = parsed.data;
+  const { albums } = readGallery(galleryFile);
+  if (albums.some((a) => a.id === album.id)) {
+    throw new Error(`the id ${album.id} is already in gallery.json: pass another one with --id`);
+  }
+  if (albums.some((a) => albumNumber(a.href) === albumNumber(album.href))) {
+    throw new Error(`the album ${album.href} is already in gallery.json`);
+  }
+  const at = albums.findIndex((a) => a.date <= album.date);
+  const all = at === -1 ? [...albums, album] : albums.toSpliced(at, 0, album);
+  const kept = all.slice(0, MAX_ALBUMS);
+  if (!kept.includes(album)) {
+    throw new Error(
+      `the album ${album.id} (${album.date}) is older than the ${MAX_ALBUMS} albums kept: nothing to add`,
+    );
+  }
+  const removed = all.slice(MAX_ALBUMS).map(({ id, date }) => ({ id, date }));
+  if (!check) writeFileSync(galleryFile, `${JSON.stringify({ albums: kept } satisfies GalleryFile, null, 2)}\n`);
+  return { album, position: kept.indexOf(album) + 1, removed, written: check ? [] : [galleryFile] };
+}
+
+/** The lines the command prints for `result`. */
+export function albumLines({ album, position, removed }: AddAlbumResult, check: boolean): string[] {
+  const added = `${check ? "Would add" : "Added"} ${album.id} (${album.photoCount} photos) at position ${position}`;
+  return [
+    `${added} in src/content/gallery.json`,
+    ...removed.map((a) => `${check ? "Would remove" : "Removed"} the old album ${a.id} (${a.date})`),
+  ];
+}
+
+const USAGE =
+  "Usage: pnpm add-album https://eu.zonerama.com/FarnostKurim/Album/<n> " +
+  '[--write [--title "<title>"] [--date YYYY-MM-DD] [--id <kebab-id>]]';
+
+// No top-level await: tsx runs the scripts as CommonJS (package.json has no "type": "module").
+async function main() {
+  const { values, positionals } = parseArgs({
+    allowPositionals: true,
+    options: {
+      write: { type: "boolean" },
+      title: { type: "string" },
+      date: { type: "string" },
+      id: { type: "string" },
+    },
+  });
+  const [url] = positionals;
+  if (!url) {
+    console.error(USAGE);
+    process.exit(2);
+  }
+  try {
+    const number = url.match(ALBUM_URL)?.[2];
+    if (!number) {
+      throw new Error(
+        "expected an album URL: https://eu.zonerama.com/FarnostKurim/Album/<n> (not the profile or a tab)",
+      );
+    }
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`${url} answered ${response.status}`);
+    const { title, date, id } = values;
+    const { proposal, album } = readAlbumPage(await response.text(), number, { title, date, id });
+    if (!values.write) {
+      console.log(JSON.stringify(proposal, null, 2));
+      return;
+    }
+    if (!album.date) throw new Error("the album title has no date: pass the date of the event with --date YYYY-MM-DD");
+    const result = addAlbum(GALLERY_FILE, album);
+    console.log(albumLines(result, false).join("\n"));
+    await formatAndTest(result.written, "src/content/gallery.test.ts");
+  } catch (error) {
+    console.error(`add-album: ${error instanceof Error ? error.message : error}`);
+    process.exit(1);
+  }
+}
+
+// Run as a command, not imported by the tests.
+if (process.argv[1] === fileURLToPath(import.meta.url)) void main();

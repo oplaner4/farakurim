@@ -13,6 +13,7 @@
     "petrklic": "tsx scripts/upload-images.ts petrklic",
     "stage": "tsx scripts/stage/cli.ts",
     "add-aktualita": "tsx scripts/add-aktualita.ts",
+    "add-album": "tsx scripts/add-album.ts",
     "aktualita-calendar": "tsx scripts/aktualita-calendar.ts",
     "format": "prettier --write .",
     "preview": "python3 scripts/preview.py 4173",
