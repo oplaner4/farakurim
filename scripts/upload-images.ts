@@ -5,7 +5,7 @@
 // Usage: pnpm petrklic <id-or-folder> ... [--pages]
 //   uploads/petrklic/<id>/cover.webp (page 1) and, with --pages, every page as pages/<n>.webp for the viewer.
 //   Issues are given by id or by folder (`2026-2`, `uploads/petrklic/2026-2/`, `uploads/petrklic/*/`). Prints
-//   `<id> <page count>` per issue, for src/content/petrklic.ts.
+//   `<id> <page count>` per issue.
 // Usage: tsx scripts/upload-images.ts poster <poster.pdf|png|jpg> <out.webp>
 //   Page 1 of a PDF, or the image, as a WebP; prints its path and `<width>x<height>`.
 // Requires pdftoppm, pdfinfo and pdftotext (poppler-utils) for PDFs.

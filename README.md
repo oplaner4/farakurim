@@ -86,7 +86,7 @@ Content tooling, used by the content skills (see [Content](#content)):
 
 | Command                                             | What it does                                                                                                                                    |
 | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm stage aktualita\|porad\|petrklic … [--check]` | Stage a file in `uploads/` and print its lines for `src/content/`                                                                               |
+| `pnpm stage aktualita\|porad\|petrklic … [--check]` | Stage a file in `uploads/`; petrklic adds the issue to `petrklic.json`, the others print their lines or add a `--record`                        |
 | `pnpm add-aktualita <record.json> [--check]`        | Add an aktualita to its month's JSON file in `src/content/news/`, checked by its schema                                                         |
 | `pnpm aktualita-calendar <id> [--out <dir>]`        | Check that the aktualita's Události event links its page; else write the `.ics`                                                                 |
 | `pnpm petrklic <id> [--pages]`                      | Render a Petrklíč issue's `cover.webp` (and viewer `pages/`) from its PDF                                                                       |
@@ -125,12 +125,12 @@ links, hooks, checking against the design) are in `.claude/rules/`.
 
 Content lives in `src/content/` and is added with the Claude Code project skills in `.claude/skills/`:
 
-| Skill                             | Adds                                          |
-| --------------------------------- | --------------------------------------------- |
-| `farnost-create-aktualita`        | An event from a poster or PDF, into `news/`   |
-| `farnost-create-porad-bohosluzeb` | The weekly ohlášky PDF, into `ohlasky.json`   |
-| `farnost-create-galerie`          | A Zonerama album, into `gallery.json`         |
-| `farnost-create-petrklic`         | A Petrklíč newsletter PDF, into `petrklic.ts` |
+| Skill                             | Adds                                            |
+| --------------------------------- | ----------------------------------------------- |
+| `farnost-create-aktualita`        | An event from a poster or PDF, into `news/`     |
+| `farnost-create-porad-bohosluzeb` | The weekly ohlášky PDF, into `ohlasky.json`     |
+| `farnost-create-galerie`          | A Zonerama album, into `gallery.json`           |
+| `farnost-create-petrklic`         | A Petrklíč newsletter PDF, into `petrklic.json` |
 
 Each finishes with `farnost-publish-content`, which commits and releases with `farnost-release`.
 

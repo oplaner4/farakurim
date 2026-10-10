@@ -46,8 +46,10 @@ build-time next mass.
   exceptions are `currentExceptions` in `server/services.ts` (homepage, `server/calendar.ts`). `changed` only adds the "změna" tag; `markChanges()` sets it on masses that are not in the regular schedule. Intentions are published word for word, names included (the parish's decision: the PDF
   is public too). A row the user asks to hide gets `public: false`, which keeps its `detail` off the web: `server/ohlasky.ts`
   is `server-only`, pages pass `publicDays()` and client components get only props, never the module.
-- Petrklíč (`content/petrklic.ts`): one record per issue, newest first, added with `farnost-create-petrklic`; the
-  volume is computed (`volumeOf()`). Each issue is one folder uploaded to `/uploads/petrklic/<id>/`: the PDF
+- Petrklíč (`content/petrklic.json`, loaded and checked by `content/petrklic.ts` with `petrklicFileSchema` from
+  `src/lib/petrklic/schema.ts`): one record per issue (`year`, `number`, `note`, `pageCount`), newest first, added
+  by `pnpm stage petrklic` (`farnost-create-petrklic`); the id (`issueId()`), the URLs (`toIssue()`) and the
+  volume are computed (`volumeOf()`). Each issue is one folder uploaded to `/uploads/petrklic/<id>/`: the PDF
   `petrklic-<id>.pdf`, `cover.webp` and the current issue's viewer `pages/<n>.webp` (rendered by `pnpm petrklic`).
 - Calendars (Kalendář, homepage "Tento týden"): the parish's two Google Calendars ("Bohoslužby" = `services`,
   "Události" = `events`, `parishCalendars` in `content/site.ts`) are the source, because visitors subscribe to
