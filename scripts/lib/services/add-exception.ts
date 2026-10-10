@@ -1,5 +1,5 @@
 // Adds a change the parish announces for a day after the last ohlášky sheet to src/content/schedule-exceptions.json
-// (farnost-create-porad-bohosluzeb skill), so the next-mass countdown is right before that week's ohlášky arrive. The
+// (farnost-create-vyjimka skill), so the next-mass countdown is right before that week's ohlášky arrive. The
 // record is one ScheduleException: it replaces its whole day (`services: []` cancels it), so it lists every service of
 // that date at the parish churches. A record for a date already there replaces it; the entries stay in date order.
 // A date a sheet covers is refused (the sheet is corrected instead), and so is a past one. Prettier formats the file,

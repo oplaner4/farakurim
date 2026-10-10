@@ -1,6 +1,6 @@
 ---
 name: farnost-publish-content
-description: Finish a content change on the new farakurim.cz site - commit, and release after the user confirms (GitHub Actions checks, builds and deploys the release). Use at the end of farnost-create-aktualita, farnost-pin-aktualita, farnost-create-porad-bohosluzeb, farnost-correct-porad-bohosluzeb, farnost-create-galerie, farnost-create-petrklic and farnost-correct-petrklic, or whenever src/content/ was edited to publish news, ohlášky, albums or Petrklíč issues.
+description: Finish a content change on the new farakurim.cz site - commit, and release after the user confirms (GitHub Actions checks, builds and deploys the release). Use at the end of farnost-create-aktualita, farnost-pin-aktualita, farnost-create-porad-bohosluzeb, farnost-correct-porad-bohosluzeb, farnost-create-vyjimka, farnost-create-galerie, farnost-create-petrklic and farnost-correct-petrklic, or whenever src/content/ was edited to publish news, ohlášky, albums or Petrklíč issues.
 ---
 
 # Publish a content change

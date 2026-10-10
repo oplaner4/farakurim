@@ -64,24 +64,7 @@ its intention off the web); that row's `detail` then stays in the PDF only.
 **The sheet drives the week**: for every date from `validFrom` to `validTo` (the newer sheet wins a shared Sunday),
 the day's `mass` and `service` rows are its only services; the regular schedule is never mixed in, and applies again
 only after the last sheet. So enter **every day of the week** with all its rows, as the PDF does: a missing mass is a
-cancelled mass, a missing day has no services. A cancellation within the week needs no later change; mention it to
-the user.
-
-**Later changes**: an announcement of a change **after** the last sheet's `validTo` ("v neděli 25. 10. mše svatá
-nebude", a moved time) can be added right away, so the next-mass countdown is right before that week's ohlášky
-arrive. Ask the user before adding one. The record replaces its whole day: list every service of that date at the
-parish churches (masses as `{ time, place }`, titled ones with `title`), `services: []` for none, and a short
-`reason`. Write it as a JSON file in the scratchpad, then check it and, after the user's yes, add it:
-
-```sh
-pnpm add-exception <scratchpad>/exception.json --check   # without --check to add; --remove <date> takes one out
-```
-
-```json
-{ "date": "2026-10-25", "services": [{ "time": "10:00", "place": "kurim" }], "reason": "pouť v Jinačovicích" }
-```
-
-Remind the user to change Google Calendar too (the Kalendář reads it).
+cancelled mass, a missing day has no services. Mention a cancellation within the week to the user.
 
 **Announcements** (`announcements[]`, word for word, in the PDF's order):
 
@@ -106,9 +89,7 @@ pnpm stage porad "<source>" --record <scratchpad>/record.json
 ```
 
 It validates the record first (the error names each field), stages the PDF, adds the sheet, removes the outdated
-sheets and the later changes the sheets now cover, and runs the ohlášky tests. A change it removes "between the
-sheets" (a gap the new sheet leaves) was announced for a day no sheet covers, where the site shows the regular
-schedule: tell the user.
+sheets and runs the ohlášky tests. A line it prints that asks the user something goes to the user as printed.
 
 ```json
 {

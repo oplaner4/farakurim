@@ -4,7 +4,7 @@ import { scheduleExceptionsFileSchema } from "@/lib/services/schema";
 import data from "./schedule-exceptions.json";
 
 // The changes the parish announces for days after the last ohlášky sheet (src/content/schedule-exceptions.json,
-// added by `pnpm add-exception`, farnost-create-porad-bohosluzeb skill), so the next-mass countdown is right before
+// added by `pnpm add-exception`, farnost-create-vyjimka skill), so the next-mass countdown is right before
 // that week's ohlášky arrive. Each replaces its whole day (`services: []` cancels it); `scheduleExceptions()` puts
 // them after the sheets' days, and `pnpm stage porad … --record` removes the ones a new sheet covers. Checked on
 // import, so a broken file fails the build naming the field.
