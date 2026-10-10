@@ -4,7 +4,7 @@ import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 import { readEvents, readMonth } from "@/content/news";
 import { addAktualita } from "../news/add-aktualita";
-import { labelSuffix, stageAktualita } from "./aktualita";
+import { fileRev, labelSuffix, stageAktualita, withAttachment } from "./aktualita";
 import { POSTER_WIDTH } from "./images";
 import { useStageFixture } from "../test-helpers";
 
@@ -15,6 +15,25 @@ describe("labelSuffix", () => {
     expect(labelSuffix("Mapka trasy")).toBe("mapka-trasy");
     expect(labelSuffix("Petrklíč 1/2020")).toBe("petrklic-1-2020");
     expect(() => labelSuffix("–")).toThrow('the label "–" has no letters or digits');
+  });
+});
+
+describe("fileRev", () => {
+  it("reads the rev of a corrected file", () => {
+    expect(fileRev("/uploads/aktuality/hody-2026-plakat.pdf")).toBeUndefined();
+    expect(fileRev("/uploads/aktuality/hody-2026-plakat-r2.pdf")).toBe(2);
+    expect(fileRev("/uploads/aktuality/hody-2026-plakat-r12.webp")).toBe(12);
+  });
+});
+
+describe("withAttachment", () => {
+  const plakat = { label: "Plakát", file: "/uploads/aktuality/a-plakat.pdf" };
+  const program = { label: "Program", file: "/uploads/aktuality/a-program.pdf" };
+  it("replaces the attachment with the same label, else adds it", () => {
+    const corrected = { label: "Plakát", file: "/uploads/aktuality/a-plakat-r2.pdf" };
+    expect(withAttachment([plakat, program], corrected)).toEqual([corrected, program]);
+    expect(withAttachment([plakat], program)).toEqual([plakat, program]);
+    expect(withAttachment([], plakat)).toEqual([plakat]);
   });
 });
 
@@ -179,5 +198,76 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
       }),
     ).rejects.toThrow("cannot pin test-stare-2020: it ended on 2020-10-20");
     expect(existsSync(uploaded())).toBe(false);
+  });
+
+  describe("with corrected", () => {
+    const staged = {
+      ...record,
+      poster: { src: "/uploads/aktuality/test-hody-2026-plakat.webp", alt: "Plakát: Hody 20. října" },
+    };
+    const add = async () => {
+      const source = await poster();
+      await stageAktualita(env, { source, id: "test-hody-2026", label: "Plakát", record: staged });
+    };
+    const added = () => readEvents(env.newsDir).find((e) => e.id === "test-hody-2026");
+
+    it("refuses an aktualita that is not on the site", async () => {
+      const source = await poster();
+      await expect(
+        stageAktualita(env, { source, id: "test-nic-2026", label: "Plakát", corrected: true, check: true }),
+      ).rejects.toThrow("there is no aktualita test-nic-2026: --corrected is for one already on the site");
+    });
+
+    it("replaces the staged file before the release, keeping the poster's alt", async () => {
+      await add();
+      const other = await poster("opraveny.jpg", 900);
+      const options = { source: other, id: "test-hody-2026", label: "Plakát", corrected: true };
+      expect((await stageAktualita(env, { ...options, check: true })).lines).toEqual([
+        "Would replace the record in src/content/news/2026/10.json",
+        "Changed: attachments",
+        "Would stage uploads/aktuality/test-hody-2026-plakat.jpg and .webp",
+      ]);
+      const { lines, written, event } = await stageAktualita(env, options);
+      expect(lines.slice(1)).toEqual(["Replaced the record in src/content/news/2026/10.json", "Changed: attachments"]);
+      expect(written).toEqual(["2026/10.json"]);
+      expect(event?.id).toBe("test-hody-2026");
+      expect(readFileSync(uploaded("aktuality", "test-hody-2026-plakat.jpg"))).toEqual(
+        readFileSync(join(env.home, "Downloads", other)),
+      );
+      expect(added()?.poster).toEqual(staged.poster);
+      expect(added()?.attachments).toEqual([
+        { label: "Plakát", file: "/uploads/aktuality/test-hody-2026-plakat.jpg", size: expect.any(Number) },
+      ]);
+    });
+
+    it("names the file -r2 once it is on the server, then -r3", async () => {
+      await add();
+      fetchMock.mockImplementation(async (url: string) => new Response(null, { status: /-r\d/.test(url) ? 404 : 200 }));
+      const source = await poster("opraveny.jpg", 900);
+      const options = { source, id: "test-hody-2026", label: "Plakát", corrected: true };
+      expect((await stageAktualita(env, options)).lines[0]).toBe(
+        "Staged uploads/aktuality/test-hody-2026-plakat-r2.jpg and .webp",
+      );
+      expect(added()?.poster?.src).toBe("/uploads/aktuality/test-hody-2026-plakat-r2.webp");
+      fetchMock.mockImplementation(async (url: string) => new Response(null, { status: /-r3/.test(url) ? 404 : 200 }));
+      expect((await stageAktualita(env, options)).lines[0]).toBe(
+        "Staged uploads/aktuality/test-hody-2026-plakat-r3.jpg and .webp",
+      );
+    });
+
+    it("adds a file with a new label and takes the corrected record", async () => {
+      await add();
+      const program = download("program.mp3", "x");
+      const { lines } = await stageAktualita(env, {
+        source: program,
+        id: "test-hody-2026",
+        label: "Záznam",
+        corrected: true,
+        record: { ...added(), time: "18:00" },
+      });
+      expect(lines).toContain("Changed: attachments, time");
+      expect(added()?.attachments?.map((a) => a.label)).toEqual(["Plakát", "Záznam"]);
+      expect(added()?.published).toBeDefined();
+    });
   });
 });

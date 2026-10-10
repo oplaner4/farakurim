@@ -9,7 +9,8 @@
 // `"pinned": true` takes the pin from the record pinned before (scripts/lib/news/pin-aktualita.ts), named in the output.
 // Then it checks the event in the Události calendar (scripts/lib/news/aktualita-calendar.ts).
 // `pnpm stage aktualita … --record <file>` (scripts/lib/stage/command.ts) adds the staged poster and attachments and
-// calls addAktualita(), formatAndTest() and the calendar check itself.
+// calls addAktualita(), formatAndTest() and the calendar check itself. A record already there is corrected with
+// `pnpm replace-aktualita` (scripts/lib/news/replace-aktualita.ts).
 
 import { readFileSync } from "node:fs";
 import { parseArgs } from "node:util";
@@ -45,7 +46,9 @@ export function addAktualita(newsDir: string, input: unknown, { check = false, n
   // Reads and checks every month file, so a broken one stops the script before it writes.
   const months = readMonths(newsDir);
   if ([...months.values()].some((list) => list.some((e) => e.id === record.id))) {
-    throw new Error(`id ${record.id} is already taken`);
+    throw new Error(
+      `id ${record.id} is already taken: to correct that aktualita, use pnpm replace-aktualita (or pnpm stage aktualita --corrected for a file)`,
+    );
   }
   const target = monthFile(record.start);
   const created = !months.has(target);

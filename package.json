@@ -13,6 +13,7 @@
     "stage": "tsx scripts/stage.ts",
     "add-aktualita": "tsx scripts/add-aktualita.ts",
     "add-album": "tsx scripts/add-album.ts",
+    "replace-aktualita": "tsx scripts/replace-aktualita.ts",
     "pin-aktualita": "tsx scripts/pin-aktualita.ts",
     "add-exception": "tsx scripts/add-exception.ts",
     "aktualita-calendar": "tsx scripts/aktualita-calendar.ts",

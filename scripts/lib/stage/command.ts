@@ -7,11 +7,14 @@
 // the staging they share in core.ts.
 //
 // Usage: pnpm stage <command> ... [--check]
-//   aktualita <source> <id> <label> [--title "<title>"] [--poster | --no-poster] [--record <record.json>]
+//   aktualita <source> <id> <label> [--title "<title>"] [--poster | --no-poster] [--corrected] [--record <record.json>]
 //       uploads/aktuality/<id>-<label in ASCII>.<ext>, plus .webp (page 1 / scaled image) for an image or PDF
 //       unless --no-poster; prints the `poster` and `attachments` lines. --record adds them to the confirmed
 //       NewsEvent in the JSON file and adds it to src/content/news/ (scripts/lib/news/add-aktualita.ts; with --check it only
 //       validates the record). A pinned record takes the pin from the record pinned before (named in the output).
+//       --corrected stages a corrected or added file of an aktualita already there and replaces its record (the
+//       --record, else the one on the site) with the file in it: in the next -r<rev> once the file is on the server,
+//       else under its name.
 //   porad <pdf> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected] [--record <record.json>]
 //       reads the week from the heading ("od 4. 10. 2026 do 11. 10. 2026"), stages
 //       uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-r<rev>].pdf and adds the confirmed sheet (--record:
@@ -40,7 +43,7 @@ import { defaultEnv, MAX_MB, type StageEnv } from "./core";
 import { stagePetrklic } from "./petrklic";
 import { stagePorad } from "./porad";
 
-const USAGE = `Usage: pnpm stage aktualita <source> <id> <label> [--title "<title>"] [--poster | --no-poster] [--record <json>] [--check]
+const USAGE = `Usage: pnpm stage aktualita <source> <id> <label> [--title "<title>"] [--poster | --no-poster] [--corrected] [--record <json>] [--check]
        pnpm stage porad <pdf> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected] [--record <json>] [--check]
        pnpm stage petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--corrected] [--check]
 Largest source file: ${Object.entries(MAX_MB)
@@ -59,7 +62,7 @@ const poradWeekSchema = z
 
 /** Each command's positional arguments and options. */
 const COMMANDS: Record<string, { positionals: number; options: string[] }> = {
-  aktualita: { positionals: 3, options: ["title", "poster", "record", "check"] },
+  aktualita: { positionals: 3, options: ["title", "poster", "corrected", "record", "check"] },
   porad: { positionals: 1, options: ["from", "to", "corrected", "record", "check"] },
   petrklic: { positionals: 1, options: ["year", "number", "note", "corrected", "check"] },
 };
@@ -102,6 +105,7 @@ export async function runStage(
       label,
       title: values.title,
       poster: values.poster,
+      corrected: values.corrected,
       record,
       check,
     });

@@ -85,14 +85,15 @@ they show the build's verse. The "Zdroj: www.vira.cz" link is vira.cz's conditio
 
 Content tooling, used by the content skills (see [Content](#content)):
 
-| Command                                                         | What it does                                                                                                                                    |
-| --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm stage aktualita\|porad\|petrklic … [--check]`             | Stage a file in `uploads/`; petrklic adds the issue to `petrklic.json`, the others print or add a `--record`; `--corrected` for a corrected PDF |
-| `pnpm add-aktualita <record.json> [--check]`                    | Add an aktualita to its month's JSON file in `src/content/news/`, checked by its schema                                                         |
-| `pnpm pin-aktualita <id> \| --none [--check]`                   | Pin an aktualita for "Doporučujeme" and unpin every other one (`--none`: unpin all); a pinned new record moves the pin itself                   |
-| `pnpm aktualita-calendar <id> [--out <dir>]`                    | Check that the aktualita's Události event links its page; else write the `.ics`                                                                 |
-| `pnpm add-exception <record.json> \| --remove <date> [--check]` | Add a change announced for a day no ohlášky sheet covers to `schedule-exceptions.json` (`--remove`: take it out)                                |
-| `pnpm add-album <album-url> [--write \| --check …]`             | Read a Zonerama album as JSON; `--write` adds it to `gallery.json` and removes the oldest beyond 6, `--check` only says what `--write` would do |
+| Command                                                         | What it does                                                                                                                                     |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `pnpm stage aktualita\|porad\|petrklic … [--check]`             | Stage a file in `uploads/`; petrklic adds the issue to `petrklic.json`, the others print or add a `--record`; `--corrected` for a corrected file |
+| `pnpm add-aktualita <record.json> [--check]`                    | Add an aktualita to its month's JSON file in `src/content/news/`, checked by its schema                                                          |
+| `pnpm replace-aktualita <record.json> [--check]`                | Correct the aktualita with the record's id, keeping its `published` and pin; a new start month moves it to that month's file                     |
+| `pnpm pin-aktualita <id> \| --none [--check]`                   | Pin an aktualita for "Doporučujeme" and unpin every other one (`--none`: unpin all); a pinned new record moves the pin itself                    |
+| `pnpm aktualita-calendar <id> [--out <dir>]`                    | Check that the aktualita's Události event links its page; else write the `.ics`                                                                  |
+| `pnpm add-exception <record.json> \| --remove <date> [--check]` | Add a change announced for a day no ohlášky sheet covers to `schedule-exceptions.json` (`--remove`: take it out)                                 |
+| `pnpm add-album <album-url> [--write \| --check …]`             | Read a Zonerama album as JSON; `--write` adds it to `gallery.json` and removes the oldest beyond 6, `--check` only says what `--write` would do  |
 
 Before you commit, run the full check and compare the change with the mockups: see
 [docs/conventions.md](docs/conventions.md), which also holds the language, stack, static-export and commit conventions.
