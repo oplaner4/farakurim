@@ -19,7 +19,8 @@ It must be an album: `https://eu.zonerama.com/FarnostKurim/Album/<albumId>`. The
 pnpm add-album "https://eu.zonerama.com/FarnostKurim/Album/<albumId>"
 ```
 
-It prints JSON with the proposed `id` (ASCII kebab-case from the title), the title (sentence case, without
+It prints JSON with the proposed `id` (ASCII kebab-case from the title, ending with the year: `medovy-den-2026`, so
+next year's album never takes over this one's links), the title (sentence case, without
 Zonerama's `YYYY_MM_DD` prefix), the date from that prefix, and the photo counts. It picks up to 15 photos of the
 album's most common landscape aspect ratio, because the strips crop every photo to 4:3: one shape keeps the crops
 consistent, and portraits would lose most of the picture. `total` / `inRatio` / `photos` say how many photos the

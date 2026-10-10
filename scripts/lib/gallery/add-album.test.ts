@@ -6,6 +6,7 @@ import type { Album } from "@/content/types/gallery";
 import { MAX_ALBUMS } from "@/lib/gallery/albums";
 import {
   addAlbum,
+  albumId,
   albumLines,
   albumNumberFromUrl,
   parseCommand,
@@ -120,11 +121,26 @@ describe("photoUrl", () => {
   });
 });
 
+describe("albumId", () => {
+  it("adds the album's year to the title's slug", () => {
+    expect(albumId("Medový den", "2026-09-20")).toBe("medovy-den-2026");
+  });
+
+  it("keeps a year the title already has once", () => {
+    expect(albumId("Tábor 2026", "2026-07-12")).toBe("tabor-2026");
+    expect(albumId("Ples 2026 – 2. část", "2026-02-07")).toBe("ples-2026-2-cast");
+  });
+
+  it("adds the year when the title holds another one", () => {
+    expect(albumId("Tábor 2025", "2026-01-10")).toBe("tabor-2025-2026");
+  });
+});
+
 describe("readAlbumPage", () => {
   it("proposes the album and builds its record", () => {
     const { proposal, album } = readAlbumPage(page("2026_09_27 pěš&#237; pouť na Vranov"), "16583642");
     expect(proposal).toEqual({
-      id: "pesi-pout-na-vranov",
+      id: "pesi-pout-na-vranov-2026",
       title: "Pěší pouť na Vranov",
       date: "2026-09-27",
       ratio: 1.5,
@@ -133,7 +149,7 @@ describe("readAlbumPage", () => {
       photos: 4,
     });
     expect(album).toEqual({
-      id: "pesi-pout-na-vranov",
+      id: "pesi-pout-na-vranov-2026",
       title: "Pěší pouť na Vranov",
       date: "2026-09-27",
       href: "https://www.zonerama.com/FarnostKurim/Album/16583642",
@@ -144,7 +160,7 @@ describe("readAlbumPage", () => {
 
   it("takes the overrides, the id from the overridden title", () => {
     const page1 = page("2026_09_27 pěš&#237; pouť na Vranov");
-    expect(readAlbumPage(page1, "1", { title: "Pouť na Vranov" }).proposal.id).toBe("pout-na-vranov");
+    expect(readAlbumPage(page1, "1", { title: "Pouť na Vranov" }).proposal.id).toBe("pout-na-vranov-2026");
     expect(readAlbumPage(page1, "1", { id: "vranov", date: "2026-09-28" }).album).toMatchObject({
       id: "vranov",
       title: "Pěší pouť na Vranov",
@@ -158,7 +174,11 @@ describe("readAlbumPage", () => {
       date: "",
       id: "",
     });
-    expect(proposal).toMatchObject({ id: "pesi-pout-na-vranov", title: "Pěší pouť na Vranov", date: "2026-09-27" });
+    expect(proposal).toMatchObject({
+      id: "pesi-pout-na-vranov-2026",
+      title: "Pěší pouť na Vranov",
+      date: "2026-09-27",
+    });
   });
 
   it("takes at most 15 photos", () => {

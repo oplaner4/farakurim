@@ -1,6 +1,6 @@
 // Adds a Zonerama album of the parish to the Fotogalerie (farnost-create-album skill, design/DESIGN.md §19.2).
 // Without --write it prints the proposal as JSON to confirm with the user: the title (first letter upper-cased,
-// without Zonerama's "YYYY_MM_DD" prefix), the date from that prefix, the proposed id, the chosen aspect ratio and the
+// without Zonerama's "YYYY_MM_DD" prefix), the date from that prefix, the proposed id (the title's slug with the year), the chosen aspect ratio and the
 // photo counts. With --write it adds the album (up to MAX_PHOTOS photos as { small, large } Zonerama URLs) to
 // src/content/gallery.json, newest first, and removes the albums beyond MAX_ALBUMS; Prettier formats the file, then
 // the gallery test runs. --check does the same without writing and prints what --write would do. --title, --date
@@ -114,6 +114,14 @@ export function photoUrl(item: ZoneramaItem, width: number): string {
   return item.image.replace("{width}", String(width)).replace("{height}", String(height));
 }
 
+/** The proposed id: the title's slug with the album's year, so a yearly event never reuses last year's anchors
+ * ("Medový den", 2026 → "medovy-den-2026"); a title with the year already in it keeps it once. */
+export function albumId(title: string, date: string): string {
+  const base = slug(title);
+  const year = date.slice(0, 4);
+  return base.split("-").includes(year) ? base : [base, year].filter(Boolean).join("-");
+}
+
 /** What the command prints without --write, for the user to confirm. */
 export type Proposal = {
   id: string;
@@ -135,7 +143,7 @@ export function readAlbumPage(
   // `||`, not `??`: an empty override counts as not given.
   const title = overrides.title || proposed.title;
   const date = overrides.date || proposed.date;
-  const id = overrides.id || slug(title);
+  const id = overrides.id || albumId(title, date);
   const items = photoItems(page);
   const { ratio, group } = selectPhotos(items);
   const photos: AlbumPhoto[] = group
