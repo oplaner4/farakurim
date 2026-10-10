@@ -41,8 +41,7 @@ test stops it: fix the cause, do not edit `pinned` around it.
 
 ## 4. Publish
 
-Follow **`farnost-publish-content`**, with a commit like `feat(content): recommend the Pokoj srdce aktualita` or
-`feat(content): remove the Doporučujeme aktualita`. It is a content-only change: no browser check.
+Follow **`farnost-publish-content`**.
 
 ## Common mistakes
 

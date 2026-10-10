@@ -39,7 +39,7 @@ whole; tell the user the old folder stays on the server.
 
 ## 4. Publish
 
-Follow **`farnost-publish-content`**, with a commit like `fix(content): correct the Petrklíč 2/2026 PDF`.
+Follow **`farnost-publish-content`**.
 
 ## Common mistakes
 

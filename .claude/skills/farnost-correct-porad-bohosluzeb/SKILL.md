@@ -52,7 +52,7 @@ stores the sheet's `rev`.
 
 ## 5. Publish
 
-Follow **`farnost-publish-content`**, with a commit like `fix(content): correct the ohlášky of 4. 10. 2026`. Remind
+Follow **`farnost-publish-content`**. Remind
 the user to mirror changed or cancelled services in the "Mše, adorace" Google Calendar, which the Kalendář reads.
 
 ## Common mistakes

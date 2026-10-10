@@ -16,8 +16,13 @@ The create skills stage them in `uploads/` (git-ignored) with `pnpm stage`, and 
 
 ## 1. Commit
 
-Use the `commit` skill with the `content` scope, e.g. `feat(content): add the Hody v České aktualita`,
-`feat(content): publish the ohlášky for 4.–11. 10. 2026`, `feat(content): add the Medový den album`.
+Use the `commit` skill with the `content` scope, `feat` for new content and `fix` for a correction:
+
+- `feat(content): add the Hody v České aktualita`
+- `feat(content): publish the ohlášky for 4.–11. 10. 2026`
+- `feat(content): cancel the mass on 25. 10. 2026`
+- `fix(content): correct the Petrklíč 2/2026 PDF`
+
 Never stage `uploads/` or `out/`.
 
 ## 2. Deploy

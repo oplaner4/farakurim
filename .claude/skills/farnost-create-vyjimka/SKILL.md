@@ -6,8 +6,8 @@ description: Add a výjimka (a change to the regular mass schedule for a day the
 # Create a výjimka
 
 A výjimka keeps the next-mass countdown right before that week's ohlášky arrive: for its date it **replaces the
-whole day** of the regular schedule (`regularServices` in `src/content/masses.ts`). Once the week's ohlášky are
-staged, their sheet takes over the day and the výjimka is removed by itself.
+whole day** of the regular schedule. Once the week's ohlášky are staged, their sheet takes over the day and the
+výjimka is removed by itself.
 
 ## 1. Get the change
 
@@ -17,8 +17,7 @@ time), and ask the user before adding a výjimka they did not ask for.
 ## 2. Write the record
 
 Write `exception.json` in the session's scratchpad (never in the repo). List **every** public service of that date
-at the parish churches, as it will be: start from the day's regular services (mind `rule`: the first Friday or
-Saturday of the month differs) and apply the change.
+at the parish churches, as it will be.
 
 | Field      | How to fill it                                                                                                         |
 | ---------- | ---------------------------------------------------------------------------------------------------------------------- |
@@ -56,12 +55,11 @@ It writes the výjimka in date order and runs the ohlášky tests. A withdrawn c
 
 ## 5. Publish
 
-Follow **`farnost-publish-content`**, with a commit like `feat(content): cancel the mass on 25. 10. 2026`. Remind
+Follow **`farnost-publish-content`**. Remind
 the user to make the same change in the "Mše, adorace" Google Calendar, which the Kalendář reads.
 
 ## Common mistakes
 
 - Listing only the changed mass: the day's other services then disappear from the countdown.
-- Forgetting the first-Friday or first-Saturday rule when copying the day's regular services.
 - Adding a výjimka for a date the ohlášky cover: the week's sheet drives those days, so correct the sheet.
 - Editing `src/content/schedule-exceptions.json` by hand instead of `pnpm add-exception`.
