@@ -16,7 +16,7 @@ OUT = root / "out"
 UPLOADS = root / "uploads"
 PREFIX = "/uploads/"
 TOUR = "/virtualni_prohlidka/"
-LIVE = "https://farakurim.cz"
+LIVE = "https://farakurim.cz"  # SITE_URL in src/content/site.ts
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):

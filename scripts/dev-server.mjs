@@ -14,7 +14,7 @@ const PREFIX = "/uploads/";
 const TOUR = "/virtualni_prohlidka/";
 const FAVICON = "/favicon.ico";
 const ICON = "/icon.svg";
-const LIVE = "https://farakurim.cz";
+const LIVE = "https://farakurim.cz"; // SITE_URL (src/content/site.ts), which plain Node cannot import
 const port = Number(process.env.PORT) || 3000;
 const hostname = "localhost";
 

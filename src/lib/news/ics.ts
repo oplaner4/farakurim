@@ -1,6 +1,7 @@
 import { tz } from "@date-fns/tz";
 import { addDays, format } from "date-fns";
 import { createEvents, type DateArray, type DateTime, type EventAttributes } from "ics";
+import { SITE_URL } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import type { ClockTime, IsoDate } from "@/content/types/shared";
 import { eventMeetings, type Meeting } from "./events";
@@ -8,6 +9,8 @@ import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
 
 // "Přidat do kalendáře" (design/DESIGN.md §13.2): one .ics file per event, generated at build time.
 // Times are Prague wall-clock and written in UTC, so no VTIMEZONE block is needed.
+
+const SITE_HOST = new URL(SITE_URL).hostname;
 
 /** "9:30" or "18:00–20:30"; other time texts ("po mši") make the event all-day. */
 const CLOCK = /^(\d{1,2}:\d{2})(?:\s*[–-]\s*(\d{1,2}:\d{2}))?$/;
@@ -53,10 +56,10 @@ function occurrences(event: NewsEvent): (Timing & { uid: string })[] {
   if (event.sessions) {
     return eventMeetings(event).map((meeting) => ({
       ...timing(meeting),
-      uid: `${event.id}-${meeting.start}@farakurim.cz`,
+      uid: `${event.id}-${meeting.start}@${SITE_HOST}`,
     }));
   }
-  const uid = `${event.id}@farakurim.cz`;
+  const uid = `${event.id}@${SITE_HOST}`;
   if (longTerm && longTerm !== true) {
     const until = utcStamp(pragueDateTime(end, "23:59"));
     return [
@@ -82,7 +85,7 @@ export function eventCalendar(event: NewsEvent, url: string): string {
         uid,
       }) as EventAttributes,
   );
-  const { error, value } = createEvents(attributes, { productId: "farakurim.cz" });
+  const { error, value } = createEvents(attributes, { productId: SITE_HOST });
   if (error || !value) throw error ?? new Error(`No calendar for ${event.id}`);
   return value;
 }
