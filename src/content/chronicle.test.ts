@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { chronicle } from "./chronicle";
-import { duplicates, isSorted } from "./test-helpers";
+import { duplicates, isSorted } from "@/lib/test/content-checks";
 
 describe("Kronika farnosti (chronicle.ts)", () => {
   const entries = chronicle.flatMap((era) => era.entries);

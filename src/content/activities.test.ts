@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { activityGroups } from "./activities";
-import { duplicates } from "./test-helpers";
+import { duplicates } from "@/lib/test/content-checks";
 
 describe("Seznam aktivit (activities.ts)", () => {
   it("names each activity once per group", () => {

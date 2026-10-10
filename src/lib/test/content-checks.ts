@@ -1,7 +1,6 @@
 import { isMatch } from "date-fns";
-import { places } from "./masses";
 
-// Shared checks of the content tests (`<domain>.test.ts` beside each content file). They guard the content the
+// Shared checks of the content tests (`<domain>.test.ts` beside each content file in src/content/). They guard the content the
 // farnost-create-* skills write from posters and PDFs: a typo there does not break the build, it quietly shows the
 // wrong thing (an event without its time, a missing poster, a misplaced album).
 
@@ -12,7 +11,6 @@ export const minutes = (time: string) => {
   const [h, m] = time.split(":").map(Number);
   return h * 60 + m;
 };
-export const isPlaceId = (place: string) => Object.hasOwn(places, place);
 export const duplicates = (values: unknown[]) => values.filter((v, i) => values.indexOf(v) !== i);
 /** Every adjacent pair is in order (`ordered(a, b)` true), so the list is sorted. */
 export const isSorted = <T>(list: T[], ordered: (a: T, b: T) => boolean) =>

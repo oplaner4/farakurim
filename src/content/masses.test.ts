@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { parishChurches, regularServices } from "./masses";
+import { parishChurches, places, regularServices } from "./masses";
 import { parish } from "./site";
-import { isClock, isPlaceId } from "./test-helpers";
+import { isClock } from "@/lib/test/content-checks";
 
 describe("Pravidelné bohoslužby (masses.ts)", () => {
   it("has a valid regular schedule", () => {
@@ -9,7 +9,7 @@ describe("Pravidelné bohoslužby (masses.ts)", () => {
       expect(s.weekday, s.time).toBeGreaterThanOrEqual(0);
       expect(s.weekday).toBeLessThanOrEqual(6);
       expect(isClock(s.time), s.time).toBe(true);
-      expect(isPlaceId(s.place), s.place).toBe(true);
+      expect(Object.hasOwn(places, s.place), s.place).toBe(true);
     }
   });
 

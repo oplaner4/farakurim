@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { groupPages } from "./groups";
 import { links } from "./site";
-import { duplicates, UPLOAD } from "./test-helpers";
+import { duplicates, UPLOAD } from "@/lib/test/content-checks";
 
 describe("Stránky skupin (groups.ts)", () => {
   it("links the group pages' files root-relative under /uploads/", () => {

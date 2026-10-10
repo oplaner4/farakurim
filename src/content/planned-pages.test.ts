@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { groupPages } from "./groups";
 import { plannedPages } from "./planned-pages";
 import { links, navGroups } from "./site";
-import { duplicates } from "./test-helpers";
+import { duplicates } from "@/lib/test/content-checks";
 
 describe("Stránky v přípravě (planned-pages.ts)", () => {
   it("gives each placeholder one root-relative path with a trailing slash", () => {

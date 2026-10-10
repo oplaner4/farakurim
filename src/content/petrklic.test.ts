@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { petrklicIssues } from "./petrklic";
-import { duplicates, isSorted, UPLOAD } from "./test-helpers";
+import { duplicates, isSorted, UPLOAD } from "@/lib/test/content-checks";
 
 describe("Petrklíč (petrklic.ts)", () => {
   it("has unique IDs named after the year and number", () => {

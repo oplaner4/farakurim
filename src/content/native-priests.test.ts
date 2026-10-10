@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { nativePriests } from "./native-priests";
-import { duplicates, localHrefs, UPLOAD } from "./test-helpers";
+import { duplicates, localHrefs, UPLOAD } from "@/lib/test/content-checks";
 
 describe("Kněží – rodáci (native-priests.ts)", () => {
   it("names each priest once and links files under /uploads/", () => {

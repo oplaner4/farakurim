@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { pastProjects } from "./support-archive";
-import { duplicates, isSorted } from "./test-helpers";
+import { duplicates, isSorted } from "@/lib/test/content-checks";
 
 describe("Starší projekty (support-archive.ts)", () => {
   it("lists each project once, its years newest first", () => {

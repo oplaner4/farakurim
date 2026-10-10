@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { religiousEducation } from "./religious-education";
-import { duplicates, UPLOAD } from "./test-helpers";
+import { duplicates, UPLOAD } from "@/lib/test/content-checks";
 
 describe("Výuka náboženství (religious-education.ts)", () => {
   const { schools, schoolYear, applicationForm, rules } = religiousEducation;

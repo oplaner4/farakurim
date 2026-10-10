@@ -29,6 +29,7 @@ rada and Kněží – rodáci; content in `parish-council.ts` and `native-priest
   `czech.ts` (Czech grammar and formats), `build-time.ts` (`BUILD_TIME`, `BUILD_YEAR`), `links.ts`, `query-params.ts`,
   `planned-pages.ts` (the placeholder routes), `structured-data.ts` (JSON-LD) and `analytics.ts` (Matomo commands). `lib` may import `@/content/site` for URLs and
   `@/content/types/*` for types, never the content data itself (tests may, to check real records).
+  `lib/test/content-checks.ts` holds the checks the content tests share (dates, times, order, `/uploads/` links).
 - When a `lib` file grows two independent topics, split it by topic (as `news/events.ts` and `news/archive.ts`)
   rather than letting it pass ~300 lines.
 - **`src/server`** files start with `import "server-only"` and are named after their domain: `server/calendar.ts`

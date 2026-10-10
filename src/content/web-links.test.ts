@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { duplicates } from "./test-helpers";
+import { duplicates } from "@/lib/test/content-checks";
 import { linkGroups } from "./web-links";
 
 describe("Odkazy (web-links.ts)", () => {

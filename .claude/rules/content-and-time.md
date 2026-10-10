@@ -22,7 +22,7 @@ build-time next mass.
 - All content lives in `src/content/` (hand-edited data only; build-time fetches and values derived from content live in `src/server/`, `structure.md`), typed by `src/content/types/` (one file per domain, `structure.md`). Components and `src/lib`
   only depend on those types, so a real API or CMS can replace the files later without touching the UI.
   A `<domain>.test.ts` beside each content file (`news/news.test.ts` for Aktuality, shared checks in
-  `test-helpers.ts`) checks the data itself (valid dates and times, unique IDs, order, `/uploads/` links); extend it when a content type gains a rule a typo could break.
+  `src/lib/test/content-checks.ts`) checks the data itself (valid dates and times, unique IDs, order, `/uploads/` links); extend it when a content type gains a rule a typo could break.
   The Aktuality are JSON month files (`news/<year>/<MM>.json`) that `news/index.ts` reads and checks with
   `newsEventSchema` on import.
   Aktuality, ohlášky and albums are added with the `farnost-create-*` skills (CLAUDE.md "Managing content");

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { councilMeetings, parishCouncil } from "./parish-council";
-import { duplicates, isIsoDate, isSorted, localHrefs, UPLOAD } from "./test-helpers";
+import { duplicates, isIsoDate, isSorted, localHrefs, UPLOAD } from "@/lib/test/content-checks";
 
 describe("Pastorační rada (parish-council.ts)", () => {
   it("has a valid term and each member once", () => {

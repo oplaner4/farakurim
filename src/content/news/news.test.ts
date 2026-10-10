@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { duplicates, isSorted } from "@/content/test-helpers";
+import { duplicates, isSorted } from "@/lib/test/content-checks";
 import { events, monthFiles, readEvents, readMonth } from "./index";
 
 const newsDir = dirname(fileURLToPath(import.meta.url));

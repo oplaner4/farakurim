@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { albums } from "./gallery";
-import { duplicates, isIsoDate, isSorted } from "./test-helpers";
+import { duplicates, isIsoDate, isSorted } from "@/lib/test/content-checks";
 
 describe("Fotogalerie (gallery.ts)", () => {
   it("has unique IDs and lists the albums newest first", () => {

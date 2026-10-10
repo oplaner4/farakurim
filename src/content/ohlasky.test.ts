@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { sheetOrderProblems } from "@/lib/services/service-sheet";
 import { events } from "@/content/news";
-import { isSorted } from "@/content/test-helpers";
+import { isSorted } from "@/lib/test/content-checks";
 import { laterExceptions, serviceSheets } from "@/server/ohlasky";
 
 vi.mock("server-only", () => ({}));
