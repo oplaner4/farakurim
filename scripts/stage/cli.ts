@@ -12,12 +12,13 @@
 //       unless --no-poster; prints the `poster` and `attachments` lines. --record adds them to the confirmed
 //       NewsEvent in the JSON file and adds it to src/content/news/ (scripts/add-aktualita.ts; with --check it only
 //       validates the record).
-//   porad <pdf> [--from YYYY-MM-DD --to YYYY-MM-DD] [--rev N] [--record <record.json>]
+//   porad <pdf> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected] [--record <record.json>]
 //       reads the week from the heading ("od 4. 10. 2026 do 11. 10. 2026"), stages
-//       uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-<N>].pdf; prints pdfUrl, the week and its days.
-//       --rev 2 names a corrected PDF of a week already on the server. --record adds the confirmed sheet (days and
-//       announcements as JSON) to src/content/ohlasky.json and removes the outdated sheets and the covered
-//       laterExceptions (scripts/add-ohlasky.ts; with --check it only validates the record).
+//       uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-r<rev>].pdf; prints the week and its days.
+//       --record adds the confirmed sheet (days and announcements as JSON) to src/content/ohlasky.json and removes
+//       the outdated sheets and the covered laterExceptions (scripts/add-ohlasky.ts; with --check it only validates
+//       the record). --corrected (with --record) stages a corrected PDF of a week already there, in the next
+//       -r<rev> once the week is on the server, else under its name.
 //   petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--corrected]
 //       checks the issue, stages uploads/petrklic/<id>/petrklic-<id>.pdf with cover.webp and pages/ and adds the
 //       issue to src/content/petrklic.json (scripts/add-petrklic.ts; with --check it only validates). --corrected
@@ -40,7 +41,7 @@ import { stagePetrklic } from "./petrklic";
 import { stagePorad } from "./porad";
 
 const USAGE = `Usage: pnpm stage aktualita <source> <id> <label> [--title "<title>"] [--poster | --no-poster] [--record <json>] [--check]
-       pnpm stage porad <pdf> [--from YYYY-MM-DD --to YYYY-MM-DD] [--rev N] [--record <json>] [--check]
+       pnpm stage porad <pdf> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected] [--record <json>] [--check]
        pnpm stage petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--corrected] [--check]
 Largest source file: ${Object.entries(MAX_MB)
   .map(([command, mb]) => `${command} ${mb} MB`)
@@ -55,13 +56,11 @@ const petrklicArgsSchema = z.object({ year: digits, number: digits });
 const poradWeekSchema = z
   .object({ from: z.iso.date().optional(), to: z.iso.date().optional() })
   .refine(({ from, to }) => (from === undefined) === (to === undefined));
-/** The --rev of `stage porad`: a corrected PDF of a week already on the server is number 2 or later. */
-const revSchema = digits.pipe(z.int().min(2)).optional();
 
 /** Each command's positional arguments and options. */
 const COMMANDS: Record<string, { positionals: number; options: string[] }> = {
   aktualita: { positionals: 3, options: ["title", "poster", "record", "check"] },
-  porad: { positionals: 1, options: ["from", "to", "rev", "record", "check"] },
+  porad: { positionals: 1, options: ["from", "to", "corrected", "record", "check"] },
   petrklic: { positionals: 1, options: ["year", "number", "note", "corrected", "check"] },
 };
 
@@ -80,7 +79,6 @@ export async function runCommand(
       record: { type: "string" },
       from: { type: "string" },
       to: { type: "string" },
-      rev: { type: "string" },
       year: { type: "string" },
       number: { type: "string" },
       note: { type: "string" },
@@ -115,13 +113,11 @@ export async function runCommand(
     if (!week.success) {
       throw new Error(`wrong arguments: --from and --to are YYYY-MM-DD dates, both or neither\n${USAGE}`);
     }
-    const rev = revSchema.safeParse(values.rev);
-    if (!rev.success) throw new Error("--rev is a number from 2");
     const { lines, written } = await stagePorad(env, {
       source: args[0],
       validFrom: week.data.from,
       validTo: week.data.to,
-      rev: rev.data,
+      corrected: values.corrected,
       record,
       check,
     });

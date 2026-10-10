@@ -8,7 +8,7 @@ import { existsSync, rmSync } from "node:fs";
 import { dirname, extname, join } from "node:path";
 import { issueFolder, issueId } from "@/lib/petrklic/issues";
 import { addPetrklic, petrklicLines, readPetrklic } from "../add-petrklic";
-import { MAX_MB, onServer, sourceFile, stage, stagedLine, type StageEnv } from "./core";
+import { correctedHint, correctedRev, MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
 import { pdfPageCount, renderPetrklic } from "./images";
 
 export interface PetrklicOptions {
@@ -25,16 +25,6 @@ export interface PetrklicOptions {
 const pdfPath = (id: string, rev?: number) => `petrklic/${issueFolder({ id, rev })}/petrklic-${id}.pdf`;
 
 /**
- * The rev of a corrected PDF of the issue `id`: its current rev while that folder is not on the server yet (it is
- * replaced there), else the next one.
- */
-async function correctedRev(env: StageEnv, id: string): Promise<number | undefined> {
-  const current = readPetrklic(env.petrklicFile).issues.find((issue) => issueId(issue) === id);
-  if (!current) return undefined; // addPetrklic refuses it
-  return (await onServer(env, pdfPath(id, current.rev))) ? (current.rev ?? 1) + 1 : current.rev;
-}
-
-/**
  * Stages a Petrklíč PDF, renders its cover and pages and adds the issue (or, `corrected`, replaces it); returns the
  * lines to print and the file written. The issue is checked before anything is copied.
  */
@@ -44,14 +34,15 @@ export async function stagePetrklic(env: StageEnv, options: PetrklicOptions) {
   if (extname(src).toLowerCase() !== ".pdf") throw new Error("the Petrklíč is a PDF");
   const pageCount = pdfPageCount(src);
   const id = issueId({ year, number, note });
-  const rev = corrected ? await correctedRev(env, id) : undefined;
+  // addPetrklic refuses --corrected for an issue that is not there.
+  const current = corrected ? readPetrklic(env.petrklicFile).issues.find((issue) => issueId(issue) === id) : undefined;
+  const rev = current ? await correctedRev(env, current.rev, (r) => pdfPath(id, r)) : undefined;
   const record = { year, number, ...(note !== undefined && { note }), ...(rev !== undefined && { rev }), pageCount };
   const checked = addPetrklic(env.petrklicFile, record, { check: true, replace: corrected });
   const pdf = pdfPath(id, rev);
   const folder = join(env.uploadsDir, "petrklic", issueFolder({ id, rev }));
   const existed = existsSync(folder);
-  const hint = "this issue is already published; for a corrected PDF pass --corrected";
-  await stage(env, src, pdf, check, hint, corrected);
+  await stage(env, src, pdf, check, correctedHint("this issue"), corrected);
   let result = checked;
   if (!check) {
     try {

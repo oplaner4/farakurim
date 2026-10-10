@@ -78,6 +78,18 @@ export async function onServer(env: StageEnv, rel: string): Promise<boolean> {
 }
 
 /**
+ * The rev of a corrected PDF whose record has `current` (undefined for the first PDF), named uploads/`rel(rev)`:
+ * `current` while that file is not on the server yet (the staged one is replaced), else the next rev
+ * (src/lib/shared/revision.ts).
+ */
+export async function correctedRev(env: StageEnv, current: number | undefined, rel: (rev?: number) => string) {
+  return (await onServer(env, rel(current))) ? (current ?? 1) + 1 : current;
+}
+
+/** The error's hint when a corrected PDF's name is taken on the server. */
+export const correctedHint = (what: string) => `${what} is already published; for a corrected PDF pass --corrected`;
+
+/**
  * Copies `src` to uploads/`rel` unless `check`, after making sure the name is free on the server. Staging the same
  * file again is allowed, and another file only with `replace` (a corrected PDF). Returns the staged path.
  */

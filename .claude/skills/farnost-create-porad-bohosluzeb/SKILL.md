@@ -20,7 +20,7 @@ The user gives at least a file name; without a folder, look in `~/Downloads/`. U
 
 Read the **whole** page: the announcements are the paragraphs below the table.
 
-Get the week and its dates (it refuses a week already on the server; a corrected PDF of it takes `--rev 2`):
+Get the week and its dates (it refuses a week already on the server; a corrected PDF of it takes `--corrected`):
 
 ```sh
 pnpm stage porad "<source>" --check
@@ -29,7 +29,7 @@ pnpm stage porad "<source>" --check
 ## 2. Extract the sheet
 
 Write the confirmed sheet as `record.json` in the session's scratchpad (never in the repo) with `days` and
-`announcements` only: `pdfUrl`, `validFrom` and `validTo` come from the PDF. Rows use the table's fields; a mass row is
+`announcements` only: `validFrom`, `validTo` and `rev` come from the PDF. Rows use the table's fields; a mass row is
 `{ "time", "place", "title": "Mše sv.", "detail", "mass": true }` (example in step 4).
 
 **Week**: the week `--check` printed from the heading (not part of the record): enter every date of it in `days`.
@@ -103,9 +103,11 @@ for a day no sheet covers, where the site shows the regular schedule: tell the u
 
 **Corrections**: never edit a sheet in `src/content/ohlasky.json` by hand.
 
-- Before the release: fix `record.json` and rerun the same command (restaging the identical PDF is allowed, and the
-  sheet of the same week is replaced).
-- After the release: stage the corrected PDF with `--rev 2` (it replaces that week's sheet).
+- A corrected record: fix `record.json` and rerun the same command (restaging the identical PDF is allowed, and the
+  sheet of the same week is replaced). After the release the PDF's name is taken: add `--corrected`.
+- A corrected PDF: rerun the command with `--corrected` and the week's `--record`. Once the week is on the server it
+  stages `…-porad-bohosluzeb-r2.pdf` (then `-r3`, …) and stores the sheet's `rev`; before the release it replaces
+  the staged PDF.
 
 ```json
 {
@@ -143,6 +145,6 @@ adorace" Google Calendar, which the Kalendář reads.
 - `mass: true` on a mass outside the parish churches, or on adoration (that is `service: true`).
 - `service: true` on a funeral, baptism or wedding: personal events never count for the countdown.
 - Publishing placeholder dots from an unfinished PDF.
-- Putting `pdfUrl`, `validFrom` or `validTo` into `record.json`: the script reads them from the PDF.
-- Editing a sheet in `ohlasky.json` by hand instead of rerunning the command with a corrected record (or `--rev 2` after the
-  release).
+- Putting `validFrom`, `validTo` or `rev` into `record.json`: the script reads them from the PDF.
+- Editing a sheet in `ohlasky.json` by hand instead of rerunning the command with a corrected record (with
+  `--corrected` after the release).

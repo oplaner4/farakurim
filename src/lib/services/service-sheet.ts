@@ -5,14 +5,26 @@ import type {
   RegularService,
   ScheduleException,
   ServiceSheet,
+  ServiceSheetRecord,
   SheetDay,
 } from "@/content/types/services";
 import type { IsoDate } from "@/content/types/shared";
 import { plural } from "@/lib/shared/czech";
 import { inPrague, pragueDate, pragueDateTime, pragueWeekday } from "@/lib/shared/prague";
+import { revSuffix } from "@/lib/shared/revision";
 import { servicesOnDate } from "./masses";
 
 // The weekly ohlášky as structured content (design/DESIGN.md §14.5–14.7).
+
+/** The sheet's PDF in /uploads/: "porady_bohosluzeb/2026-10-04-porad-bohosluzeb.pdf", "…-r2.pdf" for a corrected one. */
+export const sheetPdfFile = ({ validFrom, rev }: Pick<ServiceSheet, "validFrom" | "rev">) =>
+  `porady_bohosluzeb/${validFrom}-porad-bohosluzeb${revSuffix(rev)}.pdf`;
+
+/** The full sheet of a stored record: the URL of its PDF. */
+export const toSheet = (record: ServiceSheetRecord): ServiceSheet => ({
+  ...record,
+  pdfUrl: `/uploads/${sheetPdfFile(record)}`,
+});
 
 const isPlaceId = (place: string, places: readonly PlaceId[]): place is PlaceId =>
   (places as readonly string[]).includes(place);

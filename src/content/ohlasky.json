@@ -1,7 +1,6 @@
 {
   "sheets": [
     {
-      "pdfUrl": "/uploads/porady_bohosluzeb/2026-10-04-porad-bohosluzeb.pdf",
       "validFrom": "2026-10-04",
       "validTo": "2026-10-11",
       "days": [
@@ -174,7 +173,6 @@
       ]
     },
     {
-      "pdfUrl": "/uploads/porady_bohosluzeb/2026-10-11-porad-bohosluzeb.pdf",
       "validFrom": "2026-10-11",
       "validTo": "2026-10-18",
       "days": [

@@ -1,13 +1,13 @@
 // Adds a confirmed ohlášky sheet to src/content/ohlasky.json (farnost-create-porad-bohosluzeb skill, through
 // `pnpm stage porad <pdf> --record <record.json>`, which stages the PDF and passes its week); a sheet of the same week
-// (a corrected PDF) replaces the old one. Sheets may share only their boundary day (sheetOrderProblems()). The sheets
+// (rerun, or a corrected PDF's rev) replaces the old one. Sheets may share only their boundary day (sheetOrderProblems()). The sheets
 // before the current one (the last whose week has started, today in Prague) are removed, and so are the
 // laterExceptions on or before the last sheet's validTo: the sheets cover those days. The file's rules are
 // ohlaskyFileSchema's (src/lib/services/schema.ts).
 
 import { readFileSync, writeFileSync } from "node:fs";
 import * as z from "zod";
-import type { OhlaskyFile, ServiceSheet } from "@/content/types/services";
+import type { OhlaskyFile, ServiceSheetRecord } from "@/content/types/services";
 import type { IsoDate } from "@/content/types/shared";
 import { ohlaskyFileSchema, serviceSheetSchema } from "@/lib/services/schema";
 import { currentSheet, sheetOrderProblems } from "@/lib/services/service-sheet";
@@ -15,10 +15,10 @@ import { pragueDate } from "@/lib/shared/prague";
 import { newsIds } from "./content-files";
 
 /** The fields the script takes from the staged PDF, never from the record. */
-const WEEK_FIELDS = ["pdfUrl", "validFrom", "validTo"] as const;
-export type SheetWeek = Pick<ServiceSheet, (typeof WEEK_FIELDS)[number]>;
+const WEEK_FIELDS = ["validFrom", "validTo", "rev"] as const;
+export type SheetWeek = Pick<ServiceSheetRecord, (typeof WEEK_FIELDS)[number]>;
 
-const period = (s: Pick<ServiceSheet, "validFrom" | "validTo">) => `${s.validFrom} – ${s.validTo}`;
+const period = (s: Pick<ServiceSheetRecord, "validFrom" | "validTo">) => `${s.validFrom} – ${s.validTo}`;
 
 /** The ohlášky in `ohlaskyFile`; throws naming the file when it is not valid JSON or breaks the schema. */
 export function readOhlasky(ohlaskyFile: string): OhlaskyFile {
@@ -34,7 +34,7 @@ export function readOhlasky(ohlaskyFile: string): OhlaskyFile {
 }
 
 export type AddOhlaskyResult = {
-  sheet: ServiceSheet;
+  sheet: ServiceSheetRecord;
   /** A sheet of the same week was replaced. */
   replaced: boolean;
   /** The periods of the outdated sheets removed (or that would be). */
@@ -63,7 +63,7 @@ export function addOhlasky(
     throw new Error("the record is not an object");
   if (WEEK_FIELDS.some((field) => field in input)) {
     throw new Error(
-      "leave pdfUrl, validFrom and validTo out of the record: the script reads pdfUrl, validFrom and validTo from the PDF",
+      "leave validFrom, validTo and rev out of the record: the script reads validFrom, validTo and rev from the PDF",
     );
   }
   const parsed = serviceSheetSchema.safeParse({ ...week, ...input });
@@ -107,7 +107,7 @@ export function ohlaskyLines(result: AddOhlaskyResult, check: boolean): string[]
   const verb = replaced ? (check ? "Would replace" : "Replaced") : check ? "Would add" : "Added";
   const remove = check ? "Would remove" : "Removed";
   return [
-    `${verb} the sheet ${period(sheet)} ${replaced ? "in" : "to"} src/content/ohlasky.json`,
+    `${verb} the sheet ${period(sheet)}${sheet.rev ? ` with rev ${sheet.rev}` : ""} ${replaced ? "in" : "to"} src/content/ohlasky.json`,
     ...removed.map((p) => `${remove} the outdated sheet ${p}`),
     ...removedExceptions.map(
       (date) =>

@@ -9,8 +9,10 @@ import {
   scheduleExceptions,
   sheetExceptions,
   sheetOrderProblems,
+  sheetPdfFile,
   showWeekLabel,
   sortAnnouncements,
+  toSheet,
   weekView,
 } from "./service-sheet";
 
@@ -124,6 +126,20 @@ describe("scheduleExceptions", () => {
     const dates = scheduleExceptions([sheet, later], [], ["kurim"]).map((x) => x.date);
     expect(dates).not.toContain("2026-10-08");
     expect(dates.at(-1)).toBe("2026-10-11");
+  });
+});
+
+describe("toSheet", () => {
+  it("adds the PDF's URL, with the rev of a corrected PDF", () => {
+    const record = { validFrom: "2026-10-04", validTo: "2026-10-11", days: [], announcements: [] };
+    expect(toSheet(record)).toEqual({
+      ...record,
+      pdfUrl: "/uploads/porady_bohosluzeb/2026-10-04-porad-bohosluzeb.pdf",
+    });
+    expect(toSheet({ ...record, rev: 2 }).pdfUrl).toBe("/uploads/porady_bohosluzeb/2026-10-04-porad-bohosluzeb-r2.pdf");
+    expect(sheetPdfFile({ validFrom: "2026-10-04", rev: 3 })).toBe(
+      "porady_bohosluzeb/2026-10-04-porad-bohosluzeb-r3.pdf",
+    );
   });
 });
 

@@ -1,5 +1,6 @@
 import * as z from "zod";
 import type { PetrklicFile, PetrklicRecord } from "@/content/types/petrklic";
+import { revSchema } from "@/lib/shared/revision";
 import { slug } from "@/lib/shared/slug";
 import { FIRST_YEAR, isNewerIssue, issueId, issueLabel } from "./issues";
 
@@ -19,7 +20,7 @@ export const petrklicRecordSchema = z.strictObject({
     .min(1)
     .refine((note) => slug(note) !== "", "must contain a letter or digit")
     .optional(),
-  rev: z.int().min(2, "must be 2 or more (the first PDF has no rev)").optional(),
+  rev: revSchema,
   pageCount: count,
 }) satisfies z.ZodType<PetrklicRecord>;
 

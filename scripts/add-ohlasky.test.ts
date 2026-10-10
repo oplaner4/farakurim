@@ -11,11 +11,7 @@ const LATER: ScheduleException[] = [
   { date: "2026-10-19", services: [{ time: "10:00", place: "kurim", note: "hody" }] },
 ];
 
-const week = (validFrom: string, validTo: string): SheetWeek => ({
-  pdfUrl: `/uploads/porady_bohosluzeb/${validFrom}-porad-bohosluzeb.pdf`,
-  validFrom,
-  validTo,
-});
+const week = (validFrom: string, validTo: string): SheetWeek => ({ validFrom, validTo });
 
 /** A record (days and announcements) covering every date of the period. */
 const record = (dates: string[], newsId?: string) => ({
@@ -69,13 +65,7 @@ describe("addOhlasky on a temp ohlasky.json and news/", () => {
     expect(sheets()).toEqual(["2026-10-04", "2026-10-11"]);
     // The entry on the sheet's last day goes; the next day's stays exactly as written, no keys added.
     expect(readOhlasky(file).laterExceptions).toEqual([LATER[1]]);
-    expect(Object.keys(JSON.parse(raw()).sheets[1])).toEqual([
-      "pdfUrl",
-      "validFrom",
-      "validTo",
-      "days",
-      "announcements",
-    ]);
+    expect(Object.keys(JSON.parse(raw()).sheets[1])).toEqual(["validFrom", "validTo", "days", "announcements"]);
     expect(ohlaskyLines(result, false)).toEqual([
       "Added the sheet 2026-10-11 – 2026-10-18 to src/content/ohlasky.json",
       "Removed the outdated sheet 2026-09-27 – 2026-10-04",
@@ -95,15 +85,13 @@ describe("addOhlasky on a temp ohlasky.json and news/", () => {
   });
 
   it("replaces the sheet of the same week (a corrected PDF)", () => {
-    const fixed = {
-      ...week("2026-10-04", "2026-10-11"),
-      pdfUrl: "/uploads/porady_bohosluzeb/2026-10-04-porad-bohosluzeb-2.pdf",
-    };
+    const fixed = { ...week("2026-10-04", "2026-10-11"), rev: 2 };
     const result = addOhlasky(file, news, record(datesOf(4, 11)), fixed, { now });
     expect(result.replaced).toBe(true);
-    expect(readOhlasky(file).sheets.at(-1)!.pdfUrl).toContain("porad-bohosluzeb-2.pdf");
+    expect(readOhlasky(file).sheets.at(-1)!.rev).toBe(2);
+    expect(Object.keys(JSON.parse(raw()).sheets.at(-1)).slice(0, 3)).toEqual(["validFrom", "validTo", "rev"]);
     expect(ohlaskyLines(result, false)[0]).toBe(
-      "Replaced the sheet 2026-10-04 – 2026-10-11 in src/content/ohlasky.json",
+      "Replaced the sheet 2026-10-04 – 2026-10-11 with rev 2 in src/content/ohlasky.json",
     );
   });
 
@@ -123,7 +111,7 @@ describe("addOhlasky on a temp ohlasky.json and news/", () => {
         week("2026-10-11", "2026-10-18"),
         { now },
       ),
-    ).toThrow("the script reads pdfUrl, validFrom and validTo from the PDF");
+    ).toThrow("the script reads validFrom, validTo and rev from the PDF");
     expect(() =>
       addOhlasky(file, news, record(datesOf(11, 18), "neni-2026"), week("2026-10-11", "2026-10-18"), { now }),
     ).toThrow("no aktualita with the id neni-2026");

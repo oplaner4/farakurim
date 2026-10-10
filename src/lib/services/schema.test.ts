@@ -1,10 +1,9 @@
 import { describe, expect, it } from "vitest";
 import * as z from "zod";
-import type { ServiceSheet } from "@/content/types/services";
+import type { ServiceSheetRecord } from "@/content/types/services";
 import { ohlaskyFileSchema, scheduleExceptionSchema, serviceSheetSchema } from "./schema";
 
-const sheet = (fields: Partial<ServiceSheet> = {}): ServiceSheet => ({
-  pdfUrl: "/uploads/porady_bohosluzeb/2026-10-11-porad-bohosluzeb.pdf",
+const sheet = (fields: Partial<ServiceSheetRecord> = {}): ServiceSheetRecord => ({
   validFrom: "2026-10-11",
   validTo: "2026-10-12",
   days: [
@@ -33,7 +32,12 @@ describe("serviceSheetSchema", () => {
   it("accepts a sheet and keeps the schema's field order", () => {
     const parsed = serviceSheetSchema.parse(sheet());
     expect(parsed).toEqual(sheet());
-    expect(Object.keys(parsed)).toEqual(["pdfUrl", "validFrom", "validTo", "days", "announcements"]);
+    expect(Object.keys(parsed)).toEqual(["validFrom", "validTo", "days", "announcements"]);
+    expect(Object.keys(serviceSheetSchema.parse(sheet({ rev: 2 }))).slice(0, 3)).toEqual([
+      "validFrom",
+      "validTo",
+      "rev",
+    ]);
   });
 
   it("names bad fields and unknown ones", () => {
@@ -43,7 +47,8 @@ describe("serviceSheetSchema", () => {
     bad.days[0].rows[0].time = "08:00";
     expect(problems(bad)).toContain("days[0].rows[0].time");
     expect(problems({ ...sheet(), note: "x" })).toContain('Unrecognized key: "note"');
-    expect(problems(sheet({ pdfUrl: "/uploads/x.pdf" }))).toContain("pdfUrl");
+    expect(problems(sheet({ rev: 1 }))).toContain("rev");
+    expect(problems({ ...sheet(), pdfUrl: "/uploads/x.pdf" })).toContain('Unrecognized key: "pdfUrl"');
     expect(problems({ ...sheet(), announcements: [{ category: "jine", html: "<p>x</p>" }] })).toContain(
       "announcements[0].category",
     );

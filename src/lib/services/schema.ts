@@ -1,5 +1,6 @@
 import * as z from "zod";
-import type { OhlaskyFile, PlaceId, ScheduleException, ServiceSheet } from "@/content/types/services";
+import type { OhlaskyFile, PlaceId, ScheduleException, ServiceSheetRecord } from "@/content/types/services";
+import { revSchema } from "@/lib/shared/revision";
 import { periodDates } from "./service-sheet";
 
 // The rules of the ohlášky, in one place: src/server/ohlasky.ts checks src/content/ohlasky.json with them when the
@@ -39,14 +40,12 @@ const announcementSchema = z.strictObject({
   newsId: text.optional(),
 });
 
-/** A ServiceSheet (src/content/types/services.ts); its fields in the order the generated files write them. */
+/** A ServiceSheetRecord (src/content/types/services.ts); its fields in the order the generated files write them. */
 export const serviceSheetSchema = z
   .strictObject({
-    pdfUrl: z
-      .string()
-      .regex(/^\/uploads\/porady_bohosluzeb\/[\w.-]+\.pdf$/, "must be a /uploads/porady_bohosluzeb/ PDF"),
     validFrom: date,
     validTo: date,
+    rev: revSchema,
     days: z.array(daySchema),
     announcements: z.array(announcementSchema),
   })
@@ -78,7 +77,7 @@ export const serviceSheetSchema = z
         ctx.addIssue({ code: "custom", path: ["days", i, "rows"], message: "must be in time order" });
       }
     });
-  }) satisfies z.ZodType<ServiceSheet>;
+  }) satisfies z.ZodType<ServiceSheetRecord>;
 
 /** Every PlaceId once: a place added to the type must be added here too, or this does not compile. */
 const PARISH_CHURCHES: Record<PlaceId, true> = { kurim: true, "moravske-kninice": true, jinacovice: true };

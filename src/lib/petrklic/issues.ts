@@ -1,5 +1,6 @@
 import { links } from "@/content/site";
 import type { PetrklicIssue, PetrklicRecord } from "@/content/types/petrklic";
+import { revSuffix } from "@/lib/shared/revision";
 import { slug } from "@/lib/shared/slug";
 
 // Petrklíč issues (design/DESIGN.md §17–18).
@@ -44,7 +45,7 @@ export const issueId = ({ year, number, note }: Pick<PetrklicRecord, "year" | "n
   `${year}-${number}${note ? `-${slug(note)}` : ""}`;
 
 /** The issue's upload folder: "2026-2", or "2026-2-r2" for a corrected PDF (the PDF keeps its name). */
-export const issueFolder = ({ id, rev }: Pick<PetrklicIssue, "id" | "rev">) => `${id}${rev ? `-r${rev}` : ""}`;
+export const issueFolder = ({ id, rev }: Pick<PetrklicIssue, "id" | "rev">) => `${id}${revSuffix(rev)}`;
 
 const issueDir = (issue: Pick<PetrklicIssue, "id" | "rev">) => `/uploads/petrklic/${issueFolder(issue)}`;
 

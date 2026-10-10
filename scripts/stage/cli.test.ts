@@ -10,18 +10,8 @@ describe("runCommand", { timeout: 30_000 }, () => {
 
   it("parses each command's arguments", async () => {
     const source = download("porad.pdf", "%PDF");
-    const { lines } = await runCommand(env, [
-      "porad",
-      source,
-      "--from",
-      "2026-10-04",
-      "--to",
-      "2026-10-11",
-      "--rev",
-      "3",
-      "--check",
-    ]);
-    expect(lines[0]).toBe("Would stage uploads/porady_bohosluzeb/2026-10-04-porad-bohosluzeb-3.pdf");
+    const { lines } = await runCommand(env, ["porad", source, "--from", "2026-10-04", "--to", "2026-10-11", "--check"]);
+    expect(lines[0]).toBe("Would stage uploads/porady_bohosluzeb/2026-10-04-porad-bohosluzeb.pdf");
 
     const sheetFile = join(env.home, "sheet.json");
     writeFileSync(
@@ -61,12 +51,11 @@ describe("runCommand", { timeout: 30_000 }, () => {
     ]);
   });
 
-  it("refuses missing arguments, another command's options and a bad --rev", async () => {
+  it("refuses missing arguments, another command's options and the old --rev", async () => {
     await expect(runCommand(env, ["aktualita", "a.jpg", "x"])).rejects.toThrow("wrong arguments\nUsage: pnpm stage");
     await expect(runCommand(env, [])).rejects.toThrow(
       /Largest source file: aktualita \d+ MB, porad \d+ MB, petrklic \d+ MB/,
     );
-    await expect(runCommand(env, ["petrklic", "a.pdf", "2026-1", "--rev", "2"])).rejects.toThrow("wrong arguments");
     await expect(runCommand(env, ["petrklic", "a.pdf", "--year", "2026"])).rejects.toThrow("wrong arguments");
     await expect(runCommand(env, ["petrklic", "a.pdf", "--year", "2026.5", "--number", "1"])).rejects.toThrow(
       "wrong arguments",
@@ -82,20 +71,18 @@ describe("runCommand", { timeout: 30_000 }, () => {
       "wrong arguments",
     );
     await expect(runCommand(env, ["tisk", "a.pdf"])).rejects.toThrow("wrong arguments");
-    await expect(runCommand(env, ["porad", "a.pdf", "--rev", "1"])).rejects.toThrow("--rev is a number from 2");
+    await expect(runCommand(env, ["porad", "a.pdf", "--rev", "2"])).rejects.toThrow("Unknown option '--rev'");
     await expect(
       runCommand(env, ["petrklic", "a.pdf", "--year", "2026", "--number", "1", "--rev", "2"]),
-    ).rejects.toThrow("wrong arguments");
+    ).rejects.toThrow("Unknown option '--rev'");
   });
 
-  it("refuses a lone --from or --to, a date that does not exist and a --rev that is not digits", async () => {
+  it("refuses a lone --from or --to and a date that does not exist", async () => {
     const porad = (...options: string[]) => runCommand(env, ["porad", "a.pdf", ...options]);
     const dates = "wrong arguments: --from and --to are YYYY-MM-DD dates, both or neither";
     await expect(porad("--from", "2026-10-04")).rejects.toThrow(dates);
     await expect(porad("--to", "2026-10-11")).rejects.toThrow(dates);
     await expect(porad("--from", "2026-10-04", "--to", "2026-10-32")).rejects.toThrow(dates);
     await expect(porad("--from", "4. 10. 2026", "--to", "2026-10-11")).rejects.toThrow(dates);
-    await expect(porad("--rev", "0x2")).rejects.toThrow("--rev is a number from 2");
-    await expect(porad("--rev", " 3")).rejects.toThrow("--rev is a number from 2");
   });
 });

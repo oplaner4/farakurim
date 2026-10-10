@@ -54,7 +54,7 @@ export type ScheduleException = {
 
 /** The ohlášky (src/content/ohlasky.json): the sheets by `validFrom` and the hand-entered later changes. */
 export type OhlaskyFile = {
-  sheets: ServiceSheet[];
+  sheets: ServiceSheetRecord[];
   laterExceptions: ScheduleException[];
 };
 
@@ -115,14 +115,19 @@ export type SheetDay = {
  * through the changed rows, the schedule exceptions for the next mass and the calendar.
  */
 export type ServiceSheet = {
-  /** Optional: the printed ohlášky. */
+  /** The printed ohlášky, computed from `validFrom` and `rev` (toSheet() in src/lib/services/service-sheet.ts). */
   pdfUrl: string;
   validFrom: IsoDate;
   validTo: IsoDate;
+  /** Revision of a released week's corrected PDF, from 2: a new file name, as the server's files stay. */
+  rev?: number;
   days: SheetDay[];
   /** In the editor's order; changes are shown first. */
   announcements: Announcement[];
 };
+
+/** One sheet as stored in src/content/ohlasky.json: the PDF's URL is computed. */
+export type ServiceSheetRecord = Omit<ServiceSheet, "pdfUrl">;
 
 /** The Intence card (§14.1, 3a): how to have a mass said for one's intention. */
 export type Intentions = {
