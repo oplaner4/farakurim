@@ -3,7 +3,7 @@
 import type { SetValues } from "nuqs";
 import { type ChangeEvent, type FormEvent, useRef } from "react";
 import { useDebounce } from "use-debounce";
-import type { archiveParams } from "@/lib/shared/query-params";
+import type { archiveParams } from "@/lib/news/query-params";
 
 const SEARCH_DELAY_MS = 250;
 

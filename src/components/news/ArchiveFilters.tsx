@@ -3,7 +3,7 @@ import { type ChangeEvent, type FormEvent, type RefObject, useEffect, useRef } f
 import Link from "next/link";
 import { links } from "@/content/site";
 import { archiveYearHref, type ArchiveYear } from "@/lib/news/archive";
-import { QUERY_PARAM } from "@/lib/shared/query-params";
+import { QUERY_PARAM } from "@/lib/news/query-params";
 import { SearchIcon } from "@/components/ui/icons/navigation-icons";
 
 type Props = {

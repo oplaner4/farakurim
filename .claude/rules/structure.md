@@ -26,10 +26,12 @@ rada and Kněží – rodáci; content in `parish-council.ts` and `native-priest
 
 - **`src/lib`** files are named after their topic inside the group, not after the group: `lib/news/events.ts`,
   `lib/news/archive.ts`, `lib/news/ics.ts`, `lib/services/masses.ts`, `lib/contacts/office-hours.ts`,
-  `lib/layout/bible-quote.ts`. `lib/shared/` holds the cross-domain helpers: `prague.ts` (time zone),
-  `czech.ts` (Czech grammar and formats), `build-time.ts` (`BUILD_TIME`, `BUILD_YEAR`), `links.ts`, `slug.ts` (ASCII
-  ids from Czech titles), `query-params.ts`, `revision.ts` (the `-r2` names of corrected PDFs), `json-file.ts` (`readJsonFile()`, a JSON content file read rather than imported, for the news month files and the scripts), `planned-pages.ts`
-  (the placeholder routes), `structured-data.ts` (JSON-LD) and `analytics.ts` (Matomo commands). `lib` may import `@/content/site` for URLs and
+  `lib/layout/bible-quote.ts`.
+- **`lib/shared/`** holds only what two or more domains use (`prague.ts`, `czech.ts`, `links.ts`, `slug.ts`, …),
+  flat, without subfolders. A helper one domain uses lives in that domain's folder (`news/query-params.ts`,
+  `layout/analytics.ts`), and moves to `shared/` when a second domain needs it. **Why:** `shared/` stays a short
+  list of what really is shared, instead of a drawer for everything without an obvious home.
+- `lib` may import `@/content/site` for URLs and
   `@/content/types/*` for types, never the content data itself (tests may, to check real records).
   `lib/test/content-checks.ts` holds the checks the content tests share (dates, times, order, `/uploads/` links).
 - When a `lib` file grows two independent topics, split it by topic (as `news/events.ts` and `news/archive.ts`)

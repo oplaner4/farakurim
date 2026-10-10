@@ -19,7 +19,7 @@ import {
   type NewsFilter,
 } from "@/lib/news/events";
 import { useToday } from "@/hooks/use-now";
-import { PAGE_PARAM, pageParser } from "@/lib/shared/query-params";
+import { PAGE_PARAM, pageParser } from "@/lib/news/query-params";
 import { useLoadMore } from "@/hooks/use-load-more";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { EventCard, eventAnchor } from "./EventCard";

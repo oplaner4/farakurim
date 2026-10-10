@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { PlannedPageView, plannedPageMetadata } from "@/components/layout/PlannedPageView";
 import { plannedPages } from "@/content/planned-pages";
-import { findPlannedPage, pathSegments } from "@/lib/shared/planned-pages";
+import { findPlannedPage, pathSegments } from "@/lib/layout/planned-pages";
 
 // Static export: the old site's pages not rebuilt yet, at their old URLs.
 export const dynamicParams = false;

@@ -5,7 +5,7 @@ import { type SetValues, useQueryStates } from "nuqs";
 import { Suspense } from "react";
 import { links } from "@/content/site";
 import { archiveListing, archiveYearHref } from "@/lib/news/archive";
-import { archiveHref, archiveParams, archiveUrlKeys } from "@/lib/shared/query-params";
+import { archiveHref, archiveParams, archiveUrlKeys } from "@/lib/news/query-params";
 import { useLoadMore } from "@/hooks/use-load-more";
 import { useToday } from "@/hooks/use-now";
 import { ButtonLink } from "@/components/ui/ButtonLink";

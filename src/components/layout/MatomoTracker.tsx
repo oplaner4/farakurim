@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { MATOMO_SITE_ID, MATOMO_URL } from "@/content/site";
-import { type MatomoCommand, matomoConfig, pageViewCommands, setupCommands, trackedUrl } from "@/lib/shared/analytics";
+import { type MatomoCommand, matomoConfig, pageViewCommands, setupCommands, trackedUrl } from "@/lib/layout/analytics";
 
 declare global {
   interface Window {
