@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { readEvents, readMonth } from "@/content/news";
 import type { NewsEvent } from "@/content/types/news";
-import { addAktualita, insertRecord, monthFile, targetLine } from "./add-aktualita";
+import { addAktualita, insertRecord, monthFile, parseCommand, targetLine } from "./add-aktualita";
 import { formatFiles, NEWS_DIR } from "./content-files";
 
 // The newest year folder in news/ and the one after it, which does not exist yet: the new-year test must keep
@@ -161,5 +161,22 @@ describe("addAktualita on a copy of news/", { timeout: 30_000 }, () => {
       expect(() => addAktualita(news, full, { now, check })).toThrow(/2024\/03\.json is not valid JSON/);
     }
     expect(raw("2026/10.json")).toBe(before);
+  });
+});
+
+describe("parseCommand", () => {
+  it("reads the record file (- for stdin) and --check", () => {
+    expect(parseCommand(["record.json"])).toEqual({ file: "record.json", check: false });
+    expect(parseCommand(["record.json", "--check"])).toEqual({ file: "record.json", check: true });
+    expect(parseCommand(["-", "--check"])).toEqual({ file: "-", check: true });
+  });
+
+  it("refuses an unknown option, so a typo of --check never writes", () => {
+    expect(() => parseCommand(["record.json", "--chek"])).toThrow(/--chek[^]*\nUsage: pnpm add-aktualita/);
+  });
+
+  it("refuses no file and two files", () => {
+    expect(() => parseCommand([])).toThrow(/^Usage: pnpm add-aktualita/);
+    expect(() => parseCommand(["a.json", "b.json"])).toThrow(/^Usage: pnpm add-aktualita/);
   });
 });

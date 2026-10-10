@@ -13,6 +13,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseArgs } from "node:util";
 import * as z from "zod";
 import { readMonth } from "@/content/news";
 import type { NewsEvent } from "@/content/types/news";
@@ -58,14 +59,33 @@ export function addAktualita(newsDir: string, input: unknown, { check = false, n
 export const targetLine = ({ target, created }: { target: string; created: boolean }, check: boolean) =>
   `${check ? "Would add" : "Added"} the record to src/content/news/${target}${created ? " (new file)" : ""}`;
 
+const USAGE = "Usage: pnpm add-aktualita <record.json | -> [--check]";
+
+/**
+ * Reads the command line `args`: the record file (`-` for stdin) and --check. An unknown option throws with the usage,
+ * so a typo of --check never writes.
+ */
+export function parseCommand(args: string[]): { file: string; check: boolean } {
+  let parsed;
+  try {
+    parsed = parseArgs({ args, allowPositionals: true, options: { check: { type: "boolean" } } });
+  } catch (error) {
+    throw new Error(`${error instanceof Error ? error.message : error}\n${USAGE}`);
+  }
+  if (parsed.positionals.length !== 1) throw new Error(USAGE);
+  return { file: parsed.positionals[0], check: parsed.values.check ?? false };
+}
+
 // No top-level await: tsx runs the scripts as CommonJS (package.json has no "type": "module").
 async function main() {
-  const [file] = process.argv.slice(2).filter((arg) => !arg.startsWith("--"));
-  const check = process.argv.includes("--check");
-  if (!file) {
-    console.error("Usage: pnpm add-aktualita <record.json | -> [--check]");
+  let command: { file: string; check: boolean };
+  try {
+    command = parseCommand(process.argv.slice(2));
+  } catch (error) {
+    console.error(`add-aktualita: ${error instanceof Error ? error.message : error}`);
     process.exit(2);
   }
+  const { file, check } = command;
   try {
     const input: unknown = JSON.parse(readFileSync(file === "-" ? 0 : file, "utf8"));
     const result = addAktualita(NEWS_DIR, input, { check });
