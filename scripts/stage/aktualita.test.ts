@@ -4,6 +4,7 @@ import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 import { readMonth } from "@/content/news";
 import { labelSuffix, stageAktualita } from "./aktualita";
+import { POSTER_WIDTH } from "./images";
 import { useStageFixture } from "../test-helpers";
 
 describe("labelSuffix", () => {
@@ -47,7 +48,9 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
     const { lines } = await stageAktualita(env, { source, id: "hody-ceska", label: "Plakát" });
     expect(lines[0]).toBe("Staged uploads/aktuality/hody-ceska-plakat.jpg and .webp");
     expect(readdirSync(uploaded("aktuality")).sort()).toEqual(["hody-ceska-plakat.jpg", "hody-ceska-plakat.webp"]);
-    expect((await sharp(readFileSync(uploaded("aktuality", "hody-ceska-plakat.webp"))).metadata()).width).toBe(680);
+    expect((await sharp(readFileSync(uploaded("aktuality", "hody-ceska-plakat.webp"))).metadata()).width).toBe(
+      POSTER_WIDTH,
+    );
 
     // The same file again is fine, another one under the same name is not.
     await stageAktualita(env, { source, id: "hody-ceska", label: "Plakát" });

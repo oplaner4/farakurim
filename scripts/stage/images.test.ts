@@ -60,10 +60,10 @@ describe("renderPoster", () => {
     const pdf = join(dir, "plakat.pdf");
     writeFileSync(pdf, pdfWithText(["Hody v Ceske", "Program"]));
     const out = join(dir, "plakat.webp");
-    // An A4 page (595 × 842 pt) scaled to the poster width: 962.3 px high, rounded either way by pdftoppm.
+    // An A4 page (595 × 842 pt) scaled to the poster width: 1018.9 px high, rounded either way by pdftoppm.
     const { width, height } = await renderPoster(pdf, out);
     expect(width).toBe(POSTER_WIDTH);
-    expect(Math.abs(height - 962.3)).toBeLessThan(1);
+    expect(Math.abs(height - 1018.9)).toBeLessThan(1);
     expect(readdirSync(dir).sort()).toEqual(["plakat.pdf", "plakat.webp"]);
   });
 });

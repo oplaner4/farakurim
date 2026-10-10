@@ -9,7 +9,9 @@ import { tmpdir } from "node:os";
 import { dirname, extname, join } from "node:path";
 import sharp from "sharp";
 
-export const POSTER_WIDTH = 680; // 2× the largest poster box (340 px wide on the detail page)
+// 2× the largest poster box (EventPoster on the detail page, 360 × 460 px from lg): object-contain fills its width
+// with any poster wider than 360:460, so that width, not the height, sets the size.
+export const POSTER_WIDTH = 720;
 export const POSTER_QUALITY = 78;
 export const PETRKLIC_WIDTH = 600; // 2× the largest cover and viewer page (300 px)
 export const PETRKLIC_QUALITY = 72;
