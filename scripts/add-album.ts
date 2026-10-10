@@ -3,11 +3,12 @@
 // without Zonerama's "YYYY_MM_DD" prefix), the date from that prefix, the proposed id, the chosen aspect ratio and the
 // photo counts. With --write it adds the album (up to MAX_PHOTOS photos as { small, large } Zonerama URLs) to
 // src/content/gallery.json, newest first, and removes the albums beyond MAX_ALBUMS; Prettier formats the file, then
-// the gallery test runs. --title, --date and --id override the proposal. The album's rules are albumSchema's
+// the gallery test runs. --check does the same without writing and prints what --write would do. --title, --date
+// and --id override the proposal (an empty value counts as not given). The album's rules are albumSchema's
 // (src/lib/gallery/schema.ts).
 //
 // Usage: pnpm add-album https://eu.zonerama.com/FarnostKurim/Album/<n>
-//          [--write [--title "<title>"] [--date YYYY-MM-DD] [--id <kebab-id>]]
+//          [--write | --check] [--title "<title>"] [--date YYYY-MM-DD] [--id <kebab-id>]
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { relative } from "node:path";
@@ -25,13 +26,23 @@ const MAX_PHOTOS = 15;
 const SMALL = 800;
 const LARGE = 1600;
 
-/** An album URL of the parish's profile; group 2 is the album number. */
-export const ALBUM_URL = /^https:\/\/(eu|www)\.zonerama\.com\/FarnostKurim\/Album\/(\d+)/;
+/** An album URL of the parish's profile, with an optional trailing slash, query or hash; group 2 is the number. */
+const ALBUM_URL = /^https:\/\/(eu|www)\.zonerama\.com\/FarnostKurim\/Album\/(\d+)\/?([?#].*)?$/;
+
+/** The album number of `url`; the profile, a tab or anything else throws. */
+export function albumNumberFromUrl(url: string): string {
+  const number = url.match(ALBUM_URL)?.[2];
+  if (!number) {
+    throw new Error("expected an album URL: https://eu.zonerama.com/FarnostKurim/Album/<n> (not the profile or a tab)");
+  }
+  return number;
+}
 
 /** A photo in the album page's `var result` data. */
 export type ZoneramaItem = { photoId: number; width: number; height: number; image: string; html: string };
 
 const NOT_ALBUM = "is it an album page?";
+const PAGE_CHANGED = "has Zonerama changed its album page?";
 
 /**
  * "2026_08_30 pouť na Vranov | Zonerama.com" → { title: "Pouť na Vranov", date: "2026-08-30" }; without the prefix
@@ -58,10 +69,19 @@ export function photoItems(page: string): ZoneramaItem[] {
     if (page[end] === "{") depth++;
     else if (page[end] === "}" && --depth === 0) break;
   }
-  const { items } = JSON.parse(page.slice(from, end + 1)) as { items: Partial<ZoneramaItem>[] };
-  return items.filter(
+  let items: unknown;
+  try {
+    ({ items } = JSON.parse(page.slice(from, end + 1)));
+  } catch {
+    throw new Error(`the photo data (var result) is not valid JSON: ${NOT_ALBUM}`);
+  }
+  if (!Array.isArray(items)) throw new Error(`the photo data (var result) has no items: ${NOT_ALBUM}`);
+  const photos = (items as Partial<ZoneramaItem>[]).filter(
     (i): i is ZoneramaItem => i.photoId !== undefined && !!i.image && !(i.html ?? "").includes('data-type="video"'),
   );
+  const unsized = photos.find((p) => !(Number(p.width) > 0 && Number(p.height) > 0));
+  if (unsized) throw new Error(`photo ${unsized.photoId} has no width and height: ${PAGE_CHANGED}`);
+  return photos;
 }
 
 /** Width / height rounded to 2 dp: tolerates crops of a pixel or two, still separates 3:2 from 4:3. */
@@ -121,9 +141,10 @@ export function readAlbumPage(
   overrides: { title?: string; date?: string; id?: string } = {},
 ): { proposal: Proposal; album: Album } {
   const proposed = titleAndDate(page);
-  const title = overrides.title ?? proposed.title;
-  const date = overrides.date ?? proposed.date;
-  const id = overrides.id ?? slug(title);
+  // `||`, not `??`: an empty override counts as not given.
+  const title = overrides.title || proposed.title;
+  const date = overrides.date || proposed.date;
+  const id = overrides.id || slug(title);
   const items = photoItems(page);
   const { ratio, group } = selectPhotos(items);
   const photos: AlbumPhoto[] = group
@@ -207,10 +228,10 @@ export function albumLines({ album, position, removed }: AddAlbumResult, check: 
 
 const USAGE =
   "Usage: pnpm add-album https://eu.zonerama.com/FarnostKurim/Album/<n> " +
-  '[--write [--title "<title>"] [--date YYYY-MM-DD] [--id <kebab-id>]]';
+  '[--write | --check] [--title "<title>"] [--date YYYY-MM-DD] [--id <kebab-id>]';
 
 /** The command line: the album URL and the options. */
-export type Command = { url: string; write: boolean; title?: string; date?: string; id?: string };
+export type Command = { url: string; write: boolean; check: boolean; title?: string; date?: string; id?: string };
 
 /** Reads the command line `args`; a missing URL, a missing option value or an unknown option throws with the usage. */
 export function parseCommand(args: string[]): Command {
@@ -221,6 +242,7 @@ export function parseCommand(args: string[]): Command {
       allowPositionals: true,
       options: {
         write: { type: "boolean" },
+        check: { type: "boolean" },
         title: { type: "string" },
         date: { type: "string" },
         id: { type: "string" },
@@ -231,8 +253,15 @@ export function parseCommand(args: string[]): Command {
   }
   const [url] = parsed.positionals;
   if (!url) throw new Error(USAGE);
-  const { write = false, ...overrides } = parsed.values;
-  return { url, write, ...overrides };
+  const { write = false, check = false, ...overrides } = parsed.values;
+  return { url, write, check, ...overrides };
+}
+
+/** The error's message, with its cause: fetch() reports a network failure as "fetch failed" with the reason there. */
+export function errorMessage(error: unknown): string {
+  if (!(error instanceof Error)) return String(error);
+  const { cause } = error;
+  return cause === undefined ? error.message : `${error.message} (${cause instanceof Error ? cause.message : cause})`;
 }
 
 // No top-level await: tsx runs the scripts as CommonJS (package.json has no "type": "module").
@@ -241,30 +270,25 @@ async function main() {
   try {
     command = parseCommand(process.argv.slice(2));
   } catch (error) {
-    console.error(`add-album: ${error instanceof Error ? error.message : error}`);
+    console.error(`add-album: ${errorMessage(error)}`);
     process.exit(2);
   }
-  const { url, write, ...overrides } = command;
+  const { url, write, check, ...overrides } = command;
   try {
-    const number = url.match(ALBUM_URL)?.[2];
-    if (!number) {
-      throw new Error(
-        "expected an album URL: https://eu.zonerama.com/FarnostKurim/Album/<n> (not the profile or a tab)",
-      );
-    }
+    const number = albumNumberFromUrl(url);
     const response = await fetch(url);
     if (!response.ok) throw new Error(`${url} answered ${response.status}`);
     const { proposal, album } = readAlbumPage(await response.text(), number, overrides);
-    if (!write) {
+    if (!write && !check) {
       console.log(JSON.stringify(proposal, null, 2));
       return;
     }
     if (!album.date) throw new Error("the album title has no date: pass the date of the event with --date YYYY-MM-DD");
-    const result = addAlbum(GALLERY_FILE, album);
-    console.log(albumLines(result, false).join("\n"));
-    await formatAndTest(result.written, "src/content/gallery.test.ts");
+    const result = addAlbum(GALLERY_FILE, album, { check });
+    console.log(albumLines(result, check).join("\n"));
+    if (!check) await formatAndTest(result.written, "src/content/gallery.test.ts");
   } catch (error) {
-    console.error(`add-album: ${error instanceof Error ? error.message : error}`);
+    console.error(`add-album: ${errorMessage(error)}`);
     process.exit(1);
   }
 }

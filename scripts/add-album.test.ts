@@ -7,6 +7,8 @@ import { MAX_ALBUMS } from "@/lib/gallery/albums";
 import {
   addAlbum,
   albumLines,
+  albumNumberFromUrl,
+  errorMessage,
   parseCommand,
   photoItems,
   photoUrl,
@@ -74,6 +76,19 @@ describe("titleAndDate", () => {
 describe("photoItems", () => {
   it("keeps the photos with an image, without banners and videos", () => {
     expect(ids(photoItems(page("x")))).toEqual([1, 2, 3, 4, 5, 6, 8]);
+  });
+
+  it("says the page changed when its photo data has no items or does not parse", () => {
+    const withResult = (json: string) => `<title>x | Zonerama.com</title><script>var result = ${json};</script>`;
+    expect(() => photoItems(withResult('{"photos": []}'))).toThrow(/is it an album page/);
+    expect(() => photoItems(withResult('{"items": [{"photoId": 1,}]}'))).toThrow(/is it an album page/);
+  });
+
+  it("says the page changed when a photo has no size", () => {
+    const { width, ...noWidth } = item(5, 1500, 1000);
+    expect(() => photoItems(page("x", [item(1, 1500, 1000), noWidth]))).toThrow(
+      "photo 5 has no width and height: has Zonerama changed its album page?",
+    );
   });
 
   it("stops on a page without album data", () => {
@@ -144,6 +159,15 @@ describe("readAlbumPage", () => {
       title: "Pěší pouť na Vranov",
       date: "2026-09-28",
     });
+  });
+
+  it("ignores empty overrides, as if they were not given", () => {
+    const { proposal } = readAlbumPage(page("2026_09_27 pěš&#237; pouť na Vranov"), "1", {
+      title: "",
+      date: "",
+      id: "",
+    });
+    expect(proposal).toMatchObject({ id: "pesi-pout-na-vranov", title: "Pěší pouť na Vranov", date: "2026-09-27" });
   });
 
   it("takes at most 15 photos", () => {
@@ -291,10 +315,12 @@ describe("parseCommand", () => {
   const URL = "https://eu.zonerama.com/FarnostKurim/Album/16583642";
 
   it("reads the URL and the options", () => {
-    expect(parseCommand([URL])).toEqual({ url: URL, write: false });
+    expect(parseCommand([URL])).toEqual({ url: URL, write: false, check: false });
+    expect(parseCommand([URL, "--check"])).toEqual({ url: URL, write: false, check: true });
     expect(parseCommand([URL, "--write", "--title", "Pouť", "--date", "2026-09-27", "--id", "pout"])).toEqual({
       url: URL,
       write: true,
+      check: false,
       title: "Pouť",
       date: "2026-09-27",
       id: "pout",
@@ -305,5 +331,35 @@ describe("parseCommand", () => {
     expect(() => parseCommand([])).toThrow(/^Usage: pnpm add-album/m);
     expect(() => parseCommand([URL, "--write", "--title"])).toThrow(/--title[^]*\nUsage: pnpm add-album/);
     expect(() => parseCommand([URL, "--dryrun"])).toThrow(/--dryrun[^]*\nUsage: pnpm add-album/);
+  });
+});
+
+describe("albumNumberFromUrl", () => {
+  it("is the number of an album URL, also with a trailing slash, a query or a hash", () => {
+    expect(albumNumberFromUrl("https://eu.zonerama.com/FarnostKurim/Album/16583642")).toBe("16583642");
+    expect(albumNumberFromUrl("https://www.zonerama.com/FarnostKurim/Album/16583642/")).toBe("16583642");
+    expect(albumNumberFromUrl("https://eu.zonerama.com/FarnostKurim/Album/16583642?page=2#x")).toBe("16583642");
+  });
+
+  it("refuses the profile, a tab and a malformed album number", () => {
+    for (const url of [
+      "https://eu.zonerama.com/FarnostKurim/425053",
+      "https://eu.zonerama.com/FarnostKurim/Album/123abc",
+      "https://eu.zonerama.com/FarnostKurim/Album/",
+    ]) {
+      expect(() => albumNumberFromUrl(url), url).toThrow(/expected an album URL/);
+    }
+  });
+});
+
+describe("errorMessage", () => {
+  it("adds the cause, as fetch() reports a network failure", () => {
+    const error = new TypeError("fetch failed", { cause: new Error("getaddrinfo ENOTFOUND eu.zonerama.com") });
+    expect(errorMessage(error)).toBe("fetch failed (getaddrinfo ENOTFOUND eu.zonerama.com)");
+  });
+
+  it("is the message alone without a cause, and the value itself for a non-error", () => {
+    expect(errorMessage(new Error("the album has no photos"))).toBe("the album has no photos");
+    expect(errorMessage("oops")).toBe("oops");
   });
 });
