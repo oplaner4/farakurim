@@ -90,7 +90,7 @@ Content tooling, used by the content skills (see [Content](#content)):
 | `pnpm add-aktualita <record.json> [--check]`                    | Add an aktualita to its month's JSON file in `src/content/news/`, checked by its schema                                                         |
 | `pnpm pin-aktualita <id> \| --none [--check]`                   | Pin an aktualita for "Doporučujeme" and unpin every other one (`--none`: unpin all); a pinned new record moves the pin itself                   |
 | `pnpm aktualita-calendar <id> [--out <dir>]`                    | Check that the aktualita's Události event links its page; else write the `.ics`                                                                 |
-| `pnpm add-exception <record.json> \| --remove <date> [--check]` | Add a change announced for a day after the last ohlášky sheet to `schedule-exceptions.json` (`--remove`: take it out)                           |
+| `pnpm add-exception <record.json> \| --remove <date> [--check]` | Add a change announced for a day no ohlášky sheet covers to `schedule-exceptions.json` (`--remove`: take it out)                                |
 | `pnpm add-album <album-url> [--write \| --check …]`             | Read a Zonerama album as JSON; `--write` adds it to `gallery.json` and removes the oldest beyond 6, `--check` only says what `--write` would do |
 
 Before you commit, run the full check and compare the change with the mockups: see
@@ -126,16 +126,16 @@ links, hooks, checking against the design) are in `.claude/rules/`.
 
 Content lives in `src/content/` and is added with the Claude Code project skills in `.claude/skills/`:
 
-| Skill                              | Adds                                                                                  |
-| ---------------------------------- | ------------------------------------------------------------------------------------- |
-| `farnost-create-aktualita`         | An event from a poster or PDF, into `news/`                                           |
-| `farnost-pin-aktualita`            | The "Doporučujeme" pin, moved to an existing event or removed                         |
-| `farnost-create-porad-bohosluzeb`  | The weekly ohlášky PDF, into `ohlasky.json`                                           |
-| `farnost-correct-porad-bohosluzeb` | A corrected week of ohlášky (record or PDF)                                           |
-| `farnost-create-vyjimka`           | A change to the mass schedule after the last ohlášky, into `schedule-exceptions.json` |
-| `farnost-create-galerie`           | A Zonerama album, into `gallery.json`                                                 |
-| `farnost-create-petrklic`          | A Petrklíč newsletter PDF, into `petrklic.json`                                       |
-| `farnost-correct-petrklic`         | A corrected Petrklíč PDF or issue record                                              |
+| Skill                              | Adds                                                                                     |
+| ---------------------------------- | ---------------------------------------------------------------------------------------- |
+| `farnost-create-aktualita`         | An event from a poster or PDF, into `news/`                                              |
+| `farnost-pin-aktualita`            | The "Doporučujeme" pin, moved to an existing event or removed                            |
+| `farnost-create-porad-bohosluzeb`  | The weekly ohlášky PDF, into `ohlasky.json`                                              |
+| `farnost-correct-porad-bohosluzeb` | A corrected week of ohlášky (record or PDF)                                              |
+| `farnost-create-vyjimka`           | A change to the mass schedule on a day no ohlášky cover, into `schedule-exceptions.json` |
+| `farnost-create-galerie`           | A Zonerama album, into `gallery.json`                                                    |
+| `farnost-create-petrklic`          | A Petrklíč newsletter PDF, into `petrklic.json`                                          |
+| `farnost-correct-petrklic`         | A corrected Petrklíč PDF or issue record                                                 |
 
 Each finishes with `farnost-publish-content`, which commits and releases with `farnost-release`.
 

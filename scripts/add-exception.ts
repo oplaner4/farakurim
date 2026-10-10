@@ -1,4 +1,4 @@
-// Adds or removes a change announced for a day after the last ohlášky sheet. The command and its usage:
+// Adds or removes a change announced for a day no ohlášky sheet covers. The command and its usage:
 // scripts/lib/services/add-exception.ts.
 import { runCommand } from "./lib/command";
 import { execute, parseCommand } from "./lib/services/add-exception";

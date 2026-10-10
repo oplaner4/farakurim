@@ -1,6 +1,6 @@
 ---
 name: farnost-create-vyjimka
-description: Add a výjimka (a change to the regular mass schedule for a day the ohlášky on the new farakurim.cz site do not cover yet - a cancelled or moved mass, an extra adoration) or remove one with `pnpm add-exception`, then publish. Use whenever the user, or an announcement in the ohlášky, says a mass or service changes on a date after the last published week ("v neděli 25. 10. mše svatá nebude"), or such a change is withdrawn. A change within a published week is corrected with farnost-correct-porad-bohosluzeb.
+description: Add a výjimka (a change to the regular mass schedule for a day the ohlášky on the new farakurim.cz site do not cover yet - a cancelled or moved mass, an extra adoration) or remove one with `pnpm add-exception`, then publish. Use whenever the user, or an announcement in the ohlášky, says a mass or service changes on a date no published week covers ("v neděli 25. 10. mše svatá nebude"), or such a change is withdrawn. A change within a published week is corrected with farnost-correct-porad-bohosluzeb.
 ---
 
 # Create a výjimka

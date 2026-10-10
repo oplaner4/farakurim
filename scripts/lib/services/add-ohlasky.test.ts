@@ -63,7 +63,8 @@ describe("addOhlasky on a temp ohlasky.json, schedule-exceptions.json and news/"
     expect(result).toMatchObject({
       replaced: false,
       removed: ["2026-09-27 – 2026-10-04"],
-      removedExceptions: ["2026-10-18"],
+      coveredExceptions: ["2026-10-18"],
+      pastExceptions: [],
       written: [file, laterFile],
     });
     expect(sheets()).toEqual(["2026-10-04", "2026-10-11"]);
@@ -73,7 +74,7 @@ describe("addOhlasky on a temp ohlasky.json, schedule-exceptions.json and news/"
     expect(ohlaskyLines(result, false)).toEqual([
       "Added the sheet 2026-10-11 – 2026-10-18 to src/content/ohlasky.json",
       "Removed the outdated sheet 2026-09-27 – 2026-10-04",
-      "Removed the later change on 2026-10-18 from src/content/schedule-exceptions.json (the sheet covers it)",
+      "Removed the later change on 2026-10-18 from src/content/schedule-exceptions.json (a sheet covers it)",
     ]);
   });
 
@@ -135,14 +136,20 @@ describe("addOhlasky on a temp ohlasky.json, schedule-exceptions.json and news/"
     expect(readFileSync(laterFile, "utf8")).toBe(wrongPlace);
   });
 
-  it("says when a removed exception falls between sheets instead of in one", () => {
-    // 25.–31. 10. leaves a gap after 4.–11. 10.: both entries (18. and 19. 10.) are in it, before the last sheet's end.
+  it("keeps the exceptions in a gap between sheets until they are past", () => {
+    // 25.–31. 10. leaves a gap after 4.–11. 10.: both entries (18. and 19. 10.) are in it, so they still hold.
     const result = addOhlasky(files, record(datesOf(25, 31)), week("2026-10-25", "2026-10-31"), { now });
     expect(sheets()).toEqual(["2026-10-04", "2026-10-25"]);
+    expect(readScheduleExceptions(laterFile).exceptions).toEqual(LATER);
+    expect(result).toMatchObject({ coveredExceptions: [], pastExceptions: [], written: [file] });
+    // Once 25.–31. 10. is the current sheet, the next sheet removes them as past.
+    const later = new Date("2026-10-27T10:00:00+02:00");
+    const november = ["2026-10-31", ...Array.from({ length: 7 }, (_, i) => `2026-11-0${i + 1}`)];
+    const next = addOhlasky(files, record(november), week("2026-10-31", "2026-11-07"), { now: later });
     expect(readScheduleExceptions(laterFile).exceptions).toEqual([]);
-    expect(ohlaskyLines(result, false).slice(-2)).toEqual([
-      "Removed the later change on 2026-10-18 from src/content/schedule-exceptions.json (between the sheets, so the site ignores it: ask the user whether it still holds)",
-      "Removed the later change on 2026-10-19 from src/content/schedule-exceptions.json (between the sheets, so the site ignores it: ask the user whether it still holds)",
+    expect(ohlaskyLines(next, false).slice(-2)).toEqual([
+      "Removed the later change on 2026-10-18 from src/content/schedule-exceptions.json (it is past)",
+      "Removed the later change on 2026-10-19 from src/content/schedule-exceptions.json (it is past)",
     ]);
   });
 
@@ -157,7 +164,7 @@ describe("addOhlasky on a temp ohlasky.json, schedule-exceptions.json and news/"
     expect(ohlaskyLines(result, true)).toEqual([
       "Would add the sheet 2026-10-11 – 2026-10-18 to src/content/ohlasky.json",
       "Would remove the outdated sheet 2026-09-27 – 2026-10-04",
-      "Would remove the later change on 2026-10-18 from src/content/schedule-exceptions.json (the sheet covers it)",
+      "Would remove the later change on 2026-10-18 from src/content/schedule-exceptions.json (a sheet covers it)",
     ]);
   });
 });

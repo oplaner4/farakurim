@@ -61,9 +61,10 @@ export function sheetExceptions(
 }
 
 /**
- * All schedule exceptions: every day of every sheet (`sheetExceptions()`), the newer sheet replacing a day it shares
- * with the older one, then the hand-entered `later` ones after the last sheet. A hand-entered exception a sheet
- * covers, or that is past, is dropped, so the sheets always win over it. `sheets` are sorted by `validFrom`.
+ * All schedule exceptions by date: every day of every sheet (`sheetExceptions()`), the newer sheet replacing a day it
+ * shares with the older one, and the hand-entered `later` ones on the days no sheet covers (after the last sheet or in
+ * a gap between two). A hand-entered exception a sheet covers is dropped, so the sheets always win over it. `sheets`
+ * are sorted by `validFrom`.
  */
 export function scheduleExceptions(
   sheets: Pick<ServiceSheet, "days" | "validFrom" | "validTo">[],
@@ -72,10 +73,13 @@ export function scheduleExceptions(
 ): ScheduleException[] {
   const byDate = new Map<IsoDate, ScheduleException>();
   for (const sheet of sheets) for (const x of sheetExceptions(sheet, places)) byDate.set(x.date, x);
-  const lastDay = sheets.reduce<IsoDate>((last, s) => (s.validTo > last ? s.validTo : last), "");
-  const fromSheets = [...byDate.values()].sort((a, b) => (a.date < b.date ? -1 : 1));
-  return [...fromSheets, ...later.filter((x) => x.date > lastDay)];
+  const uncovered = later.filter((x) => !byDate.has(x.date));
+  return [...byDate.values(), ...uncovered].sort((a, b) => (a.date < b.date ? -1 : 1));
 }
+
+/** The sheet whose period (`validFrom` to `validTo`) holds `date`, if any. */
+export const sheetCovering = <T extends Pick<ServiceSheet, "validFrom" | "validTo">>(sheets: T[], date: IsoDate) =>
+  sheets.find((s) => s.validFrom <= date && date <= s.validTo);
 
 /**
  * The sheet shown on `today`: the last one (sorted by `validFrom`) whose week has started, so the newer sheet wins

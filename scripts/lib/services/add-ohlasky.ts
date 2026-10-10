@@ -2,14 +2,14 @@
 // `pnpm stage porad <pdf> --record <record.json>`, which stages the PDF and passes its week); a sheet of the same week
 // (rerun, or a corrected PDF's rev) replaces the old one. Sheets may share only their boundary day (sheetOrderProblems()). The sheets
 // before the current one (the last whose week has started, today in Prague) are removed, and so are the changes
-// announced for later (src/content/schedule-exceptions.json) on or before the last sheet's validTo: the sheets cover
-// those days. The files' rules are ohlaskyFileSchema's and scheduleExceptionsFileSchema's (src/lib/services/schema.ts).
+// announced for later (src/content/schedule-exceptions.json) that a kept sheet covers or that are before the current
+// sheet. The files' rules are ohlaskyFileSchema's and scheduleExceptionsFileSchema's (src/lib/services/schema.ts).
 
 import * as z from "zod";
 import type { OhlaskyFile, ScheduleExceptionsFile, ServiceSheetRecord } from "@/content/types/services";
 import type { IsoDate } from "@/content/types/shared";
 import { ohlaskyFileSchema, scheduleExceptionsFileSchema, serviceSheetSchema } from "@/lib/services/schema";
-import { currentSheet, sheetOrderProblems } from "@/lib/services/service-sheet";
+import { currentSheet, sheetCovering, sheetOrderProblems } from "@/lib/services/service-sheet";
 import { pragueDate } from "@/lib/shared/prague";
 import { readJsonFile } from "@/lib/shared/json-file";
 import { newsIds, writeContentFile } from "../content-files";
@@ -33,10 +33,10 @@ export type AddOhlaskyResult = {
   replaced: boolean;
   /** The periods of the outdated sheets removed (or that would be). */
   removed: string[];
-  /** The dates of the changes announced for later on or before the last sheet's validTo, removed (or that would be). */
-  removedExceptions: IsoDate[];
-  /** Those of `removedExceptions` in no kept sheet's period (a gap between sheets): the site ignored them. */
-  betweenSheets: IsoDate[];
+  /** The dates of the changes announced for later that a kept sheet covers, removed (or that would be). */
+  coveredExceptions: IsoDate[];
+  /** The dates of those before the current sheet (in a gap the sheets left), removed (or that would be). */
+  pastExceptions: IsoDate[];
   /** The files written, for formatAndTest; empty with `check`. */
   written: string[];
 };
@@ -82,38 +82,36 @@ export function addOhlasky(
   const problems = sheetOrderProblems(kept);
   if (problems.length > 0) throw new Error(problems.join("\n"));
 
-  const lastDay = kept.at(-1)!.validTo;
   const removed = all.filter((s) => !kept.includes(s)).map(period);
-  const removedExceptions = exceptions.filter((x) => x.date <= lastDay).map((x) => x.date);
-  const betweenSheets = removedExceptions.filter((d) => !kept.some((s) => s.validFrom <= d && d <= s.validTo));
+  const coveredExceptions = exceptions.filter((x) => sheetCovering(kept, x.date)).map((x) => x.date);
+  const pastExceptions = exceptions
+    .filter((x) => x.date < current.validFrom && !coveredExceptions.includes(x.date))
+    .map((x) => x.date);
   const written: string[] = [];
   if (!check) {
     writeContentFile(ohlaskyFile, { sheets: kept } satisfies OhlaskyFile);
     written.push(ohlaskyFile);
-    if (removedExceptions.length > 0) {
-      const later: ScheduleExceptionsFile = { exceptions: exceptions.filter((x) => x.date > lastDay) };
+    const gone = [...coveredExceptions, ...pastExceptions];
+    if (gone.length > 0) {
+      const later: ScheduleExceptionsFile = { exceptions: exceptions.filter((x) => !gone.includes(x.date)) };
       writeContentFile(exceptionsFile, later);
       written.push(exceptionsFile);
     }
   }
-  return { sheet, replaced, removed, removedExceptions, betweenSheets, written };
+  return { sheet, replaced, removed, coveredExceptions, pastExceptions, written };
 }
 
 /** The lines the command prints for `result`. */
 export function ohlaskyLines(result: AddOhlaskyResult, check: boolean): string[] {
-  const { sheet, replaced, removed, removedExceptions, betweenSheets } = result;
+  const { sheet, replaced, removed, coveredExceptions, pastExceptions } = result;
   const verb = replaced ? (check ? "Would replace" : "Replaced") : check ? "Would add" : "Added";
   const remove = check ? "Would remove" : "Removed";
+  const exceptionLine = (date: IsoDate, why: string) =>
+    `${remove} the later change on ${date} from src/content/schedule-exceptions.json (${why})`;
   return [
     `${verb} the sheet ${period(sheet)}${sheet.rev ? ` with rev ${sheet.rev}` : ""} ${replaced ? "in" : "to"} src/content/ohlasky.json`,
     ...removed.map((p) => `${remove} the outdated sheet ${p}`),
-    ...removedExceptions.map(
-      (date) =>
-        `${remove} the later change on ${date} from src/content/schedule-exceptions.json (${
-          betweenSheets.includes(date)
-            ? "between the sheets, so the site ignores it: ask the user whether it still holds"
-            : "the sheet covers it"
-        })`,
-    ),
+    ...coveredExceptions.map((date) => exceptionLine(date, "a sheet covers it")),
+    ...pastExceptions.map((date) => exceptionLine(date, "it is past")),
   ];
 }

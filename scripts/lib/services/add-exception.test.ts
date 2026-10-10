@@ -64,7 +64,7 @@ describe("addException on a temp ohlasky.json and schedule-exceptions.json", () 
   it("refuses a date a sheet covers, a past date, a bad record and a removal of no change", () => {
     const before = raw();
     expect(() => addException(files, { add: { date: "2026-10-11", services: [] } }, { now })).toThrow(
-      "a sheet covers 2026-10-11 (the last one ends on 2026-10-11)",
+      "the sheet 2026-10-04 – 2026-10-11 covers 2026-10-11",
     );
     const late = new Date("2026-10-20T10:00:00+02:00");
     expect(() => addException(files, { add: { date: "2026-10-19", services: [] } }, { now: late })).toThrow(

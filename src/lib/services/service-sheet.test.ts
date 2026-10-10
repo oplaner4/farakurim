@@ -7,6 +7,7 @@ import {
   periodDates,
   publicDays,
   scheduleExceptions,
+  sheetCovering,
   sheetExceptions,
   sheetOrderProblems,
   sheetPdfFile,
@@ -73,7 +74,7 @@ describe("scheduleExceptions", () => {
   const sheet = { validFrom: "2026-10-02", validTo: "2026-10-05", days };
   const cancelled = (date: string) => ({ date, reason: "zrušeno", services: [] });
 
-  it("puts the sheet's days first, then the hand-entered exceptions after the week", () => {
+  it("adds the hand-entered exceptions after the sheet's days, by date", () => {
     const result = scheduleExceptions([sheet], [cancelled("2026-10-11"), cancelled("2026-10-18")], ["kurim"]);
     expect(result.map((x) => x.date)).toEqual([
       "2026-10-02",
@@ -86,12 +87,8 @@ describe("scheduleExceptions", () => {
     expect(result.at(-1)).toEqual(cancelled("2026-10-18"));
   });
 
-  it("drops hand-entered exceptions the sheet covers or that are past", () => {
-    const result = scheduleExceptions(
-      [sheet],
-      [cancelled("2026-09-27"), cancelled("2026-10-04"), cancelled("2026-10-05")],
-      ["kurim"],
-    );
+  it("drops hand-entered exceptions the sheet covers", () => {
+    const result = scheduleExceptions([sheet], [cancelled("2026-10-04"), cancelled("2026-10-05")], ["kurim"]);
     expect(result).toEqual(sheetExceptions(sheet, ["kurim"]));
   });
 
@@ -121,11 +118,24 @@ describe("scheduleExceptions", () => {
     expect(result.at(-1)).toEqual(cancelled("2026-10-07"));
   });
 
-  it("leaves a gap between sheets to the regular schedule", () => {
+  it("leaves a gap between sheets to the regular schedule, except on a hand-entered exception there", () => {
     const later = { validFrom: "2026-10-11", validTo: "2026-10-11", days: [{ date: "2026-10-11", rows: [] }] };
-    const dates = scheduleExceptions([sheet, later], [], ["kurim"]).map((x) => x.date);
+    const dates = scheduleExceptions([sheet, later], [cancelled("2026-10-09")], ["kurim"]).map((x) => x.date);
     expect(dates).not.toContain("2026-10-08");
-    expect(dates.at(-1)).toBe("2026-10-11");
+    expect(dates.slice(-2)).toEqual(["2026-10-09", "2026-10-11"]);
+  });
+});
+
+describe("sheetCovering", () => {
+  const sheets = [
+    { validFrom: "2026-10-04", validTo: "2026-10-11" },
+    { validFrom: "2026-10-18", validTo: "2026-10-25" },
+  ];
+
+  it("finds the sheet whose period holds the date, its first and last day included", () => {
+    expect(sheetCovering(sheets, "2026-10-04")).toBe(sheets[0]);
+    expect(sheetCovering(sheets, "2026-10-25")).toBe(sheets[1]);
+    expect(sheetCovering(sheets, "2026-10-12")).toBeUndefined();
   });
 });
 

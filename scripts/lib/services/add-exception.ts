@@ -1,4 +1,4 @@
-// Adds a change the parish announces for a day after the last ohlášky sheet to src/content/schedule-exceptions.json
+// Adds a change the parish announces for a day no ohlášky sheet covers to src/content/schedule-exceptions.json
 // (farnost-create-vyjimka skill), so the next-mass countdown is right before that week's ohlášky arrive. The
 // record is one ScheduleException: it replaces its whole day (`services: []` cancels it), so it lists every service of
 // that date at the parish churches. A record for a date already there replaces it; the entries stay in date order.
@@ -15,6 +15,7 @@ import * as z from "zod";
 import type { ScheduleException, ScheduleExceptionsFile } from "@/content/types/services";
 import type { IsoDate } from "@/content/types/shared";
 import { scheduleExceptionSchema } from "@/lib/services/schema";
+import { sheetCovering } from "@/lib/services/service-sheet";
 import { pragueDate } from "@/lib/shared/prague";
 import { errorMessage } from "../command";
 import { EXCEPTIONS_FILE, formatAndTest, OHLASKY_FILE, OHLASKY_TESTS, writeContentFile } from "../content-files";
@@ -34,8 +35,8 @@ export type AddExceptionResult = {
 
 /**
  * Applies `change` to `exceptionsFile` and returns what it did; `check` only validates. Throws, before anything is
- * written, for a record that breaks the schema, a date on or before the last sheet's `validTo` in `ohlaskyFile`, a
- * past date, or a removal of a date that has no entry.
+ * written, for a record that breaks the schema, a date a sheet in `ohlaskyFile` covers, a past date, or a removal of
+ * a date that has no entry.
  */
 export function addException(
   { ohlaskyFile, exceptionsFile }: { ohlaskyFile: string; exceptionsFile: string },
@@ -53,9 +54,9 @@ export function addException(
     if (!parsed.success) throw new Error(`the record is not valid:\n${z.prettifyError(parsed.error)}`);
     exception = parsed.data;
     date = exception.date;
-    const lastDay = readOhlasky(ohlaskyFile).sheets.reduce<IsoDate>((d, s) => (s.validTo > d ? s.validTo : d), "");
-    if (date <= lastDay) {
-      throw new Error(`a sheet covers ${date} (the last one ends on ${lastDay}): correct that sheet instead`);
+    const sheet = sheetCovering(readOhlasky(ohlaskyFile).sheets, date);
+    if (sheet) {
+      throw new Error(`the sheet ${sheet.validFrom} – ${sheet.validTo} covers ${date}: correct that sheet instead`);
     }
     if (date < pragueDate(now)) throw new Error(`${date} is past`);
   }

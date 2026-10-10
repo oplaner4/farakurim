@@ -59,8 +59,8 @@ export type OhlaskyFile = {
 };
 
 /**
- * The changes announced for days after the last sheet (src/content/schedule-exceptions.json), by date: a sheet that
- * covers one replaces it.
+ * The changes announced for days no sheet covers (src/content/schedule-exceptions.json), by date: a sheet that covers
+ * one replaces it.
  */
 export type ScheduleExceptionsFile = {
   exceptions: ScheduleException[];
