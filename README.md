@@ -13,7 +13,7 @@ Working on it with Claude Code: `CLAUDE.md` adds the rules an agent follows on t
 
 - **Node.js ≥ 20.9** (required by Next.js 16)
 - **pnpm 10** (`corepack enable` picks up the version in `package.json`). Do not use npm or yarn.
-- **Python 3** for `pnpm preview`, `pnpm mockups` and `scripts/zonerama-album.py`
+- **Python 3** for `pnpm preview` and `pnpm mockups`
 - **poppler-utils** (`pdftoppm`, `pdfinfo`, `pdftotext`) for the PDFs of `pnpm stage` and `pnpm petrklic`; their
   tests skip the PDF cases without it
 - Optional: `pip install --user fonttools brotli` to regenerate the web fonts (`pnpm fonts`), and PHP to try
@@ -84,14 +84,14 @@ they show the build's verse. The "Zdroj: www.vira.cz" link is vira.cz's conditio
 
 Content tooling, used by the content skills (see [Content](#content)):
 
-| Command                                             | What it does                                                                            |
-| --------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `pnpm stage aktualita\|porad\|petrklic … [--check]` | Stage a file in `uploads/` and print its lines for `src/content/`                       |
-| `pnpm add-aktualita <record.json> [--check]`        | Add an aktualita to its month's JSON file in `src/content/news/`, checked by its schema |
-| `pnpm aktualita-calendar <id> [--out <dir>]`        | Check that the aktualita's Události event links its page; else write the `.ics`         |
-| `pnpm petrklic <id> [--pages]`                      | Render a Petrklíč issue's `cover.webp` (and viewer `pages/`) from its PDF               |
-| `tsx scripts/upload-images.ts poster <in> <out>`    | Render an event poster (PDF page 1 or image) to WebP                                    |
-| `python3 scripts/zonerama-album.py <album-url>`     | Read a Zonerama album as JSON; `--write` adds it to `gallery.ts`                        |
+| Command                                             | What it does                                                                                       |
+| --------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `pnpm stage aktualita\|porad\|petrklic … [--check]` | Stage a file in `uploads/` and print its lines for `src/content/`                                  |
+| `pnpm add-aktualita <record.json> [--check]`        | Add an aktualita to its month's JSON file in `src/content/news/`, checked by its schema            |
+| `pnpm aktualita-calendar <id> [--out <dir>]`        | Check that the aktualita's Události event links its page; else write the `.ics`                    |
+| `pnpm petrklic <id> [--pages]`                      | Render a Petrklíč issue's `cover.webp` (and viewer `pages/`) from its PDF                          |
+| `tsx scripts/upload-images.ts poster <in> <out>`    | Render an event poster (PDF page 1 or image) to WebP                                               |
+| `pnpm add-album <album-url> [--write …]`            | Read a Zonerama album as JSON; `--write` adds it to `gallery.json` and removes the oldest beyond 6 |
 
 Before you commit, run the full check and compare the change with the mockups: see
 [docs/conventions.md](docs/conventions.md), which also holds the language, stack, static-export and commit conventions.
@@ -129,7 +129,7 @@ Content lives in `src/content/` and is added with the Claude Code project skills
 | --------------------------------- | --------------------------------------------- |
 | `farnost-create-aktualita`        | An event from a poster or PDF, into `news/`   |
 | `farnost-create-porad-bohosluzeb` | The weekly ohlášky PDF, into `ohlasky.json`   |
-| `farnost-create-galerie`          | A Zonerama album, into `gallery.ts`           |
+| `farnost-create-galerie`          | A Zonerama album, into `gallery.json`         |
 | `farnost-create-petrklic`         | A Petrklíč newsletter PDF, into `petrklic.ts` |
 
 Each finishes with `farnost-publish-content`, which commits and releases with `farnost-release`.

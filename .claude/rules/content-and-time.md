@@ -58,7 +58,9 @@ build-time next mass.
   until Google answers. Without `NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY` the entries are a fallback generated from
   `regularServices` and the Aktuality records, nothing is fetched, and paging stops at the prerendered months; a release build (`RELEASE_BUILD=1`) fails without the key instead (`src/lib/shared/build-env.ts`). An Události event links to its Aktuality record when its description holds the detail page's URL (`aktualitaPaths()`; only pages the build has, `linkablePages` in `server/calendar.ts`); `pnpm aktualita-calendar <id>` checks it and writes the `.ics` to import. The weekly table and the
   next-mass countdown still use `regularServices` / `scheduleExceptions()`.
-- Fotogalerie (`content/gallery.ts`): Zonerama albums, newest first, with `photoCount` and optional `photos`
+- Fotogalerie (`content/gallery.json`, loaded and checked by `content/gallery.ts` with `galleryFileSchema` from
+  `src/lib/gallery/schema.ts`): Zonerama albums, newest first, at most `MAX_ALBUMS` (`pnpm add-album` removes the
+  older ones), with `photoCount` and optional `photos`
   (`small`/`large` URLs). An album without `photos` shows `photoCount` designed placeholders in the strips and the homepage
   carousel; alt texts are computed (`photoAlt()` in `src/lib/gallery/albums.ts`). A photo opens the
   lightbox (DESIGN.md §21) at `#album-<id>-foto-N`; an event poster that is an image opens it at `#plakat` (detail page)

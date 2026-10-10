@@ -880,7 +880,7 @@ Expected: FAIL, `addAlbum`, `albumLines` and `readGallery` are not exported.
 
 - [ ] **Step 3: Add `GALLERY_FILE`** to `scripts/content-files.ts` after `OHLASKY_FILE`, and name `add-album` in the
       header comment (`// The helpers the content scripts share (add-aktualita, add-album, add-ohlasky,
-    aktualita-calendar, stage/): …`):
+aktualita-calendar, stage/): …`):
 
 ```ts
 export const GALLERY_FILE = join(ROOT, "src/content/gallery.json");
@@ -1112,7 +1112,7 @@ the photo URLs by hand.
 - [ ] **Step 3: Rule.** In `.claude/rules/content-and-time.md` replace the start of the Fotogalerie bullet
       `- Fotogalerie (\`content/gallery.ts\`): Zonerama albums, newest first, with \`photoCount\` and optional
       \`photos\``with
-   `- Fotogalerie (\`content/gallery.json\`, loaded and checked by \`content/gallery.ts\` with
+ `- Fotogalerie (\`content/gallery.json\`, loaded and checked by \`content/gallery.ts\` with
       \`galleryFileSchema\` from \`src/lib/gallery/schema.ts\`): Zonerama albums, newest first, at most \`MAX_ALBUMS\`
       (\`pnpm add-album\` removes the older ones), with \`photoCount\` and optional \`photos\`` and leave the rest of
       the bullet as it is.
