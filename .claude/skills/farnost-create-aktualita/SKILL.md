@@ -1,19 +1,23 @@
 ---
 name: farnost-create-aktualita
-description: Add a new aktualita (event) to the new farakurim.cz site from a poster, invitation or announcement given as a PDF, PNG or JPG - extract the event, confirm it with the user, add a NewsEvent to its month's JSON file in src/content/news/, stage the poster and attachments for the server, then publish. Use whenever the user wants to add, post or publish an aktualita, event, plakát or pozvánka.
+description: Add a new aktualita (event) to the new farakurim.cz site from a poster, invitation or announcement given as a PDF, PNG or JPG, or from the details alone - extract the event, confirm it with the user, add a NewsEvent to its month's JSON file in src/content/news/, stage the poster and attachments for the server, then publish. Use whenever the user wants to add, post or publish an aktualita, event, plakát or pozvánka.
 ---
 
 # Create an aktualita
 
-Read the file, extract one event as a `NewsEvent` (`src/content/types/news.ts`), confirm it with the user, add it to
-`src/content/news/<year>/<MM>.json`, stage its files, then finish with **`farnost-publish-content`**. The fields and how they are
-shown are specified in `design/DESIGN.md` §11.7 and §13.4.
+Read the source, extract one event as a `NewsEvent` (`src/content/types/news.ts`), confirm it with the user, add it
+to `src/content/news/<year>/<MM>.json`, stage its file if it has one, then finish with **`farnost-publish-content`**.
+The fields and how they are shown are specified in `design/DESIGN.md` §11.7 and §13.4.
 
-## 1. Read the file
+## 1. Read the source
 
-The user gives at least a file name; without a folder, look in `~/Downloads/`. Read it with the `Read` tool (images
-render visually; for a PDF also run `pdftotext -layout <file> -` so no small print is missed). One file is one event;
-if it announces several unrelated events, ask which to add (or add each separately).
+The source is usually a file: the user gives at least its name; without a folder, look in `~/Downloads/`. Read it
+with the `Read` tool (images render visually; for a PDF also run `pdftotext -layout <file> -` so no small print is
+missed). One file is one event; if it announces several unrelated events, ask which to add (or add each separately).
+
+Without a file, warn the user before going on: the aktualita gets no poster (the cards and the detail page show the
+placeholder) and no attachment, so ask whether they have a poster or invitation after all. If not, take the event
+from what they wrote, follow steps 3b and 5b instead of 3a and 5a.
 
 ## 2. Extract the event
 
@@ -40,7 +44,7 @@ Write the text from the source, in Czech; do not invent facts. Leave out what th
 | `pinned`               | `true` only when the user asks for "Doporučujeme". The script moves the pin: it unpins the event pinned before and names it.                                                                                                                           |
 | `published`            | Leave out: the script sets today's date in Prague (the shared link's publication date). Keep it when editing a record later.                                                                                                                           |
 
-## 3. Pick the label
+## 3a. Pick the label (only with a file)
 
 The source file is attached under a label, shown on the page as written (with its accents); the script names the
 file `<id>-<label in ASCII>.<ext>`. Prefer one of these; another short Czech label is fine when none fits
@@ -63,14 +67,23 @@ name, a bad id and a label without letters or digits):
 pnpm stage aktualita "<source>" <id> "<label>" --title "<title>" [--no-poster] --check
 ```
 
+## 3b. Check the record (only without a file)
+
+Write the event to `record.json` as in step 5a and check it (its fields, a free `id`, and the `Would unpin …` line
+for a pinned event):
+
+```sh
+pnpm add-aktualita <scratchpad>/record.json --check
+```
+
 ## 4. Confirm with the user
 
-Show the extracted fields, the label as written and whether the file becomes the poster in a short list (the
-script takes any label, so a typo like `Plakat` would go on the page). Point out guesses: the year, an inferred end date,
-`longTerm`. For a pinned event, say which event loses "Doporučujeme" (the `Would unpin …` line of the step 3
-command run with `--record`). Wait for corrections before writing anything.
+Show the extracted fields and, with a file, the label as written and whether the file becomes the poster in a short
+list (the script takes any label, so a typo like `Plakat` would go on the page). Point out guesses: the year, an
+inferred end date, `longTerm`. For a pinned event, say which event loses "Doporučujeme" (the `Would unpin …` line of
+the step 3a command run with `--record`, or of step 3b). Wait for corrections before writing anything.
 
-## 5. Stage the files and add the record
+## 5a. Stage the file and add the record (only with a file)
 
 Write the confirmed event as JSON to `record.json` in the session's scratchpad (never in the repo): the fields
 from step 2, without `published`, `poster` and `attachments`. A `poster.alt` you write (e.g. with the date) is
@@ -87,35 +100,26 @@ kept; otherwise it is `"<label>: <title>"`.
 }
 ```
 
-Then run the step 3 command without `--check`, with the record:
+Then run the step 3a command without `--check`, with the record:
 
 ```sh
 pnpm stage aktualita "<source>" <id> "<label>" [--no-poster] --record <scratchpad>/record.json
 ```
 
-It validates the record first against `newsEventSchema` (`src/lib/news/schema.ts`: required fields, dates,
-times, links, unknown fields) and checks the `id` is free, so a bad record stages nothing; the error names each
-field. Then it copies the file to `uploads/aktuality/` and, for an image or PDF, renders the poster WebP next to
-it (unless `--no-poster`; an event without a poster gets the designed placeholder). Last, `scripts/lib/news/add-aktualita.ts` adds the record with `poster`, `attachments` and `published` to
-the JSON file of its **start month** (`src/content/news/<year>/<MM>.json`, any year) in start-date order, formats it
-and runs the news tests. The month's first event creates its file (and the year's folder). A pinned record also
-unpins every other record (`Unpinned <id> (<title>)`, its month file is written too); an event that has already
-ended cannot be pinned, and the command stops before staging.
+## 5b. Add the record (only without a file)
 
-The attachment is the original file (the full-size link); the poster is only the WebP. Finished events stay in
-the file: the archive lists them. An event without a source file is added with
-`pnpm add-aktualita <scratchpad>/record.json` alone. Without `--record`, `pnpm stage` only prints the `"poster"`
-and `"attachments"` entries as JSON, to paste into an existing record. A correction to an existing record is an
-edit of its month file; `pnpm test src/content/news` checks it. `pnpm dev` reads the files once, so restart it
-to see a hand edit.
+Update `record.json` from step 3b with the confirmed event, then add it:
 
-If the record is refused after staging (it should not be: it is checked first), fix `record.json` and run the same
-command again: staging the same file again is allowed.
+```sh
+pnpm add-aktualita <scratchpad>/record.json
+```
 
-After adding the record, the command checks the event in the "Události" Google Calendar
-(`scripts/lib/news/aktualita-calendar.ts`; `pnpm aktualita-calendar <id>` runs it again later). The Kalendář links a calendar
-event to the detail page when the event's description holds the page's URL. Show the user its output as printed:
-it says what, if anything, they need to do.
+The output of step 5a or 5b means (5b stages nothing):
+
+- An error (a bad field, a taken `id`, a pin on an event that has already ended): nothing was staged. Fix
+  `record.json` and run the same command again.
+- The `Události …` lines (the event in the Google Calendar the Kalendář reads): unless they say `linked`, show
+  them to the user as printed; they say what to do.
 
 ## 6. Publish
 
@@ -127,9 +131,10 @@ Follow **`farnost-publish-content`** (commit, upload and push). Until the calend
 - Copying the poster's capitals into `title`, or its whole text into `body`: keep `text` short and `body` brief.
 - Putting URLs or e-mails into `text`/`body` instead of `links`.
 - Guessing a year or end date silently: say it in the confirmation.
+- Going on without a file and without the warning in step 1: the user may have a poster to add.
 - Staging (without `--check`) before the user confirms: an abandoned file would go out with the next release.
-- Editing the month file by hand for a new event instead of `--record`: the order and `published` are then up to
-  you.
+- Editing the month file by hand for a new event instead of `--record` (or `pnpm add-aktualita`): the order and
+  `published` are then up to you.
 - Editing `pinned` in a month file by hand: a pinned `--record` moves the pin itself.
 - Forgetting `--no-poster` for a text-only PDF (`Program`, `Informace`, `Oznámení`): its first page becomes the
   poster.
