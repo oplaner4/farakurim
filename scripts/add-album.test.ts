@@ -15,7 +15,6 @@ import {
   readAlbumPage,
   readGallery,
   selectPhotos,
-  slug,
   titleAndDate,
   type ZoneramaItem,
 } from "./add-album";
@@ -119,13 +118,6 @@ describe("photoUrl", () => {
   it("fills the width and the height scaled to it", () => {
     expect(photoUrl(item(1, 1500, 1000), 800)).toBe("https://eu.zonerama.com/photos/1_800x533_18.jpg");
     expect(photoUrl(item(1, 1500, 1000), 1600)).toBe("https://eu.zonerama.com/photos/1_1600x1067_18.jpg");
-  });
-});
-
-describe("slug", () => {
-  it("is ASCII kebab-case", () => {
-    expect(slug("Pěší pouť na Vranov")).toBe("pesi-pout-na-vranov");
-    expect(slug("  Žehnání – náměstí! ")).toBe("zehnani-namesti");
   });
 });
 

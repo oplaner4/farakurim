@@ -19,6 +19,7 @@ import * as z from "zod";
 import type { Album, AlbumPhoto, GalleryFile } from "@/content/types/gallery";
 import { MAX_ALBUMS } from "@/lib/gallery/albums";
 import { albumNumber, albumSchema, galleryFileSchema } from "@/lib/gallery/schema";
+import { slug } from "@/lib/shared/slug";
 import { formatAndTest, GALLERY_FILE } from "./content-files";
 
 const MAX_PHOTOS = 15;
@@ -113,15 +114,6 @@ export function photoUrl(item: ZoneramaItem, width: number): string {
   const height = Math.round((width * Number(item.height)) / Number(item.width));
   return item.image.replace("{width}", String(width)).replace("{height}", String(height));
 }
-
-/** "Pouť na Vranov" → "pout-na-vranov" */
-export const slug = (text: string) =>
-  text
-    .normalize("NFKD")
-    .replace(/\P{ASCII}/gu, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
 
 /** What the command prints without --write, for the user to confirm. */
 export type Proposal = {
