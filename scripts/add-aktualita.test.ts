@@ -6,6 +6,7 @@ import { readEvents, readMonth } from "@/content/news";
 import type { NewsEvent } from "@/content/types/news";
 import { addAktualita, insertRecord, monthFile, parseCommand, targetLine } from "./add-aktualita";
 import { formatFiles, NEWS_DIR } from "./content-files";
+import { useNewsFixture } from "./test-helpers";
 
 // The newest year folder in news/ and the one after it, which does not exist yet: the new-year test must keep
 // passing after a real event of that year adds its folder.
@@ -161,6 +162,60 @@ describe("addAktualita on a copy of news/", { timeout: 30_000 }, () => {
       expect(() => addAktualita(news, full, { now, check })).toThrow(/2024\/03\.json is not valid JSON/);
     }
     expect(raw("2026/10.json")).toBe(before);
+  });
+});
+
+describe("addAktualita with pinned", () => {
+  const news = useNewsFixture({
+    "2026/09.json": [record({ id: "zari-2026", start: "2026-09-12", pinned: true })],
+    "2026/10.json": [record({ id: "hody-2026", start: "2026-10-20" })],
+  });
+  const now = new Date("2026-10-07T10:00:00Z");
+  const pinnedIds = () =>
+    readEvents(news.dir())
+      .filter((e) => e.pinned)
+      .map((e) => e.id);
+
+  it("moves the pin to the new record", () => {
+    const result = addAktualita(news.dir(), record({ id: "novy-2026", start: "2026-11-01", pinned: true }), { now });
+    expect(result.unpinned.map((e) => e.id)).toEqual(["zari-2026"]);
+    expect(result.written).toEqual(["2026/11.json", "2026/09.json"]);
+    expect(pinnedIds()).toEqual(["novy-2026"]);
+  });
+
+  it("writes a month file once when it holds both records", () => {
+    addAktualita(news.dir(), record({ id: "x-2026", start: "2026-10-10", pinned: true }), { now });
+    const result = addAktualita(news.dir(), record({ id: "y-2026", start: "2026-10-12", pinned: true }), { now });
+    expect(result.unpinned.map((e) => e.id)).toEqual(["x-2026"]);
+    expect(result.written).toEqual(["2026/10.json"]);
+    expect(pinnedIds()).toEqual(["y-2026"]);
+  });
+
+  it("only reports the unpinned record with check", () => {
+    const result = addAktualita(news.dir(), record({ id: "novy-2026", start: "2026-11-01", pinned: true }), {
+      now,
+      check: true,
+    });
+    expect(result.unpinned.map((e) => e.id)).toEqual(["zari-2026"]);
+    expect(result.written).toEqual([]);
+    expect(pinnedIds()).toEqual(["zari-2026"]);
+  });
+
+  it("refuses to pin a record that has ended, also with check", () => {
+    for (const check of [true, false]) {
+      expect(() =>
+        addAktualita(news.dir(), record({ id: "stare-2026", start: "2026-10-01", pinned: true }), { now, check }),
+      ).toThrow("cannot pin stare-2026: it ended on 2026-10-01");
+    }
+    expect(pinnedIds()).toEqual(["zari-2026"]);
+  });
+
+  it("leaves the pin alone without pinned, and drops pinned: false", () => {
+    const result = addAktualita(news.dir(), record({ id: "novy-2026", start: "2026-10-25", pinned: false }), { now });
+    expect(result.unpinned).toEqual([]);
+    expect(result.written).toEqual(["2026/10.json"]);
+    expect(readMonth(news.dir(), "2026/10.json").find((e) => e.id === "novy-2026")).not.toHaveProperty("pinned");
+    expect(pinnedIds()).toEqual(["zari-2026"]);
   });
 });
 

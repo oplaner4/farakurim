@@ -37,7 +37,7 @@ Write the text from the source, in Czech; do not invent facts. Leave out what th
 | `longTerm`             | `{ weeklyAt: "18:30" }` for a weekly series (weekday of `start`), `true` for other long-running events.                                                                                                                                                |
 | `highlights`           | Only for real key facts or numbers (anniversaries); usually omit.                                                                                                                                                                                      |
 | `tags`                 | Short free tags only when nothing above fits: `[{ label: "Zrušeno" }]`; `color` `"orange"`, `"magenta"` or `"grey"` instead of the default blue.                                                                                                       |
-| `pinned`               | Only when the user asks for "Doporučujeme". At most one: remove `pinned` from the previous event.                                                                                                                                                      |
+| `pinned`               | `true` only when the user asks for "Doporučujeme". The script moves the pin: it unpins the event pinned before and names it.                                                                                                                           |
 | `published`            | Leave out: the script sets today's date in Prague (the shared link's publication date). Keep it when editing a record later.                                                                                                                           |
 
 ## 3. Pick the label
@@ -67,7 +67,8 @@ pnpm stage aktualita "<source>" <id> "<label>" --title "<title>" [--no-poster] -
 
 Show the extracted fields, the label as written and whether the file becomes the poster in a short list (the
 script takes any label, so a typo like `Plakat` would go on the page). Point out guesses: the year, an inferred end date,
-`longTerm`. Wait for corrections before writing anything.
+`longTerm`. For a pinned event, say which event loses "Doporučujeme" (the `Would unpin …` line of the step 3
+command run with `--record`). Wait for corrections before writing anything.
 
 ## 5. Stage the files and add the record
 
@@ -97,7 +98,9 @@ times, links, unknown fields) and checks the `id` is free, so a bad record stage
 field. Then it copies the file to `uploads/aktuality/` and, for an image or PDF, renders the poster WebP next to
 it (unless `--no-poster`; an event without a poster gets the designed placeholder). Last, `scripts/add-aktualita.ts` adds the record with `poster`, `attachments` and `published` to
 the JSON file of its **start month** (`src/content/news/<year>/<MM>.json`, any year) in start-date order, formats it
-and runs the news tests. The month's first event creates its file (and the year's folder).
+and runs the news tests. The month's first event creates its file (and the year's folder). A pinned record also
+unpins every other record (`Unpinned <id> (<title>)`, its month file is written too); an event that has already
+ended cannot be pinned, and the command stops before staging.
 
 The attachment is the original file (the full-size link); the poster is only the WebP. Finished events stay in
 the file: the archive lists them. An event without a source file is added with
@@ -127,6 +130,6 @@ Follow **`farnost-publish-content`** (commit, upload and push). Until the calend
 - Staging (without `--check`) before the user confirms: an abandoned file would go out with the next release.
 - Editing the month file by hand for a new event instead of `--record`: the order and `published` are then up to
   you.
-- Pinning a second event without unpinning the first.
+- Editing `pinned` in a month file by hand: a pinned `--record` moves the pin itself.
 - Forgetting `--no-poster` for a text-only PDF (`Program`, `Informace`, `Oznámení`): its first page becomes the
   poster.

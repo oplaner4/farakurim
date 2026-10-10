@@ -5,22 +5,23 @@
 //
 // Usage: pnpm add-aktualita <record.json | -> [--check]
 // The record is a NewsEvent as JSON, upload paths root-relative ("/uploads/aktuality/x.webp"). --check only
-// validates the record and the news files and prints the target file, without writing.
+// validates the record and the news files and prints the target file, without writing. A record with
+// `"pinned": true` takes the pin from the record pinned before (scripts/pin-aktualita.ts), named in the output.
 // Then it checks the event in the Události calendar (scripts/aktualita-calendar.ts).
 // `pnpm stage aktualita … --record <file>` (scripts/stage/cli.ts) adds the staged poster and attachments and
 // calls addAktualita(), formatAndTest() and the calendar check itself.
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import * as z from "zod";
-import { readMonth } from "@/content/news";
 import type { NewsEvent } from "@/content/types/news";
 import { newsEventSchema } from "@/lib/news/schema";
 import { pragueDate } from "@/lib/shared/prague";
 import { reportCalendar } from "./aktualita-calendar";
-import { formatAndTest, NEWS_DIR, newsIds } from "./content-files";
+import { formatAndTest, NEWS_DIR, writeMonth } from "./content-files";
+import { assertPinnable, movePin, readMonths, unpinnedLines, withoutPin } from "./pin-aktualita";
 
 /** The month file inside news/ for a record starting on `start`. */
 export const monthFile = (start: string) => `${start.slice(0, 4)}/${start.slice(5, 7)}.json`;
@@ -32,27 +33,29 @@ export function insertRecord(list: NewsEvent[], record: NewsEvent): NewsEvent[] 
 }
 
 /**
- * Adds `input` to the news folder `newsDir` and returns the file it wrote (relative to newsDir); `check` only
- * validates. Throws with every problem found, before anything is written.
+ * Adds `input` to the news folder `newsDir` and returns the files it wrote (relative to newsDir, the record's month
+ * file first); `check` only validates. A pinned record takes the pin from every other record (movePin()). Throws with
+ * every problem found, before anything is written.
  */
 export function addAktualita(newsDir: string, input: unknown, { check = false, now = new Date() } = {}) {
   const withDate = input !== null && typeof input === "object" ? { published: pragueDate(now), ...input } : input;
   const parsed = newsEventSchema.safeParse(withDate);
   if (!parsed.success) throw new Error(`the record is not valid:\n${z.prettifyError(parsed.error)}`);
-  const record = parsed.data;
+  const record = parsed.data.pinned === false ? withoutPin(parsed.data) : parsed.data;
+  if (record.pinned) assertPinnable(record, pragueDate(now));
   // Reads and checks every month file, so a broken one stops the script before it writes.
-  if (newsIds(newsDir).has(record.id)) {
+  const months = readMonths(newsDir);
+  if ([...months.values()].some((list) => list.some((e) => e.id === record.id))) {
     throw new Error(`id ${record.id} is already taken`);
   }
   const target = monthFile(record.start);
-  const path = join(newsDir, target);
-  const created = !existsSync(path);
-  if (!check) {
-    const list = created ? [] : readMonth(newsDir, target);
-    mkdirSync(dirname(path), { recursive: true });
-    writeFileSync(path, `${JSON.stringify(insertRecord(list, record), null, 2)}\n`);
-  }
-  return { record, target, created, written: check ? [] : [target] };
+  const created = !months.has(target);
+  months.set(target, insertRecord(months.get(target) ?? [], record));
+  const { changed, unpinned } = record.pinned ? movePin(months, record.id) : { changed: new Map(), unpinned: [] };
+  // The record's month file first; movePin() may have changed it too.
+  const files = new Map<string, NewsEvent[]>([[target, months.get(target) ?? []], ...changed]);
+  if (!check) for (const [file, list] of files) writeMonth(newsDir, file, list);
+  return { record, target, created, unpinned, written: check ? [] : [...files.keys()] };
 }
 
 /** The line saying where the record went (or would go) in src/content/news/. */
@@ -89,7 +92,7 @@ async function main() {
   try {
     const input: unknown = JSON.parse(readFileSync(file === "-" ? 0 : file, "utf8"));
     const result = addAktualita(NEWS_DIR, input, { check });
-    console.log(targetLine(result, check));
+    console.log([targetLine(result, check), ...unpinnedLines(result.unpinned, check)].join("\n"));
     if (!check) {
       await formatAndTest(
         result.written.map((f) => join(NEWS_DIR, f)),

@@ -2,7 +2,8 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";
 import { describe, expect, it } from "vitest";
-import { readMonth } from "@/content/news";
+import { readEvents, readMonth } from "@/content/news";
+import { addAktualita } from "../add-aktualita";
 import { labelSuffix, stageAktualita } from "./aktualita";
 import { POSTER_WIDTH } from "./images";
 import { useStageFixture } from "../test-helpers";
@@ -132,6 +133,35 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
     ]);
   });
 
+  it("moves the pin to a pinned record and names the record it unpins", async () => {
+    // A known pinned record far ahead, whatever the real records pin.
+    const before = { ...record, id: "test-pinned-2098", start: "2098-10-20", pinned: true };
+    addAktualita(env.newsDir, before);
+    const source = await poster();
+    const options = {
+      source,
+      id: "test-hody-2099",
+      label: "Plakát",
+      record: { ...record, id: "test-hody-2099", start: "2099-10-20", pinned: true },
+    };
+    expect((await stageAktualita(env, { ...options, check: true })).lines).toEqual([
+      "Would add the record to src/content/news/2099/10.json (new file)",
+      "Would unpin test-pinned-2098 (Hody v České)",
+      "Would stage uploads/aktuality/test-hody-2099-plakat.jpg and .webp",
+    ]);
+    const { lines, written } = await stageAktualita(env, options);
+    expect(lines.slice(1)).toEqual([
+      "Added the record to src/content/news/2099/10.json (new file)",
+      "Unpinned test-pinned-2098 (Hody v České)",
+    ]);
+    expect(written).toEqual(["2099/10.json", "2098/10.json"]);
+    expect(
+      readEvents(env.newsDir)
+        .filter((e) => e.pinned)
+        .map((e) => e.id),
+    ).toEqual(["test-hody-2099"]);
+  });
+
   it("stages nothing for a record it refuses", async () => {
     const source = await poster();
     await expect(
@@ -140,6 +170,14 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
     await expect(
       stageAktualita(env, { source, id: "test-hody-2026", label: "Plakát", record: { ...record, start: "20. 10." } }),
     ).rejects.toThrow("the record is not valid");
+    await expect(
+      stageAktualita(env, {
+        source,
+        id: "test-stare-2020",
+        label: "Plakát",
+        record: { ...record, id: "test-stare-2020", start: "2020-10-20", pinned: true },
+      }),
+    ).rejects.toThrow("cannot pin test-stare-2020: it ended on 2020-10-20");
     expect(existsSync(uploaded())).toBe(false);
   });
 });

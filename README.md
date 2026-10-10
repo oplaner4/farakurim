@@ -88,6 +88,7 @@ Content tooling, used by the content skills (see [Content](#content)):
 | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | `pnpm stage aktualita\|porad\|petrklic … [--check]` | Stage a file in `uploads/`; petrklic adds the issue to `petrklic.json`, the others print or add a `--record`; `--corrected` for a corrected PDF |
 | `pnpm add-aktualita <record.json> [--check]`        | Add an aktualita to its month's JSON file in `src/content/news/`, checked by its schema                                                         |
+| `pnpm pin-aktualita <id> \| --none [--check]`       | Pin an aktualita for "Doporučujeme" and unpin every other one (`--none`: unpin all); a pinned new record moves the pin itself                   |
 | `pnpm aktualita-calendar <id> [--out <dir>]`        | Check that the aktualita's Události event links its page; else write the `.ics`                                                                 |
 | `pnpm add-album <album-url> [--write \| --check …]` | Read a Zonerama album as JSON; `--write` adds it to `gallery.json` and removes the oldest beyond 6, `--check` only says what `--write` would do |
 
@@ -123,12 +124,13 @@ links, hooks, checking against the design) are in `.claude/rules/`.
 
 Content lives in `src/content/` and is added with the Claude Code project skills in `.claude/skills/`:
 
-| Skill                             | Adds                                            |
-| --------------------------------- | ----------------------------------------------- |
-| `farnost-create-aktualita`        | An event from a poster or PDF, into `news/`     |
-| `farnost-create-porad-bohosluzeb` | The weekly ohlášky PDF, into `ohlasky.json`     |
-| `farnost-create-galerie`          | A Zonerama album, into `gallery.json`           |
-| `farnost-create-petrklic`         | A Petrklíč newsletter PDF, into `petrklic.json` |
+| Skill                             | Adds                                                          |
+| --------------------------------- | ------------------------------------------------------------- |
+| `farnost-create-aktualita`        | An event from a poster or PDF, into `news/`                   |
+| `farnost-pin-aktualita`           | The "Doporučujeme" pin, moved to an existing event or removed |
+| `farnost-create-porad-bohosluzeb` | The weekly ohlášky PDF, into `ohlasky.json`                   |
+| `farnost-create-galerie`          | A Zonerama album, into `gallery.json`                         |
+| `farnost-create-petrklic`         | A Petrklíč newsletter PDF, into `petrklic.json`               |
 
 Each finishes with `farnost-publish-content`, which commits and releases with `farnost-release`.
 

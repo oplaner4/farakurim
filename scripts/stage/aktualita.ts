@@ -1,12 +1,13 @@
 // `pnpm stage aktualita` (scripts/stage/cli.ts): stages an aktualita's file as
 // uploads/aktuality/<id>-<label in ASCII>.<ext> with its poster WebP and, with a record, adds the event with its
-// files to its month file in src/content/news/ (scripts/add-aktualita.ts).
+// files to its month file in src/content/news/ (scripts/add-aktualita.ts), moving the pin to it when it is pinned.
 
 import { statSync } from "node:fs";
 import { extname } from "node:path";
 import type { NewsEvent } from "@/content/types/news";
 import { fold } from "@/lib/shared/czech";
 import { addAktualita, targetLine } from "../add-aktualita";
+import { unpinnedLines } from "../pin-aktualita";
 import { MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
 import { renderPoster } from "./images";
 
@@ -80,7 +81,7 @@ export async function stageAktualita(
     record.attachments = [{ label, file: `/uploads/aktuality/${name}${ext}`, size }];
     // Validate before anything is copied, so a bad record leaves nothing staged.
     const target = addAktualita(env.newsDir, record, { check: true });
-    if (check) lines.push(targetLine(target, true));
+    if (check) lines.push(targetLine(target, true), ...unpinnedLines(target.unpinned, true));
   }
   const dest = await stage(env, src, `aktuality/${name}${ext}`, check);
   if (poster && !check) await renderPoster(dest, dest.slice(0, -ext.length) + ".webp");
@@ -94,6 +95,6 @@ export async function stageAktualita(
   }
   if (check) return { lines, written: [] };
   const result = addAktualita(env.newsDir, record);
-  lines.push(targetLine(result, false));
+  lines.push(targetLine(result, false), ...unpinnedLines(result.unpinned, false));
   return { lines, written: result.written, event: result.record };
 }

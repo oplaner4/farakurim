@@ -6,6 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import sharp from "sharp";
 import { afterEach, beforeEach, vi } from "vitest";
+import type { NewsEvent } from "@/content/types/news";
 import { NEWS_DIR, OHLASKY_FILE, PETRKLIC_FILE } from "./content-files";
 import type { StageEnv } from "./stage/core";
 
@@ -37,6 +38,23 @@ export function pdfWithText(pages: string[]): Buffer {
   pdf += offsets.map((offset) => `${String(offset).padStart(10, "0")} 00000 n \n`).join("");
   pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
   return Buffer.from(pdf, "latin1");
+}
+
+/**
+ * A temp news folder holding only `months` (`"<year>/<MM>.json"` → records), fresh for each test; `dir()` is its
+ * path. For the tests that must not depend on the real records (which event is pinned).
+ */
+export function useNewsFixture(months: Record<string, NewsEvent[]>) {
+  let dir = "";
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), "news-"));
+    for (const [file, list] of Object.entries(months)) {
+      mkdirSync(join(dir, file.slice(0, 4)), { recursive: true });
+      writeFileSync(join(dir, file), `${JSON.stringify(list, null, 2)}\n`);
+    }
+  });
+  afterEach(() => rmSync(dir, { recursive: true, force: true }));
+  return { dir: () => dir };
 }
 
 /**
