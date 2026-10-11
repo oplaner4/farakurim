@@ -108,7 +108,9 @@ export function parseCommand(args: string[]): { change: ExceptionChange; check: 
   const { positionals, values } = parsed;
   const check = values.check ?? false;
   if (values.remove !== undefined) {
-    if (positionals.length > 0 || !/^\d{4}-\d{2}-\d{2}$/.test(values.remove)) throw new Error(USAGE);
+    if (positionals.length > 0 || !scheduleExceptionSchema.shape.date.safeParse(values.remove).success) {
+      throw new Error(USAGE);
+    }
     return { change: { remove: values.remove }, check };
   }
   if (positionals.length !== 1) throw new Error(USAGE);

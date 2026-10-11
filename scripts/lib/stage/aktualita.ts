@@ -17,6 +17,7 @@ import { readEvents } from "@/content/news";
 import type { EventAttachment, NewsEvent } from "@/content/types/news";
 import { slug } from "@/lib/shared/slug";
 import { posterHref } from "@/lib/news/events";
+import { newsEventSchema, UPLOAD_EXTENSIONS } from "@/lib/news/schema";
 import { revSuffix } from "@/lib/shared/revision";
 import { addAktualita, targetLine } from "../news/add-aktualita";
 import { planPoster, POSTER_EXTENSIONS, POSTER_SUFFIX, type PosterRender } from "../news/poster-aktualita";
@@ -24,22 +25,6 @@ import { replaceAktualita, replaceLines } from "../news/replace-aktualita";
 import { unpinnedLines } from "../news/pin-aktualita";
 import { correctedRev, MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
 import { renderPoster } from "../images";
-
-const EXTENSIONS = new Set([
-  ".pdf",
-  ".png",
-  ".jpg",
-  ".webp",
-  ".gif",
-  ".mp3",
-  ".m4a",
-  ".ogg",
-  ".wav",
-  ".mp4",
-  ".webm",
-  ".mov",
-]);
-const KEBAB = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 /** An attachment label's file name suffix: "Plakát" → "plakat", "Mapka trasy" → "mapka-trasy". */
 export function labelSuffix(label: string): string {
@@ -112,7 +97,8 @@ export async function stageAktualita(
   if (!options.record && !corrected && !check) {
     throw new Error("--record is required to stage the files; without it, only --check");
   }
-  if (!KEBAB.test(id)) throw new Error(`"${id}" is not an ASCII kebab-case id`);
+  // Checked here too: the id names the staged files before the record is checked, and --check has no record.
+  if (!newsEventSchema.shape.id.safeParse(id).success) throw new Error(`"${id}" is not an ASCII kebab-case id`);
   if (given.length === 0) throw new Error("no file to stage");
   // A corrected file goes into the corrected record, else into the record on the site.
   let input = options.record;
@@ -131,7 +117,9 @@ export async function stageAktualita(
     if (twin) throw new Error(`the labels "${twin.label}" and "${label}" give the same file name (${id}-${suffix})`);
     const src = sourceFile(source, MAX_MB.aktualita, env.home);
     const ext = extname(src).toLowerCase().replace(".jpeg", ".jpg");
-    if (!EXTENSIONS.has(ext)) throw new Error(`${extname(src)} is not an image, PDF, audio or video file`);
+    if (!UPLOAD_EXTENSIONS.includes(ext)) {
+      throw new Error(`${extname(src)} is not a file an aktualita links (${UPLOAD_EXTENSIONS.join(", ")})`);
+    }
     const base = `${id}-${suffix}`;
     const old = current.find((a) => a.label === label);
     const rev = corrected

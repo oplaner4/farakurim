@@ -1,7 +1,7 @@
 import * as z from "zod";
 import type { NewsEvent } from "@/content/types/news";
 import { CLOCK, clockMinutes, clockSchema } from "@/lib/shared/clock";
-import { slug } from "@/lib/shared/slug";
+import { kebabIdSchema, slug } from "@/lib/shared/slug";
 import { eventMeetings } from "./events";
 import { parseClock } from "./ics";
 
@@ -12,8 +12,15 @@ import { parseClock } from "./ics";
 
 const date = z.iso.date();
 const text = z.string().trim().min(1);
+/** The file types an aktualita links: its attachments (images, PDFs, MP3 recordings) and the poster WebP. */
+export const UPLOAD_EXTENSIONS = [".pdf", ".png", ".jpg", ".webp", ".mp3"];
 /** A file uploaded to the server, linked root-relative (CLAUDE.md "Content and data"). */
-const upload = z.string().regex(/^\/uploads\/\S+\.(pdf|png|jpe?g|webp|mp3)$/, "must be a /uploads/… file");
+const upload = z
+  .string()
+  .regex(
+    new RegExp(`^/uploads/\\S+\\.(${UPLOAD_EXTENSIONS.map((e) => e.slice(1)).join("|")})$`),
+    "must be a /uploads/… file",
+  );
 const TIME_MESSAGE = 'must be "H:MM" or "H:MM–H:MM"';
 /** A time text the calendar files can read: one valid clock time or a range that ends after it starts. */
 const readableTime = (time: string) => {
@@ -65,7 +72,7 @@ const attachmentsSchema = z
 /** A NewsEvent (src/content/types/news.ts); the month files keep its fields in this order. */
 export const newsEventSchema = z
   .strictObject({
-    id: z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "must be ASCII kebab-case"),
+    id: kebabIdSchema,
     title: text,
     start: date,
     end: date.optional(),

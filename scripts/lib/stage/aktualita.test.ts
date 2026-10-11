@@ -122,7 +122,7 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
     ).toBe(POSTER_WIDTH);
   });
 
-  it("takes any label, and renders no poster for audio or video or with noPoster", async () => {
+  it("takes any label, and renders no poster for an MP3 or with noPoster", async () => {
     const source = await poster();
     const { lines } = await stageOne({ source, id: "a", label: " Mapka trasy ", check: true });
     expect(lines).toEqual(["Would stage uploads/aktuality/a-mapka-trasy.jpg and its -poster.webp"]);
@@ -145,7 +145,8 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
       stageOne({ source, id: "hody", label: "Plakát", check: true, ...options });
     await expect(stageAs({ id: "Hody-České" })).rejects.toThrow('"Hody-České" is not an ASCII kebab-case id');
     await expect(stageAs({ label: " " })).rejects.toThrow('the label "" has no letters or digits');
-    await expect(stageAs({ source: download("a.txt", "x") })).rejects.toThrow(".txt is not an image");
+    await expect(stageAs({ source: download("a.txt", "x") })).rejects.toThrow(".txt is not a file an aktualita links");
+    await expect(stageAs({ source: download("a.mp4", "x") })).rejects.toThrow(".mp4 is not a file an aktualita links");
   });
 
   it("refuses a name the server has, and stops when it cannot tell", async () => {

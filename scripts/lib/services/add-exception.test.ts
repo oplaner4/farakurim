@@ -103,6 +103,7 @@ describe("parseCommand", () => {
       [],
       ["a.json", "b.json"],
       ["--remove", "25. 10."],
+      ["--remove", "2026-02-30"],
       ["a.json", "--remove", "2026-10-25"],
       ["--chek"],
     ]) {

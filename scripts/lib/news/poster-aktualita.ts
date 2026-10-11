@@ -21,7 +21,7 @@ import { defaultUploadsEnv, onServer, type UploadsEnv } from "../uploads";
 import { replaceAktualita, replaceLines } from "./replace-aktualita";
 
 /** The files a poster can be made from: page 1 of a PDF, or the image. */
-export const POSTER_EXTENSIONS = new Set([".pdf", ".png", ".jpg", ".webp", ".gif"]);
+export const POSTER_EXTENSIONS = new Set([".pdf", ".png", ".jpg", ".webp"]);
 /** The poster's name after its file's: a WebP attachment would otherwise be overwritten by its own poster. */
 export const POSTER_SUFFIX = "-poster.webp";
 

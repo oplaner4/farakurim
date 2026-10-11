@@ -62,7 +62,7 @@ Each file is attached under a label, shown on the page as written (with its acce
 The files are attached in the order you list them, and the first one is the one "Doporučujeme" and the archive
 show. Only the first file can be the poster: list the poster first. It becomes the poster when it is an image or
 PDF, unless you pass `--no-poster`: pass it when the first file has a "no" label or is another text-only document
-(audio and video never become one). Check the names before confirming (it refuses a taken name, a bad id, a label
+(an MP3 never becomes one; it refuses any file but a PDF, PNG, JPG, WebP or MP3). Check the names before confirming (it refuses a taken name, a bad id, a label
 without letters or digits and two labels giving the same file name):
 
 ```sh
