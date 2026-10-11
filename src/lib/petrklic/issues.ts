@@ -2,6 +2,7 @@ import { links } from "@/content/site";
 import type { PetrklicIssue, PetrklicRecord } from "@/content/types/petrklic";
 import { revSuffix } from "@/lib/shared/revision";
 import { slug } from "@/lib/shared/slug";
+import { UPLOADS_PATH } from "@/lib/shared/uploads";
 
 // Petrklíč issues (design/DESIGN.md §17–18).
 
@@ -47,18 +48,29 @@ export const issueId = ({ year, number, note }: Pick<PetrklicRecord, "year" | "n
 /** The issue's upload folder: "2026-2", or "2026-2-r2" for a corrected PDF (the PDF keeps its name). */
 export const issueFolder = ({ id, rev }: Pick<PetrklicIssue, "id" | "rev">) => `${id}${revSuffix(rev)}`;
 
-const issueDir = (issue: Pick<PetrklicIssue, "id" | "rev">) => `/uploads/petrklic/${issueFolder(issue)}`;
+/** The issue's folder in /uploads/: "petrklic/2026-2", or "petrklic/2026-2-r2" for a corrected PDF. */
+export const issuePath = (issue: Pick<PetrklicIssue, "id" | "rev">) => `petrklic/${issueFolder(issue)}`;
+
+/** The files in an issue's folder: the PDF, the cover and the viewer's pages (`pnpm stage petrklic` renders them). */
+export const issueFiles = {
+  pdf: (id: string) => `petrklic-${id}.pdf`,
+  cover: "cover.webp",
+  pages: "pages",
+  page: (n: number) => `pages/${n}.webp`,
+};
+
+const issueDir = (issue: Pick<PetrklicIssue, "id" | "rev">) => `${UPLOADS_PATH}${issuePath(issue)}`;
 
 /** The full issue of a stored record: its id and the URLs of its PDF and cover. */
 export function toIssue(record: PetrklicRecord): PetrklicIssue {
   const id = issueId(record);
   const dir = issueDir({ id, rev: record.rev });
-  return { id, ...record, pdfUrl: `${dir}/petrklic-${id}.pdf`, cover: `${dir}/cover.webp` };
+  return { id, ...record, pdfUrl: `${dir}/${issueFiles.pdf(id)}`, cover: `${dir}/${issueFiles.cover}` };
 }
 
 /** The viewer's page images (only the current issue has them). */
 export const pageImages = (issue: Pick<PetrklicIssue, "id" | "rev" | "pageCount">) =>
-  Array.from({ length: issue.pageCount }, (_, i) => `${issueDir(issue)}/pages/${i + 1}.webp`);
+  Array.from({ length: issue.pageCount }, (_, i) => `${issueDir(issue)}/${issueFiles.page(i + 1)}`);
 
 /** `a` is newer than `b`: a later year, or a higher number in the same year. */
 export const isNewerIssue = (a: Pick<PetrklicRecord, "year" | "number">, b: Pick<PetrklicRecord, "year" | "number">) =>

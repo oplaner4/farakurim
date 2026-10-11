@@ -8,6 +8,7 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync }
 import { tmpdir } from "node:os";
 import { dirname, extname, join } from "node:path";
 import sharp from "sharp";
+import { issueFiles } from "@/lib/petrklic/issues";
 
 // 2× the largest poster box (EventPoster on the detail page, 360 × 460 px from lg): object-contain fills its width
 // with any poster wider than 360:460, so that width, not the height, sets the size.
@@ -97,10 +98,10 @@ export async function renderPetrklic(pdf: string, { pages = false } = {}) {
   const issueDir = dirname(pdf);
   const count = pdfPageCount(pdf);
   const options = { width: PETRKLIC_WIDTH, quality: PETRKLIC_QUALITY };
-  await pdfToWebp(pdf, [1, 1], () => join(issueDir, "cover.webp"), options);
+  await pdfToWebp(pdf, [1, 1], () => join(issueDir, issueFiles.cover), options);
   if (pages) {
-    rmSync(join(issueDir, "pages"), { recursive: true, force: true });
-    await pdfToWebp(pdf, [1, count], (page) => join(issueDir, "pages", `${page}.webp`), options);
+    rmSync(join(issueDir, issueFiles.pages), { recursive: true, force: true });
+    await pdfToWebp(pdf, [1, count], (page) => join(issueDir, issueFiles.page(page)), options);
   }
   return count;
 }

@@ -15,7 +15,7 @@ import * as z from "zod";
 import type { ScheduleException, ScheduleExceptionsFile } from "@/content/types/services";
 import type { IsoDate } from "@/content/types/shared";
 import { scheduleExceptionSchema } from "@/lib/services/schema";
-import { sheetCovering } from "@/lib/services/service-sheet";
+import { period, sheetCovering } from "@/lib/services/service-sheet";
 import { pragueDate } from "@/lib/shared/prague";
 import { errorMessage } from "../command";
 import { EXCEPTIONS_FILE, formatAndTest, OHLASKY_FILE, OHLASKY_TESTS, writeContentFile } from "../content-files";
@@ -56,7 +56,7 @@ export function addException(
     date = exception.date;
     const sheet = sheetCovering(readOhlasky(ohlaskyFile).sheets, date);
     if (sheet) {
-      throw new Error(`the sheet ${sheet.validFrom} – ${sheet.validTo} covers ${date}: correct that sheet instead`);
+      throw new Error(`the sheet ${period(sheet)} covers ${date}: correct that sheet instead`);
     }
     if (date < pragueDate(now)) throw new Error(`${date} is past`);
   }

@@ -9,7 +9,7 @@ import * as z from "zod";
 import type { OhlaskyFile, ScheduleExceptionsFile, ServiceSheetRecord } from "@/content/types/services";
 import type { IsoDate } from "@/content/types/shared";
 import { ohlaskyFileSchema, scheduleExceptionsFileSchema, serviceSheetSchema } from "@/lib/services/schema";
-import { currentSheet, sheetCovering, sheetOrderProblems } from "@/lib/services/service-sheet";
+import { currentSheet, period, sheetCovering, sheetOrderProblems } from "@/lib/services/service-sheet";
 import { pragueDate } from "@/lib/shared/prague";
 import { readJsonFile } from "@/lib/shared/json-file";
 import { newsIds, writeContentFile } from "../content-files";
@@ -17,8 +17,6 @@ import { newsIds, writeContentFile } from "../content-files";
 /** The fields the script takes from the staged PDF, never from the record. */
 const WEEK_FIELDS = ["validFrom", "validTo", "rev"] as const;
 export type SheetWeek = Pick<ServiceSheetRecord, (typeof WEEK_FIELDS)[number]>;
-
-const period = (s: Pick<ServiceSheetRecord, "validFrom" | "validTo">) => `${s.validFrom} – ${s.validTo}`;
 
 /** The ohlášky in `ohlaskyFile`; throws naming the file when it is not valid JSON or breaks the schema. */
 export const readOhlasky = (ohlaskyFile: string): OhlaskyFile => readJsonFile(ohlaskyFile, ohlaskyFileSchema);

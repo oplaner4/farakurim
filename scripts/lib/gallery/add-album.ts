@@ -16,6 +16,7 @@ import * as z from "zod";
 import type { Album, AlbumPhoto, GalleryFile } from "@/content/types/gallery";
 import { MAX_ALBUMS } from "@/lib/gallery/albums";
 import { albumNumber, albumSchema, galleryFileSchema } from "@/lib/gallery/schema";
+import { capitalize } from "@/lib/shared/czech";
 import { slug } from "@/lib/shared/slug";
 import { readJsonFile } from "@/lib/shared/json-file";
 import { errorMessage } from "../command";
@@ -54,7 +55,7 @@ export function titleAndDate(page: string): { title: string; date: string } {
   const text = decodeHTML(raw).trim();
   const m = text.match(/^(\d{4})_(\d{2})_(\d{2})\s+([^]*)$/);
   const [title, date] = m ? [m[4], `${m[1]}-${m[2]}-${m[3]}`] : [text, ""];
-  return { title: title.charAt(0).toUpperCase() + title.slice(1), date };
+  return { title: capitalize(title), date };
 }
 
 /** The album's photos from `var result = {...}`, found by brace counting (a regex is unreliable on it). */

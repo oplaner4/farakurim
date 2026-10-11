@@ -5,14 +5,7 @@ import { readEvents } from "@/content/news";
 import { POSTER_WIDTH } from "../images";
 import { stageAktualita } from "../stage/aktualita";
 import { useStageFixture } from "../test-helpers";
-import { parseCommand, posterAktualita, posterLines, posterOf } from "./poster-aktualita";
-
-describe("posterOf", () => {
-  it("names the poster after its file", () => {
-    expect(posterOf("/uploads/aktuality/x-plakat.pdf")).toBe("/uploads/aktuality/x-plakat-poster.webp");
-    expect(posterOf("/uploads/aktuality/x-plakat-r2.webp")).toBe("/uploads/aktuality/x-plakat-r2-poster.webp");
-  });
-});
+import { parseCommand, posterAktualita, posterLines } from "./poster-aktualita";
 
 describe("posterAktualita", { timeout: 30_000 }, () => {
   const { env, fetchMock, download, uploaded, poster } = useStageFixture();

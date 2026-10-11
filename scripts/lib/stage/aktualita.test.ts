@@ -4,14 +4,7 @@ import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 import { readEvents, readMonth } from "@/content/news";
 import { addAktualita } from "../news/add-aktualita";
-import {
-  type AktualitaFile,
-  type AktualitaOptions,
-  fileRev,
-  labelSuffix,
-  stageAktualita,
-  withAttachment,
-} from "./aktualita";
+import { type AktualitaFile, type AktualitaOptions, labelSuffix, stageAktualita, withAttachment } from "./aktualita";
 import { POSTER_WIDTH } from "../images";
 import { pdfWithText, useStageFixture } from "../test-helpers";
 
@@ -22,14 +15,6 @@ describe("labelSuffix", () => {
     expect(labelSuffix("Mapka trasy")).toBe("mapka-trasy");
     expect(labelSuffix("Petrklíč 1/2020")).toBe("petrklic-1-2020");
     expect(() => labelSuffix("–")).toThrow('the label "–" has no letters or digits');
-  });
-});
-
-describe("fileRev", () => {
-  it("reads the rev of a corrected file", () => {
-    expect(fileRev("/uploads/aktuality/hody-2026-plakat.pdf")).toBeUndefined();
-    expect(fileRev("/uploads/aktuality/hody-2026-plakat-r2.pdf")).toBe(2);
-    expect(fileRev("/uploads/aktuality/hody-2026-plakat-r12.webp")).toBe(12);
   });
 });
 

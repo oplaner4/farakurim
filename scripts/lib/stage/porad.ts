@@ -4,28 +4,20 @@
 // and --corrected picks a corrected PDF's.
 
 import { extname } from "node:path";
-import { addDays, differenceInCalendarDays, format, getISODay } from "date-fns";
-import { sheetPdfFile } from "@/lib/services/service-sheet";
+import type { IsoDate } from "@/content/types/shared";
+import { WEEKDAY_SHORT } from "@/lib/shared/czech";
+import { isIsoDate, pragueWeekday } from "@/lib/shared/prague";
+import { period, periodDates, periodLength, sheetPdfFile } from "@/lib/services/service-sheet";
 import { addOhlasky, ohlaskyLines, readOhlasky } from "../services/add-ohlasky";
 import { correctedHint, correctedRev, MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
 import { pdfFirstPageText } from "../images";
 
-const WEEKDAYS = ["po", "út", "st", "čt", "pá", "so", "ne"];
-
 /** An ISO date of a valid day, month and year; throws for 31. 2. */
-function isoDate(day: number, month: number, year: number): string {
-  const date = new Date(year, month - 1, day);
-  if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
-    throw new Error(`${day}. ${month}. ${year} is not a date`);
-  }
-  return format(date, "yyyy-MM-dd");
+function isoDate(day: number, month: number, year: number): IsoDate {
+  const date = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+  if (!isIsoDate(date)) throw new Error(`${day}. ${month}. ${year} is not a date`);
+  return date;
 }
-
-/** A local date of an ISO date, for the day arithmetic. */
-const localDate = (iso: string) => {
-  const [year, month, day] = iso.split("-").map(Number);
-  return new Date(year, month - 1, day);
-};
 
 /**
  * The week of a pořad bohoslužeb from its heading: "od 30. 11. 2025 do 7. 12. 2025", or without the first year
@@ -42,11 +34,8 @@ export function parseWeek(text: string): { validFrom: string; validTo: string } 
 }
 
 /** Every date from `validFrom` to `validTo` with its Czech weekday: "so 2026-10-03". */
-export const weekDays = (validFrom: string, validTo: string) =>
-  Array.from({ length: differenceInCalendarDays(localDate(validTo), localDate(validFrom)) + 1 }, (_, i) => {
-    const date = addDays(localDate(validFrom), i);
-    return `${WEEKDAYS[getISODay(date) - 1]} ${format(date, "yyyy-MM-dd")}`;
-  });
+export const weekDays = (validFrom: IsoDate, validTo: IsoDate) =>
+  periodDates(validFrom, validTo).map((date) => `${WEEKDAY_SHORT[pragueWeekday(date)].toLowerCase()} ${date}`);
 
 export interface PoradOptions {
   source: string;
@@ -70,10 +59,9 @@ function sheetWeek(src: string, options: PoradOptions): { validFrom: string; val
       ? { validFrom: options.validFrom, validTo: options.validTo }
       : parseWeek(pdfFirstPageText(src));
   if (!week) throw new Error("no 'od … do …' week in the PDF heading: pass --from and --to");
-  const { validFrom, validTo } = week;
   // One week, or two around holidays (Sunday to Sunday is 14 days); anything longer is a misread heading.
-  const days = differenceInCalendarDays(localDate(validTo), localDate(validFrom));
-  if (days <= 0 || days > 21) throw new Error(`the period ${validFrom} – ${validTo} looks wrong: pass --from and --to`);
+  const days = periodLength(week);
+  if (days <= 0 || days > 21) throw new Error(`the period ${period(week)} looks wrong: pass --from and --to`);
   return week;
 }
 

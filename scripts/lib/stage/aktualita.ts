@@ -16,12 +16,12 @@ import { extname } from "node:path";
 import { readEvents } from "@/content/news";
 import type { EventAttachment, NewsEvent } from "@/content/types/news";
 import { slug } from "@/lib/shared/slug";
-import { posterHref } from "@/lib/news/events";
+import { POSTER_SUFFIX, posterHref } from "@/lib/news/events";
 import { newsEventSchema } from "@/lib/news/schema";
 import { UPLOAD_EXTENSIONS, UPLOADS_PATH } from "@/lib/shared/uploads";
-import { revSuffix } from "@/lib/shared/revision";
+import { fileRev, revSuffix } from "@/lib/shared/revision";
 import { addAktualita, targetLine } from "../news/add-aktualita";
-import { planPoster, POSTER_EXTENSIONS, POSTER_SUFFIX, type PosterRender } from "../news/poster-aktualita";
+import { planPoster, POSTER_EXTENSIONS, type PosterRender } from "../news/poster-aktualita";
 import { replaceAktualita, replaceLines } from "../news/replace-aktualita";
 import { unpinnedLines } from "../news/pin-aktualita";
 import { correctedRev, MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
@@ -51,12 +51,6 @@ export interface AktualitaOptions {
   /** Corrected or added files of an aktualita already in src/content/news/; `record` is then its corrected record. */
   corrected?: boolean;
   check?: boolean;
-}
-
-/** The rev of a staged aktualita file from its name ("/uploads/aktuality/x-plakat-r2.pdf" → 2). */
-export function fileRev(file: string): number | undefined {
-  const rev = /-r(\d+)\.[^./]+$/.exec(file)?.[1];
-  return rev ? Number(rev) : undefined;
 }
 
 /** `attachments` with `attachment` in place of the one with its label, else added at the end. */

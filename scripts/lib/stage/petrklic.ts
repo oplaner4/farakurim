@@ -6,7 +6,7 @@
 
 import { existsSync, rmSync } from "node:fs";
 import { dirname, extname, join } from "node:path";
-import { issueFolder, issueId } from "@/lib/petrklic/issues";
+import { issueFiles, issueId, issuePath } from "@/lib/petrklic/issues";
 import { addPetrklic, petrklicLines, readPetrklic } from "../petrklic/add-petrklic";
 import { correctedHint, correctedRev, MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
 import { pdfPageCount, renderPetrklic } from "../images";
@@ -22,7 +22,7 @@ export interface PetrklicOptions {
 }
 
 /** The issue's PDF in uploads/: the folder carries the rev, the file keeps the id. */
-const pdfPath = (id: string, rev?: number) => `petrklic/${issueFolder({ id, rev })}/petrklic-${id}.pdf`;
+const pdfPath = (id: string, rev?: number) => `${issuePath({ id, rev })}/${issueFiles.pdf(id)}`;
 
 /**
  * Stages a Petrklíč PDF, renders its cover and pages and adds the issue (or, `corrected`, replaces it); returns the
@@ -40,7 +40,7 @@ export async function stagePetrklic(env: StageEnv, options: PetrklicOptions) {
   const record = { year, number, ...(note !== undefined && { note }), ...(rev !== undefined && { rev }), pageCount };
   const checked = addPetrklic(env.petrklicFile, record, { check: true, replace: corrected });
   const pdf = pdfPath(id, rev);
-  const folder = join(env.uploadsDir, "petrklic", issueFolder({ id, rev }));
+  const folder = join(env.uploadsDir, issuePath({ id, rev }));
   const existed = existsSync(folder);
   await stage(env, src, pdf, check, correctedHint("this issue"), corrected);
   let result = checked;

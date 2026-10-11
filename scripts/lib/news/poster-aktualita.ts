@@ -14,6 +14,7 @@ import { extname, join } from "node:path";
 import { parseArgs } from "node:util";
 import { readEvents } from "@/content/news";
 import type { EventAttachment, NewsEvent } from "@/content/types/news";
+import { isPosterOf, posterOf } from "@/lib/news/events";
 import { IMAGE_EXTENSIONS, UPLOADS_PATH } from "@/lib/shared/uploads";
 import { errorMessage } from "../command";
 import { formatAndTestNews, NEWS_DIR } from "../content-files";
@@ -23,16 +24,6 @@ import { replaceAktualita, replaceLines } from "./replace-aktualita";
 
 /** The files a poster can be made from: page 1 of a PDF, or the image. */
 export const POSTER_EXTENSIONS = new Set([".pdf", ...IMAGE_EXTENSIONS]);
-/** The poster's name after its file's: a WebP attachment would otherwise be overwritten by its own poster. */
-export const POSTER_SUFFIX = "-poster.webp";
-
-/** The poster WebP of an attachment file: "/uploads/aktuality/x-plakat.pdf" → "/uploads/aktuality/x-plakat-poster.webp". */
-export const posterOf = (file: string) => file.slice(0, -extname(file).length) + POSTER_SUFFIX;
-
-/** Whether the poster `src` was made from `file`: named `<file>-poster.webp`, or `<file>.webp` before that name. */
-const madeFrom = (src: string, file: string) =>
-  src.replace(/(-poster)?\.webp$/, "") === file.slice(0, -extname(file).length);
-
 /** A WebP to render: from the attachment's file `from` to the poster `to`. */
 export type PosterRender = { from: string; to: string };
 
@@ -89,7 +80,7 @@ export async function posterAktualita(
     record = rest;
   } else {
     const file = existing.attachments?.find((a) => a.label === label)?.file;
-    if (existing.poster && file && madeFrom(existing.poster.src, file)) return { already: true, written: [] };
+    if (existing.poster && file && isPosterOf(existing.poster.src, file)) return { already: true, written: [] };
     ({ record, render } = await planPoster(env, { ...existing }, label));
   }
   const replaced = replaceAktualita(env.newsDir, record, { check: true, now });

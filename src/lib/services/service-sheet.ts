@@ -12,6 +12,7 @@ import type { IsoDate } from "@/content/types/shared";
 import { plural } from "@/lib/shared/czech";
 import { inPrague, pragueDate, pragueDateTime, pragueWeekday } from "@/lib/shared/prague";
 import { revSuffix } from "@/lib/shared/revision";
+import { UPLOADS_PATH } from "@/lib/shared/uploads";
 import { servicesOnDate } from "./masses";
 
 // The weekly ohlášky as structured content (design/DESIGN.md §14.5–14.7).
@@ -23,7 +24,7 @@ export const sheetPdfFile = ({ validFrom, rev }: Pick<ServiceSheet, "validFrom" 
 /** The full sheet of a stored record: the URL of its PDF. */
 export const toSheet = (record: ServiceSheetRecord): ServiceSheet => ({
   ...record,
-  pdfUrl: `/uploads/${sheetPdfFile(record)}`,
+  pdfUrl: `${UPLOADS_PATH}${sheetPdfFile(record)}`,
 });
 
 const isPlaceId = (place: string, places: readonly PlaceId[]): place is PlaceId =>
@@ -90,7 +91,7 @@ export function currentSheet<T extends { validFrom: IsoDate }>(sheets: T[], toda
 }
 
 /** "2026-10-04 – 2026-10-11" for the messages. */
-const period = (s: Pick<ServiceSheet, "validFrom" | "validTo">) => `${s.validFrom} – ${s.validTo}`;
+export const period = (s: Pick<ServiceSheet, "validFrom" | "validTo">) => `${s.validFrom} – ${s.validTo}`;
 
 /**
  * How `sheets` break their order: each must start on or after the previous one's `validTo`, so two consecutive
@@ -160,8 +161,11 @@ export function weekView(days: SheetDay[], today: IsoDate, showPast: boolean): W
  * Whether the ohlášky cover one week (up to 8 days, Sunday to Sunday): the labels then say "týden". A longer sheet
  * (two weeks around holidays) is labelled by its dates only.
  */
-export const isOneWeek = ({ validFrom, validTo }: Pick<ServiceSheet, "validFrom" | "validTo">): boolean =>
-  differenceInCalendarDays(pragueDateTime(validTo, "12:00"), pragueDateTime(validFrom, "12:00"), { in: inPrague }) < 8;
+export const isOneWeek = (sheet: Pick<ServiceSheet, "validFrom" | "validTo">): boolean => periodLength(sheet) < 8;
+
+/** The days from `validFrom` to `validTo` (Prague days): 7 for Sunday to Sunday. */
+export const periodLength = ({ validFrom, validTo }: Pick<ServiceSheet, "validFrom" | "validTo">): number =>
+  differenceInCalendarDays(pragueDateTime(validTo, "12:00"), pragueDateTime(validFrom, "12:00"), { in: inPrague });
 
 /** "Zobrazit celý týden (+3 dny)", or "Zobrazit celé období (+9 dní)" for a sheet longer than a week. */
 export const showWeekLabel = (pastCount: number, oneWeek = true) =>

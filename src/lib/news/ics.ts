@@ -4,7 +4,7 @@ import { createEvents, type DateArray, type DateTime, type EventAttributes } fro
 import { SITE_HOST } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import type { ClockTime, IsoDate } from "@/content/types/shared";
-import { eventMeetings, type Meeting } from "./events";
+import { eventEnd, meetingsOf, type Meeting } from "./events";
 import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
 
 // "Přidat do kalendáře" (design/DESIGN.md §13.2): one .ics file per event, generated at build time.
@@ -50,21 +50,13 @@ function timing({ start, end, time }: Meeting): Timing {
  * one that repeats for a weekly long-term event, otherwise one.
  */
 function occurrences(event: NewsEvent): (Timing & { uid: string })[] {
-  const { start, end = start, longTerm } = event;
-  if (event.sessions) {
-    return eventMeetings(event).map((meeting) => ({
-      ...timing(meeting),
-      uid: `${event.id}-${meeting.start}@${SITE_HOST}`,
-    }));
-  }
-  const uid = `${event.id}@${SITE_HOST}`;
-  if (longTerm && longTerm !== true) {
-    const until = utcStamp(pragueDateTime(end, "23:59"));
-    return [
-      { ...timing({ start, end: start, time: longTerm.weeklyAt }), recurrenceRule: `FREQ=WEEKLY;UNTIL=${until}`, uid },
-    ];
-  }
-  return [{ ...timing({ start, end, time: event.time }), uid }];
+  const weekly = !event.sessions && event.longTerm && event.longTerm !== true;
+  const until = utcStamp(pragueDateTime(eventEnd(event), "23:59"));
+  return meetingsOf(event).map((meeting) => ({
+    ...timing(meeting),
+    ...(weekly && { recurrenceRule: `FREQ=WEEKLY;UNTIL=${until}` }),
+    uid: event.sessions ? `${event.id}-${meeting.start}@${SITE_HOST}` : `${event.id}@${SITE_HOST}`,
+  }));
 }
 
 /** iCalendar text of one event, with the detail page's absolute URL. */

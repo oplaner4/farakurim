@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { parishCalendars } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import type { GoogleEvent } from "@/lib/calendar/google-calendar";
-import { checkCalendar, matchMeetings, meetingsOf, writeIcs } from "./aktualita-calendar";
+import { checkCalendar, matchMeetings, writeIcs } from "./aktualita-calendar";
 
 const URL_OF = "https://farakurim.cz/aktuality/adoracni-den-2026/";
 
@@ -26,21 +26,6 @@ const google = (id: string, date: string, summary: string, description?: string)
   description,
   start: { dateTime: `${date}T13:00:00+02:00` },
   end: { dateTime: `${date}T18:00:00+02:00` },
-});
-
-describe("meetingsOf", () => {
-  it("is each meeting of a series, the first day of a weekly one, else the event's span", () => {
-    expect(meetingsOf(aktualita({ sessions: ["2026-10-11", { date: "2026-10-18", time: "19:00" }] }))).toEqual([
-      { start: "2026-10-11", end: "2026-10-11", time: "13:00–18:00" },
-      { start: "2026-10-18", end: "2026-10-18", time: "19:00" },
-    ]);
-    expect(meetingsOf(aktualita({ end: "2027-06-30", longTerm: { weeklyAt: "18:30" } }))).toEqual([
-      { start: "2026-10-12", end: "2026-10-12", time: "18:30" },
-    ]);
-    expect(meetingsOf(aktualita({ end: "2026-10-14" }))).toEqual([
-      { start: "2026-10-12", end: "2026-10-14", time: "13:00–18:00" },
-    ]);
-  });
 });
 
 describe("matchMeetings", () => {

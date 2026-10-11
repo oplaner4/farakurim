@@ -25,27 +25,13 @@ import {
   refererInit,
 } from "@/lib/calendar/google-calendar";
 import { eventCalendar } from "@/lib/news/ics";
-import { eventEnd, eventHref, eventMeetings, type Meeting } from "@/lib/news/events";
+import { eventHref, meetingsOf, type Meeting } from "@/lib/news/events";
+import { fold } from "@/lib/shared/czech";
 import { errorMessage } from "../command";
 import { ROOT } from "../content-files";
 
-/** The days the aktualita takes place: each meeting of a series, the first day of a weekly one, else its span. */
-export function meetingsOf(event: NewsEvent): Meeting[] {
-  if (event.sessions) return eventMeetings(event);
-  if (event.longTerm && event.longTerm !== true) {
-    return [{ start: event.start, end: event.start, time: event.longTerm.weeklyAt }];
-  }
-  return [{ start: event.start, end: eventEnd(event), time: event.time }];
-}
-
 /** A title for comparing: lower case, without diacritics and repeated spaces. */
-const comparable = (title: string) =>
-  title
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .toLowerCase()
-    .replace(/\s+/g, " ")
-    .trim();
+const comparable = (title: string) => fold(title).replace(/\s+/g, " ").trim();
 
 /** Whether a calendar event's title names the aktualita: one title contains the other. */
 const sameTitle = (a: string, b: string) => {

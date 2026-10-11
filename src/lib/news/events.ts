@@ -96,6 +96,15 @@ export function eventMeetings(event: Pick<NewsEvent, "sessions" | "time">): Meet
   );
 }
 
+/** The days the event takes place: each meeting of a series, the first day of a weekly one, else its span. */
+export function meetingsOf(event: NewsEvent): Meeting[] {
+  if (event.sessions) return eventMeetings(event);
+  if (event.longTerm && event.longTerm !== true) {
+    return [{ start: event.start, end: event.start, time: event.longTerm.weeklyAt }];
+  }
+  return [{ start: event.start, end: eventEnd(event), time: event.time }];
+}
+
 const byStart = (a: Pick<NewsEvent, "start">, b: Pick<NewsEvent, "start">) => a.start.localeCompare(b.start);
 
 /** Homepage: the nearest upcoming or ongoing events, without long-term series. */
@@ -200,6 +209,21 @@ export const otherEvents = <T extends Pick<NewsEvent, "id" | "start" | "end" | "
     limit,
   );
 
+/** The poster's name after its file's: a WebP attachment would otherwise be overwritten by its own poster. */
+export const POSTER_SUFFIX = "-poster.webp";
+
+/** A file name without its extension: "/uploads/aktuality/x-plakat.pdf" → "/uploads/aktuality/x-plakat". */
+const withoutExtension = (file: string) => file.replace(/\.[^./]+$/, "");
+
+/** The poster WebP of an attachment file: "/uploads/aktuality/x-plakat.pdf" → "/uploads/aktuality/x-plakat-poster.webp". */
+export const posterOf = (file: string) => withoutExtension(file) + POSTER_SUFFIX;
+
+/** The name (without its extension) of the file a poster WebP was made from: before `-poster.webp`, or `.webp`. */
+const posterSource = (src: string) => src.replace(/(-poster)?\.webp$/, "");
+
+/** Whether the poster `src` was made from `file`: named `<file>-poster.webp`, or `<file>.webp` before that name. */
+export const isPosterOf = (src: string, file: string) => posterSource(src) === withoutExtension(file);
+
 /**
  * What the detail page's poster opens full size: the poster's original (its file is named like the poster WebP, before
  * `.webp` or, since `pnpm stage aktualita` names posters `<file>-poster.webp`, before `-poster.webp`), else the
@@ -207,7 +231,7 @@ export const otherEvents = <T extends Pick<NewsEvent, "id" | "start" | "end" | "
  */
 export function posterHref(event: NewsEvent): string | undefined {
   const attachments = event.attachments ?? [];
-  const base = event.poster?.src.replace(/(-poster)?\.webp$/, ".");
+  const base = event.poster && `${posterSource(event.poster.src)}.`;
   const original =
     attachments.find((a) => base && a.file.startsWith(base)) ?? attachments.find((a) => a.label === "Plakát");
   return original?.file ?? event.poster?.src;

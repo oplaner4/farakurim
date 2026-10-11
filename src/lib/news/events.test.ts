@@ -10,11 +10,14 @@ import {
   filterEvents,
   findEventById,
   groupEvents,
+  isPosterOf,
+  meetingsOf,
   NEWS_FILTER_META,
   NEWS_FILTERS,
   otherEvents,
   posterAlt,
   posterHref,
+  posterOf,
   relativeEventLabel,
 } from "./events";
 import { event, events, ids, TODAY } from "./test-fixtures";
@@ -126,6 +129,39 @@ describe("posterAlt", () => {
       "Plakát: Farní den, neděle 18. října 2026 v 9:30, farní zahrada",
     );
     expect(posterAlt(base)).toBe("Plakát: Farní den, neděle 18. října 2026");
+  });
+});
+
+describe("meetingsOf", () => {
+  it("is each meeting of a series, the first day of a weekly one, else the event's span", () => {
+    const time = "13:00–18:00";
+    expect(
+      meetingsOf(
+        event("a", "2026-10-11", undefined, { time, sessions: ["2026-10-11", { date: "2026-10-18", time: "19:00" }] }),
+      ),
+    ).toEqual([
+      { start: "2026-10-11", end: "2026-10-11", time },
+      { start: "2026-10-18", end: "2026-10-18", time: "19:00" },
+    ]);
+    expect(meetingsOf(event("a", "2026-10-12", "2027-06-30", { time, longTerm: { weeklyAt: "18:30" } }))).toEqual([
+      { start: "2026-10-12", end: "2026-10-12", time: "18:30" },
+    ]);
+    expect(meetingsOf(event("a", "2026-10-12", "2026-10-14", { time }))).toEqual([
+      { start: "2026-10-12", end: "2026-10-14", time },
+    ]);
+  });
+});
+
+describe("posterOf", () => {
+  it("names the poster after its file", () => {
+    expect(posterOf("/uploads/aktuality/x-plakat.pdf")).toBe("/uploads/aktuality/x-plakat-poster.webp");
+    expect(posterOf("/uploads/aktuality/x-plakat-r2.webp")).toBe("/uploads/aktuality/x-plakat-r2-poster.webp");
+  });
+
+  it("knows the file a poster was made from, by either poster name", () => {
+    expect(isPosterOf("/uploads/aktuality/x-plakat-poster.webp", "/uploads/aktuality/x-plakat.pdf")).toBe(true);
+    expect(isPosterOf("/uploads/aktuality/x-plakat.webp", "/uploads/aktuality/x-plakat.pdf")).toBe(true);
+    expect(isPosterOf("/uploads/aktuality/x-plakat-poster.webp", "/uploads/aktuality/x-mapka.pdf")).toBe(false);
   });
 });
 
