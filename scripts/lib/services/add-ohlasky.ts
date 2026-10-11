@@ -1,9 +1,9 @@
-// Adds a confirmed ohlášky sheet to src/content/ohlasky.json (farnost-create-porad-bohosluzeb skill, through
-// `pnpm stage porad <pdf> --record <record.json>`, which stages the PDF and passes its week); a sheet of the same week
-// (rerun, or a corrected PDF's rev) replaces the old one. Sheets may share only their boundary day (sheetOrderProblems()). The sheets
-// before the current one (the last whose week has started, today in Prague) are removed, and so are the changes
-// announced for later (src/content/schedule-exceptions.json) that a kept sheet covers or that are before the current
-// sheet. The files' rules are ohlaskyFileSchema's and scheduleExceptionsFileSchema's (src/lib/services/schema.ts).
+// Adds an ohlášky sheet to src/content/ohlasky.json, with its week (validFrom, validTo, rev) from the staged PDF,
+// never from the record; a sheet of the same week (rerun, or a corrected PDF's rev) replaces the old one. Sheets may
+// share only their boundary day (sheetOrderProblems()). The sheets before the current one (the last whose week has
+// started, today in Prague) are removed, and so are the changes announced for later
+// (src/content/schedule-exceptions.json) that a kept sheet covers or that are before the current sheet. The files'
+// rules are ohlaskyFileSchema's and scheduleExceptionsFileSchema's (src/lib/services/schema.ts).
 
 import type { OhlaskyFile, ScheduleExceptionsFile, ServiceSheetRecord } from "@/content/types/services";
 import type { IsoDate } from "@/content/types/shared";

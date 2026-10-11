@@ -1,7 +1,5 @@
-// The helpers the content scripts share (add-aktualita, add-album, add-exception, add-ohlasky, add-petrklic,
-// aktualita-calendar, pin-aktualita, stage/): the repo's paths, writing a JSON content file (reading one is
-// readJsonFile(), src/lib/shared/json-file.ts), the aktuality IDs and month files, and formatting and testing the files
-// written.
+// Content files: the repo's paths, writing a JSON content file (reading one is readJsonFile(),
+// src/lib/shared/json-file.ts), the aktuality IDs and month files, and formatting and testing the files written.
 
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";

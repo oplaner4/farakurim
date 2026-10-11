@@ -1,13 +1,6 @@
-// Corrects an aktualita already in src/content/news/ (farnost-correct-aktualita skill): the record with the same id
-// is replaced, keeping its `published` and its pin (scripts/lib/news/pin-aktualita.ts moves the pin), and moves to the
-// file of its new start month, in start-date order, when the start changed; a month file left without records is
-// removed. Prettier formats the files, then the news tests run, and the event is checked in the Události calendar
-// (scripts/lib/news/aktualita-calendar.ts). The id never changes: it is the detail page's URL.
-//
-// Usage: pnpm replace-aktualita <record.json | -> [--check]
-// The record is the whole corrected NewsEvent as JSON. --check only validates it and prints where it goes and the
-// fields that change, without writing. `pnpm stage aktualita … --corrected` (scripts/lib/stage/aktualita.ts) puts a
-// corrected file into the record and calls replaceAktualita(), formatAndTest() and the calendar check itself.
+// Replaces an aktualita record in the news folder by the record with the same id, keeping its `published` and its
+// pin (only movePin() changes the pin), and moves it to the file of its new start month, in start-date order, when
+// the start changed; a month file left without records is removed. The id never changes: it is the detail page's URL.
 
 import { readdirSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -86,7 +79,7 @@ function writeMonthFiles(newsDir: string, files: [string, NewsEvent[]][]) {
 /**
  * Replaces the record with `input`'s id in the news folder `newsDir` by `input` and returns the files it wrote and
  * removed (relative to newsDir, the record's month file first); `check` only validates. The record keeps its
- * `published` and its pin (pnpm pin-aktualita moves the pin). A new start month moves it to that month's file, in
+ * `published` and its pin (only movePin() moves the pin). A new start month moves it to that month's file, in
  * start-date order; a new start in the same month moves it within the file. Throws, before anything is written, for
  * an unknown id, an invalid record or a change of the pin.
  */
@@ -142,7 +135,7 @@ export function parseCommand(args: string[]): { file: string; check: boolean } {
   return { file: positionals[0], check: values.check ?? false };
 }
 
-/** Runs `pnpm replace-aktualita` (scripts/replace-aktualita.ts). */
+/** Replaces the record in `file` and prints what changed; then formats and tests the news files and checks the event. */
 export async function execute({ file, check }: { file: string; check: boolean }) {
   const input = readJsonRecord(file);
   const result = replaceAktualita(NEWS_DIR, input, { check });

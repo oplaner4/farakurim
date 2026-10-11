@@ -1,4 +1,4 @@
-// How every script runs as a pnpm command: read the arguments, run, and print a failure as "<name>: <message>" with
+// How a script runs as a command: read the arguments, run, and print a failure as "<name>: <message>" with
 // exit code 2 for wrong arguments and 1 for a failed run.
 
 import { readFileSync } from "node:fs";

@@ -1,7 +1,7 @@
-// `pnpm stage porad` (scripts/lib/stage/command.ts): reads the week from the pořad bohoslužeb heading ("od 4. 10. 2026
-// do 11. 10. 2026"), stages uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-r<rev>].pdf and adds the sheet
-// to src/content/ohlasky.json (scripts/lib/services/add-ohlasky.ts); without a record it only checks and prints the week. The sheet stores the rev, so a rerun keeps it
-// and --corrected picks a corrected PDF's.
+// Stages a pořad bohoslužeb PDF as uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-r<rev>].pdf, with the
+// week read from its heading ("od 4. 10. 2026 do 11. 10. 2026"), and adds the sheet to src/content/ohlasky.json
+// (addOhlasky()); without a record it only checks and prints the week. The sheet stores the rev, so a rerun keeps it
+// and a corrected PDF gets the next one.
 
 import { extname } from "node:path";
 import type { IsoDate } from "@/content/types/shared";

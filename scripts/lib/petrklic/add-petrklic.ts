@@ -1,7 +1,6 @@
-// Adds a Petrklíč issue to src/content/petrklic.json for `pnpm stage petrklic` (scripts/lib/stage/petrklic.ts,
-// farnost-create-petrklic skill): newest first, before the issues it is not older than; a corrected PDF replaces
-// the issue's record where it is. The issue's rules are
-// petrklicRecordSchema's (src/lib/petrklic/schema.ts); its id and URLs are computed (toIssue()).
+// Adds a Petrklíč issue to src/content/petrklic.json: newest first, before the issues it is not older than; a
+// corrected PDF replaces the issue's record where it is. The issue's rules are petrklicRecordSchema's
+// (src/lib/petrklic/schema.ts); its id and URLs are computed (toIssue()).
 
 import type { PetrklicFile, PetrklicRecord } from "@/content/types/petrklic";
 import { isNewerIssue, issueId, issueLabel } from "@/lib/petrklic/issues";

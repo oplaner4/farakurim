@@ -1,13 +1,7 @@
-// Sets or removes the poster of an aktualita already in src/content/news/ (farnost-correct-aktualita skill). The
-// poster is made from one of the record's attachments (an image or PDF) as <attachment name>-poster.webp beside it:
-// rendered from the attachment's file in uploads/ (`pnpm pull-uploads` fetches a released one), or only linked when
-// that WebP is on the server already, since files there are never overwritten. The record is replaced
-// (scripts/lib/news/replace-aktualita.ts), keeping its `published`, its pin and the poster's alt text.
-// `pnpm stage aktualita` (scripts/lib/stage/aktualita.ts) makes the poster of the files it stages with planPoster().
-//
-// Usage: pnpm poster-aktualita <id> "<label>" | --none [--check]
-// --none removes the poster (its WebP stays on the server, unlinked). --check only validates and prints what would
-// change, without rendering or writing.
+// The poster of an aktualita: made from one of the record's attachments (an image or PDF) as
+// <attachment name>-poster.webp beside it, rendered from the attachment's file in uploads/, or only linked when that
+// WebP is on the server already, since files there are never overwritten. The record is replaced
+// (replaceAktualita()), keeping its `published`, its pin and the poster's alt text.
 
 import { existsSync } from "node:fs";
 import { extname, join, relative } from "node:path";
@@ -121,7 +115,7 @@ export function parseCommand(args: string[]): { id: string; label: string | null
   return { id: positionals[0], label: values.none ? null : positionals[1], check: values.check ?? false };
 }
 
-/** Runs `pnpm poster-aktualita` (scripts/poster-aktualita.ts). */
+/** Sets the poster of `label` (none for null) and prints what changed; then formats and tests the news files. */
 export async function execute({ id, label, check }: { id: string; label: string | null; check: boolean }) {
   const env = { ...defaultUploadsEnv(), newsDir: NEWS_DIR };
   const result = await posterAktualita(env, id, label, { check });

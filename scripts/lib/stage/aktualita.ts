@@ -1,15 +1,13 @@
-// `pnpm stage aktualita` (scripts/lib/stage/command.ts): stages an aktualita's files, each as
-// uploads/aktuality/<id>-<label in ASCII>.<ext>, in the order given, and adds the event with them to its month file in
-// src/content/news/ (scripts/lib/news/add-aktualita.ts), moving the pin to it when it is pinned. The first file is the
-// poster when it is an image or PDF (unless --no-poster), made by scripts/lib/news/poster-aktualita.ts.
-// Without a record it only checks (--check): a file no record links would go to the server with the next release.
-// Every file and the record are checked before anything is copied.
-// --corrected stages corrected or added files of an aktualita already there (farnost-correct-aktualita skill): each
-// replaces the attachment with its label (else is added at the end), in the record or in the corrected --record, and
-// the record is replaced. The poster follows the file it was made from: it is rendered again when that file is
-// corrected, and otherwise changes only with `pnpm poster-aktualita`. Files on the server are never
-// overwritten, so once a file is there the corrected one is named …-r2.<ext> (then -r3, …); before that it replaces
-// the staged file.
+// Stages an aktualita's files, each as uploads/aktuality/<id>-<label in ASCII>.<ext>, in the order given, and adds the
+// event with them to its month file in src/content/news/ (addAktualita()), moving the pin to it when it is pinned.
+// The first file is the poster when it is an image or PDF (unless noPoster), made by planPoster(). Without a record it
+// only checks: a file no record links would go to the server with the next release. Every file and the record are
+// checked before anything is copied.
+// `corrected` stages corrected or added files of an aktualita already there: each replaces the attachment with its
+// label (else is added at the end), in the record or in the corrected record, and the record is replaced
+// (replaceAktualita()). The poster follows the file it was made from: it is rendered again when that file is
+// corrected, and otherwise stays (posterAktualita() changes it). Files on the server are never overwritten, so once
+// a file is there the corrected one is named …-r2.<ext> (then -r3, …); before that it replaces the staged file.
 
 import { statSync } from "node:fs";
 import { extname } from "node:path";
@@ -68,7 +66,7 @@ const aktualitaPath = (name: string, ext: string) => `aktuality/${name}${ext}`;
 /**
  * The index in `files` of the file to render the poster from, or -1. A new record takes the first file when it is an
  * image or PDF (a new record may hold only the poster's alt text). When correcting, the poster follows the file it
- * was made from; a record without a poster gets one only from `pnpm poster-aktualita`.
+ * was made from; a record without a poster gets one only from posterAktualita().
  */
 function posterIndex(
   files: PlannedFile[],

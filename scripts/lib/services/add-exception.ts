@@ -1,13 +1,7 @@
-// Adds a change the parish announces for a day no ohlášky sheet covers to src/content/schedule-exceptions.json
-// (farnost-create-vyjimka skill), so the next-mass countdown is right before that week's ohlášky arrive. The
-// record is one ScheduleException: it replaces its whole day (`services: []` cancels it), so it lists every service of
-// that date at the parish churches. A record for a date already there replaces it; the entries stay in date order.
-// A date a sheet covers is refused (the sheet is corrected instead), and so is a past one. Prettier formats the file,
-// then the ohlášky tests run.
-//
-// Usage: pnpm add-exception <record.json> | --remove <YYYY-MM-DD> [--check]
-// --remove takes the change on that date out (an announcement withdrawn). --check only validates and prints what
-// would change, without writing.
+// Adds a change for a day no ohlášky sheet covers to the later changes, so the next-mass countdown is right before
+// that week's ohlášky arrive, or removes one. The record is one ScheduleException: it replaces its whole day
+// (`services: []` cancels it); a record for a date already there replaces it, and the entries stay in date order. A
+// date a sheet covers is refused (the sheet is corrected instead), and so is a past one.
 
 import type { ScheduleException, ScheduleExceptionsFile } from "@/content/types/services";
 import type { IsoDate } from "@/content/types/shared";
@@ -104,7 +98,7 @@ export function parseCommand(args: string[]): { change: ExceptionChange; check: 
   return { change: { add: readJsonRecord(positionals[0]) }, check };
 }
 
-/** Runs `pnpm add-exception` (scripts/add-exception.ts). */
+/** Adds or removes the change and prints it; then formats and tests the file written. */
 export async function execute({ change, check }: { change: ExceptionChange; check: boolean }) {
   const result = addException({ ohlaskyFile: OHLASKY_FILE, exceptionsFile: EXCEPTIONS_FILE }, change, { check });
   console.log(exceptionLine(result, check));

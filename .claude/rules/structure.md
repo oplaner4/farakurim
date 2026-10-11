@@ -54,3 +54,8 @@ in `scripts/lib/`: by the same domain groups as `src/` (`lib/news/add-aktualita.
 and the helpers several scripts share at its top (`content-files.ts`, `command.ts`, `test-helpers.ts`). A module
 exports `parseCommand` (wrong arguments throw, exit 2) and `execute` (a failure throws, exit 1). **Why:** what you
 can run is what you see in `scripts/`, and the tests import the logic without starting a command.
+
+- **The entry point documents the command:** its header says what `pnpm <command>` does, which skill uses it, the
+  `Usage:` line and the options. A `scripts/lib/` module describes what it does, never which command or module calls
+  it (no "for `pnpm stage`", no list of callers). **Why:** a list of callers goes stale when a new caller appears,
+  as nothing in the module changed; the entry point is where someone running the command looks.

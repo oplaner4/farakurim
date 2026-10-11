@@ -1,15 +1,7 @@
-// Checks that an aktualita is in the Události Google Calendar, linked to its detail page (farnost-create-aktualita
-// skill). The calendar links an event to the page when the event's description holds the page's URL, so for each
-// meeting of the aktualita it reports one of:
-//   linked     an event that day already links the page: nothing to do;
-//   no link    an event that day has a matching title but not the URL: paste the URL into its description;
-//   missing    no such event: when no meeting is in the calendar, it writes the aktualita's .ics (the file of
-//              "Přidat do kalendáře", whose description holds the URL) to import into Události.
-// It reads the calendar with NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY from .env.local; without the key, or when Google
-// does not answer, it writes the .ics and says the calendar was not checked. `pnpm stage aktualita … --record` and
-// `pnpm add-aktualita` run it after adding a record.
-//
-// Usage: pnpm aktualita-calendar <id> [--out <dir>]   (the .ics goes to ~/Downloads/ by default)
+// Matches an aktualita's meetings with the events of the Události Google Calendar: the calendar links an event to the
+// detail page when the event's description holds the page's URL, so each meeting is linked (an event that day holds
+// the URL), not linked (an event that day has a matching title) or missing. Writes the aktualita's .ics for a
+// missing one, and reads the calendar with NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY from .env.local.
 
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
@@ -143,5 +135,5 @@ export async function parseCommand(args: string[]): Promise<{ event: NewsEvent; 
   return { event, out: values.out };
 }
 
-/** Runs `pnpm aktualita-calendar` (scripts/aktualita-calendar.ts). */
+/** Checks the aktualita in the calendar and prints the result, writing its .ics to `out` when needed. */
 export const execute = ({ event, out }: { event: NewsEvent; out?: string }) => reportCalendar(event, out);

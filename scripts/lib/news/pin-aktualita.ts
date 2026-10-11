@@ -1,10 +1,6 @@
-// Pins an aktualita for "Doporučujeme" on Aktuality (design/DESIGN.md §11), unpinning every other record: at most
-// one record is pinned (news.test.ts), and movePin() is the only code that changes `pinned`, also for a new pinned
-// record (scripts/lib/news/add-aktualita.ts). An event that has ended cannot be pinned (featuredEvent() would skip it).
-// Prettier formats the changed month files, then the news tests run.
-//
-// Usage: pnpm pin-aktualita <id> | --none [--check]
-// --none unpins every record. --check only validates and prints what would change, without writing.
+// The pin of "Doporučujeme" on Aktuality (design/DESIGN.md §11): at most one record is pinned (news.test.ts), and
+// movePin() is the only code that changes `pinned`, so pinning a record unpins every other one. An event that has
+// ended cannot be pinned (featuredEvent() would skip it).
 
 import { readMonths } from "@/content/news";
 import type { IsoDate } from "@/content/types/shared";
@@ -100,7 +96,7 @@ export function parseCommand(args: string[]): { id: string | null; check: boolea
   return { id: values.none ? null : positionals[0], check: values.check ?? false };
 }
 
-/** Runs `pnpm pin-aktualita` (scripts/pin-aktualita.ts). */
+/** Pins the record `id` (none for null) and prints what changed; then formats and tests the news files. */
 export async function execute({ id, check }: { id: string | null; check: boolean }) {
   const result = pinAktualita(NEWS_DIR, id, { check });
   console.log(pinLines(result, check).join("\n"));

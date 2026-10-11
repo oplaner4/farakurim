@@ -1,6 +1,5 @@
-// The staging the `pnpm stage` commands share (aktualita, porad, petrklic): where they stage and
-// add content, finding the source file, and copying it to uploads/ once the name is known to be free on the server
-// (files there are never overwritten).
+// Staging a file for the server: where it is staged and its record added, finding the source file, and copying it to
+// uploads/ once the name is known to be free on the server (files there are never overwritten).
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import { homedir } from "node:os";

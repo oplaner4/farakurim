@@ -1,36 +1,5 @@
-// Stages a content file in uploads/ for /uploads/ on the server and prints the lines for src/content/
-// (farnost-create-aktualita, farnost-create-porad-bohosluzeb and farnost-create-petrklic skills).
-// Every command checks the name is still free on the site (files on the server are never overwritten), copies the
-// file under its ASCII name and renders the images (images.ts). --check only validates and prints,
-// without copying or rendering: use it before the user confirms, so nothing unconfirmed is left in uploads/ for the
-// next release. This file parses the command line; each command lives in its own file in scripts/lib/stage/ and
-// the staging they share in core.ts.
-//
-// Usage: pnpm stage <command> ... [--check]
-//   aktualita <id> <source> <label> [<source> <label> …] [--no-poster] [--corrected] [--record <record.json>]
-//       uploads/aktuality/<id>-<label in ASCII>.<ext> for each file, in that order, plus <first file's name>-poster.webp
-//       (page 1 / scaled image) when the first file is an image or PDF unless --no-poster, and adds the confirmed
-//       NewsEvent (--record: the event as JSON, without its files) with them to src/content/news/
-//       (scripts/lib/news/add-aktualita.ts). --record is required, except with --check, which then only checks the
-//       files and their names (with a record, --check also validates it). A pinned record takes the pin from the
-//       record pinned before (named in the output). --corrected stages corrected or added files of an aktualita
-//       already there and replaces its record (the --record, else the one on the site) with the files in it: each in
-//       the next -r<rev> once its file is on the server, else under its name; the poster follows its file.
-//   porad <pdf> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected] [--record <record.json>]
-//       reads the week from the heading ("od 4. 10. 2026 do 11. 10. 2026"), stages
-//       uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-r<rev>].pdf and adds the confirmed sheet (--record:
-//       days and announcements as JSON) to src/content/ohlasky.json, removing the outdated sheets and the covered
-//       changes in src/content/schedule-exceptions.json (scripts/lib/services/add-ohlasky.ts). --record is required,
-//       except with --check, which then prints the week and its days (with a record, --check only validates it).
-//       --corrected stages a corrected PDF of a week already there, in the next -r<rev> once the week is on the
-//       server, else under its name.
-//   petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--corrected]
-//       checks the issue, stages uploads/petrklic/<id>/petrklic-<id>.pdf with cover.webp and pages/ and adds the
-//       issue to src/content/petrklic.json (scripts/lib/petrklic/add-petrklic.ts; with --check it only validates). --corrected
-//       stages a corrected PDF of an issue already there and replaces its record: in the next uploads/petrklic/
-//       <id>-r<rev>/ once the issue is on the server, else in its folder.
-// A source without a folder is also looked for in ~/Downloads/.
-// Requires pdftoppm, pdfinfo and pdftotext (poppler-utils) for PDFs.
+// Reads a stage command line and runs its command: each lives in its own file in this folder (aktualita.ts, porad.ts,
+// petrklic.ts), and the staging they share in core.ts.
 
 import { join } from "node:path";
 import { parseArgs } from "node:util";
@@ -141,7 +110,7 @@ export async function runStage(
   return { lines, format: written.length > 0 ? { files: written, tests: "src/content/petrklic.test.ts" } : undefined };
 }
 
-/** Runs `pnpm stage` (scripts/stage.ts) on the command line `args`. */
+/** Stages from the command line `args` and prints the lines; then formats and tests the files and checks the event. */
 export async function execute(args: string[]) {
   const { lines, format, event } = await runStage(defaultEnv(), args);
   console.log(lines.join("\n"));

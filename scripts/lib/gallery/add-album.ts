@@ -1,14 +1,8 @@
-// Adds a Zonerama album of the parish to the Fotogalerie (farnost-create-album skill, design/DESIGN.md §19.2).
-// Without --write it prints the proposal as JSON to confirm with the user: the title (first letter upper-cased,
-// without Zonerama's "YYYY_MM_DD" prefix), the date from that prefix, the proposed id (the title's slug with the year), the chosen aspect ratio and the
-// photo counts. With --write it adds the album (up to MAX_PHOTOS photos as { small, large } Zonerama URLs) to
-// src/content/gallery.json, newest first, and removes the albums beyond MAX_ALBUMS; Prettier formats the file, then
-// the gallery test runs. --check does the same without writing and prints what --write would do. --title, --date
-// and --id override the proposal (an empty value counts as not given). The album's rules are albumSchema's
-// (src/lib/gallery/schema.ts).
-//
-// Usage: pnpm add-album https://eu.zonerama.com/FarnostKurim/Album/<n>
-//          [--write | --check] [--title "<title>"] [--date YYYY-MM-DD] [--id <kebab-id>]
+// Reads a Zonerama album of the parish (design/DESIGN.md §19.2) and proposes its record: the title without
+// Zonerama's "YYYY_MM_DD" prefix (first letter upper-cased), the date from that prefix, the id (the title's slug with
+// the year) and up to MAX_PHOTOS photos of the most common aspect ratio as { small, large } Zonerama URLs. Adds the
+// album to the gallery file, newest first, and removes the albums beyond MAX_ALBUMS. The album's rules are
+// albumSchema's (src/lib/gallery/schema.ts).
 
 import { decodeHTML } from "entities";
 import type { Album, AlbumPhoto, GalleryFile } from "@/content/types/gallery";
@@ -234,7 +228,7 @@ export function parseCommand(args: string[]): Command {
   return { url, write, check, ...overrides };
 }
 
-/** Runs `pnpm add-album` (scripts/add-album.ts). */
+/** Reads the album at `url` and prints the proposal, or (`write`, `check`) adds it; then formats and tests the gallery. */
 export async function execute({ url, write, check, ...overrides }: Command) {
   const number = albumNumberFromUrl(url);
   const response = await fetch(url);

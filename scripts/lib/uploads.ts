@@ -1,6 +1,6 @@
-// What the content scripts (`pnpm stage`, `pnpm poster-aktualita`) know about uploaded files: uploads/ in the repo
-// mirrors /uploads/ on the server, whose files are never overwritten, so a name is free only while the server lacks
-// it. The site's address comes from scripts/deploy.sh, where the server details live.
+// Uploaded files: uploads/ in the repo mirrors /uploads/ on the server, whose files are never overwritten, so a name
+// is free only while the server lacks it. The site's address comes from scripts/deploy.sh, where the server details
+// live.
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";

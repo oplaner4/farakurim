@@ -1,16 +1,7 @@
-// Adds a confirmed aktualita to src/content/news/ (farnost-create-aktualita skill): the record goes into the JSON
-// file of its start month (news/<year>/<MM>.json, created for the month's first record), in start-date order, with
-// `published` set to today in Prague. Prettier formats the file, then the news tests run. The record's rules are
-// newsEventSchema's (src/lib/news/schema.ts).
-//
-// Usage: pnpm add-aktualita <record.json | -> [--check]
-// The record is a NewsEvent as JSON, upload paths root-relative ("/uploads/aktuality/x.webp"). --check only
-// validates the record and the news files and prints the target file, without writing. A record with
-// `"pinned": true` takes the pin from the record pinned before (scripts/lib/news/pin-aktualita.ts), named in the output.
-// Then it checks the event in the Události calendar (scripts/lib/news/aktualita-calendar.ts).
-// `pnpm stage aktualita … --record <file>` (scripts/lib/stage/command.ts) adds the staged poster and attachments and
-// calls addAktualita(), formatAndTest() and the calendar check itself. A record already there is corrected with
-// `pnpm replace-aktualita` (scripts/lib/news/replace-aktualita.ts).
+// Adds an aktualita record to the news folder: the record goes into the JSON file of its start month
+// (news/<year>/<MM>.json, created for the month's first record), in start-date order, with `published` set to today in
+// Prague, and a pinned record takes the pin from every other one (movePin()). The record's rules are newsEventSchema's
+// (src/lib/news/schema.ts).
 
 import { monthFile, readMonths } from "@/content/news";
 import type { NewsEvent } from "@/content/types/news";
@@ -77,7 +68,7 @@ export function parseCommand(args: string[]): { file: string; check: boolean } {
   return { file: positionals[0], check: values.check ?? false };
 }
 
-/** Runs `pnpm add-aktualita` (scripts/add-aktualita.ts). */
+/** Adds the record in `file` and prints where it went; then formats and tests the news files and checks the event. */
 export async function execute({ file, check }: { file: string; check: boolean }) {
   const input = readJsonRecord(file);
   const result = addAktualita(NEWS_DIR, input, { check });
