@@ -1,5 +1,6 @@
 import * as z from "zod";
 import type { NewsEvent } from "@/content/types/news";
+import { CLOCK, clockMinutes, clockSchema } from "@/lib/shared/clock";
 import { slug } from "@/lib/shared/slug";
 import { eventMeetings } from "./events";
 import { parseClock } from "./ics";
@@ -10,21 +11,15 @@ import { parseClock } from "./ics";
 // event, the month files' order) stay in news.test.ts.
 
 const date = z.iso.date();
-const CLOCK = /^([01]?\d|2[0-3]):[0-5]\d$/;
-const clock = z.string().regex(CLOCK, "must be H:MM");
 const text = z.string().trim().min(1);
 /** A file uploaded to the server, linked root-relative (CLAUDE.md "Content and data"). */
 const upload = z.string().regex(/^\/uploads\/\S+\.(pdf|png|jpe?g|webp|mp3)$/, "must be a /uploads/… file");
-const minutes = (time: string) => {
-  const [h, m] = time.split(":").map(Number);
-  return h * 60 + m;
-};
 const TIME_MESSAGE = 'must be "H:MM" or "H:MM–H:MM"';
 /** A time text the calendar files can read: one valid clock time or a range that ends after it starts. */
 const readableTime = (time: string) => {
   const span = parseClock(time);
   const times = span ? [span.from, span.to ?? span.from] : [];
-  return !!span && times.every((t) => CLOCK.test(t)) && !(span.to && minutes(span.to) <= minutes(span.from));
+  return !!span && times.every((t) => CLOCK.test(t)) && !(span.to && clockMinutes(span.to) <= clockMinutes(span.from));
 };
 
 /** The meetings of a series, each after the one before; checked against start and end with the whole record. */
@@ -87,7 +82,7 @@ export const newsEventSchema = z
     price: text.optional(),
     registrationDeadline: date.optional(),
     sessions: sessionsSchema.optional(),
-    longTerm: z.union([z.literal(true), z.strictObject({ weeklyAt: clock })]).optional(),
+    longTerm: z.union([z.literal(true), z.strictObject({ weeklyAt: clockSchema })]).optional(),
     tags: z
       .array(z.strictObject({ label: text, color: z.enum(["blue", "orange", "magenta", "grey"]).optional() }))
       .optional(),

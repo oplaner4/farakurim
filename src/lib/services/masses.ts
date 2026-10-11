@@ -2,6 +2,7 @@ import { addDays, differenceInCalendarDays } from "date-fns";
 import type { PlaceId, RegularService, ScheduleException, ServiceEntry, ServiceRule } from "@/content/types/services";
 import type { ClockTime, IsoDate, Weekday } from "@/content/types/shared";
 import { capitalize, formatShortDate, plural, relativeDayName, WEEKDAY_NAMES, weekdayName } from "@/lib/shared/czech";
+import { clockMinutes } from "@/lib/shared/clock";
 import { inPrague, pragueDate, pragueDateTime, pragueWeekday } from "@/lib/shared/prague";
 
 export type UpcomingService = {
@@ -41,7 +42,7 @@ export function servicesOnDate(date: IsoDate, source: ScheduleSource): ServiceEn
   return source.regular
     .filter((s) => s.weekday === weekday && ruleApplies(s.rule, firstInMonth))
     .map(({ time, place, title, note }) => ({ time, place, ...(title && { title }), ...(note && { note }) }))
-    .sort((a, b) => minutes(a.time) - minutes(b.time));
+    .sort((a, b) => clockMinutes(a.time) - clockMinutes(b.time));
 }
 
 /** Monday first, as the week is printed in the ohlášky. */
@@ -57,18 +58,13 @@ export type ScheduleRow = {
 
 export type ScheduleDay = { weekday: Weekday; rows: ScheduleRow[] };
 
-const minutes = (time: ClockTime) => {
-  const [h, m] = time.split(":").map(Number);
-  return h * 60 + m;
-};
-
 /** A place's regular services by weekday (§14.3): Monday to Sunday, days without services left out. */
 export function weeklySchedule(services: RegularService[], place: PlaceId): ScheduleDay[] {
   return WEEK_ORDER.map((weekday) => ({
     weekday,
     rows: services
       .filter((s) => s.place === place && s.weekday === weekday)
-      .sort((a, b) => minutes(a.time) - minutes(b.time))
+      .sort((a, b) => clockMinutes(a.time) - clockMinutes(b.time))
       .map(({ time, title = "Mše svatá", note, rule }) => ({
         time,
         title,

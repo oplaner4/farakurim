@@ -6,6 +6,7 @@ import type {
   ScheduleExceptionsFile,
   ServiceSheetRecord,
 } from "@/content/types/services";
+import { clockMinutes, clockSchema } from "@/lib/shared/clock";
 import { revSchema } from "@/lib/shared/revision";
 import { periodDates } from "./service-sheet";
 
@@ -15,15 +16,10 @@ import { periodDates } from "./service-sheet";
 // sheetOrderProblems() and the content test's.
 
 const date = z.iso.date();
-const clock = z.string().regex(/^(1?\d|2[0-3]):[0-5]\d$/, "must be H:MM");
 const text = z.string().trim().min(1);
-const minutes = (time: string) => {
-  const [h, m] = time.split(":").map(Number);
-  return h * 60 + m;
-};
 
 const rowSchema = z.strictObject({
-  time: clock,
+  time: clockSchema,
   place: text,
   title: text,
   detail: text.optional(),
@@ -79,7 +75,7 @@ export const serviceSheetSchema = z
       }
     });
     sheet.days.forEach((day, i) => {
-      if (day.rows.some((r, j) => j > 0 && minutes(r.time) < minutes(day.rows[j - 1].time))) {
+      if (day.rows.some((r, j) => j > 0 && clockMinutes(r.time) < clockMinutes(day.rows[j - 1].time))) {
         ctx.addIssue({ code: "custom", path: ["days", i, "rows"], message: "must be in time order" });
       }
     });
@@ -89,7 +85,7 @@ export const serviceSheetSchema = z
 const PARISH_CHURCHES: Record<PlaceId, true> = { kurim: true, "moravske-kninice": true, jinacovice: true };
 
 const serviceEntrySchema = z.strictObject({
-  time: clock,
+  time: clockSchema,
   place: z.enum(Object.keys(PARISH_CHURCHES) as PlaceId[]),
   title: text.optional(),
   note: text.optional(),

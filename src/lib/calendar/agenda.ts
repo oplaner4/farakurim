@@ -15,6 +15,7 @@ import type { Place, PlaceId } from "@/content/types/services";
 import type { ClockTime, IsoDate } from "@/content/types/shared";
 import { eventMeetings } from "@/lib/news/events";
 import { eventClock, parseClock } from "@/lib/news/ics";
+import { clockMinutes } from "@/lib/shared/clock";
 import { capitalize, plural, relativeDayName } from "@/lib/shared/czech";
 import { servicesOnDate, type ScheduleSource } from "@/lib/services/masses";
 import { inPrague, pragueDate, pragueDateTime, pragueWeekday } from "@/lib/shared/prague";
@@ -74,11 +75,8 @@ export function parseDayParam(value: string | null): IsoDate | undefined {
   return isValid(noon(value)) ? value : undefined;
 }
 
-const minutes = (time?: ClockTime) => {
-  if (!time) return -1;
-  const [h, m] = time.split(":").map(Number);
-  return h * 60 + m;
-};
+/** A time for sorting a day's items: all-day items (no time) first. */
+const minutes = (time?: ClockTime) => (time ? clockMinutes(time) : -1);
 
 /**
  * Items per day from `from` to `to`: all-day items first, then by time. A multi-day entry shows on each of its
