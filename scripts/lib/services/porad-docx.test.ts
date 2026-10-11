@@ -47,22 +47,22 @@ describe("docxWeeks", () => {
     return file;
   };
 
-  it("lists the weeks in the document's order", () => {
+  it("lists the weeks in the document's order", async () => {
     const file = docx(
       heading("ROZPIS BOHOSLUŽEB V TÝDNU od 11. 10. 2026 do 18. 10. 2026") +
         week +
         p("Výuka bude od 12. 10. do 19. 10. 2026.") +
         heading("ROZPIS BOHOSLUŽEB V TÝDNU od 28. 12. do 4. 1. 2026"),
     );
-    expect(docxWeeks(file).map(({ validFrom, validTo }) => ({ validFrom, validTo }))).toEqual([
+    expect((await docxWeeks(file)).map(({ validFrom, validTo }) => ({ validFrom, validTo }))).toEqual([
       { validFrom: "2026-10-11", validTo: "2026-10-18" },
       { validFrom: "2025-12-28", validTo: "2026-01-04" },
     ]);
   });
 
-  it("reads a week's days from its table", () => {
+  it("reads a week's days from its table", async () => {
     const file = docx(heading("ROZPIS BOHOSLUŽEB V TÝDNU od 11. 10. 2026 do 18. 10. 2026") + week);
-    const { days } = docxWeeks(file)[0].draft();
+    const { days } = (await docxWeeks(file))[0].draft();
     expect(days.map((d) => d.date)).toEqual([
       "2026-10-11",
       "2026-10-12",
@@ -103,7 +103,7 @@ describe("docxWeeks", () => {
     expect(days[7]).toMatchObject({ feast: "Slavnost posvěcení farního kostela", solemnity: true });
   });
 
-  it("reads the announcements below the table as HTML with a guessed category", () => {
+  it("reads the announcements below the table as HTML with a guessed category", async () => {
     const file = docx(
       heading("ROZPIS BOHOSLUŽEB V TÝDNU od 11. 10. 2026 do 18. 10. 2026") +
         week +
@@ -133,7 +133,7 @@ describe("docxWeeks", () => {
         heading("ROZPIS BOHOSLUŽEB V TÝDNU od 4. 10. 2026 do 11. 10. 2026"),
       { rId5: "syrkova@zus.cz", rId6: "https://www.farakurim.cz/" },
     );
-    expect(docxWeeks(file)[0].draft().announcements).toEqual([
+    expect((await docxWeeks(file))[0].draft().announcements).toEqual([
       { category: "smireni", html: "<p>V Kuřimi se zpovídá ve čtvrtek od 17.30 hod.</p>" },
       {
         category: "info",
@@ -149,7 +149,7 @@ describe("docxWeeks", () => {
     ]);
   });
 
-  it("marks bold feasts as solemnities and guesses the flags of other services", () => {
+  it("marks bold feasts as solemnities and guesses the flags of other services", async () => {
     const file = docx(
       heading("ROZPIS BOHOSLUŽEB V TÝDNU od 22. 3. 2026 do 29. 3. 2026") +
         table([
@@ -166,32 +166,33 @@ describe("docxWeeks", () => {
           ],
         ]),
     );
-    const { days } = docxWeeks(file)[0].draft();
+    const { days } = (await docxWeeks(file))[0].draft();
     expect(days[0].rows[0]).toMatchObject({ title: "Mše sv.", detail: "za Lukáše", mass: true });
     expect(days.map((d) => d.solemnity)).toEqual([true, false, false, true, false, false, true, true]);
     expect(days[6].rows.map((r) => r.service)).toEqual([undefined]);
     expect(days[7].rows.map((r) => r.service)).toEqual([undefined, undefined, true]);
   });
 
-  it("refuses a table it cannot read, naming the week and the day", () => {
-    const draft = (rows: string[][][]) =>
-      docxWeeks(docx(heading("ROZPIS BOHOSLUŽEB V TÝDNU od 11. 10. 2026 do 18. 10. 2026") + table(rows)))[0].draft;
-    expect(draft([[["11. 10.", "Ne"], [], ["Kuřim"], ["8:00", "9:30"], ["Mše sv."]]])).toThrow(
+  it("refuses a table it cannot read, naming the week and the day", async () => {
+    const draft = async (rows: string[][][]) =>
+      (await docxWeeks(docx(heading("ROZPIS BOHOSLUŽEB V TÝDNU od 11. 10. 2026 do 18. 10. 2026") + table(rows))))[0]
+        .draft;
+    expect(await draft([[["11. 10.", "Ne"], [], ["Kuřim"], ["8:00", "9:30"], ["Mše sv."]]])).toThrow(
       "the week 2026-10-11 – 2026-10-18, 2026-10-11: the times (8:00, 9:30) do not pair with the 1 services",
     );
-    expect(draft([[["16. 5.", "Út"], [], ["Kuřim"], ["8:00"], ["Mše sv."]]])).toThrow(
+    expect(await draft([[["16. 5.", "Út"], [], ["Kuřim"], ["8:00"], ["Mše sv."]]])).toThrow(
       'the day "16. 5. Út" is not in the week',
     );
-    expect(draft([[["12. 10.", "Út"], [], ["Kuřim"], ["8:00"], ["Mše sv."]]])).toThrow(
+    expect(await draft([[["12. 10.", "Út"], [], ["Kuřim"], ["8:00"], ["Mše sv."]]])).toThrow(
       '12. 10. is marked "Út", but 2026-10-12 is "Po"',
     );
-    expect(draft([[["12. 10.", "Po"], ["Kuřim"], ["8:00"], ["Mše sv."]]])).toThrow("a table row with 4 cells");
-    expect(draft([[["12. 10.", "Po"], [], ["Kuřim"], ["8:00"], ["Mše sv."]]])).toThrow(
+    expect(await draft([[["12. 10.", "Po"], ["Kuřim"], ["8:00"], ["Mše sv."]]])).toThrow("a table row with 4 cells");
+    expect(await draft([[["12. 10.", "Po"], [], ["Kuřim"], ["8:00"], ["Mše sv."]]])).toThrow(
       "the table runs from 2026-10-12 to 2026-10-12, so the heading looks wrong",
     );
   });
 
-  it("adds the days a two-week table leaves out, without services", () => {
+  it("adds the days a two-week table leaves out, without services", async () => {
     const file = docx(
       heading("ROZPIS BOHOSLUŽEB V TÝDNU od 19. 7. 2026 do 2. 8. 2026") +
         table([
@@ -199,17 +200,17 @@ describe("docxWeeks", () => {
           [["2. 8.", "Ne"], [], ["Kuřim"], ["8:00"], ["Mše sv."]],
         ]),
     );
-    const { days } = docxWeeks(file)[0].draft();
+    const { days } = (await docxWeeks(file))[0].draft();
     expect(days).toHaveLength(15);
     expect(days[1]).toEqual({ date: "2026-07-20", solemnity: false, rows: [] });
     expect(days[7]).toEqual({ date: "2026-07-26", solemnity: true, rows: [] });
     expect(days[14].rows).toHaveLength(1);
   });
 
-  it("refuses a file that is not a DOCX", () => {
+  it("refuses a file that is not a DOCX", async () => {
     const file = join(dir, "porad.docx");
     writeFileSync(file, "%PDF");
-    expect(() => docxWeeks(file)).toThrow("is not a Word document (.docx)");
-    expect(() => docxWeeks(join(dir, "chybi.docx"))).toThrow("ENOENT");
+    await expect(docxWeeks(file)).rejects.toThrow("is not a Word document (.docx)");
+    await expect(docxWeeks(join(dir, "chybi.docx"))).rejects.toThrow("ENOENT");
   });
 });

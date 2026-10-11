@@ -58,8 +58,8 @@ function pdfWeek(src: string, options: PoradOptions): Week {
 }
 
 /** The week of the DOCX `src`: the one --from and --to name, else the newest. */
-function docxWeek(src: string, options: PoradOptions): DocxWeek {
-  const weeks = docxWeeks(src);
+async function docxWeek(src: string, options: PoradOptions): Promise<DocxWeek> {
+  const weeks = await docxWeeks(src);
   if (weeks.length === 0) throw new Error("no 'ROZPIS BOHOSLUŽEB … od … do …' heading in the DOCX");
   if (!options.validFrom) return weeks.reduce((newest, week) => (week.validFrom > newest.validFrom ? week : newest));
   const week = weeks.find((w) => w.validFrom === options.validFrom && w.validTo === options.validTo);
@@ -104,14 +104,18 @@ const weekLines = ({ validFrom, validTo, rev }: { validFrom: string; validTo: st
  * The PDF to stage and its week: the PDF `src` itself, or the week's page of the DOCX `src` converted in `dir` (and,
  * with `draft`, the week's draft record written there). Returns the lines to print too.
  */
-function sourceWeek(src: string, options: PoradOptions, dir: string): { pdf: string; week: Week; lines: string[] } {
+async function sourceWeek(
+  src: string,
+  options: PoradOptions,
+  dir: string,
+): Promise<{ pdf: string; week: Week; lines: string[] }> {
   const docx = extname(src).toLowerCase() === ".docx";
   if (!docx && extname(src).toLowerCase() !== ".pdf") throw new Error("the pořad bohoslužeb is a PDF or a DOCX");
   if (!docx) {
     if (options.draft !== undefined) throw new Error("--draft reads the week from a DOCX");
     return { pdf: src, week: pdfWeek(src, options), lines: [] };
   }
-  const docxSheet = docxWeek(src, options);
+  const docxSheet = await docxWeek(src, options);
   const week = { validFrom: docxSheet.validFrom, validTo: docxSheet.validTo };
   const lines: string[] = [];
   // Written before the conversion, so the draft is there to check even without a converter.
@@ -141,7 +145,7 @@ export async function stagePorad(env: StageEnv, options: PoradOptions) {
   const src = sourceFile(options.source, MAX_MB.porad, env.home);
   const dir = mkdtempSync(join(tmpdir(), "porad-"));
   try {
-    const { pdf, week, lines } = sourceWeek(src, options, dir);
+    const { pdf, week, lines } = await sourceWeek(src, options, dir);
     const { validFrom, validTo } = week;
     const rev = await sheetRev(env, validFrom, corrected);
     const rel = sheetPdfFile({ validFrom, rev });

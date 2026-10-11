@@ -1,13 +1,13 @@
 // Reads the parish's pořad bohoslužeb DOCX ("Pořad bohoslužeb 2026.docx"), which holds every week of the year, the
 // newest first: each week is a heading ("ROZPIS BOHOSLUŽEB V TÝDNU od … do …"), its table (date and weekday, feast,
-// place, times, services; a day's later places in merged rows) and the announcements below it. A week's draft is a
-// sheet record (days and announcements) to check with the user: the mass and service flags, the feast's case and the
-// announcement categories are guesses.
+// place, times, services; a day's later places in merged rows) and the announcements below it. The document is
+// converted to HTML with mammoth and read with cheerio; plain e-mail and web addresses are linked with linkify. A
+// week's draft is a sheet record (days and announcements) to check with the user: the mass and service flags, the
+// feast's case and the announcement categories are guesses.
 
-import { readFileSync } from "node:fs";
-import { DOMParser, type Element, type Node } from "@xmldom/xmldom";
-import { escapeAttribute, escapeUTF8 } from "entities";
-import { strFromU8, unzipSync } from "fflate";
+import * as cheerio from "cheerio";
+import linkifyHtml from "linkify-html";
+import mammoth from "mammoth";
 import { places } from "@/content/masses";
 import type { Announcement, AnnouncementCategory, SheetDay, SheetRow } from "@/content/types/services";
 import type { IsoDate } from "@/content/types/shared";
@@ -16,11 +16,6 @@ import { WEEKDAY_SHORT } from "@/lib/shared/czech";
 import { pragueWeekday } from "@/lib/shared/prague";
 import { period, periodDates } from "@/lib/services/service-sheet";
 import { weekHeading } from "./porad-week";
-
-const W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
-const R = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
-const DOCUMENT = "word/document.xml";
-const RELS = "word/_rels/document.xml.rels";
 
 /** A sheet record without its week: the days and announcements. */
 export interface DraftRecord {
@@ -35,111 +30,75 @@ export interface DocxWeek {
   draft: () => DraftRecord;
 }
 
-/** A run of text with its formatting. */
-interface Segment {
-  text: string;
+/** A table cell: its paragraphs as text (without the empty ones), whether all of it is bold, and its rowspan. */
+interface Cell {
+  lines: string[];
   bold: boolean;
-  italic: boolean;
-  href?: string;
+  rowspan: number;
 }
 
-const elements = (node: Node): Element[] =>
-  Array.from({ length: node.childNodes.length }, (_, i) => node.childNodes.item(i)).filter(
-    (child): child is Element => child?.nodeType === 1 && (child as Element).namespaceURI === W,
-  );
-const children = (node: Node, name: string) => elements(node).filter((el) => el.localName === name);
-const child = (node: Node, name: string): Element | undefined => children(node, name)[0];
-
-/** Whether the toggle `name` (w:b, w:i) is on in the run properties: present, and not w:val="0" or "false". */
-function toggle(rPr: Element | undefined, name: string) {
-  const el = rPr && child(rPr, name);
-  return !!el && !["0", "false", "off"].includes(el.getAttributeNS(W, "val") ?? "");
-}
-
-/** The text of a run: its w:t, with tabs and line breaks as spaces (a page break as nothing). */
-function runText(run: Element) {
-  return elements(run)
-    .map((el) => {
-      if (el.localName === "t") return el.textContent ?? "";
-      if (el.localName === "tab" || el.localName === "cr") return " ";
-      if (el.localName === "br") return el.getAttributeNS(W, "type") === "page" ? "" : " ";
-      if (el.localName === "noBreakHyphen") return "-";
-      return "";
-    })
-    .join("");
-}
-
-/** The runs of the paragraph `p` in order, with the target of the link each sits in (from `links`). */
-function segments(p: Element, links: Map<string, string>): Segment[] {
-  const runs = p.getElementsByTagNameNS(W, "r");
-  return Array.from({ length: runs.length }, (_, i) => runs.item(i)!).map((run) => {
-    const rPr = child(run, "rPr");
-    let href: string | undefined;
-    for (let node = run.parentNode; node && node !== p; node = node.parentNode) {
-      const el = node as Element;
-      if (el.localName === "hyperlink") href = links.get(el.getAttributeNS(R, "id") ?? "");
-    }
-    return { text: runText(run), bold: toggle(rPr, "b"), italic: toggle(rPr, "i"), href };
-  });
-}
+/** A block of the document body: a paragraph (its text and inner HTML) or a table. */
+type Block = { kind: "p"; text: string; html: string } | { kind: "table"; rows: Cell[][] };
 
 /** Whitespace (no-break spaces included) collapsed to one space, trimmed. */
 const clean = (text: string) => text.replace(/\s+/g, " ").trim();
 
-const paragraphText = (p: Element) =>
-  clean(
-    segments(p, new Map())
-      .map((s) => s.text)
-      .join(""),
-  );
-
-/** The paragraphs of a table cell as text, without the empty ones. */
-const cellLines = (tc: Element) => children(tc, "p").map(paragraphText).filter(Boolean);
-
-/** Whether all the text of a table cell is bold: the document marks Sundays and solemnities so. */
-const cellBold = (tc: Element) => {
-  const text = children(tc, "p")
-    .flatMap((p) => segments(p, new Map()))
-    .filter((seg) => seg.text.trim());
-  return text.length > 0 && text.every((seg) => seg.bold);
-};
-
-/** A link's href: an e-mail address as mailto:. */
-const linkHref = (href: string) => (/^[^\s@/:]+@[^\s@/]+\.\w+$/.test(href) ? `mailto:${href}` : href);
-
-// An e-mail address, or a web address with a common domain ("zacnikdejsi.cz", "www.biskupstvi.cz/akce").
-const PLAIN_LINK =
-  /[\w.+-]+@[\w-]+(?:\.[\w-]+)+|(?:https?:\/\/)?(?:[a-z0-9-]+\.)+(?:cz|sk|eu|com|org|net|info)\b(?:\/[^\s<]*[^\s<.,;:!?)])?/gi;
-
-/** The e-mail and web addresses written as plain (escaped) text, as links. */
-const linkPlain = (html: string) =>
-  html.replace(PLAIN_LINK, (text) => {
-    const href = text.includes("@") ? `mailto:${text}` : /^https?:/i.test(text) ? text : `https://${text}`;
-    return `<a href="${escapeAttribute(href)}">${text}</a>`;
-  });
-
-/** The paragraph's segments as HTML: bold as <strong>, italics as <em>, links as <a>, in a <p>. */
-function paragraphHtml(segs: Segment[]) {
-  const merged: Segment[] = [];
-  for (const seg of segs) {
-    const text = seg.text.replace(/\s+/g, " ");
-    const last = merged.at(-1);
-    // Spaces between two runs join the run before, so "Adorační den" in two bold runs stays one <strong>.
-    const same = last && last.bold === seg.bold && last.italic === seg.italic && last.href === seg.href;
-    if (last && (same || text.trim() === "")) last.text += text;
-    else if (text) merged.push({ ...seg, text });
+/** The blocks of the DOCX `file`, converted to HTML by mammoth; throws for a file that is not a DOCX. */
+async function documentBlocks(file: string): Promise<Block[]> {
+  let html: string;
+  try {
+    // Empty paragraphs kept: they separate the announcements.
+    ({ value: html } = await mammoth.convertToHtml({ path: file }, { ignoreEmptyParagraphs: false }));
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") throw error;
+    throw new Error(`${file} is not a Word document (.docx)`);
   }
-  const html = merged
-    .map(({ text, bold, italic, href }) => {
-      const [, before, inner, after] = /^(\s*)(.*?)(\s*)$/.exec(text)!;
-      let out = href ? escapeUTF8(inner) : linkPlain(escapeUTF8(inner));
-      if (inner && italic) out = `<em>${out}</em>`;
-      if (inner && bold) out = `<strong>${out}</strong>`;
-      if (inner && href) out = `<a href="${escapeAttribute(linkHref(href))}">${out}</a>`;
-      return `${before}${out}${after}`;
-    })
-    .join("");
-  return `<p>${html.replace(/ {2,}/g, " ").trim()}</p>`;
+  // Linked before cheerio reads it: linkify decodes &amp;, which cheerio encodes again.
+  const $ = cheerio.load(linkifyHtml(html, { defaultProtocol: "https" }), null, false);
+  return $.root()
+    .children()
+    .toArray()
+    .map((el): Block => {
+      if (el.tagName !== "table") return { kind: "p", text: clean($(el).text()), html: $(el).html() ?? "" };
+      const rows = $(el).find("tr").toArray();
+      return {
+        kind: "table",
+        rows: rows.map((tr) =>
+          $(tr)
+            .children("td, th")
+            .toArray()
+            .map((td) => {
+              const cell = $(td);
+              const lines = cell
+                .children("p")
+                .toArray()
+                .map((p) => clean($(p).text()))
+                .filter(Boolean);
+              const bare = (text: string) => text.replace(/\s+/g, "");
+              const bold = lines.length > 0 && bare(cell.find("strong").text()) === bare(cell.text());
+              return { lines, bold, rowspan: Number(cell.attr("rowspan") ?? 1) };
+            }),
+        ),
+      };
+    });
+}
+
+/**
+ * The paragraph's inner HTML as the announcement's <p>: spaces outside the <strong> and <em>, a link to a bare
+ * e-mail address as mailto:, and no link targets.
+ */
+function paragraphHtml(inner: string) {
+  const html = inner
+    .replace(/&nbsp;|\u00a0/g, " ")
+    .replace(/<(strong|em)>(\s+)/g, "$2<$1>")
+    .replace(/(\s+)<\/(strong|em)>/g, "</$2>$1")
+    .replace(/<(strong|em)><\/\1>/g, "")
+    .replace(/href="([^":/]+@[^"]+)"/g, 'href="mailto:$1"')
+    // Word's "open in a new window" (target="_blank"): the sheets' links carry no target.
+    .replace(/ target="[^"]*"/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return `<p>${html}</p>`;
 }
 
 /** A first guess at an announcement's category from its words; `info` when nothing fits. */
@@ -214,22 +173,43 @@ function tableRows(placeCell: string[], timeCell: string[], serviceCell: string[
   return times.map((time, i) => sheetRow(time, place, lines[i]));
 }
 
+/** The table's rows as its 5 columns, a cell merged from the row above as null. */
+function tableGrid(rows: Cell[][], where: string): (Cell | null)[][] {
+  const covered = [0, 0, 0, 0, 0];
+  return rows.map((row) => {
+    const cells = [...row];
+    const grid = covered.map((rows, col) => {
+      if (rows > 0) {
+        covered[col]--;
+        return null;
+      }
+      const cell = cells.shift();
+      if (cell) covered[col] = cell.rowspan - 1;
+      return cell;
+    });
+    if (cells.length > 0 || grid.includes(undefined)) {
+      throw new Error(`${where}: a table row with ${row.length} cells, expected 5`);
+    }
+    return grid as (Cell | null)[];
+  });
+}
+
 /**
  * The days of the week's table: one per table row, or more rows of one day in merged cells, and the days the table
  * leaves out without rows.
  */
-function tableDays(table: Element, week: { validFrom: IsoDate; validTo: IsoDate }): SheetDay[] {
+function tableDays(rows: Cell[][], week: { validFrom: IsoDate; validTo: IsoDate }): SheetDay[] {
   const where = `the week ${period(week)}`;
   const dates = periodDates(week.validFrom, week.validTo);
   const days: SheetDay[] = [];
-  for (const tr of children(table, "tr")) {
-    const cells = children(tr, "tc");
-    if (cells.length !== 5) throw new Error(`${where}: a table row with ${cells.length} cells, expected 5`);
-    const [dateCell, feastCell, placeCell, timeCell, serviceCell] = cells.map(cellLines);
-    if (dateCell.length > 0) days.push(tableDay(dateCell, feastCell, cellBold(cells[1]), dates, where));
+  for (const [dateCell, feastCell, placeCell, timeCell, serviceCell] of tableGrid(rows, where)) {
+    if (dateCell && dateCell.lines.length > 0) {
+      days.push(tableDay(dateCell.lines, feastCell?.lines ?? [], !!feastCell?.bold, dates, where));
+    }
     const day = days.at(-1);
     if (!day) throw new Error(`${where}: the table starts without a date`);
-    day.rows.push(...tableRows(placeCell, timeCell, serviceCell, `${where}, ${day.date}`));
+    const lines = (cell: Cell | null) => cell?.lines ?? [];
+    day.rows.push(...tableRows(lines(placeCell), lines(timeCell), lines(serviceCell), `${where}, ${day.date}`));
   }
   // A heading with a wrong date ("od 14. 6." over a table from 28. 6.) would publish the sheet over the wrong days.
   const [first, last] = [days[0]?.date, days.at(-1)?.date];
@@ -243,72 +223,34 @@ function tableDays(table: Element, week: { validFrom: IsoDate; validTo: IsoDate 
   );
 }
 
-/** The external links of the document by relationship id. */
-function documentLinks(rels: string | undefined) {
-  const links = new Map<string, string>();
-  if (!rels) return links;
-  const doc = parseXml(rels, RELS);
-  const list = doc.getElementsByTagName("Relationship");
-  for (let i = 0; i < list.length; i++) {
-    const rel = list.item(i)!;
-    if (rel.getAttribute("TargetMode") === "External")
-      links.set(rel.getAttribute("Id") ?? "", rel.getAttribute("Target") ?? "");
-  }
-  return links;
-}
-
-function parseXml(xml: string, name: string) {
-  return new DOMParser({
-    onError: (level, message) => {
-      if (level !== "warning") throw new Error(`${name} is not valid XML: ${message}`);
-    },
-  }).parseFromString(xml, "text/xml");
-}
-
 /** A week's heading, its table and its announcements, each the paragraphs up to an empty one. */
 interface BodyWeek {
   week: { validFrom: IsoDate; validTo: IsoDate };
-  table?: Element;
-  notes: Element[][];
+  table?: Cell[][];
+  notes: { text: string; html: string }[][];
 }
 
-/** The weeks of the document body: each heading, the table after it and the paragraphs below the table. */
-function bodyWeeks(body: Node): BodyWeek[] {
+/** The weeks of the document: each heading, the table after it and the paragraphs below the table. */
+function bodyWeeks(blocks: Block[]): BodyWeek[] {
   const weeks: BodyWeek[] = [];
-  for (const el of elements(body)) {
+  for (const block of blocks) {
     const current = weeks.at(-1);
-    if (el.localName === "tbl") {
-      if (current && !current.table) current.table = el;
+    if (block.kind === "table") {
+      if (current && !current.table) current.table = block.rows;
       continue;
     }
-    if (el.localName !== "p") continue;
-    const text = paragraphText(el);
-    const week = weekHeading(text);
+    const week = weekHeading(block.text);
     // A list's lines follow each other; an empty paragraph ends an announcement.
     if (week) weeks.push({ week, notes: [[]] });
-    else if (current?.table && text) current.notes.at(-1)!.push(el);
+    else if (current?.table && block.text) current.notes.at(-1)!.push(block);
     else if (current?.table && current.notes.at(-1)!.length > 0) current.notes.push([]);
   }
   return weeks;
 }
 
 /** The weeks of the pořad bohoslužeb DOCX `file`, in the document's order. Throws for a file that is not a DOCX. */
-export function docxWeeks(file: string): DocxWeek[] {
-  // Read outside the try, so a missing file reports itself, not as a file that is not a DOCX.
-  const data = new Uint8Array(readFileSync(file));
-  let files;
-  try {
-    files = unzipSync(data, { filter: (f) => f.name === DOCUMENT || f.name === RELS });
-  } catch {
-    throw new Error(`${file} is not a Word document (.docx)`);
-  }
-  if (!files[DOCUMENT]) throw new Error(`${file} is not a Word document (.docx)`);
-  const links = documentLinks(files[RELS] && strFromU8(files[RELS]));
-  const body = parseXml(strFromU8(files[DOCUMENT]), DOCUMENT).getElementsByTagNameNS(W, "body").item(0);
-  if (!body) throw new Error(`${file} has no document body`);
-
-  const weeks = bodyWeeks(body);
-  return weeks.map(({ week, table, notes }) => ({
+export async function docxWeeks(file: string): Promise<DocxWeek[]> {
+  return bodyWeeks(await documentBlocks(file)).map(({ week, table, notes }) => ({
     ...week,
     draft: () => {
       if (!table) throw new Error(`the week ${period(week)} has no table`);
@@ -317,8 +259,8 @@ export function docxWeeks(file: string): DocxWeek[] {
         announcements: notes
           .filter((paragraphs) => paragraphs.length > 0)
           .map((paragraphs) => ({
-            category: guessCategory(paragraphs.map(paragraphText).join(" ")),
-            html: paragraphs.map((p) => paragraphHtml(segments(p, links))).join(""),
+            category: guessCategory(paragraphs.map((p) => p.text).join(" ")),
+            html: paragraphs.map((p) => paragraphHtml(p.html)).join(""),
           })),
       };
     },
