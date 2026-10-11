@@ -1,5 +1,8 @@
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, type MockInstance, vi } from "vitest";
-import { commandExitCode, errorMessage } from "./command";
+import { commandExitCode, errorMessage, parseCommandLine, readJsonRecord } from "./command";
 
 describe("errorMessage", () => {
   it("adds the cause, as fetch() reports a network failure", () => {
@@ -51,5 +54,38 @@ describe("commandExitCode", () => {
     const run = vi.fn();
     expect(await commandExitCode("demo", ["x"], async (args) => args[0], run)).toBe(0);
     expect(run).toHaveBeenCalledWith("x");
+  });
+});
+
+describe("parseCommandLine", () => {
+  const options = { check: { type: "boolean" }, out: { type: "string" } } as const;
+
+  it("reads the positionals and the options", () => {
+    expect(parseCommandLine(["x.json", "--check", "--out", "dir"], options, "Usage")).toEqual({
+      positionals: ["x.json"],
+      values: { check: true, out: "dir" },
+    });
+  });
+
+  it("throws with the usage for an unknown option or a missing value", () => {
+    expect(() => parseCommandLine(["--chekc"], options, "Usage: pnpm x")).toThrow(/--chekc[^]*\nUsage: pnpm x$/);
+    expect(() => parseCommandLine(["--out"], options, "Usage: pnpm x")).toThrow(/\nUsage: pnpm x$/);
+  });
+});
+
+describe("readJsonRecord", () => {
+  let dir: string;
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), "command-"));
+  });
+  afterEach(() => rmSync(dir, { recursive: true, force: true }));
+
+  it("reads the JSON, or throws naming the file", () => {
+    const file = join(dir, "record.json");
+    writeFileSync(file, '{ "id": "x" }');
+    expect(readJsonRecord(file)).toEqual({ id: "x" });
+    writeFileSync(file, "{ id");
+    expect(() => readJsonRecord(file)).toThrow(`${file} is not a JSON file:`);
+    expect(() => readJsonRecord(join(dir, "missing.json"))).toThrow("missing.json is not a JSON file:");
   });
 });

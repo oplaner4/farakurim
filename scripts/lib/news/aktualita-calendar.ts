@@ -14,7 +14,6 @@
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { parseArgs } from "node:util";
 import type { NewsEvent } from "@/content/types/news";
 import { parishCalendars, SITE_URL } from "@/content/site";
 import {
@@ -27,7 +26,7 @@ import {
 import { eventCalendar } from "@/lib/news/ics";
 import { eventHref, meetingsOf, type Meeting } from "@/lib/news/events";
 import { fold } from "@/lib/shared/czech";
-import { errorMessage } from "../command";
+import { errorMessage, parseCommandLine } from "../command";
 import { ROOT } from "../content-files";
 
 /** A title for comparing: lower case, without diacritics and repeated spaces. */
@@ -135,7 +134,7 @@ const USAGE = "Usage: pnpm aktualita-calendar <id> [--out <dir>]";
 
 /** Reads the command line `args`: the aktualita of the id and --out; throws with the usage or for an unknown id. */
 export async function parseCommand(args: string[]): Promise<{ event: NewsEvent; out?: string }> {
-  const { values, positionals } = parseArgs({ args, allowPositionals: true, options: { out: { type: "string" } } });
+  const { values, positionals } = parseCommandLine(args, { out: { type: "string" } }, USAGE);
   if (positionals.length !== 1) throw new Error(USAGE);
   // Imported here, so the commands that import this module do not load every aktualita.
   const { events } = await import("@/content/news");

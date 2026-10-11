@@ -3,7 +3,18 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import * as z from "zod";
-import { readJsonFile } from "./json-file";
+import { parseOrThrow, readJsonFile } from "./json-file";
+
+describe("parseOrThrow", () => {
+  const schema = z.strictObject({ items: z.array(z.string()) });
+
+  it("returns the checked data, or throws naming what is not valid and every problem", () => {
+    expect(parseOrThrow(schema, { items: ["a"] }, "the record")).toEqual({ items: ["a"] });
+    expect(() => parseOrThrow(schema, { items: [1] }, "the record")).toThrow(
+      /^the record is not valid:\n[^]*items\[0\]/,
+    );
+  });
+});
 
 describe("readJsonFile", () => {
   let dir: string;

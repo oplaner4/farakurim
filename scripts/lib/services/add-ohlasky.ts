@@ -5,13 +5,12 @@
 // announced for later (src/content/schedule-exceptions.json) that a kept sheet covers or that are before the current
 // sheet. The files' rules are ohlaskyFileSchema's and scheduleExceptionsFileSchema's (src/lib/services/schema.ts).
 
-import * as z from "zod";
 import type { OhlaskyFile, ScheduleExceptionsFile, ServiceSheetRecord } from "@/content/types/services";
 import type { IsoDate } from "@/content/types/shared";
 import { ohlaskyFileSchema, scheduleExceptionsFileSchema, serviceSheetSchema } from "@/lib/services/schema";
 import { currentSheet, period, sheetCovering, sheetOrderProblems } from "@/lib/services/service-sheet";
 import { pragueDate } from "@/lib/shared/prague";
-import { readJsonFile } from "@/lib/shared/json-file";
+import { parseOrThrow, readJsonFile } from "@/lib/shared/json-file";
 import { newsIds, writeContentFile } from "../content-files";
 
 /** The fields the script takes from the staged PDF, never from the record. */
@@ -57,9 +56,7 @@ export function addOhlasky(
       "leave validFrom, validTo and rev out of the record: the script reads validFrom, validTo and rev from the PDF",
     );
   }
-  const parsed = serviceSheetSchema.safeParse({ ...week, ...input });
-  if (!parsed.success) throw new Error(`the record is not valid:\n${z.prettifyError(parsed.error)}`);
-  const sheet = parsed.data;
+  const sheet = parseOrThrow(serviceSheetSchema, { ...week, ...input }, "the record");
   const ids = newsIds(newsDir);
   const unknown = sheet.announcements.flatMap((a, i) =>
     a.newsId && !ids.has(a.newsId) ? [`announcement ${i + 1}: no aktualita with the id ${a.newsId}`] : [],

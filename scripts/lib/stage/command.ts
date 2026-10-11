@@ -32,11 +32,11 @@
 // A source without a folder is also looked for in ~/Downloads/.
 // Requires pdftoppm, pdfinfo and pdftotext (poppler-utils) for PDFs.
 
-import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
 import * as z from "zod";
 import type { NewsEvent } from "@/content/types/news";
+import { readJsonRecord } from "../command";
 import { reportCalendar } from "../news/aktualita-calendar";
 import { formatAndTest, OHLASKY_TESTS } from "../content-files";
 import { stageAktualita } from "./aktualita";
@@ -98,9 +98,7 @@ export async function runStage(
     throw new Error(`wrong arguments\n${USAGE}`);
   }
   const check = values.check ?? false;
-  const record = values.record
-    ? (JSON.parse(readFileSync(values.record, "utf8")) as Record<string, unknown>)
-    : undefined;
+  const record = values.record ? (readJsonRecord(values.record) as Record<string, unknown>) : undefined;
   if (command === "aktualita") {
     const [id, ...pairs] = args;
     const result = await stageAktualita(env, {

@@ -10,16 +10,14 @@
 // Usage: pnpm add-album https://eu.zonerama.com/FarnostKurim/Album/<n>
 //          [--write | --check] [--title "<title>"] [--date YYYY-MM-DD] [--id <kebab-id>]
 
-import { parseArgs } from "node:util";
 import { decodeHTML } from "entities";
-import * as z from "zod";
 import type { Album, AlbumPhoto, GalleryFile } from "@/content/types/gallery";
 import { MAX_ALBUMS } from "@/lib/gallery/albums";
 import { albumNumber, albumSchema, galleryFileSchema } from "@/lib/gallery/schema";
 import { capitalize } from "@/lib/shared/czech";
 import { slug } from "@/lib/shared/slug";
-import { readJsonFile } from "@/lib/shared/json-file";
-import { errorMessage } from "../command";
+import { parseOrThrow, readJsonFile } from "@/lib/shared/json-file";
+import { parseCommandLine } from "../command";
 import { formatAndTest, GALLERY_FILE, writeContentFile } from "../content-files";
 
 const MAX_PHOTOS = 15;
@@ -182,9 +180,7 @@ export type AddAlbumResult = {
  * written.
  */
 export function addAlbum(galleryFile: string, input: unknown, { check = false } = {}): AddAlbumResult {
-  const parsed = albumSchema.safeParse(input);
-  if (!parsed.success) throw new Error(`the album is not valid:\n${z.prettifyError(parsed.error)}`);
-  const album = parsed.data;
+  const album = parseOrThrow(albumSchema, input, "the album");
   const { albums } = readGallery(galleryFile);
   // The album first: added again, its proposed id is the stored one, and "pass another id" would mislead.
   if (albums.some((a) => albumNumber(a.href) === albumNumber(album.href))) {
@@ -224,22 +220,14 @@ export type Command = { url: string; write: boolean; check: boolean; title?: str
 
 /** Reads the command line `args`; a missing URL, a missing option value or an unknown option throws with the usage. */
 export function parseCommand(args: string[]): Command {
-  let parsed;
-  try {
-    parsed = parseArgs({
-      args,
-      allowPositionals: true,
-      options: {
-        write: { type: "boolean" },
-        check: { type: "boolean" },
-        title: { type: "string" },
-        date: { type: "string" },
-        id: { type: "string" },
-      },
-    });
-  } catch (error) {
-    throw new Error(`${errorMessage(error)}\n${USAGE}`);
-  }
+  const options = {
+    write: { type: "boolean" },
+    check: { type: "boolean" },
+    title: { type: "string" },
+    date: { type: "string" },
+    id: { type: "string" },
+  } as const;
+  const parsed = parseCommandLine(args, options, USAGE);
   const [url] = parsed.positionals;
   if (!url) throw new Error(USAGE);
   const { write = false, check = false, ...overrides } = parsed.values;

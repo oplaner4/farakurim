@@ -9,15 +9,13 @@
 // --remove takes the change on that date out (an announcement withdrawn). --check only validates and prints what
 // would change, without writing.
 
-import { readFileSync } from "node:fs";
-import { parseArgs } from "node:util";
-import * as z from "zod";
 import type { ScheduleException, ScheduleExceptionsFile } from "@/content/types/services";
 import type { IsoDate } from "@/content/types/shared";
 import { scheduleExceptionSchema } from "@/lib/services/schema";
 import { period, sheetCovering } from "@/lib/services/service-sheet";
+import { parseOrThrow } from "@/lib/shared/json-file";
 import { pragueDate } from "@/lib/shared/prague";
-import { errorMessage } from "../command";
+import { parseCommandLine, readJsonRecord } from "../command";
 import { EXCEPTIONS_FILE, formatAndTest, OHLASKY_FILE, OHLASKY_TESTS, writeContentFile } from "../content-files";
 import { readOhlasky, readScheduleExceptions } from "./add-ohlasky";
 
@@ -50,9 +48,7 @@ export function addException(
     date = change.remove;
     if (!exceptions.some((x) => x.date === date)) throw new Error(`there is no change on ${date} to remove`);
   } else {
-    const parsed = scheduleExceptionSchema.safeParse(change.add);
-    if (!parsed.success) throw new Error(`the record is not valid:\n${z.prettifyError(parsed.error)}`);
-    exception = parsed.data;
+    exception = parseOrThrow(scheduleExceptionSchema, change.add, "the record");
     date = exception.date;
     const sheet = sheetCovering(readOhlasky(ohlaskyFile).sheets, date);
     if (sheet) {
@@ -95,17 +91,8 @@ const USAGE = "Usage: pnpm add-exception <record.json> | --remove <YYYY-MM-DD> [
  * option throws with the usage, so a typo of --check never writes.
  */
 export function parseCommand(args: string[]): { change: ExceptionChange; check: boolean } {
-  let parsed;
-  try {
-    parsed = parseArgs({
-      args,
-      allowPositionals: true,
-      options: { remove: { type: "string" }, check: { type: "boolean" } },
-    });
-  } catch (error) {
-    throw new Error(`${errorMessage(error)}\n${USAGE}`);
-  }
-  const { positionals, values } = parsed;
+  const options = { remove: { type: "string" }, check: { type: "boolean" } } as const;
+  const { positionals, values } = parseCommandLine(args, options, USAGE);
   const check = values.check ?? false;
   if (values.remove !== undefined) {
     if (positionals.length > 0 || !scheduleExceptionSchema.shape.date.safeParse(values.remove).success) {
@@ -114,13 +101,7 @@ export function parseCommand(args: string[]): { change: ExceptionChange; check: 
     return { change: { remove: values.remove }, check };
   }
   if (positionals.length !== 1) throw new Error(USAGE);
-  let record: unknown;
-  try {
-    record = JSON.parse(readFileSync(positionals[0], "utf8"));
-  } catch (error) {
-    throw new Error(`${positionals[0]} is not a JSON file: ${errorMessage(error)}`);
-  }
-  return { change: { add: record }, check };
+  return { change: { add: readJsonRecord(positionals[0]) }, check };
 }
 
 /** Runs `pnpm add-exception` (scripts/add-exception.ts). */

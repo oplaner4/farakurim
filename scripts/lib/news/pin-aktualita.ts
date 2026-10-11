@@ -6,13 +6,12 @@
 // Usage: pnpm pin-aktualita <id> | --none [--check]
 // --none unpins every record. --check only validates and prints what would change, without writing.
 
-import { parseArgs } from "node:util";
 import { monthFiles, readMonth } from "@/content/news";
 import type { IsoDate } from "@/content/types/shared";
 import type { NewsEvent } from "@/content/types/news";
 import { eventEnd } from "@/lib/news/events";
 import { pragueDate } from "@/lib/shared/prague";
-import { errorMessage } from "../command";
+import { parseCommandLine } from "../command";
 import { formatAndTestNews, NEWS_DIR, writeMonth } from "../content-files";
 
 /** Every month file under `newsDir` (`<year>/<MM>.json` → its records), in readEvents() order. */
@@ -99,17 +98,8 @@ const USAGE = "Usage: pnpm pin-aktualita <id> | --none [--check]";
  * typo of --check never writes.
  */
 export function parseCommand(args: string[]): { id: string | null; check: boolean } {
-  let parsed;
-  try {
-    parsed = parseArgs({
-      args,
-      allowPositionals: true,
-      options: { none: { type: "boolean" }, check: { type: "boolean" } },
-    });
-  } catch (error) {
-    throw new Error(`${errorMessage(error)}\n${USAGE}`);
-  }
-  const { positionals, values } = parsed;
+  const options = { none: { type: "boolean" }, check: { type: "boolean" } } as const;
+  const { positionals, values } = parseCommandLine(args, options, USAGE);
   if (positionals.length !== (values.none ? 0 : 1)) throw new Error(USAGE);
   return { id: values.none ? null : positionals[0], check: values.check ?? false };
 }

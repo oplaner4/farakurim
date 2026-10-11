@@ -9,16 +9,16 @@
 // fields that change, without writing. `pnpm stage aktualita … --corrected` (scripts/lib/stage/aktualita.ts) puts a
 // corrected file into the record and calls replaceAktualita(), formatAndTest() and the calendar check itself.
 
-import { readdirSync, readFileSync, rmSync } from "node:fs";
+import { readdirSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { isDeepStrictEqual, parseArgs } from "node:util";
-import * as z from "zod";
+import { isDeepStrictEqual } from "node:util";
 import type { NewsEvent } from "@/content/types/news";
 import { newsEventSchema } from "@/lib/news/schema";
+import { parseOrThrow } from "@/lib/shared/json-file";
 import { pragueDate } from "@/lib/shared/prague";
 import { insertRecord, monthFile } from "./add-aktualita";
 import { reportCalendar } from "./aktualita-calendar";
-import { errorMessage } from "../command";
+import { parseCommandLine, readJsonRecord } from "../command";
 import { formatAndTestNews, NEWS_DIR, writeMonth } from "../content-files";
 import { assertPinnable, readMonths, withoutPin } from "./pin-aktualita";
 
@@ -41,9 +41,9 @@ function findRecord(months: Map<string, NewsEvent[]>, input: unknown) {
 /** `input` checked as the record replacing `previous`: it keeps `published` and the pin. */
 function parseReplacement(input: unknown, previous: NewsEvent, now: Date): NewsEvent {
   const { published: _published, ...fields } = input as Record<string, unknown>;
-  const parsed = newsEventSchema.safeParse(previous.published ? { ...fields, published: previous.published } : fields);
-  if (!parsed.success) throw new Error(`the record is not valid:\n${z.prettifyError(parsed.error)}`);
-  const record = parsed.data.pinned === false ? withoutPin(parsed.data) : parsed.data;
+  const withDate = previous.published ? { ...fields, published: previous.published } : fields;
+  const parsed = parseOrThrow(newsEventSchema, withDate, "the record");
+  const record = parsed.pinned === false ? withoutPin(parsed) : parsed;
   if (Boolean(record.pinned) !== Boolean(previous.pinned)) {
     throw new Error(`the pin of ${record.id} changes only with pnpm pin-aktualita: keep "pinned" as it is`);
   }
@@ -136,19 +136,14 @@ const USAGE = "Usage: pnpm replace-aktualita <record.json | -> [--check]";
  * so a typo of --check never writes.
  */
 export function parseCommand(args: string[]): { file: string; check: boolean } {
-  let parsed;
-  try {
-    parsed = parseArgs({ args, allowPositionals: true, options: { check: { type: "boolean" } } });
-  } catch (error) {
-    throw new Error(`${errorMessage(error)}\n${USAGE}`);
-  }
-  if (parsed.positionals.length !== 1) throw new Error(USAGE);
-  return { file: parsed.positionals[0], check: parsed.values.check ?? false };
+  const { positionals, values } = parseCommandLine(args, { check: { type: "boolean" } }, USAGE);
+  if (positionals.length !== 1) throw new Error(USAGE);
+  return { file: positionals[0], check: values.check ?? false };
 }
 
 /** Runs `pnpm replace-aktualita` (scripts/replace-aktualita.ts). */
 export async function execute({ file, check }: { file: string; check: boolean }) {
-  const input: unknown = JSON.parse(readFileSync(file === "-" ? 0 : file, "utf8"));
+  const input = readJsonRecord(file);
   const result = replaceAktualita(NEWS_DIR, input, { check });
   console.log(replaceLines(result, check).join("\n"));
   if (!check) {

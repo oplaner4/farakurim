@@ -3,11 +3,10 @@
 // the issue's record where it is. The issue's rules are
 // petrklicRecordSchema's (src/lib/petrklic/schema.ts); its id and URLs are computed (toIssue()).
 
-import * as z from "zod";
 import type { PetrklicFile, PetrklicRecord } from "@/content/types/petrklic";
 import { isNewerIssue, issueId, issueLabel } from "@/lib/petrklic/issues";
 import { petrklicFileSchema, petrklicRecordSchema } from "@/lib/petrklic/schema";
-import { readJsonFile } from "@/lib/shared/json-file";
+import { parseOrThrow, readJsonFile } from "@/lib/shared/json-file";
 import { writeContentFile } from "../content-files";
 
 /** The issues in `file`, checked by petrklicFileSchema; a broken file throws, naming it. */
@@ -30,9 +29,7 @@ export type AddPetrklicResult = {
  * PDF) it replaces the issue's record instead, which must be there. Throws before writing anything.
  */
 export function addPetrklic(file: string, input: unknown, { check = false, replace = false } = {}): AddPetrklicResult {
-  const parsed = petrklicRecordSchema.safeParse(input);
-  if (!parsed.success) throw new Error(`the issue is not valid:\n${z.prettifyError(parsed.error)}`);
-  const record = parsed.data;
+  const record = parseOrThrow(petrklicRecordSchema, input, "the issue");
   const id = issueId(record);
   const { issues } = readPetrklic(file);
   const at = issues.findIndex((issue) => issueId(issue) === id);

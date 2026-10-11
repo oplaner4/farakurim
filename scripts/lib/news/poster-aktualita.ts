@@ -11,12 +11,11 @@
 
 import { existsSync } from "node:fs";
 import { extname, join } from "node:path";
-import { parseArgs } from "node:util";
 import { readEvents } from "@/content/news";
 import type { EventAttachment, NewsEvent } from "@/content/types/news";
 import { isPosterOf, posterOf } from "@/lib/news/events";
 import { IMAGE_EXTENSIONS, UPLOADS_PATH } from "@/lib/shared/uploads";
-import { errorMessage } from "../command";
+import { parseCommandLine } from "../command";
 import { formatAndTestNews, NEWS_DIR } from "../content-files";
 import { renderPoster } from "../images";
 import { defaultUploadsEnv, onServer, type UploadsEnv } from "../uploads";
@@ -116,17 +115,8 @@ const USAGE = 'Usage: pnpm poster-aktualita <id> "<label>" | --none [--check]';
  * throws with the usage, so a typo of --check never writes.
  */
 export function parseCommand(args: string[]): { id: string; label: string | null; check: boolean } {
-  let parsed;
-  try {
-    parsed = parseArgs({
-      args,
-      allowPositionals: true,
-      options: { none: { type: "boolean" }, check: { type: "boolean" } },
-    });
-  } catch (error) {
-    throw new Error(`${errorMessage(error)}\n${USAGE}`);
-  }
-  const { positionals, values } = parsed;
+  const options = { none: { type: "boolean" }, check: { type: "boolean" } } as const;
+  const { positionals, values } = parseCommandLine(args, options, USAGE);
   if (positionals.length !== (values.none ? 1 : 2)) throw new Error(USAGE);
   return { id: positionals[0], label: values.none ? null : positionals[1], check: values.check ?? false };
 }

@@ -12,14 +12,12 @@
 // calls addAktualita(), formatAndTest() and the calendar check itself. A record already there is corrected with
 // `pnpm replace-aktualita` (scripts/lib/news/replace-aktualita.ts).
 
-import { readFileSync } from "node:fs";
-import { parseArgs } from "node:util";
-import * as z from "zod";
 import type { NewsEvent } from "@/content/types/news";
 import { newsEventSchema } from "@/lib/news/schema";
+import { parseOrThrow } from "@/lib/shared/json-file";
 import { pragueDate } from "@/lib/shared/prague";
 import { reportCalendar } from "./aktualita-calendar";
-import { errorMessage } from "../command";
+import { parseCommandLine, readJsonRecord } from "../command";
 import { formatAndTestNews, NEWS_DIR, writeMonth } from "../content-files";
 import { assertPinnable, movePin, readMonths, unpinnedLines, withoutPin } from "./pin-aktualita";
 
@@ -35,9 +33,8 @@ export function insertRecord(list: NewsEvent[], record: NewsEvent): NewsEvent[] 
 /** `input` checked as a new record, published `now` unless it says otherwise; a pinned one must be pinnable. */
 function parseRecord(input: unknown, now: Date): NewsEvent {
   const withDate = input !== null && typeof input === "object" ? { published: pragueDate(now), ...input } : input;
-  const parsed = newsEventSchema.safeParse(withDate);
-  if (!parsed.success) throw new Error(`the record is not valid:\n${z.prettifyError(parsed.error)}`);
-  const record = parsed.data.pinned === false ? withoutPin(parsed.data) : parsed.data;
+  const parsed = parseOrThrow(newsEventSchema, withDate, "the record");
+  const record = parsed.pinned === false ? withoutPin(parsed) : parsed;
   if (record.pinned) assertPinnable(record, pragueDate(now));
   return record;
 }
@@ -77,19 +74,14 @@ const USAGE = "Usage: pnpm add-aktualita <record.json | -> [--check]";
  * so a typo of --check never writes.
  */
 export function parseCommand(args: string[]): { file: string; check: boolean } {
-  let parsed;
-  try {
-    parsed = parseArgs({ args, allowPositionals: true, options: { check: { type: "boolean" } } });
-  } catch (error) {
-    throw new Error(`${errorMessage(error)}\n${USAGE}`);
-  }
-  if (parsed.positionals.length !== 1) throw new Error(USAGE);
-  return { file: parsed.positionals[0], check: parsed.values.check ?? false };
+  const { positionals, values } = parseCommandLine(args, { check: { type: "boolean" } }, USAGE);
+  if (positionals.length !== 1) throw new Error(USAGE);
+  return { file: positionals[0], check: values.check ?? false };
 }
 
 /** Runs `pnpm add-aktualita` (scripts/add-aktualita.ts). */
 export async function execute({ file, check }: { file: string; check: boolean }) {
-  const input: unknown = JSON.parse(readFileSync(file === "-" ? 0 : file, "utf8"));
+  const input = readJsonRecord(file);
   const result = addAktualita(NEWS_DIR, input, { check });
   console.log([targetLine(result, check), ...unpinnedLines(result.unpinned, check)].join("\n"));
   if (!check) {
