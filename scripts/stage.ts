@@ -15,20 +15,24 @@
 //       (named in the output). --corrected stages corrected or added files of an aktualita already there and replaces
 //       its record (the --record, else the one on the site) with the files in it: each in the next -r<rev> once its
 //       file is on the server, else under its name; the poster follows its file.
-//   porad <pdf> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected] [--record <record.json>]
+//   porad <pdf|docx> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected] [--record <record.json> | --draft <file>]
 //       reads the week from the heading ("od 4. 10. 2026 do 11. 10. 2026"), stages
 //       uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-r<rev>].pdf and adds the confirmed sheet (--record:
 //       days and announcements as JSON) to src/content/ohlasky.json, removing the outdated sheets and the covered
 //       changes in src/content/schedule-exceptions.json. --record is required, except with --check, which then prints
 //       the week and its days (with a record, --check only validates it). --corrected stages a corrected PDF of a
 //       week already there, in the next -r<rev> once the week is on the server, else under its name.
+//       The parish's DOCX of the whole year gives its newest week (--from and --to pick another): the PDF staged is
+//       that week's page of the document converted with Word (Windows) or LibreOffice, and --draft <file> writes the
+//       week's draft record, read from its table and announcements, to check before --record (stages nothing).
 //   petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--corrected]
 //       checks the issue, stages uploads/petrklic/<id>/petrklic-<id>.pdf with cover.webp and pages/ and adds the
 //       issue to src/content/petrklic.json (with --check it only validates). --corrected stages a corrected PDF of an
 //       issue already there and replaces its record: in the next uploads/petrklic/<id>-r<rev>/ once the issue is on
 //       the server, else in its folder.
 // A source without a folder is also looked for in ~/Downloads/.
-// Requires pdftoppm, pdfinfo and pdftotext (poppler-utils) for PDFs.
+// Requires pdftoppm, pdfinfo, pdftotext, pdfseparate and pdfunite (poppler-utils) for PDFs, and LibreOffice (or Word on
+// Windows) for a DOCX.
 import { runCommand } from "./lib/command";
 import { execute } from "./lib/stage/command";
 

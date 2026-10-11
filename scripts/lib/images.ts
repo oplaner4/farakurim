@@ -1,9 +1,10 @@
 // Renders the WebP images of uploaded content: event posters for the Aktuality pages (design/DESIGN.md §11, §13) and
-// the Petrklíč cover and viewer pages (§17–18), and reads a PDF's page count and first-page text. PDF pages are
-// rendered with poppler, images resized with sharp. Requires pdftoppm, pdfinfo and pdftotext (poppler-utils) for PDFs.
+// the Petrklíč cover and viewer pages (§17–18), reads a PDF's page count and text and cuts pages out of it. PDF pages
+// are rendered with poppler, images resized with sharp. Requires pdftoppm, pdfinfo, pdftotext, pdfseparate and
+// pdfunite (poppler-utils) for PDFs.
 
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, extname, join } from "node:path";
 import sharp from "sharp";
@@ -28,6 +29,23 @@ export function pdfPageCount(pdf: string): number {
 
 /** The text of the first page of `pdf`. */
 export const pdfFirstPageText = (pdf: string) => poppler("pdftotext", ["-l", "1", pdf, "-"]);
+
+/** The text of each page of `pdf`. */
+export const pdfPageTexts = (pdf: string) => poppler("pdftotext", [pdf, "-"]).split("\f").slice(0, pdfPageCount(pdf));
+
+/** Pages `first`..`last` of `pdf` as the PDF `dest`. */
+export function extractPdfPages(pdf: string, [first, last]: [number, number], dest: string) {
+  const tmp = mkdtempSync(join(tmpdir(), "pages-"));
+  try {
+    poppler("pdfseparate", ["-f", `${first}`, "-l", `${last}`, pdf, join(tmp, "p-%d.pdf")]);
+    const pages = Array.from({ length: last - first + 1 }, (_, i) => join(tmp, `p-${first + i}.pdf`));
+    mkdirSync(dirname(dest), { recursive: true });
+    if (pages.length === 1) copyFileSync(pages[0], dest);
+    else poppler("pdfunite", [...pages, dest]);
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
+}
 
 /**
  * `input` (an image) as a WebP at `dest`, at most `width` px wide, turned upright by its EXIF orientation and on

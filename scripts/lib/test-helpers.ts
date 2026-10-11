@@ -4,6 +4,7 @@ import { spawnSync } from "node:child_process";
 import { cpSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { strToU8, zipSync } from "fflate";
 import sharp from "sharp";
 import { afterEach, beforeEach, vi } from "vitest";
 import type { NewsEvent } from "@/content/types/news";
@@ -39,6 +40,54 @@ export function pdfWithText(pages: string[]): Buffer {
   pdf += offsets.map((offset) => `${String(offset).padStart(10, "0")} 00000 n \n`).join("");
   pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
   return Buffer.from(pdf, "latin1");
+}
+
+/** Whether LibreOffice is installed; the DOCX conversion tests skip without it. */
+export const hasSoffice = !spawnSync("soffice", ["--version"]).error;
+
+const escapeXml = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+/** WordprocessingML for the DOCX fixtures: a run, a paragraph of runs and a table of cells of paragraphs. */
+export const wordml = {
+  run: (text: string, { bold = false, italic = false } = {}) =>
+    `<w:r>${bold || italic ? `<w:rPr>${bold ? "<w:b/>" : ""}${italic ? "<w:i/>" : ""}</w:rPr>` : ""}<w:t xml:space="preserve">${escapeXml(text)}</w:t></w:r>`,
+  /** A paragraph of runs; a plain string is one run. */
+  p: (...runs: string[]) => `<w:p>${runs.map((r) => (r.startsWith("<w:") ? r : wordml.run(r))).join("")}</w:p>`,
+  /** A table: rows of cells, each cell its lines as paragraphs. */
+  table: (rows: string[][][]) =>
+    `<w:tbl>${rows
+      .map(
+        (cells) =>
+          `<w:tr>${cells.map((lines) => `<w:tc>${(lines.length ? lines : [""]).map((l) => wordml.p(l)).join("")}</w:tc>`).join("")}</w:tr>`,
+      )
+      .join("")}</w:tbl>`,
+};
+
+/** A DOCX whose body is `body` (WordprocessingML), with external links by relationship id. */
+export function docxWithBody(body: string, links: Record<string, string> = {}): Buffer {
+  const w = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
+  const r = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
+  const rels = Object.entries(links)
+    .map(
+      ([id, url]) =>
+        `<Relationship Id="${id}" Type="${r}/hyperlink" Target="${escapeXml(url)}" TargetMode="External"/>`,
+    )
+    .join("");
+  const xml = (text: string) => strToU8(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>${text}`);
+  return Buffer.from(
+    zipSync({
+      "[Content_Types].xml": xml(
+        `<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>`,
+      ),
+      "_rels/.rels": xml(
+        `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="${r}/officeDocument" Target="word/document.xml"/></Relationships>`,
+      ),
+      "word/_rels/document.xml.rels": xml(
+        `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${rels}</Relationships>`,
+      ),
+      "word/document.xml": xml(`<w:document xmlns:w="${w}" xmlns:r="${r}"><w:body>${body}</w:body></w:document>`),
+    }),
+  );
 }
 
 /**

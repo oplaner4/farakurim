@@ -1,37 +1,23 @@
 // Stages a pořad bohoslužeb PDF as uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-r<rev>].pdf, with the
 // week read from its heading ("od 4. 10. 2026 do 11. 10. 2026"), and adds the sheet to src/content/ohlasky.json
 // (addOhlasky()); without a record it only checks and prints the week. The sheet stores the rev, so a rerun keeps it
-// and a corrected PDF gets the next one.
+// and a corrected PDF gets the next one. The source can also be the parish's DOCX of the whole year: then the week is
+// its newest one (or the one --from names), its PDF that week's page of the converted document, and its draft record
+// is read from the week's table and announcements.
 
-import { extname } from "node:path";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { extname, join } from "node:path";
 import type { IsoDate } from "@/content/types/shared";
 import { WEEKDAY_SHORT } from "@/lib/shared/czech";
-import { isIsoDate, pragueWeekday } from "@/lib/shared/prague";
+import { pragueWeekday } from "@/lib/shared/prague";
 import { period, periodDates, periodLength, sheetPdfFile } from "@/lib/services/service-sheet";
 import { addOhlasky, ohlaskyLines, readOhlasky } from "../services/add-ohlasky";
+import { docxToPdf } from "../services/docx-to-pdf";
+import { docxWeeks, type DocxWeek } from "../services/porad-docx";
+import { parseWeek, weekHeading } from "../services/porad-week";
 import { correctedHint, correctedRev, MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
-import { pdfFirstPageText } from "../images";
-
-/** An ISO date of a valid day, month and year; throws for 31. 2. */
-function isoDate(day: number, month: number, year: number): IsoDate {
-  const date = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-  if (!isIsoDate(date)) throw new Error(`${day}. ${month}. ${year} is not a date`);
-  return date;
-}
-
-/**
- * The week of a pořad bohoslužeb from its heading: "od 30. 11. 2025 do 7. 12. 2025", or without the first year
- * ("od 30. 11. do 7. 12. 2025", the year before when the week crosses New Year). Null without a heading.
- */
-export function parseWeek(text: string): { validFrom: string; validTo: string } | null {
-  const m = /od (\d{1,2})\. ?(\d{1,2})\. ?(\d{4})? ?do (\d{1,2})\. ?(\d{1,2})\. ?(\d{4})/i.exec(
-    text.replace(/\s+/g, " "),
-  );
-  if (!m) return null;
-  const [day, month, endDay, endMonth, endYear] = [m[1], m[2], m[4], m[5], m[6]].map(Number);
-  const year = m[3] ? Number(m[3]) : month > endMonth ? endYear - 1 : endYear;
-  return { validFrom: isoDate(day, month, year), validTo: isoDate(endDay, endMonth, endYear) };
-}
+import { extractPdfPages, pdfFirstPageText, pdfPageTexts } from "../images";
 
 /** Every date from `validFrom` to `validTo` with its Czech weekday: "so 2026-10-03". */
 export const weekDays = (validFrom: IsoDate, validTo: IsoDate) =>
@@ -45,24 +31,59 @@ export interface PoradOptions {
   corrected?: boolean;
   /** The confirmed sheet record (days and announcements), added to src/content/ohlasky.json. */
   record?: Record<string, unknown>;
+  /** With a DOCX source: where to write the week's draft record; like `check`, it stages nothing. */
+  draft?: string;
   check?: boolean;
 }
 
-/**
- * The week of the PDF `src`: --from and --to when given, else its heading. Throws without a heading or for a period
- * that is not one week, or two around holidays.
- */
-function sheetWeek(src: string, options: PoradOptions): { validFrom: string; validTo: string } {
+type Week = { validFrom: string; validTo: string };
+
+/** Throws for a period that is not one week, or two around holidays: a misread heading. */
+function checkLength(week: Week) {
+  // Sunday to Sunday is 14 days for two weeks.
+  const days = periodLength(week);
+  if (days <= 0 || days > 21) throw new Error(`the period ${period(week)} looks wrong: pass --from and --to`);
+  return week;
+}
+
+/** The week of the PDF `src`: --from and --to when given, else its heading. */
+function pdfWeek(src: string, options: PoradOptions): Week {
   // --from and --to are checked by the command line (scripts/lib/stage/command.ts): real dates, both or neither.
   const week =
     options.validFrom && options.validTo
       ? { validFrom: options.validFrom, validTo: options.validTo }
       : parseWeek(pdfFirstPageText(src));
   if (!week) throw new Error("no 'od … do …' week in the PDF heading: pass --from and --to");
-  // One week, or two around holidays (Sunday to Sunday is 14 days); anything longer is a misread heading.
-  const days = periodLength(week);
-  if (days <= 0 || days > 21) throw new Error(`the period ${period(week)} looks wrong: pass --from and --to`);
+  return checkLength(week);
+}
+
+/** The week of the DOCX `src`: the one --from and --to name, else the newest. */
+function docxWeek(src: string, options: PoradOptions): DocxWeek {
+  const weeks = docxWeeks(src);
+  if (weeks.length === 0) throw new Error("no 'ROZPIS BOHOSLUŽEB … od … do …' heading in the DOCX");
+  if (!options.validFrom) return weeks.reduce((newest, week) => (week.validFrom > newest.validFrom ? week : newest));
+  const week = weeks.find((w) => w.validFrom === options.validFrom && w.validTo === options.validTo);
+  if (!week) {
+    const listed = weeks.slice(0, 5).map(period).join(", ");
+    throw new Error(`no week ${options.validFrom} – ${options.validTo} in the DOCX; it has ${listed}, …`);
+  }
+  checkLength(week);
   return week;
+}
+
+/**
+ * The week's pages of the DOCX `src` as a PDF in `dir`: the document converted, then cut from the page with the
+ * week's heading to the page before the next heading.
+ */
+function docxWeekPdf(src: string, week: Week, dir: string) {
+  const converted = docxToPdf(src, join(dir, "converted"));
+  const pages = pdfPageTexts(converted).map(weekHeading);
+  const first = pages.findIndex((heading) => heading?.validFrom === week.validFrom);
+  if (first < 0) throw new Error(`no page of the converted DOCX has the heading of ${period(week)}`);
+  const next = pages.findIndex((heading, i) => i > first && heading);
+  const pdf = join(dir, "week.pdf");
+  extractPdfPages(converted, [first + 1, next < 0 ? pages.length : next], pdf);
+  return pdf;
 }
 
 /** The rev of the week's PDF: the sheet's, or with `corrected` the next one once the sheet's PDF is on the server. */
@@ -80,30 +101,62 @@ const weekLines = ({ validFrom, validTo, rev }: { validFrom: string; validTo: st
 ];
 
 /**
- * Stages the weekly PDF and adds its sheet (the record); without a record, `check` only prints the week and its days.
- * Returns the lines to print and the files written.
+ * The PDF to stage and its week: the PDF `src` itself, or the week's page of the DOCX `src` converted in `dir` (and,
+ * with `draft`, the week's draft record written there). Returns the lines to print too.
+ */
+function sourceWeek(src: string, options: PoradOptions, dir: string): { pdf: string; week: Week; lines: string[] } {
+  const docx = extname(src).toLowerCase() === ".docx";
+  if (!docx && extname(src).toLowerCase() !== ".pdf") throw new Error("the pořad bohoslužeb is a PDF or a DOCX");
+  if (!docx) {
+    if (options.draft !== undefined) throw new Error("--draft reads the week from a DOCX");
+    return { pdf: src, week: pdfWeek(src, options), lines: [] };
+  }
+  const docxSheet = docxWeek(src, options);
+  const week = { validFrom: docxSheet.validFrom, validTo: docxSheet.validTo };
+  const lines: string[] = [];
+  // Written before the conversion, so the draft is there to check even without a converter.
+  if (options.draft !== undefined) {
+    writeFileSync(options.draft, `${JSON.stringify(docxSheet.draft(), null, 2)}\n`);
+    lines.push(`Wrote the draft record of ${period(week)} to ${options.draft}`);
+  }
+  return { pdf: docxWeekPdf(src, week, dir), week, lines };
+}
+
+/**
+ * Stages the weekly PDF (or the week's page of the DOCX) and adds its sheet (the record); without a record, `check`
+ * only prints the week and its days, and `draft` writes the DOCX week's draft record. Returns the lines to print and
+ * the files written.
  */
 export async function stagePorad(env: StageEnv, options: PoradOptions) {
-  const { corrected = false, check = false } = options;
+  const { corrected = false } = options;
+  const check = options.check || options.draft !== undefined;
   // A PDF staged without its sheet would go to the server with nothing linking it, and take the week's name there.
   if (!options.record && !check) throw new Error("--record is required to stage the PDF; without it, only --check");
-  const src = sourceFile(options.source, MAX_MB.porad, env.home);
-  if (extname(src).toLowerCase() !== ".pdf") throw new Error("the pořad bohoslužeb is a PDF");
-  const { validFrom, validTo } = sheetWeek(src, options);
-  const rev = await sheetRev(env, validFrom, corrected);
-  const rel = sheetPdfFile({ validFrom, rev });
-  const week = { validFrom, validTo, ...(rev !== undefined && { rev }) };
-  const lines: string[] = [];
-  // Validate before anything is copied, so a bad record leaves nothing staged.
-  if (options.record) {
-    const checked = addOhlasky(env, options.record, week, { check: true });
-    if (check) lines.push(...ohlaskyLines(checked, true));
+  if (options.draft !== undefined && options.record) {
+    throw new Error("--draft writes a record to check: not with --record");
   }
-  await stage(env, src, rel, check, correctedHint("this week"), corrected);
-  lines.push(stagedLine(check, rel));
-  if (!options.record) return { lines: [...lines, ...weekLines(week)], written: [] };
-  if (check) return { lines, written: [] };
-  const result = addOhlasky(env, options.record, week);
-  lines.push(...ohlaskyLines(result, false));
-  return { lines, written: result.written };
+  const src = sourceFile(options.source, MAX_MB.porad, env.home);
+  const dir = mkdtempSync(join(tmpdir(), "porad-"));
+  try {
+    const { pdf, week, lines } = sourceWeek(src, options, dir);
+    const { validFrom, validTo } = week;
+    const rev = await sheetRev(env, validFrom, corrected);
+    const rel = sheetPdfFile({ validFrom, rev });
+    const sheet = { validFrom, validTo, ...(rev !== undefined && { rev }) };
+    // Validate before anything is copied, so a bad record leaves nothing staged.
+    if (options.record) {
+      const checked = addOhlasky(env, options.record, sheet, { check: true });
+      if (check) lines.push(...ohlaskyLines(checked, true));
+    }
+    // Each conversion writes a new file, so a DOCX's page replaces the one staged before (never one on the server).
+    await stage(env, pdf, rel, check, correctedHint("this week"), corrected || pdf !== src);
+    lines.push(stagedLine(check, rel));
+    if (!options.record) return { lines: [...lines, ...weekLines(sheet)], written: [] };
+    if (check) return { lines, written: [] };
+    const result = addOhlasky(env, options.record, sheet);
+    lines.push(...ohlaskyLines(result, false));
+    return { lines, written: result.written };
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 }

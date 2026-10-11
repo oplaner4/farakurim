@@ -4,7 +4,15 @@ import { join } from "node:path";
 import sharp from "sharp";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { hasPoppler, pdfWithText } from "./test-helpers";
-import { pdfPageCount, POSTER_WIDTH, renderPetrklic, renderPoster, toWebp } from "./images";
+import {
+  extractPdfPages,
+  pdfPageCount,
+  pdfPageTexts,
+  POSTER_WIDTH,
+  renderPetrklic,
+  renderPoster,
+  toWebp,
+} from "./images";
 
 let dir: string;
 beforeEach(() => {
@@ -91,5 +99,19 @@ describe.skipIf(!hasPoppler)("renderPetrklic", () => {
 
   it("refuses a missing PDF", async () => {
     await expect(renderPetrklic(join(dir, "2026-3", "petrklic-2026-3.pdf"))).rejects.toThrow("missing");
+  });
+});
+
+describe.skipIf(!hasPoppler)("pdfPageTexts and extractPdfPages", () => {
+  it("reads each page's text and cuts out one page or a range", () => {
+    const pdf = join(dir, "doc.pdf");
+    writeFileSync(pdf, pdfWithText(["Week one", "Week two", "Week two again"]));
+    expect(pdfPageTexts(pdf).map((t) => t.trim())).toEqual(["Week one", "Week two", "Week two again"]);
+    const one = join(dir, "out", "one.pdf");
+    extractPdfPages(pdf, [1, 1], one);
+    expect(pdfPageTexts(one).map((t) => t.trim())).toEqual(["Week one"]);
+    const two = join(dir, "two.pdf");
+    extractPdfPages(pdf, [2, 3], two);
+    expect(pdfPageTexts(two).map((t) => t.trim())).toEqual(["Week two", "Week two again"]);
   });
 });

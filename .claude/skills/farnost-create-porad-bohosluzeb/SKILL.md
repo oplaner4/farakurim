@@ -1,17 +1,39 @@
 ---
 name: farnost-create-porad-bohosluzeb
-description: Publish the weekly pořad bohoslužeb (ohlášky) on the new farakurim.cz site from the parish's weekly PDF - extract the week's days, services and announcements into a sheet record, confirm with the user, stage the PDF for the server, then publish. Use whenever the user brings a new pořad bohoslužeb, rozpis bohoslužeb or ohlášky PDF.
+description: Publish the weekly pořad bohoslužeb (ohlášky) on the new farakurim.cz site from the parish's DOCX of the year or its weekly PDF - extract the week's days, services and announcements into a sheet record, confirm with the user, stage the week's PDF for the server, then publish. Use whenever the user brings a new pořad bohoslužeb, rozpis bohoslužeb or ohlášky DOCX or PDF.
 ---
 
 # Create the pořad bohoslužeb
 
-The weekly PDF ("ROZPIS BOHOSLUŽEB V TÝDNU od … do …") becomes **structured content**: one sheet, added by
-`pnpm stage porad`. It can be published any day before its week: the site shows each sheet from its `validFrom` (the
-newer one on the Sunday two sheets share), and the script removes the sheets before the current one. Finish with **`farnost-publish-content`**.
+The parish's pořad bohoslužeb ("ROZPIS BOHOSLUŽEB V TÝDNU od … do …") becomes **structured content**: one sheet,
+added by `pnpm stage porad`. It can be published any day before its week: the site shows each sheet from its
+`validFrom` (the newer one on the Sunday two sheets share), and the script removes the sheets before the current one.
+Finish with **`farnost-publish-content`**.
 
-## 1. Read the PDF
+## 1. Read the source
 
-The user gives at least a file name; without a folder, look in `~/Downloads/`. Use both:
+The user gives at least a file name; without a folder, look in `~/Downloads/`. The source is one of:
+
+- **The DOCX** ("Pořad bohoslužeb 2026.docx", preferred): the parish's Word file with every week of the year, the
+  newest first. The script takes its newest week (`--from` and `--to` pick another), drafts the record from the
+  week's table and announcements, and stages that week's page converted to PDF (Word on Windows, else LibreOffice).
+  The DOCX holds a year of intentions with names: it never goes to `uploads/` or the repo, only the week's page does.
+- **A PDF of the week** (page 1 exported by the user), when there is no DOCX or no converter.
+
+**From the DOCX**, draft the record (it also refuses a week already on the server):
+
+```sh
+pnpm stage porad "<source>" --draft <scratchpad>/record.json
+```
+
+It prints the week and its days and writes `days` and `announcements` to `record.json`. A table it cannot read (a
+date outside the week, a weekday that does not fit the date, times that do not pair with the services) stops it with
+the week and day: ask the user what the row should say, as the error is in their document. Check the draft against
+step 2 rather than trusting it: the `mass` and `service` flags, the feast's case and the announcement categories are
+guesses, and the announcements need their key dates and times in `<strong>` and their `newsId`. To see the page
+itself, render the staged PDF after step 4, or ask the user.
+
+**From a PDF**, read it with both:
 
 - the `Read` tool, to see the table (which rows belong to which day and place), and
 - `pdftotext -layout <file> -`, for exact wording. In the layout text a day's date and feast sit in the middle of
@@ -28,11 +50,11 @@ pnpm stage porad "<source>" --check
 ## 2. Extract the sheet
 
 Write the confirmed sheet as `record.json` in the session's scratchpad (never in the repo) with `days` and
-`announcements` only: `validFrom`, `validTo` and `rev` come from the PDF. Rows use the table's fields; a mass row is
+`announcements` only (from the DOCX, fix the draft): `validFrom`, `validTo` and `rev` come from the heading. Rows use the table's fields; a mass row is
 `{ "time", "place", "title": "Mše sv.", "detail", "mass": true }` (example in step 4).
 
 **Week**: the week `--check` printed from the heading (not part of the record): enter every date of it in `days`.
-A PDF can cover **two weeks** (around Christmas, Easter or a holiday): it is still **one** `ServiceSheet` with
+A heading can cover **two weeks** (around Christmas, Easter or a holiday): it is still **one** `ServiceSheet` with
 every day of both weeks, never split into two. Everything below that says "the week" means the sheet's whole period.
 
 **Days** (`days[]`, one per date, in order):
@@ -74,7 +96,7 @@ cancelled mass, a missing day has no services. Mention a cancellation within the
 | `html`     | `<p>…</p>`; key dates and times in `<strong>`; e-mails as `<a href="mailto:…">`, web addresses as links.                                                                         |
 | `newsId`   | The `id` of the matching aktualita in `src/content/news/`, if there is one (adds "Více v aktualitách").                                                                          |
 
-Unfinished text in the PDF ("vynesl …………. Kč") goes to the user: ask for the value, never publish the dots.
+Unfinished text in the source ("vynesl …………. Kč") goes to the user: ask for the value, never publish the dots.
 
 ## 3. Confirm with the user
 
@@ -128,5 +150,7 @@ adorace" Google Calendar, which the Kalendář reads.
   leaving the mass out is enough.
 - `mass: true` on a mass outside the parish churches, or on adoration (that is `service: true`).
 - `service: true` on a funeral, baptism or wedding: personal events never count for the countdown.
-- Publishing placeholder dots from an unfinished PDF.
-- Putting `validFrom`, `validTo` or `rev` into `record.json`: the script reads them from the PDF.
+- Publishing placeholder dots from an unfinished source.
+- Putting `validFrom`, `validTo` or `rev` into `record.json`: the script reads them from the heading.
+- Taking the DOCX draft as final: check every flag and category, and add the `<strong>` and `newsId` it cannot know.
+- Staging the DOCX itself, or copying it anywhere in the repo: only the week's PDF page is published.

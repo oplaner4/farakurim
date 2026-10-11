@@ -14,7 +14,7 @@ import { stagePetrklic } from "./petrklic";
 import { stagePorad } from "./porad";
 
 const USAGE = `Usage: pnpm stage aktualita <id> <source> <label> [<source> <label> …] [--no-poster] [--corrected] [--record <json>] [--check]
-       pnpm stage porad <pdf> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected] [--record <json>] [--check]
+       pnpm stage porad <pdf|docx> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected] [--record <json> | --draft <json>] [--check]
        pnpm stage petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--corrected] [--check]
 Largest source file: ${Object.entries(MAX_MB)
   .map(([command, mb]) => `${command} ${mb} MB`)
@@ -34,7 +34,7 @@ const poradWeekSchema = z
 const COMMANDS: Record<string, { positionals: (count: number) => boolean; options: string[] }> = {
   // The id, then source and label pairs.
   aktualita: { positionals: (n) => n >= 3 && n % 2 === 1, options: ["poster", "corrected", "record", "check"] },
-  porad: { positionals: (n) => n === 1, options: ["from", "to", "corrected", "record", "check"] },
+  porad: { positionals: (n) => n === 1, options: ["from", "to", "corrected", "record", "draft", "check"] },
   petrklic: { positionals: (n) => n === 1, options: ["year", "number", "note", "corrected", "check"] },
 };
 
@@ -50,6 +50,7 @@ export async function runStage(
     options: {
       poster: { type: "boolean" },
       record: { type: "string" },
+      draft: { type: "string" },
       from: { type: "string" },
       to: { type: "string" },
       year: { type: "string" },
@@ -92,6 +93,7 @@ export async function runStage(
       validTo: week.data.to,
       corrected: values.corrected,
       record,
+      draft: values.draft,
       check,
     });
     return { lines, format: written.length > 0 ? { files: written, tests: OHLASKY_TESTS } : undefined };

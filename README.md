@@ -15,8 +15,10 @@ Working on it with Claude Code: `CLAUDE.md` adds the rules an agent follows on t
   the same major
 - **pnpm 10** (`corepack enable` picks up the version in `package.json`). Do not use npm or yarn.
 - **Python 3** for `pnpm mockups`
-- **poppler-utils** (`pdftoppm`, `pdfinfo`, `pdftotext`) for the PDFs of `pnpm stage`; its tests skip the PDF cases
-  without it
+- **poppler-utils** (`pdftoppm`, `pdfinfo`, `pdftotext`, `pdfseparate`, `pdfunite`) for the PDFs of `pnpm stage`;
+  its tests skip the PDF cases without it
+- **LibreOffice** (`soffice` on the `PATH` or in its usual install folder), or **Word** on Windows, to convert the
+  pořad bohoslužeb DOCX with `pnpm stage porad`; its tests skip the conversion without LibreOffice
 - Optional: `pip install --user fonttools brotli` to regenerate the web fonts (`pnpm fonts`), and PHP to try
   `public/biblicky-citat.php` locally (`php -S`)
 
@@ -134,8 +136,8 @@ Content lives in `src/content/` and is added with the Claude Code project skills
 | `farnost-create-aktualita`         | An event from a poster or PDF, into `news/`                                              |
 | `farnost-correct-aktualita`        | A corrected aktualita (record, poster or attachment)                                     |
 | `farnost-pin-aktualita`            | The "Doporučujeme" pin, moved to an existing event or removed                            |
-| `farnost-create-porad-bohosluzeb`  | The weekly ohlášky PDF, into `ohlasky.json`                                              |
-| `farnost-correct-porad-bohosluzeb` | A corrected week of ohlášky (record or PDF)                                              |
+| `farnost-create-porad-bohosluzeb`  | The weekly ohlášky (the parish's DOCX or PDF), into `ohlasky.json`                       |
+| `farnost-correct-porad-bohosluzeb` | A corrected week of ohlášky (record, DOCX or PDF)                                        |
 | `farnost-create-vyjimka`           | A change to the mass schedule on a day no ohlášky cover, into `schedule-exceptions.json` |
 | `farnost-create-album`             | A Zonerama album, into `gallery.json`                                                    |
 | `farnost-create-petrklic`          | A Petrklíč newsletter PDF, into `petrklic.json`                                          |

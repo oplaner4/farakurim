@@ -1,6 +1,6 @@
 ---
 name: farnost-correct-porad-bohosluzeb
-description: Correct a week's pořad bohoslužeb (ohlášky) already on the new farakurim.cz site - fix its sheet through a corrected record, or stage a corrected PDF with --corrected, then publish. Use whenever the user brings a corrected or replaced pořad bohoslužeb / ohlášky PDF, or says a service, intention or announcement of a published week is wrong. A new week is added with farnost-create-porad-bohosluzeb.
+description: Correct a week's pořad bohoslužeb (ohlášky) already on the new farakurim.cz site - fix its sheet through a corrected record, or stage a corrected PDF (or the corrected week of the parish's DOCX) with --corrected, then publish. Use whenever the user brings a corrected or replaced pořad bohoslužeb / ohlášky DOCX or PDF, or says a service, intention or announcement of a published week is wrong. A new week is added with farnost-create-porad-bohosluzeb.
 ---
 
 # Correct the pořad bohoslužeb
@@ -11,7 +11,7 @@ released its PDF's name is taken and the rerun takes `--corrected`.
 
 ## 1. Find the week
 
-Take the sheet of the week the user names, or the corrected PDF's heading shows ("od … do …", its `validFrom`), from
+Take the sheet of the week the user names, or the corrected source's heading shows ("od … do …", its `validFrom`), from
 `src/content/ohlasky.json`. A week no longer in the file (the script removes the sheets before the current one)
 cannot be corrected.
 
@@ -22,6 +22,9 @@ only, without `validFrom`, `validTo` and `rev` (they come from the PDF). Change 
 
 - a corrected PDF: compare it with the sheet, the way **`farnost-create-porad-bohosluzeb`** step 1 reads a PDF, and
   take over every difference;
+- a corrected DOCX: draft the week (`pnpm stage porad "<docx>" --from <validFrom> --to <validTo> --corrected
+--draft <scratchpad>/draft.json`), compare the draft with the sheet and take over only the differences in the
+  text, keeping the sheet's fixes (`<strong>`, categories, `newsId`, `public: false`);
 - a correction the user describes: change those rows or announcements.
 
 The fields follow **`farnost-create-porad-bohosluzeb`** step 2 (rows, `mass` and `service`, privacy, announcements).
@@ -33,7 +36,8 @@ A cancelled or moved service changes the week's `rows` only.
 pnpm stage porad "<source>" --record <scratchpad>/record.json [--corrected] --check
 ```
 
-`<source>` is the corrected PDF, which always takes `--corrected`. When only the record changes, it is the week's
+`<source>` is the corrected PDF or DOCX, which always takes `--corrected` (with a DOCX, also `--from` and `--to`
+when the week is not its newest). When only the record changes, it is the week's
 staged PDF in `uploads/porady_bohosluzeb/` (`pnpm pull-uploads` fetches it from the server): `--corrected` only once
 the week is on the server, as the check refuses the taken name otherwise. Show the user what changes
 (day by day, the rows and announcements that differ).
@@ -61,4 +65,4 @@ the user to mirror changed or cancelled services in the "Mše, adorace" Google C
 - Rewriting the whole record from the PDF and losing earlier fixes (a hidden `public: false` row, a `newsId`): start
   from the sheet.
 - Leaving out `--corrected` after the release: the PDF's name is taken on the server.
-- Putting `validFrom`, `validTo` or `rev` into `record.json`: the script reads them from the PDF.
+- Putting `validFrom`, `validTo` or `rev` into `record.json`: the script reads them from the heading.
