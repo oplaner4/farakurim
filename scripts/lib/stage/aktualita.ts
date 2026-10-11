@@ -1,7 +1,8 @@
 // `pnpm stage aktualita` (scripts/lib/stage/command.ts): stages an aktualita's file as
 // uploads/aktuality/<id>-<label in ASCII>.<ext> with its poster WebP (<id>-<label in ASCII>-poster.webp, so a WebP
 // source keeps its own name) and, with a record, adds the event with its files to its month file in
-// src/content/news/ (scripts/lib/news/add-aktualita.ts), moving the pin to it when it is pinned.
+// src/content/news/ (scripts/lib/news/add-aktualita.ts), moving the pin to it when it is pinned. Without a record it
+// only checks (--check): a file no record links would go to the server with the next release.
 // --corrected stages a corrected or added file of an aktualita already there (farnost-correct-aktualita skill): it
 // replaces the attachment with the same label (else adds one) and, for a poster, the poster, in the record or in the
 // corrected --record, and replaces the record. Files on the server are never overwritten, so once the file is there
@@ -51,7 +52,6 @@ export interface AktualitaOptions {
   source: string;
   id: string;
   label: string;
-  title?: string;
   /** Renders a poster WebP; by default for an image or PDF. */
   poster?: boolean;
   /** The confirmed NewsEvent (without the files), added to src/content/news/. */
@@ -82,6 +82,9 @@ export async function stageAktualita(
   options: AktualitaOptions,
 ): Promise<{ lines: string[]; written: string[]; event?: NewsEvent }> {
   const { id, corrected = false, check = false } = options;
+  if (!options.record && !corrected && !check) {
+    throw new Error("--record is required to stage the file; without it, only --check");
+  }
   const label = options.label.trim();
   if (!KEBAB.test(id)) throw new Error(`"${id}" is not an ASCII kebab-case id`);
   const name = `${id}-${labelSuffix(label)}`;
@@ -102,7 +105,6 @@ export async function stageAktualita(
     rev = await correctedRev(env, current && fileRev(current.file), (r) => `aktuality/${name}${revSuffix(r)}${ext}`);
   }
   const file = `${name}${revSuffix(rev)}`;
-  const title = options.title ?? (input?.title as string | undefined) ?? "<title>";
   const lines: string[] = [];
   let record: Record<string, unknown> | undefined;
   if (input) {
@@ -110,7 +112,7 @@ export async function stageAktualita(
     record = { ...input };
     if (poster) {
       // Keep an alt text the record already has (it may add the date); the src is always the staged WebP.
-      const alt = (input.poster as { alt?: string } | undefined)?.alt ?? `${label}: ${title}`;
+      const alt = (input.poster as { alt?: string } | undefined)?.alt ?? `${label}: ${String(input.title)}`;
       record.poster = { src: `/uploads/aktuality/${file}${POSTER_SUFFIX}`, alt };
     }
     const attachment = { label, file: `/uploads/aktuality/${file}${ext}`, size };
@@ -130,15 +132,7 @@ export async function stageAktualita(
   const dest = await stage(env, src, `aktuality/${file}${ext}`, check, takenHint, corrected);
   if (poster && !check) await renderPoster(dest, dest.slice(0, -ext.length) + POSTER_SUFFIX);
   lines.push(stagedLine(check, `uploads/aktuality/${file}${ext}`) + (poster ? ` and its ${POSTER_SUFFIX}` : ""));
-  if (!record) {
-    // The entries to paste into an existing record's month file (news/<year>/<MM>.json).
-    const path = `/uploads/aktuality/${file}`;
-    if (poster)
-      lines.push(`"poster": ${JSON.stringify({ src: `${path}${POSTER_SUFFIX}`, alt: `${label}: ${title}` })},`);
-    lines.push(`"attachments": ${JSON.stringify([{ label, file: `${path}${ext}`, size }])},`);
-    return { lines, written: [] };
-  }
-  if (check) return { lines, written: [] };
+  if (!record || check) return { lines, written: [] };
   if (corrected) {
     const result = replaceAktualita(env.newsDir, record);
     lines.push(...replaceLines(result, false));

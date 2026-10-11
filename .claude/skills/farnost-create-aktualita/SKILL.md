@@ -63,7 +63,7 @@ other text-only document (audio and video never become one). Check the name befo
 name, a bad id and a label without letters or digits):
 
 ```sh
-pnpm stage aktualita "<source>" <id> "<label>" --title "<title>" [--no-poster] --check
+pnpm stage aktualita "<source>" <id> "<label>" [--no-poster] --check
 ```
 
 ## 3b. Check the record (only without a file)

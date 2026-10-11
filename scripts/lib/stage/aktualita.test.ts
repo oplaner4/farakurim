@@ -40,21 +40,20 @@ describe("withAttachment", () => {
 describe("stageAktualita", { timeout: 30_000 }, () => {
   const { env, fetchMock, status, download, uploaded, poster } = useStageFixture();
 
-  it("with check only prints the lines, after asking the server", async () => {
+  const record = {
+    id: "test-hody-2026",
+    title: "Hody v České",
+    start: "2026-10-20",
+    place: "Česká",
+    text: "Srdečně zveme na tradiční hody.",
+  };
+  /** The record of `id`, so the file can be staged. */
+  const recordOf = (id: string) => ({ ...record, id });
+
+  it("with check only prints the line, after asking the server", async () => {
     const source = await poster();
-    const { lines, written } = await stageAktualita(env, {
-      source,
-      id: "hody-ceska",
-      label: "Plakát",
-      title: "Hody v České",
-      check: true,
-    });
-    const size = readFileSync(join(env.home, "Downloads", source)).length;
-    expect(lines).toEqual([
-      "Would stage uploads/aktuality/hody-ceska-plakat.jpg and its -poster.webp",
-      '"poster": {"src":"/uploads/aktuality/hody-ceska-plakat-poster.webp","alt":"Plakát: Hody v České"},',
-      `"attachments": [{"label":"Plakát","file":"/uploads/aktuality/hody-ceska-plakat.jpg","size":${size}}],`,
-    ]);
+    const { lines, written } = await stageAktualita(env, { source, id: "hody-ceska", label: "Plakát", check: true });
+    expect(lines).toEqual(["Would stage uploads/aktuality/hody-ceska-plakat.jpg and its -poster.webp"]);
     expect(written).toEqual([]);
     expect(existsSync(uploaded())).toBe(false);
     expect(fetchMock).toHaveBeenCalledWith(
@@ -63,23 +62,32 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
     );
   });
 
+  it("stages nothing without a record, except with check", async () => {
+    const source = await poster();
+    await expect(stageAktualita(env, { source, id: "hody-ceska", label: "Plakát" })).rejects.toThrow(
+      "--record is required to stage the file; without it, only --check",
+    );
+    expect(existsSync(uploaded())).toBe(false);
+  });
+
   it("copies the file under its ASCII name and renders the poster", async () => {
     const source = await poster("Plakát.JPEG");
-    const { lines } = await stageAktualita(env, { source, id: "hody-ceska", label: "Plakát" });
-    expect(lines[0]).toBe("Staged uploads/aktuality/hody-ceska-plakat.jpg and its -poster.webp");
+    const id = "test-hody-2026";
+    const { lines } = await stageAktualita(env, { source, id, label: "Plakát", record: recordOf(id) });
+    expect(lines[0]).toBe("Staged uploads/aktuality/test-hody-2026-plakat.jpg and its -poster.webp");
     expect(readdirSync(uploaded("aktuality")).sort()).toEqual([
-      "hody-ceska-plakat-poster.webp",
-      "hody-ceska-plakat.jpg",
+      "test-hody-2026-plakat-poster.webp",
+      "test-hody-2026-plakat.jpg",
     ]);
-    expect((await sharp(readFileSync(uploaded("aktuality", "hody-ceska-plakat-poster.webp"))).metadata()).width).toBe(
-      POSTER_WIDTH,
-    );
+    expect(
+      (await sharp(readFileSync(uploaded("aktuality", "test-hody-2026-plakat-poster.webp"))).metadata()).width,
+    ).toBe(POSTER_WIDTH);
 
     // The same file again is fine, another one under the same name is not.
-    await stageAktualita(env, { source, id: "hody-ceska", label: "Plakát" });
+    await stageAktualita(env, { source, id, label: "Plakát", check: true });
     const other = await poster("jiny.jpg", 900);
-    await expect(stageAktualita(env, { source: other, id: "hody-ceska", label: "Plakát" })).rejects.toThrow(
-      "uploads/aktuality/hody-ceska-plakat.jpg is already staged with other content",
+    await expect(stageAktualita(env, { source: other, id, label: "Plakát", check: true })).rejects.toThrow(
+      "uploads/aktuality/test-hody-2026-plakat.jpg is already staged with other content",
     );
   });
 
@@ -92,30 +100,33 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
         .toBuffer(),
     );
     const original = readFileSync(join(env.home, "Downloads", source));
-    await stageAktualita(env, { source, id: "hody-ceska", label: "Plakát" });
+    const id = "test-hody-2026";
+    await stageAktualita(env, { source, id, label: "Plakát", record: recordOf(id) });
     expect(readdirSync(uploaded("aktuality")).sort()).toEqual([
-      "hody-ceska-plakat-poster.webp",
-      "hody-ceska-plakat.webp",
+      "test-hody-2026-plakat-poster.webp",
+      "test-hody-2026-plakat.webp",
     ]);
-    expect(readFileSync(uploaded("aktuality", "hody-ceska-plakat.webp"))).toEqual(original);
-    expect((await sharp(readFileSync(uploaded("aktuality", "hody-ceska-plakat-poster.webp"))).metadata()).width).toBe(
-      POSTER_WIDTH,
-    );
+    expect(readFileSync(uploaded("aktuality", "test-hody-2026-plakat.webp"))).toEqual(original);
+    expect(
+      (await sharp(readFileSync(uploaded("aktuality", "test-hody-2026-plakat-poster.webp"))).metadata()).width,
+    ).toBe(POSTER_WIDTH);
   });
 
   it("takes any label, and renders no poster for audio or video or with poster: false", async () => {
     const source = await poster();
     const { lines } = await stageAktualita(env, { source, id: "a", label: " Mapka trasy ", check: true });
-    expect(lines[0]).toBe("Would stage uploads/aktuality/a-mapka-trasy.jpg and its -poster.webp");
-    expect(lines.at(-1)).toContain(
-      '"attachments": [{"label":"Mapka trasy","file":"/uploads/aktuality/a-mapka-trasy.jpg"',
-    );
+    expect(lines).toEqual(["Would stage uploads/aktuality/a-mapka-trasy.jpg and its -poster.webp"]);
     const audio = download("koncert.mp3", "x");
-    expect((await stageAktualita(env, { source: audio, id: "b", label: "Záznam koncertu" })).lines[0]).toBe(
-      "Staged uploads/aktuality/b-zaznam-koncertu.mp3",
-    );
-    await stageAktualita(env, { source, id: "c", label: "Informace", poster: false });
-    expect(readdirSync(uploaded("aktuality")).sort()).toEqual(["b-zaznam-koncertu.mp3", "c-informace.jpg"]);
+    const b = "test-koncert-2026";
+    expect(
+      (await stageAktualita(env, { source: audio, id: b, label: "Záznam koncertu", record: recordOf(b) })).lines[0],
+    ).toBe("Staged uploads/aktuality/test-koncert-2026-zaznam-koncertu.mp3");
+    const c = "test-informace-2026";
+    await stageAktualita(env, { source, id: c, label: "Informace", poster: false, record: recordOf(c) });
+    expect(readdirSync(uploaded("aktuality")).sort()).toEqual([
+      "test-informace-2026-informace.jpg",
+      "test-koncert-2026-zaznam-koncertu.mp3",
+    ]);
   });
 
   it("refuses a bad id, label or file type", async () => {
@@ -132,7 +143,7 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
 
   it("refuses a name the server has, and stops when it cannot tell", async () => {
     const source = await poster();
-    const stageIt = () => stageAktualita(env, { source, id: "hody", label: "Plakát" });
+    const stageIt = () => stageAktualita(env, { source, id: "hody", label: "Plakát", check: true });
     status(200);
     await expect(stageIt()).rejects.toThrow("hody-plakat.jpg already exists on the server: pick another id");
     status(500);
@@ -141,14 +152,6 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
     await expect(stageIt()).rejects.toThrow("cannot reach https://example.cz (getaddrinfo ENOTFOUND)");
     expect(existsSync(uploaded())).toBe(false);
   });
-
-  const record = {
-    id: "test-hody-2026",
-    title: "Hody v České",
-    start: "2026-10-20",
-    place: "Česká",
-    text: "Srdečně zveme na tradiční hody.",
-  };
 
   it("adds the record with the poster and attachment", async () => {
     const source = await poster();
