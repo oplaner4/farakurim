@@ -38,8 +38,8 @@ describe("runStage", { timeout: 30_000 }, () => {
     writeFileSync(recordFile, JSON.stringify({ id: "x-2026", title: "T", start: "2026-10-20", place: "P", text: "T" }));
     const aktualita = await runStage(env, [
       "aktualita",
-      await poster(),
       "x-2026",
+      await poster(),
       "Leták",
       "--no-poster",
       "--record",
@@ -54,6 +54,9 @@ describe("runStage", { timeout: 30_000 }, () => {
 
   it("refuses missing arguments, another command's options and the old --rev", async () => {
     await expect(runStage(env, ["aktualita", "a.jpg", "x"])).rejects.toThrow("wrong arguments\nUsage: pnpm stage");
+    // An unpaired source, and --poster (the first file is the poster unless --no-poster).
+    await expect(runStage(env, ["aktualita", "x", "a.jpg", "Plakát", "b.pdf"])).rejects.toThrow("wrong arguments");
+    await expect(runStage(env, ["aktualita", "x", "a.jpg", "Plakát", "--poster"])).rejects.toThrow("wrong arguments");
     await expect(runStage(env, [])).rejects.toThrow(
       /Largest source file: aktualita \d+ MB, porad \d+ MB, petrklic \d+ MB/,
     );

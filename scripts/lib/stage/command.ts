@@ -7,14 +7,15 @@
 // the staging they share in core.ts.
 //
 // Usage: pnpm stage <command> ... [--check]
-//   aktualita <source> <id> <label> [--poster | --no-poster] [--corrected] [--record <record.json>]
-//       uploads/aktuality/<id>-<label in ASCII>.<ext>, plus <same name>-poster.webp (page 1 / scaled image) for an
-//       image or PDF unless --no-poster, and adds the confirmed NewsEvent (--record: the event as JSON, without its
-//       files) with them to src/content/news/ (scripts/lib/news/add-aktualita.ts). --record is required, except with
-//       --check, which then only checks the file and its name (with a record, --check also validates it). A pinned record takes the pin from the record pinned before (named in the output).
-//       --corrected stages a corrected or added file of an aktualita already there and replaces its record (the
-//       --record, else the one on the site) with the file in it: in the next -r<rev> once the file is on the server,
-//       else under its name.
+//   aktualita <id> <source> <label> [<source> <label> …] [--no-poster] [--corrected] [--record <record.json>]
+//       uploads/aktuality/<id>-<label in ASCII>.<ext> for each file, in that order, plus <first file's name>-poster.webp
+//       (page 1 / scaled image) when the first file is an image or PDF unless --no-poster, and adds the confirmed
+//       NewsEvent (--record: the event as JSON, without its files) with them to src/content/news/
+//       (scripts/lib/news/add-aktualita.ts). --record is required, except with --check, which then only checks the
+//       files and their names (with a record, --check also validates it). A pinned record takes the pin from the
+//       record pinned before (named in the output). --corrected stages corrected or added files of an aktualita
+//       already there and replaces its record (the --record, else the one on the site) with the files in it: each in
+//       the next -r<rev> once its file is on the server, else under its name; the poster follows its file.
 //   porad <pdf> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected] [--record <record.json>]
 //       reads the week from the heading ("od 4. 10. 2026 do 11. 10. 2026"), stages
 //       uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-r<rev>].pdf and adds the confirmed sheet (--record:
@@ -43,7 +44,7 @@ import { defaultEnv, MAX_MB, type StageEnv } from "./core";
 import { stagePetrklic } from "./petrklic";
 import { stagePorad } from "./porad";
 
-const USAGE = `Usage: pnpm stage aktualita <source> <id> <label> [--poster | --no-poster] [--corrected] [--record <json>] [--check]
+const USAGE = `Usage: pnpm stage aktualita <id> <source> <label> [<source> <label> …] [--no-poster] [--corrected] [--record <json>] [--check]
        pnpm stage porad <pdf> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected] [--record <json>] [--check]
        pnpm stage petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--corrected] [--check]
 Largest source file: ${Object.entries(MAX_MB)
@@ -60,11 +61,12 @@ const poradWeekSchema = z
   .object({ from: z.iso.date().optional(), to: z.iso.date().optional() })
   .refine(({ from, to }) => (from === undefined) === (to === undefined));
 
-/** Each command's positional arguments and options. */
-const COMMANDS: Record<string, { positionals: number; options: string[] }> = {
-  aktualita: { positionals: 3, options: ["poster", "corrected", "record", "check"] },
-  porad: { positionals: 1, options: ["from", "to", "corrected", "record", "check"] },
-  petrklic: { positionals: 1, options: ["year", "number", "note", "corrected", "check"] },
+/** Each command's count of positional arguments and its options. */
+const COMMANDS: Record<string, { positionals: (count: number) => boolean; options: string[] }> = {
+  // The id, then source and label pairs.
+  aktualita: { positionals: (n) => n >= 3 && n % 2 === 1, options: ["poster", "corrected", "record", "check"] },
+  porad: { positionals: (n) => n === 1, options: ["from", "to", "corrected", "record", "check"] },
+  petrklic: { positionals: (n) => n === 1, options: ["year", "number", "note", "corrected", "check"] },
 };
 
 /** Runs a command line (without the program); returns the lines to print, the files to format and the added event. */
@@ -91,18 +93,20 @@ export async function runStage(
   const [command, ...args] = positionals;
   const spec = COMMANDS[command];
   const unknown = Object.keys(values).filter((option) => !spec?.options.includes(option));
-  if (!spec || args.length !== spec.positionals || unknown.length > 0) throw new Error(`wrong arguments\n${USAGE}`);
+  // --poster is accepted only as --no-poster: the first file is the poster by default.
+  if (!spec || !spec.positionals(args.length) || unknown.length > 0 || values.poster === true) {
+    throw new Error(`wrong arguments\n${USAGE}`);
+  }
   const check = values.check ?? false;
   const record = values.record
     ? (JSON.parse(readFileSync(values.record, "utf8")) as Record<string, unknown>)
     : undefined;
   if (command === "aktualita") {
-    const [source, id, label] = args;
+    const [id, ...pairs] = args;
     const result = await stageAktualita(env, {
-      source,
       id,
-      label,
-      poster: values.poster,
+      files: Array.from({ length: pairs.length / 2 }, (_, i) => ({ source: pairs[2 * i], label: pairs[2 * i + 1] })),
+      noPoster: values.poster === false,
       corrected: values.corrected,
       record,
       check,

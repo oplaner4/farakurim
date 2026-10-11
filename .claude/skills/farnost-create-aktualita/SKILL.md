@@ -5,7 +5,7 @@ description: Add a new aktualita (event) to the new farakurim.cz site from a pos
 
 # Create an aktualita
 
-Read the source, extract one event, confirm it with the user, add it (with its file, if it has one, staged by
+Read the source, extract one event, confirm it with the user, add it (with its files, if it has any, staged by
 `pnpm stage aktualita`), then finish with **`farnost-publish-content`**.
 The fields and how they are shown are specified in `design/DESIGN.md` §11.7 and §13.4.
 
@@ -13,7 +13,8 @@ The fields and how they are shown are specified in `design/DESIGN.md` §11.7 and
 
 The source is usually a file: the user gives at least its name; without a folder, look in `~/Downloads/`. Read it
 with the `Read` tool (images render visually; for a PDF also run `pdftotext -layout <file> -` so no small print is
-missed). One file is one event; if it announces several unrelated events, ask which to add (or add each separately).
+missed). The user may give several files of one event (a poster and a programme): read them all, they become its
+attachments. If a file announces several unrelated events, ask which to add (or add each separately).
 
 Without a file, warn the user before going on: the aktualita gets no poster (the cards and the detail page show the
 placeholder) and no attachment, so ask whether they have a poster or invitation after all. If not, take the event
@@ -44,9 +45,9 @@ Write the text from the source, in Czech; do not invent facts. Leave out what th
 | `pinned`               | `true` only when the user asks for "Doporučujeme". The script moves the pin: it unpins the event pinned before and names it.                                                                                                                           |
 | `published`            | Leave out: the script sets today's date in Prague (the shared link's publication date). Keep it when editing a record later.                                                                                                                           |
 
-## 3a. Pick the label (only with a file)
+## 3a. Pick the labels and the order (only with files)
 
-The source file is attached under a label, shown on the page as written (with its accents). Prefer one of these; another short Czech label is fine when none fits
+Each file is attached under a label, shown on the page as written (with its accents). Prefer one of these; another short Czech label is fine when none fits
 (`Mapka trasy`, `Záznam koncertu`):
 
 | Label       | When                                      | Poster |
@@ -58,12 +59,14 @@ The source file is attached under a label, shown on the page as written (with it
 | `Informace` | General information                       | no     |
 | `Oznámení`  | Plain announcement without strong visuals | no     |
 
-An image or PDF becomes the event's poster unless you pass `--no-poster`: pass it for a "no" label and for any
-other text-only document (audio and video never become one). Check the name before confirming (it refuses a taken
-name, a bad id and a label without letters or digits):
+The files are attached in the order you list them, and the first one is the one "Doporučujeme" and the archive
+show. Only the first file can be the poster: list the poster first. It becomes the poster when it is an image or
+PDF, unless you pass `--no-poster`: pass it when the first file has a "no" label or is another text-only document
+(audio and video never become one). Check the names before confirming (it refuses a taken name, a bad id, a label
+without letters or digits and two labels giving the same file name):
 
 ```sh
-pnpm stage aktualita "<source>" <id> "<label>" [--no-poster] --check
+pnpm stage aktualita <id> "<source>" "<label>" ["<source>" "<label>" …] [--no-poster] --check
 ```
 
 ## 3b. Check the record (only without a file)
@@ -77,18 +80,18 @@ pnpm add-aktualita <scratchpad>/record.json --check
 
 ## 4. Confirm with the user
 
-Show the extracted fields and, with a file, the label as written and whether the file becomes the poster in a short
-list (the script takes any label, so a typo like `Plakat` would go on the page). Point out guesses: the year, an
+Show the extracted fields and, with files, each file with its label as written, in their order, and which one becomes
+the poster in a short list (the script takes any label, so a typo like `Plakat` would go on the page). Point out guesses: the year, an
 inferred end date, `longTerm`. For a pinned event, say which event loses "Doporučujeme" (the `Would unpin …` line of
 the step 3a command run with `--record`, or of step 3b).
 
 Wait for the user's yes or corrections to these before staging or adding anything.
 
-## 5a. Stage the file and add the record (only with a file)
+## 5a. Stage the files and add the record (only with files)
 
 Write the confirmed event as JSON to `record.json` in the session's scratchpad (never in the repo): the fields
 from step 2, without `published`, `poster` and `attachments`. A `poster.alt` you write (e.g. with the date) is
-kept; otherwise it is `"<label>: <title>"`.
+kept; otherwise it is `"<label of the first file>: <title>"`.
 
 ```json
 {
@@ -104,7 +107,7 @@ kept; otherwise it is `"<label>: <title>"`.
 Then run the step 3a command without `--check`, with the record:
 
 ```sh
-pnpm stage aktualita "<source>" <id> "<label>" [--no-poster] --record <scratchpad>/record.json
+pnpm stage aktualita <id> "<source>" "<label>" ["<source>" "<label>" …] [--no-poster] --record <scratchpad>/record.json
 ```
 
 ## 5b. Add the record (only without a file)
@@ -137,5 +140,6 @@ Follow **`farnost-publish-content`** (commit, upload and push). Until the calend
 - Adding a new event by hand instead of `--record` (or `pnpm add-aktualita`): the order and `published` are then up
   to you.
 - Editing `pinned` by hand: a pinned `--record` moves the pin itself.
-- Forgetting `--no-poster` for a text-only PDF (`Program`, `Informace`, `Oznámení`): its first page becomes the
-  poster.
+- Listing the poster after another file: only the first file becomes the poster.
+- Forgetting `--no-poster` when the first file is a text-only PDF (`Program`, `Informace`, `Oznámení`): its first
+  page becomes the poster.

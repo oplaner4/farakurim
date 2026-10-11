@@ -35,21 +35,21 @@ Only the record changes:
 pnpm replace-aktualita <scratchpad>/record.json --check
 ```
 
-A corrected or added file (the record on the site is used without `--record`):
+Corrected or added files, only those (the record on the site is used without `--record`):
 
 ```sh
-pnpm stage aktualita "<source>" <id> "<label>" [--no-poster] --corrected [--record <scratchpad>/record.json] --check
+pnpm stage aktualita <id> "<source>" "<label>" ["<source>" "<label>" …] --corrected [--record <scratchpad>/record.json] --check
 ```
 
-The file replaces the attachment with the same `label`, so take the label from `attachments`; another label adds a
-file. An image or PDF also replaces the poster unless you pass `--no-poster`, as in **`farnost-create-aktualita`**
-step 3a.
+A file replaces the attachment with the same `label`, so take the label from `attachments`; another label adds a
+file at the end. The other attachments stay. The poster changes only with the file it was made from; an event
+without a poster takes the first file, as in **`farnost-create-aktualita`** step 3a (`--no-poster` to keep none).
 
-Both print the fields that change (`Changed: …`); the stage command also the file it would stage.
+Both print the fields that change (`Changed: …`); the stage command also the files it would stage.
 
 ## 4. Confirm with the user
 
-Show the user, in Czech, each changed field as old → new, and the file with whether it becomes the poster. The
+Show the user, in Czech, each changed field as old → new, and each file with whether it changes the poster. The
 `Changed:` line must list only the fields you meant to change: another field there means the record was not copied
 whole.
 
@@ -72,5 +72,7 @@ Follow **`farnost-publish-content`**.
 - Writing `record.json` from scratch: the poster, attachments or `published` get lost (see `Changed:`).
 - Changing the `id`: shared links and the calendar link break.
 - Changing `pinned` in `record.json`: it is refused; pin with **`farnost-pin-aktualita`**.
-- Staging a corrected poster under another label: the old attachment stays next to the new one.
+- Staging a corrected file under another label: the old attachment stays next to the new one.
+- Removing or reordering attachments with the stage command: change `attachments` in `record.json` and run
+  `pnpm replace-aktualita`.
 - Importing the `.ics` after a date change instead of moving the Události event.

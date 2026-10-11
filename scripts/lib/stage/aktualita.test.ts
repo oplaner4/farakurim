@@ -4,9 +4,16 @@ import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 import { readEvents, readMonth } from "@/content/news";
 import { addAktualita } from "../news/add-aktualita";
-import { fileRev, labelSuffix, stageAktualita, withAttachment } from "./aktualita";
+import {
+  type AktualitaFile,
+  type AktualitaOptions,
+  fileRev,
+  labelSuffix,
+  stageAktualita,
+  withAttachment,
+} from "./aktualita";
 import { POSTER_WIDTH } from "./images";
-import { useStageFixture } from "../test-helpers";
+import { pdfWithText, useStageFixture } from "../test-helpers";
 
 describe("labelSuffix", () => {
   it("turns any label into an ASCII kebab-case suffix", () => {
@@ -39,6 +46,9 @@ describe("withAttachment", () => {
 
 describe("stageAktualita", { timeout: 30_000 }, () => {
   const { env, fetchMock, status, download, uploaded, poster } = useStageFixture();
+  /** Stages one file, `source` under `label`. */
+  const stageOne = ({ source, label, ...rest }: Omit<AktualitaOptions, "files"> & AktualitaFile) =>
+    stageAktualita(env, { ...rest, files: [{ source, label }] });
 
   const record = {
     id: "test-hody-2026",
@@ -52,7 +62,7 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
 
   it("with check only prints the line, after asking the server", async () => {
     const source = await poster();
-    const { lines, written } = await stageAktualita(env, { source, id: "hody-ceska", label: "Plakát", check: true });
+    const { lines, written } = await stageOne({ source, id: "hody-ceska", label: "Plakát", check: true });
     expect(lines).toEqual(["Would stage uploads/aktuality/hody-ceska-plakat.jpg and its -poster.webp"]);
     expect(written).toEqual([]);
     expect(existsSync(uploaded())).toBe(false);
@@ -64,8 +74,8 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
 
   it("stages nothing without a record, except with check", async () => {
     const source = await poster();
-    await expect(stageAktualita(env, { source, id: "hody-ceska", label: "Plakát" })).rejects.toThrow(
-      "--record is required to stage the file; without it, only --check",
+    await expect(stageOne({ source, id: "hody-ceska", label: "Plakát" })).rejects.toThrow(
+      "--record is required to stage the files; without it, only --check",
     );
     expect(existsSync(uploaded())).toBe(false);
   });
@@ -73,7 +83,7 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
   it("copies the file under its ASCII name and renders the poster", async () => {
     const source = await poster("Plakát.JPEG");
     const id = "test-hody-2026";
-    const { lines } = await stageAktualita(env, { source, id, label: "Plakát", record: recordOf(id) });
+    const { lines } = await stageOne({ source, id, label: "Plakát", record: recordOf(id) });
     expect(lines[0]).toBe("Staged uploads/aktuality/test-hody-2026-plakat.jpg and its -poster.webp");
     expect(readdirSync(uploaded("aktuality")).sort()).toEqual([
       "test-hody-2026-plakat-poster.webp",
@@ -84,9 +94,9 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
     ).toBe(POSTER_WIDTH);
 
     // The same file again is fine, another one under the same name is not.
-    await stageAktualita(env, { source, id, label: "Plakát", check: true });
+    await stageOne({ source, id, label: "Plakát", check: true });
     const other = await poster("jiny.jpg", 900);
-    await expect(stageAktualita(env, { source: other, id, label: "Plakát", check: true })).rejects.toThrow(
+    await expect(stageOne({ source: other, id, label: "Plakát", check: true })).rejects.toThrow(
       "uploads/aktuality/test-hody-2026-plakat.jpg is already staged with other content",
     );
   });
@@ -101,7 +111,7 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
     );
     const original = readFileSync(join(env.home, "Downloads", source));
     const id = "test-hody-2026";
-    await stageAktualita(env, { source, id, label: "Plakát", record: recordOf(id) });
+    await stageOne({ source, id, label: "Plakát", record: recordOf(id) });
     expect(readdirSync(uploaded("aktuality")).sort()).toEqual([
       "test-hody-2026-plakat-poster.webp",
       "test-hody-2026-plakat.webp",
@@ -112,17 +122,17 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
     ).toBe(POSTER_WIDTH);
   });
 
-  it("takes any label, and renders no poster for audio or video or with poster: false", async () => {
+  it("takes any label, and renders no poster for audio or video or with noPoster", async () => {
     const source = await poster();
-    const { lines } = await stageAktualita(env, { source, id: "a", label: " Mapka trasy ", check: true });
+    const { lines } = await stageOne({ source, id: "a", label: " Mapka trasy ", check: true });
     expect(lines).toEqual(["Would stage uploads/aktuality/a-mapka-trasy.jpg and its -poster.webp"]);
     const audio = download("koncert.mp3", "x");
     const b = "test-koncert-2026";
-    expect(
-      (await stageAktualita(env, { source: audio, id: b, label: "Záznam koncertu", record: recordOf(b) })).lines[0],
-    ).toBe("Staged uploads/aktuality/test-koncert-2026-zaznam-koncertu.mp3");
+    expect((await stageOne({ source: audio, id: b, label: "Záznam koncertu", record: recordOf(b) })).lines[0]).toBe(
+      "Staged uploads/aktuality/test-koncert-2026-zaznam-koncertu.mp3",
+    );
     const c = "test-informace-2026";
-    await stageAktualita(env, { source, id: c, label: "Informace", poster: false, record: recordOf(c) });
+    await stageOne({ source, id: c, label: "Informace", noPoster: true, record: recordOf(c) });
     expect(readdirSync(uploaded("aktuality")).sort()).toEqual([
       "test-informace-2026-informace.jpg",
       "test-koncert-2026-zaznam-koncertu.mp3",
@@ -131,19 +141,16 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
 
   it("refuses a bad id, label or file type", async () => {
     const source = await poster();
-    const stageAs = (options: { id?: string; label?: string; source?: string; poster?: boolean }) =>
-      stageAktualita(env, { source, id: "hody", label: "Plakát", check: true, ...options });
+    const stageAs = (options: { id?: string; label?: string; source?: string }) =>
+      stageOne({ source, id: "hody", label: "Plakát", check: true, ...options });
     await expect(stageAs({ id: "Hody-České" })).rejects.toThrow('"Hody-České" is not an ASCII kebab-case id');
     await expect(stageAs({ label: " " })).rejects.toThrow('the label "" has no letters or digits');
     await expect(stageAs({ source: download("a.txt", "x") })).rejects.toThrow(".txt is not an image");
-    await expect(stageAs({ source: download("a.mp3", "x"), poster: true })).rejects.toThrow(
-      "a .mp3 file cannot be a poster: pass --no-poster",
-    );
   });
 
   it("refuses a name the server has, and stops when it cannot tell", async () => {
     const source = await poster();
-    const stageIt = () => stageAktualita(env, { source, id: "hody", label: "Plakát", check: true });
+    const stageIt = () => stageOne({ source, id: "hody", label: "Plakát", check: true });
     status(200);
     await expect(stageIt()).rejects.toThrow("hody-plakat.jpg already exists on the server: pick another id");
     status(500);
@@ -156,10 +163,10 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
   it("adds the record with the poster and attachment", async () => {
     const source = await poster();
     const options = { source, id: "test-hody-2026", label: "Plakát", record };
-    expect((await stageAktualita(env, { ...options, check: true })).lines[0]).toBe(
+    expect((await stageOne({ ...options, check: true })).lines[0]).toBe(
       "Would add the record to src/content/news/2026/10.json",
     );
-    const { lines, written } = await stageAktualita(env, {
+    const { lines, written } = await stageOne({
       ...options,
       record: { ...record, poster: { alt: "Plakát: Hody v České 20. října" } },
     });
@@ -189,12 +196,12 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
       label: "Plakát",
       record: { ...record, id: "test-hody-2099", start: "2099-10-20", pinned: true },
     };
-    expect((await stageAktualita(env, { ...options, check: true })).lines).toEqual([
+    expect((await stageOne({ ...options, check: true })).lines).toEqual([
       "Would add the record to src/content/news/2099/10.json (new file)",
       "Would unpin test-pinned-2098 (Hody v České)",
       "Would stage uploads/aktuality/test-hody-2099-plakat.jpg and its -poster.webp",
     ]);
-    const { lines, written } = await stageAktualita(env, options);
+    const { lines, written } = await stageOne(options);
     expect(lines.slice(1)).toEqual([
       "Added the record to src/content/news/2099/10.json (new file)",
       "Unpinned test-pinned-2098 (Hody v České)",
@@ -210,13 +217,13 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
   it("stages nothing for a record it refuses", async () => {
     const source = await poster();
     await expect(
-      stageAktualita(env, { source, id: "test-hody-2026", label: "Plakát", record: { ...record, id: "jine" } }),
+      stageOne({ source, id: "test-hody-2026", label: "Plakát", record: { ...record, id: "jine" } }),
     ).rejects.toThrow('the record\'s id "jine" is not "test-hody-2026"');
     await expect(
-      stageAktualita(env, { source, id: "test-hody-2026", label: "Plakát", record: { ...record, start: "20. 10." } }),
+      stageOne({ source, id: "test-hody-2026", label: "Plakát", record: { ...record, start: "20. 10." } }),
     ).rejects.toThrow("the record is not valid");
     await expect(
-      stageAktualita(env, {
+      stageOne({
         source,
         id: "test-stare-2020",
         label: "Plakát",
@@ -233,14 +240,14 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
     };
     const add = async () => {
       const source = await poster();
-      await stageAktualita(env, { source, id: "test-hody-2026", label: "Plakát", record: staged });
+      await stageOne({ source, id: "test-hody-2026", label: "Plakát", record: staged });
     };
     const added = () => readEvents(env.newsDir).find((e) => e.id === "test-hody-2026");
 
     it("refuses an aktualita that is not on the site", async () => {
       const source = await poster();
       await expect(
-        stageAktualita(env, { source, id: "test-nic-2026", label: "Plakát", corrected: true, check: true }),
+        stageOne({ source, id: "test-nic-2026", label: "Plakát", corrected: true, check: true }),
       ).rejects.toThrow("there is no aktualita test-nic-2026: --corrected is for one already on the site");
     });
 
@@ -248,12 +255,12 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
       await add();
       const other = await poster("opraveny.jpg", 900);
       const options = { source: other, id: "test-hody-2026", label: "Plakát", corrected: true };
-      expect((await stageAktualita(env, { ...options, check: true })).lines).toEqual([
+      expect((await stageOne({ ...options, check: true })).lines).toEqual([
         "Would replace the record in src/content/news/2026/10.json",
         "Changed: attachments",
         "Would stage uploads/aktuality/test-hody-2026-plakat.jpg and its -poster.webp",
       ]);
-      const { lines, written, event } = await stageAktualita(env, options);
+      const { lines, written, event } = await stageOne(options);
       expect(lines.slice(1)).toEqual(["Replaced the record in src/content/news/2026/10.json", "Changed: attachments"]);
       expect(written).toEqual(["2026/10.json"]);
       expect(event?.id).toBe("test-hody-2026");
@@ -271,12 +278,12 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
       fetchMock.mockImplementation(async (url: string) => new Response(null, { status: /-r\d/.test(url) ? 404 : 200 }));
       const source = await poster("opraveny.jpg", 900);
       const options = { source, id: "test-hody-2026", label: "Plakát", corrected: true };
-      expect((await stageAktualita(env, options)).lines[0]).toBe(
+      expect((await stageOne(options)).lines[0]).toBe(
         "Staged uploads/aktuality/test-hody-2026-plakat-r2.jpg and its -poster.webp",
       );
       expect(added()?.poster?.src).toBe("/uploads/aktuality/test-hody-2026-plakat-r2-poster.webp");
       fetchMock.mockImplementation(async (url: string) => new Response(null, { status: /-r3/.test(url) ? 404 : 200 }));
-      expect((await stageAktualita(env, options)).lines[0]).toBe(
+      expect((await stageOne(options)).lines[0]).toBe(
         "Staged uploads/aktuality/test-hody-2026-plakat-r3.jpg and its -poster.webp",
       );
     });
@@ -284,7 +291,7 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
     it("adds a file with a new label and takes the corrected record", async () => {
       await add();
       const program = download("program.mp3", "x");
-      const { lines } = await stageAktualita(env, {
+      const { lines } = await stageOne({
         source: program,
         id: "test-hody-2026",
         label: "Záznam",
@@ -294,6 +301,98 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
       expect(lines).toContain("Changed: attachments, time");
       expect(added()?.attachments?.map((a) => a.label)).toEqual(["Plakát", "Záznam"]);
       expect(added()?.published).toBeDefined();
+    });
+  });
+
+  describe("with several files", () => {
+    const id = "test-farni-den-2026";
+    const files = async () => [
+      { source: await poster("plakat.jpg"), label: "Plakát" },
+      { source: download("program.pdf", pdfWithText(["Program"])), label: "Program" },
+      { source: download("trasa.mp3", "x"), label: "Mapka trasy" },
+    ];
+    const added = () => readEvents(env.newsDir).find((e) => e.id === id);
+
+    it("stages each file in order, with the poster from the first", async () => {
+      const { lines } = await stageAktualita(env, { id, files: await files(), record: recordOf(id) });
+      expect(lines.slice(0, 3)).toEqual([
+        "Staged uploads/aktuality/test-farni-den-2026-plakat.jpg and its -poster.webp",
+        "Staged uploads/aktuality/test-farni-den-2026-program.pdf",
+        "Staged uploads/aktuality/test-farni-den-2026-mapka-trasy.mp3",
+      ]);
+      expect(added()?.attachments?.map((a) => a.file)).toEqual([
+        "/uploads/aktuality/test-farni-den-2026-plakat.jpg",
+        "/uploads/aktuality/test-farni-den-2026-program.pdf",
+        "/uploads/aktuality/test-farni-den-2026-mapka-trasy.mp3",
+      ]);
+      expect(added()?.poster).toEqual({
+        src: "/uploads/aktuality/test-farni-den-2026-plakat-poster.webp",
+        alt: "Plakát: Hody v České",
+      });
+    });
+
+    it("takes no poster with noPoster or when the first file is not an image or PDF", async () => {
+      const [plakat, program, trasa] = await files();
+      const noPoster = await stageAktualita(env, { id, files: [plakat, program], noPoster: true, check: true });
+      expect(noPoster.lines).toEqual([
+        "Would stage uploads/aktuality/test-farni-den-2026-plakat.jpg",
+        "Would stage uploads/aktuality/test-farni-den-2026-program.pdf",
+      ]);
+      const audioFirst = await stageAktualita(env, { id, files: [trasa, plakat], check: true });
+      expect(audioFirst.lines.every((line) => !line.includes("poster"))).toBe(true);
+    });
+
+    it("stages nothing when a label repeats a file name or a later name is taken", async () => {
+      const [plakat, program] = await files();
+      await expect(
+        stageAktualita(env, { id, files: [plakat, { ...program, label: "Plakat" }], record: recordOf(id) }),
+      ).rejects.toThrow('the labels "Plakát" and "Plakat" give the same file name (test-farni-den-2026-plakat)');
+      fetchMock.mockImplementation(
+        async (url: string) => new Response(null, { status: url.endsWith(".pdf") ? 200 : 404 }),
+      );
+      await expect(stageAktualita(env, { id, files: [plakat, program], record: recordOf(id) })).rejects.toThrow(
+        "test-farni-den-2026-program.pdf already exists on the server",
+      );
+      expect(existsSync(uploaded())).toBe(false);
+      expect(added()).toBeUndefined();
+    });
+
+    it("with corrected changes the poster only with its file", async () => {
+      const [plakat, program] = await files();
+      await stageAktualita(env, { id, files: [plakat, program], record: recordOf(id) });
+      const before = added()?.poster;
+      // Released: every name of the first version is on the server.
+      fetchMock.mockImplementation(async (url: string) => new Response(null, { status: /-r\d/.test(url) ? 404 : 200 }));
+
+      const newProgram = download("program2.pdf", pdfWithText(["Program 2"]));
+      const { lines } = await stageAktualita(env, {
+        id,
+        files: [{ source: newProgram, label: "Program" }],
+        corrected: true,
+      });
+      expect(lines).toContain("Staged uploads/aktuality/test-farni-den-2026-program-r2.pdf");
+      expect(added()?.poster).toEqual(before);
+      expect(added()?.attachments?.map((a) => a.label)).toEqual(["Plakát", "Program"]);
+
+      const newPlakat = await poster("opraveny.jpg", 900);
+      await stageAktualita(env, { id, files: [{ source: newPlakat, label: "Plakát" }], corrected: true });
+      expect(added()?.poster).toEqual({
+        ...before,
+        src: "/uploads/aktuality/test-farni-den-2026-plakat-r2-poster.webp",
+      });
+
+      await expect(
+        stageAktualita(env, { id, files: [{ source: newProgram, label: "Program" }], corrected: true, noPoster: true }),
+      ).rejects.toThrow("the aktualita has a poster, which follows its file: --no-poster is for one without");
+    });
+
+    it("with corrected gives a record without a poster the first file's", async () => {
+      const [plakat, program] = await files();
+      await stageAktualita(env, { id, files: [program], noPoster: true, record: recordOf(id) });
+      expect(added()?.poster).toBeUndefined();
+      await stageAktualita(env, { id, files: [plakat], corrected: true });
+      expect(added()?.poster?.src).toBe("/uploads/aktuality/test-farni-den-2026-plakat-poster.webp");
+      expect(added()?.attachments?.map((a) => a.label)).toEqual(["Program", "Plakát"]);
     });
   });
 });
