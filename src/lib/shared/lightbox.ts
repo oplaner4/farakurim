@@ -1,4 +1,5 @@
 import { fileType } from "./czech";
+import { IMAGE_EXTENSIONS } from "./uploads";
 
 // The photo and poster lightbox (design/DESIGN.md §21).
 
@@ -14,10 +15,8 @@ export function zoomStep(zoom: number, direction: 1 | -1): number {
   return ZOOM_STEPS.findLast((z) => z < zoom - 0.01) ?? ZOOM_STEPS[0];
 }
 
-const IMAGE_TYPES = new Set(["PNG", "JPG", "JPEG", "WEBP", "GIF", "AVIF"]);
-
 /** An image opens in the lightbox; anything else (a PDF) opens in the browser. */
-export const isImageFile = (file: string) => IMAGE_TYPES.has(fileType(file));
+export const isImageFile = (file: string) => IMAGE_EXTENSIONS.includes(`.${fileType(file).toLowerCase()}`);
 
 /**
  * First index of the thumbnail strip: `size` thumbnails centred on `index` (0-based), shifted to stay inside

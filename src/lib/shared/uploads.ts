@@ -7,8 +7,11 @@ import * as z from "zod";
 /** Where the uploaded files are served: uploads/<path> in the repo is /uploads/<path> on the site. */
 export const UPLOADS_PATH = "/uploads/";
 
+/** The image types the content links; they open in the lightbox (src/lib/shared/lightbox.ts). */
+export const IMAGE_EXTENSIONS = [".png", ".jpg", ".webp"];
+
 /** The file types the content links: images, PDFs and MP3 recordings. */
-export const UPLOAD_EXTENSIONS = [".pdf", ".png", ".jpg", ".webp", ".mp3"];
+export const UPLOAD_EXTENSIONS = [".pdf", ...IMAGE_EXTENSIONS, ".mp3"];
 
 const UPLOAD = new RegExp(`^${UPLOADS_PATH}\\S+\\.(${UPLOAD_EXTENSIONS.map((e) => e.slice(1)).join("|")})$`);
 

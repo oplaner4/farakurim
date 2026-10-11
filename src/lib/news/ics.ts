@@ -1,7 +1,7 @@
 import { tz } from "@date-fns/tz";
 import { addDays, format } from "date-fns";
 import { createEvents, type DateArray, type DateTime, type EventAttributes } from "ics";
-import { SITE_URL } from "@/content/site";
+import { SITE_HOST } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import type { ClockTime, IsoDate } from "@/content/types/shared";
 import { eventMeetings, type Meeting } from "./events";
@@ -9,8 +9,6 @@ import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
 
 // "Přidat do kalendáře" (design/DESIGN.md §13.2): one .ics file per event, generated at build time.
 // Times are Prague wall-clock and written in UTC, so no VTIMEZONE block is needed.
-
-const SITE_HOST = new URL(SITE_URL).hostname;
 
 /** "9:30" or "18:00–20:30"; other time texts ("po mši") make the event all-day. */
 const CLOCK = /^(\d{1,2}:\d{2})(?:\s*[–-]\s*(\d{1,2}:\d{2}))?$/;

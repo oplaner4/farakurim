@@ -14,7 +14,7 @@ import { extname, join } from "node:path";
 import { parseArgs } from "node:util";
 import { readEvents } from "@/content/news";
 import type { EventAttachment, NewsEvent } from "@/content/types/news";
-import { UPLOADS_PATH } from "@/lib/shared/uploads";
+import { IMAGE_EXTENSIONS, UPLOADS_PATH } from "@/lib/shared/uploads";
 import { errorMessage } from "../command";
 import { formatAndTestNews, NEWS_DIR } from "../content-files";
 import { renderPoster } from "../images";
@@ -22,7 +22,7 @@ import { defaultUploadsEnv, onServer, type UploadsEnv } from "../uploads";
 import { replaceAktualita, replaceLines } from "./replace-aktualita";
 
 /** The files a poster can be made from: page 1 of a PDF, or the image. */
-export const POSTER_EXTENSIONS = new Set([".pdf", ".png", ".jpg", ".webp"]);
+export const POSTER_EXTENSIONS = new Set([".pdf", ...IMAGE_EXTENSIONS]);
 /** The poster's name after its file's: a WebP attachment would otherwise be overwritten by its own poster. */
 export const POSTER_SUFFIX = "-poster.webp";
 

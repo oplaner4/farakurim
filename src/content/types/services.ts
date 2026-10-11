@@ -3,7 +3,9 @@ import type { ClockTime, IsoDate, Weekday } from "./shared";
 // Pořad bohoslužeb (masses.ts, ohlasky.json, schedule-exceptions.json): the parish churches, the weekly schedule,
 // the ohlášky and the changes announced for later.
 
-export type PlaceId = "kurim" | "moravske-kninice" | "jinacovice";
+/** The parish churches' places, the one list of PlaceId (the schema checks the content against it). */
+export const PLACE_IDS = ["kurim", "moravske-kninice", "jinacovice"] as const;
+export type PlaceId = (typeof PLACE_IDS)[number];
 
 /** A church's colour from the logo (design/DESIGN.md §14.3): card border, map button, day names. */
 export type ChurchColor = "blue" | "green" | "orange";

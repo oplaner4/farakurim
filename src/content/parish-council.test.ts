@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { councilMeetings, parishCouncil } from "./parish-council";
-import { duplicates, isIsoDate, isSorted, localHrefs } from "@/lib/test/content-checks";
+import { duplicates, isSorted, localHrefs } from "@/lib/test/content-checks";
 import { isUpload } from "@/lib/shared/uploads";
+import { isIsoDate } from "@/lib/shared/prague";
 
 describe("Pastorační rada (parish-council.ts)", () => {
   it("has a valid term and each member once", () => {

@@ -5,6 +5,8 @@ import type { CarouselSlide } from "@/content/types/home";
 
 /** Public origin of the site: absolute URLs in metadata, JSON-LD and calendar files. */
 export const SITE_URL = "https://farakurim.cz";
+/** The site's host name: "farakurim.cz" (external links, calendar file UIDs). */
+export const SITE_HOST = new URL(SITE_URL).hostname;
 
 /** The old PHP site, kept for the pages not moved here (Mimořádné katecheze, Tábor 2019–2026, Betlémy 2024–2025). */
 export const OLD_SITE_URL = "https://stary.farakurim.cz";

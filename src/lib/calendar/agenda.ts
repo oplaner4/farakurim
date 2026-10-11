@@ -1,13 +1,4 @@
-import {
-  addDays,
-  addMonths,
-  differenceInCalendarDays,
-  endOfMonth,
-  endOfWeek,
-  format,
-  isValid,
-  startOfWeek,
-} from "date-fns";
+import { addDays, addMonths, differenceInCalendarDays, endOfMonth, endOfWeek, format, startOfWeek } from "date-fns";
 import { cs } from "date-fns/locale";
 import type { CalendarEntry, CalendarId } from "@/content/types/calendar";
 import type { NewsEvent } from "@/content/types/news";
@@ -18,7 +9,7 @@ import { eventClock, parseClock } from "@/lib/news/ics";
 import { clockMinutes } from "@/lib/shared/clock";
 import { capitalize, plural, relativeDayName } from "@/lib/shared/czech";
 import { servicesOnDate, type ScheduleSource } from "@/lib/services/masses";
-import { inPrague, pragueDate, pragueDateTime, pragueWeekday } from "@/lib/shared/prague";
+import { inPrague, isIsoDate, pragueDate, pragueDateTime, pragueWeekday } from "@/lib/shared/prague";
 
 // The Kalendář (design/DESIGN.md §16) and the homepage week calendar (§4.3a): occurrences of the two parish
 // calendars, grouped by day.
@@ -63,7 +54,6 @@ export const addToMonth = (month: IsoMonth, delta: number): IsoMonth =>
   format(addMonths(noon(`${month}-01`), delta, { in: inPrague }), "yyyy-MM", { in: inPrague });
 
 const MONTH_PARAM = /^\d{4}-(0[1-9]|1[0-2])$/;
-const DAY_PARAM = /^\d{4}-\d{2}-\d{2}$/;
 
 /** `?mesic=2026-11`, or `undefined` when missing or invalid. */
 export const parseMonthParam = (value: string | null): IsoMonth | undefined =>
@@ -71,8 +61,7 @@ export const parseMonthParam = (value: string | null): IsoMonth | undefined =>
 
 /** `?den=2026-10-18`, or `undefined` when missing or not a real date. */
 export function parseDayParam(value: string | null): IsoDate | undefined {
-  if (!value || !DAY_PARAM.test(value)) return undefined;
-  return isValid(noon(value)) ? value : undefined;
+  return value && isIsoDate(value) ? value : undefined;
 }
 
 /** A time for sorting a day's items: all-day items (no time) first. */

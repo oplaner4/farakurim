@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { pragueDate, pragueDateTime, pragueWeekday } from "./prague";
+import { isIsoDate, pragueDate, pragueDateTime, pragueWeekday } from "./prague";
 
 // These hold in any time zone the tests run in; `TZ=America/Los_Angeles pnpm test` checks that.
 
@@ -44,5 +44,18 @@ describe("pragueWeekday", () => {
   it("is right on the DST switch days", () => {
     expect(pragueWeekday("2026-03-29")).toBe(0);
     expect(pragueWeekday("2026-10-25")).toBe(0);
+  });
+});
+
+describe("isIsoDate", () => {
+  it("takes a real date written YYYY-MM-DD", () => {
+    expect(isIsoDate("2026-10-18")).toBe(true);
+    expect(isIsoDate("2028-02-29")).toBe(true);
+  });
+
+  it("refuses a date that does not exist or another format", () => {
+    for (const value of ["2026-02-30", "2026-13-01", "2026-1-5", "18. 10.", "2026-10-18T12:00"]) {
+      expect(isIsoDate(value), value).toBe(false);
+    }
   });
 });

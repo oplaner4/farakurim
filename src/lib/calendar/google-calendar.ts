@@ -3,7 +3,7 @@ import * as z from "zod";
 import type { CalendarEntry, CalendarId } from "@/content/types/calendar";
 import type { DateRange } from "./agenda";
 import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
-import { links as siteLinks, SITE_URL } from "@/content/site";
+import { links as siteLinks, SITE_HOST } from "@/content/site";
 
 // Reads the parish's public Google Calendars with the Calendar API (`events.list`, design/DESIGN.md §16.4).
 // `singleEvents=true` makes Google expand recurring events and apply their exceptions, so no RRULE handling
@@ -67,10 +67,10 @@ export function eventsUrl(calendarId: string, apiKey: string, { from, to }: Date
  */
 export const refererInit = (siteUrl: string): RequestInit => ({ headers: { Referer: `${siteUrl}/` } });
 
-const SITE_HOST = new URL(SITE_URL).host.replace(/^www\./, "").replaceAll(".", "\\.");
+const SITE_HOST_PATTERN = SITE_HOST.replace(/^www\./, "").replaceAll(".", "\\.");
 // The site's URL (with or without the scheme and www.), or a bare root-relative path, then /aktuality/<id>.
 const PAGE_URL = new RegExp(
-  `(?<![\\w.-])(?:(?:https?://)?(?:www\\.)?${SITE_HOST}|(?<![\\w./:-]))(${siteLinks.news}[a-z0-9-]+)/?`,
+  `(?<![\\w.-])(?:(?:https?://)?(?:www\\.)?${SITE_HOST_PATTERN}|(?<![\\w./:-]))(${siteLinks.news}[a-z0-9-]+)/?`,
   "g",
 );
 

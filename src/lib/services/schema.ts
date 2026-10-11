@@ -1,10 +1,10 @@
 import * as z from "zod";
-import type {
-  OhlaskyFile,
-  PlaceId,
-  ScheduleException,
-  ScheduleExceptionsFile,
-  ServiceSheetRecord,
+import {
+  type OhlaskyFile,
+  PLACE_IDS,
+  type ScheduleException,
+  type ScheduleExceptionsFile,
+  type ServiceSheetRecord,
 } from "@/content/types/services";
 import { clockMinutes, clockSchema } from "@/lib/shared/clock";
 import { revSchema } from "@/lib/shared/revision";
@@ -81,12 +81,9 @@ export const serviceSheetSchema = z
     });
   }) satisfies z.ZodType<ServiceSheetRecord>;
 
-/** Every PlaceId once: a place added to the type must be added here too, or this does not compile. */
-const PARISH_CHURCHES: Record<PlaceId, true> = { kurim: true, "moravske-kninice": true, jinacovice: true };
-
 const serviceEntrySchema = z.strictObject({
   time: clockSchema,
-  place: z.enum(Object.keys(PARISH_CHURCHES) as PlaceId[]),
+  place: z.enum(PLACE_IDS),
   title: text.optional(),
   note: text.optional(),
 });

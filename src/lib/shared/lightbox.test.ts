@@ -24,6 +24,7 @@ describe("lightbox files and thumbnails", () => {
     expect(isImageFile("/uploads/aktuality/plakat.png")).toBe(true);
     expect(isImageFile("/uploads/aktuality/plakat.JPG")).toBe(true);
     expect(isImageFile("/uploads/aktuality/plakat.pdf")).toBe(false);
+    expect(isImageFile("/uploads/aktuality/zaznam.mp3")).toBe(false);
   });
 
   it("centres the thumbnail strip inside the album", () => {
