@@ -1,12 +1,12 @@
 ---
 name: farnost-correct-aktualita
-description: Correct an aktualita (event) already on the new farakurim.cz site - fix its text, date, time, place, programme or links through a corrected record with pnpm replace-aktualita, or stage a corrected or added poster or attachment with --corrected, then publish. Use whenever the user says an aktualita is wrong or has changed (moved, new time or place), brings a corrected plakát or pozvánka, or wants to add a file to an event already there. A new aktualita is added with farnost-create-aktualita, the pin is moved with farnost-pin-aktualita.
+description: Correct an aktualita (event) already on the new farakurim.cz site - fix its text, date, time, place, programme or links through a corrected record with pnpm replace-aktualita, or stage a corrected or added poster or attachment with --corrected, or make another attachment its poster (or remove it) with pnpm poster-aktualita, then publish. Use whenever the user says an aktualita is wrong or has changed (moved, new time or place), brings a corrected plakát or pozvánka, wants to add a file to an event already there, or says its poster is the wrong file or should go. A new aktualita is added with farnost-create-aktualita, the pin is moved with farnost-pin-aktualita.
 ---
 
 # Correct an aktualita
 
 A corrected record goes in with `pnpm replace-aktualita`, a corrected or added file with
-`pnpm stage aktualita --corrected`.
+`pnpm stage aktualita --corrected`, and another poster with `pnpm poster-aktualita`.
 
 ## 1. Find the aktualita
 
@@ -42,10 +42,19 @@ pnpm stage aktualita <id> "<source>" "<label>" ["<source>" "<label>" …] --corr
 ```
 
 A file replaces the attachment with the same `label`, so take the label from `attachments`; another label adds a
-file at the end. The other attachments stay. The poster changes only with the file it was made from; an event
-without a poster takes the first file, as in **`farnost-create-aktualita`** step 3a (`--no-poster` to keep none).
+file at the end. The other attachments stay. The poster is rendered again when the file it was made from is
+corrected; otherwise it changes only as below.
 
-Both print the fields that change (`Changed: …`); the stage command also the files it would stage.
+Another attachment (an image or PDF) as the poster, or no poster:
+
+```sh
+pnpm poster-aktualita <id> "<label>" --check   # or: pnpm poster-aktualita <id> --none --check
+```
+
+When it says the attachment's file is not here, run `pnpm pull-uploads` first.
+
+They all print the fields that change (`Changed: …`); the stage command also the files it would stage, the poster
+command the poster it would render.
 
 ## 4. Confirm with the user
 
@@ -73,6 +82,7 @@ Follow **`farnost-publish-content`**.
 - Changing the `id`: shared links and the calendar link break.
 - Changing `pinned` in `record.json`: it is refused; pin with **`farnost-pin-aktualita`**.
 - Staging a corrected file under another label: the old attachment stays next to the new one.
+- Changing `poster` in `record.json` by hand instead of `pnpm poster-aktualita`: its WebP would not exist.
 - Removing or reordering attachments with the stage command: change `attachments` in `record.json` and run
   `pnpm replace-aktualita`.
 - Importing the `.ics` after a date change instead of moving the Události event.

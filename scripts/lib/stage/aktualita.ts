@@ -1,13 +1,13 @@
 // `pnpm stage aktualita` (scripts/lib/stage/command.ts): stages an aktualita's files, each as
 // uploads/aktuality/<id>-<label in ASCII>.<ext>, in the order given, and adds the event with them to its month file in
 // src/content/news/ (scripts/lib/news/add-aktualita.ts), moving the pin to it when it is pinned. The first file is the
-// poster when it is an image or PDF (unless --no-poster): <its name>-poster.webp, so a WebP source keeps its own name.
+// poster when it is an image or PDF (unless --no-poster), made by scripts/lib/news/poster-aktualita.ts.
 // Without a record it only checks (--check): a file no record links would go to the server with the next release.
 // Every file and the record are checked before anything is copied.
 // --corrected stages corrected or added files of an aktualita already there (farnost-correct-aktualita skill): each
 // replaces the attachment with its label (else is added at the end), in the record or in the corrected --record, and
 // the record is replaced. The poster follows the file it was made from: it is rendered again when that file is
-// corrected (a record without a poster takes the first file, as a new one does). Files on the server are never
+// corrected, and otherwise changes only with `pnpm poster-aktualita`. Files on the server are never
 // overwritten, so once a file is there the corrected one is named …-r2.<ext> (then -r3, …); before that it replaces
 // the staged file.
 
@@ -19,6 +19,7 @@ import { fold } from "@/lib/shared/czech";
 import { posterHref } from "@/lib/news/events";
 import { revSuffix } from "@/lib/shared/revision";
 import { addAktualita, targetLine } from "../news/add-aktualita";
+import { planPoster, POSTER_EXTENSIONS, POSTER_SUFFIX, type PosterRender } from "../news/poster-aktualita";
 import { replaceAktualita, replaceLines } from "../news/replace-aktualita";
 import { unpinnedLines } from "../news/pin-aktualita";
 import { correctedRev, MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
@@ -38,10 +39,7 @@ const EXTENSIONS = new Set([
   ".webm",
   ".mov",
 ]);
-const POSTER_EXTENSIONS = new Set([".pdf", ".png", ".jpg", ".webp", ".gif"]);
 const KEBAB = /^[a-z0-9]+(-[a-z0-9]+)*$/;
-/** The poster's name after its file's: a WebP source would otherwise be overwritten by its own poster. */
-const POSTER_SUFFIX = "-poster.webp";
 
 /** An attachment label's file name suffix: "Plakát" → "plakat", "Mapka trasy" → "mapka-trasy". */
 export function labelSuffix(label: string): string {
@@ -87,22 +85,21 @@ export function withAttachment(attachments: EventAttachment[], attachment: Event
 type PlannedFile = { src: string; label: string; ext: string; size: number; name: string };
 
 /**
- * The index in `files` of the file to render the poster from, or -1. When correcting a record with a poster, the
- * poster follows the file it was made from; otherwise the first file is the poster when it is an image or PDF. (A new
- * record may hold only the poster's alt text.)
+ * The index in `files` of the file to render the poster from, or -1. A new record takes the first file when it is an
+ * image or PDF (a new record may hold only the poster's alt text). When correcting, the poster follows the file it
+ * was made from; a record without a poster gets one only from `pnpm poster-aktualita`.
  */
 function posterIndex(
   files: PlannedFile[],
   record: Record<string, unknown> | undefined,
   { noPoster, corrected }: { noPoster: boolean; corrected: boolean },
 ) {
+  if (!corrected) return !noPoster && POSTER_EXTENSIONS.has(files[0].ext) ? 0 : -1;
+  if (noPoster) throw new Error("--no-poster is for a new aktualita: pnpm poster-aktualita changes the poster");
   const event = record as NewsEvent | undefined;
-  if (corrected && event?.poster) {
-    if (noPoster) throw new Error("the aktualita has a poster, which follows its file: --no-poster is for one without");
-    const source = event.attachments?.find((a) => a.file === posterHref(event))?.label;
-    return files.findIndex((f) => f.label === source);
-  }
-  return !noPoster && POSTER_EXTENSIONS.has(files[0].ext) ? 0 : -1;
+  if (!event?.poster) return -1;
+  const source = event.attachments?.find((a) => a.file === posterHref(event))?.label;
+  return files.findIndex((f) => f.label === source);
 }
 
 /**
@@ -145,9 +142,6 @@ export async function stageAktualita(
     files.push({ src, label, ext, size: statSync(src).size, name: `${base}${revSuffix(rev)}` });
   }
   const poster = posterIndex(files, input, { noPoster, corrected });
-  if (poster !== -1 && !POSTER_EXTENSIONS.has(files[poster].ext)) {
-    throw new Error(`the poster's file "${files[poster].label}" must be an image or PDF, not ${files[poster].ext}`);
-  }
   const attachments = files.map((f) => ({
     label: f.label,
     file: `/uploads/aktuality/${f.name}${f.ext}`,
@@ -155,14 +149,11 @@ export async function stageAktualita(
   }));
   const lines: string[] = [];
   let record: Record<string, unknown> | undefined;
+  let render: PosterRender | undefined;
   if (input) {
     record = { ...input, attachments: corrected ? attachments.reduce(withAttachment, current) : attachments };
-    if (poster !== -1) {
-      // Keep an alt text the record already has (it may add the date); the src is always the staged WebP.
-      const alt =
-        (input.poster as { alt?: string } | undefined)?.alt ?? `${files[poster].label}: ${String(input.title)}`;
-      record.poster = { src: `/uploads/aktuality/${files[poster].name}${POSTER_SUFFIX}`, alt };
-    }
+    // Rendered from the source, as the staged copy does not exist yet with check.
+    if (poster !== -1) ({ record, render } = await planPoster(env, record, files[poster].label, files[poster].src));
     // Validate before anything is copied, so a bad record leaves nothing staged.
     if (corrected) {
       const target = replaceAktualita(env.newsDir, record, { check: true });
@@ -176,15 +167,13 @@ export async function stageAktualita(
   const takenHint = corrected ? "pick another label" : "pick another id";
   for (const f of files) await stage(env, f.src, `aktuality/${f.name}${f.ext}`, true, takenHint, corrected);
   for (const [i, f] of files.entries()) {
-    if (!check) {
-      const dest = await stage(env, f.src, `aktuality/${f.name}${f.ext}`, false, takenHint, corrected);
-      if (i === poster) await renderPoster(dest, dest.slice(0, -f.ext.length) + POSTER_SUFFIX);
-    }
+    if (!check) await stage(env, f.src, `aktuality/${f.name}${f.ext}`, false, takenHint, corrected);
     lines.push(
       stagedLine(check, `uploads/aktuality/${f.name}${f.ext}`) + (i === poster ? ` and its ${POSTER_SUFFIX}` : ""),
     );
   }
   if (!record || check) return { lines, written: [] };
+  if (render) await renderPoster(render.from, render.to);
   if (corrected) {
     const result = replaceAktualita(env.newsDir, record);
     lines.push(...replaceLines(result, false));

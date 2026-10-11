@@ -1,6 +1,6 @@
-// Renders the WebP images of staged content for the `pnpm stage` commands: event posters for the Aktuality pages
-// (design/DESIGN.md §11, §13) and the Petrklíč cover and viewer pages (§17–18), and reads a PDF's page count and
-// first-page text. PDF pages are rendered with poppler, images resized with sharp.
+// Renders the WebP images of uploaded content for the `pnpm stage` and `pnpm poster-aktualita` commands: event
+// posters for the Aktuality pages (design/DESIGN.md §11, §13) and the Petrklíč cover and viewer pages (§17–18), and
+// reads a PDF's page count and first-page text. PDF pages are rendered with poppler, images resized with sharp.
 // Requires pdftoppm, pdfinfo and pdftotext (poppler-utils) for PDFs.
 
 import { execFileSync } from "node:child_process";

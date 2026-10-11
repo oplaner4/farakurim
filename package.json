@@ -15,6 +15,7 @@
     "add-album": "tsx scripts/add-album.ts",
     "replace-aktualita": "tsx scripts/replace-aktualita.ts",
     "pin-aktualita": "tsx scripts/pin-aktualita.ts",
+    "poster-aktualita": "tsx scripts/poster-aktualita.ts",
     "add-exception": "tsx scripts/add-exception.ts",
     "aktualita-calendar": "tsx scripts/aktualita-calendar.ts",
     "format": "prettier --write .",

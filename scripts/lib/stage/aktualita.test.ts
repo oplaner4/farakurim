@@ -383,15 +383,15 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
 
       await expect(
         stageAktualita(env, { id, files: [{ source: newProgram, label: "Program" }], corrected: true, noPoster: true }),
-      ).rejects.toThrow("the aktualita has a poster, which follows its file: --no-poster is for one without");
+      ).rejects.toThrow("--no-poster is for a new aktualita: pnpm poster-aktualita changes the poster");
     });
 
-    it("with corrected gives a record without a poster the first file's", async () => {
+    it("with corrected gives a record without a poster none", async () => {
       const [plakat, program] = await files();
       await stageAktualita(env, { id, files: [program], noPoster: true, record: recordOf(id) });
+      const { lines } = await stageAktualita(env, { id, files: [plakat], corrected: true });
+      expect(lines).toContain("Staged uploads/aktuality/test-farni-den-2026-plakat.jpg");
       expect(added()?.poster).toBeUndefined();
-      await stageAktualita(env, { id, files: [plakat], corrected: true });
-      expect(added()?.poster?.src).toBe("/uploads/aktuality/test-farni-den-2026-plakat-poster.webp");
       expect(added()?.attachments?.map((a) => a.label)).toEqual(["Program", "Plakát"]);
     });
   });

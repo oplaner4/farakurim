@@ -140,6 +140,7 @@ Follow **`farnost-publish-content`** (commit, upload and push). Until the calend
 - Adding a new event by hand instead of `--record` (or `pnpm add-aktualita`): the order and `published` are then up
   to you.
 - Editing `pinned` by hand: a pinned `--record` moves the pin itself.
-- Listing the poster after another file: only the first file becomes the poster.
+- Listing the poster after another file: only the first file becomes the poster (afterwards, only
+  `pnpm poster-aktualita` changes it).
 - Forgetting `--no-poster` when the first file is a text-only PDF (`Program`, `Informace`, `Oznámení`): its first
   page becomes the poster.
