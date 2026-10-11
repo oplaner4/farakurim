@@ -227,7 +227,19 @@
     "start": "2026-10-12",
     "time": "13:00–18:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
-    "text": "Adorační den naší farnosti v kostele sv. Maří Magdalény.",
+    "text": "Adorační den naší farnosti: od 13 hodin tichá adorace, v 17:30 růženec a svátostné požehnání s žehnáním farnosti.",
+    "body": "<p>V pondělí 12. října je Adorační den farnosti. Od 13 hod do 17:30 bude tichá adorace, v 17:30 společná modlitba růžence, svátostné požehnání s žehnáním farnosti a možnost přistoupit ke svatému přijímání.</p><p>Po celé odpoledne bude kostel otevřen k modlitbě a uctění Nejsvětější svátosti.</p>",
+    "program": [
+      {
+        "time": "13:00–17:30",
+        "title": "Tichá adorace"
+      },
+      {
+        "time": "17:30",
+        "title": "Společná modlitba růžence",
+        "note": "svátostné požehnání s žehnáním farnosti a možnost přistoupit ke svatému přijímání"
+      }
+    ],
     "published": "2026-10-09",
     "poster": {
       "src": "/uploads/aktuality/adoracni-den-2026-plakat.webp",
