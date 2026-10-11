@@ -110,11 +110,21 @@ const CATEGORY_HINTS: [AnnouncementCategory, RegExp][] = [
 ];
 const guessCategory = (text: string) => CATEGORY_HINTS.find(([, hint]) => hint.test(text))?.[0] ?? "info";
 
+// The names a feast keeps capitalised ("Panny Marie", "Ježíše Krista Krále", "Svaté rodiny"), and those that also
+// capitalise the word before them, the mystery they name ("Narození Páně", "Matky Boží", "Seslání Ducha svatého").
+const FEAST_NAMES = /^(páně|boží|božího|ducha|ježíše|krista|krále|panny|marie|svaté)$/;
+const FEAST_MYSTERY_OF = /^(páně|boží|ducha)$/;
+
 /** "1. NEDĚLE ADVENTNÍ" in sentence case ("1. neděle adventní"); a feast not in capitals stays as it is. */
 function feastCase(feast: string) {
   if (feast !== feast.toLocaleUpperCase("cs") || !/\p{Lu}/u.test(feast)) return feast;
-  const lower = feast.toLocaleLowerCase("cs");
-  return lower.replace(/^\p{L}/u, (letter) => letter.toLocaleUpperCase("cs"));
+  const words = feast.toLocaleLowerCase("cs").split(" ");
+  const capital = (word: string) => word.replace(/^\p{L}/u, (letter) => letter.toLocaleUpperCase("cs"));
+  return words
+    .map((word, i) =>
+      i === 0 || FEAST_NAMES.test(word) || FEAST_MYSTERY_OF.test(words[i + 1] ?? "") ? capital(word) : word,
+    )
+    .join(" ");
 }
 
 /** The parish church named `name` ("Kuřim" → "kurim"), else the name itself (a place elsewhere, "Tišnov"). */
@@ -129,9 +139,10 @@ function sheetRow(time: string, place: string, line: string): SheetRow {
   const detail = dash ? line.slice(dash.index + dash[0].length) : undefined;
   // "Mše sv.", "Hodová mše sv.", "Pontifikální mše svatá".
   const mass = isParishChurch(place) && /(^|\s)mše sv/i.test(title);
-  // A mass-like public service in a parish church counts for the countdown: adoration, prayers, the Easter rites.
+  // A mass-like public service in a parish church counts for the countdown: adoration, prayers and novenas, the
+  // Easter rites ("Velkopáteční obřady").
   // Personal events (funerals, weddings), confessions and the Way of the Cross are left to the user.
-  const service = isParishChurch(place) && !mass && /^(adorace|modlit|velikonoční obřady|obřady)/i.test(title);
+  const service = isParishChurch(place) && !mass && /^(adorace|modlit|novéna)|obřady/i.test(title);
   return {
     time: time.replace(".", ":").replace(/^0(\d)/, "$1"),
     place,

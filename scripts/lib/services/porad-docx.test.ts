@@ -173,6 +173,24 @@ describe("docxWeeks", () => {
     expect(days[7].rows.map((r) => r.service)).toEqual([undefined, undefined, true]);
   });
 
+  it("keeps the names in a feast in capitals and counts the Easter rites and novenas as services", async () => {
+    const file = docx(
+      heading("ROZPIS BOHOSLUŽEB V TÝDNU od 29. 3. 2026 do 5. 4. 2026") +
+        table([
+          [["29. 3.", "Ne"], ["SLAVNOST MATKY BOŽÍ PANNY MARIE"], ["Kuřim"], ["19:00"], ["Novéna k Duchu svatému"]],
+          [["3. 4.", "Pá"], ["SVÁTEK SVATÉ RODINY"], ["Kuřim"], ["18:00"], ["Velkopáteční obřady"]],
+          [["5. 4.", "Ne"], ["2. NEDĚLE PO NAROZENÍ PÁNĚ"], ["Kuřim"], ["8:00"], ["Mše sv."]],
+        ]),
+    );
+    const { days } = (await docxWeeks(file))[0].draft();
+    expect(days.map((d) => d.feast).filter(Boolean)).toEqual([
+      "Slavnost Matky Boží Panny Marie",
+      "Svátek Svaté rodiny",
+      "2. neděle po Narození Páně",
+    ]);
+    expect([days[0].rows[0].service, days[5].rows[0].service]).toEqual([true, true]);
+  });
+
   it("refuses a table it cannot read, naming the week and the day", async () => {
     const draft = async (rows: string[][][]) =>
       (await docxWeeks(docx(heading("ROZPIS BOHOSLUŽEB V TÝDNU od 11. 10. 2026 do 18. 10. 2026") + table(rows))))[0]
