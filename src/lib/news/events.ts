@@ -201,6 +201,19 @@ export const otherEvents = <T extends Pick<NewsEvent, "id" | "start" | "end" | "
   );
 
 /**
+ * What the detail page's poster opens full size: the poster's original (its file is named like the poster WebP, before
+ * `.webp` or, since `pnpm stage aktualita` names posters `<file>-poster.webp`, before `-poster.webp`), else the
+ * "Plakát" attachment, else the WebP itself. Undefined without a poster or a "Plakát" attachment.
+ */
+export function posterHref(event: NewsEvent): string | undefined {
+  const attachments = event.attachments ?? [];
+  const base = event.poster?.src.replace(/(-poster)?\.webp$/, ".");
+  const original =
+    attachments.find((a) => base && a.file.startsWith(base)) ?? attachments.find((a) => a.label === "Plakát");
+  return original?.file ?? event.poster?.src;
+}
+
+/**
  * Alt text of a poster in the lightbox (design/DESIGN.md §21.3), which is often the only source of the details:
  * "Plakát: Farní den, neděle 18. října 2026 v 9:30, farní zahrada".
  */

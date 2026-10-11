@@ -14,6 +14,7 @@ import {
   NEWS_FILTERS,
   otherEvents,
   posterAlt,
+  posterHref,
   relativeEventLabel,
 } from "./events";
 import { event, events, ids, TODAY } from "./test-fixtures";
@@ -125,6 +126,37 @@ describe("posterAlt", () => {
       "Plakát: Farní den, neděle 18. října 2026 v 9:30, farní zahrada",
     );
     expect(posterAlt(base)).toBe("Plakát: Farní den, neděle 18. října 2026");
+  });
+});
+
+describe("posterHref", () => {
+  const file = (label: string, name: string) => ({ label, file: `/uploads/aktuality/${name}` });
+  const withPoster = (src: string, attachments: { label: string; file: string }[]) =>
+    event("x", "2026-10-18", undefined, { poster: { src: `/uploads/aktuality/${src}`, alt: "" }, attachments });
+
+  it("opens the poster's original, named like the poster", () => {
+    const pozvanka = file("Pozvánka", "x-pozvanka.pdf");
+    const program = file("Program", "x-program.pdf");
+    expect(posterHref(withPoster("x-pozvanka-poster.webp", [program, pozvanka]))).toBe(pozvanka.file);
+    expect(posterHref(withPoster("x-pozvanka.webp", [program, pozvanka]))).toBe(pozvanka.file);
+    expect(posterHref(withPoster("x-pozvanka-r2-poster.webp", [file("Pozvánka", "x-pozvanka-r2.png")]))).toBe(
+      "/uploads/aktuality/x-pozvanka-r2.png",
+    );
+    // A WebP original is its own file, beside its poster.
+    expect(posterHref(withPoster("x-plakat-poster.webp", [file("Plakát", "x-plakat.webp")]))).toBe(
+      "/uploads/aktuality/x-plakat.webp",
+    );
+  });
+
+  it("falls back to the Plakát attachment, then the poster itself", () => {
+    expect(posterHref(withPoster("jiny.webp", [file("Program", "x-program.pdf"), file("Plakát", "y.jpg")]))).toBe(
+      "/uploads/aktuality/y.jpg",
+    );
+    expect(posterHref(withPoster("x-plakat-poster.webp", []))).toBe("/uploads/aktuality/x-plakat-poster.webp");
+    expect(posterHref(event("x", "2026-10-18", undefined, { attachments: [file("Plakát", "y.jpg")] }))).toBe(
+      "/uploads/aktuality/y.jpg",
+    );
+    expect(posterHref(event("x", "2026-10-18"))).toBeUndefined();
   });
 });
 

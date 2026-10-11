@@ -4,7 +4,7 @@ import type { NewsEvent } from "@/content/types/news";
 import { BUILD_TIME } from "@/lib/shared/build-time";
 import { eventDateBlock } from "@/lib/shared/czech";
 import { withExternalLinkTargets } from "@/lib/shared/links";
-import { eventEnd, eventHref, posterAlt } from "@/lib/news/events";
+import { eventEnd, eventHref, posterAlt, posterHref } from "@/lib/news/events";
 import { pragueDate } from "@/lib/shared/prague";
 import { eventJsonLd, jsonLdScript } from "@/lib/shared/structured-data";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
@@ -44,12 +44,7 @@ export function EventDetail({ event }: { event: NewsEvent }) {
   const url = `${SITE_URL}${eventHref(event)}`;
   const attachments = event.attachments ?? [];
   const eventLinks = event.links ?? [];
-  // The full-size link opens the poster's original (same name as the WebP), else the "Plakát" attachment.
-  const posterBase = event.poster?.src.replace(/\.webp$/, ".");
-  const posterFile =
-    attachments.find((a) => posterBase && a.file.startsWith(posterBase)) ??
-    attachments.find((a) => a.label === "Plakát");
-  const posterHref = posterFile?.file ?? event.poster?.src;
+  const posterLink = posterHref(event);
 
   return (
     <>
@@ -114,8 +109,8 @@ export function EventDetail({ event }: { event: NewsEvent }) {
           <div className="flex min-w-0 flex-col gap-7 max-lg:order-1 md:flex-row md:gap-6 lg:shrink lg:grow lg:basis-90 lg:flex-col">
             <EventWhenWhere event={event} />
 
-            {posterHref && (
-              <EventPoster poster={event.poster} href={posterHref} title={event.title} alt={posterAlt(event)} />
+            {posterLink && (
+              <EventPoster poster={event.poster} href={posterLink} title={event.title} alt={posterAlt(event)} />
             )}
           </div>
         </article>
