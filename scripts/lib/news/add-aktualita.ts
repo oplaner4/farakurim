@@ -32,17 +32,23 @@ export function insertRecord(list: NewsEvent[], record: NewsEvent): NewsEvent[] 
   return at === -1 ? [...list, record] : list.toSpliced(at, 0, record);
 }
 
+/** `input` checked as a new record, published `now` unless it says otherwise; a pinned one must be pinnable. */
+function parseRecord(input: unknown, now: Date): NewsEvent {
+  const withDate = input !== null && typeof input === "object" ? { published: pragueDate(now), ...input } : input;
+  const parsed = newsEventSchema.safeParse(withDate);
+  if (!parsed.success) throw new Error(`the record is not valid:\n${z.prettifyError(parsed.error)}`);
+  const record = parsed.data.pinned === false ? withoutPin(parsed.data) : parsed.data;
+  if (record.pinned) assertPinnable(record, pragueDate(now));
+  return record;
+}
+
 /**
  * Adds `input` to the news folder `newsDir` and returns the files it wrote (relative to newsDir, the record's month
  * file first); `check` only validates. A pinned record takes the pin from every other record (movePin()). Throws with
  * every problem found, before anything is written.
  */
 export function addAktualita(newsDir: string, input: unknown, { check = false, now = new Date() } = {}) {
-  const withDate = input !== null && typeof input === "object" ? { published: pragueDate(now), ...input } : input;
-  const parsed = newsEventSchema.safeParse(withDate);
-  if (!parsed.success) throw new Error(`the record is not valid:\n${z.prettifyError(parsed.error)}`);
-  const record = parsed.data.pinned === false ? withoutPin(parsed.data) : parsed.data;
-  if (record.pinned) assertPinnable(record, pragueDate(now));
+  const record = parseRecord(input, now);
   // Reads and checks every month file, so a broken one stops the script before it writes.
   const months = readMonths(newsDir);
   if ([...months.values()].some((list) => list.some((e) => e.id === record.id))) {

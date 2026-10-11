@@ -28,6 +28,60 @@ export function changedFields(before: NewsEvent, after: NewsEvent): string[] {
   return keys.filter((key) => !isDeepStrictEqual(before[key], after[key]));
 }
 
+/** The month file holding the record with `input`'s id, its records and the record; throws for an unknown id. */
+function findRecord(months: Map<string, NewsEvent[]>, input: unknown) {
+  const id = input !== null && typeof input === "object" && "id" in input ? input.id : undefined;
+  for (const [from, list] of months) {
+    const previous = list.find((e) => e.id === id);
+    if (previous) return { from, list, previous };
+  }
+  throw new Error(`there is no aktualita ${String(id)}: add a new one with pnpm add-aktualita`);
+}
+
+/** `input` checked as the record replacing `previous`: it keeps `published` and the pin. */
+function parseReplacement(input: unknown, previous: NewsEvent, now: Date): NewsEvent {
+  const { published: _published, ...fields } = input as Record<string, unknown>;
+  const parsed = newsEventSchema.safeParse(previous.published ? { ...fields, published: previous.published } : fields);
+  if (!parsed.success) throw new Error(`the record is not valid:\n${z.prettifyError(parsed.error)}`);
+  const record = parsed.data.pinned === false ? withoutPin(parsed.data) : parsed.data;
+  if (Boolean(record.pinned) !== Boolean(previous.pinned)) {
+    throw new Error(`the pin of ${record.id} changes only with pnpm pin-aktualita: keep "pinned" as it is`);
+  }
+  if (record.pinned) assertPinnable(record, pragueDate(now));
+  return record;
+}
+
+/** The month files to write: the record's first, then the file `from` it left (without records, it is removed). */
+function monthFiles(
+  months: Map<string, NewsEvent[]>,
+  { from, list, previous }: { from: string; list: NewsEvent[]; previous: NewsEvent },
+  record: NewsEvent,
+): [string, NewsEvent[]][] {
+  const target = monthFile(record.start);
+  const rest = list.filter((e) => e.id !== record.id);
+  if (target !== from) {
+    return [
+      [target, insertRecord(months.get(target) ?? [], record)],
+      [from, rest],
+    ];
+  }
+  const same = record.start === previous.start;
+  return [[target, same ? list.map((e) => (e.id === record.id ? record : e)) : insertRecord(rest, record)]];
+}
+
+/** Writes the month `files` with records and removes the ones without (and a year folder left empty). */
+function writeMonthFiles(newsDir: string, files: [string, NewsEvent[]][]) {
+  for (const [file, events] of files) {
+    if (events.length > 0) {
+      writeMonth(newsDir, file, events);
+      continue;
+    }
+    rmSync(join(newsDir, file));
+    const year = dirname(join(newsDir, file));
+    if (readdirSync(year).length === 0) rmSync(year, { recursive: true });
+  }
+}
+
 /**
  * Replaces the record with `input`'s id in the news folder `newsDir` by `input` and returns the files it wrote and
  * removed (relative to newsDir, the record's month file first); `check` only validates. The record keeps its
@@ -38,46 +92,14 @@ export function changedFields(before: NewsEvent, after: NewsEvent): string[] {
 export function replaceAktualita(newsDir: string, input: unknown, { check = false, now = new Date() } = {}) {
   // Reads and checks every month file, so a broken one stops the script before it writes.
   const months = readMonths(newsDir);
-  const id = input !== null && typeof input === "object" && "id" in input ? input.id : undefined;
-  const from = [...months].find(([, list]) => list.some((e) => e.id === id))?.[0];
-  if (from === undefined) throw new Error(`there is no aktualita ${String(id)}: add a new one with pnpm add-aktualita`);
-  const list = months.get(from) ?? [];
-  const previous = list.find((e) => e.id === id) as NewsEvent;
-  const { published: _published, ...fields } = input as Record<string, unknown>;
-  const parsed = newsEventSchema.safeParse(previous.published ? { ...fields, published: previous.published } : fields);
-  if (!parsed.success) throw new Error(`the record is not valid:\n${z.prettifyError(parsed.error)}`);
-  const record = parsed.data.pinned === false ? withoutPin(parsed.data) : parsed.data;
-  if (Boolean(record.pinned) !== Boolean(previous.pinned)) {
-    throw new Error(`the pin of ${record.id} changes only with pnpm pin-aktualita: keep "pinned" as it is`);
-  }
-  if (record.pinned) assertPinnable(record, pragueDate(now));
+  const found = findRecord(months, input);
+  const { from, previous } = found;
+  const record = parseReplacement(input, previous, now);
   const target = monthFile(record.start);
-  const rest = list.filter((e) => e.id !== record.id);
-  // The record's month file first, then the file it left (without records, it is removed).
-  const files: [string, NewsEvent[]][] =
-    target !== from
-      ? [
-          [target, insertRecord(months.get(target) ?? [], record)],
-          [from, rest],
-        ]
-      : [
-          [
-            target,
-            record.start === previous.start
-              ? list.map((e) => (e.id === record.id ? record : e))
-              : insertRecord(rest, record),
-          ],
-        ];
+  const files = monthFiles(months, found, record);
   const kept = files.filter(([, events]) => events.length > 0).map(([file]) => file);
   const removed = files.filter(([, events]) => events.length === 0).map(([file]) => file);
-  if (!check) {
-    for (const [file, events] of files) if (events.length > 0) writeMonth(newsDir, file, events);
-    for (const file of removed) {
-      rmSync(join(newsDir, file));
-      const year = dirname(join(newsDir, file));
-      if (readdirSync(year).length === 0) rmSync(year, { recursive: true });
-    }
-  }
+  if (!check) writeMonthFiles(newsDir, files);
   return {
     record,
     previous,

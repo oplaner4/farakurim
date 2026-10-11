@@ -60,6 +60,38 @@ export interface PoradOptions {
 }
 
 /**
+ * The week of the PDF `src`: --from and --to when given, else its heading. Throws without a heading or for a period
+ * that is not one week, or two around holidays.
+ */
+function sheetWeek(src: string, options: PoradOptions): { validFrom: string; validTo: string } {
+  // --from and --to are checked by the command line (scripts/lib/stage/command.ts): real dates, both or neither.
+  const week =
+    options.validFrom && options.validTo
+      ? { validFrom: options.validFrom, validTo: options.validTo }
+      : parseWeek(pdfFirstPageText(src));
+  if (!week) throw new Error("no 'od … do …' week in the PDF heading: pass --from and --to");
+  const { validFrom, validTo } = week;
+  // One week, or two around holidays (Sunday to Sunday is 14 days); anything longer is a misread heading.
+  const days = differenceInCalendarDays(localDate(validTo), localDate(validFrom));
+  if (days <= 0 || days > 21) throw new Error(`the period ${validFrom} – ${validTo} looks wrong: pass --from and --to`);
+  return week;
+}
+
+/** The rev of the week's PDF: the sheet's, or with `corrected` the next one once the sheet's PDF is on the server. */
+async function sheetRev(env: StageEnv, validFrom: string, corrected: boolean): Promise<number | undefined> {
+  const current = readOhlasky(env.ohlaskyFile).sheets.find((sheet) => sheet.validFrom === validFrom);
+  if (!corrected) return current?.rev;
+  if (!current) throw new Error(`no sheet of ${validFrom} in ohlasky.json: --corrected is for a week already there`);
+  return correctedRev(env, current.rev, (r) => sheetPdfFile({ validFrom, rev: r }));
+}
+
+/** The lines printing the week and its days, for a check without a record. */
+const weekLines = ({ validFrom, validTo, rev }: { validFrom: string; validTo: string; rev?: number }) => [
+  `  validFrom: "${validFrom}",\n  validTo: "${validTo}",${rev ? `\n  rev: ${rev},` : ""}`,
+  `days: ${weekDays(validFrom, validTo).join(", ")}`,
+];
+
+/**
  * Stages the weekly PDF and adds its sheet (the record); without a record, `check` only prints the week and its days.
  * Returns the lines to print and the files written.
  */
@@ -69,44 +101,21 @@ export async function stagePorad(env: StageEnv, options: PoradOptions) {
   if (!options.record && !check) throw new Error("--record is required to stage the PDF; without it, only --check");
   const src = sourceFile(options.source, MAX_MB.porad, env.home);
   if (extname(src).toLowerCase() !== ".pdf") throw new Error("the pořad bohoslužeb is a PDF");
-  let week: { validFrom: string; validTo: string } | null = null;
-  // --from and --to are checked by the command line (scripts/lib/stage/command.ts): real dates, both or neither.
-  if (options.validFrom && options.validTo) {
-    week = { validFrom: options.validFrom, validTo: options.validTo };
-  } else {
-    week = parseWeek(pdfFirstPageText(src));
-    if (!week) throw new Error("no 'od … do …' week in the PDF heading: pass --from and --to");
-  }
-  const { validFrom, validTo } = week;
-  // One week, or two around holidays (Sunday to Sunday is 14 days); anything longer is a misread heading.
-  const days = differenceInCalendarDays(localDate(validTo), localDate(validFrom));
-  if (days <= 0 || days > 21) throw new Error(`the period ${validFrom} – ${validTo} looks wrong: pass --from and --to`);
-  const current = readOhlasky(env.ohlaskyFile).sheets.find((sheet) => sheet.validFrom === validFrom);
-  if (corrected && !current) {
-    throw new Error(`no sheet of ${validFrom} in ohlasky.json: --corrected is for a week already there`);
-  }
-  const rev = corrected
-    ? await correctedRev(env, current?.rev, (r) => sheetPdfFile({ validFrom, rev: r }))
-    : current?.rev;
+  const { validFrom, validTo } = sheetWeek(src, options);
+  const rev = await sheetRev(env, validFrom, corrected);
   const rel = sheetPdfFile({ validFrom, rev });
-  const sheetWeek = { validFrom, validTo, ...(rev !== undefined && { rev }) };
+  const week = { validFrom, validTo, ...(rev !== undefined && { rev }) };
   const lines: string[] = [];
   // Validate before anything is copied, so a bad record leaves nothing staged.
   if (options.record) {
-    const checked = addOhlasky(env, options.record, sheetWeek, { check: true });
+    const checked = addOhlasky(env, options.record, week, { check: true });
     if (check) lines.push(...ohlaskyLines(checked, true));
   }
   await stage(env, src, rel, check, correctedHint("this week"), corrected);
   lines.push(stagedLine(check, `uploads/${rel}`));
-  if (!options.record) {
-    lines.push(
-      `  validFrom: "${validFrom}",\n  validTo: "${validTo}",${rev ? `\n  rev: ${rev},` : ""}`,
-      `days: ${weekDays(validFrom, validTo).join(", ")}`,
-    );
-    return { lines, written: [] };
-  }
+  if (!options.record) return { lines: [...lines, ...weekLines(week)], written: [] };
   if (check) return { lines, written: [] };
-  const result = addOhlasky(env, options.record, sheetWeek);
+  const result = addOhlasky(env, options.record, week);
   lines.push(...ohlaskyLines(result, false));
   return { lines, written: result.written };
 }

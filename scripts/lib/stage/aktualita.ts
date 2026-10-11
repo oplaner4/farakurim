@@ -87,20 +87,17 @@ function posterIndex(
 }
 
 /**
- * Stages an aktualita's files (and the poster WebP) and, with a record, adds the record with the files. Returns the
- * lines to print, the news files written (for formatAndTest) and the added event.
+ * The record to put the files into: the given record or, with --corrected, the one on the site. Throws for options
+ * that cannot stage: no record without --corrected or --check, a bad id, no file or a record of another id.
  */
-export async function stageAktualita(
-  env: StageEnv,
-  options: AktualitaOptions,
-): Promise<{ lines: string[]; written: string[]; event?: NewsEvent }> {
-  const { id, files: given, noPoster = false, corrected = false, check = false } = options;
+function aktualitaInput(env: StageEnv, options: AktualitaOptions): Record<string, unknown> | undefined {
+  const { id, files, corrected, check } = options;
   if (!options.record && !corrected && !check) {
     throw new Error("--record is required to stage the files; without it, only --check");
   }
   // Checked here too: the id names the staged files before the record is checked, and --check has no record.
   if (!newsEventSchema.shape.id.safeParse(id).success) throw new Error(`"${id}" is not an ASCII kebab-case id`);
-  if (given.length === 0) throw new Error("no file to stage");
+  if (files.length === 0) throw new Error("no file to stage");
   // A corrected file goes into the corrected record, else into the record on the site.
   let input = options.record;
   if (corrected) {
@@ -109,7 +106,20 @@ export async function stageAktualita(
     input ??= { ...existing };
   }
   if (input && input.id !== id) throw new Error(`the record's id ${JSON.stringify(input.id)} is not "${id}"`);
-  const current = (input?.attachments as EventAttachment[] | undefined) ?? [];
+  return input;
+}
+
+/**
+ * Checks each given file and plans its staged name, in the order given. A corrected file takes the next rev of the
+ * attachment with its label in `current` once that one is on the server.
+ */
+async function planFiles(
+  env: StageEnv,
+  id: string,
+  given: AktualitaFile[],
+  current: EventAttachment[],
+  corrected: boolean,
+): Promise<PlannedFile[]> {
   const files: PlannedFile[] = [];
   for (const { source, label: raw } of given) {
     const label = raw.trim();
@@ -128,45 +138,94 @@ export async function stageAktualita(
       : undefined;
     files.push({ src, label, ext, size: statSync(src).size, name: `${base}${revSuffix(rev)}` });
   }
-  const poster = posterIndex(files, input, { noPoster, corrected });
+  return files;
+}
+
+/**
+ * The record with the planned files (and the poster) and the poster to render, validated before anything is copied
+ * so a bad record leaves nothing staged; with `check`, the lines saying where it would go.
+ */
+async function planRecord(
+  env: StageEnv,
+  input: Record<string, unknown>,
+  files: PlannedFile[],
+  poster: number,
+  { corrected, check, current }: { corrected: boolean; check: boolean; current: EventAttachment[] },
+) {
   const attachments = files.map((f) => ({
     label: f.label,
     file: `${UPLOADS_PATH}aktuality/${f.name}${f.ext}`,
     size: f.size,
   }));
-  const lines: string[] = [];
-  let record: Record<string, unknown> | undefined;
+  let record: Record<string, unknown> = {
+    ...input,
+    attachments: corrected ? attachments.reduce(withAttachment, current) : attachments,
+  };
   let render: PosterRender | undefined;
-  if (input) {
-    record = { ...input, attachments: corrected ? attachments.reduce(withAttachment, current) : attachments };
-    // Rendered from the source, as the staged copy does not exist yet with check.
-    if (poster !== -1) ({ record, render } = await planPoster(env, record, files[poster].label, files[poster].src));
-    // Validate before anything is copied, so a bad record leaves nothing staged.
-    if (corrected) {
-      const target = replaceAktualita(env.newsDir, record, { check: true });
-      if (check) lines.push(...replaceLines(target, true));
-    } else {
-      const target = addAktualita(env.newsDir, record, { check: true });
-      if (check) lines.push(targetLine(target, true), ...unpinnedLines(target.unpinned, true));
-    }
+  // Rendered from the source, as the staged copy does not exist yet with check.
+  if (poster !== -1) ({ record, render } = await planPoster(env, record, files[poster].label, files[poster].src));
+  const lines: string[] = [];
+  if (corrected) {
+    const target = replaceAktualita(env.newsDir, record, { check: true });
+    if (check) lines.push(...replaceLines(target, true));
+  } else {
+    const target = addAktualita(env.newsDir, record, { check: true });
+    if (check) lines.push(targetLine(target, true), ...unpinnedLines(target.unpinned, true));
   }
+  return { record, render, lines };
+}
+
+/** Stages `files` (with `check`, only checks them) and returns the lines saying so. */
+async function stageFiles(
+  env: StageEnv,
+  files: PlannedFile[],
+  poster: number,
+  { corrected, check }: { corrected: boolean; check: boolean },
+): Promise<string[]> {
   // Every name is checked before any file is copied, so a taken second name leaves nothing staged.
   const takenHint = corrected ? "pick another label" : "pick another id";
   for (const f of files) await stage(env, f.src, `aktuality/${f.name}${f.ext}`, true, takenHint, corrected);
+  const lines: string[] = [];
   for (const [i, f] of files.entries()) {
     if (!check) await stage(env, f.src, `aktuality/${f.name}${f.ext}`, false, takenHint, corrected);
     lines.push(
       stagedLine(check, `uploads/aktuality/${f.name}${f.ext}`) + (i === poster ? ` and its ${POSTER_SUFFIX}` : ""),
     );
   }
-  if (!record || check) return { lines, written: [] };
-  if (render) await renderPoster(render.from, render.to);
+  return lines;
+}
+
+/** Adds the record (with `corrected`, replaces it) and returns the lines, the news files written and the event. */
+function writeRecord(env: StageEnv, record: Record<string, unknown>, corrected: boolean) {
   if (corrected) {
     const result = replaceAktualita(env.newsDir, record);
-    lines.push(...replaceLines(result, false));
-    return { lines, written: result.written, event: result.record };
+    return { lines: replaceLines(result, false), written: result.written, event: result.record };
   }
   const result = addAktualita(env.newsDir, record);
-  lines.push(targetLine(result, false), ...unpinnedLines(result.unpinned, false));
-  return { lines, written: result.written, event: result.record };
+  return {
+    lines: [targetLine(result, false), ...unpinnedLines(result.unpinned, false)],
+    written: result.written,
+    event: result.record,
+  };
+}
+
+/**
+ * Stages an aktualita's files (and the poster WebP) and, with a record, adds the record with the files. Returns the
+ * lines to print, the news files written (for formatAndTest) and the added event.
+ */
+export async function stageAktualita(
+  env: StageEnv,
+  options: AktualitaOptions,
+): Promise<{ lines: string[]; written: string[]; event?: NewsEvent }> {
+  const { id, files: given, noPoster = false, corrected = false, check = false } = options;
+  const input = aktualitaInput(env, options);
+  const current = (input?.attachments as EventAttachment[] | undefined) ?? [];
+  const files = await planFiles(env, id, given, current, corrected);
+  const poster = posterIndex(files, input, { noPoster, corrected });
+  const planned = input && (await planRecord(env, input, files, poster, { corrected, check, current }));
+  const lines = [...(planned?.lines ?? []), ...(await stageFiles(env, files, poster, { corrected, check }))];
+  if (!planned || check) return { lines, written: [] };
+  if (planned.render) await renderPoster(planned.render.from, planned.render.to);
+  const result = writeRecord(env, planned.record, corrected);
+  return { ...result, lines: [...lines, ...result.lines] };
 }
