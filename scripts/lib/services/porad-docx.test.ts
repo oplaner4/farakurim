@@ -121,7 +121,7 @@ describe("docxWeeks", () => {
         p("") +
         p("") +
         p(
-          "Pouť: přihláška na poutnicimkk@seznam.cz, více na zacnikdejsi.cz a www.biskupstvi.cz/akce/pout. Sraz v 17.30.",
+          "Pouť: přihláška na <poutnicimkk@seznam.cz>, více na zacnikdejsi.cz a www.biskupstvi.cz/akce/pout. Sraz v 17.30.",
         ) +
         p(
           "Přihlášky na ",
@@ -181,6 +181,7 @@ describe("docxWeeks", () => {
           [["30. 3.", "Po"], ["UVEDENÍ PÁNĚ DO CHRÁMU", "Hromnice"], ["Kuřim"], ["8:00"], ["Mše sv."]],
           [["1. 4.", "St"], ["SLAVNOST SV. PETRA", "A PAVLA"], ["Kuřim"], ["8:00"], ["Mše sv."]],
           [["2. 4.", "Čt"], ["SLAVNOST VŠECH SVATÝCH"], ["Kuřim"], ["8:00"], ["Mše sv."]],
+          [["4. 4.", "So"], ["SLAVNOST NEJSVĚTĚJŠÍ TROJICE"], ["Kuřim"], ["8:00"], ["Mše sv."]],
           [["3. 4.", "Pá"], ["SVÁTEK SVATÉ RODINY"], ["Kuřim"], ["18:00"], ["Velkopáteční obřady"]],
           [["5. 4.", "Ne"], ["2. NEDĚLE PO NAROZENÍ PÁNĚ"], ["Kuřim"], ["8:00"], ["Mše sv."]],
         ]),
@@ -192,6 +193,7 @@ describe("docxWeeks", () => {
       "Slavnost sv. Petra a Pavla",
       "Slavnost Všech svatých",
       "Svátek Svaté rodiny",
+      "Slavnost Nejsvětější Trojice",
       "2. neděle po Narození Páně",
     ]);
     expect([days[0].rows[0].service, days[5].rows[0].service]).toEqual([true, true]);

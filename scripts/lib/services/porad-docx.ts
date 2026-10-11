@@ -85,7 +85,7 @@ async function documentBlocks(file: string): Promise<Block[]> {
 
 /**
  * The paragraph's inner HTML as the announcement's <p>: spaces outside the <strong> and <em>, a link to a bare
- * e-mail address as mailto:, and no link targets.
+ * e-mail address as mailto:, no link targets and no angle brackets around a link.
  */
 function paragraphHtml(inner: string) {
   const html = inner
@@ -96,6 +96,8 @@ function paragraphHtml(inner: string) {
     .replace(/href="([^":/]+@[^"]+)"/g, 'href="mailto:$1"')
     // Word's "open in a new window" (target="_blank"): the sheets' links carry no target.
     .replace(/ target="[^"]*"/g, "")
+    // "<anna@seznam.cz>": the brackets only mark the address, which is now a link.
+    .replace(/&lt;(<a [^>]*>[^<]*<\/a>)&gt;/g, "$1")
     .replace(/\s+/g, " ")
     .trim();
   return `<p>${html}</p>`;
@@ -111,9 +113,9 @@ const CATEGORY_HINTS: [AnnouncementCategory, RegExp][] = [
 const guessCategory = (text: string) => CATEGORY_HINTS.find(([, hint]) => hint.test(text))?.[0] ?? "info";
 
 // The names a feast keeps capitalised ("Panny Marie", "Ježíše Krista Krále", "Svaté rodiny"), and those that also
-// capitalise the word before them ("Narození Páně", "Matky Boží", "Seslání Ducha svatého", "Všech svatých").
-const FEAST_NAMES = /^(páně|boží|božího|ducha|ježíše|krista|krále|panny|marie|svaté|těla)$/;
-const FEAST_MYSTERY_OF = /^(páně|boží|ducha|svatých)$/;
+// capitalise the word before them ("Narození Páně", "Matky Boží", "Seslání Ducha svatého", "Nejsvětější Trojice").
+const FEAST_NAMES = /^(páně|boží|božího|ducha|ježíše|krista|krále|panny|marie|svaté|těla|trojice)$/;
+const FEAST_MYSTERY_OF = /^(páně|boží|ducha|svatých|trojice)$/;
 
 /**
  * The feast cell's lines in sentence case and joined: "1. NEDĚLE ADVENTNÍ" → "1. neděle adventní", "UVEDENÍ PÁNĚ DO
