@@ -30,10 +30,7 @@ It prints the week and its days and writes `days` and `announcements` to `record
 leaves out become days without services, printed as "Days without services": tell the user. A table it cannot read (a
 date outside the week, a weekday that does not fit the date, times that do not pair with the services, a table that
 does not start and end on the heading's dates) stops it with the week and day: ask the user what the document should
-say, as the error is in their document. Check the draft against
-step 2 rather than trusting it: the `mass` and `service` flags, the feast's case and the announcement categories are
-guesses, and the announcements need their key dates and times in `<strong>` and their `newsId`. To see the page
-itself, render the staged PDF after step 4, or ask the user.
+say, as the error is in their document. The draft is a starting point: step 2a says what to check in it.
 
 **From a PDF**, read it with both:
 
@@ -51,13 +48,48 @@ pnpm stage porad "<source>" --check
 
 ## 2. Extract the sheet
 
-Write the confirmed sheet as `record.json` in the session's scratchpad (never in the repo) with `days` and
-`announcements` only (from the DOCX, fix the draft): `validFrom`, `validTo` and `rev` come from the heading. Rows use the table's fields; a mass row is
-`{ "time", "place", "title": "Mše sv.", "detail", "mass": true }` (example in step 4).
+The sheet is `record.json` in the session's scratchpad (never in the repo) with `days` and `announcements` only:
+`validFrom`, `validTo` and `rev` come from the heading. Rows use the table's fields; a mass row is
+`{ "time", "place", "title": "Mše sv.", "detail", "mass": true }` (example in step 4). Follow 2a or 2b, then check
+the record against the fields below.
 
-**Week**: the week `--check` printed from the heading (not part of the record): enter every date of it in `days`.
-A heading can cover **two weeks** (around Christmas, Easter or a holiday): it is still **one** `ServiceSheet` with
-every day of both weeks, never split into two. Everything below that says "the week" means the sheet's whole period.
+**Week**: the week `--draft` or `--check` printed from the heading (not part of the record): enter every date of it
+in `days`. A heading can cover **two weeks** (around Christmas, Easter or a holiday): it is still **one**
+`ServiceSheet` with every day of both weeks, never split into two. Everything below that says "the week" means the
+sheet's whole period.
+
+### 2a. From the DOCX: fix the draft
+
+`--draft` already wrote `record.json`. What it gets right: every date of the week (the days the table leaves out
+without rows), the rows in time order, `time` as `"8:00"`, `place` as the parish church's id, the `title` / `detail`
+split at " – ", the announcements word for word with Word's bold and italic kept and addresses linked. What it
+guesses or leaves out, so check each against the fields below and fix `record.json` in place:
+
+- `mass`: set for "mše sv" in a parish church. Check a mass the document does not call "mše sv.".
+- `service`: set for a title starting with "Adorace", "Modlit…" or "Novéna", or containing "obřady", in a parish
+  church. Add it to any other mass-like public service.
+- `feast`: lowercased from capitals, keeping the first word, saints after "sv." and names such as Páně, Boží,
+  Panny Marie. Fix an unusual feast's case.
+- `solemnity`: set for Sundays, a bold feast and "slavnost…". Add a solemnity the document did not make bold.
+- `category`: guessed from keywords, `info` when none fits. Check every announcement.
+- `<strong>`: only where the parish made the text bold. Add it to key dates and times that are not.
+- `newsId`: never set. Add it where an aktualita matches (see "Finding `newsId`" below).
+- Unfinished text (dots) is copied as it is: ask the user for it.
+
+To see the page itself, render the staged PDF after step 4, or ask the user.
+
+### 2b. From a PDF: write the record
+
+Write `record.json` from scratch with the fields below, from the rendered page and the `pdftotext` wording:
+
+- Assign each row to its day and place from the rendered page: in the layout text the date and feast sit in the
+  middle of the day's rows.
+- Join the wrapped lines of a long intention into one `detail`.
+- Enter every day of the week, a day without services with `"rows": []`.
+- Copy the announcements below the table word for word, one per paragraph, and add their `<strong>`, links and
+  `newsId` yourself.
+
+### The fields
 
 **Days** (`days[]`, one per date, in order):
 
@@ -96,15 +128,23 @@ cancelled mass, a missing day has no services. Mention a cancellation within the
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `category` | `zmena` (changes to services), `smireni` (confession times), `pozvanka` (invitations, pilgrimages, events), `podekovani` (thanks), `info` (anything else: collections, notices). |
 | `html`     | `<p>…</p>`; key dates and times in `<strong>`; e-mails as `<a href="mailto:…">`, web addresses as links.                                                                         |
-| `newsId`   | The `id` of the matching aktualita in `src/content/news/`, if there is one (adds "Více v aktualitách").                                                                          |
+| `newsId`   | The `id` of the matching aktualita in `src/content/news/`, if there is one (adds "Více v aktualitách"; finding it: below).                                                       |
+
+**Finding `newsId`**: the aktuality are in `src/content/news/<year>/<MM>.json` by the month of their `start`. For an
+announcement of an event, search the month of its date (and the month before, for a registration) for its title,
+place or date, and take the event's `id` (a pilgrimage on 19. 12. → `pout-lukov-trebic-2026` in
+`2026/12.json`). With no clear match, leave `newsId` out: never guess, and never add an aktualita on the side
+(offer `farnost-create-aktualita` if the user wants one). The script only checks that the id exists, not that it is
+the right event, so step 3 shows each match.
 
 Unfinished text in the source ("vynesl …………. Kč") goes to the user: ask for the value, never publish the dots.
 
 ## 3. Confirm with the user
 
 Validate the record first: `pnpm stage porad "<source>" --record <scratchpad>/record.json --check`. Then show the
-week, a compact day-by-day list of rows, and the announcements with their categories. Ask about anything uncertain:
-unreadable rows, cancellations.
+week, a compact day-by-day list of rows, and the announcements with their categories and each `newsId` with its
+aktualita's title and date. Ask about anything uncertain: unreadable rows, cancellations, an announcement with no
+matching aktualita.
 
 Wait for the user's yes or corrections to these before staging anything.
 
