@@ -14,6 +14,7 @@ import { extname, join } from "node:path";
 import { parseArgs } from "node:util";
 import { readEvents } from "@/content/news";
 import type { EventAttachment, NewsEvent } from "@/content/types/news";
+import { UPLOADS_PATH } from "@/lib/shared/uploads";
 import { errorMessage } from "../command";
 import { formatAndTestNews, NEWS_DIR } from "../content-files";
 import { renderPoster } from "../images";
@@ -24,8 +25,6 @@ import { replaceAktualita, replaceLines } from "./replace-aktualita";
 export const POSTER_EXTENSIONS = new Set([".pdf", ".png", ".jpg", ".webp"]);
 /** The poster's name after its file's: a WebP attachment would otherwise be overwritten by its own poster. */
 export const POSTER_SUFFIX = "-poster.webp";
-
-const UPLOADS = "/uploads/";
 
 /** The poster WebP of an attachment file: "/uploads/aktuality/x-plakat.pdf" → "/uploads/aktuality/x-plakat-poster.webp". */
 export const posterOf = (file: string) => file.slice(0, -extname(file).length) + POSTER_SUFFIX;
@@ -55,11 +54,11 @@ export async function planPoster(
     throw new Error(`the attachment "${label}" is not an image or PDF, so it cannot be the poster`);
   }
   const src = posterOf(attachment.file);
-  const rel = src.slice(UPLOADS.length);
+  const rel = src.slice(UPLOADS_PATH.length);
   let render: PosterRender | undefined;
   if (!(await onServer(env, rel))) {
     render = {
-      from: source ?? join(env.uploadsDir, attachment.file.slice(UPLOADS.length)),
+      from: source ?? join(env.uploadsDir, attachment.file.slice(UPLOADS_PATH.length)),
       to: join(env.uploadsDir, rel),
     };
     if (!existsSync(render.from)) {

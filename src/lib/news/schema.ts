@@ -2,6 +2,7 @@ import * as z from "zod";
 import type { NewsEvent } from "@/content/types/news";
 import { CLOCK, clockMinutes, clockSchema } from "@/lib/shared/clock";
 import { kebabIdSchema, slug } from "@/lib/shared/slug";
+import { uploadSchema } from "@/lib/shared/uploads";
 import { eventMeetings } from "./events";
 import { parseClock } from "./ics";
 
@@ -12,15 +13,6 @@ import { parseClock } from "./ics";
 
 const date = z.iso.date();
 const text = z.string().trim().min(1);
-/** The file types an aktualita links: its attachments (images, PDFs, MP3 recordings) and the poster WebP. */
-export const UPLOAD_EXTENSIONS = [".pdf", ".png", ".jpg", ".webp", ".mp3"];
-/** A file uploaded to the server, linked root-relative (CLAUDE.md "Content and data"). */
-const upload = z
-  .string()
-  .regex(
-    new RegExp(`^/uploads/\\S+\\.(${UPLOAD_EXTENSIONS.map((e) => e.slice(1)).join("|")})$`),
-    "must be a /uploads/… file",
-  );
 const TIME_MESSAGE = 'must be "H:MM" or "H:MM–H:MM"';
 /** A time text the calendar files can read: one valid clock time or a range that ends after it starts. */
 const readableTime = (time: string) => {
@@ -55,7 +47,7 @@ const sessionsSchema = z
  * and "Plakat" would share a file name and a poster).
  */
 const attachmentsSchema = z
-  .array(z.strictObject({ label: text, file: upload, size: z.int().positive().optional() }))
+  .array(z.strictObject({ label: text, file: uploadSchema, size: z.int().positive().optional() }))
   .superRefine((attachments, ctx) => {
     attachments.forEach((attachment, i) => {
       const twin = attachments.findIndex((a) => slug(a.label) === slug(attachment.label));
@@ -96,7 +88,7 @@ export const newsEventSchema = z
     pinned: z.boolean().optional(),
     archiveHidden: z.boolean().optional(),
     published: date.optional(),
-    poster: z.strictObject({ src: upload, alt: text }).optional(),
+    poster: z.strictObject({ src: uploadSchema, alt: text }).optional(),
     attachments: attachmentsSchema.optional(),
     links: z
       .array(

@@ -5,6 +5,7 @@
 import { copyFileSync, existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { basename, dirname, join } from "node:path";
+import { UPLOADS_PATH } from "@/lib/shared/uploads";
 import { EXCEPTIONS_FILE, NEWS_DIR, OHLASKY_FILE, PETRKLIC_FILE } from "../content-files";
 import { defaultUploadsEnv, onServer, type UploadsEnv } from "../uploads";
 
@@ -48,7 +49,7 @@ export function sourceFile(path: string, maxMb: number, home: string): string {
 /** Refuses a name that is already on the server. */
 async function checkFree(env: StageEnv, rel: string, takenHint: string) {
   if (await onServer(env, rel))
-    throw new Error(`${env.site}/uploads/${rel} already exists on the server: ${takenHint}`);
+    throw new Error(`${env.site}${UPLOADS_PATH}${rel} already exists on the server: ${takenHint}`);
 }
 
 /**

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { religiousEducation } from "./religious-education";
-import { duplicates, UPLOAD } from "@/lib/test/content-checks";
+import { duplicates } from "@/lib/test/content-checks";
+import { isUpload } from "@/lib/shared/uploads";
 
 describe("Výuka náboženství (religious-education.ts)", () => {
   const { schools, schoolYear, applicationForm, rules } = religiousEducation;
@@ -14,6 +15,6 @@ describe("Výuka náboženství (religious-education.ts)", () => {
   });
 
   it("links the application and the rules under /uploads/", () => {
-    expect([applicationForm, rules].filter((f) => !UPLOAD.test(f))).toEqual([]);
+    expect([applicationForm, rules].filter((f) => !isUpload(f))).toEqual([]);
   });
 });

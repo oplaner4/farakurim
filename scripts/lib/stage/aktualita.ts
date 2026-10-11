@@ -17,7 +17,8 @@ import { readEvents } from "@/content/news";
 import type { EventAttachment, NewsEvent } from "@/content/types/news";
 import { slug } from "@/lib/shared/slug";
 import { posterHref } from "@/lib/news/events";
-import { newsEventSchema, UPLOAD_EXTENSIONS } from "@/lib/news/schema";
+import { newsEventSchema } from "@/lib/news/schema";
+import { UPLOAD_EXTENSIONS, UPLOADS_PATH } from "@/lib/shared/uploads";
 import { revSuffix } from "@/lib/shared/revision";
 import { addAktualita, targetLine } from "../news/add-aktualita";
 import { planPoster, POSTER_EXTENSIONS, POSTER_SUFFIX, type PosterRender } from "../news/poster-aktualita";
@@ -130,7 +131,7 @@ export async function stageAktualita(
   const poster = posterIndex(files, input, { noPoster, corrected });
   const attachments = files.map((f) => ({
     label: f.label,
-    file: `/uploads/aktuality/${f.name}${f.ext}`,
+    file: `${UPLOADS_PATH}aktuality/${f.name}${f.ext}`,
     size: f.size,
   }));
   const lines: string[] = [];

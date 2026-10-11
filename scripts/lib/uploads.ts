@@ -4,6 +4,7 @@
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { UPLOADS_PATH } from "@/lib/shared/uploads";
 import { errorMessage } from "./command";
 import { ROOT } from "./content-files";
 
@@ -31,7 +32,7 @@ export const defaultUploadsEnv = (): UploadsEnv => ({
 
 /** Whether uploads/`rel` is on the server (a HEAD request); throws when the server cannot tell. */
 export async function onServer(env: UploadsEnv, rel: string): Promise<boolean> {
-  const url = `${env.site}/uploads/${rel}`;
+  const url = `${env.site}${UPLOADS_PATH}${rel}`;
   let status: number;
   try {
     ({ status } = await env.fetch(url, { method: "HEAD", signal: AbortSignal.timeout(15_000) }));

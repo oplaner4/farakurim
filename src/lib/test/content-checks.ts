@@ -12,6 +12,5 @@ export const duplicates = (values: unknown[]) => values.filter((v, i) => values.
 /** Every adjacent pair is in order (`ordered(a, b)` true), so the list is sorted. */
 export const isSorted = <T>(list: T[], ordered: (a: T, b: T) => boolean) =>
   list.every((item, i) => i === 0 || ordered(list[i - 1], item));
-export const UPLOAD = /^\/uploads\/[^\s]+\.(pdf|png|jpe?g|webp|mp3)$/;
 /** The root-relative hrefs of an HTML text: the site's own pages and its uploaded files. */
 export const localHrefs = (html: string) => [...html.matchAll(/href="(\/[^"]*)"/g)].map((m) => m[1]);

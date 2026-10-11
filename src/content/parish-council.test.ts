@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { councilMeetings, parishCouncil } from "./parish-council";
-import { duplicates, isIsoDate, isSorted, localHrefs, UPLOAD } from "@/lib/test/content-checks";
+import { duplicates, isIsoDate, isSorted, localHrefs } from "@/lib/test/content-checks";
+import { isUpload } from "@/lib/shared/uploads";
 
 describe("Pastorační rada (parish-council.ts)", () => {
   it("has a valid term and each member once", () => {
@@ -18,6 +19,6 @@ describe("Pastorační rada (parish-council.ts)", () => {
 
   it("links the reports' files under /uploads/", () => {
     const hrefs = councilMeetings.flatMap((m) => localHrefs(m.html));
-    expect(hrefs.filter((href) => !UPLOAD.test(href))).toEqual([]);
+    expect(hrefs.filter((href) => !isUpload(href))).toEqual([]);
   });
 });

@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { groupPages } from "./groups";
 import { links } from "./site";
-import { duplicates, UPLOAD } from "@/lib/test/content-checks";
+import { duplicates } from "@/lib/test/content-checks";
+import { isUpload } from "@/lib/shared/uploads";
 
 describe("Stránky skupin (groups.ts)", () => {
   it("links the group pages' files root-relative under /uploads/", () => {
@@ -10,7 +11,7 @@ describe("Stránky skupin (groups.ts)", () => {
       ...(group.photos ?? []).flatMap((p) => [p.small, p.large]),
       ...(group.videos ?? []).map((v) => v.thumbnail),
     ]);
-    expect(files.filter((f) => !UPLOAD.test(f))).toEqual([]);
+    expect(files.filter((f) => !isUpload(f))).toEqual([]);
     expect(duplicates(groupPages.map((g) => g.id))).toEqual([]);
   });
 
