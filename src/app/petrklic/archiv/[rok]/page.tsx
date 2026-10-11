@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ArchivePage, PETRKLIC_YEARS } from "@/components/petrklic/ArchivePage";
-import { archiveYearHref } from "@/lib/petrklic/issues";
 
 // Static export: one page per year link.
 export const dynamicParams = false;
@@ -10,12 +9,13 @@ export function generateStaticParams() {
   return PETRKLIC_YEARS.map((y) => ({ rok: String(y.year) }));
 }
 
+// Not indexed, like /petrklic/archiv/.
 export async function generateMetadata({ params }: PageProps<"/petrklic/archiv/[rok]">): Promise<Metadata> {
   const { rok } = await params;
   return {
     title: `Archiv Petrklíče ${rok}`,
     description: `Čísla farního zpravodaje Petrklíč z roku ${rok} ke čtení a ke stažení ve formátu PDF.`,
-    alternates: { canonical: archiveYearHref(Number(rok)) },
+    robots: { index: false },
   };
 }
 

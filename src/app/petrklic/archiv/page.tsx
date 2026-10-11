@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { ArchivePage } from "@/components/petrklic/ArchivePage";
-import { links } from "@/content/site";
 
+// Not indexed (and left out of the sitemap): the issues are reached from /petrklic/ and the menu.
 export const metadata: Metadata = {
   title: "Archiv Petrklíče",
-  alternates: { canonical: links.petrklicArchive },
+  robots: { index: false },
   description: "Všechna čísla zpravodaje Petrklíč od roku 2006 ke čtení a ke stažení ve formátu PDF.",
 };
 
