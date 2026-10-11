@@ -386,6 +386,16 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
       ).rejects.toThrow("--no-poster is for a new aktualita: pnpm poster-aktualita changes the poster");
     });
 
+    it("with corrected refuses a label that differs from one in the record only in accents", async () => {
+      const [plakat, program] = await files();
+      await stageAktualita(env, { id, files: [plakat], record: recordOf(id) });
+      const before = readdirSync(uploaded("aktuality")).sort();
+      await expect(
+        stageAktualita(env, { id, files: [{ ...program, label: "Plakat" }], corrected: true }),
+      ).rejects.toThrow('must differ from "Plakát" in more than accents, case or punctuation');
+      expect(readdirSync(uploaded("aktuality")).sort()).toEqual(before);
+    });
+
     it("with corrected gives a record without a poster none", async () => {
       const [plakat, program] = await files();
       await stageAktualita(env, { id, files: [program], noPoster: true, record: recordOf(id) });

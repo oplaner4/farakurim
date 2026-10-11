@@ -70,12 +70,22 @@ describe("newsEventSchema", () => {
       "end: must be the last meeting's last day",
     ]);
     expect(problems({ ...series, sessions: ["2026-10-11", "2026-10-25", "2026-10-18"] })).toEqual([
-      "end: must be the last meeting's last day",
       "sessions.2: must follow the previous meeting",
+      "end: must be the last meeting's last day",
     ]);
     expect(
       problems({ ...series, sessions: ["2026-10-11", { date: "2026-10-24", end: "2026-10-25", time: "18.00" }] }),
     ).toEqual(['sessions.1.time: must be "H:MM" or "H:MM–H:MM"']);
+  });
+
+  it("needs attachment labels that differ in more than accents, case or punctuation", () => {
+    const file = (label: string, name: string) => ({ label, file: `/uploads/aktuality/${name}` });
+    expect(problems({ attachments: [file("Plakát", "a.pdf"), file("Program", "b.pdf")] })).toEqual([]);
+    expect(
+      problems({ attachments: [file("Plakát", "a.pdf"), file("Program", "b.pdf"), file("plakat", "c.png")] }),
+    ).toEqual(['attachments.2.label: must differ from "Plakát" in more than accents, case or punctuation']);
+    expect(problems({ attachments: [file("Mapka trasy", "a.png"), file("Mapka trasy", "b.png")] })).toHaveLength(1);
+    expect(problems({ attachments: [file("Mapka trasy", "a.png"), file("Mapka-trasy!", "b.png")] })).toHaveLength(1);
   });
 
   it("checks the tags", () => {

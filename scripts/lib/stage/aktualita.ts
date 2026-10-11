@@ -15,7 +15,7 @@ import { statSync } from "node:fs";
 import { extname } from "node:path";
 import { readEvents } from "@/content/news";
 import type { EventAttachment, NewsEvent } from "@/content/types/news";
-import { fold } from "@/lib/shared/czech";
+import { slug } from "@/lib/shared/slug";
 import { posterHref } from "@/lib/news/events";
 import { revSuffix } from "@/lib/shared/revision";
 import { addAktualita, targetLine } from "../news/add-aktualita";
@@ -43,9 +43,7 @@ const KEBAB = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 /** An attachment label's file name suffix: "Plakát" → "plakat", "Mapka trasy" → "mapka-trasy". */
 export function labelSuffix(label: string): string {
-  const suffix = fold(label)
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
+  const suffix = slug(label);
   if (!suffix) throw new Error(`the label "${label}" has no letters or digits for the file name`);
   return suffix;
 }

@@ -1,5 +1,6 @@
 import * as z from "zod";
 import type { NewsEvent } from "@/content/types/news";
+import { slug } from "@/lib/shared/slug";
 import { eventMeetings } from "./events";
 import { parseClock } from "./ics";
 
@@ -26,6 +27,46 @@ const readableTime = (time: string) => {
   return !!span && times.every((t) => CLOCK.test(t)) && !(span.to && minutes(span.to) <= minutes(span.from));
 };
 
+/** The meetings of a series, each after the one before; checked against start and end with the whole record. */
+const sessionsSchema = z
+  .array(z.union([date, z.strictObject({ date, end: date.optional(), time: z.string().optional() })]))
+  .min(2, "a series has at least two meetings")
+  .superRefine((sessions, ctx) => {
+    const meetings = eventMeetings({ sessions });
+    meetings.forEach((meeting, i) => {
+      if (meeting.end < meeting.start) {
+        ctx.addIssue({ code: "custom", path: [i, "end"], message: "must be after date" });
+      }
+      if (i > 0 && meeting.start <= meetings[i - 1].end) {
+        ctx.addIssue({ code: "custom", path: [i], message: "must follow the previous meeting" });
+      }
+      const own = sessions[i];
+      if (typeof own === "object" && own.time !== undefined && !readableTime(own.time)) {
+        ctx.addIssue({ code: "custom", path: [i, "time"], message: TIME_MESSAGE });
+      }
+    });
+  });
+
+/**
+ * The files of an event. The tools find an attachment by its label, and its file is named after it
+ * (`<id>-<slug of the label>.<ext>`), so two labels must differ in more than accents, case or punctuation ("Plakát"
+ * and "Plakat" would share a file name and a poster).
+ */
+const attachmentsSchema = z
+  .array(z.strictObject({ label: text, file: upload, size: z.int().positive().optional() }))
+  .superRefine((attachments, ctx) => {
+    attachments.forEach((attachment, i) => {
+      const twin = attachments.findIndex((a) => slug(a.label) === slug(attachment.label));
+      if (twin < i) {
+        ctx.addIssue({
+          code: "custom",
+          path: [i, "label"],
+          message: `must differ from "${attachments[twin].label}" in more than accents, case or punctuation`,
+        });
+      }
+    });
+  });
+
 /** A NewsEvent (src/content/types/news.ts); the month files keep its fields in this order. */
 export const newsEventSchema = z
   .strictObject({
@@ -45,10 +86,7 @@ export const newsEventSchema = z
       .optional(),
     price: text.optional(),
     registrationDeadline: date.optional(),
-    sessions: z
-      .array(z.union([date, z.strictObject({ date, end: date.optional(), time: z.string().optional() })]))
-      .min(2, "a series has at least two meetings")
-      .optional(),
+    sessions: sessionsSchema.optional(),
     longTerm: z.union([z.literal(true), z.strictObject({ weeklyAt: clock })]).optional(),
     tags: z
       .array(z.strictObject({ label: text, color: z.enum(["blue", "orange", "magenta", "grey"]).optional() }))
@@ -57,7 +95,7 @@ export const newsEventSchema = z
     archiveHidden: z.boolean().optional(),
     published: date.optional(),
     poster: z.strictObject({ src: upload, alt: text }).optional(),
-    attachments: z.array(z.strictObject({ label: text, file: upload, size: z.int().positive().optional() })).optional(),
+    attachments: attachmentsSchema.optional(),
     links: z
       .array(
         z.strictObject({ label: text, href: z.string().regex(/^(https:\/\/|mailto:)/, "must be https: or mailto:") }),
@@ -84,18 +122,6 @@ export const newsEventSchema = z
       if (meetings.at(-1)?.end !== event.end) {
         ctx.addIssue({ code: "custom", path: ["end"], message: "must be the last meeting's last day" });
       }
-      meetings.forEach((meeting, i) => {
-        if (meeting.end < meeting.start) {
-          ctx.addIssue({ code: "custom", path: ["sessions", i, "end"], message: "must be after date" });
-        }
-        if (i > 0 && meeting.start <= meetings[i - 1].end) {
-          ctx.addIssue({ code: "custom", path: ["sessions", i], message: "must follow the previous meeting" });
-        }
-        const own = event.sessions?.[i];
-        if (typeof own === "object" && own.time !== undefined && !readableTime(own.time)) {
-          ctx.addIssue({ code: "custom", path: ["sessions", i, "time"], message: TIME_MESSAGE });
-        }
-      });
     }
     // An unreadable time ("18.00") makes the event all-day in the .ics file and the JSON-LD.
     if (event.time !== undefined && !readableTime(event.time)) {
