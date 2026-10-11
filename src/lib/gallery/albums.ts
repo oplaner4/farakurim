@@ -9,6 +9,12 @@ import { plural } from "@/lib/shared/czech";
  */
 export const MAX_ALBUMS = 6;
 
+/** The link an album keeps to the parish's album `number` on Zonerama. */
+export const albumHref = (number: string) => `https://www.zonerama.com/FarnostKurim/Album/${number}`;
+
+/** A photo's height at `width`, keeping the aspect ratio of its `w` × `h` size. */
+export const scaledHeight = (width: number, w: number, h: number) => Math.round((width * h) / w);
+
 /** "12 fotografií", "3 fotografie", "1 fotografie" */
 export const photoCountLabel = (count: number) =>
   `${count} ${plural(count, ["fotografie", "fotografie", "fotografií"])}`;
@@ -49,7 +55,7 @@ export function zoneramaSrcSet(url: string): string | undefined {
   const match = ZONERAMA_PHOTO.exec(url);
   if (!match) return undefined;
   const [, base, width, height, suffix] = match;
-  return SRCSET_WIDTHS.map(
-    (w) => `${base}_${w}x${Math.round((w * Number(height)) / Number(width))}${suffix} ${w}w`,
-  ).join(", ");
+  return SRCSET_WIDTHS.map((w) => `${base}_${w}x${scaledHeight(w, Number(width), Number(height))}${suffix} ${w}w`).join(
+    ", ",
+  );
 }

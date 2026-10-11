@@ -11,6 +11,7 @@ import { ohlaskyFileSchema, scheduleExceptionsFileSchema, serviceSheetSchema } f
 import { currentSheet, period, sheetCovering, sheetOrderProblems } from "@/lib/services/service-sheet";
 import { pragueDate } from "@/lib/shared/prague";
 import { parseOrThrow, readJsonFile } from "@/lib/shared/json-file";
+import { actionVerb } from "../command";
 import { newsIds, writeContentFile } from "../content-files";
 
 /** The fields the script takes from the staged PDF, never from the record. */
@@ -99,8 +100,8 @@ export function addOhlasky(
 /** The lines the command prints for `result`. */
 export function ohlaskyLines(result: AddOhlaskyResult, check: boolean): string[] {
   const { sheet, replaced, removed, coveredExceptions, pastExceptions } = result;
-  const verb = replaced ? (check ? "Would replace" : "Replaced") : check ? "Would add" : "Added";
-  const remove = check ? "Would remove" : "Removed";
+  const verb = actionVerb(check, replaced ? "replace" : "add");
+  const remove = actionVerb(check, "remove");
   const exceptionLine = (date: IsoDate, why: string) =>
     `${remove} the later change on ${date} from src/content/schedule-exceptions.json (${why})`;
   return [

@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
   albumAnchor,
+  albumHref,
   photoAlt,
   photoCountLabel,
   photoCounter,
   photoFromHash,
   photoHash,
+  scaledHeight,
   zoneramaSrcSet,
 } from "./albums";
 
@@ -34,6 +36,13 @@ describe("gallery labels", () => {
     expect(photoFromHash(album, "#album-pout-foto-0")).toBeNull();
     expect(photoFromHash(album, "#album-pouti-foto-3")).toBeNull();
     expect(photoFromHash(album, "")).toBeNull();
+  });
+});
+
+describe("albumHref and scaledHeight", () => {
+  it("links the parish's album and scales a photo's height to a width", () => {
+    expect(albumHref("13811797")).toBe("https://www.zonerama.com/FarnostKurim/Album/13811797");
+    expect(scaledHeight(800, 1600, 1067)).toBe(534);
   });
 });
 

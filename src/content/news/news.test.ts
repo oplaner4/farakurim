@@ -4,7 +4,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { duplicates, isSorted } from "@/lib/test/content-checks";
-import { events, monthFiles, readEvents, readMonth } from "./index";
+import { events, monthFile, monthFiles, readEvents, readMonth } from "./index";
 
 const newsDir = dirname(fileURLToPath(import.meta.url));
 
@@ -50,9 +50,8 @@ describe("Aktuality (news/)", () => {
   // news/<year>/<MM>.json: the script adds an event to the file of its start month, in start-date order.
   it.each(monthFiles(newsDir))("keeps news/%s to its month, in start-date order", (file) => {
     const list = readMonth(newsDir, file);
-    const month = file.replace(/\.json$/, "").replace("/", "-");
     expect(list.length).toBeGreaterThan(0);
-    expect(list.filter((e) => !e.start.startsWith(`${month}-`)).map((e) => e.id)).toEqual([]);
+    expect(list.filter((e) => monthFile(e.start) !== file).map((e) => e.id)).toEqual([]);
     expect(isSorted(list, (a, b) => a.start <= b.start)).toBe(true);
   });
 
@@ -92,5 +91,12 @@ describe("readEvents", () => {
     expect(() => readEvents(dir)).toThrow(/2026\/10\.json is not valid:[\s\S]*title/);
     write("2026/10.json", '[{ "id": "x-2026", }]');
     expect(() => readEvents(dir)).toThrow(/2026\/10\.json is not valid JSON/);
+  });
+});
+
+describe("monthFile", () => {
+  it("is the JSON file of the start month", () => {
+    expect(monthFile("2026-10-02")).toBe("2026/10.json");
+    expect(monthFile("2027-01-31")).toBe("2027/01.json");
   });
 });

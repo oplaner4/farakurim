@@ -15,7 +15,7 @@ import { scheduleExceptionSchema } from "@/lib/services/schema";
 import { period, sheetCovering } from "@/lib/services/service-sheet";
 import { parseOrThrow } from "@/lib/shared/json-file";
 import { pragueDate } from "@/lib/shared/prague";
-import { parseCommandLine, readJsonRecord } from "../command";
+import { actionVerb, parseCommandLine, readJsonRecord } from "../command";
 import { EXCEPTIONS_FILE, formatAndTest, OHLASKY_FILE, OHLASKY_TESTS, writeContentFile } from "../content-files";
 import { readOhlasky, readScheduleExceptions } from "./add-ohlasky";
 
@@ -78,8 +78,8 @@ const servicesOf = ({ services }: ScheduleException) =>
 /** The line saying what addException() did (or would do, with `check`). */
 export function exceptionLine({ date, exception, replaced }: AddExceptionResult, check: boolean): string {
   const file = "src/content/schedule-exceptions.json";
-  if (!exception) return `${check ? "Would remove" : "Removed"} the change on ${date} from ${file}`;
-  const verb = replaced ? (check ? "Would replace" : "Replaced") : check ? "Would add" : "Added";
+  if (!exception) return `${actionVerb(check, "remove")} the change on ${date} from ${file}`;
+  const verb = actionVerb(check, replaced ? "replace" : "add");
   const reason = exception.reason ? ` (${exception.reason})` : "";
   return `${verb} the change on ${date}${reason} ${replaced ? "in" : "to"} ${file}: ${servicesOf(exception)}`;
 }

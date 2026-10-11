@@ -7,6 +7,7 @@ import type { PetrklicFile, PetrklicRecord } from "@/content/types/petrklic";
 import { isNewerIssue, issueId, issueLabel } from "@/lib/petrklic/issues";
 import { petrklicFileSchema, petrklicRecordSchema } from "@/lib/petrklic/schema";
 import { parseOrThrow, readJsonFile } from "@/lib/shared/json-file";
+import { actionVerb } from "../command";
 import { writeContentFile } from "../content-files";
 
 /** The issues in `file`, checked by petrklicFileSchema; a broken file throws, naming it. */
@@ -50,7 +51,7 @@ export function addPetrklic(file: string, input: unknown, { check = false, repla
 /** The line the stage command prints for `result`. */
 export function petrklicLines({ record, position, replaced }: AddPetrklicResult, check: boolean): string[] {
   const where = position === 1 ? "the current issue" : "not the current issue: newer issues come first";
-  const verb = replaced ? (check ? "Would replace" : "Replaced") : check ? "Would add" : "Added";
+  const verb = actionVerb(check, replaced ? "replace" : "add");
   const rev = replaced && record.rev ? ` with rev ${record.rev}` : "";
   return [
     `${verb} ${issueLabel(record)}${rev} (${record.pageCount} pages) at position ${position} in src/content/petrklic.json (${where})`,

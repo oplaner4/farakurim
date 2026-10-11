@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { readEvents, readMonth } from "@/content/news";
 import type { NewsEvent } from "@/content/types/news";
-import { addAktualita, insertRecord, monthFile, parseCommand, targetLine } from "./add-aktualita";
+import { addAktualita, insertRecord, parseCommand, targetLine } from "./add-aktualita";
 import { formatFiles, NEWS_DIR } from "../content-files";
 import { useNewsFixture } from "../test-helpers";
 
@@ -28,13 +28,6 @@ const record = (fields: Partial<NewsEvent> = {}): NewsEvent => ({
   place: "Česká",
   text: "Srdečně zveme na tradiční hody.",
   ...fields,
-});
-
-describe("monthFile", () => {
-  it("is the JSON file of the start month", () => {
-    expect(monthFile("2026-10-02")).toBe("2026/10.json");
-    expect(monthFile("2027-01-31")).toBe("2027/01.json");
-  });
 });
 
 describe("insertRecord", () => {

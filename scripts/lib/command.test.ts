@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, type MockInstance, vi } from "vitest";
-import { commandExitCode, errorMessage, parseCommandLine, readJsonRecord } from "./command";
+import { actionVerb, commandExitCode, errorMessage, parseCommandLine, readJsonRecord } from "./command";
 
 describe("errorMessage", () => {
   it("adds the cause, as fetch() reports a network failure", () => {
@@ -87,5 +87,13 @@ describe("readJsonRecord", () => {
     writeFileSync(file, "{ id");
     expect(() => readJsonRecord(file)).toThrow(`${file} is not a JSON file:`);
     expect(() => readJsonRecord(join(dir, "missing.json"))).toThrow("missing.json is not a JSON file:");
+  });
+});
+
+describe("actionVerb", () => {
+  it("says what a check would do, else what was done", () => {
+    expect(actionVerb(true, "add")).toBe("Would add");
+    expect(actionVerb(false, "add")).toBe("Added");
+    expect(actionVerb(false, "unpin")).toBe("Unpinned");
   });
 });

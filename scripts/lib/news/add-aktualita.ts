@@ -12,17 +12,15 @@
 // calls addAktualita(), formatAndTest() and the calendar check itself. A record already there is corrected with
 // `pnpm replace-aktualita` (scripts/lib/news/replace-aktualita.ts).
 
+import { monthFile, readMonths } from "@/content/news";
 import type { NewsEvent } from "@/content/types/news";
 import { newsEventSchema } from "@/lib/news/schema";
 import { parseOrThrow } from "@/lib/shared/json-file";
 import { pragueDate } from "@/lib/shared/prague";
 import { reportCalendar } from "./aktualita-calendar";
-import { parseCommandLine, readJsonRecord } from "../command";
+import { actionVerb, parseCommandLine, readJsonRecord } from "../command";
 import { formatAndTestNews, NEWS_DIR, writeMonth } from "../content-files";
-import { assertPinnable, movePin, readMonths, unpinnedLines, withoutPin } from "./pin-aktualita";
-
-/** The month file inside news/ for a record starting on `start`. */
-export const monthFile = (start: string) => `${start.slice(0, 4)}/${start.slice(5, 7)}.json`;
+import { assertPinnable, movePin, unpinnedLines, withoutPin } from "./pin-aktualita";
 
 /** `list` (in start-date order) with `record` after the last record that starts on or before it. */
 export function insertRecord(list: NewsEvent[], record: NewsEvent): NewsEvent[] {
@@ -65,7 +63,7 @@ export function addAktualita(newsDir: string, input: unknown, { check = false, n
 
 /** The line saying where the record went (or would go) in src/content/news/. */
 export const targetLine = ({ target, created }: { target: string; created: boolean }, check: boolean) =>
-  `${check ? "Would add" : "Added"} the record to src/content/news/${target}${created ? " (new file)" : ""}`;
+  `${actionVerb(check, "add")} the record to src/content/news/${target}${created ? " (new file)" : ""}`;
 
 const USAGE = "Usage: pnpm add-aktualita <record.json | -> [--check]";
 

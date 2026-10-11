@@ -5,9 +5,9 @@
 import { copyFileSync, existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { basename, dirname, join } from "node:path";
-import { UPLOADS_PATH } from "@/lib/shared/uploads";
+import { actionVerb } from "../command";
 import { EXCEPTIONS_FILE, NEWS_DIR, OHLASKY_FILE, PETRKLIC_FILE } from "../content-files";
-import { defaultUploadsEnv, onServer, type UploadsEnv } from "../uploads";
+import { defaultUploadsEnv, onServer, serverUrl, UPLOADS_DIR, type UploadsEnv } from "../uploads";
 
 const MB = 1024 * 1024;
 /** The largest source file each command stages, in MB; the usage and the size error name them. */
@@ -48,8 +48,7 @@ export function sourceFile(path: string, maxMb: number, home: string): string {
 
 /** Refuses a name that is already on the server. */
 async function checkFree(env: StageEnv, rel: string, takenHint: string) {
-  if (await onServer(env, rel))
-    throw new Error(`${env.site}${UPLOADS_PATH}${rel} already exists on the server: ${takenHint}`);
+  if (await onServer(env, rel)) throw new Error(`${serverUrl(env, rel)} already exists on the server: ${takenHint}`);
 }
 
 /**
@@ -78,7 +77,7 @@ export async function stage(
 ) {
   const dest = join(env.uploadsDir, rel);
   if (!replace && existsSync(dest) && !readFileSync(dest).equals(readFileSync(src))) {
-    throw new Error(`uploads/${rel} is already staged with other content`);
+    throw new Error(`${UPLOADS_DIR}${rel} is already staged with other content`);
   }
   await checkFree(env, rel, takenHint);
   if (!check) {
@@ -88,4 +87,5 @@ export async function stage(
   return dest;
 }
 
-export const stagedLine = (check: boolean, what: string) => `${check ? "Would stage" : "Staged"} ${what}`;
+/** The line saying uploads/`rel` was (or, with `check`, would be) staged. */
+export const stagedLine = (check: boolean, rel: string) => `${actionVerb(check, "stage")} ${UPLOADS_DIR}${rel}`;

@@ -56,7 +56,10 @@ export async function stagePetrklic(env: StageEnv, options: PetrklicOptions) {
   }
   return {
     lines: [
-      stagedLine(check, `uploads/${dirname(pdf)}/ (PDF${check ? "" : ", cover.webp, pages/"}), ${pageCount} pages`),
+      stagedLine(
+        check,
+        `${dirname(pdf)}/ (PDF${check ? "" : `, ${issueFiles.cover}, ${issueFiles.pages}/`}), ${pageCount} pages`,
+      ),
       ...petrklicLines(result, check),
     ],
     written: result.written,

@@ -12,15 +12,16 @@
 import { readdirSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { isDeepStrictEqual } from "node:util";
+import { monthFile, readMonths } from "@/content/news";
 import type { NewsEvent } from "@/content/types/news";
 import { newsEventSchema } from "@/lib/news/schema";
 import { parseOrThrow } from "@/lib/shared/json-file";
 import { pragueDate } from "@/lib/shared/prague";
-import { insertRecord, monthFile } from "./add-aktualita";
+import { insertRecord } from "./add-aktualita";
 import { reportCalendar } from "./aktualita-calendar";
-import { parseCommandLine, readJsonRecord } from "../command";
+import { actionVerb, parseCommandLine, readJsonRecord } from "../command";
 import { formatAndTestNews, NEWS_DIR, writeMonth } from "../content-files";
-import { assertPinnable, readMonths, withoutPin } from "./pin-aktualita";
+import { assertPinnable, withoutPin } from "./pin-aktualita";
 
 /** The fields that differ between `before` and `after`, in the order they first appear. */
 export function changedFields(before: NewsEvent, after: NewsEvent): string[] {
@@ -52,7 +53,7 @@ function parseReplacement(input: unknown, previous: NewsEvent, now: Date): NewsE
 }
 
 /** The month files to write: the record's first, then the file `from` it left (without records, it is removed). */
-function monthFiles(
+function changedMonths(
   months: Map<string, NewsEvent[]>,
   { from, list, previous }: { from: string; list: NewsEvent[]; previous: NewsEvent },
   record: NewsEvent,
@@ -96,7 +97,7 @@ export function replaceAktualita(newsDir: string, input: unknown, { check = fals
   const { from, previous } = found;
   const record = parseReplacement(input, previous, now);
   const target = monthFile(record.start);
-  const files = monthFiles(months, found, record);
+  const files = changedMonths(months, found, record);
   const kept = files.filter(([, events]) => events.length > 0).map(([file]) => file);
   const removed = files.filter(([, events]) => events.length === 0).map(([file]) => file);
   if (!check) writeMonthFiles(newsDir, files);
@@ -120,12 +121,12 @@ export function replaceLines(
   const { from, target, created, changed, removed } = result;
   const where =
     from === target
-      ? `${check ? "Would replace" : "Replaced"} the record in src/content/news/${target}`
-      : `${check ? "Would move" : "Moved"} the record from src/content/news/${from} to src/content/news/${target}${created ? " (new file)" : ""}`;
+      ? `${actionVerb(check, "replace")} the record in src/content/news/${target}`
+      : `${actionVerb(check, "move")} the record from src/content/news/${from} to src/content/news/${target}${created ? " (new file)" : ""}`;
   return [
     where,
     changed.length > 0 ? `Changed: ${changed.join(", ")}` : "Nothing changed",
-    ...removed.map((file) => `${check ? "Would remove" : "Removed"} src/content/news/${file} (no record left)`),
+    ...removed.map((file) => `${actionVerb(check, "remove")} src/content/news/${file} (no record left)`),
   ];
 }
 

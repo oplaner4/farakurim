@@ -17,6 +17,12 @@ export interface UploadsEnv {
   fetch: typeof fetch;
 }
 
+/** The repo's folder of the files to upload, as the scripts print it: uploads/<path> is /uploads/<path> on the site. */
+export const UPLOADS_DIR = UPLOADS_PATH.slice(1);
+
+/** The URL of uploads/`rel` on the server. */
+export const serverUrl = (env: Pick<UploadsEnv, "site">, rel: string) => `${env.site}${UPLOADS_PATH}${rel}`;
+
 /** The site's address from scripts/deploy.sh (`SITE=…`). */
 export function siteFromDeployScript(script: string): string {
   const site = /^SITE=(\S+)/m.exec(script)?.[1];
@@ -25,14 +31,14 @@ export function siteFromDeployScript(script: string): string {
 }
 
 export const defaultUploadsEnv = (): UploadsEnv => ({
-  uploadsDir: join(ROOT, "uploads"),
+  uploadsDir: join(ROOT, UPLOADS_DIR),
   site: siteFromDeployScript(readFileSync(join(ROOT, "scripts/deploy.sh"), "utf8")),
   fetch,
 });
 
 /** Whether uploads/`rel` is on the server (a HEAD request); throws when the server cannot tell. */
 export async function onServer(env: UploadsEnv, rel: string): Promise<boolean> {
-  const url = `${env.site}${UPLOADS_PATH}${rel}`;
+  const url = serverUrl(env, rel);
   let status: number;
   try {
     ({ status } = await env.fetch(url, { method: "HEAD", signal: AbortSignal.timeout(15_000) }));

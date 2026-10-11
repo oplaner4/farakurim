@@ -10,15 +10,15 @@
 // change, without rendering or writing.
 
 import { existsSync } from "node:fs";
-import { extname, join } from "node:path";
+import { extname, join, relative } from "node:path";
 import { readEvents } from "@/content/news";
 import type { EventAttachment, NewsEvent } from "@/content/types/news";
 import { isPosterOf, posterOf } from "@/lib/news/events";
 import { IMAGE_EXTENSIONS, UPLOADS_PATH } from "@/lib/shared/uploads";
-import { parseCommandLine } from "../command";
+import { actionVerb, parseCommandLine } from "../command";
 import { formatAndTestNews, NEWS_DIR } from "../content-files";
 import { renderPoster } from "../images";
-import { defaultUploadsEnv, onServer, type UploadsEnv } from "../uploads";
+import { defaultUploadsEnv, onServer, UPLOADS_DIR, type UploadsEnv } from "../uploads";
 import { replaceAktualita, replaceLines } from "./replace-aktualita";
 
 /** The files a poster can be made from: page 1 of a PDF, or the image. */
@@ -98,13 +98,13 @@ export function posterLines(
   uploadsDir: string,
 ): string[] {
   if (result.already) return [`"${label}" is already the poster of ${id}`];
-  const local = (path: string) => `uploads/${path.slice(uploadsDir.length + 1)}`;
+  const local = (path: string) => `${UPLOADS_DIR}${relative(uploadsDir, path)}`;
   const poster =
     label === null
-      ? `${check ? "Would remove" : "Removed"} the poster (its WebP stays on the server)`
+      ? `${actionVerb(check, "remove")} the poster (its WebP stays on the server)`
       : result.render
-        ? `${check ? "Would render" : "Rendered"} ${local(result.render.to)} from ${local(result.render.from)}`
-        : `${check ? "Would link" : "Linked"} the poster of "${label}", already on the server`;
+        ? `${actionVerb(check, "render")} ${local(result.render.to)} from ${local(result.render.from)}`
+        : `${actionVerb(check, "link")} the poster of "${label}", already on the server`;
   return [poster, ...(result.replaced ? replaceLines(result.replaced, check) : [])];
 }
 

@@ -12,12 +12,12 @@
 
 import { decodeHTML } from "entities";
 import type { Album, AlbumPhoto, GalleryFile } from "@/content/types/gallery";
-import { MAX_ALBUMS } from "@/lib/gallery/albums";
+import { albumHref, MAX_ALBUMS, scaledHeight } from "@/lib/gallery/albums";
 import { albumNumber, albumSchema, galleryFileSchema } from "@/lib/gallery/schema";
 import { capitalize } from "@/lib/shared/czech";
 import { slug } from "@/lib/shared/slug";
 import { parseOrThrow, readJsonFile } from "@/lib/shared/json-file";
-import { parseCommandLine } from "../command";
+import { actionVerb, parseCommandLine } from "../command";
 import { formatAndTest, GALLERY_FILE, writeContentFile } from "../content-files";
 
 const MAX_PHOTOS = 15;
@@ -109,7 +109,7 @@ export function selectPhotos(items: ZoneramaItem[]): { ratio: number; group: Zon
 
 /** The photo's URL at `width`, the height scaled to it. */
 export function photoUrl(item: ZoneramaItem, width: number): string {
-  const height = Math.round((width * Number(item.height)) / Number(item.width));
+  const height = scaledHeight(width, Number(item.width), Number(item.height));
   return item.image.replace("{width}", String(width)).replace("{height}", String(height));
 }
 
@@ -154,7 +154,7 @@ export function readAlbumPage(
       id,
       title,
       date,
-      href: `https://www.zonerama.com/FarnostKurim/Album/${number}`,
+      href: albumHref(number),
       photoCount: photos.length,
       photos,
     },
@@ -204,10 +204,10 @@ export function addAlbum(galleryFile: string, input: unknown, { check = false } 
 
 /** The lines the command prints for `result`. */
 export function albumLines({ album, position, removed }: AddAlbumResult, check: boolean): string[] {
-  const added = `${check ? "Would add" : "Added"} ${album.id} (${album.photoCount} photos) at position ${position}`;
+  const added = `${actionVerb(check, "add")} ${album.id} (${album.photoCount} photos) at position ${position}`;
   return [
     `${added} in src/content/gallery.json`,
-    ...removed.map((a) => `${check ? "Would remove" : "Removed"} the old album ${a.id} (${a.date})`),
+    ...removed.map((a) => `${actionVerb(check, "remove")} the old album ${a.id} (${a.date})`),
   ];
 }
 

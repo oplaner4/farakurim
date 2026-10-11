@@ -33,6 +33,22 @@ export function readJsonRecord(file: string): unknown {
   }
 }
 
+/** The past tense of the verbs the scripts print. */
+const DONE = {
+  add: "Added",
+  link: "Linked",
+  move: "Moved",
+  pin: "Pinned",
+  remove: "Removed",
+  render: "Rendered",
+  replace: "Replaced",
+  stage: "Staged",
+  unpin: "Unpinned",
+} as const;
+
+/** The verb that starts a printed line: "Would add" with --check (nothing is written), else "Added". */
+export const actionVerb = (check: boolean, verb: keyof typeof DONE) => (check ? `Would ${verb}` : DONE[verb]);
+
 /**
  * Runs the command `name` on the command line `args`: `parse` reads them (throws for wrong arguments), `run` does the
  * work. Returns the exit code, after printing the failure.

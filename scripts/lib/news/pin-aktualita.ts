@@ -6,17 +6,13 @@
 // Usage: pnpm pin-aktualita <id> | --none [--check]
 // --none unpins every record. --check only validates and prints what would change, without writing.
 
-import { monthFiles, readMonth } from "@/content/news";
+import { readMonths } from "@/content/news";
 import type { IsoDate } from "@/content/types/shared";
 import type { NewsEvent } from "@/content/types/news";
 import { eventEnd } from "@/lib/news/events";
 import { pragueDate } from "@/lib/shared/prague";
-import { parseCommandLine } from "../command";
+import { actionVerb, parseCommandLine } from "../command";
 import { formatAndTestNews, NEWS_DIR, writeMonth } from "../content-files";
-
-/** Every month file under `newsDir` (`<year>/<MM>.json` → its records), in readEvents() order. */
-export const readMonths = (newsDir: string) =>
-  new Map(monthFiles(newsDir).map((file) => [file, readMonth(newsDir, file)]));
 
 /** `event` without the `pinned` key (an unpinned record has none, never `"pinned": false`). */
 export function withoutPin(event: NewsEvent): NewsEvent {
@@ -78,7 +74,7 @@ const named = (e: NewsEvent) => `${e.id} (${e.title})`;
 
 /** The lines naming the records unpinned (or that would be, with `check`). */
 export const unpinnedLines = (unpinned: NewsEvent[], check: boolean) =>
-  unpinned.map((e) => `${check ? "Would unpin" : "Unpinned"} ${named(e)}`);
+  unpinned.map((e) => `${actionVerb(check, "unpin")} ${named(e)}`);
 
 /** The lines saying what pinAktualita() changed (or would change, with `check`). */
 export function pinLines(
@@ -87,7 +83,7 @@ export function pinLines(
 ): string[] {
   if (pinned && alreadyPinned) return [`${named(pinned)} is already the only pinned aktualita`];
   const lines = unpinnedLines(unpinned, check);
-  if (pinned) lines.push(`${check ? "Would pin" : "Pinned"} ${named(pinned)}`);
+  if (pinned) lines.push(`${actionVerb(check, "pin")} ${named(pinned)}`);
   return lines.length > 0 ? lines : ["Nothing is pinned"];
 }
 

@@ -29,8 +29,14 @@ export function monthFiles(dir: string): string[] {
     );
 }
 
+/** The month file of a record starting on `start`: "2026-10-02" → "2026/10.json". */
+export const monthFile = (start: string) => `${start.slice(0, 4)}/${start.slice(5, 7)}.json`;
+
 /** The records of the month file `file` (`<year>/<MM>.json`) under `dir`, checked by the record schema. */
 export const readMonth = (dir: string, file: string): NewsEvent[] => readJsonFile(join(dir, file), monthSchema);
+
+/** Every month file under `dir` (`<year>/<MM>.json` → its records), in readEvents() order. */
+export const readMonths = (dir: string) => new Map(monthFiles(dir).map((file) => [file, readMonth(dir, file)]));
 
 /** Every aktualita under `dir`: newest year first, each year's months in order, each file in its order. */
 export const readEvents = (dir: string): NewsEvent[] => monthFiles(dir).flatMap((file) => readMonth(dir, file));

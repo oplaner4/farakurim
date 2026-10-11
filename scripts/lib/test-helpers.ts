@@ -9,6 +9,7 @@ import { afterEach, beforeEach, vi } from "vitest";
 import type { NewsEvent } from "@/content/types/news";
 import { EXCEPTIONS_FILE, NEWS_DIR, OHLASKY_FILE, PETRKLIC_FILE } from "./content-files";
 import type { StageEnv } from "./stage/core";
+import { UPLOADS_DIR } from "./uploads";
 
 /** Whether poppler's tools are installed; the PDF tests skip without them. */
 export const hasPoppler = !spawnSync("pdfinfo", ["-v"]).error;
@@ -77,7 +78,7 @@ export function useStageFixture() {
     fetchMock.mockReset();
     status(404);
     Object.assign(env, {
-      uploadsDir: join(dir, "uploads"),
+      uploadsDir: join(dir, UPLOADS_DIR),
       newsDir: join(dir, "news"),
       ohlaskyFile: join(dir, "ohlasky.json"),
       exceptionsFile: join(dir, "schedule-exceptions.json"),

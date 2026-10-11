@@ -59,8 +59,11 @@ export function withAttachment(attachments: EventAttachment[], attachment: Event
   return at === -1 ? [...attachments, attachment] : attachments.with(at, attachment);
 }
 
-/** A file checked for staging: its source, label, extension, size and staged name (without the extension). */
-type PlannedFile = { src: string; label: string; ext: string; size: number; name: string };
+/** A file checked for staging: its source, label, extension, size and staged path in uploads/. */
+type PlannedFile = { src: string; label: string; ext: string; size: number; rel: string };
+
+/** The staged path in uploads/ of an aktualita file: "aktuality/hody-2026-plakat-r2.pdf". */
+const aktualitaPath = (name: string, ext: string) => `aktuality/${name}${ext}`;
 
 /**
  * The index in `files` of the file to render the poster from, or -1. A new record takes the first file when it is an
@@ -128,9 +131,9 @@ async function planFiles(
     const base = `${id}-${suffix}`;
     const old = current.find((a) => a.label === label);
     const rev = corrected
-      ? await correctedRev(env, old && fileRev(old.file), (r) => `aktuality/${base}${revSuffix(r)}${ext}`)
+      ? await correctedRev(env, old && fileRev(old.file), (r) => aktualitaPath(`${base}${revSuffix(r)}`, ext))
       : undefined;
-    files.push({ src, label, ext, size: statSync(src).size, name: `${base}${revSuffix(rev)}` });
+    files.push({ src, label, ext, size: statSync(src).size, rel: aktualitaPath(`${base}${revSuffix(rev)}`, ext) });
   }
   return files;
 }
@@ -148,7 +151,7 @@ async function planRecord(
 ) {
   const attachments = files.map((f) => ({
     label: f.label,
-    file: `${UPLOADS_PATH}aktuality/${f.name}${f.ext}`,
+    file: `${UPLOADS_PATH}${f.rel}`,
     size: f.size,
   }));
   let record: Record<string, unknown> = {
@@ -178,13 +181,11 @@ async function stageFiles(
 ): Promise<string[]> {
   // Every name is checked before any file is copied, so a taken second name leaves nothing staged.
   const takenHint = corrected ? "pick another label" : "pick another id";
-  for (const f of files) await stage(env, f.src, `aktuality/${f.name}${f.ext}`, true, takenHint, corrected);
+  for (const f of files) await stage(env, f.src, f.rel, true, takenHint, corrected);
   const lines: string[] = [];
   for (const [i, f] of files.entries()) {
-    if (!check) await stage(env, f.src, `aktuality/${f.name}${f.ext}`, false, takenHint, corrected);
-    lines.push(
-      stagedLine(check, `uploads/aktuality/${f.name}${f.ext}`) + (i === poster ? ` and its ${POSTER_SUFFIX}` : ""),
-    );
+    if (!check) await stage(env, f.src, f.rel, false, takenHint, corrected);
+    lines.push(stagedLine(check, f.rel) + (i === poster ? ` and its ${POSTER_SUFFIX}` : ""));
   }
   return lines;
 }

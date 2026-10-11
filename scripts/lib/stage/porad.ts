@@ -100,7 +100,7 @@ export async function stagePorad(env: StageEnv, options: PoradOptions) {
     if (check) lines.push(...ohlaskyLines(checked, true));
   }
   await stage(env, src, rel, check, correctedHint("this week"), corrected);
-  lines.push(stagedLine(check, `uploads/${rel}`));
+  lines.push(stagedLine(check, rel));
   if (!options.record) return { lines: [...lines, ...weekLines(week)], written: [] };
   if (check) return { lines, written: [] };
   const result = addOhlasky(env, options.record, week);
