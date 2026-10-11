@@ -5,43 +5,29 @@
 import { copyFileSync, existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { basename, dirname, join } from "node:path";
-import { EXCEPTIONS_FILE, NEWS_DIR, OHLASKY_FILE, PETRKLIC_FILE, ROOT } from "../content-files";
-import { errorMessage } from "../command";
+import { EXCEPTIONS_FILE, NEWS_DIR, OHLASKY_FILE, PETRKLIC_FILE } from "../content-files";
+import { defaultUploadsEnv, onServer, type UploadsEnv } from "../uploads";
 
 const MB = 1024 * 1024;
 /** The largest source file each command stages, in MB; the usage and the size error name them. */
 export const MAX_MB = { aktualita: 10, porad: 20, petrklic: 40 };
 
 /** Where a command stages and adds content, and how it asks the server; the tests point it at a temp folder. */
-export interface StageEnv {
-  uploadsDir: string;
+export interface StageEnv extends UploadsEnv {
   newsDir: string;
   ohlaskyFile: string;
   exceptionsFile: string;
   petrklicFile: string;
-  /** The site's address, e.g. https://farakurim.cz. */
-  site: string;
-  /** Asks whether a URL exists (a HEAD request); a stub in the tests. */
-  fetch: typeof fetch;
   /** The home folder whose Downloads/ holds sources given without a folder. */
   home: string;
 }
 
-/** The site's address from scripts/deploy.sh (`SITE=…`), where the server details live. */
-export function siteFromDeployScript(script: string): string {
-  const site = /^SITE=(\S+)/m.exec(script)?.[1];
-  if (!site) throw new Error("no SITE=… in scripts/deploy.sh");
-  return site;
-}
-
 export const defaultEnv = (): StageEnv => ({
-  uploadsDir: join(ROOT, "uploads"),
+  ...defaultUploadsEnv(),
   newsDir: NEWS_DIR,
   ohlaskyFile: OHLASKY_FILE,
   exceptionsFile: EXCEPTIONS_FILE,
   petrklicFile: PETRKLIC_FILE,
-  site: siteFromDeployScript(readFileSync(join(ROOT, "scripts/deploy.sh"), "utf8")),
-  fetch,
   home: homedir(),
 });
 
@@ -63,20 +49,6 @@ export function sourceFile(path: string, maxMb: number, home: string): string {
 async function checkFree(env: StageEnv, rel: string, takenHint: string) {
   if (await onServer(env, rel))
     throw new Error(`${env.site}/uploads/${rel} already exists on the server: ${takenHint}`);
-}
-
-/** Whether uploads/`rel` is on the server (a HEAD request); throws when the server cannot tell. */
-export async function onServer(env: StageEnv, rel: string): Promise<boolean> {
-  const url = `${env.site}/uploads/${rel}`;
-  let status: number;
-  try {
-    ({ status } = await env.fetch(url, { method: "HEAD", signal: AbortSignal.timeout(15_000) }));
-  } catch (error) {
-    throw new Error(`cannot reach ${env.site} (${errorMessage(error)}): cannot tell whether the name is free`);
-  }
-  if (status !== 404 && status >= 400)
-    throw new Error(`${url} answered ${status}: cannot tell whether the name is free`);
-  return status < 400;
 }
 
 /**

@@ -7,8 +7,8 @@ import { hasPoppler, pdfWithText, useStageFixture } from "../test-helpers";
 
 // renderPetrklic renders for real unless a test makes it fail once.
 const render = vi.hoisted(() => ({ fail: false }));
-vi.mock("./images", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("./images")>();
+vi.mock("../images", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../images")>();
   return {
     ...actual,
     renderPetrklic: async (...args: Parameters<typeof actual.renderPetrklic>) => {

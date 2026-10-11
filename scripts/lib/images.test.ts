@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import sharp from "sharp";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { hasPoppler, pdfWithText } from "../test-helpers";
+import { hasPoppler, pdfWithText } from "./test-helpers";
 import { pdfPageCount, POSTER_WIDTH, renderPetrklic, renderPoster, toWebp } from "./images";
 
 let dir: string;

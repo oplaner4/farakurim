@@ -22,7 +22,7 @@ import { addAktualita, targetLine } from "../news/add-aktualita";
 import { replaceAktualita, replaceLines } from "../news/replace-aktualita";
 import { unpinnedLines } from "../news/pin-aktualita";
 import { correctedRev, MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
-import { renderPoster } from "./images";
+import { renderPoster } from "../images";
 
 const EXTENSIONS = new Set([
   ".pdf",

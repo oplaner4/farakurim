@@ -8,7 +8,7 @@ import { addDays, differenceInCalendarDays, format, getISODay } from "date-fns";
 import { sheetPdfFile } from "@/lib/services/service-sheet";
 import { addOhlasky, ohlaskyLines, readOhlasky } from "../services/add-ohlasky";
 import { correctedHint, correctedRev, MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
-import { pdfFirstPageText } from "./images";
+import { pdfFirstPageText } from "../images";
 
 const WEEKDAYS = ["po", "út", "st", "čt", "pá", "so", "ne"];
 

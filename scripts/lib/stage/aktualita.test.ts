@@ -12,7 +12,7 @@ import {
   stageAktualita,
   withAttachment,
 } from "./aktualita";
-import { POSTER_WIDTH } from "./images";
+import { POSTER_WIDTH } from "../images";
 import { pdfWithText, useStageFixture } from "../test-helpers";
 
 describe("labelSuffix", () => {

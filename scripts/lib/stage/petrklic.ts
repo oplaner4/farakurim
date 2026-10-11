@@ -9,7 +9,7 @@ import { dirname, extname, join } from "node:path";
 import { issueFolder, issueId } from "@/lib/petrklic/issues";
 import { addPetrklic, petrklicLines, readPetrklic } from "../petrklic/add-petrklic";
 import { correctedHint, correctedRev, MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
-import { pdfPageCount, renderPetrklic } from "./images";
+import { pdfPageCount, renderPetrklic } from "../images";
 
 export interface PetrklicOptions {
   source: string;
