@@ -26,9 +26,11 @@ The user gives at least a file name; without a folder, look in `~/Downloads/`. T
 pnpm stage porad "<source>" --draft <scratchpad>/record.json
 ```
 
-It prints the week and its days and writes `days` and `announcements` to `record.json`. A table it cannot read (a
-date outside the week, a weekday that does not fit the date, times that do not pair with the services) stops it with
-the week and day: ask the user what the row should say, as the error is in their document. Check the draft against
+It prints the week and its days and writes `days` and `announcements` to `record.json`. The days a two-week table
+leaves out become days without services, printed as "Days without services": tell the user. A table it cannot read (a
+date outside the week, a weekday that does not fit the date, times that do not pair with the services, a table that
+does not start and end on the heading's dates) stops it with the week and day: ask the user what the document should
+say, as the error is in their document. Check the draft against
 step 2 rather than trusting it: the `mass` and `service` flags, the feast's case and the announcement categories are
 guesses, and the announcements need their key dates and times in `<strong>` and their `newsId`. To see the page
 itself, render the staged PDF after step 4, or ask the user.

@@ -116,8 +116,11 @@ function sourceWeek(src: string, options: PoradOptions, dir: string): { pdf: str
   const lines: string[] = [];
   // Written before the conversion, so the draft is there to check even without a converter.
   if (options.draft !== undefined) {
-    writeFileSync(options.draft, `${JSON.stringify(docxSheet.draft(), null, 2)}\n`);
+    const draft = docxSheet.draft();
+    writeFileSync(options.draft, `${JSON.stringify(draft, null, 2)}\n`);
     lines.push(`Wrote the draft record of ${period(week)} to ${options.draft}`);
+    const empty = draft.days.filter((day) => day.rows.length === 0).map((day) => day.date);
+    if (empty.length > 0) lines.push(`Days without services (tell the user): ${empty.join(", ")}`);
   }
   return { pdf: docxWeekPdf(src, week, dir), week, lines };
 }

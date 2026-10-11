@@ -96,8 +96,27 @@ const paragraphText = (p: Element) =>
 /** The paragraphs of a table cell as text, without the empty ones. */
 const cellLines = (tc: Element) => children(tc, "p").map(paragraphText).filter(Boolean);
 
+/** Whether all the text of a table cell is bold: the document marks Sundays and solemnities so. */
+const cellBold = (tc: Element) => {
+  const text = children(tc, "p")
+    .flatMap((p) => segments(p, new Map()))
+    .filter((seg) => seg.text.trim());
+  return text.length > 0 && text.every((seg) => seg.bold);
+};
+
 /** A link's href: an e-mail address as mailto:. */
 const linkHref = (href: string) => (/^[^\s@/:]+@[^\s@/]+\.\w+$/.test(href) ? `mailto:${href}` : href);
+
+// An e-mail address, or a web address with a common domain ("zacnikdejsi.cz", "www.biskupstvi.cz/akce").
+const PLAIN_LINK =
+  /[\w.+-]+@[\w-]+(?:\.[\w-]+)+|(?:https?:\/\/)?(?:[a-z0-9-]+\.)+(?:cz|sk|eu|com|org|net|info)\b(?:\/[^\s<]*[^\s<.,;:!?)])?/gi;
+
+/** The e-mail and web addresses written as plain (escaped) text, as links. */
+const linkPlain = (html: string) =>
+  html.replace(PLAIN_LINK, (text) => {
+    const href = text.includes("@") ? `mailto:${text}` : /^https?:/i.test(text) ? text : `https://${text}`;
+    return `<a href="${escapeAttribute(href)}">${text}</a>`;
+  });
 
 /** The paragraph's segments as HTML: bold as <strong>, italics as <em>, links as <a>, in a <p>. */
 function paragraphHtml(segs: Segment[]) {
@@ -113,7 +132,7 @@ function paragraphHtml(segs: Segment[]) {
   const html = merged
     .map(({ text, bold, italic, href }) => {
       const [, before, inner, after] = /^(\s*)(.*?)(\s*)$/.exec(text)!;
-      let out = escapeUTF8(inner);
+      let out = href ? escapeUTF8(inner) : linkPlain(escapeUTF8(inner));
       if (inner && italic) out = `<em>${out}</em>`;
       if (inner && bold) out = `<strong>${out}</strong>`;
       if (inner && href) out = `<a href="${escapeAttribute(linkHref(href))}">${out}</a>`;
@@ -125,8 +144,8 @@ function paragraphHtml(segs: Segment[]) {
 
 /** A first guess at an announcement's category from its words; `info` when nothing fits. */
 const CATEGORY_HINTS: [AnnouncementCategory, RegExp][] = [
-  ["smireni", /zpovídá|zpověď|svátost smíření/i],
-  ["zmena", /nebude|zrušen|přesouvá|přeložen|místo obvykl/i],
+  ["smireni", /zpovídá|zpově|svátost smíření/i],
+  ["zmena", /nebude|zrušen|přesouvá|přeložen|místo obvykl|změn[ayě] v/i],
   ["podekovani", /děkuj|poděkování/i],
   ["pozvanka", /zve(me)?\b|pozvání|srdečně|přihlá|pouť|koncert/i],
 ];
@@ -145,12 +164,15 @@ const isParishChurch = (place: string) => place in places;
 
 /** A service row: "Mše sv. – za …" split into title and detail, with the guessed mass and service flags. */
 function sheetRow(time: string, place: string, line: string): SheetRow {
-  const dash = /\s+[–—-]\s+/.exec(line);
+  // "Mše sv. – za …", also without the space before the dash ("Mše sv.– za …").
+  const dash = /\s*[–—]\s+|\s+-\s+/.exec(line);
   const title = dash ? line.slice(0, dash.index) : line;
   const detail = dash ? line.slice(dash.index + dash[0].length) : undefined;
-  const mass = isParishChurch(place) && /^mše sv/i.test(title);
-  // A mass-like public service in a parish church counts for the countdown; personal events never do.
-  const service = isParishChurch(place) && !mass && !/^(pohřeb|křest|svatb|oddavky)/i.test(title);
+  // "Mše sv.", "Hodová mše sv.", "Pontifikální mše svatá".
+  const mass = isParishChurch(place) && /(^|\s)mše sv/i.test(title);
+  // A mass-like public service in a parish church counts for the countdown: adoration, prayers, the Easter rites.
+  // Personal events (funerals, weddings), confessions and the Way of the Cross are left to the user.
+  const service = isParishChurch(place) && !mass && /^(adorace|modlit|velikonoční obřady|obřady)/i.test(title);
   return {
     time: time.replace(".", ":").replace(/^0(\d)/, "$1"),
     place,
@@ -162,7 +184,7 @@ function sheetRow(time: string, place: string, line: string): SheetRow {
 }
 
 /** The day a table row starts from its date and feast cells ("11. 10.", "Ne"; "28. NEDĚLE V MEZIDOBÍ"). */
-function tableDay(dateCell: string[], feastCell: string[], dates: IsoDate[], where: string): SheetDay {
+function tableDay(dateCell: string[], feastCell: string[], boldFeast: boolean, dates: IsoDate[], where: string) {
   const m = /^(\d{1,2})\.? ?(\d{1,2})\.?$/.exec(dateCell[0]);
   const date = m && dates.find((d) => Number(d.slice(8)) === Number(m[1]) && Number(d.slice(5, 7)) === Number(m[2]));
   if (!date) throw new Error(`${where}: the day "${dateCell.join(" ")}" is not in the week`);
@@ -174,7 +196,8 @@ function tableDay(dateCell: string[], feastCell: string[], dates: IsoDate[], whe
   return {
     date,
     ...(feast && { feast: feastCase(feast) }),
-    solemnity: pragueWeekday(date) === 0 || feastCase(feast) !== feast || /slavnost/i.test(feast),
+    // Bold in the document; "slavnost Zvěstování Páně" is not always.
+    solemnity: pragueWeekday(date) === 0 || boldFeast || /^slavnost/i.test(feast),
     rows: [],
   };
 }
@@ -191,7 +214,10 @@ function tableRows(placeCell: string[], timeCell: string[], serviceCell: string[
   return times.map((time, i) => sheetRow(time, place, lines[i]));
 }
 
-/** The days of the week's table: one per table row, or more rows of one day in merged cells. */
+/**
+ * The days of the week's table: one per table row, or more rows of one day in merged cells, and the days the table
+ * leaves out without rows.
+ */
 function tableDays(table: Element, week: { validFrom: IsoDate; validTo: IsoDate }): SheetDay[] {
   const where = `the week ${period(week)}`;
   const dates = periodDates(week.validFrom, week.validTo);
@@ -200,13 +226,21 @@ function tableDays(table: Element, week: { validFrom: IsoDate; validTo: IsoDate 
     const cells = children(tr, "tc");
     if (cells.length !== 5) throw new Error(`${where}: a table row with ${cells.length} cells, expected 5`);
     const [dateCell, feastCell, placeCell, timeCell, serviceCell] = cells.map(cellLines);
-    if (dateCell.length > 0) days.push(tableDay(dateCell, feastCell, dates, where));
+    if (dateCell.length > 0) days.push(tableDay(dateCell, feastCell, cellBold(cells[1]), dates, where));
     const day = days.at(-1);
     if (!day) throw new Error(`${where}: the table starts without a date`);
     day.rows.push(...tableRows(placeCell, timeCell, serviceCell, `${where}, ${day.date}`));
   }
+  // A heading with a wrong date ("od 14. 6." over a table from 28. 6.) would publish the sheet over the wrong days.
+  const [first, last] = [days[0]?.date, days.at(-1)?.date];
+  if (first !== week.validFrom || last !== week.validTo) {
+    throw new Error(`${where}: the table runs from ${first} to ${last}, so the heading looks wrong: ask the user`);
+  }
   for (const day of days) day.rows.sort((a, b) => clockMinutes(a.time) - clockMinutes(b.time));
-  return days;
+  // A two-week sheet leaves out the days without services; the sheet lists every day, those with no rows.
+  return dates.map(
+    (date) => days.find((d) => d.date === date) ?? { date, solemnity: pragueWeekday(date) === 0, rows: [] },
+  );
 }
 
 /** The external links of the document by relationship id. */
@@ -231,20 +265,16 @@ function parseXml(xml: string, name: string) {
   }).parseFromString(xml, "text/xml");
 }
 
-/** The weeks of the pořad bohoslužeb DOCX `file`, in the document's order. Throws for a file that is not a DOCX. */
-export function docxWeeks(file: string): DocxWeek[] {
-  let files;
-  try {
-    files = unzipSync(new Uint8Array(readFileSync(file)), { filter: (f) => f.name === DOCUMENT || f.name === RELS });
-  } catch {
-    throw new Error(`${file} is not a Word document (.docx)`);
-  }
-  if (!files[DOCUMENT]) throw new Error(`${file} is not a Word document (.docx)`);
-  const links = documentLinks(files[RELS] && strFromU8(files[RELS]));
-  const body = parseXml(strFromU8(files[DOCUMENT]), DOCUMENT).getElementsByTagNameNS(W, "body").item(0);
-  if (!body) throw new Error(`${file} has no document body`);
+/** A week's heading, its table and its announcements, each the paragraphs up to an empty one. */
+interface BodyWeek {
+  week: { validFrom: IsoDate; validTo: IsoDate };
+  table?: Element;
+  notes: Element[][];
+}
 
-  const weeks: { week: { validFrom: IsoDate; validTo: IsoDate }; table?: Element; notes: Element[] }[] = [];
+/** The weeks of the document body: each heading, the table after it and the paragraphs below the table. */
+function bodyWeeks(body: Node): BodyWeek[] {
+  const weeks: BodyWeek[] = [];
   for (const el of elements(body)) {
     const current = weeks.at(-1);
     if (el.localName === "tbl") {
@@ -254,19 +284,42 @@ export function docxWeeks(file: string): DocxWeek[] {
     if (el.localName !== "p") continue;
     const text = paragraphText(el);
     const week = weekHeading(text);
-    if (week) weeks.push({ week, notes: [] });
-    else if (current?.table && text) current.notes.push(el);
+    // A list's lines follow each other; an empty paragraph ends an announcement.
+    if (week) weeks.push({ week, notes: [[]] });
+    else if (current?.table && text) current.notes.at(-1)!.push(el);
+    else if (current?.table && current.notes.at(-1)!.length > 0) current.notes.push([]);
   }
+  return weeks;
+}
+
+/** The weeks of the pořad bohoslužeb DOCX `file`, in the document's order. Throws for a file that is not a DOCX. */
+export function docxWeeks(file: string): DocxWeek[] {
+  // Read outside the try, so a missing file reports itself, not as a file that is not a DOCX.
+  const data = new Uint8Array(readFileSync(file));
+  let files;
+  try {
+    files = unzipSync(data, { filter: (f) => f.name === DOCUMENT || f.name === RELS });
+  } catch {
+    throw new Error(`${file} is not a Word document (.docx)`);
+  }
+  if (!files[DOCUMENT]) throw new Error(`${file} is not a Word document (.docx)`);
+  const links = documentLinks(files[RELS] && strFromU8(files[RELS]));
+  const body = parseXml(strFromU8(files[DOCUMENT]), DOCUMENT).getElementsByTagNameNS(W, "body").item(0);
+  if (!body) throw new Error(`${file} has no document body`);
+
+  const weeks = bodyWeeks(body);
   return weeks.map(({ week, table, notes }) => ({
     ...week,
     draft: () => {
       if (!table) throw new Error(`the week ${period(week)} has no table`);
       return {
         days: tableDays(table, week),
-        announcements: notes.map((p) => ({
-          category: guessCategory(paragraphText(p)),
-          html: paragraphHtml(segments(p, links)),
-        })),
+        announcements: notes
+          .filter((paragraphs) => paragraphs.length > 0)
+          .map((paragraphs) => ({
+            category: guessCategory(paragraphs.map(paragraphText).join(" ")),
+            html: paragraphs.map((p) => paragraphHtml(segments(p, links))).join(""),
+          })),
       };
     },
   }));

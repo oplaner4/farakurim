@@ -124,7 +124,10 @@ describe("stagePorad", { timeout: 30_000 }, () => {
   const yearDocx = () => {
     const weekBody = (from: string, to: string, intention: string) =>
       wordml.p(`ROZPIS BOHOSLUŽEB V TÝDNU od ${from} do ${to}`) +
-      wordml.table([[[from.slice(0, -5), "Ne"], [], ["Kuřim"], ["8:00"], [`Mše sv. – ${intention}`]]]) +
+      wordml.table([
+        [[from.slice(0, -5), "Ne"], [], ["Kuřim"], ["8:00"], [`Mše sv. – ${intention}`]],
+        [[to.slice(0, -5), "Ne"], [], ["Kuřim"], ["8:00"], ["Mše sv."]],
+      ]) +
       wordml.p("Sbírka je na misie.");
     const pageBreak = '<w:p><w:r><w:br w:type="page"/></w:r></w:p>';
     return download(
@@ -156,8 +159,9 @@ describe("stagePorad", { timeout: 30_000 }, () => {
       const source = yearDocx();
       const draft = join(env.home, "draft.json");
       const { lines } = await stagePorad(env, { source, draft });
-      expect(lines.slice(0, 2)).toEqual([
+      expect(lines.slice(0, 3)).toEqual([
         `Wrote the draft record of 2099-10-04 – 2099-10-11 to ${draft}`,
+        "Days without services (tell the user): 2099-10-05, 2099-10-06, 2099-10-07, 2099-10-08, 2099-10-09, 2099-10-10",
         "Would stage uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf",
       ]);
       const drafted = JSON.parse(readFileSync(draft, "utf8"));

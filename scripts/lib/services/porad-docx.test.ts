@@ -25,7 +25,7 @@ const week = table([
     ["Modlitba sv. růžence a požehnání", "Mše sv. – za Pavla"],
   ],
   [["13. 10.", "Út"], [], ["Tišnov"], ["17:00"], ["Mše sv. – za živé a † farníky"]],
-  [["14. 10.", "St"], [], ["Kuřim"], ["10:00", "15:00"], ["Pohřeb – Jan Novák", "Adorace"]],
+  [["14. 10.", "St"], [], ["Kuřim"], ["10:00", "15:00", "18:00"], ["Pohřeb – Jan Novák", "Adorace", "Hodová mše sv."]],
   [["15. 10.", "Čt"], [], [], ["–"], ["–"]],
   [["16. 10.", "Pá"], [], ["Kuřim"], ["18:00"], ["Mše sv."]],
   [["17. 10.", "So"], [], ["Kuřim"], ["8:00"], ["Mše sv."]],
@@ -97,6 +97,7 @@ describe("docxWeeks", () => {
     expect(days[3].rows).toEqual([
       { time: "10:00", place: "kurim", title: "Pohřeb", detail: "Jan Novák" },
       { time: "15:00", place: "kurim", title: "Adorace", service: true },
+      { time: "18:00", place: "kurim", title: "Hodová mše sv.", mass: true },
     ]);
     expect(days[4].rows).toEqual([]);
     expect(days[7]).toMatchObject({ feast: "Slavnost posvěcení farního kostela", solemnity: true });
@@ -108,6 +109,7 @@ describe("docxWeeks", () => {
         week +
         p("") +
         p("V Kuřimi se zpovídá ve čtvrtek od 17.30 hod.") +
+        p("") +
         p(
           "V pondělí je ",
           run("Adorační ", { bold: true }),
@@ -115,6 +117,11 @@ describe("docxWeeks", () => {
           ". Hrají ",
           run("Dej nám akord", { italic: true }),
           " & spol.",
+        ) +
+        p("") +
+        p("") +
+        p(
+          "Pouť: přihláška na poutnicimkk@seznam.cz, více na zacnikdejsi.cz a www.biskupstvi.cz/akce/pout. Sraz v 17.30.",
         ) +
         p(
           "Přihlášky na ",
@@ -133,10 +140,37 @@ describe("docxWeeks", () => {
         html: "<p>V pondělí je <strong>Adorační den farnosti</strong>. Hrají <em>Dej nám akord</em> &amp; spol.</p>",
       },
       {
+        // Paragraphs without an empty one between them are one announcement.
         category: "pozvanka",
-        html: '<p>Přihlášky na <a href="mailto:syrkova@zus.cz">syrkova@zus.cz</a> a <a href="https://www.farakurim.cz/">web</a>.</p>',
+        html:
+          '<p>Pouť: přihláška na <a href="mailto:poutnicimkk@seznam.cz">poutnicimkk@seznam.cz</a>, více na <a href="https://zacnikdejsi.cz">zacnikdejsi.cz</a> a <a href="https://www.biskupstvi.cz/akce/pout">www.biskupstvi.cz/akce/pout</a>. Sraz v 17.30.</p>' +
+          '<p>Přihlášky na <a href="mailto:syrkova@zus.cz">syrkova@zus.cz</a> a <a href="https://www.farakurim.cz/">web</a>.</p>',
       },
     ]);
+  });
+
+  it("marks bold feasts as solemnities and guesses the flags of other services", () => {
+    const file = docx(
+      heading("ROZPIS BOHOSLUŽEB V TÝDNU od 22. 3. 2026 do 29. 3. 2026") +
+        table([
+          [["22. 3.", "Ne"], [run("5. NEDĚLE POSTNÍ", { bold: true })], ["Kuřim"], ["9:30"], ["Mše sv.– za Lukáše"]],
+          [["24. 3.", "Út"], ["vigilie slavnosti Zvěstování Páně"], ["Kuřim"], ["18:00"], ["Mše sv."]],
+          [["25. 3.", "St"], ["slavnost Zvěstování Páně"], ["Kuřim"], ["18:00"], ["Mše sv."]],
+          [["28. 3.", "So"], [run("sv. Václav", { bold: true })], ["Kuřim"], ["12:00"], ["Svatební obřad"]],
+          [
+            ["29. 3.", "Ne"],
+            [],
+            ["Kuřim"],
+            ["14:00", "16:00", "19:00"],
+            ["Zpovídání", "Křížová cesta", "Modlitební večer s Komunitou Emmanuel"],
+          ],
+        ]),
+    );
+    const { days } = docxWeeks(file)[0].draft();
+    expect(days[0].rows[0]).toMatchObject({ title: "Mše sv.", detail: "za Lukáše", mass: true });
+    expect(days.map((d) => d.solemnity)).toEqual([true, false, false, true, false, false, true, true]);
+    expect(days[6].rows.map((r) => r.service)).toEqual([undefined]);
+    expect(days[7].rows.map((r) => r.service)).toEqual([undefined, undefined, true]);
   });
 
   it("refuses a table it cannot read, naming the week and the day", () => {
@@ -152,11 +186,30 @@ describe("docxWeeks", () => {
       '12. 10. is marked "Út", but 2026-10-12 is "Po"',
     );
     expect(draft([[["12. 10.", "Po"], ["Kuřim"], ["8:00"], ["Mše sv."]]])).toThrow("a table row with 4 cells");
+    expect(draft([[["12. 10.", "Po"], [], ["Kuřim"], ["8:00"], ["Mše sv."]]])).toThrow(
+      "the table runs from 2026-10-12 to 2026-10-12, so the heading looks wrong",
+    );
+  });
+
+  it("adds the days a two-week table leaves out, without services", () => {
+    const file = docx(
+      heading("ROZPIS BOHOSLUŽEB V TÝDNU od 19. 7. 2026 do 2. 8. 2026") +
+        table([
+          [["19. 7.", "Ne"], [], ["Kuřim"], ["8:00"], ["Mše sv."]],
+          [["2. 8.", "Ne"], [], ["Kuřim"], ["8:00"], ["Mše sv."]],
+        ]),
+    );
+    const { days } = docxWeeks(file)[0].draft();
+    expect(days).toHaveLength(15);
+    expect(days[1]).toEqual({ date: "2026-07-20", solemnity: false, rows: [] });
+    expect(days[7]).toEqual({ date: "2026-07-26", solemnity: true, rows: [] });
+    expect(days[14].rows).toHaveLength(1);
   });
 
   it("refuses a file that is not a DOCX", () => {
     const file = join(dir, "porad.docx");
     writeFileSync(file, "%PDF");
     expect(() => docxWeeks(file)).toThrow("is not a Word document (.docx)");
+    expect(() => docxWeeks(join(dir, "chybi.docx"))).toThrow("ENOENT");
   });
 });
