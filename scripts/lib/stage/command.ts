@@ -8,8 +8,8 @@
 //
 // Usage: pnpm stage <command> ... [--check]
 //   aktualita <source> <id> <label> [--title "<title>"] [--poster | --no-poster] [--corrected] [--record <record.json>]
-//       uploads/aktuality/<id>-<label in ASCII>.<ext>, plus .webp (page 1 / scaled image) for an image or PDF
-//       unless --no-poster; prints the `poster` and `attachments` lines. --record adds them to the confirmed
+//       uploads/aktuality/<id>-<label in ASCII>.<ext>, plus <same name>-poster.webp (page 1 / scaled image) for an
+//       image or PDF unless --no-poster; prints the `poster` and `attachments` lines. --record adds them to the confirmed
 //       NewsEvent in the JSON file and adds it to src/content/news/ (scripts/lib/news/add-aktualita.ts; with --check it only
 //       validates the record). A pinned record takes the pin from the record pinned before (named in the output).
 //       --corrected stages a corrected or added file of an aktualita already there and replaces its record (the

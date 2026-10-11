@@ -51,8 +51,8 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
     });
     const size = readFileSync(join(env.home, "Downloads", source)).length;
     expect(lines).toEqual([
-      "Would stage uploads/aktuality/hody-ceska-plakat.jpg and .webp",
-      '"poster": {"src":"/uploads/aktuality/hody-ceska-plakat.webp","alt":"Plakát: Hody v České"},',
+      "Would stage uploads/aktuality/hody-ceska-plakat.jpg and its -poster.webp",
+      '"poster": {"src":"/uploads/aktuality/hody-ceska-plakat-poster.webp","alt":"Plakát: Hody v České"},',
       `"attachments": [{"label":"Plakát","file":"/uploads/aktuality/hody-ceska-plakat.jpg","size":${size}}],`,
     ]);
     expect(written).toEqual([]);
@@ -66,9 +66,12 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
   it("copies the file under its ASCII name and renders the poster", async () => {
     const source = await poster("Plakát.JPEG");
     const { lines } = await stageAktualita(env, { source, id: "hody-ceska", label: "Plakát" });
-    expect(lines[0]).toBe("Staged uploads/aktuality/hody-ceska-plakat.jpg and .webp");
-    expect(readdirSync(uploaded("aktuality")).sort()).toEqual(["hody-ceska-plakat.jpg", "hody-ceska-plakat.webp"]);
-    expect((await sharp(readFileSync(uploaded("aktuality", "hody-ceska-plakat.webp"))).metadata()).width).toBe(
+    expect(lines[0]).toBe("Staged uploads/aktuality/hody-ceska-plakat.jpg and its -poster.webp");
+    expect(readdirSync(uploaded("aktuality")).sort()).toEqual([
+      "hody-ceska-plakat-poster.webp",
+      "hody-ceska-plakat.jpg",
+    ]);
+    expect((await sharp(readFileSync(uploaded("aktuality", "hody-ceska-plakat-poster.webp"))).metadata()).width).toBe(
       POSTER_WIDTH,
     );
 
@@ -80,10 +83,30 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
     );
   });
 
+  it("keeps a WebP source as it is, next to its poster", async () => {
+    const jpg = await poster("plakat.jpg", 2000);
+    const source = download(
+      "Plakát.webp",
+      await sharp(join(env.home, "Downloads", jpg))
+        .webp()
+        .toBuffer(),
+    );
+    const original = readFileSync(join(env.home, "Downloads", source));
+    await stageAktualita(env, { source, id: "hody-ceska", label: "Plakát" });
+    expect(readdirSync(uploaded("aktuality")).sort()).toEqual([
+      "hody-ceska-plakat-poster.webp",
+      "hody-ceska-plakat.webp",
+    ]);
+    expect(readFileSync(uploaded("aktuality", "hody-ceska-plakat.webp"))).toEqual(original);
+    expect((await sharp(readFileSync(uploaded("aktuality", "hody-ceska-plakat-poster.webp"))).metadata()).width).toBe(
+      POSTER_WIDTH,
+    );
+  });
+
   it("takes any label, and renders no poster for audio or video or with poster: false", async () => {
     const source = await poster();
     const { lines } = await stageAktualita(env, { source, id: "a", label: " Mapka trasy ", check: true });
-    expect(lines[0]).toBe("Would stage uploads/aktuality/a-mapka-trasy.jpg and .webp");
+    expect(lines[0]).toBe("Would stage uploads/aktuality/a-mapka-trasy.jpg and its -poster.webp");
     expect(lines.at(-1)).toContain(
       '"attachments": [{"label":"Mapka trasy","file":"/uploads/aktuality/a-mapka-trasy.jpg"',
     );
@@ -138,13 +161,13 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
       record: { ...record, poster: { alt: "Plakát: Hody v České 20. října" } },
     });
     expect(lines).toEqual([
-      "Staged uploads/aktuality/test-hody-2026-plakat.jpg and .webp",
+      "Staged uploads/aktuality/test-hody-2026-plakat.jpg and its -poster.webp",
       "Added the record to src/content/news/2026/10.json",
     ]);
     expect(written).toEqual(["2026/10.json"]);
     const added = readMonth(env.newsDir, "2026/10.json").find((e) => e.id === "test-hody-2026");
     expect(added?.poster).toEqual({
-      src: "/uploads/aktuality/test-hody-2026-plakat.webp",
+      src: "/uploads/aktuality/test-hody-2026-plakat-poster.webp",
       alt: "Plakát: Hody v České 20. října",
     });
     expect(added?.attachments).toEqual([
@@ -166,7 +189,7 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
     expect((await stageAktualita(env, { ...options, check: true })).lines).toEqual([
       "Would add the record to src/content/news/2099/10.json (new file)",
       "Would unpin test-pinned-2098 (Hody v České)",
-      "Would stage uploads/aktuality/test-hody-2099-plakat.jpg and .webp",
+      "Would stage uploads/aktuality/test-hody-2099-plakat.jpg and its -poster.webp",
     ]);
     const { lines, written } = await stageAktualita(env, options);
     expect(lines.slice(1)).toEqual([
@@ -203,7 +226,7 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
   describe("with corrected", () => {
     const staged = {
       ...record,
-      poster: { src: "/uploads/aktuality/test-hody-2026-plakat.webp", alt: "Plakát: Hody 20. října" },
+      poster: { src: "/uploads/aktuality/test-hody-2026-plakat-poster.webp", alt: "Plakát: Hody 20. října" },
     };
     const add = async () => {
       const source = await poster();
@@ -225,7 +248,7 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
       expect((await stageAktualita(env, { ...options, check: true })).lines).toEqual([
         "Would replace the record in src/content/news/2026/10.json",
         "Changed: attachments",
-        "Would stage uploads/aktuality/test-hody-2026-plakat.jpg and .webp",
+        "Would stage uploads/aktuality/test-hody-2026-plakat.jpg and its -poster.webp",
       ]);
       const { lines, written, event } = await stageAktualita(env, options);
       expect(lines.slice(1)).toEqual(["Replaced the record in src/content/news/2026/10.json", "Changed: attachments"]);
@@ -246,12 +269,12 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
       const source = await poster("opraveny.jpg", 900);
       const options = { source, id: "test-hody-2026", label: "Plakát", corrected: true };
       expect((await stageAktualita(env, options)).lines[0]).toBe(
-        "Staged uploads/aktuality/test-hody-2026-plakat-r2.jpg and .webp",
+        "Staged uploads/aktuality/test-hody-2026-plakat-r2.jpg and its -poster.webp",
       );
-      expect(added()?.poster?.src).toBe("/uploads/aktuality/test-hody-2026-plakat-r2.webp");
+      expect(added()?.poster?.src).toBe("/uploads/aktuality/test-hody-2026-plakat-r2-poster.webp");
       fetchMock.mockImplementation(async (url: string) => new Response(null, { status: /-r3/.test(url) ? 404 : 200 }));
       expect((await stageAktualita(env, options)).lines[0]).toBe(
-        "Staged uploads/aktuality/test-hody-2026-plakat-r3.jpg and .webp",
+        "Staged uploads/aktuality/test-hody-2026-plakat-r3.jpg and its -poster.webp",
       );
     });
 

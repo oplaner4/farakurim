@@ -1,6 +1,7 @@
 // `pnpm stage aktualita` (scripts/lib/stage/command.ts): stages an aktualita's file as
-// uploads/aktuality/<id>-<label in ASCII>.<ext> with its poster WebP and, with a record, adds the event with its
-// files to its month file in src/content/news/ (scripts/lib/news/add-aktualita.ts), moving the pin to it when it is pinned.
+// uploads/aktuality/<id>-<label in ASCII>.<ext> with its poster WebP (<id>-<label in ASCII>-poster.webp, so a WebP
+// source keeps its own name) and, with a record, adds the event with its files to its month file in
+// src/content/news/ (scripts/lib/news/add-aktualita.ts), moving the pin to it when it is pinned.
 // --corrected stages a corrected or added file of an aktualita already there (farnost-correct-aktualita skill): it
 // replaces the attachment with the same label (else adds one) and, for a poster, the poster, in the record or in the
 // corrected --record, and replaces the record. Files on the server are never overwritten, so once the file is there
@@ -34,6 +35,8 @@ const EXTENSIONS = new Set([
 ]);
 const POSTER_EXTENSIONS = new Set([".pdf", ".png", ".jpg", ".webp", ".gif"]);
 const KEBAB = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+/** The poster's name after its file's: a WebP source would otherwise be overwritten by its own poster. */
+const POSTER_SUFFIX = "-poster.webp";
 
 /** An attachment label's file name suffix: "Plakát" → "plakat", "Mapka trasy" → "mapka-trasy". */
 export function labelSuffix(label: string): string {
@@ -108,7 +111,7 @@ export async function stageAktualita(
     if (poster) {
       // Keep an alt text the record already has (it may add the date); the src is always the staged WebP.
       const alt = (input.poster as { alt?: string } | undefined)?.alt ?? `${label}: ${title}`;
-      record.poster = { src: `/uploads/aktuality/${file}.webp`, alt };
+      record.poster = { src: `/uploads/aktuality/${file}${POSTER_SUFFIX}`, alt };
     }
     const attachment = { label, file: `/uploads/aktuality/${file}${ext}`, size };
     record.attachments = corrected
@@ -125,12 +128,13 @@ export async function stageAktualita(
   }
   const takenHint = corrected ? "pick another label" : "pick another id";
   const dest = await stage(env, src, `aktuality/${file}${ext}`, check, takenHint, corrected);
-  if (poster && !check) await renderPoster(dest, dest.slice(0, -ext.length) + ".webp");
-  lines.push(stagedLine(check, `uploads/aktuality/${file}${ext}`) + (poster ? " and .webp" : ""));
+  if (poster && !check) await renderPoster(dest, dest.slice(0, -ext.length) + POSTER_SUFFIX);
+  lines.push(stagedLine(check, `uploads/aktuality/${file}${ext}`) + (poster ? ` and its ${POSTER_SUFFIX}` : ""));
   if (!record) {
     // The entries to paste into an existing record's month file (news/<year>/<MM>.json).
     const path = `/uploads/aktuality/${file}`;
-    if (poster) lines.push(`"poster": ${JSON.stringify({ src: `${path}.webp`, alt: `${label}: ${title}` })},`);
+    if (poster)
+      lines.push(`"poster": ${JSON.stringify({ src: `${path}${POSTER_SUFFIX}`, alt: `${label}: ${title}` })},`);
     lines.push(`"attachments": ${JSON.stringify([{ label, file: `${path}${ext}`, size }])},`);
     return { lines, written: [] };
   }
