@@ -178,6 +178,9 @@ describe("docxWeeks", () => {
       heading("ROZPIS BOHOSLUŽEB V TÝDNU od 29. 3. 2026 do 5. 4. 2026") +
         table([
           [["29. 3.", "Ne"], ["SLAVNOST MATKY BOŽÍ PANNY MARIE"], ["Kuřim"], ["19:00"], ["Novéna k Duchu svatému"]],
+          [["30. 3.", "Po"], ["UVEDENÍ PÁNĚ DO CHRÁMU", "Hromnice"], ["Kuřim"], ["8:00"], ["Mše sv."]],
+          [["1. 4.", "St"], ["SLAVNOST SV. PETRA", "A PAVLA"], ["Kuřim"], ["8:00"], ["Mše sv."]],
+          [["2. 4.", "Čt"], ["SLAVNOST VŠECH SVATÝCH"], ["Kuřim"], ["8:00"], ["Mše sv."]],
           [["3. 4.", "Pá"], ["SVÁTEK SVATÉ RODINY"], ["Kuřim"], ["18:00"], ["Velkopáteční obřady"]],
           [["5. 4.", "Ne"], ["2. NEDĚLE PO NAROZENÍ PÁNĚ"], ["Kuřim"], ["8:00"], ["Mše sv."]],
         ]),
@@ -185,6 +188,9 @@ describe("docxWeeks", () => {
     const { days } = (await docxWeeks(file))[0].draft();
     expect(days.map((d) => d.feast).filter(Boolean)).toEqual([
       "Slavnost Matky Boží Panny Marie",
+      "Uvedení Páně do chrámu Hromnice",
+      "Slavnost sv. Petra a Pavla",
+      "Slavnost Všech svatých",
       "Svátek Svaté rodiny",
       "2. neděle po Narození Páně",
     ]);

@@ -77,12 +77,17 @@ async function docxWeek(src: string, options: PoradOptions): Promise<DocxWeek> {
  */
 function docxWeekPdf(src: string, week: Week, dir: string) {
   const converted = docxToPdf(src, join(dir, "converted"));
-  const pages = pdfPageTexts(converted).map(weekHeading);
-  const first = pages.findIndex((heading) => heading?.validFrom === week.validFrom);
+  const texts = pdfPageTexts(converted);
+  const pages = texts.map(weekHeading);
+  // Both dates: a typo can give two headings the same first day.
+  const first = pages.findIndex((h) => h?.validFrom === week.validFrom && h.validTo === week.validTo);
   if (first < 0) throw new Error(`no page of the converted DOCX has the heading of ${period(week)}`);
   const next = pages.findIndex((heading, i) => i > first && heading);
+  let last = next < 0 ? pages.length : next;
+  // The empty paragraphs at the end of the document can fill a blank last page.
+  while (last > first + 1 && !texts[last - 1].trim()) last--;
   const pdf = join(dir, "week.pdf");
-  extractPdfPages(converted, [first + 1, next < 0 ? pages.length : next], pdf);
+  extractPdfPages(converted, [first + 1, last], pdf);
   return pdf;
 }
 

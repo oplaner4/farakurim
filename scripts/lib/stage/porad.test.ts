@@ -120,7 +120,10 @@ describe("stagePorad", { timeout: 30_000 }, () => {
     expect(readFileSync(env.ohlaskyFile, "utf8")).toBe(before);
   });
 
-  /** The parish's DOCX with the weeks of 2099-10-04 (newest, first) and 2099-09-27, each on its own page. */
+  /**
+   * The parish's DOCX with the weeks of 2099-10-04 (newest, first) and 2099-09-27, each on its own page, and the
+   * blank page its empty paragraphs at the end can fill.
+   */
   const yearDocx = () => {
     const weekBody = (from: string, to: string, intention: string) =>
       wordml.p(`ROZPIS BOHOSLUŽEB V TÝDNU od ${from} do ${to}`) +
@@ -135,7 +138,9 @@ describe("stagePorad", { timeout: 30_000 }, () => {
       docxWithBody(
         weekBody("4. 10. 2099", "11. 10. 2099", "za farníky") +
           pageBreak +
-          weekBody("27. 9. 2099", "4. 10. 2099", "za rodinu"),
+          weekBody("27. 9. 2099", "4. 10. 2099", "za rodinu") +
+          pageBreak +
+          wordml.p(""),
       ),
     );
   };
@@ -181,6 +186,14 @@ describe("stagePorad", { timeout: 30_000 }, () => {
       expect(pages).toHaveLength(1);
       expect(pages[0]).toContain("za farníky");
       expect(pages[0]).not.toContain("za rodinu");
+
+      // The last week of the document: its page, without the blank one after it.
+      const older = { source, validFrom: "2099-09-27", validTo: "2099-10-04", check: true };
+      await stagePorad(env, { ...older, draft: join(env.home, "older.json") });
+      const olderDays = weekDays("2099-09-27", "2099-10-04").map((d) => ({ date: d.slice(3), rows: [] }));
+      await stagePorad(env, { ...older, check: false, record: { ...record(), days: olderDays } });
+      const olderPages = pdfPageTexts(uploaded("porady_bohosluzeb", "2099-09-27-porad-bohosluzeb.pdf"));
+      expect(olderPages.map((page) => page.replace(/\s+/g, " "))).toEqual([expect.stringContaining("za rodinu")]);
     },
   );
 });

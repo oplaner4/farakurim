@@ -111,19 +111,33 @@ const CATEGORY_HINTS: [AnnouncementCategory, RegExp][] = [
 const guessCategory = (text: string) => CATEGORY_HINTS.find(([, hint]) => hint.test(text))?.[0] ?? "info";
 
 // The names a feast keeps capitalised ("Panny Marie", "Ježíše Krista Krále", "Svaté rodiny"), and those that also
-// capitalise the word before them, the mystery they name ("Narození Páně", "Matky Boží", "Seslání Ducha svatého").
-const FEAST_NAMES = /^(páně|boží|božího|ducha|ježíše|krista|krále|panny|marie|svaté)$/;
-const FEAST_MYSTERY_OF = /^(páně|boží|ducha)$/;
+// capitalise the word before them ("Narození Páně", "Matky Boží", "Seslání Ducha svatého", "Všech svatých").
+const FEAST_NAMES = /^(páně|boží|božího|ducha|ježíše|krista|krále|panny|marie|svaté|těla)$/;
+const FEAST_MYSTERY_OF = /^(páně|boží|ducha|svatých)$/;
 
-/** "1. NEDĚLE ADVENTNÍ" in sentence case ("1. neděle adventní"); a feast not in capitals stays as it is. */
-function feastCase(feast: string) {
-  if (feast !== feast.toLocaleUpperCase("cs") || !/\p{Lu}/u.test(feast)) return feast;
-  const words = feast.toLocaleLowerCase("cs").split(" ");
+/**
+ * The feast cell's lines in sentence case and joined: "1. NEDĚLE ADVENTNÍ" → "1. neděle adventní", "UVEDENÍ PÁNĚ DO
+ * CHRÁMU" + "Hromnice" → "Uvedení Páně do chrámu Hromnice". A line not in capitals stays as it is.
+ */
+function feastCase(lines: string[]) {
   const capital = (word: string) => word.replace(/^\p{L}/u, (letter) => letter.toLocaleUpperCase("cs"));
+  const words = lines.flatMap((line) => {
+    const upper = line === line.toLocaleUpperCase("cs") && /\p{Lu}/u.test(line);
+    return line.split(" ").map((word) => ({ word: upper ? word.toLocaleLowerCase("cs") : word, upper }));
+  });
+  // A saint's name follows "sv.", and a second one "a" ("sv. Petra a Pavla"), also on the next line.
+  const saints = new Set<number>();
   return words
-    .map((word, i) =>
-      i === 0 || FEAST_NAMES.test(word) || FEAST_MYSTERY_OF.test(words[i + 1] ?? "") ? capital(word) : word,
-    )
+    .map(({ word, upper }, i) => {
+      const before = words[i - 1]?.word.toLocaleLowerCase("cs");
+      if (before === "sv." || (before === "a" && saints.has(i - 2))) saints.add(i);
+      const named =
+        i === 0 ||
+        saints.has(i) ||
+        FEAST_NAMES.test(word) ||
+        FEAST_MYSTERY_OF.test(words[i + 1]?.word.toLocaleLowerCase("cs") ?? "");
+      return upper && named ? capital(word) : word;
+    })
     .join(" ");
 }
 
@@ -165,7 +179,7 @@ function tableDay(dateCell: string[], feastCell: string[], boldFeast: boolean, d
   const feast = feastCell.join(" ");
   return {
     date,
-    ...(feast && { feast: feastCase(feast) }),
+    ...(feast && { feast: feastCase(feastCell) }),
     // Bold in the document; "slavnost Zvěstování Páně" is not always.
     solemnity: pragueWeekday(date) === 0 || boldFeast || /^slavnost/i.test(feast),
     rows: [],
