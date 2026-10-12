@@ -1,6 +1,6 @@
 ---
 name: farnost-correct-aktualita
-description: Correct an aktualita (event) already on the new farakurim.cz site - fix its text, date, time, place, programme or links through a corrected record with pnpm replace-aktualita, or stage a corrected or added poster or attachment with --corrected, or make another attachment its poster (or remove it) with pnpm poster-aktualita, then publish. Use whenever the user says an aktualita is wrong or has changed (moved, new time or place), brings a corrected plakát or pozvánka, wants to add a file to an event already there, or says its poster is the wrong file or should go. A new aktualita is added with farnost-create-aktualita, the pin is moved with farnost-pin-aktualita.
+description: Correct an aktualita (event) already on the new farakurim.cz site - fix its text, date, time, place, programme or links through a corrected record with pnpm replace-aktualita, or stage a corrected or added poster or attachment with --corrected, or make another attachment its poster (or remove it) with pnpm poster-aktualita, then publish. Use whenever the user says an aktualita is wrong or has changed (moved, new time or place), is cancelled or postponed ("ruší se", "přesouvá se"), or a meeting of a series is dropped ("odpadá"), brings a corrected plakát or pozvánka, wants to add a file to an event already there, or says its poster is the wrong file or should go. A new aktualita is added with farnost-create-aktualita, the pin is moved with farnost-pin-aktualita.
 ---
 
 # Correct an aktualita
@@ -23,9 +23,29 @@ Copy the record whole into `record.json` in the session's scratchpad (never in t
 
 - a corrected poster or invitation: read it as **`farnost-create-aktualita`** step 1 reads a source, compare it
   with the record and take over every difference;
-- a correction the user describes: change those fields.
+- a correction the user describes: change those fields;
+- a cancellation, a postponement or a dropped meeting: below.
 
 The fields follow **`farnost-create-aktualita`** step 2.
+
+### Cancelled, postponed or a dropped meeting
+
+The record stays, as people may have saved, shared or imported it (design/DESIGN.md §11.9). Keep its title, `text`
+and `tags` as they are (no "(zrušeno)", no "Zrušeno" tag): the site shows the status itself, on the cards, the detail
+page, the calendars and in the `.ics`.
+
+- **"Zrušeno"**: add `"change": { "status": "cancelled", "announced": "<today>", "note": "<reason>" }`.
+- **"Přesunuto"**: set `start`, `end` and `time` to the new date and add
+  `"change": { "status": "moved", "previousStart": "<old start>", "announced": "<today>", "note": "<reason>" }`.
+- **A dropped "setkání"** of a series: add `"cancelledMeetings": { "dates": ["<the meeting's date>"] }`, with an
+  optional `note`; the series stays as it is.
+
+- `announced` is today's Prague date ("Oznámeno 12. 10. 2026" on the detail page); `note` is one sentence in Czech
+  from the source, word for word. A move's `note` follows "Přesunuto ze soboty 17. 10." on the card, so it starts
+  in lower case: `"kvůli předpovědi počasí."`. Add `previousTime` when the time changed too.
+- A moved event's new start must stay in the year of its `id` (step 1).
+- A pinned event cannot be cancelled: unpin it first with **`farnost-pin-aktualita`** (`--none`), or pin another
+  event there.
 
 ## 3. Check
 
@@ -69,7 +89,9 @@ Wait for the user's yes or corrections to these before replacing or staging anyt
 Run the step 3 command without `--check`. Show the Události calendar lines it prints unless they say `linked`.
 After a change of date, time, title or place, ask the user to change the event in the Události calendar too: after
 a new date the check reports it `missing` and writes an `.ics`, but importing it would add a second event, so the
-existing one is moved instead.
+existing one is moved instead. A cancelled event is not deleted there either: ask the user to put "Zrušeno: " in
+front of its title, which the website shows as cancelled (§16.4); a dropped meeting gets the same prefix on that
+meeting only.
 
 ## 6. Publish
 
@@ -86,3 +108,6 @@ Follow **`farnost-publish-content`**.
 - Removing or reordering attachments with the stage command: change `attachments` in `record.json` and run
   `pnpm replace-aktualita`.
 - Importing the `.ics` after a date change instead of moving the Události event.
+- Deleting a cancelled aktualita, or marking it with a "Zrušeno" tag or "(zrušeno)" in the title instead of
+  `change`.
+- Deleting a cancelled event from the Události calendar instead of adding "Zrušeno: " to its title.
