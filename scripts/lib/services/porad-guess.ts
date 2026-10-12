@@ -10,10 +10,10 @@ import type { AnnouncementCategory, SheetRow } from "@/content/types/services";
 export function serviceFlags(title: string, line: string): Pick<SheetRow, "mass" | "service"> {
   // "Mše sv.", "Hodová mše sv.", "Pontifikální mše svatá", a funeral mass too.
   const mass = /(^|\s)mše sv/i.test(title);
-  // A mass-like public service: adoration, prayers, novenas and devotions ("Májová pobožnost"), any "bohoslužba", the
-  // Easter rites ("Velkopáteční obřady").
+  // A mass-like public service: adoration, prayers, novenas ("Prvopáteční adorace", "Svatodušní novéna") and devotions
+  // ("Májová pobožnost"), any "bohoslužba", the Easter rites ("Velkopáteční obřady").
   // Personal events (funerals, weddings), confessions and the Way of the Cross are left to the user.
-  const service = !mass && (/^(adorace|modlit|novéna)|obřady/i.test(title) || /bohoslužb|pobožnost/i.test(line));
+  const service = !mass && (/(^|\s)(adorace|modlit|novéna)|obřady/i.test(title) || /bohoslužb|pobožnost/i.test(line));
   return { ...(mass && { mass }), ...(service && { service }) };
 }
 
