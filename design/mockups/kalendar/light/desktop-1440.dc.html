@@ -199,7 +199,7 @@ class Component extends DCLogic {
     if (inR(D(2026, 10, 9), D(2026, 10, 10))) A('celý den', 'Setkání lektorů Božího slova', 'Tišnov');
     if (wd === 4 && inR(D(2026, 10, 1), D(2027, 4, 29))) A('18:30', 'Obnova v Duchu svatém', 'Brno, Lidická');
     if (wd === 0 && inR(D(2026, 10, 11), D(2026, 11, 22))) A('18:00', 'Manželské večery', 'Tišnov');
-    if (key === '2026-10-18') { L = L.filter((i) => !(i.cat === 'mse' && i.t === '9:30')); A('9:30', 'Slavnostní mše k jubileu 800 let', K, '/aktuality/slavnostni-mse-k-jubileu-800-let'); }
+    if (key === '2026-10-18') { L = L.filter((i) => !(i.cat === 'mse' && i.t === '9:30')); A('9:30', 'Slavnostní mše k jubileu 800 let', K, '/aktuality/123'); }
     if (key === '2026-10-25') { L = L.filter((i) => !(i.cat === 'mse' && i.t === '9:30')); A('9:30', 'Hubertská mše', K); }
     if (key === '2026-12-19') A('celý den', 'Farní pouť do Lukova a Třebíče', 'Lukov a Třebíč');
     const mins = (t) => { const p = t.split(':'); return p.length === 2 ? (+p[0]) * 60 + (+p[1]) : -1; };

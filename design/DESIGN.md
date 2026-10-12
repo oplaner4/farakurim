@@ -20,6 +20,7 @@ Every page has a **light and a dark theme**.
 | `mockups/aktuality/dark/` | Aktuality page in the dark theme |
 | `mockups/archiv/{light,dark}/` | Archiv aktualit (section 12) |
 | `mockups/detail/{light,dark}/` | Detail akce, example: the jubilee mass (section 13) |
+| `mockups/detail-zrusena/{light,dark}/` | Detail of a cancelled event (13.7) |
 | `mockups/porad-bohosluzeb/{light,dark}/` | Pořad bohoslužeb (section 14) |
 | `mockups/kontakty/{light,dark}/` | Kontakty (section 15) |
 | `mockups/kalendar/{light,dark}/` | Kalendář (section 16) |
@@ -45,8 +46,8 @@ carousel, Aktuality filters). Do **not** copy their structure: they use inline
 styles everywhere and are separate files per size and theme. Production should be
 **one template per page + one shared stylesheet**, with header and footer as
 shared partials. Internal links in the mockups already use the real routes
-(`/`, `/aktuality/`, `/aktuality/archiv`, and `/aktuality/slavnostni-mse-k-jubileu-800-let`
-as an example detail URL, `/porad_bohosluzeb`, `/kontakty`, `/kalendar`, `/petrklic/aktualni`, `/petrklic/archiv`, `/fotogalerie`); the theme toggle's `href="#"` stands for the JS toggle.
+(`/`, `/aktuality/`, `/aktuality/archiv`, the detail page `/aktuality/<id>`
+(the mockups use `/aktuality/123` as the example), `/porad_bohosluzeb`, `/kontakty`, `/kalendar`, `/petrklic/aktualni`, `/petrklic/archiv`, `/fotogalerie`); the theme toggle's `href="#"` stands for the JS toggle.
 
 ---
 
@@ -463,7 +464,7 @@ was posted.
   - `now` "Právě probíhá": magenta / white
   - `deadline` "Přihlášky do 10. 10.": orange tint / `#8A4B00` (dark: `--orange-tint` / `#FFC266`)
   - `info` "300 Kč", "7 setkání", "Každý týden": blue tint / blue ink
-  - **free tags** (entered by the editor, e.g. "Zrušeno"), each in its own colour:
+  - **free tags** (entered by the editor, e.g. "Pro rodiny"; a cancelled or postponed event is **not** a free tag but the event's status, 11.9), each in its own colour:
     - blue (default): blue tint / blue ink
     - orange: orange tint / `#8A4B00` (dark: `--orange-tint` / `#FFC266`)
     - magenta: magenta tint / magenta ink (the colours of the date block)
@@ -501,6 +502,10 @@ to the first new card. Hide the button on the last page.
 | tags | price, registration deadline (date), the series' meetings (dates, each with an optional own time or end day; their count is the "N setkání" tag), free tags (label and colour: blue, orange, magenta or grey) |
 | long-term | set by the editor, never derived: either "every week on the start's weekday at a time" (a weekly series with no end date list, shown with the "Každý týden" tag and the weekday and time in the date block) or "other long-running event" (e.g. an exhibition, shown with a month range "III–XI"). A series of meetings with listed dates is **not** long-term: it is a normal event shown by its first meeting. |
 | pinned | boolean; at most one pinned event is shown in "Doporučujeme" |
+| status | `aktivní` (default), `zrušeno` or `přesunuto` (11.9) |
+| status note | optional one sentence for the reader ("Akce se ruší z důvodu nemoci přednášejícího.") |
+| original date | for `přesunuto`: the date before the move; start/end hold the new date |
+| cancelled meetings | for a series: the dates of meetings that don't take place, with an optional note |
 
 "Právě probíhá" and "Proběhlo" are **computed** from start/end and today, never stored.
 
@@ -515,6 +520,47 @@ Same mapping as section 10. The new pieces map as follows:
 - chips: inactive `--surface` with `--line` border, active magenta with white text.
 
 The mockups in `mockups/aktuality/dark/` show the result.
+
+### 11.9 Cancelled and postponed events
+
+Cancellation is a **status** of the event (11.7), not a free tag, so the whole site
+can react to it. Never delete a cancelled event: people may have saved it, shared it
+or added it to their calendar. The mockups show one example of each state in October
+("Přednáška o Turínském plátně" zrušeno, "Drakiáda na farní zahradě" přesunuto, and
+one dropped meeting of "Manželské večery").
+
+**Status note line.** A new line under the date/place meta, before the text:
+info-circle icon (16–17 px) + **bold label** + the note, 15 / 16 / 17 px:
+
+| State | Label | Colour (light / dark) |
+|---|---|---|
+| zrušeno | "Zrušeno:" + status note | magenta-ink `#B0083F` / `#FF7AA6` |
+| přesunuto | "Přesunuto" + "ze soboty 17. 10. kvůli předpovědi počasí." (original date, then the note) | `#8A4B00` / `#FFC266` |
+| a series meeting dropped | "Změna:" + "setkání 18. 10. odpadá, ostatní termíny platí." | `#8A4B00` / `#FFC266` |
+
+**Zrušeno – card:**
+- stays in its month group (11.4) until its original end date, then moves to the archive;
+- tags: only **"Zrušeno"**, a solid pill in ink with white text (dark: `--ink` fill with `#111923` text). Price, deadline, "N setkání" and free tags are hidden;
+- date block: `--surface` fill with `--ink-2` text, the day **struck through** (`text-decoration: line-through`);
+- the date line is struck through too; the title is **not** (it must stay readable);
+- poster thumbnail: `filter: grayscale(1)`; attachments stay;
+- full opacity (unlike "Proběhlo"): the information is still current;
+- the card links to the detail page as usual (13.7).
+
+**Přesunuto – card:** the event is shown at its **new** date (start/end hold the new
+date, so it sorts and groups by it), with an orange "Přesunuto" tag (orange tint /
+`#8A4B00`) as the first tag and the note line above. Everything else is a normal card.
+
+**A dropped meeting in a series:** the card stays normal; only the "Změna:" note line
+is added. The calendar (16) leaves out that meeting's entry or shows it as cancelled.
+
+**Elsewhere on the site:**
+- Homepage Aktuality (4.4): the same rules; a cancelled event keeps its place until its date, with the "Zrušeno" tag and the grey struck date block.
+- "Tento týden" (4.3a) and the Kalendář (16): the event stays in its day, its title struck through and prefixed with a small "zrušeno" label in ink-2; it never counts towards "+N další". A postponed event appears only on its new date.
+- Archiv (12): a cancelled event shows "Zrušeno" (grey surface chip) next to its title instead of nothing.
+- `.ics` (13.2): the same `UID`, with `STATUS:CANCELLED` and a higher `SEQUENCE`, so calendar apps that imported the event mark it as cancelled. For přesunuto, the same `UID` with the new date.
+- Google Calendar (Události): don't delete the event; prefix its title with "Zrušeno: ". The website treats that prefix as the cancelled status (16.4).
+- Screen readers don't announce strike-through, so the "Zrušeno" tag and the note line must always be present as text.
 
 ## 12. Archiv aktualit (`/aktuality/archiv`)
 
@@ -621,6 +667,24 @@ Show the relative-time label from the start and end dates. After the event ends,
 ### 13.6 Dark theme
 
 The same mapping as sections 10 and 11.8. The green highlight tint `#E8F6EE` maps to `--green-tint` (`#163A2A`).
+
+### 13.7 Cancelled or postponed event
+
+Mockups: `mockups/detail-zrusena/` (example: "Přednáška o Turínském plátně", route `/aktuality/124`).
+The page stays at the same URL.
+
+- **Labels:** only the "Zrušeno" pill (ink fill, white text; dark: `--ink` / `#111923`). "Doporučujeme" and the relative-time label are hidden.
+- **Banner** directly under the lead, `role="status"`: magenta-tint fill, 6 px magenta left border, radius 20, padding 16×18 / 18×22 / 20×24.
+  - Calendar-with-cross icon in magenta-ink (22 / 24 / 26 px).
+  - Title **"Akce byla zrušena"** in magenta-ink, 19 / 21 / 22 px bold.
+  - The status note (17–18 px), e.g. "Přednáška se ruší z důvodu nemoci přednášejícího. Náhradní termín oznámíme v aktualitách."
+  - "Oznámeno 12. 10. 2026" (15 px, muted): the date the status was set.
+  - Dark: `--magenta-tint` fill, `#FF7AA6` title.
+- **"Kdy a kde" panel:** `--surface` fill instead of the magenta tint, no corner triangles, icons in ink-2. The date and time are **struck through**. "Přidat do kalendáře" is **hidden**; "Sdílet" stays (people may need to pass the news on).
+- **Poster:** shown in greyscale; the lightbox and the download link stay.
+- **Program and highlight tiles** are left out in the example; the editor removes them or they can stay as they were.
+- **Postponed (přesunuto):** the same banner in orange: orange-tint fill, 6 px orange left border, title "Akce je přesunuta" in `#8A4B00` (dark `#FFC266`), text "Nový termín: sobota 24. 10. 2026 ve 14:00. Původně 17. 10." plus the note. "Kdy a kde" shows the new date normally, with "původně 17. 10." muted below it, and keeps "Přidat do kalendáře".
+- SEO: for a cancelled event set `eventStatus: https://schema.org/EventCancelled` (postponed: `EventRescheduled` with `previousStartDate`) in the JSON-LD (13.5).
 
 ## 14. Pořad bohoslužeb (`/porad_bohosluzeb`)
 
@@ -812,6 +876,7 @@ the Bohoslužby page and other in-page links. Section colour: **blue**, with
   - **Manželské večery:** the 7 meetings are drawn on the Sundays 11. 10. – 22. 11.; in production they come from the event's list of meeting dates (11.7), each shown as its own calendar entry.
   - **Jubilee and Hubertská masses:** both are drawn as events that replace the regular 9:30 Sunday mass.
 - An event of the Události calendar links to its detail page (section 13) when its description holds the page's URL (as the "Přidat do kalendáře" file writes it).
+- **Cancelled events** (11.9): a Google event with `status: cancelled` (a deleted single instance of a recurring event) is left out. An event whose title starts with "Zrušeno: " is shown struck through with the "zrušeno" label; the prefix is not repeated in the title.
 
 ### 16.5 Dark theme
 
