@@ -129,7 +129,8 @@ One module turns an editor row into a website row, used by the editor's preview 
 `pnpm import-porad`:
 
 - the row's type sets the kind: `mass` → `mass: true`, `service` → `service: true`, `other` → neither;
-- a mass or service outside the parish churches (`place` not a `PlaceId`) sets neither flag (Vranov, Brno BVV);
+- the flag is set in any place, also outside the parish churches (Vranov, Brno BVV): the website counts only the
+  rows whose `place` is a `PlaceId` (`sheetExceptions`, `markChanges`);
 - the row menu's override ("Na webu počítat jako bohoslužbu") forces `service: true` for that row;
 - "Nezveřejňovat úmysl na webu" is `public: false`;
 - `changed` is never set by hand: `markChanges` computes it, as today.
