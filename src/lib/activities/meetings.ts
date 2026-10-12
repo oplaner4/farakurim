@@ -19,11 +19,11 @@ export const isMeeting = (entry: Pick<CalendarEntry, "title">, title: string) =>
 /** "2026-10-11 09:30": sorts entries by day, then by start time (all-day entries first). */
 const startKey = ({ date, time }: CalendarEntry) => `${date} ${time?.padStart(5, "0") ?? ""}`;
 
-/** The first meeting on `today` or later; a meeting stays the next one until its day ends. */
+/** The first meeting on `today` or later that takes place; a meeting stays the next one until its day ends. */
 export function nextMeeting(entries: CalendarEntry[], title: string, today: IsoDate): CalendarEntry | undefined {
   let next: CalendarEntry | undefined;
   for (const e of entries) {
-    if ((e.end ?? e.date) < today || !isMeeting(e, title)) continue;
+    if ((e.end ?? e.date) < today || e.cancelled || !isMeeting(e, title)) continue;
     if (!next || startKey(e) < startKey(next)) next = e;
   }
   return next;

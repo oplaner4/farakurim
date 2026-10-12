@@ -133,6 +133,24 @@ describe("toEntries", () => {
     expect(href("services", event("a", "https://farakurim.cz/aktuality/hody/"))).toEqual([undefined]);
   });
 
+  it("turns the title prefix Zrušeno: into the cancelled status", () => {
+    const day = { start: { date: "2026-10-16" }, end: { date: "2026-10-17" } };
+    const entries = toEntries(
+      [
+        { id: "a", summary: "Zrušeno: Přednáška o Turínském plátně", ...day },
+        { id: "b", summary: "zrušeno:Drakiáda", ...day },
+        { id: "c", summary: "Přednáška (zrušeno)", ...day },
+      ],
+      "events",
+      pages,
+    );
+    expect(entries.map((e) => [e.title, e.cancelled])).toEqual([
+      ["Přednáška o Turínském plátně", true],
+      ["Drakiáda", true],
+      ["Přednáška (zrušeno)", undefined],
+    ]);
+  });
+
   it("drops cancelled instances", () => {
     expect(toEntries([{ id: "x", status: "cancelled", start: {}, end: {} }], "services", pages)).toEqual([]);
   });

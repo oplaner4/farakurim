@@ -26,4 +26,17 @@ describe("eventJsonLd", () => {
     expect(eventJsonLd(event({ poster }), URL).image).toBe("https://example.cz/plakat.webp");
     expect(eventJsonLd(event({}), URL)).not.toHaveProperty("image");
   });
+
+  it("marks a cancelled or postponed event", () => {
+    expect(eventJsonLd(event({ change: { status: "cancelled" } }), URL).eventStatus).toBe(
+      "https://schema.org/EventCancelled",
+    );
+    const moved = eventJsonLd(
+      event({ change: { status: "moved", previousStart: "2026-10-11", previousTime: "9:30" } }),
+      URL,
+    );
+    expect(moved.eventStatus).toBe("https://schema.org/EventRescheduled");
+    expect(moved.previousStartDate).toBe("2026-10-11T09:30+02:00");
+    expect(eventJsonLd(event({}), URL)).not.toHaveProperty("eventStatus");
+  });
 });

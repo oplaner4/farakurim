@@ -3,7 +3,7 @@ import { links } from "@/content/site";
 import { BUILD_TIME } from "@/lib/shared/build-time";
 import { fileType } from "@/lib/shared/czech";
 import { archiveYearList } from "@/lib/news/archive";
-import { eventHref } from "@/lib/news/events";
+import { eventHref, isCancelled } from "@/lib/news/events";
 import { pragueDate } from "@/lib/shared/prague";
 import type { ArchiveItem } from "./ArchiveRow";
 import { NewsArchive } from "./NewsArchive";
@@ -26,6 +26,7 @@ const items: ArchiveItem[] = events.map((e) => {
     place: e.place,
     archiveHidden: e.archiveHidden,
     href: eventHref(e),
+    ...(isCancelled(e) && { cancelled: true as const }),
     file: file && { label: file.label, type: fileType(file.file) },
   };
 });

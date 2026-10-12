@@ -5,6 +5,8 @@ import { FileIcon } from "@/components/ui/icons/media-icons";
 /** What a row needs; the page passes only these fields to the client. */
 export type ArchiveItem = Pick<NewsEvent, "id" | "title" | "start" | "end" | "time" | "place" | "archiveHidden"> & {
   href: string;
+  /** Shows "Zrušeno" next to the title (§11.9). */
+  cancelled?: true;
   /** First attachment: "Plakát" + "PDF". */
   file?: { label: string; type: string };
 };
@@ -25,7 +27,14 @@ export function ArchiveRow({ item }: { item: ArchiveItem }) {
         {item.time && <span className="text-13 text-muted md:text-14">{item.time}</span>}
       </span>
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="text-16 leading-card font-bold md:text-17 lg:text-18">{item.title}</span>
+        <span className="text-16 leading-card font-bold md:text-17 lg:text-18">
+          {item.title}
+          {item.cancelled && (
+            <span className="ml-2 inline-block rounded-full bg-surface px-2 py-0.5 align-middle text-12 font-bold text-ink-2 md:text-13">
+              Zrušeno
+            </span>
+          )}
+        </span>
         {item.place && <span className="text-13 text-muted md:text-14 lg:text-15">{item.place}</span>}
       </span>
       {/* Mobile: under the place (indented by the date column). Tablet/desktop: a chip on the right. */}

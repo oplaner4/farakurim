@@ -25,6 +25,10 @@ build-time next mass.
   `src/lib/test/content-checks.ts`) checks the data itself (valid dates and times, unique IDs, order, `/uploads/` links); extend it when a content type gains a rule a typo could break.
   The Aktuality are JSON month files (`news/<year>/<MM>.json`) that `news/index.ts` reads and checks with
   `newsEventSchema` on import.
+  A cancelled or postponed event keeps its record with a `change` (design §11.9, never a tag), a series' dropped
+  meetings are `cancelledMeetings`; the cards, the detail page, the archive, the `.ics` (`STATUS:CANCELLED`) and the
+  calendars show it (`isCancelled()`, `eventNote()`, `CalendarEntry.cancelled`, which a Události title starting with
+  "Zrušeno: " also sets). A cancelled event is never in "Doporučujeme" or "Další akce".
   Aktuality, ohlášky and albums are added with the `farnost-create-*` skills (CLAUDE.md "Managing content");
   their uploaded files are linked root-relative (`/uploads/…`, absolute only where a URL leaves the page, e.g.
   JSON-LD), never committed.

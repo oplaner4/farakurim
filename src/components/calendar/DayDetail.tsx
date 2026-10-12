@@ -1,6 +1,7 @@
 import { clsx } from "clsx";
 import type { IsoDate } from "@/content/types/shared";
 import { type AgendaItem, type CalendarStatus, dayHeading, itemTime } from "@/lib/calendar/agenda";
+import { CalendarItemTitle } from "./CalendarItemTitle";
 
 const KIND = { services: "Bohoslužba", events: "Akce" };
 
@@ -42,13 +43,7 @@ export function DayDetail({
               />
               <span className="shrink-0 basis-17.5 font-bold">{itemTime(item)}</span>
               <span className="flex min-w-0 flex-col">
-                {item.href ? (
-                  <a href={item.href} className="font-bold">
-                    {item.title}
-                  </a>
-                ) : (
-                  <span className="font-bold">{item.title}</span>
-                )}
+                <CalendarItemTitle item={item} className="font-bold" />
                 <span className="text-14 text-muted">
                   {item.place && `${item.place} · `}
                   {KIND[item.calendar]}

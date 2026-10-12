@@ -13,18 +13,21 @@ type Props = {
   title: string;
   /** Lightbox alt text: title, date, time and place (§21.3). */
   alt: string;
+  /** A cancelled event's poster is shown in greyscale (§13.7); the lightbox and the download stay. */
+  grayscale?: boolean;
 };
 
 /**
  * The poster (or a designed placeholder when only the poster file is known), which opens the full-size file in the
  * poster lightbox (design/DESIGN.md §13.3, §21), and a download link under it.
  */
-export function EventPoster({ poster, href, title, alt }: Props) {
+export function EventPoster({ poster, href, title, alt, grayscale = false }: Props) {
   const boxClass = clsx(
     "group relative flex h-85 w-60 items-center justify-center overflow-hidden rounded-16 bg-magenta-tint-alt text-magenta-ink no-underline",
     "md:h-83.5 md:w-auto md:rounded-18 lg:h-115 lg:rounded-20",
     /* Dark: posters (often white paper) get a margin of the tint around them. */
     poster && "dark:p-3",
+    grayscale && "grayscale",
   );
   const content = (
     <>

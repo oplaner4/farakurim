@@ -9,6 +9,14 @@ export const InfoIcon = (p: IconProps) => (
   </Icon>
 );
 
+/** An exclamation mark in a circle: an event's status note line (§11.9). */
+export const NoticeIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 8v5M12 16.5v.5" />
+  </Icon>
+);
+
 export const WarningIcon = (p: IconProps) => (
   <Icon {...p}>
     <path d="M12 3l9.5 17h-19z" />

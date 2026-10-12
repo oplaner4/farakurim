@@ -25,6 +25,8 @@ export type AgendaItem = {
   title: string;
   place?: string;
   href?: string;
+  /** Shown struck through with "zrušeno" (§11.9). */
+  cancelled?: true;
 };
 
 export type DateRange = { from: IsoDate; to: IsoDate };
@@ -73,7 +75,7 @@ const minutes = (time?: ClockTime) => (time ? clockMinutes(time) : -1);
  */
 export function agendaByDate(entries: CalendarEntry[], { from, to }: DateRange): Map<IsoDate, AgendaItem[]> {
   const days = new Map<IsoDate, AgendaItem[]>(datesBetween(from, to).map((date) => [date, []]));
-  for (const { id, calendar, title, date, end = date, time, place, href } of entries) {
+  for (const { id, calendar, title, date, end = date, time, place, href, cancelled } of entries) {
     if (end < from || date > to) continue;
     for (const day of datesBetween(date < from ? from : date, end > to ? to : end)) {
       days.get(day)!.push({
@@ -83,6 +85,7 @@ export function agendaByDate(entries: CalendarEntry[], { from, to }: DateRange):
         ...(day === date && time && { time }),
         ...(place && { place }),
         ...(href && { href }),
+        ...(cancelled && { cancelled }),
       });
     }
   }
@@ -171,10 +174,17 @@ export function weekCardLabels(date: IsoDate, today: IsoDate): { label: string; 
 /** Event rows a calendar day shows (§16.2, §4.3a): all of 1–2, else the first and "+N další". */
 const MAX_EVENT_ROWS = 2;
 
-/** The events a day shows and how many hide behind "+N další". */
-export function splitEvents<T>(events: T[]): { shown: T[]; hidden: number } {
-  const shown = events.length > MAX_EVENT_ROWS ? events.slice(0, MAX_EVENT_ROWS - 1) : events;
-  return { shown, hidden: events.length - shown.length };
+/**
+ * The events a day shows and how many hide behind "+N další". A cancelled event never counts towards "+N další"
+ * (§11.9): it shows only in a row left free, else in the day's detail alone.
+ */
+export function splitEvents<T extends { cancelled?: true }>(events: T[]): { shown: T[]; hidden: number } {
+  const active = events.filter((e) => !e.cancelled);
+  const shownActive = active.length > MAX_EVENT_ROWS ? active.slice(0, MAX_EVENT_ROWS - 1) : active;
+  const hidden = active.length - shownActive.length;
+  const free = MAX_EVENT_ROWS - shownActive.length - (hidden > 0 ? 1 : 0);
+  const shown = new Set([...shownActive, ...events.filter((e) => e.cancelled).slice(0, Math.max(free, 0))]);
+  return { shown: events.filter((e) => shown.has(e)), hidden };
 }
 
 /** Monday of the week (Czech weeks run Monday to Sunday). */
@@ -245,12 +255,14 @@ export function newsEntries(events: NewsEvent[], href: (event: NewsEvent) => str
   return events.flatMap((event): CalendarEntry[] => {
     const { id, title, start, end = start, place, longTerm } = event;
     if (longTerm === true) return [];
-    const base = { calendar: "events" as const, title, place, href: href(event) };
+    const cancelled = event.change?.status === "cancelled" && { cancelled: true as const };
+    const base = { calendar: "events" as const, title, place, href: href(event), ...cancelled };
     const atTime = (time: ClockTime | undefined) => (time ? { time } : {});
     if (event.sessions) {
       return eventMeetings(event).map((meeting) => ({
         ...base,
         id: `${id}-${meeting.start}`,
+        ...(meeting.cancelled && { cancelled: true as const }),
         date: meeting.start,
         ...(meeting.end !== meeting.start && { end: meeting.end }),
         ...atTime(parseClock(meeting.time)?.from),

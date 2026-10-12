@@ -43,19 +43,24 @@ export function eventStatus(event: NewsEvent, today: IsoDate): EventStatus {
   return "upcoming";
 }
 
-/** A badge's look: `now` is the filled "Právě probíhá", the rest are the tag colours. */
-export type EventTagKind = "now" | TagColor;
+/** Cancelled (§11.9): the event does not take place, though its record and detail page stay. */
+export const isCancelled = (event: Pick<NewsEvent, "change">) => event.change?.status === "cancelled";
+
+/** A badge's look: `now` is the filled "Právě probíhá", `cancelled` the ink "Zrušeno", the rest are the tag colours. */
+export type EventTagKind = "now" | "cancelled" | TagColor;
 
 /**
- * The badges of an event card, in order: running, open registration, key facts, the record's own tags, then
- * "Proběhlo".
+ * The badges of an event card, in order: "Přesunuto", running, open registration, key facts, the record's own tags,
+ * then "Proběhlo". A cancelled event has only "Zrušeno" (§11.9).
  */
 export function eventTags(
   event: NewsEvent,
   status: EventStatus,
   today: IsoDate,
 ): { kind: EventTagKind; label: string }[] {
+  if (isCancelled(event)) return [{ kind: "cancelled", label: "Zrušeno" }];
   const tags: { kind: EventTagKind; label: string }[] = [];
+  if (event.change?.status === "moved") tags.push({ kind: "orange", label: "Přesunuto" });
   if (status === "now") tags.push({ kind: "now", label: EVENT_STATUS_LABEL.now });
   if (event.registrationDeadline && event.registrationDeadline >= today) {
     tags.push({ kind: "orange", label: `Přihlášky do ${formatShortDate(event.registrationDeadline)}` });
@@ -84,25 +89,34 @@ export function relativeEventLabel(event: Pick<NewsEvent, "start" | "end">, toda
   return relativeDayName(days) ?? `Za ${days} ${plural(days, ["den", "dny", "dní"])}`;
 }
 
-/** A meeting of a series with its defaults filled in: its last day and its time text. */
-export type Meeting = { start: IsoDate; end: IsoDate; time?: string };
+/**
+ * A meeting of a series with its defaults filled in: its last day and its time text. `cancelled` when it does not
+ * take place (the whole event cancelled, or the meeting dropped).
+ */
+export type Meeting = { start: IsoDate; end: IsoDate; time?: string; cancelled?: true };
 
 /** The meetings of a series (`sessions`), empty for other events. */
-export function eventMeetings(event: Pick<NewsEvent, "sessions" | "time">): Meeting[] {
-  return (event.sessions ?? []).map((session) =>
-    typeof session === "string"
-      ? { start: session, end: session, time: event.time }
-      : { start: session.date, end: session.end ?? session.date, time: session.time ?? event.time },
-  );
+export function eventMeetings(
+  event: Pick<NewsEvent, "sessions" | "time"> & Partial<Pick<NewsEvent, "change" | "cancelledMeetings">>,
+): Meeting[] {
+  const dropped = new Set(event.cancelledMeetings?.dates);
+  return (event.sessions ?? []).map((session) => {
+    const meeting =
+      typeof session === "string"
+        ? { start: session, end: session, time: event.time }
+        : { start: session.date, end: session.end ?? session.date, time: session.time ?? event.time };
+    return isCancelled(event) || dropped.has(meeting.start) ? { ...meeting, cancelled: true } : meeting;
+  });
 }
 
 /** The days the event takes place: each meeting of a series, the first day of a weekly one, else its span. */
 export function meetingsOf(event: NewsEvent): Meeting[] {
   if (event.sessions) return eventMeetings(event);
+  const cancelled = isCancelled(event) && { cancelled: true as const };
   if (event.longTerm && event.longTerm !== true) {
-    return [{ start: event.start, end: event.start, time: event.longTerm.weeklyAt }];
+    return [{ start: event.start, end: event.start, time: event.longTerm.weeklyAt, ...cancelled }];
   }
-  return [{ start: event.start, end: eventEnd(event), time: event.time }];
+  return [{ start: event.start, end: eventEnd(event), time: event.time, ...cancelled }];
 }
 
 const byStart = (a: Pick<NewsEvent, "start">, b: Pick<NewsEvent, "start">) => a.start.localeCompare(b.start);
@@ -119,9 +133,9 @@ export function currentNews<T extends Pick<NewsEvent, "start" | "end" | "longTer
     .slice(0, limit);
 }
 
-/** The pinned event for "Doporučujeme" while it is not finished. */
+/** The pinned event for "Doporučujeme" while it is not finished, unless it is cancelled. */
 export function featuredEvent(events: NewsEvent[], today: IsoDate): NewsEvent | undefined {
-  return events.find((e) => e.pinned && eventEnd(e) >= today);
+  return events.find((e) => e.pinned && !isCancelled(e) && eventEnd(e) >= today);
 }
 
 const overlaps = (event: NewsEvent, from: IsoDate, to: IsoDate) => event.start <= to && eventEnd(event) >= from;

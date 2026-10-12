@@ -49,12 +49,17 @@ function timing({ start, end, time }: Meeting): Timing {
  * The VEVENTs of an event: one per meeting of a series (each with its own UID, or calendar apps keep only one),
  * one that repeats for a weekly long-term event, otherwise one.
  */
-function occurrences(event: NewsEvent): (Timing & { uid: string })[] {
+function occurrences(event: NewsEvent): (Timing & Pick<EventAttributes, "status" | "sequence"> & { uid: string })[] {
   const weekly = !event.sessions && event.longTerm && event.longTerm !== true;
   const until = utcStamp(pragueDateTime(eventEnd(event), "23:59"));
   return meetingsOf(event).map((meeting) => ({
     ...timing(meeting),
     ...(weekly && { recurrenceRule: `FREQ=WEEKLY;UNTIL=${until}` }),
+    // A calendar app that imported the file takes a VEVENT with the same UID and a higher SEQUENCE as its update
+    // (§11.9): a move keeps it with the new date, a cancellation (2, after a possible move) marks it cancelled.
+    ...(meeting.cancelled
+      ? { status: "CANCELLED" as const, sequence: 2 }
+      : event.change?.status === "moved" && { sequence: 1 }),
     uid: event.sessions ? `${event.id}-${meeting.start}@${SITE_HOST}` : `${event.id}@${SITE_HOST}`,
   }));
 }
@@ -62,12 +67,14 @@ function occurrences(event: NewsEvent): (Timing & { uid: string })[] {
 /** iCalendar text of one event, with the detail page's absolute URL. */
 export function eventCalendar(event: NewsEvent, url: string): string {
   const attributes = occurrences(event).map(
-    ({ start, startInputType, end, recurrenceRule, uid }) =>
+    ({ start, startInputType, end, recurrenceRule, status, sequence, uid }) =>
       ({
         start,
         startInputType,
         ...(end === undefined ? {} : { end }),
         recurrenceRule,
+        status,
+        sequence,
         title: event.title,
         location: event.place,
         description: `${event.lead ?? event.text}\n\n${url}`,

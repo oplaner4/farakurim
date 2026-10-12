@@ -4,7 +4,7 @@ import { clsx } from "clsx";
 import type { NewsEvent } from "@/content/types/news";
 import { links } from "@/content/site";
 import { formatEventDate } from "@/lib/shared/czech";
-import { currentNews, eventHref, eventStatus } from "@/lib/news/events";
+import { currentNews, eventHref, eventStatus, isCancelled } from "@/lib/news/events";
 import { useToday } from "@/hooks/use-now";
 import { CalendarIcon } from "@/components/ui/icons/contact-icons";
 import { POSTER_TINTS } from "@/components/ui/PosterPlaceholder";
@@ -40,7 +40,14 @@ export function NewsSection({ events, renderedAt }: Props) {
           // A series of meetings is listed by its first date.
           const date = formatEventDate(item.start, item.sessions ? undefined : item.end);
           const chip = item.time ? `${date.label} · ${item.time}` : date.label;
-          const ongoing = eventStatus(item, today) === "now";
+          // Cancelled (§11.9): it keeps its place until its date, with "Zrušeno" and a grey struck date.
+          const cancelled = isCancelled(item);
+          const ongoing = !cancelled && eventStatus(item, today) === "now";
+          const dateStyle = cancelled
+            ? "bg-raised text-muted"
+            : ongoing
+              ? "bg-magenta text-white"
+              : "bg-raised text-magenta-ink";
           return (
             <li key={item.id} className="nth-[n+4]:hidden md:nth-[n+4]:block">
               {/* Mobile/tablet: horizontal card with a date block. Desktop: vertical card with a poster. */}
@@ -57,10 +64,16 @@ export function NewsSection({ events, renderedAt }: Props) {
                   aria-hidden="true"
                   className={clsx(
                     "flex h-18 shrink-0 basis-16 flex-col items-center justify-center rounded-12 px-0.5 text-center leading-display md:h-20 md:basis-18 md:rounded-14 lg:hidden",
-                    ongoing ? "bg-magenta text-white" : "bg-raised text-magenta-ink",
+                    dateStyle,
                   )}
                 >
-                  <span className={clsx("font-bold", date.isRange ? "text-17 md:text-19" : "text-22 md:text-24")}>
+                  <span
+                    className={clsx(
+                      "font-bold",
+                      date.isRange ? "text-17 md:text-19" : "text-22 md:text-24",
+                      cancelled && "line-through",
+                    )}
+                  >
                     {date.days}
                   </span>
                   <span className="text-12 md:text-13">{date.months}</span>
@@ -72,6 +85,7 @@ export function NewsSection({ events, renderedAt }: Props) {
                     POSTER_TINTS[i % POSTER_TINTS.length],
                     /* Dark: posters (often white paper) sit on a raised card instead of glaring. */
                     item.poster && "dark:bg-raised dark:p-2.5",
+                    cancelled && "grayscale",
                   )}
                 >
                   {item.poster ? (
@@ -90,17 +104,28 @@ export function NewsSection({ events, renderedAt }: Props) {
                   <span
                     className={clsx(
                       "absolute top-3.5 left-3.5 rounded-12 px-3 py-1.5 text-14 font-bold",
-                      ongoing ? "bg-magenta text-white" : "bg-raised text-magenta-ink",
+                      dateStyle,
+                      cancelled && "line-through",
                     )}
                   >
                     {chip}
                   </span>
                 </span>
                 <span className="flex min-w-0 flex-col items-start gap-1 lg:gap-3">
-                  {ongoing && (
-                    <span className="rounded-full bg-raised px-2 py-0.5 text-12 font-bold text-magenta-ink lg:bg-magenta-tint lg:px-2.5 lg:text-13">
-                      Právě probíhá
+                  {cancelled ? (
+                    <span className="rounded-full bg-ink px-2 py-0.5 text-12 font-bold text-bg lg:px-2.5 lg:text-13">
+                      Zrušeno
                     </span>
+                  ) : item.change?.status === "moved" ? (
+                    <span className="rounded-full bg-orange-tint px-2 py-0.5 text-12 font-bold text-orange-ink-deep lg:px-2.5 lg:text-13">
+                      Přesunuto
+                    </span>
+                  ) : (
+                    ongoing && (
+                      <span className="rounded-full bg-raised px-2 py-0.5 text-12 font-bold text-magenta-ink lg:bg-magenta-tint lg:px-2.5 lg:text-13">
+                        Právě probíhá
+                      </span>
+                    )
                   )}
                   <h3 className="text-17 leading-card font-bold underline-offset-3 transition-colors group-hover:text-magenta-ink group-hover:underline md:text-18 lg:text-20">
                     {item.title}

@@ -47,6 +47,11 @@ describe("featuredEvent", () => {
     expect(featuredEvent(events, TODAY)?.id).toBe("pinned");
     expect(featuredEvent(events, "2026-10-19")).toBeUndefined();
   });
+
+  it("leaves out a cancelled pinned event", () => {
+    const cancelled = event("pinned", "2026-10-18", undefined, { pinned: true, change: { status: "cancelled" } });
+    expect(featuredEvent([cancelled], TODAY)).toBeUndefined();
+  });
 });
 
 describe("filterEvents", () => {
@@ -150,6 +155,19 @@ describe("meetingsOf", () => {
       { start: "2026-10-12", end: "2026-10-14", time },
     ]);
   });
+
+  it("marks the dropped meetings, and every meeting of a cancelled event, as cancelled", () => {
+    const sessions = ["2026-10-11", "2026-10-18", "2026-10-25"];
+    const series = event("a", "2026-10-11", "2026-10-25", { sessions, cancelledMeetings: { dates: ["2026-10-18"] } });
+    expect(meetingsOf(series).map((m) => m.cancelled)).toEqual([undefined, true, undefined]);
+    const cancelled = { change: { status: "cancelled" } } as const;
+    expect(
+      meetingsOf(event("a", "2026-10-11", "2026-10-25", { sessions, ...cancelled })).every((m) => m.cancelled),
+    ).toBe(true);
+    expect(meetingsOf(event("a", "2026-10-12", undefined, cancelled))).toEqual([
+      { start: "2026-10-12", end: "2026-10-12", time: undefined, cancelled: true },
+    ]);
+  });
 });
 
 describe("posterOf", () => {
@@ -222,7 +240,7 @@ describe("eventTags", () => {
       registrationDeadline: "2026-10-03",
       price: "200 Kč",
       sessions: ["2026-10-02", "2026-10-03", "2026-10-04"],
-      tags: [{ label: "Pro rodiny" }, { label: "Zrušeno", color: "orange" }],
+      tags: [{ label: "Pro rodiny" }, { label: "Bez bariér", color: "orange" }],
     });
     expect(eventTags(full, "now", TODAY)).toEqual([
       { kind: "now", label: "Právě probíhá" },
@@ -230,8 +248,19 @@ describe("eventTags", () => {
       { kind: "blue", label: "200 Kč" },
       { kind: "blue", label: "3 setkání" },
       { kind: "blue", label: "Pro rodiny" },
-      { kind: "orange", label: "Zrušeno" },
+      { kind: "orange", label: "Bez bariér" },
     ]);
+  });
+
+  it("gives a cancelled event only Zrušeno and puts Přesunuto first", () => {
+    const priced = { price: "200 Kč", registrationDeadline: "2026-10-10" };
+    const cancelled = event("x", "2026-10-18", undefined, { ...priced, change: { status: "cancelled" } });
+    expect(eventTags(cancelled, "upcoming", TODAY)).toEqual([{ kind: "cancelled", label: "Zrušeno" }]);
+    const moved = event("x", "2026-10-24", undefined, {
+      ...priced,
+      change: { status: "moved", previousStart: "2026-10-17" },
+    });
+    expect(labels(eventTags(moved, "upcoming", TODAY))).toEqual(["Přesunuto", "Přihlášky do 10. 10.", "200 Kč"]);
   });
 
   it("shows the registration deadline until its day has passed", () => {

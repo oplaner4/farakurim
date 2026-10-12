@@ -5,6 +5,7 @@ import { clsx } from "clsx";
 import { createContext, use } from "react";
 import type { IsoDate } from "@/content/types/shared";
 import { type AgendaItem, splitEvents } from "@/lib/calendar/agenda";
+import { CalendarItemTitle } from "./CalendarItemTitle";
 
 const EMPTY: AgendaItem[] = [];
 
@@ -46,7 +47,11 @@ export function AgendaDayButton({ day, modifiers, className, ...rest }: DayButto
       </span>
       {labelled.map((event) => (
         <span key={event.key} aria-hidden="true" className={badge}>
-          {event.title}
+          <CalendarItemTitle
+            item={event}
+            linked={false}
+            labelClassName={selected ? "text-magenta-ink-deep" : "text-ink-2"}
+          />
         </span>
       ))}
       {hidden > 0 && (

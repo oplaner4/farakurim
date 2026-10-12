@@ -114,4 +114,20 @@ describe("newsEventSchema", () => {
     const result = newsEventSchema.safeParse({ ...event, start: "x", tittle: "y" });
     expect(z.prettifyError(result.error!)).toContain("→ at start");
   });
+
+  it("checks a postponed event's first date and a series' dropped meetings", () => {
+    expect(problems({ change: { status: "cancelled", announced: "2026-09-30", note: "Ruší se." } })).toEqual([]);
+    expect(problems({ change: { status: "moved" } })).toHaveLength(1);
+    expect(problems({ change: { status: "moved", previousStart: "2026-10-02" } })).toEqual([
+      "change.previousStart: must differ from start (the new date)",
+    ]);
+    const series = { end: "2026-10-09", sessions: ["2026-10-02", "2026-10-09"] };
+    expect(problems({ ...series, cancelledMeetings: { dates: ["2026-10-09"] } })).toEqual([]);
+    expect(problems({ ...series, cancelledMeetings: { dates: ["2026-10-05"] } })).toEqual([
+      "cancelledMeetings.dates.0: must be a meeting's date",
+    ]);
+    expect(
+      problems({ ...series, change: { status: "cancelled" }, cancelledMeetings: { dates: ["2026-10-09"] } }),
+    ).toEqual(["cancelledMeetings: a cancelled event drops every meeting"]);
+  });
 });

@@ -43,6 +43,29 @@ export type TagColor = "blue" | "orange" | "magenta" | "grey";
 export type EventTag = { label: string; color?: TagColor };
 
 /**
+ * A cancelled or postponed event (design/DESIGN.md §11.9): its status, which every page listing it shows. The record
+ * stays, as people may have saved, shared or imported it.
+ */
+export type EventChange = {
+  /** The day the parish announced it (Prague date): "Oznámeno 12. 10. 2026" on the detail page. */
+  announced?: IsoDate;
+  /** One sentence for the reader: "Akce se ruší z důvodu nemoci přednášejícího." */
+  note?: string;
+} & (
+  | { status: "cancelled" }
+  /** `start`, `end` and `time` hold the new date; these the one before the move. */
+  | { status: "moved"; previousStart: IsoDate; previousTime?: string }
+);
+
+/** The meetings of a series that do not take place, the other ones still do (design/DESIGN.md §11.9). */
+export type CancelledMeetings = {
+  /** Each a meeting's first day (`sessions`). */
+  dates: IsoDate[];
+  /** Added after "setkání 18. 10. odpadá, ostatní termíny platí.". */
+  note?: string;
+};
+
+/**
  * One record of the Aktuality page (design/DESIGN.md §11.7) and its detail page (§13.4). The homepage shows
  * the nearest ones; the archive (§12) lists them from the day after they end.
  */
@@ -82,8 +105,12 @@ export type NewsEvent = {
    * one Kalendář entry and .ics event per meeting.
    */
   sessions?: EventSession[];
-  /** Free badges after the computed ones ("Zrušeno", "Pro rodiny"). */
+  /** Free badges after the computed ones ("Pro rodiny"); a cancelled event is a `change`, not a tag. */
   tags?: EventTag[];
+  /** Cancelled or postponed. */
+  change?: EventChange;
+  /** A series' meetings that do not take place. */
+  cancelledMeetings?: CancelledMeetings;
   /**
    * Long-term series, listed under "Dlouhodobé akce". `weeklyAt` means it meets every week
    * on the weekday of `start` at that time.

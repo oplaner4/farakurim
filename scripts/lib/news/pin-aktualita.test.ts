@@ -92,6 +92,12 @@ describe("assertPinnable", () => {
       "cannot pin a-2026: it ended on 2026-10-06",
     );
   });
+
+  it("refuses a cancelled event", () => {
+    expect(() =>
+      assertPinnable(event("a-2026", "2026-10-20", { change: { status: "cancelled" } }), "2026-10-07"),
+    ).toThrow("cannot pin a-2026: it is cancelled");
+  });
 });
 
 describe("pinLines", () => {

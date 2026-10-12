@@ -4,12 +4,13 @@ import type { NewsEvent } from "@/content/types/news";
 import { BUILD_TIME } from "@/lib/shared/build-time";
 import { eventDateBlock } from "@/lib/shared/czech";
 import { withExternalLinkTargets } from "@/lib/shared/links";
-import { eventEnd, eventHref, posterAlt, posterHref } from "@/lib/news/events";
+import { eventEnd, eventHref, isCancelled, posterAlt, posterHref } from "@/lib/news/events";
 import { pragueDate } from "@/lib/shared/prague";
 import { eventJsonLd, jsonLdScript } from "@/lib/shared/structured-data";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { DetailBlock } from "./DetailBlock";
+import { EventChangeBanner } from "./EventChangeBanner";
 import { EventDetailLabels } from "./EventDetailLabels";
 import { EventFiles } from "./EventFiles";
 import { EventHighlights } from "./EventHighlights";
@@ -19,10 +20,10 @@ import { EventWhenWhere } from "./EventWhenWhere";
 import { type MoreEventItem, MoreEvents } from "./MoreEvents";
 
 // "Další akce" filters by the visitor's date, so the client gets the events unfinished at build time,
-// as slim cards.
+// as slim cards; a cancelled event is not recommended there.
 const buildToday = pragueDate(BUILD_TIME);
 const moreItems: MoreEventItem[] = events
-  .filter((e) => eventEnd(e) >= buildToday)
+  .filter((e) => eventEnd(e) >= buildToday && !isCancelled(e))
   .map((e) => ({
     id: e.id,
     title: e.title,
@@ -45,6 +46,7 @@ export function EventDetail({ event }: { event: NewsEvent }) {
   const attachments = event.attachments ?? [];
   const eventLinks = event.links ?? [];
   const posterLink = posterHref(event);
+  const cancelled = isCancelled(event);
 
   return (
     <>
@@ -73,6 +75,7 @@ export function EventDetail({ event }: { event: NewsEvent }) {
             <header className="flex flex-col gap-3.5 lg:gap-4">
               <EventDetailLabels
                 event={{ start: event.start, end: event.end, pinned: event.pinned }}
+                cancelled={cancelled}
                 renderedAt={BUILD_TIME}
               />
               <h1
@@ -84,6 +87,7 @@ export function EventDetail({ event }: { event: NewsEvent }) {
               <p className="text-18 text-ink-2 md:text-20 md:leading-normal lg:max-w-170 lg:text-22">
                 {event.lead ?? event.text}
               </p>
+              <EventChangeBanner event={event} />
             </header>
 
             <div className="flex flex-col gap-7 max-lg:order-2 md:gap-9 lg:gap-10">
@@ -110,7 +114,13 @@ export function EventDetail({ event }: { event: NewsEvent }) {
             <EventWhenWhere event={event} />
 
             {posterLink && (
-              <EventPoster poster={event.poster} href={posterLink} title={event.title} alt={posterAlt(event)} />
+              <EventPoster
+                poster={event.poster}
+                href={posterLink}
+                title={event.title}
+                alt={posterAlt(event)}
+                grayscale={cancelled}
+              />
             )}
           </div>
         </article>

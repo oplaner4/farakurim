@@ -22,4 +22,9 @@ export type CalendarEntry = {
   place?: string;
   /** Detail page of the matching Aktuality record. */
   href?: string;
+  /**
+   * Does not take place, but stays in its day (design/DESIGN.md §11.9): a cancelled Aktuality record or meeting, or a
+   * Události event whose title starts with "Zrušeno: ".
+   */
+  cancelled?: true;
 };

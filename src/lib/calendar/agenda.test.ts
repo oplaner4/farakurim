@@ -159,6 +159,28 @@ describe("newsEntries", () => {
       ["vecery-2026-11-20", "2026-11-20", "2026-11-21", "18:00"],
     ]);
   });
+
+  it("keeps a cancelled event and a dropped meeting in their days, marked cancelled", () => {
+    const events: NewsEvent[] = [
+      { ...base, id: "hody", title: "Hody", start: "2026-10-02", change: { status: "cancelled" } },
+      {
+        ...base,
+        id: "vecery",
+        title: "Večery",
+        start: "2026-10-11",
+        end: "2026-10-18",
+        sessions: ["2026-10-11", "2026-10-18"],
+        cancelledMeetings: { dates: ["2026-10-18"] },
+      },
+    ];
+    expect(newsEntries(events, href).map((e) => [e.id, e.cancelled])).toEqual([
+      ["hody", true],
+      ["vecery-2026-10-11", undefined],
+      ["vecery-2026-10-18", true],
+    ]);
+    const days = agendaByDate(newsEntries(events, href), { from: "2026-10-02", to: "2026-10-02" });
+    expect(days.get("2026-10-02")?.[0].cancelled).toBe(true);
+  });
 });
 
 describe("query parameters", () => {
@@ -291,8 +313,17 @@ describe("week calendar", () => {
   });
 
   it("shows two events, or one and +N další", () => {
-    expect(splitEvents(["a", "b"])).toEqual({ shown: ["a", "b"], hidden: 0 });
-    expect(splitEvents(["a", "b", "c"])).toEqual({ shown: ["a"], hidden: 2 });
+    const [a, b, c] = ["a", "b", "c"].map((title): { title: string; cancelled?: true } => ({ title }));
+    expect(splitEvents([a, b])).toEqual({ shown: [a, b], hidden: 0 });
+    expect(splitEvents([a, b, c])).toEqual({ shown: [a], hidden: 2 });
     expect(splitEvents([])).toEqual({ shown: [], hidden: 0 });
+  });
+
+  it("never counts a cancelled event towards +N další, and shows it only in a free row", () => {
+    const [a, b, c] = ["a", "b", "c"].map((title): { title: string; cancelled?: true } => ({ title }));
+    const x = { title: "x", cancelled: true as const };
+    expect(splitEvents([x, a])).toEqual({ shown: [x, a], hidden: 0 });
+    expect(splitEvents([a, x, b])).toEqual({ shown: [a, b], hidden: 0 });
+    expect(splitEvents([a, b, x, c])).toEqual({ shown: [a], hidden: 2 });
   });
 });

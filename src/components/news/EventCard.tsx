@@ -2,17 +2,19 @@ import { clsx } from "clsx";
 import type { NewsEvent } from "@/content/types/news";
 import type { IsoDate } from "@/content/types/shared";
 import { eventDateBlock, fileType, formatEventWhen } from "@/lib/shared/czech";
-import { eventHref, type EventStatus, type EventTagKind, eventTags, posterAlt } from "@/lib/news/events";
+import { eventHref, type EventStatus, type EventTagKind, eventTags, isCancelled, posterAlt } from "@/lib/news/events";
 import { isImageFile } from "@/lib/shared/lightbox";
 import { externalLinkAttrs } from "@/lib/shared/links";
 import { PinIcon } from "@/components/ui/icons/contact-icons";
 import { FileIcon } from "@/components/ui/icons/media-icons";
 import { ExternalLinkIcon } from "@/components/ui/icons/navigation-icons";
 import { POSTER_TINTS, PosterPlaceholder } from "@/components/ui/PosterPlaceholder";
+import { EventNoteLine } from "./EventNoteLine";
 import { PosterLink } from "./PosterLink";
 
 const tagStyles: Record<EventTagKind, string> = {
   now: "bg-magenta text-white",
+  cancelled: "bg-ink text-bg",
   blue: "bg-blue-tint text-blue-ink",
   orange: "bg-orange-tint text-orange-ink-deep",
   magenta: "bg-magenta-tint text-magenta-ink",
@@ -45,6 +47,8 @@ export function EventCard({ event, status, today, index, more }: Props) {
     ...(event.links ?? []).map((l) => ({ ...l, type: undefined })),
   ];
   const past = status === "past";
+  // Cancelled (§11.9): grey struck date, greyscale poster, full opacity as the news is still current.
+  const cancelled = isCancelled(event);
 
   return (
     <article
@@ -64,10 +68,14 @@ export function EventCard({ event, status, today, index, more }: Props) {
         className={clsx(
           "flex h-17 w-15 shrink-0 flex-col items-center justify-center rounded-12 text-center leading-display",
           "md:h-20 md:w-18 md:rounded-14 lg:h-24 lg:w-22 lg:rounded-16",
-          status === "now" ? "bg-magenta text-white" : "bg-magenta-tint text-magenta-ink",
+          cancelled
+            ? "bg-surface text-muted"
+            : status === "now"
+              ? "bg-magenta text-white"
+              : "bg-magenta-tint text-magenta-ink",
         )}
       >
-        <span className="text-17 font-bold md:text-19 lg:text-22">{date.top}</span>
+        <span className={clsx("text-17 font-bold md:text-19 lg:text-22", cancelled && "line-through")}>{date.top}</span>
         <span className="text-12 md:text-13 lg:text-14">{date.bottom}</span>
       </span>
 
@@ -103,7 +111,9 @@ export function EventCard({ event, status, today, index, more }: Props) {
             </a>
           </h4>
           <p className="flex flex-col gap-1 text-14 text-ink-2 md:flex-row md:flex-wrap md:gap-x-4 md:text-15 lg:gap-x-5 lg:text-16">
-            <span>{when.time ? `${when.date} · ${when.time}` : when.date}</span>
+            <span className={clsx(cancelled && "line-through")}>
+              {when.time ? `${when.date} · ${when.time}` : when.date}
+            </span>
             {event.place && (
               <span className="flex items-center gap-1.5 text-muted">
                 <PinIcon size={15} className="shrink-0" />
@@ -112,6 +122,8 @@ export function EventCard({ event, status, today, index, more }: Props) {
             )}
           </p>
         </div>
+
+        <EventNoteLine event={event} className="max-md:basis-full lg:max-w-170" />
 
         <p className="text-15 text-ink-2 max-md:line-clamp-3 max-md:basis-full md:text-16 lg:max-w-170 lg:text-17">
           {event.text}
@@ -167,6 +179,7 @@ export function EventCard({ event, status, today, index, more }: Props) {
         className={clsx(
           "pointer-events-none relative hidden h-38 w-27 shrink-0 items-center justify-center overflow-hidden rounded-12 md:flex lg:h-46.5 lg:w-33 lg:rounded-14",
           past ? "bg-surface text-muted" : POSTER_TINTS[index % POSTER_TINTS.length],
+          cancelled && "grayscale",
           /* Dark: posters (often white paper) get a margin of the tint around them. */
           event.poster && "dark:p-2",
         )}

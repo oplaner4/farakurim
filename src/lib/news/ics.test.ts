@@ -70,6 +70,29 @@ describe("eventCalendar", () => {
     expect(out).toContain("UID:hody-v-ceske-2026-10-27@farakurim.cz");
     expect(out.some((l) => l.startsWith("RRULE"))).toBe(false);
   });
+
+  it("keeps the UID of a cancelled or postponed event and raises its SEQUENCE", () => {
+    const cancelled = lines(eventCalendar(event({ time: "9:30", change: { status: "cancelled" } }), URL));
+    expect(cancelled).toContain("UID:hody-v-ceske@farakurim.cz");
+    expect(cancelled).toContain("STATUS:CANCELLED");
+    expect(cancelled).toContain("SEQUENCE:2");
+    const moved = lines(eventCalendar(event({ change: { status: "moved", previousStart: "2026-10-11" } }), URL));
+    expect(moved).toContain("SEQUENCE:1");
+    expect(moved.some((l) => l.startsWith("STATUS"))).toBe(false);
+    expect(lines(eventCalendar(event({}), URL)).some((l) => l.startsWith("SEQUENCE"))).toBe(false);
+  });
+
+  it("cancels only the dropped meeting of a series", () => {
+    const series = event({
+      end: "2026-10-25",
+      sessions: ["2026-10-18", "2026-10-25"],
+      cancelledMeetings: { dates: ["2026-10-25"] },
+    });
+    const out = lines(eventCalendar(series, URL)).join("\n");
+    const [first, second] = out.split("BEGIN:VEVENT").slice(1);
+    expect(first).not.toContain("STATUS:CANCELLED");
+    expect(second).toContain("STATUS:CANCELLED");
+  });
 });
 
 describe("eventClock", () => {

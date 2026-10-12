@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  atClockTime,
   eventCount,
   eventDateBlock,
   fileType,
@@ -9,9 +10,11 @@ import {
   formatEventDate,
   formatEventWhen,
   formatFileSize,
+  formatFromWeekdayDate,
   formatLongDate,
   formatMonthYear,
   formatPercent,
+  formatShortDates,
   formatWeekdayDate,
   plural,
   relativeDayName,
@@ -133,6 +136,30 @@ describe("event formatting", () => {
     expect(formatMonthYear("2026-10-01")).toBe("Říjen 2026");
     expect(fileType("/uploads/aktuality/6ab538eec7721.Plakát.png")).toBe("PNG");
     expect(fileType("https://example.cz/soubory/pozvanka")).toBe("");
+  });
+});
+
+describe("status texts", () => {
+  it("writes the weekday a postponed event moved from", () => {
+    expect(formatFromWeekdayDate("2026-10-17")).toBe("ze soboty 17. 10.");
+    expect(formatFromWeekdayDate("2026-10-18")).toBe("z neděle 18. 10.");
+    expect(formatFromWeekdayDate("2026-10-15")).toBe("ze čtvrtka 15. 10.");
+  });
+
+  it("puts v or ve before a time", () => {
+    expect(["9:30", "14:00", "18:00", "20:30", "2:00", "11:00"].map(atClockTime)).toEqual([
+      "v 9:30",
+      "ve 14:00",
+      "v 18:00",
+      "ve 20:30",
+      "ve 2:00",
+      "v 11:00",
+    ]);
+  });
+
+  it("lists short dates", () => {
+    expect(formatShortDates(["2026-10-18"])).toBe("18. 10.");
+    expect(formatShortDates(["2026-10-18", "2026-10-25", "2026-11-01"])).toBe("18. 10., 25. 10. a\u00a01. 11.");
   });
 });
 

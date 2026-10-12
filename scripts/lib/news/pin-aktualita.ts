@@ -5,7 +5,7 @@
 import { readMonths } from "@/content/news";
 import type { IsoDate } from "@/content/types/shared";
 import type { NewsEvent } from "@/content/types/news";
-import { eventEnd } from "@/lib/news/events";
+import { eventEnd, isCancelled } from "@/lib/news/events";
 import { pragueDate } from "@/lib/shared/prague";
 import { actionVerb, parseCommandLine } from "../command";
 import { formatAndTestNews, NEWS_DIR, writeMonth } from "../content-files";
@@ -16,9 +16,15 @@ export function withoutPin(event: NewsEvent): NewsEvent {
   return rest;
 }
 
-/** Throws when `event` has ended by `today`: "Doporučujeme" only shows an event until its last day. */
+/**
+ * Throws when `event` has ended by `today` or is cancelled: "Doporučujeme" only shows an event until its last day,
+ * and never a cancelled one.
+ */
 export function assertPinnable(event: NewsEvent, today: IsoDate) {
   if (eventEnd(event) < today) throw new Error(`cannot pin ${event.id}: it ended on ${eventEnd(event)}`);
+  if (isCancelled(event)) {
+    throw new Error(`cannot pin ${event.id}: it is cancelled (unpin it first with pnpm pin-aktualita --none)`);
+  }
 }
 
 /**

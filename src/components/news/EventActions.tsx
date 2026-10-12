@@ -10,7 +10,8 @@ import { ShareIcon } from "@/components/ui/icons/navigation-icons";
 type Props = {
   title: string;
   end: IsoDate;
-  calendarHref: string;
+  /** Left out for a cancelled event (§13.7): there is nothing to add. */
+  calendarHref?: string;
   renderedAt: number;
 };
 
@@ -40,7 +41,7 @@ export function EventActions({ title, end, calendarHref, renderedAt }: Props) {
 
   return (
     <div className="flex flex-col gap-2 pt-1 md:mt-auto md:flex-row md:flex-wrap md:gap-2.5 md:pt-0 lg:mt-0 lg:flex-col lg:pt-1">
-      {today <= end && (
+      {calendarHref && today <= end && (
         <ButtonLink
           href={calendarHref}
           download

@@ -43,6 +43,14 @@ export const CalendarPlusIcon = (p: IconProps) => (
   </Icon>
 );
 
+/** A cancelled event's banner (§13.7). */
+export const CalendarXIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <rect x="3" y="5" width="18" height="16" rx="2" />
+    <path d="M3 10h18M8 3v4M16 3v4M9.5 13.5l5 5M14.5 13.5l-5 5" />
+  </Icon>
+);
+
 export const UserIcon = (p: IconProps) => (
   <Icon strokeWidth={1.5} {...p}>
     <circle cx="12" cy="8" r="4" />

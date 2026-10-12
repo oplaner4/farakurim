@@ -110,6 +110,23 @@ const EVERY_WEEKDAY = [
 const ROMAN_MONTHS = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
 
 const weekdayIndex = (date: IsoDate) => getDay(asDate(date), { in: inPrague });
+
+/** A weekday after "z" or "ze" (index = `Date.getDay()`). */
+const FROM_WEEKDAY = ["z neděle", "z pondělí", "z úterý", "ze středy", "ze čtvrtka", "z pátku", "ze soboty"];
+
+/** "ze soboty 17. 10.": where a postponed event moved from. */
+export const formatFromWeekdayDate = (date: IsoDate) => `${FROM_WEEKDAY[weekdayIndex(date)]} ${formatShortDate(date)}`;
+
+/** The hours read with a consonant cluster ("dvě", "tři", "čtrnáct", "dvacet"), which take "ve". */
+const VE_HOURS = new Set([2, 3, 4, 12, 13, 14, 20, 21, 22, 23]);
+
+/** "v 9:30", "ve 14:00" */
+export const atClockTime = (time: string) => `${VE_HOURS.has(Number(time.split(":")[0])) ? "ve" : "v"} ${time}`;
+
+const dateList = new Intl.ListFormat("cs", { type: "conjunction" });
+
+/** "18. 10.", "18. 10. a 25. 10.", "18. 10., 25. 10. a 1. 11." (a no-break space after "a", which ends no line) */
+export const formatShortDates = (dates: IsoDate[]) => dateList.format(dates.map(formatShortDate));
 const isFirstOfMonth = (date: IsoDate) => date.endsWith("-01");
 const isLastOfMonth = (date: IsoDate) => isLastDayOfMonth(asDate(date), { in: inPrague });
 

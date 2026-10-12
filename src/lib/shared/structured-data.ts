@@ -2,13 +2,26 @@ import { format } from "date-fns";
 import { contacts, parish, SITE_URL } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import { telHref } from "./links";
-import { eventClock } from "@/lib/news/ics";
+import { eventClock, parseClock } from "@/lib/news/ics";
 import { inPrague, pragueDateTime } from "./prague";
 
 const isoDateTime = (date: string, time: string) =>
   format(pragueDateTime(date, time), "yyyy-MM-dd'T'HH:mmXXX", { in: inPrague });
 
 /** schema.org/Event of a detail page (design/DESIGN.md §13.5); dates with the Prague offset when timed. */
+/** schema.org's status of a cancelled or postponed event (§13.7); a postponed one also names its first date. */
+function eventStatusJsonLd({ change }: NewsEvent) {
+  if (change?.status === "cancelled") return { eventStatus: "https://schema.org/EventCancelled" };
+  if (change?.status === "moved") {
+    const clock = parseClock(change.previousTime);
+    return {
+      eventStatus: "https://schema.org/EventRescheduled",
+      previousStartDate: clock ? isoDateTime(change.previousStart, clock.from) : change.previousStart,
+    };
+  }
+  return {};
+}
+
 export function eventJsonLd(event: NewsEvent, url: string) {
   const { start, end = start } = event;
   const clock = end === start ? eventClock(event) : undefined;
@@ -20,6 +33,7 @@ export function eventJsonLd(event: NewsEvent, url: string) {
     startDate: clock ? isoDateTime(start, clock.from) : start,
     endDate: clock?.to ? isoDateTime(start, clock.to) : end,
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    ...eventStatusJsonLd(event),
     ...(event.place && { location: { "@type": "Place", name: event.place, address: event.place } }),
     // Uploaded posters are root-relative; search engines need the full URL.
     ...(event.poster && { image: new URL(event.poster.src, SITE_URL).href }),

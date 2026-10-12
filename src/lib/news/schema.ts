@@ -61,6 +61,32 @@ const attachmentsSchema = z
     });
   });
 
+/** A postponed event's first date differs from the new one; a series' dropped meetings are its meetings. */
+function checkChange(event: NewsEvent, ctx: z.RefinementCtx) {
+  if (event.change?.status === "moved" && event.change.previousStart === event.start) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["change", "previousStart"],
+      message: "must differ from start (the new date)",
+    });
+  }
+  if (event.cancelledMeetings) {
+    const starts = new Set(eventMeetings(event).map((m) => m.start));
+    event.cancelledMeetings.dates.forEach((day, i) => {
+      if (!starts.has(day)) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["cancelledMeetings", "dates", i],
+          message: "must be a meeting's date",
+        });
+      }
+    });
+    if (event.change?.status === "cancelled") {
+      ctx.addIssue({ code: "custom", path: ["cancelledMeetings"], message: "a cancelled event drops every meeting" });
+    }
+  }
+}
+
 /** A NewsEvent (src/content/types/news.ts); the month files keep its fields in this order. */
 export const newsEventSchema = z
   .strictObject({
@@ -85,6 +111,19 @@ export const newsEventSchema = z
     tags: z
       .array(z.strictObject({ label: text, color: z.enum(["blue", "orange", "magenta", "grey"]).optional() }))
       .optional(),
+    change: z
+      .discriminatedUnion("status", [
+        z.strictObject({ status: z.literal("cancelled"), announced: date.optional(), note: text.optional() }),
+        z.strictObject({
+          status: z.literal("moved"),
+          previousStart: date,
+          previousTime: z.string().optional(),
+          announced: date.optional(),
+          note: text.optional(),
+        }),
+      ])
+      .optional(),
+    cancelledMeetings: z.strictObject({ dates: z.array(date).min(1), note: text.optional() }).optional(),
     pinned: z.boolean().optional(),
     archiveHidden: z.boolean().optional(),
     published: date.optional(),
@@ -117,6 +156,7 @@ export const newsEventSchema = z
         ctx.addIssue({ code: "custom", path: ["end"], message: "must be the last meeting's last day" });
       }
     }
+    checkChange(event, ctx);
     // An unreadable time ("18.00") makes the event all-day in the .ics file and the JSON-LD.
     if (event.time !== undefined && !readableTime(event.time)) {
       ctx.addIssue({ code: "custom", path: ["time"], message: TIME_MESSAGE });

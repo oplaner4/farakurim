@@ -43,6 +43,14 @@ describe("nextMeeting", () => {
     expect(nextMeeting(day, title, "2026-10-11")?.id).toBe("early");
   });
 
+  it("skips a cancelled meeting", () => {
+    const cancelled = {
+      ...entry("c", "2026-10-11", "Setkávání společenství mladých", "18:30"),
+      cancelled: true as const,
+    };
+    expect(nextMeeting([...entries.filter((e) => e.id !== "c"), cancelled], title, "2026-10-06")?.id).toBe("b");
+  });
+
   it("returns nothing when no meeting is ahead", () => {
     expect(nextMeeting(entries, title, "2026-10-19")).toBeUndefined();
   });
