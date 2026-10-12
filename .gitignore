@@ -52,3 +52,7 @@ next-env.d.ts
 
 # brainstorming mockups (superpowers visual companion)
 /.superpowers/
+
+# sprava prototype: PHP libraries (composer install in sprava/api), build output
+/sprava/api/vendor/
+/sprava/dist/
