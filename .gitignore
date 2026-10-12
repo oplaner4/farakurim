@@ -49,3 +49,6 @@ next-env.d.ts
 
 # files staged for /uploads/ on the server (farnost-publish-content)
 /uploads/
+
+# brainstorming mockups (superpowers visual companion)
+/.superpowers/
