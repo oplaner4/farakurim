@@ -65,9 +65,16 @@ without rows), the rows in time order, `time` as `"8:00"`, `place` as the parish
 split at " – ", the announcements word for word with Word's bold and italic kept and addresses linked. What it
 guesses or leaves out, so check each against the fields below and fix `record.json` in place:
 
+- `html` (the most important): one announcement per empty paragraph in the document, so the parish's formatting
+  can split or clutter one. Fix each to read as one notice:
+  - Merge what belongs together: a lead-in ending with a colon ("Svatební ohlášky:", "Zpovídá se:") with its items
+    and closing line, and a letter (greeting, paragraphs, signature) into one announcement.
+  - Turn lines that list items ("▪ 1. a 2. třída: …", "– ve čtvrtek 3. 6. …", one confession time per line) into
+    `<ul><li>…</li></ul>` after the lead-in's `<p>`, without the bullet characters.
+  - Drop paragraphs without words ("%") and editorial markers ("[V Kuřimi:]"), keeping the wording otherwise.
 - `mass`: set for "mše" or "vigilie" in the title, in any place, a funeral mass too. Check a mass named otherwise.
-- `service`: set for "adorace", "modlit…", "novéna" or "obřady" anywhere in the title, and for any
-  row with "bohoslužba" or "pobožnost", in any place. Add it to any other mass-like public service.
+- `service`: set for "adorace", "modlit…", "novéna" or "obřady" anywhere in the title, and for any row with
+  "bohoslužba" or "pobožnost", in any place. Add it to any other mass-like public service.
 - `feast`: lowercased from capitals, keeping the first word, saints' names after "sv." and names such as Páně, Boží,
   Panny Marie. A cell's names are joined by " – " ("Uvedení Páně do chrámu – Hromnice"), and so are a day's feasts
   from its later rows ("Slavnost posvěcení kostela – 28. neděle v mezidobí"); a wrapped name is guessed from the
@@ -88,8 +95,8 @@ Write `record.json` from scratch with the fields below, from the rendered page a
   middle of the day's rows.
 - Join the wrapped lines of a long intention into one `detail`.
 - Enter every day of the week, a day without services with `"rows": []`.
-- Copy the announcements below the table word for word, one per paragraph, and add their `<strong>`, links and
-  `newsId` yourself.
+- Copy the announcements below the table word for word, one per notice (grouped and listed as 2a's `html` says), and
+  add their `<strong>`, links and `newsId` yourself.
 
 ### The fields
 
@@ -133,7 +140,7 @@ cancelled mass, a missing day has no services. Mention a cancellation within the
 | Field      | How to fill it                                                                                                                                                                   |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `category` | `zmena` (changes to services), `smireni` (confession times), `pozvanka` (invitations, pilgrimages, events), `podekovani` (thanks), `info` (anything else: collections, notices). |
-| `html`     | `<p>…</p>`; key dates and times in `<strong>`; e-mails as `<a href="mailto:…">`, web addresses as links.                                                                         |
+| `html`     | `<p>…</p>`, a list as `<ul><li>`; key dates and times in `<strong>`; e-mails as `<a href="mailto:…">`, web addresses as links.                                                   |
 | `newsId`   | The `id` of the matching aktualita in `src/content/news/`, if there is one (adds "Více v aktualitách"; finding it: below).                                                       |
 
 **Finding `newsId`**: the aktuality are in `src/content/news/<year>/<MM>.json` by the month of their `start`. For an
