@@ -52,13 +52,9 @@ export function ContactsPanel() {
           </span>
         </Row>
         <Row icon={<PhoneIcon />} className="lg:order-3">
-          <span className="flex flex-col md:flex-row md:flex-wrap md:gap-x-3 lg:flex-col">
-            {[contacts.officePhone, contacts.mobilePhone].map((phone) => (
-              <a key={phone} href={telHref(phone)} className="font-bold">
-                {phone}
-              </a>
-            ))}
-          </span>
+          <a href={telHref(contacts.phone)} className="font-bold">
+            {contacts.phone}
+          </a>
         </Row>
         <Row icon={<MailIcon />} className="lg:order-4">
           <a href={`mailto:${contacts.email}`} className="font-bold">

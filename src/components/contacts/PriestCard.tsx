@@ -4,8 +4,7 @@ import { UserIcon } from "@/components/ui/icons/contact-icons";
 import { ContactCard } from "./ContactCard";
 
 const rows = [
-  { label: "Fara", value: contacts.officePhone, href: telHref(contacts.officePhone) },
-  { label: "Mobil", value: contacts.mobilePhone, href: telHref(contacts.mobilePhone) },
+  { label: "Mobil", value: contacts.phone, href: telHref(contacts.phone) },
   { label: "E-mail", value: contacts.email, href: `mailto:${contacts.email}` },
 ];
 

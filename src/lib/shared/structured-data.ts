@@ -63,7 +63,7 @@ export function parishJsonLd(url: string) {
       addressLocality: contacts.town,
       addressCountry: "CZ",
     },
-    telephone: telHref(contacts.officePhone).slice("tel:".length),
+    telephone: telHref(contacts.phone).slice("tel:".length),
     email: contacts.email,
     openingHoursSpecification: contacts.officeHours.map((slot) => ({
       "@type": "OpeningHoursSpecification",

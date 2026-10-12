@@ -25,7 +25,7 @@ export function ParishOfficePanel({ className }: { className?: string }) {
         {contacts.postalCode} {contacts.town}
       </address>
       <div className="flex flex-wrap gap-2">
-        <ButtonLink href={telHref(contacts.officePhone)} size="block" className="min-h-13 shrink grow basis-35 px-1">
+        <ButtonLink href={telHref(contacts.phone)} size="block" className="min-h-13 shrink grow basis-35 px-1">
           <PhoneIcon size={18} />
           Zavolat
         </ButtonLink>

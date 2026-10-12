@@ -185,9 +185,8 @@ export const contacts = {
   mapQuery: "Křížkovského 55/5 Kuřim",
   /** Mapy.com embed of the parish office (the share link mapy.com/s/lamepuvozu, resolved to Czech). */
   mapEmbed: "https://mapy.com/cs/turisticka?l=0&source=addr&id=11101983&x=16.5264040&y=49.2965974&z=17&frame=1",
-  /** The parish office ("Fara") and the priest's mobile. */
-  officePhone: "541 230 183",
-  mobilePhone: "723 661 146",
+  /** The priest's mobile, the parish's only phone. */
+  phone: "723 661 146",
   email: "fara.kurim@seznam.cz",
   officeHours,
   officeHoursOther: "jindy dle domluvy",

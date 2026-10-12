@@ -13,7 +13,7 @@ describe("isExternalHref", () => {
     expect(isExternalHref("/uploads/x.pdf")).toBe(false);
     expect(isExternalHref("#obsah")).toBe(false);
     expect(isExternalHref("mailto:fara.kurim@seznam.cz")).toBe(false);
-    expect(isExternalHref("tel:+420541230183")).toBe(false);
+    expect(isExternalHref("tel:+420723661146")).toBe(false);
   });
 });
 

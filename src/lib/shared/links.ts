@@ -1,6 +1,6 @@
 import { SITE_HOST } from "@/content/site";
 
-/** `tel:` link of a Czech phone number written with spaces ("541 230 183"). */
+/** `tel:` link of a Czech phone number written with spaces ("723 661 146"). */
 export const telHref = (phone: string) => `tel:+420${phone.replace(/\s/g, "")}`;
 
 /** Mapy.cz search. */
