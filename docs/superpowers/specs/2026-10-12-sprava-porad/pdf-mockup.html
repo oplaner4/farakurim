@@ -1,0 +1,473 @@
+<h2>Section 4: the new PDF</h2>
+<p class="subtitle">
+  One A4 page, black-and-white printer, announcements read aloud. Oxygen (the website's font), embedded. Both shown in
+  greyscale, as printed. Click the one you prefer.
+</p>
+
+<style>
+  .a4 {
+    width: 100%;
+    aspect-ratio: 210/297;
+    background: #fff;
+    color: #000;
+    font-family: Oxygen, "Segoe UI", sans-serif;
+    padding: 5.5% 6.5%;
+    box-sizing: border-box;
+    filter: grayscale(1);
+    box-shadow: 0 1px 6px #0003;
+    font-size: 9.2px;
+    line-height: 1.3;
+    overflow: hidden;
+  }
+  .hd {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 2px solid #000;
+    padding-bottom: 4px;
+    margin-bottom: 6px;
+  }
+  .hd .t {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .hd .w {
+    font-size: 10px;
+  }
+  .hd .p {
+    font-size: 7.5px;
+    text-align: right;
+    color: #444;
+  }
+  /* A: day blocks */
+  .dA {
+    display: grid;
+    grid-template-columns: 22% 1fr;
+    border-bottom: 1px solid #999;
+    padding: 3px 0;
+  }
+  .dA.sun {
+    background: #e8e8e8;
+    border-top: 1.5px solid #000;
+    border-bottom: 1.5px solid #000;
+  }
+  .dA .dt {
+    font-weight: 700;
+    font-size: 10.5px;
+  }
+  .dA .wd {
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .dA .fs {
+    font-size: 8px;
+    font-style: italic;
+    margin-top: 1px;
+  }
+  .dA.sun .fs {
+    font-style: normal;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 7.5px;
+  }
+  .rA {
+    display: grid;
+    grid-template-columns: 11% 19% 1fr;
+    gap: 3px;
+  }
+  .rA .tm {
+    font-weight: 700;
+    text-align: right;
+    padding-right: 3px;
+  }
+  .rA .pl {
+    font-size: 7.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding-top: 1px;
+  }
+  .rA i {
+    font-style: italic;
+  }
+  /* B: refreshed table */
+  table.B {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  table.B th {
+    font-size: 7px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-align: left;
+    border-bottom: 1.5px solid #000;
+    padding: 2px 3px;
+  }
+  table.B td {
+    padding: 2px 3px;
+    vertical-align: top;
+    border-bottom: 0.5px solid #bbb;
+  }
+  table.B tr.sun td {
+    background: #e8e8e8;
+  }
+  table.B tr.first td {
+    border-top: 1.2px solid #000;
+  }
+  table.B .dt {
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  table.B .tm {
+    font-weight: 700;
+    text-align: right;
+  }
+  table.B .pl {
+    font-size: 7.5px;
+  }
+  table.B .fs {
+    font-size: 7.5px;
+  }
+  .ann {
+    margin-top: 8px;
+    font-size: 10.5px;
+    line-height: 1.38;
+  }
+  .ann h5 {
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 0 0 3px;
+    border-bottom: 1px solid #000;
+    padding-bottom: 2px;
+  }
+  .ann p {
+    margin: 0 0 4px;
+  }
+  .ft {
+    font-size: 6.5px;
+    color: #444;
+    margin-top: 6px;
+    border-top: 0.5px solid #999;
+    padding-top: 2px;
+    display: flex;
+    justify-content: space-between;
+  }
+</style>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 10px; background: #ddd">
+      <div class="a4">
+        <div class="hd">
+          <div>
+            <div class="t">POŘAD BOHOSLUŽEB</div>
+            <div class="w">11.–18. října 2026</div>
+          </div>
+          <div class="p">Římskokatolická farnost Kuřim<br />farakurim.cz</div>
+        </div>
+        <div class="dA sun">
+          <div>
+            <div class="dt">11. 10.</div>
+            <div class="wd">neděle</div>
+            <div class="fs">28. neděle v mezidobí</div>
+          </div>
+          <div>
+            <div class="rA">
+              <span class="tm">8:00</span><span class="pl">Kuřim</span
+              ><span>Mše sv. – <i>za rodinu Skoupou a Kábelovu</i></span>
+            </div>
+            <div class="rA">
+              <span class="tm">9:30</span><span class="pl">Kuřim</span
+              ><span>Mše sv. – <i>za Boží požehnání pro vnoučata a kmotřence</i></span>
+            </div>
+            <div class="rA">
+              <span class="tm">11:00</span><span class="pl">Mor. Knínice</span
+              ><span>Mše sv. – <i>na poděkování za prožitá léta a požehnání pro celou rodinu</i></span>
+            </div>
+          </div>
+        </div>
+        <div class="dA">
+          <div>
+            <div class="dt">12. 10.</div>
+            <div class="wd">pondělí</div>
+            <div class="fs">sv. Radim</div>
+          </div>
+          <div>
+            <div class="rA">
+              <span class="tm">8:00</span><span class="pl">Kuřim</span><span>Mše sv. – <i>za Pavla Zezulu</i></span>
+            </div>
+            <div class="rA">
+              <span class="tm">13:00</span><span class="pl">Kuřim</span><span>Adorace (adorační den farnosti)</span>
+            </div>
+            <div class="rA">
+              <span class="tm">17:30</span><span class="pl">Kuřim</span><span>Modlitba sv. růžence a požehnání</span>
+            </div>
+          </div>
+        </div>
+        <div class="dA">
+          <div>
+            <div class="dt">13. 10.</div>
+            <div class="wd">úterý</div>
+          </div>
+          <div>
+            <div class="rA">
+              <span class="tm">17:00</span><span class="pl">Tišnov</span
+              ><span>Mše sv. – <i>za živé a † farníky a dobrodince naší farnosti</i></span>
+            </div>
+          </div>
+        </div>
+        <div class="dA">
+          <div>
+            <div class="dt">14. 10.</div>
+            <div class="wd">středa</div>
+          </div>
+          <div>
+            <div class="rA">
+              <span class="tm">8:00</span><span class="pl">Kuřim</span
+              ><span>Mše sv. – <i>za obnovení lásky v manželství</i></span>
+            </div>
+          </div>
+        </div>
+        <div class="dA">
+          <div>
+            <div class="dt">15. 10.</div>
+            <div class="wd">čtvrtek</div>
+            <div class="fs">sv. Terezie z Avily</div>
+          </div>
+          <div>
+            <div class="rA"><span class="tm">17:30</span><span class="pl">Kuřim</span><span>Adorace</span></div>
+            <div class="rA">
+              <span class="tm">18:00</span><span class="pl">Kuřim</span
+              ><span>Mše sv. – <i>na poděkování za 24 let manželství…</i></span>
+            </div>
+          </div>
+        </div>
+        <div class="dA">
+          <div>
+            <div class="dt">16. 10.</div>
+            <div class="wd">pátek</div>
+            <div class="fs">sv. Markéta Marie Alacoque</div>
+          </div>
+          <div>
+            <div class="rA">
+              <span class="tm">16:45</span><span class="pl">Kuřim</span
+              ><span>Mše sv. – <i>za † Janku Križalkovičovu</i></span>
+            </div>
+            <div class="rA">
+              <span class="tm">18:00</span><span class="pl">Mor. Knínice</span
+              ><span>Mše sv. – <i>za 3. a 4. růži Živého růžence</i></span>
+            </div>
+          </div>
+        </div>
+        <div class="dA">
+          <div>
+            <div class="dt">17. 10.</div>
+            <div class="wd">sobota</div>
+            <div class="fs">sv. Ignác Antiochijský</div>
+          </div>
+          <div>
+            <div class="rA">
+              <span class="tm">8:00</span><span class="pl">Kuřim</span
+              ><span>Mše sv. – <i>za uzdravení srdce a obrácení</i></span>
+            </div>
+          </div>
+        </div>
+        <div class="dA sun">
+          <div>
+            <div class="dt">18. 10.</div>
+            <div class="wd">neděle</div>
+            <div class="fs">Slavnost posvěcení farního kostela</div>
+          </div>
+          <div>
+            <div class="rA">
+              <span class="tm">8:00</span><span class="pl">Kuřim</span
+              ><span>Mše sv. – <i>za Idu Toncrovu, Otílii Virovu, P. Richarda Toncra…</i></span>
+            </div>
+            <div class="rA">
+              <span class="tm">9:30</span><span class="pl">Kuřim</span
+              ><span>Mše sv. – <i>za město Kuřim a Boží požehnání…</i></span>
+            </div>
+            <div class="rA">
+              <span class="tm">11:00</span><span class="pl">Mor. Knínice</span
+              ><span>Mše sv. – <i>na poděkování za 49 let života…</i></span>
+            </div>
+          </div>
+        </div>
+        <div class="ann">
+          <h5>Ohlášky</h5>
+          <p>V Kuřimi se zpovídá ve čtvrtek od 17.30 hod, v Moravských Knínicích v pátek po mši svaté.</p>
+          <p>
+            V pondělí <b>12. října</b> je <b>Adorační den farnosti</b>. Od 13 hod do 17:30 bude tichá adorace, v 17:30
+            společná modlitba růžence…
+          </p>
+          <p>Na <b>Slavnost posvěcení kostela</b> přijal pozvání Otec biskup Vojtěch Cikrle…</p>
+          <p>Sbírka příští neděle je na misie.</p>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. Day blocks</h3>
+      <p>
+        Each day is a band: date, weekday and feast on the left, its services on the right; every row names its place
+        (no merged cells). Sundays and solemnities get a grey band and capitals. Calm and very readable.
+      </p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 10px; background: #ddd">
+      <div class="a4">
+        <div class="hd">
+          <div>
+            <div class="t">POŘAD BOHOSLUŽEB</div>
+            <div class="w">11.–18. října 2026</div>
+          </div>
+          <div class="p">Římskokatolická farnost Kuřim<br />farakurim.cz</div>
+        </div>
+        <table class="B">
+          <tr>
+            <th>Den</th>
+            <th>Svátek</th>
+            <th style="text-align: right">Čas</th>
+            <th>Místo</th>
+            <th>Bohoslužba</th>
+          </tr>
+          <tr class="sun first">
+            <td class="dt">Ne 11. 10.</td>
+            <td class="fs"><b>28. neděle v mezidobí</b></td>
+            <td class="tm">8:00</td>
+            <td class="pl">Kuřim</td>
+            <td>Mše sv. – <i>za rodinu Skoupou a Kábelovu</i></td>
+          </tr>
+          <tr class="sun">
+            <td></td>
+            <td></td>
+            <td class="tm">9:30</td>
+            <td class="pl">Kuřim</td>
+            <td>Mše sv. – <i>za Boží požehnání pro vnoučata…</i></td>
+          </tr>
+          <tr class="sun">
+            <td></td>
+            <td></td>
+            <td class="tm">11:00</td>
+            <td class="pl">Mor. Knínice</td>
+            <td>Mše sv. – <i>na poděkování za prožitá léta…</i></td>
+          </tr>
+          <tr class="first">
+            <td class="dt">Po 12. 10.</td>
+            <td class="fs">sv. Radim</td>
+            <td class="tm">8:00</td>
+            <td class="pl">Kuřim</td>
+            <td>Mše sv. – <i>za Pavla Zezulu</i></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td class="tm">13:00</td>
+            <td class="pl">Kuřim</td>
+            <td>Adorace (adorační den farnosti)</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td class="tm">17:30</td>
+            <td class="pl">Kuřim</td>
+            <td>Modlitba sv. růžence a požehnání</td>
+          </tr>
+          <tr class="first">
+            <td class="dt">Út 13. 10.</td>
+            <td></td>
+            <td class="tm">17:00</td>
+            <td class="pl">Tišnov</td>
+            <td>Mše sv. – <i>za živé a † farníky…</i></td>
+          </tr>
+          <tr class="first">
+            <td class="dt">St 14. 10.</td>
+            <td></td>
+            <td class="tm">8:00</td>
+            <td class="pl">Kuřim</td>
+            <td>Mše sv. – <i>za obnovení lásky v manželství</i></td>
+          </tr>
+          <tr class="first">
+            <td class="dt">Čt 15. 10.</td>
+            <td class="fs">sv. Terezie z Avily</td>
+            <td class="tm">17:30</td>
+            <td class="pl">Kuřim</td>
+            <td>Adorace</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td class="tm">18:00</td>
+            <td class="pl">Kuřim</td>
+            <td>Mše sv. – <i>na poděkování za 24 let…</i></td>
+          </tr>
+          <tr class="first">
+            <td class="dt">Pá 16. 10.</td>
+            <td class="fs">sv. Markéta Marie Alacoque</td>
+            <td class="tm">16:45</td>
+            <td class="pl">Kuřim</td>
+            <td>Mše sv. – <i>za † Janku Križalkovičovu</i></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td class="tm">18:00</td>
+            <td class="pl">Mor. Knínice</td>
+            <td>Mše sv. – <i>za 3. a 4. růži Živého růžence</i></td>
+          </tr>
+          <tr class="first">
+            <td class="dt">So 17. 10.</td>
+            <td class="fs">sv. Ignác Antiochijský</td>
+            <td class="tm">8:00</td>
+            <td class="pl">Kuřim</td>
+            <td>Mše sv. – <i>za uzdravení srdce a obrácení</i></td>
+          </tr>
+          <tr class="sun first">
+            <td class="dt">Ne 18. 10.</td>
+            <td class="fs"><b>Slavnost posvěcení farního kostela</b></td>
+            <td class="tm">8:00</td>
+            <td class="pl">Kuřim</td>
+            <td>Mše sv. – <i>za Idu Toncrovu…</i></td>
+          </tr>
+          <tr class="sun">
+            <td></td>
+            <td></td>
+            <td class="tm">9:30</td>
+            <td class="pl">Kuřim</td>
+            <td>Mše sv. – <i>za město Kuřim…</i></td>
+          </tr>
+          <tr class="sun">
+            <td></td>
+            <td></td>
+            <td class="tm">11:00</td>
+            <td class="pl">Mor. Knínice</td>
+            <td>Mše sv. – <i>na poděkování za 49 let…</i></td>
+          </tr>
+        </table>
+        <div class="ann">
+          <h5>Ohlášky</h5>
+          <p>V Kuřimi se zpovídá ve čtvrtek od 17.30 hod, v Moravských Knínicích v pátek po mši svaté.</p>
+          <p>V pondělí <b>12. října</b> je <b>Adorační den farnosti</b>. Od 13 hod do 17:30 bude tichá adorace…</p>
+          <p>Na <b>Slavnost posvěcení kostela</b> přijal pozvání Otec biskup Vojtěch Cikrle…</p>
+          <p>Sbírka příští neděle je na misie.</p>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. Refreshed table</h3>
+      <p>
+        Closest to today's DOCX: the same five columns, without merged cells or the outer grid; thin rules, a heavier
+        rule between days, grey Sundays. Familiar for the parish.
+      </p>
+    </div>
+  </div>
+</div>
+
+<p style="color: #666">
+  Both: announcements at 10.5 pt equivalent for reading aloud, intentions in italics, Sundays/solemnities bold + grey
+  (works in black-and-white), hidden-from-web intentions still printed. If the week doesn't fit one page, mPDF first
+  tightens the schedule, then the announcements continue on page 2 (never shrinking the read-aloud text below 10 pt).
+</p>

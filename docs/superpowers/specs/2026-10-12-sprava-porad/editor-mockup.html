@@ -1,0 +1,441 @@
+<h2>Section 3: the pořad editor</h2>
+<p class="subtitle">
+  Week list → new week (pre-filled) → edit days and announcements → check → export. Real content from 11.–18. 10. 2026.
+</p>
+
+<style>
+  .ui {
+    font-family: system-ui, sans-serif;
+    font-size: 13px;
+    color: #1d2433;
+    background: #f6f7f9;
+    border: 1px solid #d6d9de;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #1f3b73;
+    color: #fff;
+    padding: 8px 12px;
+  }
+  .top b {
+    font-size: 14px;
+  }
+  .top .sp {
+    flex: 1;
+  }
+  .top .pill {
+    background: #ffffff22;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: #fff;
+    border-bottom: 1px solid #e3e5e8;
+  }
+  .bar .sp {
+    flex: 1;
+  }
+  .btn {
+    border: 1px solid #c5cad3;
+    background: #fff;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .btn.p {
+    background: #1f3b73;
+    color: #fff;
+    border-color: #1f3b73;
+  }
+  .btn.s {
+    border-style: dashed;
+    color: #1f3b73;
+  }
+  .main {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+  }
+  .days {
+    flex: 3;
+    min-width: 0;
+  }
+  .aside {
+    flex: 2;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .day {
+    background: #fff;
+    border: 1px solid #e3e5e8;
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+  .dh {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 7px 10px;
+    border-bottom: 1px solid #eef0f2;
+  }
+  .dh .d {
+    font-weight: 700;
+    min-width: 78px;
+  }
+  .dh .feast {
+    color: #555;
+  }
+  .dh .sol {
+    color: #a0136b;
+    font-weight: 600;
+  }
+  .dh .sp {
+    flex: 1;
+  }
+  .dh .m {
+    color: #888;
+  }
+  .r {
+    display: grid;
+    grid-template-columns: 56px 130px 150px 1fr 22px;
+    gap: 6px;
+    align-items: center;
+    padding: 5px 10px;
+  }
+  .f {
+    border: 1px solid #cfd4db;
+    border-radius: 5px;
+    padding: 3px 6px;
+    background: #fff;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .f.i {
+    font-style: italic;
+    color: #24406f;
+  }
+  .tag {
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 8px;
+    margin-left: 4px;
+  }
+  .t-m {
+    background: #e3ecff;
+    color: #1f3b73;
+  }
+  .t-s {
+    background: #efe3ff;
+    color: #5b2a91;
+  }
+  .t-o {
+    background: #eceff3;
+    color: #555;
+  }
+  .chg {
+    background: #ffe4cc;
+    color: #8a4300;
+  }
+  .lock {
+    color: #8a4300;
+  }
+  .add {
+    color: #1f3b73;
+    padding: 4px 10px 8px;
+    font-size: 12px;
+  }
+  .box {
+    background: #fff;
+    border: 1px solid #e3e5e8;
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+  .box h4 {
+    margin: 0 0 6px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #666;
+  }
+  .warn {
+    background: #fff4d6;
+    border-left: 3px solid #e0a800;
+    padding: 4px 6px;
+    margin: 4px 0;
+    border-radius: 3px;
+  }
+  .ok {
+    background: #e6f6ea;
+    border-left: 3px solid #2e9e4f;
+    padding: 4px 6px;
+    margin: 4px 0;
+    border-radius: 3px;
+  }
+  .ann {
+    border: 1px solid #e3e5e8;
+    border-radius: 6px;
+    padding: 6px;
+    margin: 5px 0;
+  }
+  .cat {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 8px;
+    margin-right: 6px;
+  }
+  .c-sm {
+    background: #e0f2f1;
+    color: #00695c;
+  }
+  .c-po {
+    background: #e8eaf6;
+    color: #283593;
+  }
+  .c-in {
+    background: #eceff1;
+    color: #455a64;
+  }
+  .mini {
+    font-family: "Liberation Serif", serif;
+    font-size: 7px;
+    background: #fff;
+    border: 1px solid #ccc;
+    height: 150px;
+    padding: 6px;
+    color: #222;
+  }
+  .list {
+    background: #fff;
+    border: 1px solid #e3e5e8;
+    border-radius: 8px;
+  }
+  .li {
+    display: flex;
+    gap: 10px;
+    padding: 7px 10px;
+    border-bottom: 1px solid #eef0f2;
+    align-items: center;
+  }
+  .li .sp {
+    flex: 1;
+  }
+  .st {
+    font-size: 10px;
+    padding: 1px 7px;
+    border-radius: 8px;
+  }
+  .st-d {
+    background: #fff4d6;
+    color: #7a5a00;
+  }
+  .st-e {
+    background: #e6f6ea;
+    color: #1d6b35;
+  }
+  .pop {
+    position: relative;
+  }
+  .menu {
+    position: absolute;
+    right: 0;
+    top: 20px;
+    background: #fff;
+    border: 1px solid #c5cad3;
+    border-radius: 6px;
+    box-shadow: 0 4px 14px #0002;
+    padding: 6px;
+    width: 210px;
+    z-index: 2;
+    font-size: 12px;
+  }
+  .menu div {
+    padding: 3px 4px;
+  }
+  .sugg {
+    position: absolute;
+    left: 0;
+    top: 24px;
+    background: #fff;
+    border: 1px solid #c5cad3;
+    border-radius: 6px;
+    box-shadow: 0 4px 14px #0002;
+    width: 220px;
+    z-index: 2;
+    font-size: 12px;
+  }
+  .sugg div {
+    padding: 4px 8px;
+  }
+  .sugg .hi {
+    background: #eef3ff;
+  }
+</style>
+
+<h3>1 · Week list (home of the module)</h3>
+<div class="ui" style="margin-bottom: 18px">
+  <div class="top">
+    <b>Správa farnosti</b><span class="pill">Pořad bohoslužeb</span><span class="sp"></span><span>Jana ▾</span>
+  </div>
+  <div class="bar">
+    <b>Týdny 2026</b><span class="sp"></span><span class="btn">Roční archiv PDF</span
+    ><span class="btn p">+ Nový týden (18.–25. 10.)</span>
+  </div>
+  <div class="list">
+    <div class="li">
+      <b>11.–18. 10.</b><span>28. neděle v mezidobí</span><span class="sp"></span
+      ><span class="st st-d">rozpracováno · uloženo 10:42</span>
+    </div>
+    <div class="li">
+      <b>4.–11. 10.</b><span>27. neděle v mezidobí</span><span class="sp"></span
+      ><span class="st st-e">exportováno 3. 10.</span>
+    </div>
+    <div class="li">
+      <b>27. 9.–4. 10.</b><span>26. neděle v mezidobí</span><span class="sp"></span
+      ><span class="st st-e">exportováno 26. 9. · oprava 2</span>
+    </div>
+  </div>
+  <p style="padding: 6px 12px; color: #666; margin: 0">
+    “Nový týden” proposes the next Sunday–Sunday; the dates can be changed (two-week sheets at Christmas/Easter). It
+    pre-fills: every day, feasts, the regular masses, and the announcements of the last week to keep or delete.
+  </p>
+</div>
+
+<h3>2 · Editing a week</h3>
+<div class="ui">
+  <div class="top">
+    <b>Správa farnosti</b><span class="pill">Pořad bohoslužeb</span><span class="sp"></span><span>Jana ▾</span>
+  </div>
+  <div class="bar">
+    <span class="btn">← Týdny</span><b>Ne 11. 10. – Ne 18. 10. 2026</b><span style="color: #2e9e4f">✓ uloženo</span
+    ><span class="sp"></span><span class="btn">Náhled PDF</span><span class="btn p">Exportovat</span>
+  </div>
+  <div class="main">
+    <div class="days">
+      <div class="day">
+        <div class="dh">
+          <span class="d">Ne 11. 10.</span><span class="sol">28. neděle v mezidobí</span><span class="sp"></span
+          ><span class="m">⋯</span>
+        </div>
+        <div class="r">
+          <span class="f">8:00</span><span class="f">Kuřim ▾</span
+          ><span class="f">Mše sv. <span class="tag t-m">mše</span></span
+          ><span class="f i">za rodinu Skoupou a Kábelovu</span><span>⋯</span>
+        </div>
+        <div class="r">
+          <span class="f">9:30</span><span class="f">Kuřim ▾</span
+          ><span class="f">Mše sv. <span class="tag t-m">mše</span></span
+          ><span class="f i">za Boží požehnání pro vnoučata a kmotřence</span><span>⋯</span>
+        </div>
+        <div class="r">
+          <span class="f">11:00</span><span class="f">Mor. Knínice ▾</span
+          ><span class="f">Mše sv. <span class="tag t-m">mše</span></span
+          ><span class="f i">na poděkování za prožitá léta…</span><span>⋯</span>
+        </div>
+        <div class="add">+ přidat</div>
+      </div>
+      <div class="day">
+        <div class="dh">
+          <span class="d">Po 12. 10.</span><span class="feast">sv. Radim</span><span class="sp"></span
+          ><span class="m">⋯</span>
+        </div>
+        <div class="r">
+          <span class="f">8:00</span><span class="f">Kuřim ▾</span
+          ><span class="f">Mše sv. <span class="tag t-m">mše</span></span
+          ><span class="f i">za Pavla Zezulu</span><span>⋯</span>
+        </div>
+        <div class="r pop">
+          <span class="f">13:00</span><span class="f">Kuřim ▾</span
+          ><span class="f" style="outline: 2px solid #3b82f6">Ado|</span
+          ><span class="f i" style="color: #999">(úmysl / doplnění)</span><span>⋯</span>
+          <div class="sugg" style="left: 202px">
+            <div class="hi">Adorace <span class="tag t-s">bohoslužba</span></div>
+            <div>Adorace (adorační den farnosti)</div>
+            <div style="color: #1f3b73">+ nový typ „Ado“…</div>
+          </div>
+        </div>
+        <div style="height: 62px"></div>
+        <div class="r">
+          <span class="f">17:30</span><span class="f">Kuřim ▾</span
+          ><span class="f">Modlitba sv. růžence <span class="tag t-s">bohoslužba</span></span
+          ><span class="f i" style="color: #999">a požehnání</span><span>⋯</span>
+        </div>
+        <div class="add">+ přidat</div>
+      </div>
+      <div class="day">
+        <div class="dh">
+          <span class="d">Út 13. 10.</span><span class="feast" style="color: #aaa">—</span><span class="sp"></span
+          ><span class="m">⋯</span>
+        </div>
+        <div class="r pop">
+          <span class="f">17:00</span><span class="f">Tišnov</span
+          ><span class="f">Mše sv. <span class="tag t-o">mimo farnost</span></span
+          ><span class="f i">za živé a † farníky… <span class="lock">🔒</span></span
+          ><span>⋯</span>
+          <div class="menu">
+            <div>↑↓ Přesunout</div>
+            <div>⧉ Duplikovat</div>
+            <div>☑ Nezveřejňovat úmysl na webu</div>
+            <div>☐ Na webu počítat jako bohoslužbu</div>
+            <div style="color: #b00020">✕ Smazat</div>
+          </div>
+        </div>
+        <div style="height: 80px"></div>
+      </div>
+      <div style="color: #888; padding: 2px 4px">… St–Ne 18. 10. …</div>
+      <div class="box" style="margin-top: 10px">
+        <h4>Ohlášky</h4>
+        <div class="ann">
+          <span class="cat c-sm">Smíření ▾</span>V Kuřimi se zpovídá ve čtvrtek od 17.30 hod, v Moravských Knínicích v
+          pátek po mši svaté.
+        </div>
+        <div class="ann">
+          <span class="cat c-po">Pozvánka ▾</span>V pondělí <b>12. října</b> je <b>Adorační den farnosti</b>. Od 13 hod
+          do 17:30 bude tichá adorace…
+          <div style="margin-top: 4px; color: #1f3b73; font-size: 12px">
+            🔗 Související aktualita: <u>Adorační den farnosti (12. 10.)</u> ▾
+          </div>
+        </div>
+        <div class="ann"><span class="cat c-in">Info ▾</span>Sbírka příští neděle je na misie.</div>
+        <div class="add">+ přidat ohlášku &nbsp;·&nbsp; B &nbsp;I&nbsp; 🔗 in the text toolbar</div>
+      </div>
+    </div>
+    <div class="aside">
+      <div class="box">
+        <h4>Kontrola</h4>
+        <div class="warn">
+          Út 13. 10.: chybí pravidelná mše v Kuřimi (8:00). Je zrušená? <u>Ano</u> · <u>Doplnit</u>
+        </div>
+        <div class="warn">Ohláška 4: obsahuje „……“ – doplňte text.</div>
+        <div class="ok">Všechny dny mají svátek nebo jsou prázdné záměrně.</div>
+      </div>
+      <div class="box">
+        <h4>Jak to uvidí web</h4>
+        <div>Nejbližší mše: <b>Ne 11. 10. 8:00 Kuřim</b></div>
+        <div>Změna: <span class="tag chg">změna</span> Po 13:00 Adorace</div>
+        <div>Skryté úmysly: 1 (Út 17:00)</div>
+      </div>
+      <div class="box">
+        <h4>Náhled PDF</h4>
+        <div class="mini"><b>Pořad bohoslužeb 11.–18. 10. 2026</b><br />(live, the new design from section 4)</div>
+      </div>
+    </div>
+  </div>
+</div>
+<p style="color: #666">
+  Keyboard: Tab moves time → place → type → intention; Enter adds the next row in the same day with the same place.
+  Place remembers the last one used that day.
+</p>
