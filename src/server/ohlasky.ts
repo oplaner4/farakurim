@@ -9,8 +9,8 @@ import { toSheet } from "@/lib/services/service-sheet";
 // skill): the sheets sorted by validFrom (each PDF's URL computed from validFrom and rev), consecutive ones sharing at
 // most their boundary day (the newer wins it). The site shows the sheet whose week has started last (currentSheet(),
 // in the browser); the changes announced for later are src/content/schedule-exceptions.ts. Checked on import, so a broken file fails the build naming the field.
-// Server-only: rows marked not public must never reach a client bundle, so client components get what they need as
-// props, never this module.
+// Server-only: the whole file must not reach a client bundle, so client components get what they need as props, never
+// this module.
 
 const parsed = ohlaskyFileSchema.safeParse(data);
 if (!parsed.success) throw new Error(`src/content/ohlasky.json is not valid:\n${z.prettifyError(parsed.error)}`);

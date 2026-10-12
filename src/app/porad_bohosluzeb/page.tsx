@@ -17,7 +17,7 @@ import { BUILD_TIME } from "@/lib/shared/build-time";
 import { mapHref } from "@/lib/shared/links";
 import { weeklySchedule } from "@/lib/services/masses";
 import { eventHref } from "@/lib/news/events";
-import { isOneWeek, markChanges, publicDays } from "@/lib/services/service-sheet";
+import { isOneWeek, markChanges } from "@/lib/services/service-sheet";
 
 export const metadata: Metadata = {
   title: "Pořad bohoslužeb",
@@ -40,10 +40,9 @@ const churches: ChurchSchedule[] = (Object.keys(places) as PlaceId[]).map((id) =
   };
 });
 
-// Only what is public reaches the page (and the client bundle), tagged "změna" where it differs from the regular
-// schedule, with place names instead of IDs.
+// The days tagged "změna" where they differ from the regular schedule, with place names instead of IDs.
 const shownDays = (sheet: ServiceSheet) =>
-  publicDays(markChanges(sheet.days, regularServices)).map((day) => ({
+  markChanges(sheet.days, regularServices).map((day) => ({
     ...day,
     rows: day.rows.map((row) => ({ ...row, place: places[row.place as PlaceId]?.name ?? row.place })),
   }));

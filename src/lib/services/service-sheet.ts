@@ -134,16 +134,6 @@ export function markChanges(days: SheetDay[], regular: RegularService[]): SheetD
 export const sortAnnouncements = (items: Announcement[]): Announcement[] =>
   [...items].sort((a, b) => Number(b.category === "zmena") - Number(a.category === "zmena"));
 
-/** The days as published on the web: details marked not public (§14.6) are dropped, not only hidden. */
-export const publicDays = (days: SheetDay[]): SheetDay[] =>
-  days.map((day) => ({
-    ...day,
-    rows: day.rows.map(({ detail, public: isPublic = true, ...row }) => ({
-      ...row,
-      ...(isPublic && detail && { detail }),
-    })),
-  }));
-
 export type WeekView = {
   days: SheetDay[];
   /** Days before today that the toggle can show; 0 hides the toggle. */

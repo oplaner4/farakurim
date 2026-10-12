@@ -92,11 +92,6 @@ export type SheetRow = {
   title: string;
   /** The mass intention or the name after the title: "za Komunitu Emmanuel". */
   detail?: string;
-  /**
-   * `false` keeps `detail` off the website (only in the PDF): intentions and funerals name private people.
-   * Defaults to `true`. Which rows are public is up to the parish (§14.6).
-   */
-  public?: boolean;
   /** A mass: in a parish place (`PlaceId`), it counts for the next-mass countdown and the services calendar. */
   mass?: boolean;
   /**

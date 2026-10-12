@@ -5,7 +5,6 @@ import {
   isOneWeek,
   markChanges,
   periodDates,
-  publicDays,
   scheduleExceptions,
   sheetCovering,
   sheetExceptions,
@@ -23,7 +22,7 @@ const days: SheetDay[] = [
     date: "2026-10-03",
     rows: [
       { time: "8:00", place: "kurim", title: "Mše sv.", mass: true, detail: "za farníky" },
-      { time: "10:00", place: "kurim", title: "Pohřeb", detail: "[jméno]", public: false },
+      { time: "10:00", place: "kurim", title: "Pohřeb", detail: "[jméno]" },
     ],
   },
   {
@@ -259,14 +258,6 @@ describe("markChanges", () => {
       { date: "2026-10-04", rows: [{ ...mass("8:00"), changed: true }] },
     ];
     expect(changed(days)).toEqual([[false], [false], [true]]);
-  });
-});
-
-describe("publicDays", () => {
-  it("drops details that are not public", () => {
-    const rows = publicDays(days)[1].rows;
-    expect(rows[0].detail).toBe("za farníky");
-    expect(rows[1]).toEqual({ time: "10:00", place: "kurim", title: "Pohřeb" });
   });
 });
 

@@ -23,7 +23,6 @@ const rowSchema = z.strictObject({
   place: text,
   title: text,
   detail: text.optional(),
-  public: z.boolean().optional(),
   mass: z.boolean().optional(),
   service: z.boolean().optional(),
   changed: z.boolean().optional(),

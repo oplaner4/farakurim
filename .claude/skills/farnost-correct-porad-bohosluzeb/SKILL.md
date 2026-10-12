@@ -24,7 +24,7 @@ only, without `validFrom`, `validTo` and `rev` (they come from the PDF). Change 
   take over every difference;
 - a corrected DOCX: draft the week (`pnpm stage porad "<docx>" --from <validFrom> --to <validTo> --corrected
 --draft <scratchpad>/draft.json`), compare the draft with the sheet and take over only the differences in the
-  text, keeping the sheet's fixes (`<strong>`, categories, `newsId`, `public: false`);
+  text, keeping the sheet's fixes (`<strong>`, categories, `newsId`);
 - a correction the user describes: change those rows or announcements.
 
 The fields follow **`farnost-create-porad-bohosluzeb`** step 2 (rows, `mass` and `service`, privacy, announcements).
@@ -62,7 +62,7 @@ the user to mirror changed or cancelled services in the "Mše, adorace" Google C
 ## Common mistakes
 
 - Editing a sheet in `ohlasky.json` by hand instead of rerunning the command with a corrected record.
-- Rewriting the whole record from the PDF and losing earlier fixes (a hidden `public: false` row, a `newsId`): start
+- Rewriting the whole record from the PDF and losing earlier fixes (a category, a `newsId`): start
   from the sheet.
 - Leaving out `--corrected` after the release: the PDF's name is taken on the server.
 - Putting `validFrom`, `validTo` or `rev` into `record.json`: the script reads them from the heading.

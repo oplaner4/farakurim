@@ -44,8 +44,8 @@ build-time next mass.
   the `laterExceptions` (changes announced for those days; `scheduleExceptions()` merges them with the sheets' days by
   date and drops the ones a sheet covers). The site shows the sheet whose week has started last (`currentSheet()`), chosen in the browser by `CurrentSheet` / `NextMass` from the build day's choice. Only the sheets and `laterExceptions` are content: the combined
   exceptions are `currentExceptions` in `server/services.ts` (homepage, `server/calendar.ts`). `changed` only adds the "změna" tag; `markChanges()` sets it on masses that are not in the regular schedule. Intentions are published word for word, names included (the parish's decision: the PDF
-  is public too). A row the user asks to hide gets `public: false`, which keeps its `detail` off the web: `server/ohlasky.ts`
-  is `server-only`, pages pass `publicDays()` and client components get only props, never the module.
+  is public too). `server/ohlasky.ts` is `server-only`: pages pass what they show and client components get only
+  props, never the module.
 - Petrklíč (`content/petrklic.json`, loaded and checked by `content/petrklic.ts` with `petrklicFileSchema` from
   `src/lib/petrklic/schema.ts`): one record per issue (`year`, `number`, `note`, `rev`, `pageCount`), newest
   first, added by `pnpm stage petrklic` (`farnost-create-petrklic`); the id (`issueId()`), the URLs (`toIssue()`)

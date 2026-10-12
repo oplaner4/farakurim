@@ -13,7 +13,7 @@ const sheet = (fields: Partial<ServiceSheetRecord> = {}): ServiceSheetRecord => 
       solemnity: true,
       rows: [
         { time: "8:00", place: "kurim", title: "Mše sv.", detail: "za farníky", mass: true },
-        { time: "11:00", place: "Vranov", title: "Pohřeb", detail: "[jméno]", public: false },
+        { time: "11:00", place: "Vranov", title: "Pohřeb", detail: "[jméno]" },
       ],
     },
     { date: "2026-10-12", rows: [] },

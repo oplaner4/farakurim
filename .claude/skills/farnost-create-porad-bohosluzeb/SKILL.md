@@ -117,7 +117,6 @@ Write `record.json` from scratch with the fields below, from the rendered page a
 | `place`   | A parish church's id (`places` in `masses.ts`: `"kurim"`, …); free text elsewhere (`"Vranov"`).         |
 | `title`   | The part before " – ": `"Mše sv."`, `"Mše sv. se zpěvem scholy"`, `"Adorace"`, `"Pohřeb"`.              |
 | `detail`  | The part after " – ", word for word, wrapped lines joined.                                              |
-| `public`  | Omit (public); `false` only when the user asks to hide the `detail` (privacy below).                    |
 | `mass`    | `true` for a mass in any place; the countdown ("Nejbližší mše svatá") counts only the parish churches'. |
 | `service` | `true` for a mass-like public service in any place (below); shown as "Nejbližší bohoslužba".            |
 | `changed` | Omit (a mass outside the regular schedule is tagged "změna"); `true` only for a change the PDF marks.   |
@@ -127,8 +126,7 @@ růžence"), a novena ("Novéna k Duchu svatému"), a devotion ("Májová pobož
 ("Velkopáteční obřady"); not a funeral, wedding, confession or Křížová cesta.
 
 **Privacy** (§14.6): the parish decided to publish the intentions word for word, names included, because the
-linked PDF is public anyway. Set `public: false` only on a row the user asks to hide (e.g. a family asked to keep
-its intention off the web); that row's `detail` then stays in the PDF only.
+linked PDF is public anyway. To keep an intention off the web, the parish leaves it out of its document.
 
 **The sheet drives the week**: for every date from `validFrom` to `validTo` (the newer sheet wins a shared Sunday),
 the day's `mass` and `service` rows are its only services; the regular schedule is never mixed in, and applies again
@@ -199,7 +197,6 @@ adorace" Google Calendar, which the Kalendář reads.
 - Missing the announcements below the table, or summarising them: they are published word for word.
 - Assigning a row to the wrong day: the date sits in the middle of the day's rows in the layout text.
 - Leaving a wrapped intention cut in half, or splitting "Mše sv. – za …" into the wrong `title` / `detail`.
-- Hiding intentions with names (`public: false`) without the user asking: they are published as in the PDF.
 - Leaving out a day or a mass of the week: during the sheet's week, what is not in `rows` does not take place.
 - Setting `changed` by hand on a mass outside the regular schedule (it is computed), or to express a cancellation:
   leaving the mass out is enough.

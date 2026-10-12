@@ -8,7 +8,7 @@ import { showWeekLabel, weekView } from "@/lib/services/service-sheet";
 import { useToday } from "@/hooks/use-now";
 
 type Props = {
-  /** Public rows only (`publicDays`), with place names instead of IDs. */
+  /** The sheet's days (`markChanges`), with place names instead of IDs. */
   days: SheetDay[];
   /** The ohlášky cover one week (`isOneWeek`); a longer sheet drops "tento týden" from the labels. */
   oneWeek: boolean;
