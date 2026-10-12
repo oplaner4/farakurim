@@ -65,8 +65,8 @@ without rows), the rows in time order, `time` as `"8:00"`, `place` as the parish
 split at " – ", the announcements word for word with Word's bold and italic kept and addresses linked. What it
 guesses or leaves out, so check each against the fields below and fix `record.json` in place:
 
-- `mass`: set for "mše sv" in any place, a funeral mass too. Check a mass the document does not call "mše sv.".
-- `service`: set for a title starting with "Adorace", "Modlit…" or "Novéna", or containing "obřady", and for any
+- `mass`: set for "mše" or "vigilie" in the title, in any place, a funeral mass too. Check a mass named otherwise.
+- `service`: set for "adorace", "modlit…", "novéna" or "obřady" anywhere in the title, and for any
   row with "bohoslužba" or "pobožnost", in any place. Add it to any other mass-like public service.
 - `feast`: lowercased from capitals, keeping the first word, saints' names after "sv." and names such as Páně, Boží,
   Panny Marie. A cell's names are joined by " – " ("Uvedení Páně do chrámu – Hromnice"), and so are a day's feasts
@@ -104,16 +104,20 @@ Write `record.json` from scratch with the fields below, from the rendered page a
 
 **Rows** (`SheetRow`):
 
-| Field     | How to fill it                                                                                                                                                                                                                                                                                                                                                     |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `time`    | `"8:00"`, `"17:30"`.                                                                                                                                                                                                                                                                                                                                               |
-| `place`   | `"kurim"`, `"moravske-kninice"`, `"jinacovice"` for the parish churches (`places` in `masses.ts`); free text for anywhere else (`"Vranov"`).                                                                                                                                                                                                                       |
-| `title`   | The part before " – ": `"Mše sv."`, `"Mše sv. se zpěvem scholy"`, `"Adorace"`, `"Křest"`, `"Pohřeb"`, `"Modlitební večer s Komunitou Emmanuel"`.                                                                                                                                                                                                                   |
-| `detail`  | The part after " – ", word for word, wrapped lines joined: `"za živé a † farníky a dobrodince naší farnosti"`.                                                                                                                                                                                                                                                     |
-| `public`  | Omit (public). `false` only when the user asks to keep a row's `detail` off the web (see privacy below).                                                                                                                                                                                                                                                           |
-| `mass`    | `true` for a mass in any place; only those in the parish churches count. The countdown shows it as "Nejbližší mše svatá".                                                                                                                                                                                                                                          |
-| `service` | `true` for a mass-like public service in any place: adoration, prayers ("Modlitební večer", "Modlitba chval", "Modlitba sv. růžence"), a novena ("Novéna k Duchu svatému"), a devotion ("Májová pobožnost"), any "bohoslužba", the Easter rites ("Velkopáteční obřady"). Not for a funeral, wedding, confession or Křížová cesta. Shown as "Nejbližší bohoslužba". |
-| `changed` | Omit: masses outside the regular schedule are tagged "změna" automatically. `true` only for a change the PDF marks that the schedule cannot tell.                                                                                                                                                                                                                  |
+| Field     | How to fill it                                                                                          |
+| --------- | ------------------------------------------------------------------------------------------------------- |
+| `time`    | `"8:00"`, `"17:30"`.                                                                                    |
+| `place`   | A parish church's id (`places` in `masses.ts`: `"kurim"`, …); free text elsewhere (`"Vranov"`).         |
+| `title`   | The part before " – ": `"Mše sv."`, `"Mše sv. se zpěvem scholy"`, `"Adorace"`, `"Pohřeb"`.              |
+| `detail`  | The part after " – ", word for word, wrapped lines joined.                                              |
+| `public`  | Omit (public); `false` only when the user asks to hide the `detail` (privacy below).                    |
+| `mass`    | `true` for a mass in any place; the countdown ("Nejbližší mše svatá") counts only the parish churches'. |
+| `service` | `true` for a mass-like public service in any place (below); shown as "Nejbližší bohoslužba".            |
+| `changed` | Omit (a mass outside the regular schedule is tagged "změna"); `true` only for a change the PDF marks.   |
+
+**Mass-like services** (`service`): adoration, prayers ("Modlitební večer", "Modlitba chval", "Modlitba sv.
+růžence"), a novena ("Novéna k Duchu svatému"), a devotion ("Májová pobožnost"), any "bohoslužba" and the Easter rites
+("Velkopáteční obřady"); not a funeral, wedding, confession or Křížová cesta.
 
 **Privacy** (§14.6): the parish decided to publish the intentions word for word, names included, because the
 linked PDF is public anyway. Set `public: false` only on a row the user asks to hide (e.g. a family asked to keep
@@ -192,7 +196,7 @@ adorace" Google Calendar, which the Kalendář reads.
 - Leaving out a day or a mass of the week: during the sheet's week, what is not in `rows` does not take place.
 - Setting `changed` by hand on a mass outside the regular schedule (it is computed), or to express a cancellation:
   leaving the mass out is enough.
-- `mass: true` on a mass outside the parish churches, or on adoration (that is `service: true`).
+- `mass: true` on adoration (that is `service: true`).
 - `service: true` on a funeral, baptism or wedding: personal events never count for the countdown.
 - Publishing placeholder dots from an unfinished source.
 - Putting `validFrom`, `validTo` or `rev` into `record.json`: the script reads them from the heading.
