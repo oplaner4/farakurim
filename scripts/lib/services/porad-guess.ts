@@ -8,8 +8,8 @@ import type { AnnouncementCategory, SheetRow } from "@/content/types/services";
  * place, as the website counts only the parish churches' services.
  */
 export function serviceFlags(title: string, line: string): Pick<SheetRow, "mass" | "service"> {
-  // "Mše sv.", "Hodová mše sv.", "Slavnostní mše k jubileu", a funeral mass too.
-  const mass = /mše/i.test(title);
+  // "Mše sv.", "Hodová mše sv.", "Slavnostní mše k jubileu", a funeral mass too, and a vigil ("Velikonoční vigilie").
+  const mass = /mše|vigilie/i.test(title);
   // A mass-like public service: adoration, prayers, novenas ("Prvopáteční adorace", "Svatodušní novéna") and devotions
   // ("Májová pobožnost"), any "bohoslužba", the Easter rites ("Velkopáteční obřady").
   // Personal events (funerals, weddings), confessions and the Way of the Cross are left to the user.
