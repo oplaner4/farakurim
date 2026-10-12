@@ -8,6 +8,8 @@
     "build": "node scripts/clear-fetch-cache.mjs && next build",
     "lint": "eslint",
     "test": "vitest run",
+    "test:site": "vitest run --project site",
+    "test:scripts": "vitest run --project scripts",
     "icons": "tsx scripts/generate-icons.ts",
     "fonts": "python3 scripts/build-fonts.py",
     "stage": "tsx scripts/stage.ts",

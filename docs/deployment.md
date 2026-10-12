@@ -19,11 +19,12 @@ The tag starts `.github/workflows/deploy.yml`, which checks and builds the tagge
 must match `version` in `package.json` and point to a commit on `main`. A failed release is fixed in a new commit and
 released again; a pushed tag is never moved.
 
-**`pnpm release --local`** deploys from this machine instead, e.g. when GitHub Actions is down. It needs
-`.env.local` with all three keys ([README § Keys](../README.md#keys-in-envlocal-optional)). It runs the full check
-and a release build, shows what the sync will add, change and delete, and after the yes uploads the new files, checks
-that every linked `/uploads/…` file is on the server, syncs `out/` and verifies the live site before it tags. Its
-release commit carries the trailer `Release-Deploy: local`, so the workflow does not deploy that tag again.
+**`pnpm release --local`** deploys from this machine instead, e.g. when GitHub Actions is down. It needs `.env.local`
+with all three keys ([README § Keys](../README.md#keys-in-envlocal-optional)). It runs the full check (with the site's
+tests only: the content tooling's tests in `scripts/` guard nothing in `out/`) and a release build, shows what the sync
+will add, change and delete, and after the yes uploads the new files, checks that every linked `/uploads/…` file is on
+the server, syncs `out/` and verifies the live site before it tags. Its release commit carries the trailer
+`Release-Deploy: local`, so the workflow does not deploy that tag again.
 
 ## Weekly refresh
 
@@ -49,8 +50,8 @@ Actions tab.
   has no environment).
 
 `.github/workflows/check.yml` checks and builds pushes to `main` and pull requests with no secrets, skipping docs-only
-changes and release commits. The deploy workflow calls it for the tag, so a release runs the same check before it
-builds with the variables above.
+changes and release commits. The deploy workflow calls it for the tag, so a release runs the same check (with the site's
+tests only) before it builds with the variables above.
 
 ## Server
 

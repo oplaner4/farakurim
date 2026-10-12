@@ -3,7 +3,8 @@
 # Pushes and pull requests that only change docs (Markdown, design/, agent skills and rules) do not run, and neither
 # does the release commit (`chore(release): vX.Y.Z`): deploy.yml checks its tag, or pnpm release --local has.
 # deploy.yml also calls this workflow with `release: true`, so a release runs the same check, then builds with the
-# production keys and hands out/ to its deploy job as the artifact `out`.
+# production keys and hands out/ to its deploy job as the artifact `out`. A release runs only the site's tests: the
+# content tooling's tests (scripts/) guard nothing in out/, and the pushes to main have run them.
 # The runner image and the actions are pinned (actions by commit SHA, updated by Dependabot).
 
 name: Check
@@ -61,7 +62,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - run: pnpm exec prettier --check .
-      - run: pnpm test
+      - run: pnpm ${{ inputs.release && 'test:site' || 'test' }}
       - run: pnpm lint
       # A fresh checkout has no .next/types (PageProps, LayoutProps, RouteContext) or next-env.d.ts:
       # next dev and next build generate them locally, next typegen does it without building.

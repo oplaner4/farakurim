@@ -75,7 +75,7 @@ they show the build's verse. The "Zdroj: www.vira.cz" link is vira.cz's conditio
 | `pnpm dev`                                 | Dev server at http://localhost:3000, `/uploads/…` from `uploads/` or the live site                 |
 | `pnpm build`                               | Static export to `out/`; clears Next's fetch cache first, so calendars and the verse are read anew |
 | `pnpm preview`                             | Serve `out/` at http://localhost:4173 (run `pnpm build` first), uploads as in `pnpm dev`           |
-| `pnpm test`                                | Vitest unit tests (`src/**/*.test.ts`, `scripts/**/*.test.ts`)                                     |
+| `pnpm test`                                | Vitest unit tests: `test:site` (`src/**/*.test.ts`) and `test:scripts` (`scripts/**/*.test.ts`)    |
 | `pnpm lint`                                | ESLint (Next core-web-vitals, TypeScript and React hooks rules)                                    |
 | `pnpm exec tsc --noEmit`                   | Type check                                                                                         |
 | `pnpm format`                              | Prettier, including Tailwind class sorting                                                         |

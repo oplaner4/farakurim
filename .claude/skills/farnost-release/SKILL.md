@@ -33,15 +33,15 @@ Never move or reuse a pushed tag.
 
 ## Release from this machine
 
-Only when the user asks, e.g. because GitHub Actions is down: `pnpm release --local` previews more (a minute or two).
-It builds with `RELEASE_BUILD=1`, which stops first unless `.env.local` sets the Google Calendar key and both Matomo
-variables, runs the full check (Prettier, tests, lint, types) and a fresh `pnpm build`, and summarises the sync of `out/` (new, changed, deleted
-files) with every deleted file outside `_next/`. Name any deleted page or file outside `_next/` in the question.
-After the yes, `pnpm release --local --yes` runs the checks and the build again, uploads the new files, checks that
-every linked upload is on the server, syncs `out/`, verifies the live site, then commits, tags and pushes; the
-commit's trailer `Release-Deploy: local` keeps the workflow from deploying the tag again. Report the version and the
-verify lines. If the run stops after the sync (verify failed), the site is live but untagged: tell the user, fix it
-in a new commit and release again.
+Only when the user asks, e.g. because GitHub Actions is down: `pnpm release --local` previews more (a minute or two). It
+builds with `RELEASE_BUILD=1`, which stops first unless `.env.local` sets the Google Calendar key and both Matomo
+variables, runs the full check (Prettier, the site tests, lint, types) and a fresh `pnpm build`, and summarises the sync
+of `out/` (new, changed, deleted files) with every deleted file outside `_next/`. Name any deleted page or file outside
+`_next/` in the question. After the yes, `pnpm release --local --yes` runs the checks and the build again, uploads the
+new files, checks that every linked upload is on the server, syncs `out/`, verifies the live site, then commits, tags
+and pushes; the commit's trailer `Release-Deploy: local` keeps the workflow from deploying the tag again. Report the
+version and the verify lines. If the run stops after the sync (verify failed), the site is live but untagged: tell the
+user, fix it in a new commit and release again.
 
 ## Other commands
 

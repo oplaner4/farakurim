@@ -72,7 +72,7 @@ if $deploy_here; then
   }
   step pnpm exec next typegen
   step pnpm exec prettier --check .
-  step pnpm test
+  step pnpm test:site
   step pnpm lint
   step pnpm exec tsc --noEmit
   rm -rf out
