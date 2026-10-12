@@ -49,9 +49,8 @@ pnpm stage porad "<source>" --check
 ## 2. Extract the sheet
 
 The sheet is `record.json` in the session's scratchpad (never in the repo) with `days` and `announcements` only:
-`validFrom`, `validTo` and `rev` come from the heading. Rows use the table's fields; a mass row is
-`{ "time", "place", "title": "Mše sv.", "detail", "mass": true }` (example in step 4). Follow 2a or 2b, then check
-the record against the fields below.
+`validFrom` and `validTo` come from the heading, and the script sets `rev` (the PDF's version, with `--corrected`).
+Follow 2a or 2b, then check the record against the fields below.
 
 **Week**: the week `--draft` or `--check` printed from the heading (not part of the record): enter every date of it
 in `days`. A heading can cover **two weeks** (around Christmas, Easter or a holiday): it is still **one**
@@ -65,14 +64,16 @@ without rows), the rows in time order, `time` as `"8:00"`, `place` as the parish
 split at " – ", the announcements word for word with Word's bold and italic kept and addresses linked. What it
 guesses or leaves out, so check each against the fields below and fix `record.json` in place:
 
-- `html` (the most important): one announcement per empty paragraph in the document, so the parish's formatting
+- `html`: one announcement per empty paragraph in the document, so the parish's formatting
   can split or clutter one. Fix each to read as one notice:
   - Merge what belongs together: a lead-in ending with a colon ("Svatební ohlášky:", "Zpovídá se:") with its items
     and closing line, and a letter (greeting, paragraphs, signature) into one announcement.
   - Turn lines that list items ("▪ 1. a 2. třída: …", "– ve čtvrtek 3. 6. …", one confession time per line) into
     `<ul><li>…</li></ul>` after the lead-in's `<p>`, without the bullet characters.
   - Drop paragraphs without words ("%") and editorial markers ("[V Kuřimi:]"), keeping the wording otherwise.
-- `mass`: set for "mše" or "vigilie" in the title, in any place, a funeral mass too. Check a mass named otherwise.
+- `category`: guessed from keywords, `info` when none fits. Check every announcement.
+- `mass`: set for "mše" or "vigilie" in the title, in any place ("Mše sv. – pohřeb …" too). Check a mass named
+  otherwise.
 - `service`: set for "adorace", "modlit…", "novéna" or "obřady" anywhere in the title, and for any row with
   "bohoslužba" or "pobožnost", in any place. Add it to any other mass-like public service.
 - `feast`: lowercased from capitals, keeping the first word, saints' names after "sv." and names such as Páně, Boží,
@@ -80,12 +81,8 @@ guesses or leaves out, so check each against the fields below and fix `record.js
   from its later rows ("Slavnost posvěcení kostela – 28. neděle v mezidobí"); a wrapped name is guessed from the
   lines' case. Fix an unusual feast's case or split.
 - `solemnity`: set for Sundays, a bold feast and "slavnost…". Add a solemnity the document did not make bold.
-- `category`: guessed from keywords, `info` when none fits. Check every announcement.
 - `<strong>`: only where the parish made the text bold. Add it to key dates and times that are not.
 - `newsId`: never set. Add it where an aktualita matches (see "Finding `newsId`" below).
-- Unfinished text (dots) is copied as it is: ask the user for it.
-
-To see the page itself, render the staged PDF after step 4, or ask the user.
 
 ### 2b. From a PDF: write the record
 
@@ -106,7 +103,7 @@ Write `record.json` from scratch with the fields below, from the rendered page a
 | ----------- | ------------------------------------------------------------------------------------------------------ |
 | `date`      | ISO date of the row's "30. 11."                                                                        |
 | `feast`     | The feast in sentence case: "1. NEDĚLE ADVENTNÍ" → `"1. neděle adventní"`, `"sv. František Xaverský"`. |
-| `solemnity` | `true` for Sundays and solemnities (slavnost).                                                         |
+| `solemnity` | `true` for Sundays and solemnities ("Slavnost …").                                                     |
 | `rows`      | The day's services in time order.                                                                      |
 
 **Rows** (`SheetRow`):
@@ -121,25 +118,17 @@ Write `record.json` from scratch with the fields below, from the rendered page a
 | `service` | `true` for a mass-like public service in any place (below); shown as "Nejbližší bohoslužba".            |
 | `changed` | Omit (a mass outside the regular schedule is tagged "změna"); `true` only for a change the PDF marks.   |
 
-**Mass-like services** (`service`): adoration, prayers ("Modlitební večer", "Modlitba chval", "Modlitba sv.
-růžence"), a novena ("Novéna k Duchu svatému"), a devotion ("Májová pobožnost"), any "bohoslužba" and the Easter rites
-("Velkopáteční obřady"); not a funeral, wedding, confession or Křížová cesta.
-
-**Privacy** (§14.6): the parish decided to publish the intentions word for word, names included, because the
-linked PDF is public anyway. To keep an intention off the web, the parish leaves it out of its document.
-
-**The sheet drives the week**: for every date from `validFrom` to `validTo` (the newer sheet wins a shared Sunday),
-the day's `mass` and `service` rows are its only services; the regular schedule is never mixed in, and applies again
-only after the last sheet. So enter **every day of the week** with all its rows, as the PDF does: a missing mass is a
-cancelled mass, a missing day has no services. Mention a cancellation within the week to the user.
+**Mass-like services** (`service`): "Adorace", "Modlitební večer", "Modlitba chval", "Modlitba sv. růžence",
+"Novéna k Duchu svatému", "Májová pobožnost", any "bohoslužba" and "Velkopáteční obřady"; not "Pohřeb", "Křest dětí",
+"Zpovídání" or "Křížová cesta".
 
 **Announcements** (`announcements[]`, word for word, in the PDF's order):
 
-| Field      | How to fill it                                                                                                                                                                   |
-| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `category` | `zmena` (changes to services), `smireni` (confession times), `pozvanka` (invitations, pilgrimages, events), `podekovani` (thanks), `info` (anything else: collections, notices). |
-| `html`     | `<p>…</p>`, a list as `<ul><li>`; key dates and times in `<strong>`; e-mails as `<a href="mailto:…">`, web addresses as links.                                                   |
-| `newsId`   | The `id` of the matching aktualita in `src/content/news/`, if there is one (adds "Více v aktualitách"; finding it: below).                                                       |
+| Field      | How to fill it                                                                                                                                                                  |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `category` | `zmena` ("nebude", "přesouvá"), `smireni` ("zpovídá", "svátost smíření"), `pozvanka` ("zveme", "pouť", "koncert"), `podekovani` ("děkujeme"), `info` (anything else: "sbírka"). |
+| `html`     | `<p>…</p>`, a list as `<ul><li>`; key dates and times in `<strong>`; e-mails as `<a href="mailto:…">`, web addresses as links.                                                  |
+| `newsId`   | The `id` of the matching aktualita in `src/content/news/`, if there is one (adds "Více v aktualitách"; finding it: below).                                                      |
 
 **Finding `newsId`**: the aktuality are in `src/content/news/<year>/<MM>.json` by the month of their `start`. For an
 announcement of an event, search the month of its date (and the month before, for a registration) for its title,
@@ -200,9 +189,10 @@ adorace" Google Calendar, which the Kalendář reads.
 - Leaving out a day or a mass of the week: during the sheet's week, what is not in `rows` does not take place.
 - Setting `changed` by hand on a mass outside the regular schedule (it is computed), or to express a cancellation:
   leaving the mass out is enough.
-- `mass: true` on adoration (that is `service: true`).
-- `service: true` on a funeral, baptism or wedding: personal events never count for the countdown.
+- `mass: true` on "Adorace" (that is `service: true`).
+- `service: true` on "Pohřeb" or "Křest dětí": personal events never count for the countdown.
 - Publishing placeholder dots from an unfinished source.
-- Putting `validFrom`, `validTo` or `rev` into `record.json`: the script reads them from the heading.
+- Putting `validFrom`, `validTo` or `rev` into `record.json`: the script reads the dates from the heading and sets
+  `rev`.
 - Taking the DOCX draft as final: check every flag and category, and add the `<strong>` and `newsId` it cannot know.
 - Staging the DOCX itself, or copying it anywhere in the repo: only the week's PDF page is published.

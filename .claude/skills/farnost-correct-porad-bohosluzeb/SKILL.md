@@ -18,7 +18,7 @@ cannot be corrected.
 ## 2. Write the corrected record
 
 Write `record.json` in the session's scratchpad (never in the repo) from the sheet: its `days` and `announcements`
-only, without `validFrom`, `validTo` and `rev` (they come from the PDF). Change only what is wrong:
+only, without `validFrom`, `validTo` and `rev` (the script sets them). Change only what is wrong:
 
 - a corrected PDF: compare it with the sheet, the way **`farnost-create-porad-bohosluzeb`** step 1 reads a PDF, and
   take over every difference;
@@ -65,4 +65,5 @@ the user to mirror changed or cancelled services in the "Mše, adorace" Google C
 - Rewriting the whole record from the PDF and losing earlier fixes (a category, a `newsId`): start
   from the sheet.
 - Leaving out `--corrected` after the release: the PDF's name is taken on the server.
-- Putting `validFrom`, `validTo` or `rev` into `record.json`: the script reads them from the heading.
+- Putting `validFrom`, `validTo` or `rev` into `record.json`: the script reads the dates from the heading and sets
+  `rev`.

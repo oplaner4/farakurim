@@ -19,14 +19,14 @@ time), and ask the user before adding a výjimka they did not ask for.
 Write `exception.json` in the session's scratchpad (never in the repo). List **every** public service of that date
 at the parish churches, as it will be.
 
-| Field      | How to fill it                                                                                                         |
-| ---------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `date`     | ISO date.                                                                                                              |
-| `services` | `{ time, place }` for a mass, with `title` for adoration and other mass-like services, `note` optional. `[]` for none. |
-| `reason`   | Short, in Czech: `"pouť v Jinačovicích"`, `"dovolená kněze"`.                                                          |
+| Field      | How to fill it                                                                                                  |
+| ---------- | --------------------------------------------------------------------------------------------------------------- |
+| `date`     | ISO date.                                                                                                       |
+| `services` | `{ time, place }` for a mass, with `title` for a mass-like service ("Adorace"), `note` optional. `[]` for none. |
+| `reason`   | Short, in Czech: `"pouť v Jinačovicích"`, `"dovolená kněze"`.                                                   |
 
-`place` is `"kurim"`, `"moravske-kninice"` or `"jinacovice"`; services elsewhere, funerals, baptisms and weddings
-never go in.
+`place` is `"kurim"`, `"moravske-kninice"` or `"jinacovice"`; services elsewhere, "Pohřeb" and "Křest dětí" never go
+in.
 
 ```json
 { "date": "2026-10-25", "services": [{ "time": "10:00", "place": "kurim" }], "reason": "pouť v Jinačovicích" }

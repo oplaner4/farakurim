@@ -39,7 +39,7 @@ build-time next mass.
   never hard-code those variants in logic.
 - Ohlášky (`content/ohlasky.json`, design §14.5–14.7): one `ServiceSheet` per week (a week, or two weeks around holidays; `isOneWeek()` switches the labels), loaded and checked by `server/ohlasky.ts` (`ohlaskyFileSchema`); a sheet is added in advance with `pnpm stage porad … --record`, which removes the sheets before the current one and the later changes the sheets cover or that are before the current sheet. The later changes (`content/schedule-exceptions.json`, loaded and checked by `content/schedule-exceptions.ts` as `laterExceptions`, added with `pnpm add-exception`) are the changes announced for days no sheet covers: after the last sheet, or in a week the parish published no ohlášky for. A sheet has `days[].rows[]` and
   `announcements[]`. For every day of every sheet (the newer sheet wins the Sunday two sheets share) the `mass` and `service` rows (adoration,
-  "Velikonoční obřady"; never funerals, baptisms, weddings) are the day's only services (`sheetExceptions()`), never
+  "Velikonoční obřady"; never "Pohřeb" or "Křest dětí") are the day's only services (`sheetExceptions()`), never
   combined with `regularServices`; on the days no sheet covers the regular schedule applies, except on
   the `laterExceptions` (changes announced for those days; `scheduleExceptions()` merges them with the sheets' days by
   date and drops the ones a sheet covers). The site shows the sheet whose week has started last (`currentSheet()`), chosen in the browser by `CurrentSheet` / `NextMass` from the build day's choice. Only the sheets and `laterExceptions` are content: the combined

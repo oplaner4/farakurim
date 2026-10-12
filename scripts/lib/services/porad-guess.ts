@@ -12,7 +12,7 @@ export function serviceFlags(title: string, line: string): Pick<SheetRow, "mass"
   const mass = /mše|vigilie/i.test(title);
   // A mass-like public service: adoration, prayers, novenas ("Prvopáteční adorace", "Svatodušní novéna") and devotions
   // ("Májová pobožnost"), any "bohoslužba", the Easter rites ("Velkopáteční obřady").
-  // Personal events (funerals, weddings), confessions and the Way of the Cross are left to the user.
+  // "Pohřeb", "Křest dětí", "Zpovídání" and "Křížová cesta" are left to the user.
   const service = !mass && (/(^|\s)(adorace|modlit|novéna)|obřady/i.test(title) || /bohoslužb|pobožnost/i.test(line));
   return { ...(mass && { mass }), ...(service && { service }) };
 }
