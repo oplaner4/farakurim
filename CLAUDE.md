@@ -30,7 +30,9 @@ Use the `commit` skill (`.claude/skills/commit/SKILL.md`); never bypass the comm
 
 ## Managing content
 
-Use the content skills listed in [README.md § Content](README.md#content).
+Use the content skills listed in [README.md § Content](README.md#content). While running them, talk to the user in
+English (questions, confirmations, summaries, reports); only the site content you would add or change, or changed
+(field values, labels, announcements, quoted source text), is shown in Czech, as it is or will be published.
 
 ## Deployment
 

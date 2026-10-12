@@ -58,7 +58,7 @@ command the poster it would render.
 
 ## 4. Confirm with the user
 
-Show the user, in Czech, each changed field as old → new, and each file with whether it changes the poster. The
+Show the user each changed field as old → new, and each file with whether it changes the poster. The
 `Changed:` line must list only the fields you meant to change: another field there means the record was not copied
 whole.
 
