@@ -97,11 +97,11 @@ export type SheetRow = {
    * Defaults to `true`. Which rows are public is up to the parish (§14.6).
    */
   public?: boolean;
-  /** A mass: it counts for the next-mass countdown and the services calendar. */
+  /** A mass: in a parish place (`PlaceId`), it counts for the next-mass countdown and the services calendar. */
   mass?: boolean;
   /**
-   * A mass-like public service (adoration, "Velikonoční obřady"): it counts for the countdown as the next
-   * "bohoslužba". Never for funerals, baptisms or weddings.
+   * A mass-like public service (adoration, "Velikonoční obřady"): in a parish place, it counts for the countdown as the
+   * next "bohoslužba". Never for funerals, baptisms or weddings.
    */
   service?: boolean;
   /**

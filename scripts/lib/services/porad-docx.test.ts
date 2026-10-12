@@ -83,7 +83,7 @@ describe("docxWeeks", () => {
         { time: "11:00", place: "moravske-kninice", title: "Mše sv.", detail: "na poděkování", mass: true },
       ],
     });
-    // In time order; a service in a parish church counts, a mass elsewhere or a funeral does not.
+    // In time order; a mass or a service counts in any place, a funeral does not.
     expect(days[1]).toMatchObject({ feast: "sv. Radim", solemnity: false });
     expect(days[1].rows.map((r) => [r.time, r.mass, r.service])).toEqual([
       ["8:00", true, undefined],
@@ -92,7 +92,7 @@ describe("docxWeeks", () => {
     expect(days[2]).toEqual({
       date: "2026-10-13",
       solemnity: false,
-      rows: [{ time: "17:00", place: "Tišnov", title: "Mše sv.", detail: "za živé a † farníky" }],
+      rows: [{ time: "17:00", place: "Tišnov", title: "Mše sv.", detail: "za živé a † farníky", mass: true }],
     });
     expect(days[3].rows).toEqual([
       { time: "10:00", place: "kurim", title: "Pohřeb", detail: "Jan Novák" },
@@ -173,6 +173,59 @@ describe("docxWeeks", () => {
     expect(days[7].rows.map((r) => r.service)).toEqual([undefined, undefined, true]);
   });
 
+  it("splits a feast cell into its names and adds the feasts of a day's later rows", async () => {
+    const file = docx(
+      heading("ROZPIS BOHOSLUŽEB V TÝDNU od 11. 10. 2026 do 18. 10. 2026") +
+        table([
+          [["11. 10.", "Ne"], ["SLAVNOST POSVĚCENÍ FARNÍHO", "KOSTELA", "29. NEDĚLE V MEZIDOBÍ"], [], ["–"], ["–"]],
+          [["12. 10.", "Po"], ["32. NEDĚLE V MEZIDOBÍ", "sv. Martin"], [], ["–"], ["–"]],
+          [["13. 10.", "Út"], ["Slavnost", "MATKY BOŽÍ", "P. MARIE"], [], ["–"], ["–"]],
+          [["14. 10.", "St"], ["Pondělí", "6. týdne v mezidobí"], [], ["–"], ["–"]],
+          [["15. 10.", "Čt"], ["16. NEDĚLE V MEZIDOBÍ", "–", "SV. MAŘÍ MAGDALENA"], [], ["–"], ["–"]],
+          [["16. 10.", "Pá"], ["2. svátek vánoční", "– sv. Štěpána"], [], ["–"], ["–"]],
+          [["17. 10.", "So"], ["Vigilie slavnosti", "Zjevení Páně", "(Tří králů)"], [], ["–"], ["–"]],
+          [["18. 10.", "Ne"], [run("SLAVNOST SV. MAŘÍ MAGDALENY", { bold: true })], ["Kuřim"], ["8:00"], ["Mše sv."]],
+          [[], ["17. NEDĚLE V MEZIDOBÍ"], ["Moravské Knínice"], ["9:30"], ["Mše sv."]],
+          [[], ["SLAVNOST SV. MAŘÍ MAGDALENY"], ["Jinačovice"], ["11:00"], ["Hodová mše sv."]],
+        ]),
+    );
+    const { days } = (await docxWeeks(file))[0].draft();
+    expect(days.map((d) => d.feast)).toEqual([
+      "Slavnost posvěcení farního kostela – 29. neděle v mezidobí",
+      "32. neděle v mezidobí – sv. Martin",
+      "Slavnost Matky Boží P. Marie",
+      "Pondělí 6. týdne v mezidobí",
+      "16. neděle v mezidobí – sv. Maří Magdalena",
+      "2. svátek vánoční – sv. Štěpána",
+      "Vigilie slavnosti Zjevení Páně (Tří králů)",
+      "Slavnost sv. Maří Magdaleny – 17. neděle v mezidobí",
+    ]);
+    expect(days[7].rows.map((r) => r.place)).toEqual(["kurim", "moravske-kninice", "jinacovice"]);
+  });
+
+  it("guesses masses and devotions as services in any place", async () => {
+    const file = docx(
+      heading("ROZPIS BOHOSLUŽEB V TÝDNU od 11. 10. 2026 do 18. 10. 2026") +
+        table([
+          [
+            ["11. 10.", "Ne"],
+            [],
+            ["Tišnov"],
+            ["10:00", "15:00", "17:00", "18:00"],
+            ["Mše sv. – pohřeb pana Nováka", "Štědrovečerní bohoslužba s dětmi", "Májová pobožnost", "Pohřeb"],
+          ],
+          [["18. 10.", "Ne"], [], ["Kuřim"], ["9:30"], ["Mše sv."]],
+        ]),
+    );
+    const { days } = (await docxWeeks(file))[0].draft();
+    expect(days[0].rows.map((r) => [r.title, r.mass, r.service])).toEqual([
+      ["Mše sv.", true, undefined],
+      ["Štědrovečerní bohoslužba s dětmi", undefined, true],
+      ["Májová pobožnost", undefined, true],
+      ["Pohřeb", undefined, undefined],
+    ]);
+  });
+
   it("keeps the names in a feast in capitals and counts the Easter rites and novenas as services", async () => {
     const file = docx(
       heading("ROZPIS BOHOSLUŽEB V TÝDNU od 29. 3. 2026 do 5. 4. 2026") +
@@ -189,7 +242,7 @@ describe("docxWeeks", () => {
     const { days } = (await docxWeeks(file))[0].draft();
     expect(days.map((d) => d.feast).filter(Boolean)).toEqual([
       "Slavnost Matky Boží Panny Marie",
-      "Uvedení Páně do chrámu Hromnice",
+      "Uvedení Páně do chrámu – Hromnice",
       "Slavnost sv. Petra a Pavla",
       "Slavnost Všech svatých",
       "Svátek Svaté rodiny",

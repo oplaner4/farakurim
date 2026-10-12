@@ -225,14 +225,17 @@ describe("markChanges", () => {
   const mass = (time: string, place = "kurim") => ({ time, place, title: "Mše sv.", mass: true });
   const changed = (days: SheetDay[]) => markChanges(days, regular).map((d) => d.rows.map((r) => !!r.changed));
 
-  it("tags masses that are not in the regular schedule of their date", () => {
+  it("tags the parish's masses that are not in the regular schedule of their date", () => {
     expect(
       changed([
-        { date: "2026-10-01", rows: [mass("18:00"), mass("19:00"), mass("18:00", "moravske-kninice")] },
+        {
+          date: "2026-10-01",
+          rows: [mass("18:00"), mass("19:00"), mass("18:00", "moravske-kninice"), mass("18:00", "Tišnov")],
+        },
         { date: "2026-10-04", rows: [mass("8:00"), mass("9:30")] },
       ]),
     ).toEqual([
-      [false, true, true],
+      [false, true, true, false],
       [false, true],
     ]);
   });

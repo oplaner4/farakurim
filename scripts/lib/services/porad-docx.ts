@@ -114,28 +114,64 @@ const guessCategory = (text: string) => CATEGORY_HINTS.find(([, hint]) => hint.t
 
 // The names a feast keeps capitalised ("Panny Marie", "Ježíše Krista Krále", "Svaté rodiny"), and those that also
 // capitalise the word before them ("Narození Páně", "Matky Boží", "Seslání Ducha svatého", "Nejsvětější Trojice").
-const FEAST_NAMES = /^(páně|boží|božího|ducha|ježíše|krista|krále|panny|marie|svaté|těla|trojice)$/;
+const FEAST_NAMES = /^(páně|boží|božího|ducha|ježíše|krista|krále|p\.|panny|marie|svaté|těla|trojice)$/;
 const FEAST_MYSTERY_OF = /^(páně|boží|ducha|svatých|trojice)$/;
+// The small words inside a saint's name: "sv. Petra a Pavla", "sv. Terezie z Avily".
+const SAINT_LINKS = /^(a|z|ze|od)$/;
+
+/** All in capitals ("28. NEDĚLE V MEZIDOBÍ"), not a line without letters. */
+const isUpper = (line: string) => line === line.toLocaleUpperCase("cs") && /\p{Lu}/u.test(line);
 
 /**
- * The feast cell's lines in sentence case and joined: "1. NEDĚLE ADVENTNÍ" → "1. neděle adventní", "UVEDENÍ PÁNĚ DO
- * CHRÁMU" + "Hromnice" → "Uvedení Páně do chrámu Hromnice". A line not in capitals stays as it is.
+ * Whether the feast cell's `line` starts another name than the line `before` it, rather than wrapping it ("5. NEDĚLE"
+ * + "POSTNÍ", "Svátek" + "KŘTU PÁNĚ", "Středa" + "po 5. neděli postní"). A word alone in small letters ("Pondělí" +
+ * "6. týdne v mezidobí"), "(…)", a comma and "slavnosti" ("Vigilie slavnosti" + "Zjevení Páně") go on. A new name is a
+ * number ("29. NEDĚLE V MEZIDOBÍ"), "první pátek", a line in small letters after one in capitals ("UVEDENÍ PÁNĚ DO
+ * CHRÁMU" + "Hromnice") or one starting with a capital after one in small letters ("6. neděle v mezidobí" + "P. Maria
+ * Lurdská").
  */
-function feastCase(lines: string[]) {
+function startsName(before: string, line: string) {
+  if ((!isUpper(before) && !before.includes(" ")) || line.startsWith("(") || before.endsWith(",")) return false;
+  if (/\b(slavnosti|svátku|památky)$/i.test(before)) return false;
+  if (/^\d/.test(line) || /^první (pátek|sobota)/i.test(line)) return true;
+  if (isUpper(before)) return !isUpper(line);
+  return !isUpper(line) && /^\p{Lu}/u.test(line);
+}
+
+/** The feast cell's lines as its names, each one or more lines; a dash ("–", "– sv. Štěpána") also starts a name. */
+function feastNames(lines: string[]): string[][] {
+  const names: string[][] = [];
+  let apart = true;
+  for (const line of lines) {
+    line.split(/\s*[–—]\s*/).forEach((piece, i) => {
+      if (i > 0) apart = true;
+      if (!piece) return;
+      const name = names.at(-1);
+      if (apart || !name || startsName(name.at(-1)!, piece)) names.push([piece]);
+      else name.push(piece);
+      apart = false;
+    });
+  }
+  return names;
+}
+
+/** A name's lines in sentence case and joined: "1. NEDĚLE" + "ADVENTNÍ" → "1. neděle adventní". */
+function nameCase(lines: string[]) {
   const capital = (word: string) => word.replace(/^\p{L}/u, (letter) => letter.toLocaleUpperCase("cs"));
   const words = lines.flatMap((line) => {
-    const upper = line === line.toLocaleUpperCase("cs") && /\p{Lu}/u.test(line);
+    const upper = isUpper(line);
     return line.split(" ").map((word) => ({ word: upper ? word.toLocaleLowerCase("cs") : word, upper }));
   });
-  // A saint's name follows "sv.", and a second one "a" ("sv. Petra a Pavla"), also on the next line.
-  const saints = new Set<number>();
+  // A saint's name follows "sv." or "bl.", to a comma ("SV. MAŘÍ MAGDALENY", "SV. PETRA A PAVLA, APOŠTOLŮ").
+  let saint = false;
   return words
     .map(({ word, upper }, i) => {
-      const before = words[i - 1]?.word.toLocaleLowerCase("cs");
-      if (before === "sv." || (before === "a" && saints.has(i - 2))) saints.add(i);
+      const before = words[i - 1]?.word.toLocaleLowerCase("cs") ?? "";
+      if (/^(sv|bl)\.$/.test(before)) saint = true;
+      else if (before.endsWith(",")) saint = false;
       const named =
-        i === 0 ||
-        saints.has(i) ||
+        (i === 0 && !/^(sv|bl)\.$/.test(word)) ||
+        (saint && !SAINT_LINKS.test(word)) ||
         FEAST_NAMES.test(word) ||
         FEAST_MYSTERY_OF.test(words[i + 1]?.word.toLocaleLowerCase("cs") ?? "");
       return upper && named ? capital(word) : word;
@@ -143,9 +179,15 @@ function feastCase(lines: string[]) {
     .join(" ");
 }
 
+/**
+ * The feast cell's names in sentence case, joined by a dash: "UVEDENÍ PÁNĚ DO CHRÁMU" + "Hromnice" → "Uvedení Páně do
+ * chrámu – Hromnice", "32. NEDĚLE V MEZIDOBÍ" + "sv. Martin" → "32. neděle v mezidobí – sv. Martin". A line not in
+ * capitals stays as it is.
+ */
+const feastCase = (lines: string[]) => feastNames(lines).map(nameCase).join(" – ");
+
 /** The parish church named `name` ("Kuřim" → "kurim"), else the name itself (a place elsewhere, "Tišnov"). */
 const placeId = (name: string) => Object.entries(places).find(([, place]) => place.name === name)?.[0] ?? name;
-const isParishChurch = (place: string) => place in places;
 
 /** A service row: "Mše sv. – za …" split into title and detail, with the guessed mass and service flags. */
 function sheetRow(time: string, place: string, line: string): SheetRow {
@@ -153,12 +195,13 @@ function sheetRow(time: string, place: string, line: string): SheetRow {
   const dash = /\s*[–—]\s+|\s+-\s+/.exec(line);
   const title = dash ? line.slice(0, dash.index) : line;
   const detail = dash ? line.slice(dash.index + dash[0].length) : undefined;
-  // "Mše sv.", "Hodová mše sv.", "Pontifikální mše svatá".
-  const mass = isParishChurch(place) && /(^|\s)mše sv/i.test(title);
-  // A mass-like public service in a parish church counts for the countdown: adoration, prayers and novenas, the
+  // "Mše sv.", "Hodová mše sv.", "Pontifikální mše svatá", a funeral mass too; in any place, as the website counts only
+  // the parish churches' masses.
+  const mass = /(^|\s)mše sv/i.test(title);
+  // A mass-like public service: adoration, prayers, novenas and devotions ("Májová pobožnost"), any "bohoslužba", the
   // Easter rites ("Velkopáteční obřady").
   // Personal events (funerals, weddings), confessions and the Way of the Cross are left to the user.
-  const service = isParishChurch(place) && !mass && /^(adorace|modlit|novéna)|obřady/i.test(title);
+  const service = !mass && (/^(adorace|modlit|novéna)|obřady/i.test(title) || /bohoslužb|pobožnost/i.test(line));
   return {
     time: time.replace(".", ":").replace(/^0(\d)/, "$1"),
     place,
@@ -169,8 +212,8 @@ function sheetRow(time: string, place: string, line: string): SheetRow {
   };
 }
 
-/** The day a table row starts from its date and feast cells ("11. 10.", "Ne"; "28. NEDĚLE V MEZIDOBÍ"). */
-function tableDay(dateCell: string[], feastCell: string[], boldFeast: boolean, dates: IsoDate[], where: string) {
+/** The day a table row starts from its date cell ("11. 10.", "Ne"), without its feast yet. */
+function tableDay(dateCell: string[], dates: IsoDate[], where: string): SheetDay {
   const m = /^(\d{1,2})\.? ?(\d{1,2})\.?$/.exec(dateCell[0]);
   const date = m && dates.find((d) => Number(d.slice(8)) === Number(m[1]) && Number(d.slice(5, 7)) === Number(m[2]));
   if (!date) throw new Error(`${where}: the day "${dateCell.join(" ")}" is not in the week`);
@@ -178,14 +221,20 @@ function tableDay(dateCell: string[], feastCell: string[], boldFeast: boolean, d
   if (dateCell[1] && dateCell[1].toLocaleLowerCase("cs") !== weekday.toLocaleLowerCase("cs")) {
     throw new Error(`${where}: ${dateCell[0]} is marked "${dateCell[1]}", but ${date} is "${weekday}"`);
   }
-  const feast = feastCell.join(" ");
-  return {
-    date,
-    ...(feast && { feast: feastCase(feastCell) }),
-    // Bold in the document; "slavnost Zvěstování Páně" is not always.
-    solemnity: pragueWeekday(date) === 0 || boldFeast || /^slavnost/i.test(feast),
-    rows: [],
-  };
+  return { date, solemnity: pragueWeekday(date) === 0, rows: [] };
+}
+
+/**
+ * Adds a feast cell's names to the day's feast ("28. NEDĚLE V MEZIDOBÍ"): the day's first row, or a later one for
+ * another place that keeps its own feast cell ("SLAVNOST POSVĚCENÍ KOSTELA" in Kuřim, "28. NEDĚLE V MEZIDOBÍ" in
+ * Moravské Knínice), its names after the day's and each name once.
+ */
+function addFeast(day: SheetDay, cell: Cell) {
+  const names = new Set(day.feast?.split(" – "));
+  for (const name of feastCase(cell.lines).split(" – ")) names.add(name);
+  day.feast = [...names].join(" – ");
+  // Bold in the document; "slavnost Zvěstování Páně" is not always.
+  if (cell.bold || /^slavnost/i.test(cell.lines.join(" "))) day.solemnity = true;
 }
 
 /** The service rows of a table row: its times paired in order with its services, "–" in both for none. */
@@ -231,10 +280,11 @@ function tableDays(rows: Cell[][], week: { validFrom: IsoDate; validTo: IsoDate 
   const days: SheetDay[] = [];
   for (const [dateCell, feastCell, placeCell, timeCell, serviceCell] of tableGrid(rows, where)) {
     if (dateCell && dateCell.lines.length > 0) {
-      days.push(tableDay(dateCell.lines, feastCell?.lines ?? [], !!feastCell?.bold, dates, where));
+      days.push(tableDay(dateCell.lines, dates, where));
     }
     const day = days.at(-1);
     if (!day) throw new Error(`${where}: the table starts without a date`);
+    if (feastCell && feastCell.lines.length > 0) addFeast(day, feastCell);
     const lines = (cell: Cell | null) => cell?.lines ?? [];
     day.rows.push(...tableRows(lines(placeCell), lines(timeCell), lines(serviceCell), `${where}, ${day.date}`));
   }

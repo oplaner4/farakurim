@@ -1,12 +1,13 @@
 import { differenceInCalendarDays, eachDayOfInterval } from "date-fns";
-import type {
-  Announcement,
-  PlaceId,
-  RegularService,
-  ScheduleException,
-  ServiceSheet,
-  ServiceSheetRecord,
-  SheetDay,
+import {
+  PLACE_IDS,
+  type Announcement,
+  type PlaceId,
+  type RegularService,
+  type ScheduleException,
+  type ServiceSheet,
+  type ServiceSheetRecord,
+  type SheetDay,
 } from "@/content/types/services";
 import type { IsoDate } from "@/content/types/shared";
 import { plural } from "@/lib/shared/czech";
@@ -107,8 +108,8 @@ export function sheetOrderProblems(sheets: Pick<ServiceSheet, "validFrom" | "val
 
 /**
  * Tags a mass "změna" (`changed`) when its time and place are not a regular mass of that date (`rule` included).
- * A weekday without any regular mass has nothing to change, so its masses stay untagged; a `changed: true` entered
- * by hand (the PDF marks a change) is kept.
+ * A weekday without any regular mass has nothing to change, so its masses stay untagged, and so do the masses outside
+ * the parish ("Tišnov"); a `changed: true` entered by hand (the PDF marks a change) is kept.
  */
 export function markChanges(days: SheetDay[], regular: RegularService[]): SheetDay[] {
   const massWeekdays = new Set(regular.filter((s) => !s.title).map((s) => s.weekday));
@@ -118,7 +119,10 @@ export function markChanges(days: SheetDay[], regular: RegularService[]): SheetD
     return {
       ...day,
       rows: day.rows.map((row) =>
-        row.mass && !row.changed && !masses.some((m) => m.time === row.time && m.place === row.place)
+        row.mass &&
+        !row.changed &&
+        isPlaceId(row.place, PLACE_IDS) &&
+        !masses.some((m) => m.time === row.time && m.place === row.place)
           ? { ...row, changed: true }
           : row,
       ),
