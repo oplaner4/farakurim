@@ -59,6 +59,7 @@ describe("nextMeeting", () => {
 describe("meetingLabel and meetingTile", () => {
   it("writes the day and the time", () => {
     expect(meetingLabel({ date: "2026-10-11", time: "18:30" })).toBe("Neděle 11. 10. v 18:30");
+    expect(meetingLabel({ date: "2026-10-14", time: "14:00" })).toBe("Středa 14. 10. ve 14:00");
     expect(meetingLabel({ date: "2026-10-13" })).toBe("Úterý 13. 10.");
     expect(meetingTile("2026-10-11")).toEqual({ weekday: "NE", day: "11" });
   });

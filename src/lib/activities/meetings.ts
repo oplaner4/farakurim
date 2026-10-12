@@ -2,7 +2,7 @@ import { addDays } from "date-fns";
 import type { CalendarEntry } from "@/content/types/calendar";
 import type { IsoDate } from "@/content/types/shared";
 import type { DateRange } from "@/lib/calendar/agenda";
-import { capitalize, fold, formatShortDate, weekdayName, WEEKDAY_SHORT } from "@/lib/shared/czech";
+import { atClockTime, capitalize, fold, formatShortDate, weekdayName, WEEKDAY_SHORT } from "@/lib/shared/czech";
 import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
 
 // "Příští setkání" of a group page (design/DESIGN.md §27.1): the group's next meeting in the parish calendars.
@@ -29,10 +29,10 @@ export function nextMeeting(entries: CalendarEntry[], title: string, today: IsoD
   return next;
 }
 
-/** "Neděle 11. 10. v 18:30" (without the time for an all-day entry). */
+/** "Neděle 11. 10. v 18:30", "Středa 14. 10. ve 14:00" (without the time for an all-day entry). */
 export function meetingLabel({ date, time }: Pick<CalendarEntry, "date" | "time">): string {
   const day = `${capitalize(weekdayName(date))} ${formatShortDate(date)}`;
-  return time ? `${day} v ${time}` : day;
+  return time ? `${day} ${atClockTime(time)}` : day;
 }
 
 /** The date tile: "NE" and "11". */

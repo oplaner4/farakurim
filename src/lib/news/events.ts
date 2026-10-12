@@ -2,7 +2,7 @@ import { differenceInCalendarDays, endOfMonth, endOfWeek } from "date-fns";
 import { links } from "@/content/site";
 import type { NewsEvent, TagColor } from "@/content/types/news";
 import type { IsoDate } from "@/content/types/shared";
-import { formatEventWhen, formatShortDate, plural, relativeDayName } from "@/lib/shared/czech";
+import { atClockTime, formatEventWhen, formatShortDate, plural, relativeDayName } from "@/lib/shared/czech";
 import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
 
 // ISO dates (`YYYY-MM-DD`) compare correctly as strings, so the date maths here stays on strings.
@@ -257,7 +257,7 @@ export function posterHref(event: NewsEvent): string | undefined {
  */
 export function posterAlt(event: NewsEvent): string {
   const when = formatEventWhen(event, { longMonth: true });
-  return [`Plakát: ${event.title}`, when.time ? `${when.date} v ${when.time}` : when.date, event.place]
+  return [`Plakát: ${event.title}`, when.time ? `${when.date} ${atClockTime(when.time)}` : when.date, event.place]
     .filter(Boolean)
     .join(", ");
 }

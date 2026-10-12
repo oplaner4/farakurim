@@ -133,6 +133,7 @@ describe("posterAlt", () => {
     expect(posterAlt({ ...base, time: "9:30", place: "farní zahrada" })).toBe(
       "Plakát: Farní den, neděle 18. října 2026 v 9:30, farní zahrada",
     );
+    expect(posterAlt({ ...base, time: "14:00–18:00" })).toBe("Plakát: Farní den, neděle 18. října 2026 ve 14:00–18:00");
     expect(posterAlt(base)).toBe("Plakát: Farní den, neděle 18. října 2026");
   });
 });
