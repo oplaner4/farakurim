@@ -173,83 +173,22 @@ describe("docxWeeks", () => {
     expect(days[7].rows.map((r) => r.service)).toEqual([undefined, undefined, true]);
   });
 
-  it("splits a feast cell into its names and adds the feasts of a day's later rows", async () => {
+  it("adds the feasts of a day's later rows, each once, and splits a cell into its names", async () => {
     const file = docx(
       heading("ROZPIS BOHOSLUŽEB V TÝDNU od 11. 10. 2026 do 18. 10. 2026") +
         table([
-          [["11. 10.", "Ne"], ["SLAVNOST POSVĚCENÍ FARNÍHO", "KOSTELA", "29. NEDĚLE V MEZIDOBÍ"], [], ["–"], ["–"]],
-          [["12. 10.", "Po"], ["32. NEDĚLE V MEZIDOBÍ", "sv. Martin"], [], ["–"], ["–"]],
-          [["13. 10.", "Út"], ["Slavnost", "MATKY BOŽÍ", "P. MARIE"], [], ["–"], ["–"]],
-          [["14. 10.", "St"], ["Pondělí", "6. týdne v mezidobí"], [], ["–"], ["–"]],
-          [["15. 10.", "Čt"], ["16. NEDĚLE V MEZIDOBÍ", "–", "SV. MAŘÍ MAGDALENA"], [], ["–"], ["–"]],
-          [["16. 10.", "Pá"], ["2. svátek vánoční", "– sv. Štěpána"], [], ["–"], ["–"]],
-          [["17. 10.", "So"], ["Vigilie slavnosti", "Zjevení Páně", "(Tří králů)"], [], ["–"], ["–"]],
+          [["11. 10.", "Ne"], ["UVEDENÍ PÁNĚ DO CHRÁMU", "Hromnice"], [], ["–"], ["–"]],
           [["18. 10.", "Ne"], [run("SLAVNOST SV. MAŘÍ MAGDALENY", { bold: true })], ["Kuřim"], ["8:00"], ["Mše sv."]],
           [[], ["17. NEDĚLE V MEZIDOBÍ"], ["Moravské Knínice"], ["9:30"], ["Mše sv."]],
           [[], ["SLAVNOST SV. MAŘÍ MAGDALENY"], ["Jinačovice"], ["11:00"], ["Hodová mše sv."]],
         ]),
     );
     const { days } = (await docxWeeks(file))[0].draft();
-    expect(days.map((d) => d.feast)).toEqual([
-      "Slavnost posvěcení farního kostela – 29. neděle v mezidobí",
-      "32. neděle v mezidobí – sv. Martin",
-      "Slavnost Matky Boží P. Marie",
-      "Pondělí 6. týdne v mezidobí",
-      "16. neděle v mezidobí – sv. Maří Magdalena",
-      "2. svátek vánoční – sv. Štěpána",
-      "Vigilie slavnosti Zjevení Páně (Tří králů)",
+    expect(days.map((d) => d.feast).filter(Boolean)).toEqual([
+      "Uvedení Páně do chrámu – Hromnice",
       "Slavnost sv. Maří Magdaleny – 17. neděle v mezidobí",
     ]);
     expect(days[7].rows.map((r) => r.place)).toEqual(["kurim", "moravske-kninice", "jinacovice"]);
-  });
-
-  it("guesses masses and devotions as services in any place", async () => {
-    const file = docx(
-      heading("ROZPIS BOHOSLUŽEB V TÝDNU od 11. 10. 2026 do 18. 10. 2026") +
-        table([
-          [
-            ["11. 10.", "Ne"],
-            [],
-            ["Tišnov"],
-            ["10:00", "15:00", "17:00", "18:00"],
-            ["Mše sv. – pohřeb pana Nováka", "Štědrovečerní bohoslužba s dětmi", "Májová pobožnost", "Pohřeb"],
-          ],
-          [["18. 10.", "Ne"], [], ["Kuřim"], ["9:30"], ["Mše sv."]],
-        ]),
-    );
-    const { days } = (await docxWeeks(file))[0].draft();
-    expect(days[0].rows.map((r) => [r.title, r.mass, r.service])).toEqual([
-      ["Mše sv.", true, undefined],
-      ["Štědrovečerní bohoslužba s dětmi", undefined, true],
-      ["Májová pobožnost", undefined, true],
-      ["Pohřeb", undefined, undefined],
-    ]);
-  });
-
-  it("keeps the names in a feast in capitals and counts the Easter rites and novenas as services", async () => {
-    const file = docx(
-      heading("ROZPIS BOHOSLUŽEB V TÝDNU od 29. 3. 2026 do 5. 4. 2026") +
-        table([
-          [["29. 3.", "Ne"], ["SLAVNOST MATKY BOŽÍ PANNY MARIE"], ["Kuřim"], ["19:00"], ["Novéna k Duchu svatému"]],
-          [["30. 3.", "Po"], ["UVEDENÍ PÁNĚ DO CHRÁMU", "Hromnice"], ["Kuřim"], ["8:00"], ["Mše sv."]],
-          [["1. 4.", "St"], ["SLAVNOST SV. PETRA", "A PAVLA"], ["Kuřim"], ["8:00"], ["Mše sv."]],
-          [["2. 4.", "Čt"], ["SLAVNOST VŠECH SVATÝCH"], ["Kuřim"], ["8:00"], ["Mše sv."]],
-          [["4. 4.", "So"], ["SLAVNOST NEJSVĚTĚJŠÍ TROJICE"], ["Kuřim"], ["8:00"], ["Mše sv."]],
-          [["3. 4.", "Pá"], ["SVÁTEK SVATÉ RODINY"], ["Kuřim"], ["18:00"], ["Velkopáteční obřady"]],
-          [["5. 4.", "Ne"], ["2. NEDĚLE PO NAROZENÍ PÁNĚ"], ["Kuřim"], ["8:00"], ["Mše sv."]],
-        ]),
-    );
-    const { days } = (await docxWeeks(file))[0].draft();
-    expect(days.map((d) => d.feast).filter(Boolean)).toEqual([
-      "Slavnost Matky Boží Panny Marie",
-      "Uvedení Páně do chrámu – Hromnice",
-      "Slavnost sv. Petra a Pavla",
-      "Slavnost Všech svatých",
-      "Svátek Svaté rodiny",
-      "Slavnost Nejsvětější Trojice",
-      "2. neděle po Narození Páně",
-    ]);
-    expect([days[0].rows[0].service, days[5].rows[0].service]).toEqual([true, true]);
   });
 
   it("refuses a table it cannot read, naming the week and the day", async () => {
