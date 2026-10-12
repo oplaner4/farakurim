@@ -7,6 +7,7 @@ describe("serviceFlags", () => {
       [
         ["Mše sv.", "Mše sv. – za farníky"],
         ["Hodová mše sv.", "Hodová mše sv."],
+        ["Slavnostní mše k jubileu 800 let", "Slavnostní mše k jubileu 800 let"],
         ["Mše sv.", "Mše sv. – pohřeb pana Nováka"],
         ["Adorace", "Adorace"],
         ["Modlitba sv. růžence a požehnání", "Modlitba sv. růžence a požehnání"],
@@ -18,6 +19,7 @@ describe("serviceFlags", () => {
         ["Májová pobožnost", "Májová pobožnost"],
       ].map(([title, line]) => serviceFlags(title, line)),
     ).toEqual([
+      { mass: true },
       { mass: true },
       { mass: true },
       { mass: true },
