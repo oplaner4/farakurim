@@ -283,7 +283,7 @@
     "mapQuery": "kostel sv. Maří Magdalény Kuřim",
     "text": "Zveme vás na slavnostní mši k jubileu 800 let kostela sv. Maří Magdalény za doprovodu dětské scholy.",
     "lead": "Kostel sv. Maří Magdalény stojí v Kuřimi od roku 1226. Oslavte s námi jeho 800. výročí.",
-    "body": "<p>Po mši jste všichni srdečně zváni do misijní kavárny na faře.</p>",
+    "body": "<p>Po mši jste všichni srdečně zváni do misijní kavárny na faře. Její výtěžek bude věnován na podporu charitní záchranné sítě Oblastní charity Tišnov, která pomáhá lidem a rodinám v nouzi a v tíživé životní situaci.</p>",
     "program": [
       {
         "time": "9:30",
@@ -323,6 +323,11 @@
         "label": "Plakát",
         "file": "/uploads/aktuality/jubileum-800-2026-plakat.png",
         "size": 2245169
+      },
+      {
+        "label": "Misijní kavárna",
+        "file": "/uploads/aktuality/jubileum-800-2026-misijni-kavarna.png",
+        "size": 3023222
       }
     ]
   },
