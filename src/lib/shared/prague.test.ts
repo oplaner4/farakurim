@@ -35,7 +35,7 @@ describe("pragueDate", () => {
 });
 
 describe("pragueWeekday", () => {
-  it("counts from neděle = 0", () => {
+  it('counts from "neděle" = 0', () => {
     expect(pragueWeekday("2026-10-04")).toBe(0);
     expect(pragueWeekday("2026-10-05")).toBe(1);
     expect(pragueWeekday("2026-10-10")).toBe(6);

@@ -6,7 +6,7 @@ import { UPLOADS_PATH } from "@/lib/shared/uploads";
 
 // Petrklíč issues (design/DESIGN.md §17–18).
 
-/** The first volume (ročník I) came out in 2006. */
+/** The first volume ("ročník I") came out in 2006. */
 export const FIRST_YEAR = 2006;
 
 const ROMAN: [number, string][] = [

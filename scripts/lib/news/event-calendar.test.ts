@@ -51,7 +51,7 @@ describe("matchMeetings", () => {
     expect(matchMeetings(testEvent(), events)[0].status).toBe("missing");
   });
 
-  it("reads the Zrušeno: prefix, and finds a prefixed event by its title", () => {
+  it('reads the "Zrušeno: " prefix, and finds a prefixed event by its title', () => {
     const match = matchMeetings(testEvent(), [google("a", "2026-10-12", "Zrušeno: Adorační den")])[0];
     expect(match).toMatchObject({ status: "unlinked", found: { title: "Zrušeno: Adorační den", cancelled: true } });
   });
@@ -126,7 +126,7 @@ describe("with a temp folder", () => {
 
   const cancelled = { change: { status: "cancelled", announced: "2026-10-10" } } as const;
 
-  it("asks for the Zrušeno: prefix when a linked event is cancelled on the site", async () => {
+  it('asks for the "Zrušeno: " prefix when a linked event is cancelled on the site', async () => {
     stubCalendar([google("a", "2026-10-12", "Adorace", URL_OF)]);
     expect(await checkCalendar(testEvent(cancelled), { apiKey: "KEY", outDir: dir })).toEqual([
       'Události, 2026-10-12: linked, but rename "Adorace" to "Zrušeno: Adorace", as the meeting is cancelled (do not delete the event).',

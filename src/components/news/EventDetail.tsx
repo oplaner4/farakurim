@@ -39,7 +39,7 @@ const moreItems: MoreEventItem[] = events
   }));
 
 /**
- * Detail akce (design/DESIGN.md §13). Mobile: everything stacked. Tablet: "Kdy a kde" beside the poster.
+ * The event detail (design/DESIGN.md §13). Mobile: everything stacked. Tablet: "Kdy a kde" beside the poster.
  * Desktop: content on the left; "Kdy a kde" and the poster in a right column. The left column is `contents`
  * below desktop, so the "Kdy a kde" block (`order-1`) goes between the title and the content (`order-2`).
  */

@@ -10,7 +10,7 @@ import { FileDownloadIcon, FileIcon } from "@/components/ui/icons/media-icons";
 const card = cva("flex min-w-0 flex-col gap-3 rounded-24 p-5 md:rounded-26 md:p-6 lg:rounded-28 lg:p-7", {
   variants: {
     tone: {
-      /* Přihláška: room for the corner shard. */
+      /* "Přihláška": room for the corner shard. */
       green: "relative overflow-hidden bg-green-tint",
       surface: "bg-surface",
     },
@@ -40,7 +40,7 @@ function Card({
 }
 
 /**
- * The three cards under the timetable (design/DESIGN.md §24): Přihláška, Kontakt and Omlouvání; three columns on
+ * The three cards under the timetable (design/DESIGN.md §24): "Přihláška", "Kontakt" and "Omlouvání"; three columns on
  * desktop, two on tablet, stacked on mobile.
  */
 export function EducationCards({ education }: { education: ReligiousEducation }) {

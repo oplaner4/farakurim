@@ -130,7 +130,7 @@ describe("eventTags", () => {
     ]);
   });
 
-  it("gives a cancelled event only Zrušeno and puts Přesunuto first", () => {
+  it('gives a cancelled event only "Zrušeno" and puts "Přesunuto" first', () => {
     const priced = { price: "200 Kč", registrationDeadline: "2026-10-10" };
     const cancelled = event("x", "2026-10-18", undefined, { ...priced, change: { status: "cancelled" } });
     expect(eventTags(cancelled, at(TODAY))).toEqual([{ kind: "cancelled", label: "Zrušeno" }]);
@@ -165,7 +165,7 @@ describe("eventTags", () => {
     expect(eventTags(event("x", "2026-10-01", "2027-06-30", { longTerm: true }), at(TODAY))).toEqual([]);
   });
 
-  it("ends a past event with Proběhlo", () => {
+  it('ends a past event with "Proběhlo"', () => {
     expect(eventTags(events[1], at(TODAY))).toEqual([{ kind: "grey", label: "Proběhlo" }]);
   });
 });

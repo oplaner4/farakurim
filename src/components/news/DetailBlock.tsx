@@ -1,7 +1,7 @@
 import { clsx } from "clsx";
 import type { ReactNode } from "react";
 
-/** A content block of the event detail (§13.2): O akci, Program, highlights, Přílohy. */
+/** A content block of the event detail (§13.2): "O akci", "Program", highlights, "Přílohy". */
 export function DetailBlock({
   id,
   title,

@@ -22,7 +22,7 @@ describe("parseWeek", () => {
 });
 
 describe("weekHeading", () => {
-  it("reads the week only from a pořad heading", () => {
+  it('reads the week only from a "Rozpis" or "Pořad" heading', () => {
     expect(weekHeading("ROZPIS BOHOSLUŽEB V TÝDNU od 11. 10. 2026 do 18. 10. 2026")).toEqual({
       validFrom: "2026-10-11",
       validTo: "2026-10-18",

@@ -21,7 +21,7 @@ type Props = {
 
 /**
  * The poster lightbox (design/DESIGN.md §21.3): the poster fitted to the screen, zoomed by the toolbar
- * (Celý, 150, 200, 300 %), the wheel, +/−, pinch or a double tap, and panned by dragging; "Stáhnout" downloads it.
+ * ("Celý", 150, 200, 300 %), the wheel, +/−, pinch or a double tap, and panned by dragging; "Stáhnout" downloads it.
  */
 export function PosterLightbox({ src, title, alt, onClose }: Props) {
   const closeRef = useRef<HTMLButtonElement>(null);

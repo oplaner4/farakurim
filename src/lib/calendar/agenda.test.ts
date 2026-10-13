@@ -314,7 +314,7 @@ describe("week calendar", () => {
     expect(shortWeekday("2026-09-28")).toBe("Po");
   });
 
-  it("shows two events, or one and +N další", () => {
+  it('shows two events, or one and "+N další"', () => {
     const [a, b, c] = ["a", "b", "c"].map((title): { title: string; cancelled?: true } => ({ title }));
     expect(splitEvents([a, b])).toEqual({ shown: [a, b], hidden: 0 });
     expect(splitEvents([a, b, c])).toEqual({ shown: [a], hidden: 2 });
@@ -330,7 +330,7 @@ describe("week calendar", () => {
     expect(moreEventsLabel(hidden)).toBe(expected);
   });
 
-  it("never counts a cancelled event towards +N další, and shows it only in a free row", () => {
+  it('never counts a cancelled event towards "+N další", and shows it only in a free row', () => {
     const [a, b, c] = ["a", "b", "c"].map((title): { title: string; cancelled?: true } => ({ title }));
     const x = { title: "x", cancelled: true as const };
     expect(splitEvents([x, a])).toEqual({ shown: [x, a], hidden: 0 });

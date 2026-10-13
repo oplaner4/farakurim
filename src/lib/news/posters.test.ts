@@ -47,7 +47,7 @@ describe("posterHref", () => {
     );
   });
 
-  it("falls back to the Plakát attachment, then the poster itself", () => {
+  it('falls back to the "Plakát" attachment, then the poster itself', () => {
     expect(posterHref(withPoster("jiny.webp", [file("Program", "x-program.pdf"), file("Plakát", "y.jpg")]))).toBe(
       "/uploads/aktuality/y.jpg",
     );

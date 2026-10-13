@@ -25,7 +25,7 @@ function InfoCard({ id, title, children, desktopOnly }: CardProps) {
 }
 
 /**
- * Svátost smíření, Křty and Kalendář farnosti (design/DESIGN.md §14.1). The calendar is an outline button
+ * "Svátost smíření", "Křty" and "Kalendář farnosti" (design/DESIGN.md §14.1). The calendar is an outline button
  * on mobile and tablet and a third card on desktop.
  */
 export function InfoCards({ confession, baptism }: { confession: string; baptism: string }) {

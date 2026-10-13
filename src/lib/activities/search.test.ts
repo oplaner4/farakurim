@@ -38,7 +38,7 @@ describe("matchesActivity", () => {
 });
 
 describe("filterActivities", () => {
-  it("keeps every group for Vše and only the chosen one otherwise", () => {
+  it('keeps every group for "Vše" and only the chosen one otherwise', () => {
     expect(filterActivities(groups, ALL_GROUPS, "").map((g) => g.id)).toEqual(["pravidelne", "jednorazove"]);
     expect(filterActivities(groups, "jednorazove", "").map((g) => g.id)).toEqual(["jednorazove"]);
   });

@@ -15,7 +15,7 @@ describe("setEventPoster", { timeout: 30_000 }, () => {
   const lines = async (label: string | null, check = false) =>
     posterLines(id, label, await setEventPoster(env, id, label, { check }), check, env.uploadsDir);
 
-  /** The event with a Plakát (its poster), a Leták and a Záznam. */
+  /** The event with a "Plakát" (its poster), a "Leták" and a "Záznam". */
   const add = async () => {
     const files = [
       { source: await poster("plakat.jpg"), label: "Plakát" },
@@ -58,7 +58,7 @@ describe("setEventPoster", { timeout: 30_000 }, () => {
     expect(added()?.poster).toBeUndefined();
     await expect(setEventPoster(env, id, null)).rejects.toThrow(`${id} has no poster`);
 
-    // Released: the Plakát's poster is on the server, and the copy in uploads/ is gone.
+    // Released: the "Plakát" attachment's poster is on the server, and the copy in uploads/ is gone.
     rmSync(uploaded("aktuality", "test-farni-den-2026-plakat-poster.webp"));
     fetchMock.mockImplementation(
       async (url: string) => new Response(null, { status: url.endsWith("-poster.webp") ? 200 : 404 }),

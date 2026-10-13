@@ -126,7 +126,7 @@ describe("toEntries", () => {
     expect(href("services", event("a", "https://farakurim.cz/aktuality/hody/"))).toEqual([undefined]);
   });
 
-  it("turns the title prefix Zrušeno: into the cancelled status", () => {
+  it('turns the title prefix "Zrušeno: " into the cancelled status', () => {
     const day = { start: { date: "2026-10-16" }, end: { date: "2026-10-17" } };
     const entries = toEntries(
       [
