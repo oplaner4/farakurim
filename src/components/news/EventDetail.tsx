@@ -2,7 +2,7 @@ import { events } from "@/content/news";
 import { links, SITE_URL } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import { BUILD_TIME } from "@/lib/shared/build-time";
-import { eventDateBlock } from "@/lib/shared/czech";
+import { eventDateBlock, formatTimes } from "@/lib/shared/czech";
 import { withExternalLinkTargets } from "@/lib/shared/links";
 import { eventHref } from "@/lib/news/events";
 import { eventEnd, isCancelled } from "@/lib/news/timing";
@@ -31,7 +31,7 @@ const moreItems: MoreEventItem[] = events
     title: e.title,
     start: e.start,
     end: e.end,
-    time: e.time,
+    time: formatTimes(e),
     place: e.place,
     longTerm: e.longTerm,
     href: eventHref(e),
@@ -79,7 +79,8 @@ export function EventDetail({ event }: { event: NewsEvent }) {
                 event={{
                   start: event.start,
                   end: event.end,
-                  time: event.time,
+                  startTime: event.startTime,
+                  endTime: event.endTime,
                   sessions: event.sessions,
                   longTerm: event.longTerm,
                   change: event.change,

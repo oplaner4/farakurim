@@ -3,7 +3,7 @@
     "id": "adventni-duchovni-obnova-2022",
     "title": "Adventní duchovní obnova",
     "start": "2022-12-03",
-    "time": "9:00",
+    "startTime": "9:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Adventní duchovní obnova s P. Zdeňkem Jančaříkem, salesiánem a spisovatelem.",
     "program": [
@@ -38,7 +38,7 @@
     "id": "zbigniew-czendlik-2022",
     "title": "P. Zbigniew Czendlik v Kuřimi",
     "start": "2022-12-07",
-    "time": "16:00",
+    "startTime": "16:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Na mši svaté bude hostovat P. Zbigniew Czendlik, děkan v Lanškrouně.",
     "body": "<p>Večer v 17:00 následuje setkání se Zbigniewem Czendlikem, které pořádá Společenské a kulturní centrum Kuřim.</p>",
@@ -132,7 +132,7 @@
     "id": "vanocni-zpivani-zs-divizna-2022",
     "title": "Vánoční zpívání ZŠ DiviZna",
     "start": "2022-12-26",
-    "time": "16:00",
+    "startTime": "16:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Přijměte pozvání na vánoční zpívání základní školy DiviZna.",
     "poster": {

@@ -54,7 +54,7 @@
     "id": "varhanni-koncert-kninice-2020",
     "title": "Varhanní koncert v Moravských Knínicích",
     "start": "2020-09-13",
-    "time": "17:00",
+    "startTime": "17:00",
     "place": "Moravské Knínice, kostel sv. Markéty",
     "text": "Dobročinný koncert varhanice Hany Bartošové a flétnistky Hany Hána, výtěžek je určen na opravy kostela.",
     "body": "<p>Podvečer u varhan se starými mistry v rámci Brněnského varhanního festivalu. Na programu jsou skladby L. Vinciho, M. Weckmanna, J. K. Vaňhala, J. Segera a J. K. Kuchaře. Vstupné dobrovolné.</p>",
@@ -115,7 +115,7 @@
     "id": "concentus-moraviae-2020",
     "title": "Concentus Moraviae",
     "start": "2020-09-23",
-    "time": "19:00",
+    "startTime": "19:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Koncert XXV. ročníku festivalu Concentus Moraviae: na varhany hraje Kateřina Chroboková. Vstupenky v předprodeji.",
     "links": [

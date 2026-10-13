@@ -52,7 +52,7 @@
     "id": "zivy-prenos-mse-svate-2020-04-19",
     "title": "Živý přenos mše svaté 19. dubna",
     "start": "2020-04-19",
-    "time": "9:30",
+    "startTime": "9:30",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Opět živě přenášíme nedělní mši svatou z kuřimského kostela.",
     "links": [
@@ -66,7 +66,7 @@
     "id": "zivy-prenos-mse-svate-2020-04-26",
     "title": "Živý přenos mše svaté 26. dubna",
     "start": "2020-04-26",
-    "time": "11:00",
+    "startTime": "11:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Další přenos nedělní mše svaté z kuřimského kostela, opět na YouTube kanálu Kuřimského magazínu.",
     "links": [

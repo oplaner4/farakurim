@@ -148,8 +148,9 @@ describe("newsEntries", () => {
         title: "Večery",
         start: "2026-10-11",
         end: "2026-11-21",
-        time: "18:00–20:30",
-        sessions: ["2026-10-11", { date: "2026-10-20", time: "9:00" }, { date: "2026-11-20", end: "2026-11-21" }],
+        startTime: "18:00",
+        endTime: "20:30",
+        sessions: ["2026-10-11", { date: "2026-10-20", startTime: "9:00" }, { date: "2026-11-20", end: "2026-11-21" }],
       },
       { ...base, id: "seminar", title: "Seminář", start: "2026-03-01", end: "2026-11-30", longTerm: true },
     ];

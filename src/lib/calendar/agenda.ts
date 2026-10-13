@@ -4,9 +4,7 @@ import type { CalendarEntry, CalendarId } from "@/content/types/calendar";
 import type { NewsEvent } from "@/content/types/news";
 import type { Place, PlaceId } from "@/content/types/services";
 import type { ClockTime, IsoDate } from "@/content/types/shared";
-import { eventMeetings } from "@/lib/news/timing";
-import { parseClock } from "@/lib/news/timing";
-import { eventClock } from "@/lib/news/ics";
+import { eventMeetings, eventTimes } from "@/lib/news/timing";
 import { clockMinutes } from "@/lib/shared/clock";
 import { capitalize, plural, relativeDayName } from "@/lib/shared/czech";
 import { servicesOnDate, type ScheduleSource } from "@/lib/services/masses";
@@ -266,10 +264,10 @@ export function newsEntries(events: NewsEvent[], href: (event: NewsEvent) => str
         ...(meeting.cancelled && { cancelled: true as const }),
         date: meeting.start,
         ...(meeting.end !== meeting.start && { end: meeting.end }),
-        ...atTime(parseClock(meeting.time)?.from),
+        ...atTime(meeting.startTime),
       }));
     }
-    const time = atTime(eventClock(event)?.from);
+    const time = atTime(eventTimes(event).startTime);
     if (longTerm) {
       const weekday = pragueWeekday(start);
       return datesBetween(start, end)

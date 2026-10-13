@@ -3,7 +3,7 @@
     "id": "cyrilometodejska-pout-2022",
     "title": "Cyrilometodějská pouť ke sv. Klimentu",
     "start": "2022-07-05",
-    "time": "14:00",
+    "startTime": "14:00",
     "place": "Lipůvka, kaple sv. Klimenta",
     "text": "Pouť ke sv. Klimentu u Lipůvky začíná u kříže nad Lipůvkou (směr Nuzířov).",
     "poster": {
@@ -22,7 +22,7 @@
     "id": "koncert-good-work-2022",
     "title": "Koncert Good Work",
     "start": "2022-07-09",
-    "time": "17:00",
+    "startTime": "17:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Koncert skupiny Good Work, jehož výtěžek bude věnován na opravy fary.",
     "poster": {

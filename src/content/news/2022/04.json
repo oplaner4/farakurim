@@ -3,7 +3,7 @@
     "id": "postni-duchovni-obnova-2022",
     "title": "Postní duchovní obnova",
     "start": "2022-04-02",
-    "time": "9:00",
+    "startTime": "9:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Postní duchovní obnova s P. Janem Pacnerem, dlouholetým vojenským kaplanem.",
     "body": "<p>Drobné občerstvení bude zajištěno.</p>",
@@ -70,7 +70,7 @@
     "id": "krizova-cesta-prirodou-s-detmi-2022",
     "title": "Křížová cesta přírodou s dětmi",
     "start": "2022-04-09",
-    "time": "10:00",
+    "startTime": "10:00",
     "place": "Kuřim, kaple sv. Jana Nepomuckého",
     "text": "Křížová cesta pro rodiny s dětmi, vhodná i pro kočárky, zakončená opékáním špekáčků na faře.",
     "body": "<p>Sejdeme se u vodní kaple sv. Jana Nepomuckého. Po skončení cesty si na faře můžeme opéct špekáčky a ještě společně strávit pěkné chvíle. Špekáčky a pečivo si prosím vezměte vlastní, nezapomeňte na pití a na něco na psaní.</p><p>Budeme moc rádi, když se k rodinám připojíte i vy ostatní.</p>"

@@ -57,7 +57,7 @@
     "id": "kvetna-nedele-2021",
     "title": "Květná neděle",
     "start": "2021-03-28",
-    "time": "9:30",
+    "startTime": "9:30",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Mši svatou vysíláme živě na YouTube. Odpoledne je výstav Nejsvětější svátosti a příležitost ke svaté zpovědi.",
     "program": [
@@ -87,7 +87,7 @@
     "id": "reportaz-hospic-sv-alzbety-2021",
     "title": "Reportáž o Hospici sv. Alžběty",
     "start": "2021-03-31",
-    "time": "20:15",
+    "startTime": "20:15",
     "text": "Radio Proglas odvysílá v pořadu Studio Brno reportáž o projektu rekonstrukce a dostavby Hospice sv. Alžběty.",
     "links": [
       {

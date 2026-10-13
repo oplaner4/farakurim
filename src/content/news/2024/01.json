@@ -29,7 +29,7 @@
     "id": "trikralovy-koncert-zus-2024",
     "title": "Tříkrálový koncert ZUŠ",
     "start": "2024-01-10",
-    "time": "18:00",
+    "startTime": "18:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Základní umělecká škola a Klub přátel ZUŠ Kuřim zvou na Tříkrálový koncert.",
     "poster": {
@@ -48,7 +48,7 @@
     "id": "kurz-alfa-tisnov-2024",
     "title": "Kurz Alfa v Tišnově",
     "start": "2024-01-16",
-    "time": "19:00",
+    "startTime": "19:00",
     "place": "Tišnov, fara",
     "mapQuery": "Kostelní 16, Tišnov",
     "text": "Kurz Alfa „Jiný pohled“ pro lidi, kteří se chtějí bavit o hlubších otázkách života a o křesťanské víře.",
@@ -81,27 +81,33 @@
     "sessions": [
       {
         "date": "2024-01-20",
-        "time": "9:00–18:30"
+        "startTime": "9:00",
+        "endTime": "18:30"
       },
       {
         "date": "2024-01-30",
-        "time": "19:00–21:30"
+        "startTime": "19:00",
+        "endTime": "21:30"
       },
       {
         "date": "2024-02-13",
-        "time": "19:00–21:30"
+        "startTime": "19:00",
+        "endTime": "21:30"
       },
       {
         "date": "2024-02-27",
-        "time": "19:00–21:30"
+        "startTime": "19:00",
+        "endTime": "21:30"
       },
       {
         "date": "2024-03-16",
-        "time": "9:00–18:30"
+        "startTime": "9:00",
+        "endTime": "18:30"
       },
       {
         "date": "2024-03-26",
-        "time": "19:00–21:30"
+        "startTime": "19:00",
+        "endTime": "21:30"
       }
     ],
     "poster": {

@@ -28,7 +28,7 @@
     "id": "radostna-pout-na-vranov-2026",
     "title": "Radostná pouť s Pannou Marií na Vranov",
     "start": "2026-04-11",
-    "time": "11:30",
+    "startTime": "11:30",
     "place": "Kuřim, Lelekovice a Vranov u Brna",
     "text": "Pouť s obědem v Kuřimi nebo společným putováním z Lelekovic, zakončená mší svatou na Vranově.",
     "body": "<p>Trasa z Lelekovic měří 5 km, je vhodná i pro kočárky a pouť se koná za každého počasí.</p>",
@@ -99,7 +99,7 @@
     "id": "setkani-katechetu-2026",
     "title": "Setkání katechetů",
     "start": "2026-04-28",
-    "time": "18:00",
+    "startTime": "18:00",
     "place": "Tišnov, fara",
     "text": "Setkání katechetů tišnovského děkanství se vzájemným sdílením a za účasti pracovníků Diecézního katechetického centra.",
     "poster": {

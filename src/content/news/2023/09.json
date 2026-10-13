@@ -27,7 +27,7 @@
     "id": "pesi-pout-na-vranov-2023",
     "title": "Pěší pouť na Vranov",
     "start": "2023-09-03",
-    "time": "7:00",
+    "startTime": "7:00",
     "place": "Moravské Knínice, Kuřim a Česká",
     "mapQuery": "Vranov u Brna",
     "text": "Letošní pouť na Vranov je již v neděli 3. září. Zvláště vítáni jsou krojovaní.",
@@ -53,7 +53,7 @@
     "id": "den-narodnostnich-mensin-2023",
     "title": "Den národnostních menšin",
     "start": "2023-09-17",
-    "time": "14:00",
+    "startTime": "14:00",
     "place": "Kuřim, areál zámku",
     "text": "Srdečně zveme na Den národnostních menšin v areálu kuřimského zámku.",
     "poster": {
@@ -72,7 +72,8 @@
     "id": "medovy-den-2023",
     "title": "Medový den",
     "start": "2023-09-24",
-    "time": "10:00–17:00",
+    "startTime": "10:00",
+    "endTime": "17:00",
     "place": "Kuřim, u kulturního domu",
     "text": "Farnost bude mít opět svůj stánek s občerstvením, perníčky, drobnými výrobky a věcmi na podporu cystické fibrózy.",
     "poster": {

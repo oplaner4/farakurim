@@ -3,7 +3,7 @@
     "id": "trikralovy-koncert-2026",
     "title": "Tříkrálový koncert",
     "start": "2026-01-13",
-    "time": "18:00",
+    "startTime": "18:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Základní umělecká škola a Klub přátel ZUŠ Kuřim zvou na Tříkrálový koncert.",
     "poster": {
@@ -22,7 +22,7 @@
     "id": "farni-ples-2026",
     "title": "Farní ples",
     "start": "2026-01-16",
-    "time": "19:00",
+    "startTime": "19:00",
     "place": "Kuřim, Společenské a kulturní centrum",
     "text": "První farní ples v roce oslav 800 let města. K tanci zahraje kapela 9K BAND a Cimbálová muzika Kyničan, připravena je i tombola.",
     "body": "<p>Místenky lze koupit v kulturním centru, na faře nebo v Moravských Knínicích. S dotazy a rezervacemi skupin se můžete obrátit na Tomáše Večeřu.</p><p>Na ples jsou zváni všichni. Pořadatelé uvítají pomoc s šířením plakátů a příspěvky do tomboly.</p>",

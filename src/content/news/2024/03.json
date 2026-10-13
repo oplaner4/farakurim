@@ -23,7 +23,7 @@
     "id": "postni-duchovni-obnova-2024",
     "title": "Postní duchovní obnova",
     "start": "2024-03-10",
-    "time": "14:30",
+    "startTime": "14:30",
     "place": "Kuřim, fara",
     "text": "Postní duchovní obnova na téma Ježíšova křížová cesta s P. Jaroslavem Filkou.",
     "poster": {
@@ -113,7 +113,7 @@
     "id": "krizova-cesta-rodin-2024",
     "title": "Křížová cesta rodin",
     "start": "2024-03-23",
-    "time": "10:00",
+    "startTime": "10:00",
     "place": "Kuřim, kaple sv. Jana Nepomuckého",
     "text": "Křížová cesta rodin vychází od vodní kaple sv. Jana Nepomuckého a končí na faře u ohně.",
     "body": "<p>Doneste si něco na opečení.</p>"

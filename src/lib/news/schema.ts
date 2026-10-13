@@ -1,10 +1,9 @@
 import * as z from "zod";
-import type { NewsEvent } from "@/content/types/news";
+import type { EventTimes, NewsEvent } from "@/content/types/news";
 import { CLOCK, clockMinutes, clockSchema } from "@/lib/shared/clock";
 import { kebabIdSchema, slug } from "@/lib/shared/slug";
 import { uploadSchema } from "@/lib/shared/uploads";
 import { eventMeetings } from "./timing";
-import { parseClock } from "./timing";
 
 // The rules of one Aktuality record, in one place: src/content/news/index.ts checks every month file with them on
 // import (a broken file fails the tests, the build and the scripts), and scripts/lib/news/add-aktualita.ts checks a new record
@@ -13,17 +12,33 @@ import { parseClock } from "./timing";
 
 const date = z.iso.date();
 const text = z.string().trim().min(1);
-const TIME_MESSAGE = 'must be "H:MM" or "H:MM–H:MM"';
-/** A time text the calendar files can read: one valid clock time or a range that ends after it starts. */
-const readableTime = (time: string) => {
-  const span = parseClock(time);
-  const times = span ? [span.from, span.to ?? span.from] : [];
-  return !!span && times.every((t) => CLOCK.test(t)) && !(span.to && clockMinutes(span.to) <= clockMinutes(span.from));
-};
+
+/**
+ * An end time needs a start time and comes after it, on the same day (a time that is not H:MM has its own issue).
+ * `keys` name the two fields where `at` (the record, a meeting or the move) has them.
+ */
+function checkTimes(
+  start: string | undefined,
+  end: string | undefined,
+  ctx: z.RefinementCtx,
+  at: PropertyKey[] = [],
+  [startKey, endKey] = ["startTime", "endTime"],
+) {
+  if (end === undefined || !CLOCK.test(end) || (start !== undefined && !CLOCK.test(start))) return;
+  const message =
+    start === undefined ? `needs ${startKey}` : clockMinutes(end) <= clockMinutes(start) && `must be after ${startKey}`;
+  if (message) ctx.addIssue({ code: "custom", path: [...at, endKey], message });
+}
+
+/** A meeting's own times, checked in `sessionsSchema`: as a union member, `clockSchema` would hide its message. */
+const meetingTimes = { startTime: z.string().optional(), endTime: z.string().optional() } satisfies Record<
+  keyof EventTimes,
+  z.ZodType
+>;
 
 /** The meetings of a series, each after the one before; checked against start and end with the whole record. */
 const sessionsSchema = z
-  .array(z.union([date, z.strictObject({ date, end: date.optional(), time: z.string().optional() })]))
+  .array(z.union([date, z.strictObject({ date, end: date.optional(), ...meetingTimes })]))
   .min(2, "a series has at least two meetings")
   .superRefine((sessions, ctx) => {
     const meetings = eventMeetings({ sessions });
@@ -35,8 +50,14 @@ const sessionsSchema = z
         ctx.addIssue({ code: "custom", path: [i], message: "must follow the previous meeting" });
       }
       const own = sessions[i];
-      if (typeof own === "object" && own.time !== undefined && !readableTime(own.time)) {
-        ctx.addIssue({ code: "custom", path: [i, "time"], message: TIME_MESSAGE });
+      if (typeof own === "object") {
+        for (const key of ["startTime", "endTime"] as const) {
+          const time = own[key];
+          if (time !== undefined && !CLOCK.test(time)) {
+            ctx.addIssue({ code: "custom", path: [i, key], message: "must be H:MM" });
+          }
+        }
+        checkTimes(own.startTime, own.endTime, ctx, [i]);
       }
     });
   });
@@ -94,7 +115,8 @@ export const newsEventSchema = z
     title: text,
     start: date,
     end: date.optional(),
-    time: z.string().optional(),
+    startTime: clockSchema.optional(),
+    endTime: clockSchema.optional(),
     place: text.optional(),
     mapQuery: text.optional(),
     text,
@@ -117,7 +139,8 @@ export const newsEventSchema = z
         z.strictObject({
           status: z.literal("moved"),
           previousStart: date,
-          previousTime: z.string().optional(),
+          previousStartTime: clockSchema.optional(),
+          previousEndTime: clockSchema.optional(),
           announced: date.optional(),
           note: text.optional(),
         }),
@@ -157,8 +180,9 @@ export const newsEventSchema = z
       }
     }
     checkChange(event, ctx);
-    // An unreadable time ("18.00") makes the event all-day in the .ics file and the JSON-LD.
-    if (event.time !== undefined && !readableTime(event.time)) {
-      ctx.addIssue({ code: "custom", path: ["time"], message: TIME_MESSAGE });
+    checkTimes(event.startTime, event.endTime, ctx);
+    if (event.change?.status === "moved") {
+      const { previousStartTime, previousEndTime } = event.change;
+      checkTimes(previousStartTime, previousEndTime, ctx, ["change"], ["previousStartTime", "previousEndTime"]);
     }
   }) satisfies z.ZodType<NewsEvent>;

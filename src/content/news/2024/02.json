@@ -68,7 +68,7 @@
     "id": "beneficni-varhanni-koncert-2024",
     "title": "Benefiční varhanní koncert",
     "start": "2024-02-25",
-    "time": "16:00",
+    "startTime": "16:00",
     "place": "Moravské Knínice, kostel sv. Markéty",
     "text": "Zahraje Přemysl Kšica, varhaník chrámu sv. Mikuláše na Malé Straně v Praze.",
     "price": "dobrovolné vstupné",

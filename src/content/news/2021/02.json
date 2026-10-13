@@ -67,7 +67,8 @@
     "id": "adoracni-odpoledne-2021",
     "title": "Adorační odpoledne",
     "start": "2021-02-28",
-    "time": "13:00–20:00",
+    "startTime": "13:00",
+    "endTime": "20:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Adorace v kuřimském kostele s rozpisem adorujících po půlhodinách.",
     "body": "<p>Zapisujte se prosím do rozpisu, aby byl v kostele po celou dobu někdo přítomen. Příležitost ke svaté zpovědi bude při adoraci od 14 do 16 hodin.</p>"

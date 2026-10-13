@@ -21,7 +21,8 @@ describe("newsEventSchema", () => {
     expect(
       problems({
         end: "2026-10-04",
-        time: "18:00–20:30",
+        startTime: "18:00",
+        endTime: "20:30",
         program: [{ time: "18:00", title: "Stavění máje", note: "u obecního úřadu" }],
         published: "2026-09-21",
         poster: { src: "/uploads/aktuality/hody-ceska-plakat.webp", alt: "Plakát: Hody v České" },
@@ -57,7 +58,7 @@ describe("newsEventSchema", () => {
   it("checks a series' meetings against start and end", () => {
     const series = { start: "2026-10-11", end: "2026-10-25" };
     expect(
-      problems({ ...series, sessions: ["2026-10-11", { date: "2026-10-18", time: "9:00" }, "2026-10-25"] }),
+      problems({ ...series, sessions: ["2026-10-11", { date: "2026-10-18", startTime: "9:00" }, "2026-10-25"] }),
     ).toEqual([]);
     expect(problems({ ...series, sessions: ["2026-10-11"] })).toContain("sessions: a series has at least two meetings");
     expect(problems({ ...series, sessions: ["2026-10-12", "2026-10-25"] })).toEqual([
@@ -73,9 +74,13 @@ describe("newsEventSchema", () => {
       "sessions.2: must follow the previous meeting",
       "end: must be the last meeting's last day",
     ]);
-    expect(
-      problems({ ...series, sessions: ["2026-10-11", { date: "2026-10-24", end: "2026-10-25", time: "18.00" }] }),
-    ).toEqual(['sessions.1.time: must be "H:MM" or "H:MM–H:MM"']);
+    const meeting = (times: object) => ["2026-10-11", { date: "2026-10-24", end: "2026-10-25", ...times }];
+    expect(problems({ ...series, sessions: meeting({ startTime: "18.00" }) })).toEqual([
+      "sessions.1.startTime: must be H:MM",
+    ]);
+    expect(problems({ ...series, sessions: meeting({ endTime: "20:00" }) })).toEqual([
+      "sessions.1.endTime: needs startTime",
+    ]);
   });
 
   it("needs attachment labels that differ in more than accents, case or punctuation", () => {
@@ -93,11 +98,22 @@ describe("newsEventSchema", () => {
     expect(problems({ tags: [{ label: "Zrušeno", color: "red" }] })).toHaveLength(1);
   });
 
-  it("only accepts times the calendar files can read", () => {
-    expect(problems({ time: "9:30" })).toEqual([]);
-    expect(problems({ time: "18.00" })).toEqual(['time: must be "H:MM" or "H:MM–H:MM"']);
-    expect(problems({ time: "20:00–18:00" })).toEqual(['time: must be "H:MM" or "H:MM–H:MM"']);
-    expect(problems({ time: "25:00" })).toEqual(['time: must be "H:MM" or "H:MM–H:MM"']);
+  it("only accepts clock times, an end time after the start time", () => {
+    expect(problems({ startTime: "9:30" })).toEqual([]);
+    expect(problems({ startTime: "18:00", endTime: "20:30" })).toEqual([]);
+    expect(problems({ startTime: "18.00" })).toEqual(["startTime: must be H:MM"]);
+    expect(problems({ startTime: "25:00" })).toEqual(["startTime: must be H:MM"]);
+    expect(problems({ time: "18:00–20:30" })).toEqual([': Unrecognized key: "time"']);
+    expect(problems({ startTime: "20:00", endTime: "18:00" })).toEqual(["endTime: must be after startTime"]);
+    expect(problems({ endTime: "20:00" })).toEqual(["endTime: needs startTime"]);
+    expect(problems({ change: { status: "moved", previousStart: "2026-09-25", previousStartTime: "17:00" } })).toEqual(
+      [],
+    );
+    expect(
+      problems({
+        change: { status: "moved", previousStart: "2026-09-25", previousStartTime: "17:00", previousEndTime: "9:00" },
+      }),
+    ).toEqual(["change.previousEndTime: must be after previousStartTime"]);
     expect(problems({ longTerm: { weeklyAt: "18.30" } })).toEqual(["longTerm.weeklyAt: must be H:MM"]);
   });
 

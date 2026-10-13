@@ -9,7 +9,9 @@ import { ChevronLeftIcon } from "@/components/ui/icons/navigation-icons";
 import { ArrowLink } from "@/components/ui/ArrowLink";
 
 /** What a card needs; the page passes only these fields to the client. */
-export type MoreEventItem = Pick<NewsEvent, "id" | "title" | "start" | "end" | "time" | "place" | "longTerm"> & {
+export type MoreEventItem = Pick<NewsEvent, "id" | "title" | "start" | "end" | "place" | "longTerm"> & {
+  /** "18:00–20:30" (`formatTimes()`). */
+  time?: string;
   href: string;
   date: DateBlock;
 };

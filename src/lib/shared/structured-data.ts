@@ -2,8 +2,7 @@ import { format } from "date-fns";
 import { contacts, parish, SITE_URL } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import { telHref } from "./links";
-import { parseClock } from "@/lib/news/timing";
-import { eventClock } from "@/lib/news/ics";
+import { eventTimes } from "@/lib/news/timing";
 import { inPrague, pragueDateTime } from "./prague";
 
 const isoDateTime = (date: string, time: string) =>
@@ -14,10 +13,10 @@ const isoDateTime = (date: string, time: string) =>
 function eventStatusJsonLd({ change }: NewsEvent) {
   if (change?.status === "cancelled") return { eventStatus: "https://schema.org/EventCancelled" };
   if (change?.status === "moved") {
-    const clock = parseClock(change.previousTime);
+    const { previousStart, previousStartTime } = change;
     return {
       eventStatus: "https://schema.org/EventRescheduled",
-      previousStartDate: clock ? isoDateTime(change.previousStart, clock.from) : change.previousStart,
+      previousStartDate: previousStartTime ? isoDateTime(previousStart, previousStartTime) : previousStart,
     };
   }
   return {};
@@ -25,14 +24,14 @@ function eventStatusJsonLd({ change }: NewsEvent) {
 
 export function eventJsonLd(event: NewsEvent, url: string) {
   const { start, end = start } = event;
-  const clock = end === start ? eventClock(event) : undefined;
+  const { startTime, endTime } = end === start ? eventTimes(event) : {};
   return {
     "@context": "https://schema.org",
     "@type": "Event",
     name: event.title,
     description: event.lead ?? event.text,
-    startDate: clock ? isoDateTime(start, clock.from) : start,
-    endDate: clock?.to ? isoDateTime(start, clock.to) : end,
+    startDate: startTime ? isoDateTime(start, startTime) : start,
+    endDate: startTime && endTime ? isoDateTime(start, endTime) : end,
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     ...eventStatusJsonLd(event),
     ...(event.place && { location: { "@type": "Place", name: event.place, address: event.place } }),

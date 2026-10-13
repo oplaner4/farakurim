@@ -3,7 +3,7 @@
     "id": "trikralovy-koncert-zus-2023",
     "title": "Tříkrálový koncert ZUŠ Kuřim",
     "start": "2023-01-11",
-    "time": "18:00",
+    "startTime": "18:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Základní umělecká škola Kuřim zve na tříkrálový koncert ve farním kostele.",
     "poster": {

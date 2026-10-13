@@ -10,7 +10,7 @@
     "id": "pochod-po-stopach-p-sevcika-2021",
     "title": "Pochod po stopách P. Ševčíka",
     "start": "2021-08-14",
-    "time": "9:00",
+    "startTime": "9:00",
     "place": "Boskovice, Modrá věž",
     "text": "XVII. ročník pochodu pro turisty, cyklisty a všechny, kdo rádi putují krajinou. Start je od Modré věže v Boskovicích.",
     "body": "<p>Pěší trasa vede přes kapli sv. Otýlie, Bačov a Ohradu do Vísek, cyklisté si mohou vybrat trasu od 10 do 50 km. Startovné 20 Kč, děti a senioři zdarma.</p>",
@@ -30,7 +30,7 @@
     "id": "beneficni-koncert-boskovice-2021",
     "title": "Benefiční koncert na podporu jižní Moravy",
     "start": "2021-08-15",
-    "time": "17:00",
+    "startTime": "17:00",
     "place": "Boskovice, za Muzeem regionu Boskovicka",
     "text": "Vystoupí sbor BaczBand a výtěžek bude věnován na obnovu postižené jižní Moravy.",
     "poster": {

@@ -3,7 +3,7 @@
     "id": "pout-do-predklasteri-2024",
     "title": "Pouť do Předklášteří",
     "start": "2024-05-11",
-    "time": "9:00",
+    "startTime": "9:00",
     "place": "Předklášteří, klášter Porta Coeli",
     "text": "Komunita Emmanuel a kuřimská farnost zvou na pěší pouť k Bráně nebes, do kláštera Porta Coeli v Předklášteří.",
     "program": [
@@ -66,7 +66,7 @@
     "id": "den-rodin-2024",
     "title": "Den rodin",
     "start": "2024-05-19",
-    "time": "14:00",
+    "startTime": "14:00",
     "place": "Kuřim, areál zámku",
     "text": "Odpoledne pro rodiny s vystoupeními, soutěžemi, malováním na obličej a skákacími hrady. Vstupné dobrovolné.",
     "program": [
@@ -111,7 +111,7 @@
     "id": "dekanatni-setkani-ministrantu-2024",
     "title": "Děkanátní setkání ministrantů",
     "start": "2024-05-25",
-    "time": "14:00",
+    "startTime": "14:00",
     "place": "Veverská Bítýška, kostel sv. Jakuba",
     "text": "Setkání ministrantů děkanství se mší svatou, fotbalem, lukostřelbou a táborákem.",
     "program": [

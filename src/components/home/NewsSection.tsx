@@ -3,7 +3,7 @@
 import { clsx } from "clsx";
 import type { NewsEvent } from "@/content/types/news";
 import { links } from "@/content/site";
-import { formatEventDate } from "@/lib/shared/czech";
+import { formatEventDate, formatTimes } from "@/lib/shared/czech";
 import { currentNews, eventHref } from "@/lib/news/events";
 import { eventProgress, isCancelled, progressLabel } from "@/lib/news/timing";
 import { useNow, useToday } from "@/hooks/use-now";
@@ -41,7 +41,8 @@ export function NewsSection({ events, renderedAt }: Props) {
         {visible.map((item, i) => {
           // A series of meetings is listed by its first date.
           const date = formatEventDate(item.start, item.sessions ? undefined : item.end);
-          const chip = item.time ? `${date.label} · ${item.time}` : date.label;
+          const time = formatTimes(item);
+          const chip = time ? `${date.label} · ${time}` : date.label;
           // Cancelled (§11.9): it keeps its place until its date, with "Zrušeno" and a grey struck date.
           const cancelled = isCancelled(item);
           // Running now: highlighted; a meeting later today or the next meeting of a series: only the pill.

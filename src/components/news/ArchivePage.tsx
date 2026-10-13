@@ -1,7 +1,7 @@
 import { events } from "@/content/news";
 import { links } from "@/content/site";
 import { BUILD_TIME } from "@/lib/shared/build-time";
-import { fileType } from "@/lib/shared/czech";
+import { fileType, formatTimes } from "@/lib/shared/czech";
 import { archiveYearList } from "@/lib/news/archive";
 import { eventHref } from "@/lib/news/events";
 import { isCancelled } from "@/lib/news/timing";
@@ -23,7 +23,7 @@ const items: ArchiveItem[] = events.map((e) => {
     title: e.title,
     start: e.start,
     end: e.end,
-    time: e.time,
+    time: formatTimes(e),
     place: e.place,
     archiveHidden: e.archiveHidden,
     href: eventHref(e),

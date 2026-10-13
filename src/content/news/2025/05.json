@@ -22,7 +22,7 @@
     "id": "den-rodin-2025",
     "title": "Den rodin",
     "start": "2025-05-18",
-    "time": "14:00",
+    "startTime": "14:00",
     "place": "Kuřim, areál ZŠ Komenského",
     "text": "Zábavné odpoledne pro celé rodiny: soutěže pro děti, skákací hrady, malování na obličej, bublinový workshop, kouzelník a taneční vystoupení.",
     "program": [
@@ -68,7 +68,7 @@
     "id": "setkani-katechetu-2025",
     "title": "Setkání katechetů",
     "start": "2025-05-22",
-    "time": "17:30",
+    "startTime": "17:30",
     "place": "Tišnov, fara",
     "text": "Setkání katechetů tišnovského děkanství: vzájemné sdílení a účast Diecézního katechetického centra.",
     "poster": {
@@ -131,7 +131,8 @@
     "id": "promitani-filmu-chatrc-2025",
     "title": "Promítání filmu Chatrč",
     "start": "2025-05-29",
-    "time": "16:00–19:30",
+    "startTime": "16:00",
+    "endTime": "19:30",
     "place": "Kuřim, kinosál SKC",
     "mapQuery": "Společenské a kulturní centrum Kuřim",
     "text": "Promítání filmu Chatrč s následnou diskusí a občerstvením pro mladé od 15 do 25 let. Pořádá společenství mladých.",

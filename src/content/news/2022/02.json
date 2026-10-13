@@ -3,7 +3,7 @@
     "id": "valentinska-pout-2022",
     "title": "Valentinská pouť",
     "start": "2022-02-13",
-    "time": "17:00",
+    "startTime": "17:00",
     "place": "Brno, kostel sv. Michala",
     "mapQuery": "kostel sv. Michala, Dominikánské náměstí, Brno",
     "text": "Pouť ke svatému Valentinovi v kostele sv. Michala na Dominikánském náměstí v Brně.",
@@ -50,7 +50,7 @@
     "title": "Večery pro dva",
     "start": "2022-02-16",
     "end": "2022-03-30",
-    "time": "19:00",
+    "startTime": "19:00",
     "place": "Brno, restaurace Era cafe",
     "text": "Otevřená setkání pro páry zaměřená na podporu a rozvoj vztahu: večeře u stolků po dvou, krátká promluva a rozhovory v páru.",
     "program": [
@@ -94,7 +94,7 @@
     "id": "koncert-ucednici-2022",
     "title": "Charitativní koncert skupiny Učedníci",
     "start": "2022-02-20",
-    "time": "14:30",
+    "startTime": "14:30",
     "place": "Boskovice, kino Panorama",
     "text": "Přijměte pozvání na charitativní koncert skupiny Učedníci v kině Panorama v Boskovicích.",
     "poster": {

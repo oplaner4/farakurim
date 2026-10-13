@@ -3,7 +3,9 @@ import { formatCompactDate } from "@/lib/shared/czech";
 import { FileIcon } from "@/components/ui/icons/media-icons";
 
 /** What a row needs; the page passes only these fields to the client. */
-export type ArchiveItem = Pick<NewsEvent, "id" | "title" | "start" | "end" | "time" | "place" | "archiveHidden"> & {
+export type ArchiveItem = Pick<NewsEvent, "id" | "title" | "start" | "end" | "place" | "archiveHidden"> & {
+  /** "18:00–20:30" (`formatTimes()`). */
+  time?: string;
   href: string;
   /** Shows "Zrušeno" next to the title (§11.9). */
   cancelled?: true;

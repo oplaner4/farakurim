@@ -56,12 +56,12 @@ describe("eventChangeBanner", () => {
 
   it("gives a postponed event's new and first date", () => {
     const change = { status: "moved", previousStart: "2026-10-17", note: "kvůli předpovědi počasí." } as const;
-    expect(eventChangeBanner(lecture({ time: "14:00", change }))?.text).toBe(
+    expect(eventChangeBanner(lecture({ startTime: "14:00", change }))?.text).toBe(
       "Nový termín: sobota 24. 10. 2026 ve 14:00. Původně 17. 10. Kvůli předpovědi počasí.",
     );
-    expect(
-      eventChangeBanner(lecture({ time: "po mši", change: { status: "moved", previousStart: "2026-10-17" } }))?.text,
-    ).toBe("Nový termín: sobota 24. 10. 2026, po mši. Původně 17. 10.");
+    expect(eventChangeBanner(lecture({ change: { status: "moved", previousStart: "2026-10-17" } }))?.text).toBe(
+      "Nový termín: sobota 24. 10. 2026. Původně 17. 10.",
+    );
   });
 
   it("is missing for an event without a change", () => {

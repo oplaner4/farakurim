@@ -3,7 +3,7 @@
     "id": "farni-den-2022",
     "title": "Farní den",
     "start": "2022-06-04",
-    "time": "14:00",
+    "startTime": "14:00",
     "place": "Kuřim, areál za farou",
     "text": "Farní den s představením komunity Emmanuel, ukulele bandem, posezením u ohně a hrami pro děti.",
     "body": "<p>Čeká vás soutěž o nej… jednohubku (doneste alespoň 20 kusů), posezení u ohně s živou hudbou a zábavné hry pro děti. Drobné občerstvení, které přinesete, je vítáno.</p>",
@@ -38,7 +38,7 @@
     "id": "jarni-koncert-2022",
     "title": "Jarní koncert violoncellistů",
     "start": "2022-06-05",
-    "time": "17:00",
+    "startTime": "17:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Tradiční jarní koncert: Solitutticelli Brno Cello Sextet zahraje chrámovou a romantickou hudbu pro šest violoncell.",
     "body": "<p>Na programu jsou skladby J. S. Bacha, D. Poppera, J. Haydna, F. Schuberta a C. Saint-Saënse. Vstupné dobrovolné.</p>",
@@ -59,7 +59,8 @@
     "id": "noc-kostelu-2022",
     "title": "Noc kostelů",
     "start": "2022-06-10",
-    "time": "18:45–21:05",
+    "startTime": "18:45",
+    "endTime": "21:05",
     "place": "Kuřim a Moravské Knínice",
     "text": "Prohlídky kostelů, zpěvy chrámového sboru a modlitba za naše město.",
     "program": [
@@ -111,7 +112,7 @@
     "id": "dekanatni-setkani-mladeze-2022",
     "title": "Děkanátní setkání mládeže",
     "start": "2022-06-18",
-    "time": "13:00",
+    "startTime": "13:00",
     "place": "Tišnov",
     "text": "Mladé zveme na děkanátní setkání v Tišnově a ostatní prosíme o podporu modlitbou."
   },
@@ -132,7 +133,7 @@
     "id": "varhanni-koncert-kninice-2022",
     "title": "Varhanní koncert v Moravských Knínicích",
     "start": "2022-06-26",
-    "time": "17:00",
+    "startTime": "17:00",
     "place": "Moravské Knínice, kostel sv. Markéty",
     "text": "Varhanní koncert Hany Bartošové. Výtěžek bude věnován na opravy knínického kostela."
   }

@@ -142,7 +142,7 @@ describe("eventTags", () => {
   });
 
   it("puts a meeting today and the next meeting of a series first", () => {
-    const evening = event("x", TODAY, undefined, { time: "18:00", price: "200 Kč" });
+    const evening = event("x", TODAY, undefined, { startTime: "18:00", price: "200 Kč" });
     expect(eventTags(evening, at(TODAY, "10:00"))).toEqual([
       { kind: "magenta", label: "Dnes v 18:00" },
       { kind: "blue", label: "200 Kč" },

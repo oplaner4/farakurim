@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { NewsEvent } from "@/content/types/news";
-import { eventProgress, isPast, meetingsOf, progressLabel, relativeEventLabel } from "./timing";
+import { eventProgress, eventTimes, isPast, meetingsOf, progressLabel, relativeEventLabel } from "./timing";
 import { at, event, events, TODAY } from "./test-fixtures";
 
 describe("isPast", () => {
@@ -11,7 +11,7 @@ describe("isPast", () => {
 });
 
 describe("eventProgress", () => {
-  const evening = event("x", "2026-10-18", undefined, { time: "18:00–20:30" });
+  const evening = event("x", "2026-10-18", undefined, { startTime: "18:00", endTime: "20:30" });
 
   it("is today before the start time, now until the end time, then nothing", () => {
     expect(eventProgress(evening, at("2026-10-17", "19:00"))).toBeUndefined();
@@ -22,15 +22,14 @@ describe("eventProgress", () => {
   });
 
   it("is now for the rest of the day after a start time without an end", () => {
-    const mass = event("x", "2026-10-18", undefined, { time: "9:30" });
+    const mass = event("x", "2026-10-18", undefined, { startTime: "9:30" });
     expect(eventProgress(mass, at("2026-10-18", "9:00"))).toEqual({ kind: "today", time: "9:30" });
     expect(eventProgress(mass, at("2026-10-18", "23:59"))).toEqual({ kind: "now" });
   });
 
-  it("is now all day for an event without a clock time and every day of a multi-day event", () => {
-    const afterMass = event("x", "2026-10-18", undefined, { time: "po mši" });
-    expect(eventProgress(afterMass, at("2026-10-18", "0:00"))).toEqual({ kind: "now" });
-    const feast = event("x", "2026-10-02", "2026-10-04", { time: "18:00" });
+  it("is now all day for an event without a start time and every day of a multi-day event", () => {
+    expect(eventProgress(event("x", "2026-10-18"), at("2026-10-18", "0:00"))).toEqual({ kind: "now" });
+    const feast = event("x", "2026-10-02", "2026-10-04", { startTime: "18:00" });
     expect(eventProgress(feast, at("2026-10-02", "8:00"))).toEqual({ kind: "now" });
     expect(eventProgress(feast, at("2026-10-04", "23:00"))).toEqual({ kind: "now" });
     expect(eventProgress(feast, at("2026-10-05", "0:00"))).toBeUndefined();
@@ -38,7 +37,8 @@ describe("eventProgress", () => {
 
   it("names the next meeting of a series between its meetings, skipping dropped ones", () => {
     const series = event("x", "2026-10-11", "2026-10-25", {
-      time: "18:00–20:30",
+      startTime: "18:00",
+      endTime: "20:30",
       sessions: ["2026-10-11", "2026-10-18", "2026-10-25"],
       cancelledMeetings: { dates: ["2026-10-18"] },
     });
@@ -66,22 +66,29 @@ describe("progressLabel", () => {
   });
 });
 
+describe("eventTimes", () => {
+  it("is the event's times, or a weekly series' weeklyAt", () => {
+    expect(eventTimes({ startTime: "18:00", endTime: "20:30" })).toEqual({ startTime: "18:00", endTime: "20:30" });
+    expect(eventTimes({ startTime: "9:00", longTerm: { weeklyAt: "18:30" } })).toEqual({ startTime: "18:30" });
+    expect(eventTimes({ startTime: "9:00", longTerm: true })).toEqual({ startTime: "9:00" });
+    expect(eventTimes({})).toEqual({});
+  });
+});
+
 describe("meetingsOf", () => {
   it("is each meeting of a series, the first day of a weekly one, else the event's span", () => {
-    const time = "13:00–18:00";
-    expect(
-      meetingsOf(
-        event("a", "2026-10-11", undefined, { time, sessions: ["2026-10-11", { date: "2026-10-18", time: "19:00" }] }),
-      ),
-    ).toEqual([
-      { start: "2026-10-11", end: "2026-10-11", time },
-      { start: "2026-10-18", end: "2026-10-18", time: "19:00" },
+    const times = { startTime: "13:00", endTime: "18:00" };
+    // A meeting's own start time replaces both of the event's times.
+    const sessions = ["2026-10-11", { date: "2026-10-18", startTime: "19:00" }];
+    expect(meetingsOf(event("a", "2026-10-11", undefined, { ...times, sessions }))).toEqual([
+      { start: "2026-10-11", end: "2026-10-11", ...times },
+      { start: "2026-10-18", end: "2026-10-18", startTime: "19:00" },
     ]);
-    expect(meetingsOf(event("a", "2026-10-12", "2027-06-30", { time, longTerm: { weeklyAt: "18:30" } }))).toEqual([
-      { start: "2026-10-12", end: "2026-10-12", time: "18:30" },
+    expect(meetingsOf(event("a", "2026-10-12", "2027-06-30", { ...times, longTerm: { weeklyAt: "18:30" } }))).toEqual([
+      { start: "2026-10-12", end: "2026-10-12", startTime: "18:30" },
     ]);
-    expect(meetingsOf(event("a", "2026-10-12", "2026-10-14", { time }))).toEqual([
-      { start: "2026-10-12", end: "2026-10-14", time },
+    expect(meetingsOf(event("a", "2026-10-12", "2026-10-14", times))).toEqual([
+      { start: "2026-10-12", end: "2026-10-14", ...times },
     ]);
   });
 
@@ -94,7 +101,7 @@ describe("meetingsOf", () => {
       meetingsOf(event("a", "2026-10-11", "2026-10-25", { sessions, ...cancelled })).every((m) => m.cancelled),
     ).toBe(true);
     expect(meetingsOf(event("a", "2026-10-12", undefined, cancelled))).toEqual([
-      { start: "2026-10-12", end: "2026-10-12", time: undefined, cancelled: true },
+      { start: "2026-10-12", end: "2026-10-12", cancelled: true },
     ]);
   });
 });
@@ -111,7 +118,7 @@ describe("relativeEventLabel", () => {
   });
 
   it("marks running, started and finished events", () => {
-    const evening = span("2026-10-03", undefined, { time: "18:00–20:30" });
+    const evening = span("2026-10-03", undefined, { startTime: "18:00", endTime: "20:30" });
     expect(relativeEventLabel(evening, at("2026-10-03", "10:00"))).toBe("Dnes");
     expect(relativeEventLabel(evening, at("2026-10-03", "19:00"))).toBe("Právě probíhá");
     expect(relativeEventLabel(evening, at("2026-10-03", "21:00"))).toBe("Dnes");

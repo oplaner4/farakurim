@@ -53,7 +53,7 @@
     "id": "charitativni-beh-2022",
     "title": "Charitativní běh pro Ukrajinu",
     "start": "2022-11-19",
-    "time": "10:00",
+    "startTime": "10:00",
     "place": "Lelekovice, vodojem Na Pasekách",
     "text": "Přijďte si zaběhat a přispět na dobrou věc: 6. charitativní běh, jehož výtěžek půjde na konto SOS Ukrajina Člověka v tísni.",
     "program": [
@@ -84,7 +84,8 @@
     "id": "charitativni-jarmark-ceska-2022",
     "title": "Charitativní jarmark v České",
     "start": "2022-11-20",
-    "time": "13:30–16:30",
+    "startTime": "13:30",
+    "endTime": "16:30",
     "place": "Česká, sokolovna",
     "text": "Tradiční 22. farní charitativní jarmark, letos pro Ukrajinu. Výtěžek půjde na konto SOS Ukrajina Člověka v tísni.",
     "body": "<p>Přispějte svým ručně vyrobeným zbožím nebo nabídněte své speciality do stánku s občerstvením. Příspěvky se shromažďují v sobotu 19. 11. od 17 do 18 hodin v sokolovně v České.</p>",
@@ -104,7 +105,8 @@
     "id": "cervena-streda-2022",
     "title": "Červená středa",
     "start": "2022-11-23",
-    "time": "17:00–20:00",
+    "startTime": "17:00",
+    "endTime": "20:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Připomeňme si všechny, kdo jsou pronásledováni pro víru: nasvícený kostel, mše svatá a tichá adorace.",
     "program": [
@@ -143,7 +145,7 @@
     "id": "farni-silvestr-2022",
     "title": "Farní silvestr",
     "start": "2022-11-26",
-    "time": "15:00",
+    "startTime": "15:00",
     "place": "Kuřim",
     "text": "Farní silvestr na konci církevního roku: mše svatá, vyprávění o pouti do Říma, dražba dortu, kvíz a ohňostroj.",
     "program": [

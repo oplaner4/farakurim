@@ -27,13 +27,13 @@ Copy the record whole into `record.json` in the session's scratchpad (never in t
 "(zrušeno)", no "Zrušeno" tag).
 
 - **"Zrušeno"**: add `"change": { "status": "cancelled", "announced": "<today>", "note": "<reason>" }`.
-- **"Přesunuto"**: set `start`, `end` and `time` to the new date and add
+- **"Přesunuto"**: set `start`, `end`, `startTime` and `endTime` to the new date and add
   `"change": { "status": "moved", "previousStart": "<old start>", "announced": "<today>", "note": "<reason>" }`.
-  Add `previousTime` when the time changed too.
+  Add `previousStartTime` (and `previousEndTime`) when the time changed too.
 - **A dropped "setkání"** of a series: add `"cancelledMeetings": { "dates": ["<the meeting's date>"] }`, with an
   optional `note`; the series stays as it is. Another dropped meeting adds its date to `dates`.
-- **Withdrawn**: remove `change` (for a move, put `start`, `end` and `time` back from `previousStart` and
-  `previousTime`), or the meeting's date from `cancelledMeetings` (the whole key when it was the last one).
+- **Withdrawn**: remove `change` (for a move, put `start`, `end`, `startTime` and `endTime` back from
+  `previousStart`, `previousStartTime` and `previousEndTime`), or the meeting's date from `cancelledMeetings` (the whole key when it was the last one).
 
 `announced` is today's Prague date ("Oznámeno 12. 10. 2026" on the detail page). `note` is one sentence in Czech from
 the source, word for word; leave it out when the source gives no reason. A move's `note` follows "Přesunuto ze soboty 17. 10." on the card, so it starts in lower case: `"kvůli předpovědi počasí."`.
@@ -50,7 +50,7 @@ It prints the fields that change (`Changed: …`).
 
 Show the user each changed field as old → new, and how the site will show it ("Zrušeno: <note>", "Přesunuto ze
 <old date> <note>", "Změna: setkání <date> odpadá, ostatní termíny platí."). The `Changed:` line must list only
-`change`, `cancelledMeetings` and, for a move, `start`, `end` and `time`: another field there means the record was not
+`change`, `cancelledMeetings` and, for a move, `start`, `end`, `startTime` and `endTime`: another field there means the record was not
 copied whole.
 
 Wait for the user's yes or corrections to these before replacing anything.

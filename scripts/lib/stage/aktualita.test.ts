@@ -282,9 +282,9 @@ describe("stageAktualita", { timeout: 30_000 }, () => {
         id: "test-hody-2026",
         label: "Záznam",
         corrected: true,
-        record: { ...added(), time: "18:00" },
+        record: { ...added(), startTime: "18:00" },
       });
-      expect(lines).toContain("Changed: attachments, time");
+      expect(lines).toContain("Changed: attachments, startTime");
       expect(added()?.attachments?.map((a) => a.label)).toEqual(["Plakát", "Záznam"]);
       expect(added()?.published).toBeDefined();
     });

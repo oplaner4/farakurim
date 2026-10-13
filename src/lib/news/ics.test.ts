@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { NewsEvent } from "@/content/types/news";
-import { eventCalendar, eventClock } from "./ics";
+import { eventCalendar } from "./ics";
 
 const URL = "https://farakurim.cz/aktuality/hody-v-ceske/";
 
@@ -22,7 +22,7 @@ const lines = (ics: string) =>
 
 describe("eventCalendar", () => {
   it("writes a timed event in UTC from Prague wall-clock time", () => {
-    const out = lines(eventCalendar(event({ time: "9:30" }), URL));
+    const out = lines(eventCalendar(event({ startTime: "9:30" }), URL));
     expect(out).toContain("DTSTART:20261018T073000Z");
     expect(out.some((l) => l.startsWith("DTEND"))).toBe(false);
     expect(out).toContain("SUMMARY:Hody v České");
@@ -33,16 +33,16 @@ describe("eventCalendar", () => {
   });
 
   it("uses the end time of a range, in winter time after 25. 10.", () => {
-    const out = lines(eventCalendar(event({ start: "2026-11-01", time: "18:00–20:30" }), URL));
+    const out = lines(eventCalendar(event({ start: "2026-11-01", startTime: "18:00", endTime: "20:30" }), URL));
     expect(out).toContain("DTSTART:20261101T170000Z");
     expect(out).toContain("DTEND:20261101T193000Z");
   });
 
-  it("makes multi-day events and unparsable times all-day, ending the day after", () => {
-    const out = lines(eventCalendar(event({ start: "2026-10-02", end: "2026-10-04", time: "9:30" }), URL));
+  it("makes multi-day events and events without a start time all-day, ending the day after", () => {
+    const out = lines(eventCalendar(event({ start: "2026-10-02", end: "2026-10-04", startTime: "9:30" }), URL));
     expect(out).toContain("DTSTART;VALUE=DATE:20261002");
     expect(out).toContain("DTEND;VALUE=DATE:20261005");
-    expect(lines(eventCalendar(event({ time: "po mši" }), URL))).toContain("DTSTART;VALUE=DATE:20261018");
+    expect(lines(eventCalendar(event({}), URL))).toContain("DTSTART;VALUE=DATE:20261018");
   });
 
   it("repeats weekly series", () => {
@@ -57,8 +57,9 @@ describe("eventCalendar", () => {
     const series = event({
       start: "2026-10-17",
       end: "2026-11-22",
-      time: "19:00–21:30",
-      sessions: [{ date: "2026-10-17", time: "9:00" }, "2026-10-27", { date: "2026-11-21", end: "2026-11-22" }],
+      startTime: "19:00",
+      endTime: "21:30",
+      sessions: [{ date: "2026-10-17", startTime: "9:00" }, "2026-10-27", { date: "2026-11-21", end: "2026-11-22" }],
     });
     const out = lines(eventCalendar(series, URL));
     expect(out.filter((l) => l === "BEGIN:VEVENT")).toHaveLength(3);
@@ -72,7 +73,7 @@ describe("eventCalendar", () => {
   });
 
   it("keeps the UID of a cancelled or postponed event and raises its SEQUENCE", () => {
-    const cancelled = lines(eventCalendar(event({ time: "9:30", change: { status: "cancelled" } }), URL));
+    const cancelled = lines(eventCalendar(event({ startTime: "9:30", change: { status: "cancelled" } }), URL));
     expect(cancelled).toContain("UID:hody-v-ceske@farakurim.cz");
     expect(cancelled).toContain("STATUS:CANCELLED");
     expect(cancelled).toContain("SEQUENCE:2");
@@ -92,25 +93,5 @@ describe("eventCalendar", () => {
     const [first, second] = out.split("BEGIN:VEVENT").slice(1);
     expect(first).not.toContain("STATUS:CANCELLED");
     expect(second).toContain("STATUS:CANCELLED");
-  });
-});
-
-describe("eventClock", () => {
-  it.each([
-    ["9:30", { from: "9:30" }],
-    ["18:00–20:30", { from: "18:00", to: "20:30" }],
-    ["18:00 - 20:30", { from: "18:00", to: "20:30" }],
-    ["18:00 – 20:30", { from: "18:00", to: "20:30" }],
-  ])("reads %s", (time, clock) => {
-    expect(eventClock(event({ time }))).toEqual(clock);
-  });
-
-  it.each(["po mši", "18.00", "od 18:00", "18:00, 20:00", ""])("leaves %j untimed", (time) => {
-    expect(eventClock(event({ time }))).toBeUndefined();
-  });
-
-  it("takes a weekly series' time over the free-text time", () => {
-    expect(eventClock(event({ time: "9:00", longTerm: { weeklyAt: "18:30" } }))).toEqual({ from: "18:30" });
-    expect(eventClock(event({ time: "9:00", longTerm: true }))).toEqual({ from: "9:00" });
   });
 });

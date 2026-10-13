@@ -20,7 +20,7 @@
     "id": "zivy-prenos-mse-svate-2020-05-03",
     "title": "Živý přenos mše svaté z Moravských Knínic",
     "start": "2020-05-03",
-    "time": "11:00",
+    "startTime": "11:00",
     "place": "Moravské Knínice, kostel sv. Markéty",
     "text": "Přenos nedělní mše svaté z knínického kostela, tentokrát s lepší kamerou a dopředu vyzkoušený.",
     "links": [
@@ -47,7 +47,7 @@
     "id": "koncert-violoncellistu-2020",
     "title": "Koncert violoncellistů Filharmonie Brno",
     "start": "2020-05-24",
-    "time": "17:00",
+    "startTime": "17:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Violoncellisté Filharmonie Brno zahrají skladby Vivaldiho, Grafa, Mahlera a Rossiniho.",
     "body": "<p>Koncert pod uměleckým vedením koncertního mistra Pavla Šabackého se koná ku příležitosti znovuzahájení koncertní činnosti a je věnován spoluobčanům jako poděkování. Koncert se koná s podporou města Kuřimi.</p>",
@@ -74,19 +74,19 @@
     "sessions": [
       {
         "date": "2020-05-30",
-        "time": "15:00"
+        "startTime": "15:00"
       },
       {
         "date": "2020-07-06",
-        "time": "15:00"
+        "startTime": "15:00"
       },
       {
         "date": "2020-08-15",
-        "time": "9:00"
+        "startTime": "9:00"
       },
       {
         "date": "2020-08-30",
-        "time": "7:00"
+        "startTime": "7:00"
       }
     ],
     "poster": {

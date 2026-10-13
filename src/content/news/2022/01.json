@@ -18,7 +18,7 @@
     "id": "vanocni-koncert-magnificat-2022",
     "title": "Vánoční koncert",
     "start": "2022-01-09",
-    "time": "18:00",
+    "startTime": "18:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Chrámový sbor Magnificat a orchestr z Lelekovic zvou na koncert: V. J. Kopřiva, Missa pastoralis in D.",
     "poster": {

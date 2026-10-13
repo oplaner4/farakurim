@@ -3,7 +3,7 @@
     "id": "koncert-dej-nam-akord-mosty-2023",
     "title": "Koncert skupin Dej nám akord a Mosty",
     "start": "2023-10-01",
-    "time": "18:00",
+    "startTime": "18:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Ve farním kostele zahrají skupiny Dej nám akord z Brna a Mosty ze Znojma."
   },
@@ -53,7 +53,7 @@
     "id": "adoracni-den-2023",
     "title": "Adorační den farnosti",
     "start": "2023-10-12",
-    "time": "9:00",
+    "startTime": "9:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Adorační den naší farnosti. Zapište se pod kůrem do rozpisu adorantů, abychom pokryli celou dobu adorace.",
     "program": [

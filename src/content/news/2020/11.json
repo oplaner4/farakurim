@@ -16,7 +16,7 @@
     "id": "zivy-prenos-mse-svate-2020-11-15",
     "title": "Živý přenos mše svaté 15. listopadu",
     "start": "2020-11-15",
-    "time": "9:30",
+    "startTime": "9:30",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Nedělní mši svatou zkušebně vysíláme na YouTube.",
     "links": [
@@ -30,7 +30,8 @@
     "id": "adoracni-odpoledne-kurim-2020",
     "title": "Adorační odpoledne v Kuřimi",
     "start": "2020-11-15",
-    "time": "13:00–20:00",
+    "startTime": "13:00",
+    "endTime": "20:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Výstav Nejsvětější svátosti s rozpisem adorujících po půlhodinách.",
     "body": "<p>Adorovat se bude po dvojicích (případně členové jedné domácnosti). Příležitost ke svaté zpovědi bude během adorace od 15 do 17 hodin.</p>"
@@ -39,7 +40,8 @@
     "id": "adoracni-odpoledne-kninice-2020",
     "title": "Adorační odpoledne v Moravských Knínicích",
     "start": "2020-11-22",
-    "time": "12:00–20:00",
+    "startTime": "12:00",
+    "endTime": "20:00",
     "place": "Moravské Knínice, kostel sv. Markéty",
     "text": "Výstav Nejsvětější svátosti v knínickém kostele. Rozpis pro střídání je vyvěšen na kostelních dveřích.",
     "body": "<p>Příležitost ke svaté zpovědi bude během adorace od 14:00 do 15:30 v sakristii.</p>"
@@ -66,7 +68,7 @@
     "id": "cervena-streda-2020",
     "title": "Červená středa",
     "start": "2020-11-25",
-    "time": "18:00",
+    "startTime": "18:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Mezinárodní připomínka lidí pronásledovaných pro víru: kostel nasvícený červeně, mše svatá a adorace.",
     "program": [

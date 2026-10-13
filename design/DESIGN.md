@@ -495,7 +495,7 @@ to the first new card. Hide the button on the last page.
 |---|---|
 | title | required |
 | start, end | dates; end optional (single day) |
-| time text | optional free text ("9:30", "18:00–20:30", "každý čtvrtek od 18:30") |
+| start time, end time | optional clock times ("18:00", "20:30"); an end time only with a start time, and after it. Shown together as "18:00–20:30" |
 | place | free text |
 | text | short description |
 | poster | image, used for thumbnail and featured panel |

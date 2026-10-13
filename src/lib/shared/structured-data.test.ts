@@ -32,7 +32,7 @@ describe("eventJsonLd", () => {
       "https://schema.org/EventCancelled",
     );
     const moved = eventJsonLd(
-      event({ change: { status: "moved", previousStart: "2026-10-11", previousTime: "9:30" } }),
+      event({ change: { status: "moved", previousStart: "2026-10-11", previousStartTime: "9:30" } }),
       URL,
     );
     expect(moved.eventStatus).toBe("https://schema.org/EventRescheduled");

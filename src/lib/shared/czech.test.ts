@@ -15,6 +15,7 @@ import {
   formatMonthYear,
   formatPercent,
   formatShortDates,
+  formatTimes,
   formatWeekdayDate,
   plural,
   relativeDayName,
@@ -68,14 +69,25 @@ describe("date formatting", () => {
   });
 });
 
+describe("formatTimes", () => {
+  it("writes a start time, or a range with an en dash", () => {
+    expect(formatTimes({ startTime: "9:30" })).toBe("9:30");
+    expect(formatTimes({ startTime: "18:00", endTime: "20:30" })).toBe("18:00–20:30");
+    expect(formatTimes({})).toBeUndefined();
+  });
+});
+
 describe("event formatting", () => {
   const base = { id: "x", title: "x", place: "x", text: "x" };
 
   it("writes single days, ranges and times", () => {
-    expect(formatEventWhen({ ...base, start: "2026-10-25", time: "9:30" })).toEqual({
+    expect(formatEventWhen({ ...base, start: "2026-10-25", startTime: "9:30" })).toEqual({
       date: "neděle 25. 10. 2026",
       time: "9:30",
     });
+    expect(formatEventWhen({ ...base, start: "2026-10-25", startTime: "18:00", endTime: "20:30" }).time).toBe(
+      "18:00–20:30",
+    );
     expect(formatEventWhen({ ...base, start: "2026-10-18" }, { longMonth: true }).date).toBe("neděle 18. října 2026");
     expect(formatEventWhen({ ...base, start: "2026-10-02", end: "2026-10-04" }).date).toBe(
       "pátek 2. – neděle 4. 10. 2026",
@@ -91,13 +103,14 @@ describe("event formatting", () => {
         ...base,
         start: "2026-10-11",
         end: "2026-11-22",
-        time: "18:00–20:30",
+        startTime: "18:00",
+        endTime: "20:30",
         sessions: ["2026-10-11", "2026-10-18", "2026-10-25", "2026-11-01", "2026-11-08", "2026-11-15", "2026-11-22"],
       }).date,
     ).toBe("od neděle 11. 10. 2026, vždy 18:00–20:30");
-    const ownTimes = ["2026-10-11", { date: "2026-10-18", time: "9:00" }];
+    const ownTimes = ["2026-10-11", { date: "2026-10-18", startTime: "9:00" }];
     expect(
-      formatEventWhen({ ...base, start: "2026-10-11", end: "2026-10-18", time: "18:00", sessions: ownTimes }).date,
+      formatEventWhen({ ...base, start: "2026-10-11", end: "2026-10-18", startTime: "18:00", sessions: ownTimes }).date,
     ).toBe("od neděle 11. 10. 2026");
     expect(
       formatEventWhen({ ...base, start: "2026-10-01", end: "2027-04-29", longTerm: { weeklyAt: "18:30" } }).date,

@@ -3,7 +3,7 @@
     "id": "modlitebni-vecer-emmanuel-2023",
     "title": "Modlitební večer s komunitou Emmanuel",
     "start": "2023-12-01",
-    "time": "19:00",
+    "startTime": "19:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Modlitební večer s adorací a hudebním doprovodem komunity Emmanuel.",
     "poster": {
@@ -22,7 +22,7 @@
     "id": "oceneni-kukuc-2023",
     "title": "Ocenění KuKuč pro farníky",
     "start": "2023-12-13",
-    "time": "18:00",
+    "startTime": "18:00",
     "place": "Kuřim, kulturní dům",
     "text": "Při vyhlášení Kuřimských kulturních činů za rok 2023 budou oceněny i dvě aktivity lidí z farnosti.",
     "body": "<ul><li>Pavel Rajmic a kapela Church Knights za vystoupení na Noci kostelů 2023,</li><li>výstava betlémů, kterou připravili Jana Kytnerová, Lucie Sádlíková a Milan Císař.</li></ul>"
@@ -126,7 +126,7 @@
     "id": "vanocni-pribeh-2023",
     "title": "Vánoční příběh",
     "start": "2023-12-24",
-    "time": "15:00",
+    "startTime": "15:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Štědrovečerní bohoslužba slova a Vánoční příběh s doprovodem kuřimské dětské scholy.",
     "poster": {
@@ -145,7 +145,7 @@
     "id": "vanocni-zpivani-zs-divizna-2023",
     "title": "Vánoční zpívání ZŠ DiviZna",
     "start": "2023-12-26",
-    "time": "15:30",
+    "startTime": "15:30",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Základní škola DiviZna zve na vánoční zpívání.",
     "poster": {

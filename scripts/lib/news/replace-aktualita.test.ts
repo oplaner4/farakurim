@@ -19,9 +19,9 @@ describe("changedFields", () => {
   it("names the fields that differ, whatever the key order inside them", () => {
     const poster = { src: "/uploads/aktuality/a.webp", alt: "Plakát" };
     expect(changedFields(record({ poster }), record({ poster: { alt: "Plakát", src: poster.src } }))).toEqual([]);
-    expect(changedFields(record({ time: "9:30" }), record({ title: "Hody", lead: "Zveme." }))).toEqual([
+    expect(changedFields(record({ startTime: "9:30" }), record({ title: "Hody", lead: "Zveme." }))).toEqual([
       "title",
-      "time",
+      "startTime",
       "lead",
     ]);
   });
@@ -45,17 +45,17 @@ describe("replaceAktualita", () => {
   it("replaces the record in place, keeping its published date and pin", () => {
     const result = replaceAktualita(
       news.dir(),
-      record({ id: "zari-2026", start: "2026-09-12", time: "10:00", pinned: true, published: "2026-09-10" }),
+      record({ id: "zari-2026", start: "2026-09-12", startTime: "10:00", pinned: true, published: "2026-09-10" }),
       { now },
     );
-    expect(result).toMatchObject({ from: "2026/09.json", target: "2026/09.json", changed: ["time"], removed: [] });
+    expect(result).toMatchObject({ from: "2026/09.json", target: "2026/09.json", changed: ["startTime"], removed: [] });
     expect(result.written).toEqual(["2026/09.json"]);
     expect(readMonth(news.dir(), "2026/09.json")[0]).toEqual(
-      record({ id: "zari-2026", start: "2026-09-12", time: "10:00", published: "2026-09-01", pinned: true }),
+      record({ id: "zari-2026", start: "2026-09-12", startTime: "10:00", published: "2026-09-01", pinned: true }),
     );
     expect(replaceLines(result, false)).toEqual([
       "Replaced the record in src/content/news/2026/09.json",
-      "Changed: time",
+      "Changed: startTime",
     ]);
   });
 

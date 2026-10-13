@@ -31,10 +31,13 @@ export type Highlight = {
 };
 
 /**
- * A meeting of a series: its day, or `{ date, end?, time? }` when it lasts several days or keeps its own time
- * (`time` replaces the event's `time`).
+ * A meeting of a series: its day, or `{ date, end?, startTime?, endTime? }` when it lasts several days or keeps its own
+ * time (its `startTime` and `endTime` replace the event's both).
  */
-export type EventSession = IsoDate | { date: IsoDate; end?: IsoDate; time?: string };
+export type EventSession = IsoDate | ({ date: IsoDate; end?: IsoDate } & EventTimes);
+
+/** The clock time of an event or meeting (Prague wall-clock): from `startTime`, until `endTime` when it is known. */
+export type EventTimes = { startTime?: ClockTime; endTime?: ClockTime };
 
 /** Colours of a free badge, from the design's tag colours (design/DESIGN.md §11.7); `blue` by default. */
 export type TagColor = "blue" | "orange" | "magenta" | "grey";
@@ -53,8 +56,8 @@ export type EventChange = {
   note?: string;
 } & (
   | { status: "cancelled" }
-  /** `start`, `end` and `time` hold the new date; these the one before the move. */
-  | { status: "moved"; previousStart: IsoDate; previousTime?: string }
+  /** `start`, `end`, `startTime` and `endTime` hold the new date; these the one before the move. */
+  | { status: "moved"; previousStart: IsoDate; previousStartTime?: ClockTime; previousEndTime?: ClockTime }
 );
 
 /** The meetings of a series that do not take place, the other ones still do (design/DESIGN.md §11.9). */
@@ -76,8 +79,10 @@ export type NewsEvent = {
   start: IsoDate;
   /** Last day of a multi-day event; omit for single-day events. */
   end?: IsoDate;
-  /** Free text: "9:30", "18:00–20:30". */
-  time?: string;
+  /** "18:00"; omit for an all-day event. */
+  startTime?: ClockTime;
+  /** "20:30"; only with `startTime`, and after it. */
+  endTime?: ClockTime;
   /** Omitted for announcements without a venue (letters, online broadcasts). */
   place?: string;
   /** Short description, 1–2 sentences. */

@@ -3,18 +3,12 @@ import { addDays, format } from "date-fns";
 import { createEvents, type DateArray, type DateTime, type EventAttributes } from "ics";
 import { SITE_HOST } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
-import type { ClockTime, IsoDate } from "@/content/types/shared";
-import { eventEnd, meetingsOf, type Meeting, parseClock } from "./timing";
+import type { IsoDate } from "@/content/types/shared";
+import { eventEnd, meetingsOf, type Meeting } from "./timing";
 import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
 
 // "Přidat do kalendáře" (design/DESIGN.md §13.2): one .ics file per event, generated at build time.
 // Times are Prague wall-clock and written in UTC, so no VTIMEZONE block is needed.
-
-/** Start (and end) time of a single-day event's or weekly series' time text, if it is a clock time. */
-export function eventClock(event: NewsEvent): { from: ClockTime; to?: ClockTime } | undefined {
-  const weeklyAt = event.longTerm && event.longTerm !== true ? event.longTerm.weeklyAt : undefined;
-  return parseClock(weeklyAt ?? event.time);
-}
 
 const dateArray = (date: IsoDate) => date.split("-").map(Number) as DateArray;
 const nextDay = (date: IsoDate) => pragueDate(addDays(pragueDateTime(date, "12:00"), 1, { in: inPrague }));
@@ -22,15 +16,13 @@ const utcStamp = (instant: Date) => format(instant, "yyyyMMdd'T'HHmmss'Z'", { in
 
 type Timing = Pick<EventAttributes, "start" | "startInputType" | "recurrenceRule"> & { end?: DateTime };
 
-/** A single day with a clock time is timed; anything longer, or with another time text, is all-day. */
-function timing({ start, end, time }: Meeting): Timing {
-  const clock = parseClock(time);
-  if (clock && end === start) {
-    const { from, to } = clock;
+/** A single day with a start time is timed; anything longer, or without one, is all-day. */
+function timing({ start, end, startTime, endTime }: Meeting): Timing {
+  if (startTime && end === start) {
     return {
-      start: pragueDateTime(start, from).getTime(),
+      start: pragueDateTime(start, startTime).getTime(),
       startInputType: "utc",
-      end: to ? pragueDateTime(start, to).getTime() : undefined,
+      end: endTime ? pragueDateTime(start, endTime).getTime() : undefined,
     };
   }
   return { start: dateArray(start), end: dateArray(nextDay(end)) };

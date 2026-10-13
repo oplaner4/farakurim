@@ -5,10 +5,12 @@ import { event } from "./test-fixtures";
 describe("posterAlt", () => {
   it("names the event, its date, time and place", () => {
     const base = { id: "x", title: "Farní den", start: "2026-10-18", text: "" };
-    expect(posterAlt({ ...base, time: "9:30", place: "farní zahrada" })).toBe(
+    expect(posterAlt({ ...base, startTime: "9:30", place: "farní zahrada" })).toBe(
       "Plakát: Farní den, neděle 18. října 2026 v 9:30, farní zahrada",
     );
-    expect(posterAlt({ ...base, time: "14:00–18:00" })).toBe("Plakát: Farní den, neděle 18. října 2026 ve 14:00–18:00");
+    expect(posterAlt({ ...base, startTime: "14:00", endTime: "18:00" })).toBe(
+      "Plakát: Farní den, neděle 18. října 2026 ve 14:00–18:00",
+    );
     expect(posterAlt(base)).toBe("Plakát: Farní den, neděle 18. října 2026");
   });
 });

@@ -1,5 +1,5 @@
 import { differenceInCalendarDays } from "date-fns";
-import type { NewsEvent } from "@/content/types/news";
+import type { EventTimes, NewsEvent } from "@/content/types/news";
 import type { ClockTime, IsoDate } from "@/content/types/shared";
 import { atClockTime, formatShortDate, plural, relativeDayName } from "@/lib/shared/czech";
 import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
@@ -18,37 +18,38 @@ export const isPast = (event: Pick<NewsEvent, "start" | "end">, today: IsoDate) 
 /** Cancelled (§11.9): the event does not take place, though its record and detail page stay. */
 export const isCancelled = (event: Pick<NewsEvent, "change">) => event.change?.status === "cancelled";
 
-/** "9:30" or "18:00–20:30"; other time texts ("po mši") make the event all-day. */
-const CLOCK = /^(\d{1,2}:\d{2})(?:\s*[–-]\s*(\d{1,2}:\d{2}))?$/;
+/** The clock times of an event or meeting, without the keys it does not have. */
+export const timesOf = ({ startTime, endTime }: EventTimes): EventTimes => ({
+  ...(startTime && { startTime }),
+  ...(endTime && { endTime }),
+});
 
-/** Start (and end) time of a time text, if it is a clock time. */
-export function parseClock(time: string | undefined): { from: ClockTime; to?: ClockTime } | undefined {
-  const match = CLOCK.exec(time ?? "");
-  return match ? { from: match[1], to: match[2] } : undefined;
-}
+/** The clock times of an event; a weekly series meets at `weeklyAt`. */
+export const eventTimes = (event: Pick<NewsEvent, "longTerm"> & EventTimes): EventTimes =>
+  event.longTerm && event.longTerm !== true ? { startTime: event.longTerm.weeklyAt } : timesOf(event);
 
 /**
- * A meeting of a series with its defaults filled in: its last day and its time text. `cancelled` when it does not
+ * A meeting of a series with its defaults filled in: its last day and its clock times. `cancelled` when it does not
  * take place (the whole event cancelled, or the meeting dropped).
  */
-export type Meeting = { start: IsoDate; end: IsoDate; time?: string; cancelled?: true };
+export type Meeting = { start: IsoDate; end: IsoDate; cancelled?: true } & EventTimes;
 
-/** The meetings of a series (`sessions`), empty for other events. */
+/** The meetings of a series (`sessions`), empty for other events. A meeting's own times replace both of the event's. */
 export function eventMeetings(
-  event: Pick<NewsEvent, "sessions" | "time"> & Partial<Pick<NewsEvent, "change" | "cancelledMeetings">>,
+  event: Pick<NewsEvent, "sessions"> & EventTimes & Partial<Pick<NewsEvent, "change" | "cancelledMeetings">>,
 ): Meeting[] {
   const dropped = new Set(event.cancelledMeetings?.dates);
-  return (event.sessions ?? []).map((session) => {
+  return (event.sessions ?? []).map((session): Meeting => {
     const meeting =
       typeof session === "string"
-        ? { start: session, end: session, time: event.time }
-        : { start: session.date, end: session.end ?? session.date, time: session.time ?? event.time };
+        ? { start: session, end: session, ...timesOf(event) }
+        : { start: session.date, end: session.end ?? session.date, ...timesOf(session.startTime ? session : event) };
     return isCancelled(event) || dropped.has(meeting.start) ? { ...meeting, cancelled: true } : meeting;
   });
 }
 
 /** The fields that say when an event takes place (what a client component needs for its progress). */
-export type EventTiming = Pick<NewsEvent, "start" | "end" | "time" | "sessions" | "longTerm"> &
+export type EventTiming = Pick<NewsEvent, "start" | "end" | "startTime" | "endTime" | "sessions" | "longTerm"> &
   Partial<Pick<NewsEvent, "change" | "cancelledMeetings">>;
 
 /** The days the event takes place: each meeting of a series, the first day of a weekly one, else its span. */
@@ -56,9 +57,9 @@ export function meetingsOf(event: EventTiming): Meeting[] {
   if (event.sessions) return eventMeetings(event);
   const cancelled = isCancelled(event) && { cancelled: true as const };
   if (event.longTerm && event.longTerm !== true) {
-    return [{ start: event.start, end: event.start, time: event.longTerm.weeklyAt, ...cancelled }];
+    return [{ start: event.start, end: event.start, startTime: event.longTerm.weeklyAt, ...cancelled }];
   }
-  return [{ start: event.start, end: eventEnd(event), time: event.time, ...cancelled }];
+  return [{ start: event.start, end: eventEnd(event), ...timesOf(event), ...cancelled }];
 }
 
 /**
@@ -69,7 +70,7 @@ export function meetingsOf(event: EventTiming): Meeting[] {
 export type EventProgress = { kind: "now" } | { kind: "today"; time: ClockTime } | { kind: "next"; date: IsoDate };
 
 /**
- * A meeting with a clock time on one day runs from its start time to its end time (or to midnight without one);
+ * A meeting on one day with a start time runs from its start time to its end time (or to midnight without one);
  * otherwise it runs all of its days. Dropped meetings are skipped.
  */
 export function eventProgress(event: EventTiming, now: number): EventProgress | undefined {
@@ -78,10 +79,10 @@ export function eventProgress(event: EventTiming, now: number): EventProgress | 
   for (const meeting of meetingsOf(event)) {
     if (meeting.cancelled || meeting.end < today) continue;
     if (meeting.start > today) return event.start <= today ? { kind: "next", date: meeting.start } : undefined;
-    const clock = meeting.start === meeting.end ? parseClock(meeting.time) : undefined;
-    if (!clock) return { kind: "now" };
-    if (now < pragueDateTime(today, clock.from).getTime()) return { kind: "today", time: clock.from };
-    if (!clock.to || now < pragueDateTime(today, clock.to).getTime()) return { kind: "now" };
+    const { startTime, endTime } = meeting;
+    if (meeting.start !== meeting.end || !startTime) return { kind: "now" };
+    if (now < pragueDateTime(today, startTime).getTime()) return { kind: "today", time: startTime };
+    if (!endTime || now < pragueDateTime(today, endTime).getTime()) return { kind: "now" };
     // Today's meeting is over: the next one, if any.
   }
   return undefined;
@@ -111,8 +112,8 @@ export function relativeEventLabel(event: EventTiming, now: number): string {
     if (event.longTerm) return EVENT_STATUS_LABEL.now;
     const progress = eventProgress(event, now);
     if (progress?.kind === "next") return progressLabel(progress);
-    // One day without a clock time stays "Dnes"; so does the rest of the day after today's last meeting.
-    const known = eventEnd(event) > start || parseClock(event.time);
+    // One day without a start time stays "Dnes"; so does the rest of the day after today's last meeting.
+    const known = eventEnd(event) > start || event.startTime;
     return progress?.kind === "now" && known ? progressLabel(progress) : "Dnes";
   }
   const days = differenceInCalendarDays(pragueDateTime(start, "12:00"), pragueDateTime(today, "12:00"), {

@@ -1,6 +1,6 @@
 import { format, getDay, isLastDayOfMonth } from "date-fns";
 import { cs } from "date-fns/locale";
-import type { NewsEvent } from "@/content/types/news";
+import type { EventTimes, NewsEvent } from "@/content/types/news";
 import type { IsoDate } from "@/content/types/shared";
 import { inPrague, pragueDateTime } from "./prague";
 
@@ -123,6 +123,10 @@ const VE_HOURS = new Set([2, 3, 4, 12, 13, 14, 20, 21, 22, 23]);
 /** "v 9:30", "ve 14:00" */
 export const atClockTime = (time: string) => `${VE_HOURS.has(Number(time.split(":")[0])) ? "ve" : "v"} ${time}`;
 
+/** "18:00–20:30", "9:30"; undefined without a start time. */
+export const formatTimes = ({ startTime, endTime }: EventTimes) =>
+  startTime && (endTime ? `${startTime}–${endTime}` : startTime);
+
 const dateList = new Intl.ListFormat("cs", { type: "conjunction" });
 
 /** "18. 10.", "18. 10. a 25. 10.", "18. 10., 25. 10. a 1. 11." (a no-break space after "a", which ends no line) */
@@ -157,7 +161,8 @@ export type EventWhen = {
  * "Doporučujeme" panel ("neděle 18. října 2026").
  */
 export function formatEventWhen(event: NewsEvent, { longMonth = false } = {}): EventWhen {
-  const { start, end = start, time, longTerm, sessions } = event;
+  const { start, end = start, longTerm, sessions } = event;
+  const time = formatTimes(event);
   if (longTerm) {
     const range =
       isFirstOfMonth(start) && isLastOfMonth(end)
@@ -170,7 +175,7 @@ export function formatEventWhen(event: NewsEvent, { longMonth = false } = {}): E
   }
   if (sessions) {
     // "vždy" only when no meeting keeps its own time.
-    const always = time && sessions.every((session) => typeof session === "string" || session.time === undefined);
+    const always = time && sessions.every((session) => typeof session === "string" || !session.startTime);
     return { date: `od ${formatDay(start, longMonth)}${always ? `, vždy ${time}` : ""}` };
   }
   return { date: end === start ? formatDay(start, longMonth) : formatDayRange(start, end, longMonth), time };

@@ -18,7 +18,7 @@
     "id": "medovy-den-2022",
     "title": "Medový den",
     "start": "2022-09-04",
-    "time": "10:00",
+    "startTime": "10:00",
     "place": "Kuřim, areál ZŠ Komenského",
     "text": "Tradiční celodenní akce plná zábavy, pestrého programu a medu."
   },
@@ -26,7 +26,7 @@
     "id": "cyklopout-na-vranov-2022",
     "title": "Cyklopouť na Vranov",
     "start": "2022-09-11",
-    "time": "12:30",
+    "startTime": "12:30",
     "place": "Kuřim, park na ulici Havlíčkova",
     "text": "Cyklopouť z Kuřimi na odpolední mši svatou na Vranově v 15 hodin.",
     "body": "<p>Tempo skupiny bude přizpůsobeno dětem. Ostatní poutníky rádi potkáme na Vranově na mši. Na kolech jedeme jen za nedeštivého počasí.</p>",
@@ -72,7 +72,7 @@
     "id": "den-narodnostnich-mensin-2022",
     "title": "Den národnostních menšin",
     "start": "2022-09-18",
-    "time": "14:00",
+    "startTime": "14:00",
     "place": "Kuřim, areál zámku",
     "text": "Přijměte pozvání na Den národnostních menšin v areálu kuřimského zámku.",
     "poster": {
@@ -91,7 +91,7 @@
     "id": "pesi-pout-na-vranov-2022",
     "title": "Pěší pouť na Vranov",
     "start": "2022-09-25",
-    "time": "7:00",
+    "startTime": "7:00",
     "place": "Moravské Knínice a Kuřim",
     "text": "Tradiční pěší pouť s krojovaným procesím a Pannou Marií Vranovskou na mši svatou v 11 hodin.",
     "program": [

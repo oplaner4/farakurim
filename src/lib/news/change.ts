@@ -10,7 +10,7 @@ import {
   plural,
   weekdayName,
 } from "@/lib/shared/czech";
-import { eventClock } from "./ics";
+import { eventTimes } from "./timing";
 
 // The texts of a cancelled or postponed event and of a series' dropped meetings (design/DESIGN.md §11.9, §13.7).
 
@@ -51,9 +51,9 @@ export function eventChangeBanner(
   if (change.status === "cancelled")
     return { kind: "cancelled", title: "Akce byla zrušena", text: change.note, announced };
   const { start, end = start } = event;
-  const clock = end === start ? eventClock(event) : undefined;
+  const { startTime } = end === start ? eventTimes(event) : {};
   const day = end === start ? `${weekdayName(start)} ${formatNumericDate(start)}` : formatDateRange(start, end);
-  const time = clock ? ` ${atClockTime(clock.from)}` : event.time && end === start ? `, ${event.time}` : "";
+  const time = startTime ? ` ${atClockTime(startTime)}` : "";
   const text = [
     `Nový termín: ${day}${time}.`,
     `Původně ${formatShortDate(change.previousStart)}`,

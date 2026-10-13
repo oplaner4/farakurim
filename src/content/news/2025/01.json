@@ -21,11 +21,11 @@
     "sessions": [
       {
         "date": "2025-01-05",
-        "time": "17:00"
+        "startTime": "17:00"
       },
       {
         "date": "2025-01-12",
-        "time": "15:00"
+        "startTime": "15:00"
       }
     ],
     "poster": {
@@ -44,7 +44,8 @@
     "id": "diecezni-setkani-katechetu-2025",
     "title": "Diecézní setkání katechetů",
     "start": "2025-01-18",
-    "time": "9:00–15:30",
+    "startTime": "9:00",
+    "endTime": "15:30",
     "place": "Brno, CMCZŠ Lerchova 65",
     "text": "Diecézní setkání katechetů s biskupem, přednáškami a mší svatou.",
     "poster": {
@@ -63,7 +64,7 @@
     "id": "ekumenicke-setkani-2025",
     "title": "Ekumenické setkání",
     "start": "2025-01-22",
-    "time": "18:00",
+    "startTime": "18:00",
     "place": "Kuřim, Sbor Dr. Karla Farského",
     "mapQuery": "Farského 349/22, Kuřim",
     "text": "Ekumenické setkání v rámci Týdne modliteb za jednotu křesťanů, ve spolupráci s Církví československou husitskou.",
@@ -80,7 +81,8 @@
     "id": "dekanatni-setkani-pomocniku-v-kostele-2025",
     "title": "Děkanátní setkání pomocníků v kostele",
     "start": "2025-01-24",
-    "time": "18:00–20:00",
+    "startTime": "18:00",
+    "endTime": "20:00",
     "place": "Tišnov, sál pod kinem Svratka",
     "text": "Setkání floristů, květinářů, výzdobářů a uklízečů v kostele tišnovského děkanství.",
     "program": [
@@ -115,7 +117,7 @@
     "title": "Seminář Život v Duchu",
     "start": "2025-01-26",
     "end": "2025-03-30",
-    "time": "19:00",
+    "startTime": "19:00",
     "place": "Tišnov, fara",
     "mapQuery": "Kostelní 16, Tišnov",
     "text": "Desetitýdenní duchovní obnova v Tišnově pod vedením P. Petra Beneše, vždy v neděli večer.",
