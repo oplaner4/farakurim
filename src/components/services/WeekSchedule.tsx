@@ -6,6 +6,7 @@ import type { SheetDay } from "@/content/types/services";
 import { formatWeekdayDate } from "@/lib/shared/czech";
 import { showWeekLabel, weekView } from "@/lib/services/service-sheet";
 import { useToday } from "@/hooks/use-now";
+import { TextButton } from "@/components/ui/TextButton";
 
 type Props = {
   /** The sheet's days (`markChanges`), with place names instead of IDs. */
@@ -32,16 +33,14 @@ export function WeekSchedule({ days, oneWeek, renderedAt }: Props) {
           Rozpis bohoslužeb{oneWeek && " tento týden"}
         </h2>
         {view.pastCount > 0 && (
-          <button
-            type="button"
+          <TextButton
             aria-expanded={showPast}
             aria-controls="rozpis-dny"
             onClick={() => setShowPast((v) => !v)}
             data-js-only
-            className="min-h-11 px-1 text-15 font-bold text-blue-ink hover:text-blue-ink-hover"
           >
             {showPast ? "Skrýt proběhlé dny" : showWeekLabel(view.pastCount, oneWeek)}
-          </button>
+          </TextButton>
         )}
       </div>
 

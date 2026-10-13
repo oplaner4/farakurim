@@ -1,12 +1,12 @@
 "use client";
 
-import { clsx } from "clsx";
 import { useState } from "react";
 import type { Weekday } from "@/content/types/shared";
 import { capitalize, WEEKDAY_NAMES, WEEKDAY_SHORT } from "@/lib/shared/czech";
 import { WEEK_ORDER } from "@/lib/services/masses";
 import { pragueWeekday } from "@/lib/shared/prague";
 import { useToday } from "@/hooks/use-now";
+import { FilterPill } from "@/components/ui/FilterPill";
 import { ChurchCard, type ChurchSchedule } from "./ChurchCard";
 
 type DayFilter = Weekday | "all";
@@ -57,22 +57,19 @@ export function RegularServices({ churches, renderedAt }: Props) {
         {chips.map((chip) => {
           const isToday = chip.value === today;
           return (
-            <button
+            <FilterPill
               key={chip.label}
-              type="button"
+              tone="primary"
+              size="day"
               aria-pressed={chip.value === filter}
               aria-label={chip.name && (isToday ? `${chip.name}, dnes` : chip.name)}
               title={isToday ? "dnes" : undefined}
               data-today={isToday || undefined}
               onClick={() => setFilter(chip.value)}
-              className={clsx(
-                "min-h-11 min-w-12 shrink-0 cursor-pointer rounded-full border-thin border-line bg-surface px-3.5 text-15 font-bold text-ink hover:border-blue",
-                "aria-pressed:border-blue aria-pressed:bg-blue aria-pressed:text-white data-today:border-blue",
-                "md:min-h-11.5 md:min-w-13 md:px-4 md:text-16 lg:min-h-12 lg:min-w-14 lg:px-4.5",
-              )}
+              className="data-today:border-blue"
             >
               {chip.label}
-            </button>
+            </FilterPill>
           );
         })}
       </div>

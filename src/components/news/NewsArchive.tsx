@@ -9,6 +9,7 @@ import { archiveHref, archiveParams, archiveUrlKeys } from "@/lib/news/query-par
 import { useLoadMore } from "@/hooks/use-load-more";
 import { useToday } from "@/hooks/use-now";
 import { ButtonLink } from "@/components/ui/ButtonLink";
+import { TextButton } from "@/components/ui/TextButton";
 import { ArrowRightIcon, ChevronLeftIcon } from "@/components/ui/icons/navigation-icons";
 import { ArchiveFilters } from "./ArchiveFilters";
 import { ArchiveResults } from "./ArchiveResults";
@@ -34,13 +35,9 @@ function ResultCount({ label, searching, onClear, className }: CountProps) {
         {label}
       </p>
       {searching && (
-        <button
-          type="button"
-          onClick={onClear}
-          className="min-h-11 cursor-pointer px-1 text-14 font-bold text-blue-ink hover:text-blue-ink-hover md:text-15"
-        >
+        <TextButton size="small" onClick={onClear}>
           Zrušit hledání
-        </button>
+        </TextButton>
       )}
     </div>
   );

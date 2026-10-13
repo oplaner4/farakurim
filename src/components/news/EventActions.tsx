@@ -3,7 +3,8 @@
 import { useState } from "react";
 import type { IsoDate } from "@/content/types/shared";
 import { useToday } from "@/hooks/use-now";
-import { buttonLink, ButtonLink } from "@/components/ui/ButtonLink";
+import { Button } from "@/components/ui/Button";
+import { ButtonLink } from "@/components/ui/ButtonLink";
 import { CalendarPlusIcon } from "@/components/ui/icons/contact-icons";
 import { ShareIcon } from "@/components/ui/icons/navigation-icons";
 
@@ -54,20 +55,16 @@ export function EventActions({ title, end, calendarHref, renderedAt }: Props) {
         </ButtonLink>
       )}
       {/* Needs JS: hidden by the page's <noscript> style. */}
-      <button
-        type="button"
+      <Button
         onClick={share}
         data-js-only
-        className={buttonLink({
-          variant: "outline-magenta",
-          size: "block",
-          className:
-            "min-h-12 cursor-pointer text-16 md:min-h-13 md:text-17 md:max-lg:shrink md:max-lg:grow md:max-lg:basis-35 lg:min-h-12.5",
-        })}
+        variant="outline-magenta"
+        size="block"
+        className="min-h-12 text-16 md:min-h-13 md:text-17 md:max-lg:shrink md:max-lg:grow md:max-lg:basis-35 lg:min-h-12.5"
       >
         <ShareIcon size={18} />
         Sdílet
-      </button>
+      </Button>
       {/* The live region stays in the DOM (`contents` adds no box), so the message is announced. */}
       <div role="status" className="contents">
         {copied && (

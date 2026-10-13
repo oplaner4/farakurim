@@ -3,7 +3,7 @@
 import { Children, useState, type ReactNode } from "react";
 import { ARCHIVE_YEARS_STEP } from "@/lib/petrklic/issues";
 import { useFocusAfterChange } from "@/hooks/use-focus-after-change";
-import { buttonLink } from "@/components/ui/ButtonLink";
+import { Button } from "@/components/ui/Button";
 
 type Props = {
   /** One `ArchiveYearBlock` per year, newest first. */
@@ -30,14 +30,9 @@ export function ArchiveYears({ children, headingIds }: Props) {
     <>
       {blocks.slice(0, count)}
       {count < blocks.length && (
-        <button
-          type="button"
-          onClick={loadMore}
-          data-js-only
-          className={buttonLink({ variant: "outline-orange", className: "mt-2 px-7 md:self-center lg:mt-4" })}
-        >
+        <Button onClick={loadMore} data-js-only variant="outline-orange" className="mt-2 px-7 md:self-center lg:mt-4">
           Načíst starší ročníky
-        </button>
+        </Button>
       )}
     </>
   );
