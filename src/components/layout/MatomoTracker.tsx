@@ -6,6 +6,8 @@ import { MATOMO_SITE_ID, MATOMO_URL } from "@/content/site";
 import { type MatomoCommand, matomoConfig, pageViewCommands, setupCommands, trackedUrl } from "@/lib/layout/analytics";
 
 declare global {
+  // Only an interface merges into the global Window.
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Window {
     _paq?: MatomoCommand[];
   }

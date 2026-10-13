@@ -10,7 +10,7 @@ import { addPetrklic, petrklicLines, readPetrklic } from "../petrklic/add-petrkl
 import { correctedHint, correctedRev, MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
 import { pdfPageCount, renderPetrklic } from "../images";
 
-export interface PetrklicOptions {
+export type PetrklicOptions = {
   source: string;
   year: number;
   number: number;
@@ -18,7 +18,7 @@ export interface PetrklicOptions {
   /** A corrected PDF of an issue already in petrklic.json. */
   corrected?: boolean;
   check?: boolean;
-}
+};
 
 /** The issue's PDF in uploads/: the folder carries the rev, the file keeps the id. */
 const pdfPath = (id: string, rev?: number) => `${issuePath({ id, rev })}/${issueFiles.pdf(id)}`;

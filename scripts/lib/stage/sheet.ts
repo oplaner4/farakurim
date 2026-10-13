@@ -23,7 +23,7 @@ import { extractPdfPages, pdfFirstPageText, pdfPageTexts } from "../images";
 export const weekDays = (validFrom: IsoDate, validTo: IsoDate) =>
   periodDates(validFrom, validTo).map((date) => `${WEEKDAY_SHORT[pragueWeekday(date)].toLowerCase()} ${date}`);
 
-export interface SheetOptions {
+export type SheetOptions = {
   source: string;
   validFrom?: string;
   validTo?: string;
@@ -34,7 +34,7 @@ export interface SheetOptions {
   /** With a DOCX source: where to write the week's draft record; like `check`, it stages nothing. */
   draft?: string;
   check?: boolean;
-}
+};
 
 type Week = { validFrom: string; validTo: string };
 

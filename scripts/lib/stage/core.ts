@@ -13,14 +13,14 @@ const MB = 1024 * 1024;
 export const MAX_MB = { event: 10, sheet: 20, petrklic: 40 };
 
 /** Where a command stages and adds content, and how it asks the server; the tests point it at a temp folder. */
-export interface StageEnv extends UploadsEnv {
+export type StageEnv = UploadsEnv & {
   newsDir: string;
   serviceSheetsFile: string;
   exceptionsFile: string;
   petrklicFile: string;
   /** The home folder whose Downloads/ holds sources given without a folder. */
   home: string;
-}
+};
 
 export const defaultEnv = (): StageEnv => ({
   ...defaultUploadsEnv(),

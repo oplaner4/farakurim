@@ -20,24 +20,24 @@ import { guessCategory, serviceFlags } from "./sheet-guess";
 import { weekHeading } from "./sheet-week";
 
 /** A sheet record without its week: the days and announcements. */
-export interface DraftRecord {
+export type DraftRecord = {
   days: SheetDay[];
   announcements: Announcement[];
-}
+};
 
 /** One week of the DOCX; `draft()` reads its table and announcements (throwing for a table it cannot read). */
-export interface DocxWeek {
+export type DocxWeek = {
   validFrom: IsoDate;
   validTo: IsoDate;
   draft: () => DraftRecord;
-}
+};
 
 /** A table cell: its paragraphs as text (without the empty ones), whether all of it is bold, and its rowspan. */
-interface Cell {
+type Cell = {
   lines: string[];
   bold: boolean;
   rowspan: number;
-}
+};
 
 /** A block of the document body: a paragraph (its text and inner HTML) or a table. */
 type Block = { kind: "p"; text: string; html: string } | { kind: "table"; rows: Cell[][] };
@@ -212,11 +212,11 @@ function tableDays(rows: Cell[][], week: { validFrom: IsoDate; validTo: IsoDate 
 }
 
 /** A week's heading, its table and its announcements, each the paragraphs up to an empty one. */
-interface BodyWeek {
+type BodyWeek = {
   week: { validFrom: IsoDate; validTo: IsoDate };
   table?: Cell[][];
   notes: { text: string; html: string }[][];
-}
+};
 
 /** The weeks of the document: each heading, the table after it and the paragraphs below the table. */
 function bodyWeeks(blocks: Block[]): BodyWeek[] {

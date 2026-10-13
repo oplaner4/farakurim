@@ -9,13 +9,13 @@ import { errorMessage } from "./command";
 import { ROOT } from "./content-files";
 
 /** Where uploaded files are staged and how the server is asked about them; the tests point it at a temp folder. */
-export interface UploadsEnv {
+export type UploadsEnv = {
   uploadsDir: string;
   /** The site's address, e.g. https://farakurim.cz. */
   site: string;
   /** Asks whether a URL exists (a HEAD request); a stub in the tests. */
   fetch: typeof fetch;
-}
+};
 
 /** The repo's folder of the files to upload, as the scripts print it: uploads/<path> is /uploads/<path> on the site. */
 export const UPLOADS_DIR = UPLOADS_PATH.slice(1);

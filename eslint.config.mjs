@@ -11,6 +11,8 @@ const eslintConfig = defineConfig([
       "@next/next/no-img-element": "off",
       // `const { body, ...rest } = event` drops fields before they are passed to a client component.
       "@typescript-eslint/no-unused-vars": ["warn", { ignoreRestSiblings: true }],
+      // Object shapes are `type` aliases, never `interface`.
+      "@typescript-eslint/consistent-type-definitions": ["error", "type"],
       // Flags a function with too many branches to follow; split it into named steps.
       complexity: ["warn", 15],
     },

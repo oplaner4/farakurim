@@ -109,12 +109,12 @@ function titleToSet({ meeting, found }: MeetingMatch): string | undefined {
   return meeting.cancelled ? `Zrušeno: ${title}` : title;
 }
 
-export interface CheckOptions {
+export type CheckOptions = {
   /** NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY; without it the calendar is not read. */
   apiKey?: string;
   /** Where the .ics goes. */
   outDir: string;
-}
+};
 
 /** Checks the event in the Události calendar (writing its .ics when needed); returns the lines to print. */
 export async function checkCalendar(event: NewsEvent, { apiKey, outDir }: CheckOptions): Promise<string[]> {

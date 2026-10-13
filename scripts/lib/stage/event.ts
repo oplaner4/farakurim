@@ -33,12 +33,12 @@ export function labelSuffix(label: string): string {
 }
 
 /** A file to stage and the label it is attached under. */
-export interface EventFile {
+export type EventFile = {
   source: string;
   label: string;
-}
+};
 
-export interface EventOptions {
+export type EventOptions = {
   id: string;
   /** In the order of the attachments; the first is the poster candidate. */
   files: EventFile[];
@@ -49,7 +49,7 @@ export interface EventOptions {
   /** Corrected or added files of an event already in src/content/news/; `record` is then its corrected record. */
   corrected?: boolean;
   check?: boolean;
-}
+};
 
 /** `attachments` with `attachment` in place of the one with its label, else added at the end. */
 export function withAttachment(attachments: EventAttachment[], attachment: EventAttachment): EventAttachment[] {
