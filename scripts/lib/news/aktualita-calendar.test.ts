@@ -51,6 +51,11 @@ describe("matchMeetings", () => {
     expect(matchMeetings(aktualita(), events)[0].status).toBe("missing");
   });
 
+  it("reads the Zrušeno: prefix, and finds a prefixed event by its title", () => {
+    const match = matchMeetings(aktualita(), [google("a", "2026-10-12", "Zrušeno: Adorační den")])[0];
+    expect(match).toMatchObject({ status: "unlinked", found: { title: "Zrušeno: Adorační den", cancelled: true } });
+  });
+
   it("checks every meeting of a series", () => {
     const event = aktualita({
       id: "manzelske-vecery",
@@ -117,6 +122,68 @@ describe("with a temp folder", () => {
     expect(lines[0]).toBe("Události: no event on 2026-10-12.");
     expect(lines[1]).toMatch(/^Wrote .*adoracni-den-2026\.ics: import it into "Události" .*, not into a personal/);
     expect(readdirSync(dir)).toEqual(["adoracni-den-2026.ics"]);
+  });
+
+  const cancelled = { change: { status: "cancelled", announced: "2026-10-10" } } as const;
+
+  it("asks for the Zrušeno: prefix when a linked event is cancelled on the site", async () => {
+    stubCalendar([google("a", "2026-10-12", "Adorace", URL_OF)]);
+    expect(await checkCalendar(aktualita(cancelled), { apiKey: "KEY", outDir: dir })).toEqual([
+      'Události, 2026-10-12: linked, but rename "Adorace" to "Zrušeno: Adorace", as the meeting is cancelled (do not delete the event).',
+      "The Kalendář shows the new title once Google has it, with or without a release.",
+    ]);
+    expect(readdirSync(dir)).toEqual([]);
+  });
+
+  it("has nothing to do when the cancelled event has the prefix", async () => {
+    stubCalendar([google("a", "2026-10-12", "Zrušeno: Adorace", URL_OF)]);
+    expect(await checkCalendar(aktualita(cancelled), { apiKey: "KEY", outDir: dir })).toEqual([
+      'Události: linked ("Zrušeno: Adorace" on 2026-10-12): nothing to do.',
+    ]);
+  });
+
+  it("asks to remove the prefix when the cancellation is withdrawn", async () => {
+    stubCalendar([google("a", "2026-10-12", "Zrušeno: Adorace", URL_OF)]);
+    expect(await checkCalendar(aktualita(), { apiKey: "KEY", outDir: dir })).toEqual([
+      'Události, 2026-10-12: linked, but rename "Zrušeno: Adorace" to "Adorace", as the meeting is no longer cancelled.',
+      "The Kalendář shows the new title once Google has it, with or without a release.",
+    ]);
+  });
+
+  it("asks for the link and the prefix together on an unlinked event", async () => {
+    stubCalendar([google("a", "2026-10-12", "Adorační den")]);
+    expect(await checkCalendar(aktualita(cancelled), { apiKey: "KEY", outDir: dir })).toEqual([
+      `Události, 2026-10-12: "Adorační den" has no link: add ${URL_OF} to its description, and rename "Adorační den" to "Zrušeno: Adorační den", as the meeting is cancelled (do not delete the event).`,
+      expect.stringMatching(/^This can be done before or after the release/),
+      "The Kalendář shows the new title once Google has it, with or without a release.",
+    ]);
+  });
+
+  it("writes no .ics for a cancelled event missing from the calendar", async () => {
+    stubCalendar([]);
+    expect(await checkCalendar(aktualita(cancelled), { apiKey: "KEY", outDir: dir })).toEqual([
+      "Události, 2026-10-12: no event, and the meeting is cancelled: nothing to do.",
+    ]);
+    expect(readdirSync(dir)).toEqual([]);
+  });
+
+  it("asks for the prefix on a dropped meeting only", async () => {
+    const event = aktualita({
+      id: "manzelske-vecery",
+      title: "Manželské večery",
+      sessions: ["2026-10-11", "2026-10-18"],
+      cancelledMeetings: { dates: ["2026-10-18"] },
+    });
+    const link = "https://farakurim.cz/aktuality/manzelske-vecery/";
+    stubCalendar([
+      google("a", "2026-10-11", "Manželské večery", link),
+      google("b", "2026-10-18", "Manželské večery", link),
+    ]);
+    expect(await checkCalendar(event, { apiKey: "KEY", outDir: dir })).toEqual([
+      'Události, 2026-10-11: linked ("Manželské večery").',
+      'Události, 2026-10-18: linked, but rename "Manželské večery" to "Zrušeno: Manželské večery" (this occurrence only), as the meeting is cancelled (do not delete the event).',
+      "The Kalendář shows the new title once Google has it, with or without a release.",
+    ]);
   });
 
   it("writes the .ics, saying why, without a key or when Google fails", async () => {

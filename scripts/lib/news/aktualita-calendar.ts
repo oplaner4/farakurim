@@ -1,7 +1,8 @@
 // Matches an aktualita's meetings with the events of the Události Google Calendar: the calendar links an event to the
 // detail page when the event's description holds the page's URL, so each meeting is linked (an event that day holds
-// the URL), not linked (an event that day has a matching title) or missing. Writes the aktualita's .ics for a
-// missing one, and reads the calendar with NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY from .env.local.
+// the URL), not linked (an event that day has a matching title) or missing. A found event's "Zrušeno: " title prefix
+// must match the meeting's cancelled status, as the calendars take the status from the prefix alone. Writes the
+// aktualita's .ics for a missing one, and reads the calendar with NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY from .env.local.
 
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
@@ -13,6 +14,7 @@ import {
   eventDays,
   fetchGoogleCalendar,
   type GoogleEvent,
+  parseTitle,
   refererInit,
 } from "@/lib/calendar/google-calendar";
 import { eventCalendar } from "@/lib/news/ics";
@@ -34,8 +36,8 @@ const sameTitle = (a: string, b: string) => {
 export type MeetingMatch = {
   meeting: Meeting;
   status: "linked" | "unlinked" | "missing";
-  /** The calendar event found that day. */
-  found?: { title: string; date: string };
+  /** The calendar event found that day; `cancelled` when its title starts with "Zrušeno: ". */
+  found?: { title: string; date: string; cancelled: boolean };
 };
 
 /** How each meeting of `event` stands in the Události `calendar`. */
@@ -46,10 +48,14 @@ export function matchMeetings(event: NewsEvent, calendar: GoogleEvent[]): Meetin
       const days = e.status === "cancelled" ? undefined : eventDays(e);
       return days && days.date <= meeting.end && (days.end ?? days.date) >= meeting.start ? [{ e, days }] : [];
     });
-    const found = ({ e, days }: (typeof sameDay)[number]) => ({ title: e.summary?.trim() ?? "", date: days.date });
+    const found = ({ e, days }: (typeof sameDay)[number]) => ({
+      title: e.summary?.trim() ?? "",
+      date: days.date,
+      cancelled: parseTitle(e.summary).cancelled,
+    });
     const linked = sameDay.find(({ e }) => aktualitaPaths(e.description).includes(href));
     if (linked) return { meeting, status: "linked", found: found(linked) };
-    const titled = sameDay.find(({ e }) => sameTitle(e.summary ?? "", event.title));
+    const titled = sameDay.find(({ e }) => sameTitle(parseTitle(e.summary).title, event.title));
     if (titled) return { meeting, status: "unlinked", found: found(titled) };
     return { meeting, status: "missing" };
   });
@@ -65,8 +71,17 @@ export function writeIcs(event: NewsEvent, outDir: string): string {
 
 const IMPORT =
   'import it into "Události" at https://calendar.google.com/calendar/u/0/r/settings/export, not into a personal calendar';
-/** Closes a report that asks the user to act. */
+/** Closes a report that asks the user to add or link an event. */
 const WHEN = "This can be done before or after the release: the Kalendář links the event once both are in place.";
+/** Closes a report that asks the user to rename an event. */
+const RENAME_WHEN = "The Kalendář shows the new title once Google has it, with or without a release.";
+
+/** The title a found event should have, or undefined when its "Zrušeno: " prefix matches the meeting. */
+function titleToSet({ meeting, found }: MeetingMatch): string | undefined {
+  if (!found || found.cancelled === (meeting.cancelled ?? false)) return undefined;
+  const { title } = parseTitle(found.title);
+  return meeting.cancelled ? `Zrušeno: ${title}` : title;
+}
 
 export interface CheckOptions {
   /** NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY; without it the calendar is not read. */
@@ -93,21 +108,38 @@ export async function checkCalendar(event: NewsEvent, { apiKey, outDir }: CheckO
     return unchecked(errorMessage(error));
   }
   const matches = matchMeetings(event, calendar);
-  if (matches.every((m) => m.status === "missing")) {
+  if (matches.every((m) => m.status === "missing" && !m.meeting.cancelled)) {
     const days = meetings.map((m) => m.start).join(", ");
     return [`Události: no event on ${days}.`, `Wrote ${writeIcs(event, outDir)}: ${IMPORT}.`, WHEN];
   }
-  if (matches.every((m) => m.status === "linked")) {
+  const renames = matches.map(titleToSet);
+  if (matches.every((m, i) => m.status === "linked" && !renames[i])) {
     const all = matches.length > 1 ? `, all ${matches.length} meetings` : ` on ${matches[0].found!.date}`;
     return [`Události: linked ("${matches[0].found!.title}"${all}): nothing to do.`];
   }
-  const lines = matches.map(({ meeting, status, found }) => {
+  // A series' meeting is often one occurrence of a recurring Google event: only that one changes.
+  const occurrence = matches.length > 1 ? " (this occurrence only)" : "";
+  const lines = matches.map((match, i) => {
+    const { meeting, status, found } = match;
     const day = `Události, ${meeting.start}`;
-    if (status === "linked") return `${day}: linked ("${found!.title}").`;
-    if (status === "unlinked") return `${day}: "${found!.title}" has no link: add ${url} to its description.`;
-    return `${day}: no event: add one with ${url} in its description.`;
+    if (status === "missing") {
+      return meeting.cancelled
+        ? `${day}: no event, and the meeting is cancelled: nothing to do.`
+        : `${day}: no event: add one with ${url} in its description.`;
+    }
+    const rename = renames[i]
+      ? `rename "${found!.title}" to "${renames[i]}"${occurrence}, as the meeting is ${meeting.cancelled ? "cancelled (do not delete the event)" : "no longer cancelled"}`
+      : undefined;
+    if (status === "unlinked") {
+      return `${day}: "${found!.title}" has no link: add ${url} to its description${rename ? `, and ${rename}` : ""}.`;
+    }
+    return rename ? `${day}: linked, but ${rename}.` : `${day}: linked ("${found!.title}").`;
   });
-  return [...lines, WHEN];
+  const closing = [
+    ...(matches.some((m) => m.status === "unlinked" || (m.status === "missing" && !m.meeting.cancelled)) ? [WHEN] : []),
+    ...(renames.some(Boolean) ? [RENAME_WHEN] : []),
+  ];
+  return [...lines, ...closing];
 }
 
 /** Loads .env.local and prints the check; never throws, so it cannot fail the command that added the record. */

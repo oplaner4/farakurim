@@ -57,11 +57,14 @@ Wait for the user's yes or corrections to these before replacing anything.
 
 ## 5. Replace
 
-Run the step 3 command without `--check`. Show the Události calendar lines it prints unless they say `linked`, then
-ask the user to change the event in the Události calendar too:
+Run the step 3 command without `--check`. It then checks the Události calendar, whose Kalendář and "Tento týden"
+entries take the cancelled status only from a "Zrušeno: " title prefix (§16.4), never from the record, a linked
+event included. Show the user the Události lines it prints unless they end in `nothing to do`, and ask them to change
+the event in the Události calendar:
 
-- cancelled: put "Zrušeno: " in front of its title, which the website shows as cancelled (§16.4), and do not delete
-  it; a dropped meeting gets the same prefix on that meeting only;
+- cancelled, or the cancellation withdrawn: rename the event as the lines say (`rename "…" to "Zrušeno: …"`, or back
+  without the prefix), and never delete it; a dropped meeting is renamed on that occurrence only. Run
+  `pnpm aktualita-calendar <id>` after the user's edit: it says `nothing to do` once the titles match;
 - moved: move the existing event to the new date. The check reports it `missing` and writes an `.ics`, but importing
   it would add a second event.
 

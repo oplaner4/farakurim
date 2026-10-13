@@ -99,6 +99,16 @@ export function eventDays({ start, end }: GoogleEvent): { date: string; end?: st
 const CANCELLED_PREFIX = /^zrušeno\s*:\s*/i;
 
 /**
+ * A Google event's title without its "Zrušeno: " prefix, and whether it had one: the parish keeps a cancelled event
+ * and prefixes its title (§16.4), so the prefix is the cancelled status.
+ */
+export function parseTitle(summary: string | undefined): { title: string; cancelled: boolean } {
+  const trimmed = summary?.trim() ?? "";
+  const prefix = CANCELLED_PREFIX.exec(trimmed);
+  return { title: prefix ? trimmed.slice(prefix[0].length) : trimmed, cancelled: prefix !== null };
+}
+
+/**
  * Turns Google events into calendar entries. An Události event links to the first of `linkablePages` (the built
  * Aktuality detail pages) its description links to; a page not built yet is left out, so a URL pasted before the
  * release links nothing instead of a missing page.
@@ -110,15 +120,12 @@ export function toEntries(events: GoogleEvent[], calendar: CalendarId, linkableP
     const days = eventDays(event);
     if (!days) return [];
     const href = calendar === "events" ? aktualitaPaths(event.description).find((path) => pages.has(path)) : undefined;
-    const summary = event.summary?.trim() ?? "";
-    // The parish keeps a cancelled event and prefixes its title (§16.4): the prefix becomes the status.
-    const cancelled = CANCELLED_PREFIX.exec(summary);
-    const title = (cancelled ? summary.slice(cancelled[0].length) : summary) || "Bez názvu";
+    const { title, cancelled } = parseTitle(event.summary);
     return [
       {
         id: event.id,
         calendar,
-        title,
+        title: title || "Bez názvu",
         ...(cancelled && { cancelled: true as const }),
         ...(event.location && { place: event.location }),
         ...(href && { href }),
