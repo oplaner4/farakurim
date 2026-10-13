@@ -14,7 +14,7 @@ import { extname } from "node:path";
 import { readEvents } from "@/content/news";
 import type { EventAttachment, NewsEvent } from "@/content/types/news";
 import { slug } from "@/lib/shared/slug";
-import { POSTER_SUFFIX, posterHref } from "@/lib/news/events";
+import { POSTER_SUFFIX, posterHref } from "@/lib/news/posters";
 import { newsEventSchema } from "@/lib/news/schema";
 import { UPLOAD_EXTENSIONS, UPLOADS_PATH } from "@/lib/shared/uploads";
 import { fileRev, revSuffix } from "@/lib/shared/revision";

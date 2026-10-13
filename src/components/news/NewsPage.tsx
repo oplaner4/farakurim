@@ -1,6 +1,7 @@
 import { events } from "@/content/news";
 import { BUILD_TIME } from "@/lib/shared/build-time";
-import { eventEnd, featuredEvent, type NewsFilter } from "@/lib/news/events";
+import { featuredEvent, type NewsFilter } from "@/lib/news/events";
+import { eventEnd } from "@/lib/news/timing";
 import { pragueDate } from "@/lib/shared/prague";
 import { EventList } from "./EventList";
 import { FeaturedEvent } from "./FeaturedEvent";

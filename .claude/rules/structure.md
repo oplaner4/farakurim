@@ -25,8 +25,8 @@ rada and Kněží – rodáci; content in `parish-council.ts` and `native-priest
 | `src/content/types/<group>.ts` | The content types of one domain; `shared.ts` holds `IsoDate`, `ClockTime`, `Weekday`  |
 
 - **`src/lib`** files are named after their topic inside the group, not after the group: `lib/news/events.ts`,
-  `lib/news/archive.ts`, `lib/news/ics.ts`, `lib/services/masses.ts`, `lib/contacts/office-hours.ts`,
-  `lib/layout/bible-quote.ts`.
+  `lib/news/timing.ts`, `lib/news/archive.ts`, `lib/news/ics.ts`, `lib/services/masses.ts`,
+  `lib/contacts/office-hours.ts`, `lib/layout/bible-quote.ts`.
 - **`lib/shared/`** holds only what two or more domains use (`prague.ts`, `czech.ts`, `links.ts`, `slug.ts`, …),
   flat, without subfolders. A helper one domain uses lives in that domain's folder (`news/query-params.ts`,
   `layout/analytics.ts`), and moves to `shared/` when a second domain needs it. **Why:** `shared/` stays a short
@@ -34,8 +34,8 @@ rada and Kněží – rodáci; content in `parish-council.ts` and `native-priest
 - `lib` may import `@/content/site` for URLs and
   `@/content/types/*` for types, never the content data itself (tests may, to check real records).
   `lib/test/content-checks.ts` holds the checks the content tests share (dates, times, order, `/uploads/` links).
-- When a `lib` file grows two independent topics, split it by topic (as `news/events.ts` and `news/archive.ts`)
-  rather than letting it pass ~300 lines.
+- When a `lib` file grows two independent topics, split it by topic (as `news/events.ts`, `news/timing.ts`,
+  `news/posters.ts` and `news/archive.ts`) rather than letting it pass ~300 lines.
 - **`src/server`** files start with `import "server-only"` and are named after their domain: `server/calendar.ts`
   (`loadCalendarEntries()`, `linkablePages`), `server/services.ts` (`currentExceptions`), `server/bible-quote.ts`
   (`loadBibleQuote()`). They may import content and `lib`; pages and Server Components import them, client components

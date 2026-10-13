@@ -1,15 +1,9 @@
 import { clsx } from "clsx";
 import type { NewsEvent } from "@/content/types/news";
 import { eventDateBlock, fileType, formatEventWhen } from "@/lib/shared/czech";
-import {
-  eventHref,
-  eventProgress,
-  type EventTagKind,
-  eventTags,
-  isCancelled,
-  isPast,
-  posterAlt,
-} from "@/lib/news/events";
+import { eventHref, type EventTagKind, eventTags } from "@/lib/news/events";
+import { eventProgress, isCancelled, isPast } from "@/lib/news/timing";
+import { posterAlt } from "@/lib/news/posters";
 import { pragueDate } from "@/lib/shared/prague";
 import { isImageFile } from "@/lib/shared/lightbox";
 import { externalLinkAttrs } from "@/lib/shared/links";

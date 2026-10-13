@@ -4,7 +4,7 @@ import { createEvents, type DateArray, type DateTime, type EventAttributes } fro
 import { SITE_HOST } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import type { ClockTime, IsoDate } from "@/content/types/shared";
-import { eventEnd, meetingsOf, type Meeting, parseClock } from "./events";
+import { eventEnd, meetingsOf, type Meeting, parseClock } from "./timing";
 import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
 
 // "Přidat do kalendáře" (design/DESIGN.md §13.2): one .ics file per event, generated at build time.

@@ -1,10 +1,12 @@
-import { differenceInCalendarDays, endOfMonth, endOfWeek } from "date-fns";
+import { endOfMonth, endOfWeek } from "date-fns";
 import { links } from "@/content/site";
 import type { NewsEvent, TagColor } from "@/content/types/news";
-import type { ClockTime, IsoDate } from "@/content/types/shared";
-import { atClockTime, formatEventWhen, formatShortDate, plural, relativeDayName } from "@/lib/shared/czech";
+import type { IsoDate } from "@/content/types/shared";
+import { formatShortDate } from "@/lib/shared/czech";
 import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
+import { EVENT_STATUS_LABEL, eventEnd, eventProgress, isCancelled, isPast, progressLabel } from "./timing";
 
+// The Aktuality list: its filters, groups and card badges, and the links to an event's pages (design/DESIGN.md §11).
 // ISO dates (`YYYY-MM-DD`) compare correctly as strings, so the date maths here stays on strings.
 
 /** Aktuality filters (design/DESIGN.md §11.3); `upcoming` is the default. */
@@ -28,64 +30,6 @@ export const filterFromSlug = (slug: string): NewsFilter | undefined =>
 
 /** Cards per "page" of the Aktuality list; "Načíst další aktuality" shows the next batch. */
 export const NEWS_PAGE_SIZE = 10;
-
-export const eventEnd = (event: Pick<NewsEvent, "start" | "end">): IsoDate => event.end ?? event.start;
-
-/** The label of a finished and a running event: card tags, the "Proběhlo" group and the detail page. */
-export const EVENT_STATUS_LABEL = { past: "Proběhlo", now: "Právě probíhá" } as const;
-
-/** Finished from the day after its last day (by date, so it moves to "Proběhlo" at midnight). */
-export const isPast = (event: Pick<NewsEvent, "start" | "end">, today: IsoDate) => eventEnd(event) < today;
-
-/** Cancelled (§11.9): the event does not take place, though its record and detail page stay. */
-export const isCancelled = (event: Pick<NewsEvent, "change">) => event.change?.status === "cancelled";
-
-/** "9:30" or "18:00–20:30"; other time texts ("po mši") make the event all-day. */
-const CLOCK = /^(\d{1,2}:\d{2})(?:\s*[–-]\s*(\d{1,2}:\d{2}))?$/;
-
-/** Start (and end) time of a time text, if it is a clock time. */
-export function parseClock(time: string | undefined): { from: ClockTime; to?: ClockTime } | undefined {
-  const match = CLOCK.exec(time ?? "");
-  return match ? { from: match[1], to: match[2] } : undefined;
-}
-
-/**
- * Where a started event is right now (§11.6), computed, never stored: running (`now`), a meeting later today
- * (`today`), or a series between its meetings (`next`). Undefined before it starts, after it ends, and for
- * long-term and cancelled events.
- */
-export type EventProgress = { kind: "now" } | { kind: "today"; time: ClockTime } | { kind: "next"; date: IsoDate };
-
-/**
- * A meeting with a clock time on one day runs from its start time to its end time (or to midnight without one);
- * otherwise it runs all of its days. Dropped meetings are skipped.
- */
-export function eventProgress(event: EventTiming, now: number): EventProgress | undefined {
-  if (event.longTerm || isCancelled(event)) return undefined;
-  const today = pragueDate(now);
-  for (const meeting of meetingsOf(event)) {
-    if (meeting.cancelled || meeting.end < today) continue;
-    if (meeting.start > today) return event.start <= today ? { kind: "next", date: meeting.start } : undefined;
-    const clock = meeting.start === meeting.end ? parseClock(meeting.time) : undefined;
-    if (!clock) return { kind: "now" };
-    if (now < pragueDateTime(today, clock.from).getTime()) return { kind: "today", time: clock.from };
-    if (!clock.to || now < pragueDateTime(today, clock.to).getTime()) return { kind: "now" };
-    // Today's meeting is over: the next one, if any.
-  }
-  return undefined;
-}
-
-/** "Právě probíhá", "Dnes v 18:00", "Další setkání 25. 10." */
-export function progressLabel(progress: EventProgress): string {
-  switch (progress.kind) {
-    case "now":
-      return EVENT_STATUS_LABEL.now;
-    case "today":
-      return `Dnes ${atClockTime(progress.time)}`;
-    case "next":
-      return `Další setkání ${formatShortDate(progress.date)}`;
-  }
-}
 
 /**
  * A badge's look: `now` is the filled "Právě probíhá", `cancelled` the ink "Zrušeno", the rest are the tag colours.
@@ -115,62 +59,6 @@ export function eventTags(event: NewsEvent, now: number): { kind: EventTagKind; 
   for (const tag of event.tags ?? []) tags.push({ kind: tag.color ?? "blue", label: tag.label });
   if (isPast(event, today)) tags.push({ kind: "grey", label: EVENT_STATUS_LABEL.past });
   return tags;
-}
-
-/**
- * Relative label of a detail page (§13.1) at the instant `now`: "Za 15 dní", "Za 3 dny", "Zítra" (by Prague calendar
- * days), then "Dnes", "Právě probíhá" (also a started long-term event), "Další setkání 25. 10.", and "Proběhlo".
- */
-export function relativeEventLabel(event: EventTiming, now: number): string {
-  const { start } = event;
-  const today = pragueDate(now);
-  if (isPast(event, today)) return EVENT_STATUS_LABEL.past;
-  if (start <= today) {
-    if (event.longTerm) return EVENT_STATUS_LABEL.now;
-    const progress = eventProgress(event, now);
-    if (progress?.kind === "next") return progressLabel(progress);
-    // One day without a clock time stays "Dnes"; so does the rest of the day after today's last meeting.
-    const known = eventEnd(event) > start || parseClock(event.time);
-    return progress?.kind === "now" && known ? progressLabel(progress) : "Dnes";
-  }
-  const days = differenceInCalendarDays(pragueDateTime(start, "12:00"), pragueDateTime(today, "12:00"), {
-    in: inPrague,
-  });
-  return relativeDayName(days) ?? `Za ${days} ${plural(days, ["den", "dny", "dní"])}`;
-}
-
-/**
- * A meeting of a series with its defaults filled in: its last day and its time text. `cancelled` when it does not
- * take place (the whole event cancelled, or the meeting dropped).
- */
-export type Meeting = { start: IsoDate; end: IsoDate; time?: string; cancelled?: true };
-
-/** The meetings of a series (`sessions`), empty for other events. */
-export function eventMeetings(
-  event: Pick<NewsEvent, "sessions" | "time"> & Partial<Pick<NewsEvent, "change" | "cancelledMeetings">>,
-): Meeting[] {
-  const dropped = new Set(event.cancelledMeetings?.dates);
-  return (event.sessions ?? []).map((session) => {
-    const meeting =
-      typeof session === "string"
-        ? { start: session, end: session, time: event.time }
-        : { start: session.date, end: session.end ?? session.date, time: session.time ?? event.time };
-    return isCancelled(event) || dropped.has(meeting.start) ? { ...meeting, cancelled: true } : meeting;
-  });
-}
-
-/** The fields that say when an event takes place (what a client component needs for its progress). */
-export type EventTiming = Pick<NewsEvent, "start" | "end" | "time" | "sessions" | "longTerm"> &
-  Partial<Pick<NewsEvent, "change" | "cancelledMeetings">>;
-
-/** The days the event takes place: each meeting of a series, the first day of a weekly one, else its span. */
-export function meetingsOf(event: EventTiming): Meeting[] {
-  if (event.sessions) return eventMeetings(event);
-  const cancelled = isCancelled(event) && { cancelled: true as const };
-  if (event.longTerm && event.longTerm !== true) {
-    return [{ start: event.start, end: event.start, time: event.longTerm.weeklyAt, ...cancelled }];
-  }
-  return [{ start: event.start, end: eventEnd(event), time: event.time, ...cancelled }];
 }
 
 const byStart = (a: Pick<NewsEvent, "start">, b: Pick<NewsEvent, "start">) => a.start.localeCompare(b.start);
@@ -276,42 +164,3 @@ export const otherEvents = <T extends Pick<NewsEvent, "id" | "start" | "end" | "
     today,
     limit,
   );
-
-/** The poster's name after its file's: a WebP attachment would otherwise be overwritten by its own poster. */
-export const POSTER_SUFFIX = "-poster.webp";
-
-/** A file name without its extension: "/uploads/aktuality/x-plakat.pdf" → "/uploads/aktuality/x-plakat". */
-const withoutExtension = (file: string) => file.replace(/\.[^./]+$/, "");
-
-/** The poster WebP of an attachment file: "/uploads/aktuality/x-plakat.pdf" → "/uploads/aktuality/x-plakat-poster.webp". */
-export const posterOf = (file: string) => withoutExtension(file) + POSTER_SUFFIX;
-
-/** The name (without its extension) of the file a poster WebP was made from: before `-poster.webp`, or `.webp`. */
-const posterSource = (src: string) => src.replace(/(-poster)?\.webp$/, "");
-
-/** Whether the poster `src` was made from `file`: named `<file>-poster.webp`, or `<file>.webp` before that name. */
-export const isPosterOf = (src: string, file: string) => posterSource(src) === withoutExtension(file);
-
-/**
- * What the detail page's poster opens full size: the poster's original (its file is named like the poster WebP, before
- * `.webp` or, since `pnpm stage aktualita` names posters `<file>-poster.webp`, before `-poster.webp`), else the
- * "Plakát" attachment, else the WebP itself. Undefined without a poster or a "Plakát" attachment.
- */
-export function posterHref(event: NewsEvent): string | undefined {
-  const attachments = event.attachments ?? [];
-  const base = event.poster && `${posterSource(event.poster.src)}.`;
-  const original =
-    attachments.find((a) => base && a.file.startsWith(base)) ?? attachments.find((a) => a.label === "Plakát");
-  return original?.file ?? event.poster?.src;
-}
-
-/**
- * Alt text of a poster in the lightbox (design/DESIGN.md §21.3), which is often the only source of the details:
- * "Plakát: Farní den, neděle 18. října 2026 v 9:30, farní zahrada".
- */
-export function posterAlt(event: NewsEvent): string {
-  const when = formatEventWhen(event, { longMonth: true });
-  return [`Plakát: ${event.title}`, when.time ? `${when.date} ${atClockTime(when.time)}` : when.date, event.place]
-    .filter(Boolean)
-    .join(", ");
-}

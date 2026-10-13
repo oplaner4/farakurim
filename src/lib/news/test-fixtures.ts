@@ -1,4 +1,5 @@
 import type { NewsEvent } from "@/content/types/news";
+import { pragueDateTime } from "@/lib/shared/prague";
 
 // Events shared by the Aktuality and archive tests.
 
@@ -26,3 +27,6 @@ export const events = [
 ];
 
 export const ids = (list: NewsEvent[]) => list.map((e) => e.id);
+
+/** An instant of a Prague date and time, as `useNow()` gives it. */
+export const at = (date: string, time = "12:00") => pragueDateTime(date, time).getTime();

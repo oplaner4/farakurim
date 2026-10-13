@@ -7,7 +7,7 @@ import { existsSync } from "node:fs";
 import { extname, join, relative } from "node:path";
 import { readEvents } from "@/content/news";
 import type { EventAttachment, NewsEvent } from "@/content/types/news";
-import { isPosterOf, posterOf } from "@/lib/news/events";
+import { isPosterOf, posterOf } from "@/lib/news/posters";
 import { IMAGE_EXTENSIONS, UPLOADS_PATH } from "@/lib/shared/uploads";
 import { actionVerb, parseCommandLine } from "../command";
 import { formatAndTestNews, NEWS_DIR } from "../content-files";

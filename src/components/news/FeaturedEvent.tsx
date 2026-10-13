@@ -1,6 +1,7 @@
 import type { NewsEvent } from "@/content/types/news";
 import { formatEventWhen } from "@/lib/shared/czech";
-import { eventHref, posterAlt } from "@/lib/news/events";
+import { eventHref } from "@/lib/news/events";
+import { posterAlt } from "@/lib/news/posters";
 import { isImageFile } from "@/lib/shared/lightbox";
 import { ButtonLink, buttonLink } from "@/components/ui/ButtonLink";
 import { eventAnchor } from "./EventCard";

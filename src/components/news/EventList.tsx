@@ -8,7 +8,6 @@ import type { NewsEvent } from "@/content/types/news";
 import { links } from "@/content/site";
 import { eventCount, formatMonthYear } from "@/lib/shared/czech";
 import {
-  EVENT_STATUS_LABEL,
   type EventGroup,
   filterEvents,
   groupEvents,
@@ -17,6 +16,7 @@ import {
   NEWS_PAGE_SIZE,
   type NewsFilter,
 } from "@/lib/news/events";
+import { EVENT_STATUS_LABEL } from "@/lib/news/timing";
 import { useNow, useToday } from "@/hooks/use-now";
 import { PAGE_PARAM, pageParser } from "@/lib/news/query-params";
 import { useLoadMore } from "@/hooks/use-load-more";

@@ -3,7 +3,8 @@ import type { NewsEvent } from "@/content/types/news";
 import { BUILD_TIME } from "@/lib/shared/build-time";
 import { capitalize, formatEventWhen, formatShortDate } from "@/lib/shared/czech";
 import { mapHref, NEW_TAB } from "@/lib/shared/links";
-import { eventCalendarHref, eventEnd, isCancelled } from "@/lib/news/events";
+import { eventCalendarHref } from "@/lib/news/events";
+import { eventEnd, isCancelled } from "@/lib/news/timing";
 import { CalendarIcon, PinIcon } from "@/components/ui/icons/contact-icons";
 import { EventActions } from "./EventActions";
 

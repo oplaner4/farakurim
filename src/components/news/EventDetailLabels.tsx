@@ -1,7 +1,7 @@
 "use client";
 
 import type { NewsEvent } from "@/content/types/news";
-import { eventEnd, type EventTiming, relativeEventLabel } from "@/lib/news/events";
+import { eventEnd, type EventTiming, relativeEventLabel } from "@/lib/news/timing";
 import { useNow, useToday } from "@/hooks/use-now";
 
 const label = "rounded-full px-2.5 py-0.75 text-13 font-bold md:px-3 md:text-14 lg:py-1";

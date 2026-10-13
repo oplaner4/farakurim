@@ -2,7 +2,7 @@ import { format } from "date-fns";
 import { contacts, parish, SITE_URL } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import { telHref } from "./links";
-import { parseClock } from "@/lib/news/events";
+import { parseClock } from "@/lib/news/timing";
 import { eventClock } from "@/lib/news/ics";
 import { inPrague, pragueDateTime } from "./prague";
 

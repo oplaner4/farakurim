@@ -5,7 +5,7 @@
 import { readMonths } from "@/content/news";
 import type { IsoDate } from "@/content/types/shared";
 import type { NewsEvent } from "@/content/types/news";
-import { eventEnd, isCancelled } from "@/lib/news/events";
+import { eventEnd, isCancelled } from "@/lib/news/timing";
 import { pragueDate } from "@/lib/shared/prague";
 import { actionVerb, parseCommandLine } from "../command";
 import { formatAndTestNews, NEWS_DIR, writeMonth } from "../content-files";

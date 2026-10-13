@@ -2,7 +2,7 @@ import { links } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import type { IsoDate } from "@/content/types/shared";
 import { eventCount, fold } from "@/lib/shared/czech";
-import { eventEnd } from "./events";
+import { eventEnd } from "./timing";
 
 // Archiv aktualit (design/DESIGN.md §12): finished events by year, searched and paged in the browser.
 

@@ -16,7 +16,8 @@ import {
   refererInit,
 } from "@/lib/calendar/google-calendar";
 import { eventCalendar } from "@/lib/news/ics";
-import { eventHref, meetingsOf, type Meeting } from "@/lib/news/events";
+import { eventHref } from "@/lib/news/events";
+import { meetingsOf, type Meeting } from "@/lib/news/timing";
 import { fold } from "@/lib/shared/czech";
 import { errorMessage, parseCommandLine } from "../command";
 import { ROOT } from "../content-files";
