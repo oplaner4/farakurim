@@ -186,6 +186,10 @@ export function splitEvents<T extends { cancelled?: true }>(events: T[]): { show
   return { shown: events.filter((e) => shown.has(e)), hidden };
 }
 
+/** The badge for the events a day hides: "+2 další", "+5 dalších". */
+export const moreEventsLabel = (hidden: number): string =>
+  `+${hidden} ${plural(hidden, ["další", "další", "dalších"])}`;
+
 /** Monday of the week (Czech weeks run Monday to Sunday). */
 export const weekStart = (date: IsoDate): IsoDate =>
   pragueDate(startOfWeek(noon(date), { weekStartsOn: 1, in: inPrague }));

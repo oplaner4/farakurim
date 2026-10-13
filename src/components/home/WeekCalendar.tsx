@@ -12,6 +12,7 @@ import {
   type DateRange,
   daySummary,
   itemTime,
+  moreEventsLabel,
   shortWeekday,
   splitEvents,
   weekCardLabels,
@@ -183,7 +184,7 @@ function DayCard({
             aria-label={`Další ${hidden} ${plural(hidden, ["akce", "akce", "akcí"])} v kalendáři`}
             className="ml-3 self-start rounded-6 bg-magenta-tint px-2 py-0.5 text-13 font-bold text-magenta-ink no-underline hover:text-magenta-ink hover:underline"
           >
-            +{hidden} další
+            {moreEventsLabel(hidden)}
           </a>
         )}
         {services.length > 0 && (

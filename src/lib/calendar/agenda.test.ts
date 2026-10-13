@@ -14,6 +14,7 @@ import {
   mergeEntries,
   monthGridRange,
   monthHeading,
+  moreEventsLabel,
   newsEntries,
   parseDayParam,
   parseMonthParam,
@@ -318,6 +319,15 @@ describe("week calendar", () => {
     expect(splitEvents([a, b])).toEqual({ shown: [a, b], hidden: 0 });
     expect(splitEvents([a, b, c])).toEqual({ shown: [a], hidden: 2 });
     expect(splitEvents([])).toEqual({ shown: [], hidden: 0 });
+  });
+
+  it.each([
+    [2, "+2 další"],
+    [4, "+4 další"],
+    [5, "+5 dalších"],
+    [11, "+11 dalších"],
+  ])("labels %i hidden events as %s", (hidden, expected) => {
+    expect(moreEventsLabel(hidden)).toBe(expected);
   });
 
   it("never counts a cancelled event towards +N další, and shows it only in a free row", () => {

@@ -4,7 +4,7 @@ import { DayButton, type DayButtonProps } from "@daypicker/react";
 import { clsx } from "clsx";
 import { createContext, use } from "react";
 import type { IsoDate } from "@/content/types/shared";
-import { type AgendaItem, splitEvents } from "@/lib/calendar/agenda";
+import { type AgendaItem, moreEventsLabel, splitEvents } from "@/lib/calendar/agenda";
 import { CalendarItemTitle } from "./CalendarItemTitle";
 
 const EMPTY: AgendaItem[] = [];
@@ -56,7 +56,7 @@ export function AgendaDayButton({ day, modifiers, className, ...rest }: DayButto
       ))}
       {hidden > 0 && (
         <span aria-hidden="true" className={badge}>
-          +{hidden} další
+          {moreEventsLabel(hidden)}
         </span>
       )}
       {services > 0 && (
