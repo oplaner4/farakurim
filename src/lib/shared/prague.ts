@@ -1,4 +1,4 @@
-import { tz, TZDate } from "@date-fns/tz";
+import { tz, type TZDate } from "@date-fns/tz";
 import { format, getDay, isMatch, parse } from "date-fns";
 import type { ClockTime, IsoDate, Weekday } from "@/content/types/shared";
 
