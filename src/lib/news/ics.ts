@@ -4,20 +4,11 @@ import { createEvents, type DateArray, type DateTime, type EventAttributes } fro
 import { SITE_HOST } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import type { ClockTime, IsoDate } from "@/content/types/shared";
-import { eventEnd, meetingsOf, type Meeting } from "./events";
+import { eventEnd, meetingsOf, type Meeting, parseClock } from "./events";
 import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
 
 // "Přidat do kalendáře" (design/DESIGN.md §13.2): one .ics file per event, generated at build time.
 // Times are Prague wall-clock and written in UTC, so no VTIMEZONE block is needed.
-
-/** "9:30" or "18:00–20:30"; other time texts ("po mši") make the event all-day. */
-const CLOCK = /^(\d{1,2}:\d{2})(?:\s*[–-]\s*(\d{1,2}:\d{2}))?$/;
-
-/** Start (and end) time of a time text, if it is a clock time. */
-export function parseClock(time: string | undefined): { from: ClockTime; to?: ClockTime } | undefined {
-  const match = CLOCK.exec(time ?? "");
-  return match ? { from: match[1], to: match[2] } : undefined;
-}
 
 /** Start (and end) time of a single-day event's or weekly series' time text, if it is a clock time. */
 export function eventClock(event: NewsEvent): { from: ClockTime; to?: ClockTime } | undefined {

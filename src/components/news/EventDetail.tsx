@@ -74,7 +74,16 @@ export function EventDetail({ event }: { event: NewsEvent }) {
           <div className="max-lg:contents lg:flex lg:min-w-0 lg:shrink lg:grow-999 lg:basis-140 lg:flex-col lg:gap-10">
             <header className="flex flex-col gap-3.5 lg:gap-4">
               <EventDetailLabels
-                event={{ start: event.start, end: event.end, pinned: event.pinned }}
+                event={{
+                  start: event.start,
+                  end: event.end,
+                  time: event.time,
+                  sessions: event.sessions,
+                  longTerm: event.longTerm,
+                  change: event.change,
+                  cancelledMeetings: event.cancelledMeetings,
+                  pinned: event.pinned,
+                }}
                 cancelled={cancelled}
                 renderedAt={BUILD_TIME}
               />

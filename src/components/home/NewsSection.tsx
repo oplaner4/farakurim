@@ -4,8 +4,8 @@ import { clsx } from "clsx";
 import type { NewsEvent } from "@/content/types/news";
 import { links } from "@/content/site";
 import { formatEventDate } from "@/lib/shared/czech";
-import { currentNews, eventHref, eventStatus, isCancelled } from "@/lib/news/events";
-import { useToday } from "@/hooks/use-now";
+import { currentNews, eventHref, eventProgress, isCancelled, progressLabel } from "@/lib/news/events";
+import { useNow, useToday } from "@/hooks/use-now";
 import { CalendarIcon } from "@/components/ui/icons/contact-icons";
 import { POSTER_TINTS } from "@/components/ui/PosterPlaceholder";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -20,6 +20,7 @@ type Props = {
 
 export function NewsSection({ events, renderedAt }: Props) {
   const today = useToday(renderedAt);
+  const now = useNow(renderedAt);
   const visible = currentNews(events, today, LIMIT);
 
   if (visible.length === 0) return null;
@@ -42,7 +43,9 @@ export function NewsSection({ events, renderedAt }: Props) {
           const chip = item.time ? `${date.label} · ${item.time}` : date.label;
           // Cancelled (§11.9): it keeps its place until its date, with "Zrušeno" and a grey struck date.
           const cancelled = isCancelled(item);
-          const ongoing = !cancelled && eventStatus(item, today) === "now";
+          // Running now: highlighted; a meeting later today or the next meeting of a series: only the pill.
+          const progress = eventProgress(item, now);
+          const ongoing = progress?.kind === "now";
           const dateStyle = cancelled
             ? "bg-raised text-muted"
             : ongoing
@@ -121,9 +124,9 @@ export function NewsSection({ events, renderedAt }: Props) {
                       Přesunuto
                     </span>
                   ) : (
-                    ongoing && (
+                    progress && (
                       <span className="rounded-full bg-raised px-2 py-0.5 text-12 font-bold text-magenta-ink lg:bg-magenta-tint lg:px-2.5 lg:text-13">
-                        Právě probíhá
+                        {progressLabel(progress)}
                       </span>
                     )
                   )}

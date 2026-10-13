@@ -1,8 +1,16 @@
 import { clsx } from "clsx";
 import type { NewsEvent } from "@/content/types/news";
-import type { IsoDate } from "@/content/types/shared";
 import { eventDateBlock, fileType, formatEventWhen } from "@/lib/shared/czech";
-import { eventHref, type EventStatus, type EventTagKind, eventTags, isCancelled, posterAlt } from "@/lib/news/events";
+import {
+  eventHref,
+  eventProgress,
+  type EventTagKind,
+  eventTags,
+  isCancelled,
+  isPast,
+  posterAlt,
+} from "@/lib/news/events";
+import { pragueDate } from "@/lib/shared/prague";
 import { isImageFile } from "@/lib/shared/lightbox";
 import { externalLinkAttrs } from "@/lib/shared/links";
 import { PinIcon } from "@/components/ui/icons/contact-icons";
@@ -26,8 +34,8 @@ export const eventAnchor = (id: string) => `akce-${id}`;
 
 type Props = {
   event: NewsEvent;
-  status: EventStatus;
-  today: IsoDate;
+  /** The current instant (`useNow()`): the tags and the date block follow the event's times. */
+  now: number;
   /** Position in the list, picks the poster tint. */
   index: number;
   /** Beyond the current page: hidden until "Načíst další aktuality" (shown by the <noscript> style without JS). */
@@ -38,15 +46,16 @@ type Props = {
  * Mobile: date block + title/meta in a row, then text, tags and actions (the content column is `contents`,
  * so its children wrap in the card's row). Tablet/desktop: date block · content column · poster.
  */
-export function EventCard({ event, status, today, index, more }: Props) {
+export function EventCard({ event, now, index, more }: Props) {
   const date = eventDateBlock(event);
   const when = formatEventWhen(event);
-  const tags = eventTags(event, status, today);
+  const tags = eventTags(event, now);
   const actions = [
     ...(event.attachments ?? []).map((a) => ({ ...a, href: a.file, type: fileType(a.file) })),
     ...(event.links ?? []).map((l) => ({ ...l, type: undefined })),
   ];
-  const past = status === "past";
+  const past = isPast(event, pragueDate(now));
+  const running = eventProgress(event, now)?.kind === "now";
   // Cancelled (§11.9): grey struck date, greyscale poster, full opacity as the news is still current.
   const cancelled = isCancelled(event);
 
@@ -68,11 +77,7 @@ export function EventCard({ event, status, today, index, more }: Props) {
         className={clsx(
           "flex h-17 w-15 shrink-0 flex-col items-center justify-center rounded-12 text-center leading-display",
           "md:h-20 md:w-18 md:rounded-14 lg:h-24 lg:w-22 lg:rounded-16",
-          cancelled
-            ? "bg-surface text-muted"
-            : status === "now"
-              ? "bg-magenta text-white"
-              : "bg-magenta-tint text-magenta-ink",
+          cancelled ? "bg-surface text-muted" : running ? "bg-magenta text-white" : "bg-magenta-tint text-magenta-ink",
         )}
       >
         <span className={clsx("text-17 font-bold md:text-19 lg:text-22", cancelled && "line-through")}>{date.top}</span>

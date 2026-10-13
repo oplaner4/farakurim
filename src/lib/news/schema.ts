@@ -4,7 +4,7 @@ import { CLOCK, clockMinutes, clockSchema } from "@/lib/shared/clock";
 import { kebabIdSchema, slug } from "@/lib/shared/slug";
 import { uploadSchema } from "@/lib/shared/uploads";
 import { eventMeetings } from "./events";
-import { parseClock } from "./ics";
+import { parseClock } from "./events";
 
 // The rules of one Aktuality record, in one place: src/content/news/index.ts checks every month file with them on
 // import (a broken file fails the tests, the build and the scripts), and scripts/lib/news/add-aktualita.ts checks a new record

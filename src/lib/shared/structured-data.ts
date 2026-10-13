@@ -2,7 +2,8 @@ import { format } from "date-fns";
 import { contacts, parish, SITE_URL } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import { telHref } from "./links";
-import { eventClock, parseClock } from "@/lib/news/ics";
+import { parseClock } from "@/lib/news/events";
+import { eventClock } from "@/lib/news/ics";
 import { inPrague, pragueDateTime } from "./prague";
 
 const isoDateTime = (date: string, time: string) =>

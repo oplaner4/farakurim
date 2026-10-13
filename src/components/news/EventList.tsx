@@ -10,7 +10,6 @@ import { eventCount, formatMonthYear } from "@/lib/shared/czech";
 import {
   EVENT_STATUS_LABEL,
   type EventGroup,
-  eventStatus,
   filterEvents,
   groupEvents,
   NEWS_FILTER_META,
@@ -18,7 +17,7 @@ import {
   NEWS_PAGE_SIZE,
   type NewsFilter,
 } from "@/lib/news/events";
-import { useToday } from "@/hooks/use-now";
+import { useNow, useToday } from "@/hooks/use-now";
 import { PAGE_PARAM, pageParser } from "@/lib/news/query-params";
 import { useLoadMore } from "@/hooks/use-load-more";
 import { ButtonLink } from "@/components/ui/ButtonLink";
@@ -71,6 +70,7 @@ function EventListView({
   setPage,
 }: Props & { page: number; setPage?: (page: number) => unknown }) {
   const today = useToday(renderedAt);
+  const now = useNow(renderedAt);
   const loadMore = useLoadMore(page, setPage);
   const groups = groupEvents(filterEvents(events, filter, today), today);
   const flat = groups.flatMap((g) => g.events);
@@ -134,16 +134,7 @@ function EventListView({
               </div>
               {group.events.map((event) => {
                 const index = position.get(event.id)!;
-                return (
-                  <EventCard
-                    key={event.id}
-                    event={event}
-                    status={eventStatus(event, today)}
-                    today={today}
-                    index={index}
-                    more={index >= shownCount}
-                  />
-                );
+                return <EventCard key={event.id} event={event} now={now} index={index} more={index >= shownCount} />;
               })}
             </div>
           );

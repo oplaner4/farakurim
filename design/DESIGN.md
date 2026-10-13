@@ -192,7 +192,7 @@ considers the calendar essential, so it is the second thing visitors see.
 - The 3 nearest events on mobile, 4 on tablet/desktop. "Všechny aktuality" link to `/aktuality/`.
 - **Mobile/tablet:** a horizontal card with a date block (64–72 px; magenta fill for the highlighted item, white otherwise) plus title and excerpt. Tablet uses a 2×2 grid.
 - **Desktop:** vertical cards with a poster image (210 px tall, rounded 24) and a date chip overlaid top-left, then title and excerpt. `repeat(auto-fit, minmax(min(250px,100%),1fr))`.
-- "Právě probíhá" pill when today falls between the event's start and end. The highlighted card uses the magenta tint background.
+- A progress pill (11.7, "Průběh akce"): "Právě probíhá" while the event is running, otherwise "Dnes v 18:00" or "Další setkání 25. 10.". Only a running event is highlighted: the card uses the magenta tint background and its date block the magenta fill.
 
 ### 4.5 Fotogalerie (green) – carousel of the newest album
 
@@ -459,9 +459,11 @@ was posted.
 | Poster thumbnail | hidden (reachable through the attachment button) | 108×152 | 132×186 |
 | Card | white, `--line` border, radius 20, padding 16 | radius 24, padding 20 | radius 28, padding 24 |
 
-- **Date block**: magenta-tint fill with magenta-ink text: day(s) on top ("7.", "2.–4.") and month in the genitive below ("října", "prosince"). Filled **magenta with white text** when the event is happening now. Long-term series show the weekday and time ("čt / 18:30") or a month range ("III–XI / 2026").
+- **Date block**: magenta-tint fill with magenta-ink text: day(s) on top ("7.", "2.–4.") and month in the genitive below ("října", "prosince"). Filled **magenta with white text** while the event is running ("Právě probíhá", 11.7). Long-term series show the weekday and time ("čt / 18:30") or a month range ("III–XI / 2026").
 - **Tags** (13–14 px pills):
   - `now` "Právě probíhá": magenta / white
+  - `today` "Dnes v 18:00" (a meeting later today): magenta tint / magenta ink
+  - `next` "Další setkání 25. 10." (a series between its meetings): blue tint / blue ink
   - `deadline` "Přihlášky do 10. 10.": orange tint / `#8A4B00` (dark: `--orange-tint` / `#FFC266`)
   - `info` "300 Kč", "7 setkání", "Každý týden": blue tint / blue ink
   - **free tags** (entered by the editor, e.g. "Pro rodiny"; a cancelled or postponed event is **not** a free tag but the event's status, 11.9), each in its own colour:
@@ -470,7 +472,7 @@ was posted.
     - magenta: magenta tint / magenta ink (the colours of the date block)
     - grey: surface / ink-2 (like "Proběhlo")
   - `past` "Proběhlo": surface / ink-2
-  - **Order:** "Právě probíhá", the deadline, the computed tags (price, "N setkání", "Každý týden"), then the free tags, and "Proběhlo" last.
+  - **Order:** the progress tag ("Právě probíhá", "Dnes v …" or "Další setkání …", at most one), the deadline, the computed tags (price, "N setkání", "Každý týden"), then the free tags, and "Proběhlo" last.
   - "N setkání" is the number of meetings listed for a series (11.7).
 - **Meta**: the full date/time text ("pátek 2. – neděle 4. 10. 2026", "neděle 25. 10. 2026 · 9:30") and the place with a pin icon.
 - **Series of meetings** (a course, a cycle of evenings): the date block and the date line show the **first meeting** ("od neděle 11. 10. 2026"). "vždy 18:00–20:30" is added only when all meetings share the event's time; otherwise the time is left out of the line.
@@ -507,7 +509,15 @@ to the first new card. Hide the button on the last page.
 | original date | for `přesunuto`: the date before the move; start/end hold the new date |
 | cancelled meetings | for a series: the dates of meetings that don't take place, with an optional note |
 
-"Právě probíhá" and "Proběhlo" are **computed** from start/end and today, never stored.
+The progress ("Právě probíhá", "Dnes v …", "Další setkání …") and "Proběhlo" are **computed**, never stored:
+
+**Průběh akce** (progress, from the meetings, their times and the current Prague time):
+
+- A meeting on one day with a clock time ("18:00–20:30") **runs from its start time to its end time**; with only a start time ("9:30"), until midnight. Before the start time that day it is "Dnes v 18:00"; after the end time it shows no progress tag.
+- A meeting without a clock time ("po mši", or none) and every day of a multi-day meeting (2.–4. 10.) runs **all day**.
+- A single event is one meeting (its start to end). A series (below) runs only on its meeting days; between them, once the first meeting has started, it shows **"Další setkání 25. 10."** with the next meeting that takes place (dropped meetings, 11.9, are skipped).
+- Long-term and cancelled events have no progress.
+- **"Proběhlo"** goes by the date: from the day after the event's last day.
 
 **Series of meetings:** a series stores the date of **every meeting**, not just a count. A meeting either uses the event's time, has its own time, or lasts several days (e.g. a weekend retreat: start and end day). Series are **not assumed to be weekly**. In the calendar (section 16) and in the "Přidat do kalendáře" `.ics` file (13.2), **each meeting is its own entry** at its own time. For a series, start = the first meeting, end = the last meeting.
 
@@ -624,7 +634,7 @@ Section colour: magenta. The header's current item stays "Aktuality".
 | Block | Mobile | Tablet | Desktop |
 |---|---|---|---|
 | Breadcrumb | `Úvod › Aktuality › <title>` | same | same |
-| Labels | "Doporučujeme" (only if pinned, magenta tint) + **relative time** ("Za 15 dní", "Zítra", "Dnes", "Proběhlo"; blue tint) | same | same |
+| Labels | "Doporučujeme" (only if pinned, magenta tint) + **relative time** ("Za 15 dní", "Zítra", "Dnes", "Právě probíhá", "Další setkání 25. 10.", "Proběhlo"; blue tint) | same | same |
 | H1 + lead | 32 px + 18 px lead | 44 + 20 | 56 + 22 (lead max 680 px) |
 | "Kdy a kde" panel | full width | left, beside the poster (236×334) | **right column** (`flex: 1 1 360px`), poster (460 px tall) below it |
 | O akci / Program / 800 let v datech / Přílohy | stacked | stacked | left column (`flex: 999 1 560px`), text max 700 px |
@@ -655,8 +665,10 @@ Section colour: magenta. The header's current item stays "Aktuality".
 | highlights[] | number/short value + label, max 3 (optional) |
 | map query | defaults to the place |
 
-Show the relative-time label from the start and end dates. After the event ends, show
-"Proběhlo", hide the calendar button, and keep the page reachable from the archive.
+Show the relative-time label from the start and end dates and the progress (11.7): before the start "Za N dní" /
+"Zítra"; on the day "Právě probíhá" while it runs (a one-day event without a clock time stays "Dnes"), otherwise
+"Dnes"; a series between its meetings "Další setkání 25. 10."; a started long-term event "Právě probíhá". After the
+event's last day, show "Proběhlo", hide the calendar button, and keep the page reachable from the archive.
 
 ### 13.5 SEO and sharing
 

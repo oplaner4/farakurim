@@ -1,7 +1,7 @@
 import { differenceInCalendarDays, endOfMonth, endOfWeek } from "date-fns";
 import { links } from "@/content/site";
 import type { NewsEvent, TagColor } from "@/content/types/news";
-import type { IsoDate } from "@/content/types/shared";
+import type { ClockTime, IsoDate } from "@/content/types/shared";
 import { atClockTime, formatEventWhen, formatShortDate, plural, relativeDayName } from "@/lib/shared/czech";
 import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
 
@@ -29,39 +29,82 @@ export const filterFromSlug = (slug: string): NewsFilter | undefined =>
 /** Cards per "page" of the Aktuality list; "Načíst další aktuality" shows the next batch. */
 export const NEWS_PAGE_SIZE = 10;
 
-export type EventStatus = "past" | "now" | "upcoming";
-
 export const eventEnd = (event: Pick<NewsEvent, "start" | "end">): IsoDate => event.end ?? event.start;
 
 /** The label of a finished and a running event: card tags, the "Proběhlo" group and the detail page. */
 export const EVENT_STATUS_LABEL = { past: "Proběhlo", now: "Právě probíhá" } as const;
 
-/** Computed, never stored. Long-term series are never "now", they get their own group instead. */
-export function eventStatus(event: NewsEvent, today: IsoDate): EventStatus {
-  if (eventEnd(event) < today) return "past";
-  if (!event.longTerm && event.start <= today) return "now";
-  return "upcoming";
-}
+/** Finished from the day after its last day (by date, so it moves to "Proběhlo" at midnight). */
+export const isPast = (event: Pick<NewsEvent, "start" | "end">, today: IsoDate) => eventEnd(event) < today;
 
 /** Cancelled (§11.9): the event does not take place, though its record and detail page stay. */
 export const isCancelled = (event: Pick<NewsEvent, "change">) => event.change?.status === "cancelled";
 
-/** A badge's look: `now` is the filled "Právě probíhá", `cancelled` the ink "Zrušeno", the rest are the tag colours. */
-export type EventTagKind = "now" | "cancelled" | TagColor;
+/** "9:30" or "18:00–20:30"; other time texts ("po mši") make the event all-day. */
+const CLOCK = /^(\d{1,2}:\d{2})(?:\s*[–-]\s*(\d{1,2}:\d{2}))?$/;
+
+/** Start (and end) time of a time text, if it is a clock time. */
+export function parseClock(time: string | undefined): { from: ClockTime; to?: ClockTime } | undefined {
+  const match = CLOCK.exec(time ?? "");
+  return match ? { from: match[1], to: match[2] } : undefined;
+}
 
 /**
- * The badges of an event card, in order: "Přesunuto", running, open registration, key facts, the record's own tags,
- * then "Proběhlo". A cancelled event has only "Zrušeno" (§11.9).
+ * Where a started event is right now (§11.6), computed, never stored: running (`now`), a meeting later today
+ * (`today`), or a series between its meetings (`next`). Undefined before it starts, after it ends, and for
+ * long-term and cancelled events.
  */
-export function eventTags(
-  event: NewsEvent,
-  status: EventStatus,
-  today: IsoDate,
-): { kind: EventTagKind; label: string }[] {
+export type EventProgress = { kind: "now" } | { kind: "today"; time: ClockTime } | { kind: "next"; date: IsoDate };
+
+/**
+ * A meeting with a clock time on one day runs from its start time to its end time (or to midnight without one);
+ * otherwise it runs all of its days. Dropped meetings are skipped.
+ */
+export function eventProgress(event: EventTiming, now: number): EventProgress | undefined {
+  if (event.longTerm || isCancelled(event)) return undefined;
+  const today = pragueDate(now);
+  for (const meeting of meetingsOf(event)) {
+    if (meeting.cancelled || meeting.end < today) continue;
+    if (meeting.start > today) return event.start <= today ? { kind: "next", date: meeting.start } : undefined;
+    const clock = meeting.start === meeting.end ? parseClock(meeting.time) : undefined;
+    if (!clock) return { kind: "now" };
+    if (now < pragueDateTime(today, clock.from).getTime()) return { kind: "today", time: clock.from };
+    if (!clock.to || now < pragueDateTime(today, clock.to).getTime()) return { kind: "now" };
+    // Today's meeting is over: the next one, if any.
+  }
+  return undefined;
+}
+
+/** "Právě probíhá", "Dnes v 18:00", "Další setkání 25. 10." */
+export function progressLabel(progress: EventProgress): string {
+  switch (progress.kind) {
+    case "now":
+      return EVENT_STATUS_LABEL.now;
+    case "today":
+      return `Dnes ${atClockTime(progress.time)}`;
+    case "next":
+      return `Další setkání ${formatShortDate(progress.date)}`;
+  }
+}
+
+/**
+ * A badge's look: `now` is the filled "Právě probíhá", `cancelled` the ink "Zrušeno", the rest are the tag colours.
+ */
+export type EventTagKind = "now" | "cancelled" | TagColor;
+
+const progressTagKind = { now: "now", today: "magenta", next: "blue" } as const;
+
+/**
+ * The badges of an event card at the instant `now`, in order: "Přesunuto", the progress, open registration, key facts,
+ * the record's own tags, then "Proběhlo". A cancelled event has only "Zrušeno" (§11.9).
+ */
+export function eventTags(event: NewsEvent, now: number): { kind: EventTagKind; label: string }[] {
   if (isCancelled(event)) return [{ kind: "cancelled", label: "Zrušeno" }];
+  const today = pragueDate(now);
+  const progress = eventProgress(event, now);
   const tags: { kind: EventTagKind; label: string }[] = [];
   if (event.change?.status === "moved") tags.push({ kind: "orange", label: "Přesunuto" });
-  if (status === "now") tags.push({ kind: "now", label: EVENT_STATUS_LABEL.now });
+  if (progress) tags.push({ kind: progressTagKind[progress.kind], label: progressLabel(progress) });
   if (event.registrationDeadline && event.registrationDeadline >= today) {
     tags.push({ kind: "orange", label: `Přihlášky do ${formatShortDate(event.registrationDeadline)}` });
   }
@@ -70,19 +113,26 @@ export function eventTags(
   if (event.sessions) tags.push({ kind: "blue", label: `${event.sessions.length} setkání` });
   if (event.longTerm && event.longTerm !== true) tags.push({ kind: "blue", label: "Každý týden" });
   for (const tag of event.tags ?? []) tags.push({ kind: tag.color ?? "blue", label: tag.label });
-  if (status === "past") tags.push({ kind: "grey", label: EVENT_STATUS_LABEL.past });
+  if (isPast(event, today)) tags.push({ kind: "grey", label: EVENT_STATUS_LABEL.past });
   return tags;
 }
 
 /**
- * Relative label of a detail page (§13.1), by Prague calendar days: "Za 15 dní", "Za 3 dny", "Zítra",
- * "Dnes", "Právě probíhá" (multi-day and long-term events), "Proběhlo".
+ * Relative label of a detail page (§13.1) at the instant `now`: "Za 15 dní", "Za 3 dny", "Zítra" (by Prague calendar
+ * days), then "Dnes", "Právě probíhá" (also a started long-term event), "Další setkání 25. 10.", and "Proběhlo".
  */
-export function relativeEventLabel(event: Pick<NewsEvent, "start" | "end">, today: IsoDate): string {
+export function relativeEventLabel(event: EventTiming, now: number): string {
   const { start } = event;
-  const end = eventEnd(event);
-  if (end < today) return EVENT_STATUS_LABEL.past;
-  if (start <= today) return end === start ? "Dnes" : EVENT_STATUS_LABEL.now;
+  const today = pragueDate(now);
+  if (isPast(event, today)) return EVENT_STATUS_LABEL.past;
+  if (start <= today) {
+    if (event.longTerm) return EVENT_STATUS_LABEL.now;
+    const progress = eventProgress(event, now);
+    if (progress?.kind === "next") return progressLabel(progress);
+    // One day without a clock time stays "Dnes"; so does the rest of the day after today's last meeting.
+    const known = eventEnd(event) > start || parseClock(event.time);
+    return progress?.kind === "now" && known ? progressLabel(progress) : "Dnes";
+  }
   const days = differenceInCalendarDays(pragueDateTime(start, "12:00"), pragueDateTime(today, "12:00"), {
     in: inPrague,
   });
@@ -109,8 +159,12 @@ export function eventMeetings(
   });
 }
 
+/** The fields that say when an event takes place (what a client component needs for its progress). */
+export type EventTiming = Pick<NewsEvent, "start" | "end" | "time" | "sessions" | "longTerm"> &
+  Partial<Pick<NewsEvent, "change" | "cancelledMeetings">>;
+
 /** The days the event takes place: each meeting of a series, the first day of a weekly one, else its span. */
-export function meetingsOf(event: NewsEvent): Meeting[] {
+export function meetingsOf(event: EventTiming): Meeting[] {
   if (event.sessions) return eventMeetings(event);
   const cancelled = isCancelled(event) && { cancelled: true as const };
   if (event.longTerm && event.longTerm !== true) {
@@ -176,7 +230,7 @@ export function groupEvents(events: NewsEvent[], today: IsoDate): EventGroup[] {
   const long: NewsEvent[] = [];
   const past: NewsEvent[] = [];
   for (const e of events.toSorted(byStart)) {
-    if (eventStatus(e, today) === "past") past.push(e);
+    if (isPast(e, today)) past.push(e);
     else if (e.longTerm) long.push(e);
     else {
       const month = e.start.slice(0, 7);
