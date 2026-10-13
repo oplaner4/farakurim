@@ -3,9 +3,7 @@ import { parishCalendars } from "@/content/site";
 import type { CalendarId } from "@/content/types/calendar";
 import { addToMonth, type IsoMonth, monthHeading } from "@/lib/calendar/agenda";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons/navigation-icons";
-
-const toolbarButton =
-  "flex min-h-11 cursor-pointer items-center justify-center rounded-12 border-thin border-line bg-raised font-bold hover:bg-surface disabled:cursor-default disabled:opacity-40 disabled:hover:bg-raised";
+import { ToolbarButton } from "@/components/ui/ToolbarButton";
 
 /** The filter colours; the labels are the calendars' names (`parishCalendars`). */
 const FILTERS: { id: CalendarId; on: string; off: string }[] = [
@@ -32,40 +30,31 @@ export function CalendarToolbar({ month, canGoBack, canGoForward, onShowMonth, o
   return (
     <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
       <div className="flex items-center gap-2">
-        <button
-          type="button"
+        <ToolbarButton
           data-js-only
           aria-label="Předchozí měsíc"
           disabled={!canGoBack}
           onClick={() => onShowMonth(addToMonth(month, -1))}
-          className={clsx(toolbarButton, "w-11 text-ink")}
         >
           <ChevronLeftIcon />
-        </button>
+        </ToolbarButton>
         <h2
           aria-live="polite"
           className="min-w-35 text-center text-18 font-bold md:min-w-42.5 md:text-20 lg:min-w-45 lg:text-22"
         >
           {monthHeading(month)}
         </h2>
-        <button
-          type="button"
+        <ToolbarButton
           data-js-only
           aria-label="Další měsíc"
           disabled={!canGoForward}
           onClick={() => onShowMonth(addToMonth(month, 1))}
-          className={clsx(toolbarButton, "w-11 text-ink")}
         >
           <ChevronRightIcon />
-        </button>
-        <button
-          type="button"
-          data-js-only
-          onClick={onToday}
-          className={clsx(toolbarButton, "px-3.5 text-15 text-blue-ink")}
-        >
+        </ToolbarButton>
+        <ToolbarButton data-js-only content="label" onClick={onToday}>
           Dnes
-        </button>
+        </ToolbarButton>
       </div>
       <div role="group" aria-label="Zobrazit" data-js-only className="flex flex-wrap gap-2">
         {FILTERS.map((filter) => (

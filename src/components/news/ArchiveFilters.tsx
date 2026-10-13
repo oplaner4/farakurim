@@ -3,7 +3,7 @@ import { type ChangeEvent, type RefObject, type SubmitEvent, useEffect, useRef }
 import Link from "next/link";
 import { links } from "@/content/site";
 import { QUERY_PARAM } from "@/lib/news/query-params";
-import { SearchIcon } from "@/components/ui/icons/navigation-icons";
+import { SearchField } from "@/components/ui/SearchField";
 
 type Props = {
   /** The search field's text (`useArchiveSearch`). */
@@ -45,19 +45,14 @@ export function ArchiveFilters({ value, inputRef, onChange, onSubmit, years, act
         <label htmlFor="hledat-v-archivu" className="text-14 font-bold lg:text-15">
           Hledat v archivu
         </label>
-        <div className="relative flex items-center">
-          <SearchIcon size={20} className="pointer-events-none absolute left-3.5 text-muted" />
-          <input
-            ref={inputRef}
-            id="hledat-v-archivu"
-            type="search"
-            name={QUERY_PARAM}
-            value={value}
-            onChange={onChange}
-            placeholder="např. pouť, koncert, Tišnov"
-            className="min-h-12.5 w-full rounded-14 border-thin border-field-line bg-raised pr-4 pl-11 text-16 text-ink placeholder:text-muted"
-          />
-        </div>
+        <SearchField
+          ref={inputRef}
+          id="hledat-v-archivu"
+          name={QUERY_PARAM}
+          value={value}
+          onChange={onChange}
+          placeholder="např. pouť, koncert, Tišnov"
+        />
       </form>
 
       <nav aria-labelledby="archiv-rok" className="flex flex-col gap-2">

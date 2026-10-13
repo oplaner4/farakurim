@@ -7,7 +7,7 @@ import type { Activity, ActivityGroup } from "@/content/types/activities";
 import { activityCount, ALL_GROUPS, filterActivities, seeksHelp } from "@/lib/activities/search";
 import { FilterPill } from "@/components/ui/FilterPill";
 import { ClockIcon, UserIcon } from "@/components/ui/icons/contact-icons";
-import { SearchIcon } from "@/components/ui/icons/navigation-icons";
+import { SearchField } from "@/components/ui/SearchField";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ArrowLink } from "@/components/ui/ArrowLink";
 
@@ -37,17 +37,13 @@ export function ActivityList({ groups }: { groups: ActivityGroup[] }) {
           <label htmlFor="hledat-aktivitu" className="text-15 font-bold">
             Hledat aktivitu nebo jméno
           </label>
-          <div className="relative flex max-w-140 items-center">
-            <SearchIcon size={20} className="pointer-events-none absolute left-3.5 text-muted" />
-            <input
-              id="hledat-aktivitu"
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="např. schola, úklid, Milan"
-              className="min-h-12.5 w-full rounded-14 border-thin border-field-line bg-raised pr-4 pl-11 text-16 text-ink placeholder:text-muted"
-            />
-          </div>
+          <SearchField
+            id="hledat-aktivitu"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="např. schola, úklid, Milan"
+            className="max-w-140"
+          />
           {/* Mobile: one scrolling row bleeding to the screen edges. Tablet and desktop: wrapping. */}
           <div
             role="group"

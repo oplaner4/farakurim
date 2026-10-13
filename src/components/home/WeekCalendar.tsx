@@ -25,6 +25,7 @@ import { useCalendarEntries } from "@/hooks/use-calendar-entries";
 import { useToday } from "@/hooks/use-now";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons/navigation-icons";
 import { ArrowLink } from "@/components/ui/ArrowLink";
+import { ToolbarButton } from "@/components/ui/ToolbarButton";
 import { CalendarItemTitle } from "@/components/calendar/CalendarItemTitle";
 
 type Props = {
@@ -36,9 +37,6 @@ type Props = {
   linkablePages: string[];
   renderedAt: number;
 };
-
-const weekButton =
-  "flex size-11 cursor-pointer items-center justify-center rounded-12 border-thin border-line bg-raised text-ink hover:border-blue hover:text-blue-ink disabled:cursor-default disabled:opacity-40 disabled:hover:border-line disabled:hover:text-ink";
 
 /**
  * "Tento týden" (design/DESIGN.md §4.3a): Monday to Sunday of the current week, with buttons for the previous and
@@ -84,26 +82,24 @@ export function WeekCalendar({ entries, range: prerendered, linkablePages, rende
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            type="button"
+          <ToolbarButton
             data-js-only
-            className={weekButton}
+            tone="blue"
             aria-label="Předchozí týden"
             disabled={!canGo(-1)}
             onClick={() => setOffset((o) => o - 1)}
           >
             <ChevronLeftIcon size={20} />
-          </button>
-          <button
-            type="button"
+          </ToolbarButton>
+          <ToolbarButton
             data-js-only
-            className={weekButton}
+            tone="blue"
             aria-label="Další týden"
             disabled={!canGo(1)}
             onClick={() => setOffset((o) => o + 1)}
           >
             <ChevronRightIcon size={20} />
-          </button>
+          </ToolbarButton>
           <ArrowLink href={links.calendar} tone="blue" iconClassName="max-lg:hidden" className="ml-1">
             Celý kalendář
           </ArrowLink>

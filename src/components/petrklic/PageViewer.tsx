@@ -7,13 +7,11 @@ import { useFadeInOnLoad } from "@/hooks/use-fade-in-on-load";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons/navigation-icons";
 import { ArrowLink } from "@/components/ui/ArrowLink";
+import { ToolbarButton } from "@/components/ui/ToolbarButton";
 
 type Props = {
   issue: PetrklicIssue & { pageImages: string[] };
 };
-
-const navButton =
-  "flex size-11 items-center justify-center rounded-12 border-thin border-line bg-raised text-ink hover:border-orange disabled:opacity-40 disabled:hover:border-line";
 
 /**
  * "Listujte přímo zde" (design/DESIGN.md §17.1): pre-rendered page images with prev/next. Desktop shows a
@@ -39,29 +37,27 @@ export function PageViewer({ issue }: Props) {
       </div>
       <div className="flex flex-col overflow-hidden rounded-20 border border-line bg-surface">
         <div className="flex items-center justify-center gap-4 border-b border-line bg-raised p-2.5">
-          <button
-            type="button"
+          <ToolbarButton
+            tone="orange"
             aria-label="Předchozí strana"
             disabled={view.pages[0] === 1}
             onClick={() => setPage(stepPage(page, -1, total, spread))}
             data-js-only
-            className={navButton}
           >
             <ChevronLeftIcon />
-          </button>
+          </ToolbarButton>
           <span aria-live="polite" className="min-w-30 text-center font-bold">
             {view.label}
           </span>
-          <button
-            type="button"
+          <ToolbarButton
+            tone="orange"
             aria-label="Další strana"
             disabled={view.pages.at(-1) === total}
             onClick={() => setPage(stepPage(page, 1, total, spread))}
             data-js-only
-            className={navButton}
           >
             <ChevronRightIcon />
-          </button>
+          </ToolbarButton>
         </div>
         <div className="flex justify-center gap-4 p-6">
           {view.pages.map((n) => (
