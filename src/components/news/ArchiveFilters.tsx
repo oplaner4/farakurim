@@ -2,7 +2,6 @@ import { clsx } from "clsx";
 import { type ChangeEvent, type RefObject, type SubmitEvent, useEffect, useRef } from "react";
 import Link from "next/link";
 import { links } from "@/content/site";
-import { archiveYearHref, type ArchiveYear } from "@/lib/news/archive";
 import { QUERY_PARAM } from "@/lib/news/query-params";
 import { SearchIcon } from "@/components/ui/icons/navigation-icons";
 
@@ -12,8 +11,9 @@ type Props = {
   inputRef: RefObject<HTMLInputElement | null>;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: SubmitEvent<HTMLFormElement>) => void;
-  years: (ArchiveYear & { count: number })[];
-  /** The current year's button; none while searching (a search covers all years). */
+  /** The year buttons, and while searching "Všechny roky" (slug "", the default page) first. */
+  years: { slug: string; label: string; count: number; href: string }[];
+  /** The current page's button; none on the default page without a search. */
   activeSlug?: string;
 };
 
@@ -73,7 +73,7 @@ export function ArchiveFilters({ value, inputRef, onChange, onSubmit, years, act
             return (
               <li key={y.slug} className="flex-none">
                 <Link
-                  href={archiveYearHref(y.slug)}
+                  href={y.href}
                   scroll={false}
                   aria-current={active ? "page" : undefined}
                   className={clsx(

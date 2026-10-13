@@ -31,6 +31,12 @@ export function eventCount(verb: "Nalezen" | "Zobrazen", n: number, of?: number)
   return `${participle} ${n === 1 ? "jedna" : n} ${plural(n, ["akce", "akce", "akcí"])}`;
 }
 
+/** "Nalezeny 3 akce", "Nalezeny 3 akce v roce 2024", "Nalezeno 25 akcí, zobrazeno prvních 20" */
+export function foundCount(total: number, shown: number, year?: string): string {
+  const inYear = year ? ` v roce ${year}` : "";
+  return `${eventCount("Nalezen", total)}${inYear}${shown < total ? `, zobrazeno prvních ${shown}` : ""}`;
+}
+
 export function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }

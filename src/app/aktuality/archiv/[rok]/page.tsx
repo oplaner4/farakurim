@@ -4,10 +4,11 @@ import { ARCHIVE_YEARS, ArchivePage } from "@/components/news/ArchivePage";
 import { events } from "@/content/news";
 import { archiveYearHref, archiveYears } from "@/lib/news/archive";
 
-// Static export: every year button other than the default (the newest year) has a page.
+// Static export: every year button has a page (the newest year's is also the default page's list, but a search
+// there stays in that year).
 export const dynamicParams = false;
 
-const years = archiveYears(ARCHIVE_YEARS).filter((y) => y.slug !== "");
+const years = archiveYears(ARCHIVE_YEARS);
 
 export function generateStaticParams() {
   return years.map((y) => ({ rok: y.slug }));

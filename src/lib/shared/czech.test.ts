@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   atClockTime,
   eventCount,
+  foundCount,
   eventDateBlock,
   fileType,
   formatCompactDate,
@@ -33,6 +34,18 @@ describe("eventCount", () => {
     ["Zobrazen", 20, 34, "Zobrazeno 20 z 34 akcí"],
   ] as const)("%s %i (z %s) → %s", (verb, n, of, expected) => {
     expect(eventCount(verb, n, of)).toBe(expected);
+  });
+});
+
+describe("foundCount", () => {
+  it.each([
+    [3, 3, undefined, "Nalezeny 3 akce"],
+    [1, 1, "2024", "Nalezena jedna akce v roce 2024"],
+    [0, 0, "2024", "Nalezeno 0 akcí v roce 2024"],
+    [25, 20, undefined, "Nalezeno 25 akcí, zobrazeno prvních 20"],
+    [45, 40, "2026", "Nalezeno 45 akcí v roce 2026, zobrazeno prvních 40"],
+  ] as const)("%i (shown %i, year %s) → %s", (total, shown, year, expected) => {
+    expect(foundCount(total, shown, year)).toBe(expected);
   });
 });
 

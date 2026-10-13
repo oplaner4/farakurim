@@ -53,14 +53,14 @@ type Props = {
   items: ArchiveItem[];
   /** Years of the year buttons, newest first (`archiveYearList`), fixed at build time. */
   years: number[];
-  /** This page's year button. */
+  /** This page's year button; "" on the default page. */
   yearSlug: string;
   renderedAt: number;
 };
 
 /**
- * Archiv aktualit (design/DESIGN.md §12): search, year links (static pages), count, rows grouped by month
- * and paging. The prerendered HTML is the year's first page without a search (the Suspense fallback);
+ * Archiv aktualit (design/DESIGN.md §12): search (in the page's year, or in all years on the default page), year
+ * links (static pages), count, rows grouped by month and paging. The prerendered HTML is the year's first page without a search (the Suspense fallback);
  * `?q=` and `?strana=` replace it after hydration.
  */
 export function NewsArchive(props: Props) {
@@ -93,7 +93,7 @@ function NewsArchiveView({
   const loadMore = useLoadMore(page, setParams && ((next) => setParams({ page: next }, { history: "push" })));
   const { value, search, inputRef, onChange, onSubmit, clear } = useArchiveSearch(rawQuery, setParams);
   const query = search.trim();
-  const { years, year, previous, matching, groups, shownCount, countLabel } = archiveListing(items, {
+  const { years, allCount, year, previous, matching, groups, shownCount, countLabel } = archiveListing(items, {
     years: yearList,
     yearSlug,
     query,
@@ -102,6 +102,12 @@ function NewsArchiveView({
   });
 
   const moreHref = archiveHref({ query: query && search, page: page + 1 });
+  // While searching, the year buttons keep the search, and "Všechny roky" (the default page) searches every year.
+  const searchParams = archiveHref({ query: query && search });
+  const yearLinks = [...(query ? [{ slug: "", label: "Všechny roky", count: allCount }] : []), ...years].map((y) => ({
+    ...y,
+    href: archiveYearHref(y.slug) + searchParams,
+  }));
   const countProps = { label: countLabel, searching: query !== "", onClear: clear };
 
   return (
@@ -113,8 +119,8 @@ function NewsArchiveView({
           inputRef={inputRef}
           onChange={onChange}
           onSubmit={onSubmit}
-          years={years}
-          activeSlug={query ? undefined : year.slug}
+          years={yearLinks}
+          activeSlug={year?.slug ?? (query ? "" : undefined)}
         />
         <ResultCount {...countProps} className="lg:hidden" />
         <BackLink className="max-lg:hidden" />

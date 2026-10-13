@@ -33,16 +33,16 @@ describe("archive", () => {
     expect(archiveYearList([event("x", "2025-12-24")], "2026-01-02")).toEqual([2025]);
   });
 
-  it("gives every year a button, the newest as the default", () => {
+  it("gives every year a button and a page", () => {
     const archived = archivedEvents(list, TODAY);
     const years = archiveYears([2026, 2025, 2023]);
     expect(years.map((y) => [y.slug, y.label])).toEqual([
-      ["", "2026"],
+      ["2026", "2026"],
       ["2025", "2025"],
       ["2023", "2023"],
     ]);
     expect(years.map((y) => archived.filter(y.matches).length)).toEqual([5, 1, 1]);
-    // Events of a newer year stay on the default page until a rebuild adds their button.
+    // Events of a newer year stay in the newest year until a rebuild adds their button.
     expect(archiveYears([2025])[0].matches(event("new", "2026-01-02"))).toBe(true);
     expect(archiveYears([2026, 2025])[1].matches(event("new", "2026-01-02"))).toBe(false);
   });
@@ -94,18 +94,41 @@ describe("archiveListing", () => {
 
   it("offers the year before, except on the oldest year and while searching", () => {
     expect(listing({}).previous?.slug).toBe("2025");
+    expect(listing({ yearSlug: "2026" }).previous?.slug).toBe("2025");
     expect(listing({ yearSlug: "2025" }).previous).toBeUndefined();
     expect(listing({ query: "pout" }).previous).toBeUndefined();
   });
 
-  it("falls back to the newest year for an unknown slug", () => {
-    expect(listing({ yearSlug: "starsi" }).year.slug).toBe("");
+  it("lists the newest year on the default page, without selecting it", () => {
+    const l = listing({});
+    expect(l.year).toBeUndefined();
+    expect(l.matching).toEqual(listing({ yearSlug: "2026" }).matching);
+    expect(listing({ yearSlug: "starsi" }).year).toBeUndefined();
+    expect(listing({ yearSlug: "2025" }).year?.label).toBe("2025");
   });
 
-  it("searches across all years and names the result count", () => {
-    const l = listing({ yearSlug: "2025", query: "pout" });
+  it("searches all years on the default page, counting the matches of each year", () => {
+    expect(listing({ query: "2025-" }).matching.map((e) => e.id)).toEqual(["2025-1", "2025-0"]);
+    const pout = listing({ query: "pout" });
+    expect(pout.matching.map((e) => e.id)).toEqual(["pout"]);
+    expect(pout.countLabel).toBe("Nalezena jedna akce");
+    expect([pout.allCount, ...pout.years.map((y) => y.count)]).toEqual([1, 1, 0]);
+  });
+
+  it("searches only the page's year on a year page", () => {
+    expect(listing({ yearSlug: "2025", query: "pout" }).matching).toEqual([]);
+    expect(listing({ yearSlug: "2025", query: "pout" }).countLabel).toBe("Nalezeno 0 akcí v roce 2025");
+    const l = listing({ yearSlug: "2026", query: "pout" });
     expect(l.matching.map((e) => e.id)).toEqual(["pout"]);
-    expect(l.countLabel).toBe("Nalezena jedna akce");
-    expect(listing({ yearSlug: "2025" }).year.label).toBe("2025");
+    expect(l.year?.slug).toBe("2026");
+  });
+
+  it("names the shown part of a longer search result", () => {
+    // The fixture titles are the IDs ("2026-3"), so "20" matches every event but the Pouť.
+    expect(listing({ query: "20" }).countLabel).toBe("Nalezeno 27 akcí, zobrazeno prvních 20");
+    expect(listing({ yearSlug: "2026", query: "20" }).countLabel).toBe(
+      "Nalezeno 25 akcí v roce 2026, zobrazeno prvních 20",
+    );
+    expect(listing({ yearSlug: "2026", query: "20", page: 2 }).countLabel).toBe("Nalezeno 25 akcí v roce 2026");
   });
 });

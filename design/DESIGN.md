@@ -582,15 +582,16 @@ replaces the old archive with its "Vytvořeno" dropdown and `takeCount` /
 
 1. Breadcrumb `Úvod › Aktuality › Archiv`, H1 "Archiv aktualit" (32 / 42 / 52 px) with the magenta shard, one-line intro "Proběhlé akce, pozvánky a plakáty farnosti."
 2. **Search and year filter.** Mobile: stacked. Tablet: one surface panel with the search box and the year buttons side by side. Desktop: a **left side panel** (`flex: 1 1 280px`) next to the list (`flex: 999 1 600px`), with "Zpět na aktuality" at its bottom.
-3. Result count ("Zobrazeno 21 akcí"; search: "Nalezena jedna akce" / "Nalezeny 3 akce" (2–4) / "Nalezeno 5 akcí" (0 and 5+); the same forms with "Zobrazen-", `aria-live="polite"`) and, while searching, a "Zrušit hledání" text button.
+3. Result count ("Zobrazeno 21 akcí"; search: "Nalezena jedna akce" / "Nalezeny 3 akce" (2–4) / "Nalezeno 5 akcí" (0 and 5+), on a year page "Nalezeny 3 akce v roce 2024", with more to load "Nalezeno 25 akcí, zobrazeno prvních 20"; the same forms with "Zobrazen-", `aria-live="polite"`) and, while searching, a "Zrušit hledání" text button.
 4. **List grouped by month, newest first** ("Srpen 2026", "Červenec 2026"…; magenta-ink H2 18 / 20 / 22 px).
 5. "Načíst starší" (magenta outline) and "Zpět na aktuality".
 
 ### 12.2 Search and years
 
 - `<label>` "Hledat v archivu" plus `<input type="search">` (50 px tall, radius 14, border `#7D8A9B`, which meets the 3:1 boundary contrast; magnifier icon inside on the left). Placeholder "např. pouť, koncert, Tišnov".
-- Search looks in the **title and place across all years**. While a search is active, no year is selected.
-- **All years are visible** as year buttons, from the newest down to **2019** (where the archive starts), each with its count in a lighter weight ("2024 25"). There is no "Starší" bucket and no hidden years. Active: magenta with white text. Default: the year of the most recent archived event.
+- Search looks in the **title and place**: on the default page (`/aktuality/archiv/`) **across all years**, on a year page (`/aktuality/archiv/2024/`) **in that year only**, which stays selected.
+- **All years are visible** as year buttons, from the newest down to **2019** (where the archive starts), each with its count in a lighter weight ("2024 25"). There is no "Starší" bucket and no hidden years. Active: magenta with white text. Every year, the newest included, has its own page; the default page lists the year of the most recent archived event with no button selected.
+- **While searching**, a **"Všechny roky"** button comes first (the default page, selected there), every count is the number of matches ("Všechny roky 12 · 2026 3 · 2025 0 …"), and the buttons keep the search (`/aktuality/archiv/2024/?q=pout`), so a visitor moves between all years and one year without retyping.
   - Mobile: one **horizontally scrolling row** of pills that bleeds to the screen edges (scroll the active pill into view on load).
   - Tablet: pills that wrap onto a second row.
   - Desktop: a full-width vertical list in the sidebar.
@@ -618,7 +619,7 @@ A year shows its **first 20 events** (newest first, grouped by month) and the co
 "Zobrazeno 20 z 25 akcí" (while more are left; the genitive "akcí" is always used after "z"). Under the list:
 - **"Načíst další"** (magenta outline button) appends the next 20 events of the same year (`?rok=2026&strana=2`, keeps `q`).
 - Once the whole year is loaded, the button is replaced by **"Rok 2025 →"**, which opens the previous year from its start (`?rok=2025`) and scrolls to the top of the list. It is not shown on the oldest year (2019).
-- Search results across all years page the same way (20 at a time with "Načíst další"); the year button is not shown during a search.
+- Search results page the same way (20 at a time with "Načíst další"); the "Rok 2025 →" button is not shown during a search.
 - Changing the year or the search text resets the paging.
 The archive uses the same event record as section 11.7. An event appears in the
 archive the day after its end date. A manual "archived" flag is no longer needed,

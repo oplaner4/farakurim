@@ -16,6 +16,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     links.home,
     links.news,
     ...events.map(eventHref),
+    links.newsArchive,
     ...archiveYears(ARCHIVE_YEARS).map((y) => archiveYearHref(y.slug)),
     links.services,
     links.calendar,
