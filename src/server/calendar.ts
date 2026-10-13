@@ -12,9 +12,9 @@ import { GOOGLE_CALENDAR_API_KEY, parishCalendars, SITE_URL } from "@/content/si
 import type { CalendarEntry, CalendarId } from "@/content/types/calendar";
 import { currentExceptions } from "./services";
 
-// The two parish calendars (design/DESIGN.md §16.4), read at build time. Server-only: it imports all Aktuality.
+// The two parish calendars (design/DESIGN.md §16.4), read at build time. Server-only: it imports all events.
 
-/** Aktuality older than this when the site is built have no calendar entries left to link (keeps the pages short). */
+/** Events older than this when the site is built have no calendar entries left to link (keeps the pages short). */
 const linkedSince = pragueDate(subYears(BUILD_TIME, 1));
 
 /** The detail pages an Události event's description may link to: the records that ended within the last year. */
@@ -22,7 +22,7 @@ export const linkablePages: string[] = events.filter((e) => eventEnd(e) >= linke
 
 /**
  * Entries of both calendars in `range`: from Google Calendar when an API key is set, otherwise fallback entries
- * generated from the regular schedule and the Aktuality records. A failing API fails the build, so a deploy
+ * generated from the regular schedule and the event records. A failing API fails the build, so a deploy
  * never ships an empty calendar.
  */
 export async function loadCalendarEntries(range: DateRange): Promise<CalendarEntry[]> {

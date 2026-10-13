@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { relative, sep } from "node:path";
 import * as z from "zod";
 
-// Reading a JSON content file that is read rather than imported (the Aktuality month files, and every file the
+// Reading a JSON content file that is read rather than imported (the event month files, and every file the
 // content scripts change), checked by its schema: a broken file throws naming the file and the field.
 
 /** `input` checked by `schema`; throws "<what> is not valid:" with every problem. */

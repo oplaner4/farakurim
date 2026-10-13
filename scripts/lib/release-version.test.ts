@@ -6,14 +6,16 @@ import { nextVersion, releaseBump } from "./release-version";
 
 describe("releaseBump", () => {
   it("is minor when a feature is among the commits", () => {
-    expect(releaseBump(["fix(news): keep the poster ratio", "feat(mass): support two-week ohlášky"])).toBe("minor");
+    expect(releaseBump(["fix(news): keep the poster ratio", "feat(mass): support two-week service sheets"])).toBe(
+      "minor",
+    );
     expect(releaseBump(["feat: add the Kronika page"])).toBe("minor");
     expect(releaseBump(["feat!: drop the old URLs"])).toBe("minor");
     expect(releaseBump(["feat(news)!: change the detail URLs"])).toBe("minor");
   });
 
   it("is a patch for content features and everything else", () => {
-    expect(releaseBump(["feat(content): add the Drakiáda aktualita"])).toBe("patch");
+    expect(releaseBump(["feat(content): add the Drakiáda event"])).toBe("patch");
     expect(releaseBump(["feat(content)!: rename the album ids"])).toBe("patch");
     expect(releaseBump(["fix(carousel): keep the slide aligned", "chore(deps): update next", "docs: readme"])).toBe(
       "patch",

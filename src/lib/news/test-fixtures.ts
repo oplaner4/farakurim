@@ -1,7 +1,7 @@
 import type { NewsEvent } from "@/content/types/news";
 import { pragueDateTime } from "@/lib/shared/prague";
 
-// Events shared by the Aktuality and archive tests.
+// Events shared by the event and archive tests.
 
 export const event = (id: string, start: string, end?: string, extra: Partial<NewsEvent> = {}): NewsEvent => ({
   id,

@@ -20,10 +20,10 @@ export type CalendarEntry = {
   /** Start time; omitted for all-day entries ("celý den"). */
   time?: ClockTime;
   place?: string;
-  /** Detail page of the matching Aktuality record. */
+  /** Detail page of the matching event record. */
   href?: string;
   /**
-   * Does not take place, but stays in its day (design/DESIGN.md §11.9): a cancelled Aktuality record or meeting, or a
+   * Does not take place, but stays in its day (design/DESIGN.md §11.9): a cancelled event record or meeting, or a
    * Události event whose title starts with "Zrušeno: ".
    */
   cancelled?: true;

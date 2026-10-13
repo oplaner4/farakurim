@@ -18,7 +18,7 @@ export const NEW_TAB = { target: "_blank", rel: "noopener noreferrer" } as const
 /** Spread on an `<a>` whose href may lead elsewhere: external links open in a new tab. */
 export const externalLinkAttrs = (href: string | undefined) => (isExternalHref(href) ? NEW_TAB : {});
 
-/** The same for links inside content HTML (Aktuality, ohlášky). */
+/** The same for links inside content HTML (events, service sheets). */
 export const withExternalLinkTargets = (html: string) =>
   html.replace(/<a\s([^>]*?)href="([^"]*)"([^>]*)>/g, (tag, before: string, href: string, after: string) =>
     isExternalHref(href) && !/\starget=/.test(tag)

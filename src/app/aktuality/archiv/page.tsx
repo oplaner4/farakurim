@@ -8,6 +8,6 @@ export const metadata: Metadata = {
   description: "Proběhlé akce, pozvánky a plakáty farnosti Kuřim.",
 };
 
-export default function ArchivDefaultPage() {
+export default function NewsArchivePage() {
   return <ArchivePage yearSlug="" />;
 }

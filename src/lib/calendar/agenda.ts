@@ -250,7 +250,7 @@ export function scheduleEntries(
 }
 
 /**
- * "Události" occurrences of the Aktuality records: one entry per event, one per meeting of a series
+ * "Události" occurrences of the event records: one entry per event, one per meeting of a series
  * (`sessions`) or one per week of a weekly series (`longTerm.weeklyAt`). Long-term events without a meeting day
  * are left out.
  */

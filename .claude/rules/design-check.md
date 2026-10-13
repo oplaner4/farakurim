@@ -24,5 +24,5 @@ screenshots plus block positions (`getBoundingClientRect()` of each `section[ari
   and video thumbnails instead of tinted boxes, the Společenství
   mládeže poster shown whole as its hero, the old site's full texts (Kronika, Schola "O nás") instead of the
   mockups' shortened ones, real Petrklíč covers and pages instead of
-  `[obálka]` / `[strana]`, the ohlášky intentions left out (or shown) instead of `[úmysl]` / `[jméno]`, and calendar entries: the build
-  links every Aktuality event and keeps a mass in the services calendar when an event shares its time.
+  `[obálka]` / `[strana]`, the service sheet intentions left out (or shown) instead of `[úmysl]` / `[jméno]`, and calendar entries: the build
+  links every event and keeps a mass in the services calendar when an event shares its time.

@@ -2,7 +2,7 @@
 // (node_modules/next/dist/docs/01-app/02-guides/custom-server.md) that also answers /uploads/… and
 // /virtualni_prohlidka/ like the web host (scripts/lib/server-files.mjs).
 // /favicon.ico, which browsers request by default, is redirected to the SVG icon: the site has no .ico, and the
-// [...stranka] catch-all would answer it with a "missing param in generateStaticParams()" error in dev.
+// [...path] catch-all would answer it with a "missing param in generateStaticParams()" error in dev.
 // Only `pnpm dev` uses it; `pnpm build` stays a plain static export, which `pnpm preview` serves (scripts/preview.mjs).
 import { createServer } from "node:http";
 import { fileURLToPath } from "node:url";

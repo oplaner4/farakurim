@@ -36,7 +36,7 @@ English (questions, confirmations, summaries, reports); only the site content yo
 
 ## Deployment
 
-`pnpm release` (`scripts/release.sh`) releases (how it works: `docs/deployment.md`), and the `farnost-release` skill
+`pnpm release` (`scripts/release.sh`) releases (how it works: `docs/deployment.md`), and the `parish-release` skill
 says how an agent runs it. What an agent must never get wrong:
 
 - Pushing a release tag `vX.Y.Z` **publishes the site** (GitHub Actions deploys it; pushes to `main` are only a

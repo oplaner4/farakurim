@@ -1,5 +1,5 @@
 // Content files: the repo's paths, writing a JSON content file (reading one is readJsonFile(),
-// src/lib/shared/json-file.ts), the aktuality IDs and month files, and formatting and testing the files written.
+// src/lib/shared/json-file.ts), the event IDs and month files, and formatting and testing the files written.
 
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -11,18 +11,18 @@ import type { NewsEvent } from "@/content/types/news";
 
 export const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 export const NEWS_DIR = join(ROOT, "src/content/news");
-export const OHLASKY_FILE = join(ROOT, "src/content/ohlasky.json");
+export const SERVICE_SHEETS_FILE = join(ROOT, "src/content/service-sheets.json");
 export const GALLERY_FILE = join(ROOT, "src/content/gallery.json");
 export const PETRKLIC_FILE = join(ROOT, "src/content/petrklic.json");
 export const EXCEPTIONS_FILE = join(ROOT, "src/content/schedule-exceptions.json");
-/** The tests of the ohlášky and the changes announced for later, which a sheet prunes. */
-export const OHLASKY_TESTS = ["src/content/ohlasky.test.ts", "src/content/schedule-exceptions.test.ts"];
+/** The tests of the service sheets and the changes announced for later, which a sheet prunes. */
+export const SERVICE_SHEETS_TESTS = ["src/content/service-sheets.test.ts", "src/content/schedule-exceptions.test.ts"];
 
 /** Writes `data` to the JSON content file `file`; Prettier formats it later. */
 export const writeContentFile = (file: string, data: unknown) =>
   writeFileSync(file, `${JSON.stringify(data, null, 2)}\n`);
 
-/** The IDs of every aktualita in the news folder `newsDir`; a broken month file throws, naming it. */
+/** The IDs of every event in the news folder `newsDir`; a broken month file throws, naming it. */
 export const newsIds = (newsDir: string) => new Set(readEvents(newsDir).map((e) => e.id));
 
 /** Writes the month file `file` (`<year>/<MM>.json`) under `newsDir`, creating its year folder; Prettier formats it later. */

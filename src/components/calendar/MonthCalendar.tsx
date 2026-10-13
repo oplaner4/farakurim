@@ -19,7 +19,7 @@ type Props = {
    * The prerendered months. Without an API key nothing else can be loaded, so paging stops at them.
    */
   months: { first: IsoMonth; last: IsoMonth };
-  /** The Aktuality detail pages Události events may link to. */
+  /** The event detail pages Události events may link to. */
   linkablePages: string[];
   renderedAt: number;
   /** "Kalendář v telefonu", under the day detail. */

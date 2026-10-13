@@ -13,5 +13,5 @@ paths:
   - `{...NEW_TAB}` on an `<a>` that always leads elsewhere (`mapHref()`);
   - `{...externalLinkAttrs(href)}` on an `<a>` whose href may be either (content links, generic components);
   - `ButtonLink` applies it by itself;
-  - content HTML (Aktuality `body`, ohlášky `html`) goes through `withExternalLinkTargets()` where it is rendered,
-    so the `farnost-create-*` skills write plain `<a href="…">`.
+  - content HTML (event `body`, service sheet `html`) goes through `withExternalLinkTargets()` where it is rendered,
+    so the `parish-create-*` skills write plain `<a href="…">`.

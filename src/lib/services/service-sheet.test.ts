@@ -264,9 +264,9 @@ describe("markChanges", () => {
 describe("sortAnnouncements", () => {
   it("puts changes first and keeps the editor's order otherwise", () => {
     const items: Announcement[] = [
-      { category: "smireni", html: "a" },
+      { category: "confession", html: "a" },
       { category: "info", html: "b" },
-      { category: "zmena", html: "c" },
+      { category: "change", html: "c" },
     ];
     expect(sortAnnouncements(items).map((a) => a.html)).toEqual(["c", "a", "b"]);
   });

@@ -1,7 +1,7 @@
 import type { ClockTime, IsoDate, Weekday } from "./shared";
 
-// Pořad bohoslužeb (masses.ts, ohlasky.json, schedule-exceptions.json): the parish churches, the weekly schedule,
-// the ohlášky and the changes announced for later.
+// Services (masses.ts, service-sheets.json, schedule-exceptions.json): the parish churches, the weekly schedule,
+// the service sheets and the changes announced for later.
 
 /** The parish churches' places, the one list of PlaceId (the schema checks the content against it). */
 export const PLACE_IDS = ["kurim", "moravske-kninice", "jinacovice"] as const;
@@ -55,8 +55,8 @@ export type ScheduleException = {
   reason?: string;
 };
 
-/** The ohlášky (src/content/ohlasky.json): the sheets by `validFrom`. */
-export type OhlaskyFile = {
+/** The service sheets (src/content/service-sheets.json): the sheets by `validFrom`. */
+export type ServiceSheetsFile = {
   sheets: ServiceSheetRecord[];
 };
 
@@ -68,10 +68,10 @@ export type ScheduleExceptionsFile = {
   exceptions: ScheduleException[];
 };
 
-/** Category of an announcement in the ohlášky (design/DESIGN.md §14.5); it sets the label and its colour. */
-export type AnnouncementCategory = "zmena" | "smireni" | "pozvanka" | "podekovani" | "info";
+/** Category of an announcement in a service sheet (design/DESIGN.md §14.5); it sets the label and its colour. */
+export type AnnouncementCategory = "change" | "confession" | "invitation" | "thanks" | "info";
 
-/** One announcement from the ohlášky, word for word (§14.5). */
+/** One announcement from a service sheet, word for word (§14.5). */
 export type Announcement = {
   category: AnnouncementCategory;
   /**
@@ -79,11 +79,11 @@ export type Announcement = {
    * files) or be sanitised first.
    */
   html: string;
-  /** ID of the related Aktuality record: adds "Více v aktualitách". */
+  /** ID of the related event record: adds "Více v aktualitách". */
   newsId?: string;
 };
 
-/** A row of the weekly schedule in the ohlášky (§14.6): "8:00 | Kuřim | Mše sv. – za …". */
+/** A row of the weekly schedule in a service sheet (§14.6): "8:00 | Kuřim | Mše sv. – za …". */
 export type SheetRow = {
   time: ClockTime;
   /** A parish church, or free text for other places ("Vranov"). */
@@ -116,11 +116,11 @@ export type SheetDay = {
 };
 
 /**
- * The ohlášky of one week as structured content (§14.7): the "Tento týden" panel, the weekly schedule and,
+ * One week's service sheet as structured content (§14.7): the "Tento týden" panel, the weekly schedule and,
  * through the changed rows, the schedule exceptions for the next mass and the calendar.
  */
 export type ServiceSheet = {
-  /** The printed ohlášky, computed from `validFrom` and `rev` (toSheet() in src/lib/services/service-sheet.ts). */
+  /** The printed service sheet, computed from `validFrom` and `rev` (toSheet() in src/lib/services/service-sheet.ts). */
   pdfUrl: string;
   validFrom: IsoDate;
   validTo: IsoDate;
@@ -131,7 +131,7 @@ export type ServiceSheet = {
   announcements: Announcement[];
 };
 
-/** One sheet as stored in src/content/ohlasky.json: the PDF's URL is computed. */
+/** One sheet as stored in src/content/service-sheets.json: the PDF's URL is computed. */
 export type ServiceSheetRecord = Omit<ServiceSheet, "pdfUrl">;
 
 /** The Intence card (§14.1, 3a): how to have a mass said for one's intention. */

@@ -6,7 +6,7 @@ import { currentSheet } from "@/lib/services/service-sheet";
 import { useToday } from "@/hooks/use-now";
 
 type Props = {
-  /** One server-rendered node per ohlášky sheet, sorted by `validFrom`. */
+  /** One server-rendered node per service sheet, sorted by `validFrom`. */
   items: { validFrom: IsoDate; node: ReactNode }[];
   renderedAt: number;
 };

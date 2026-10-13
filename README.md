@@ -18,7 +18,7 @@ Working on it with Claude Code: `CLAUDE.md` adds the rules an agent follows on t
 - **poppler-utils** (`pdftoppm`, `pdfinfo`, `pdftotext`, `pdfseparate`, `pdfunite`) for the PDFs of `pnpm stage`;
   its tests skip the PDF cases without it
 - **LibreOffice** (`soffice` on the `PATH` or in its usual install folder), or **Word** on Windows, to convert the
-  pořad bohoslužeb DOCX with `pnpm stage porad`; its tests skip the conversion without LibreOffice
+  parish's service sheet DOCX with `pnpm stage sheet`; its tests skip the conversion without LibreOffice
 - Optional: `pip install --user fonttools brotli` to regenerate the web fonts (`pnpm fonts`), and PHP to try
   `public/biblicky-citat.php` locally (`php -S`)
 
@@ -42,7 +42,7 @@ cp .env.local.example .env.local
 
 - **`NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY`**: the Kalendář page and the homepage week calendar read the parish's two
   public Google Calendars. Without the key they show entries generated from the regular mass schedule and the
-  Aktuality records. The key ends up in the published JavaScript, so restrict it in Google Cloud to the
+  event records. The key ends up in the published JavaScript, so restrict it in Google Cloud to the
   `farakurim.cz` referrer and the Google Calendar API.
 - **`NEXT_PUBLIC_MATOMO_URL`** and **`NEXT_PUBLIC_MATOMO_SITE_ID`**: anonymous statistics (see below). Leave them
   empty locally so development visits are not counted.
@@ -89,13 +89,13 @@ Content tooling, used by the content skills (see [Content](#content)):
 
 | Command                                                         | What it does                                                                                                                                                        |
 | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm stage aktualita\|porad\|petrklic … [--check]`             | Stage files in `uploads/`; petrklic adds the issue to `petrklic.json`, the others add a `--record` (without one, only `--check`); `--corrected` for corrected files |
-| `pnpm add-aktualita <record.json> [--check]`                    | Add an aktualita to its month's JSON file in `src/content/news/`, checked by its schema                                                                             |
-| `pnpm replace-aktualita <record.json> [--check]`                | Correct the aktualita with the record's id, keeping its `published` and pin; a new start month moves it to that month's file                                        |
-| `pnpm pin-aktualita <id> \| --none [--check]`                   | Pin an aktualita for "Doporučujeme" and unpin every other one (`--none`: unpin all); a pinned new record moves the pin itself                                       |
-| `pnpm poster-aktualita <id> "<label>" \| --none [--check]`      | Make an attachment of the aktualita its poster (rendering `<file>-poster.webp`), or remove the poster                                                               |
-| `pnpm aktualita-calendar <id> [--out <dir>]`                    | Check that the aktualita's Události event links its page and has `Zrušeno: ` when cancelled; else write the `.ics`                                                  |
-| `pnpm add-exception <record.json> \| --remove <date> [--check]` | Add a change announced for a day no ohlášky sheet covers to `schedule-exceptions.json` (`--remove`: take it out)                                                    |
+| `pnpm stage event\|sheet\|petrklic … [--check]`                 | Stage files in `uploads/`; petrklic adds the issue to `petrklic.json`, the others add a `--record` (without one, only `--check`); `--corrected` for corrected files |
+| `pnpm add-event <record.json> [--check]`                        | Add an event to its month's JSON file in `src/content/news/`, checked by its schema                                                                                 |
+| `pnpm replace-event <record.json> [--check]`                    | Correct the event with the record's id, keeping its `published` and pin; a new start month moves it to that month's file                                            |
+| `pnpm pin-event <id> \| --none [--check]`                       | Pin an event for "Doporučujeme" and unpin every other one (`--none`: unpin all); a pinned new record moves the pin itself                                           |
+| `pnpm event-poster <id> "<label>" \| --none [--check]`          | Make an attachment of the event its poster (rendering `<file>-poster.webp`), or remove the poster                                                                   |
+| `pnpm event-calendar <id> [--out <dir>]`                        | Check that the event's Události event links its page and has `Zrušeno: ` when cancelled; else write the `.ics`                                                      |
+| `pnpm add-exception <record.json> \| --remove <date> [--check]` | Add a change announced for a day no service sheet covers to `schedule-exceptions.json` (`--remove`: take it out)                                                    |
 | `pnpm add-album <album-url> [--write \| --check …]`             | Read a Zonerama album as JSON; `--write` adds it to `gallery.json` and removes the oldest beyond 6, `--check` only says what `--write` would do                     |
 
 Before you commit, run the full check and compare the change with the mockups: see
@@ -110,7 +110,7 @@ src/styles/          globals.css (Tailwind theme tokens), utilities.css, lightbo
 src/components/      One component per block, by domain group (news/, services/, gallery/, parish/, …), ui/ shared
 src/hooks/           Every React hook, one use-<name>.ts each
 src/lib/<group>/     Pure logic with unit tests, by the same groups plus shared/ (Prague time, Czech grammar, links)
-src/content/         Content, one file per domain (hand-edited data only); news/ holds the aktuality (one JSON file per month)
+src/content/         Content, one file per domain (hand-edited data only); news/ holds the events (one JSON file per month)
 src/content/types/   The content types, one file per domain
 src/server/          Server-only build-time code: Google Calendar, the vira.cz verse, the schedule exceptions
 public/              Static assets, plus .htaccess (404 page, caching, redirects of moved URLs) and biblicky-citat.php
@@ -131,20 +131,20 @@ links, hooks, checking against the design) are in `.claude/rules/`.
 
 Content lives in `src/content/` and is added with the Claude Code project skills in `.claude/skills/`:
 
-| Skill                              | Adds                                                                                     |
-| ---------------------------------- | ---------------------------------------------------------------------------------------- |
-| `farnost-create-aktualita`         | An event from a poster or PDF, into `news/`                                              |
-| `farnost-correct-aktualita`        | A corrected aktualita (record, poster or attachment)                                     |
-| `farnost-cancel-aktualita`         | A cancelled or postponed aktualita, or a dropped meeting of a series                     |
-| `farnost-pin-aktualita`            | The "Doporučujeme" pin, moved to an existing event or removed                            |
-| `farnost-create-porad-bohosluzeb`  | The weekly ohlášky (the parish's DOCX or PDF), into `ohlasky.json`                       |
-| `farnost-correct-porad-bohosluzeb` | A corrected week of ohlášky (record, DOCX or PDF)                                        |
-| `farnost-create-vyjimka`           | A change to the mass schedule on a day no ohlášky cover, into `schedule-exceptions.json` |
-| `farnost-create-album`             | A Zonerama album, into `gallery.json`                                                    |
-| `farnost-create-petrklic`          | A Petrklíč newsletter PDF, into `petrklic.json`                                          |
-| `farnost-correct-petrklic`         | A corrected Petrklíč PDF or issue record                                                 |
+| Skill                          | Adds                                                                                            |
+| ------------------------------ | ----------------------------------------------------------------------------------------------- |
+| `parish-create-event`          | An event from a poster or PDF, into `news/`                                                     |
+| `parish-correct-event`         | A corrected event (record, poster or attachment)                                                |
+| `parish-cancel-event`          | A cancelled or postponed event, or a dropped meeting of a series                                |
+| `parish-pin-event`             | The "Doporučujeme" pin, moved to an existing event or removed                                   |
+| `parish-create-service-sheet`  | The weekly service sheet (the parish's DOCX or PDF), into `service-sheets.json`                 |
+| `parish-correct-service-sheet` | A corrected service sheet (record, DOCX or PDF)                                                 |
+| `parish-create-exception`      | A change to the mass schedule on a day no service sheet covers, into `schedule-exceptions.json` |
+| `parish-create-album`          | A Zonerama album, into `gallery.json`                                                           |
+| `parish-create-petrklic`       | A Petrklíč newsletter PDF, into `petrklic.json`                                                 |
+| `parish-correct-petrklic`      | A corrected Petrklíč PDF or issue record                                                        |
 
-Each finishes with `farnost-publish-content`, which commits and releases with `farnost-release`.
+Each finishes with `parish-publish-content`, which commits and releases with `parish-release`.
 
 Uploaded files are not in git: they are staged in `uploads/` (git-ignored, mirrors `/uploads/` on the server) and
 linked root-relative as `/uploads/…`; `pnpm pull-uploads` downloads the server's files you lack. Album photos stay on

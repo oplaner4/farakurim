@@ -21,15 +21,15 @@ build-time next mass.
 
 - All content lives in `src/content/` (hand-edited data only; build-time fetches and values derived from content live in `src/server/`, `structure.md`), typed by `src/content/types/` (one file per domain, `structure.md`). Components and `src/lib`
   only depend on those types, so a real API or CMS can replace the files later without touching the UI.
-  A `<domain>.test.ts` beside each content file (`news/news.test.ts` for Aktuality, shared checks in
+  A `<domain>.test.ts` beside each content file (`news/news.test.ts` for the events, shared checks in
   `src/lib/test/content-checks.ts`) checks the data itself (valid dates and times, unique IDs, order, `/uploads/` links); extend it when a content type gains a rule a typo could break.
-  The Aktuality are JSON month files (`news/<year>/<MM>.json`) that `news/index.ts` reads and checks with
+  The events are JSON month files (`news/<year>/<MM>.json`) that `news/index.ts` reads and checks with
   `newsEventSchema` on import.
   A cancelled or postponed event keeps its record with a `change` (design §11.9, never a tag), a series' dropped
   meetings are `cancelledMeetings`; the cards, the detail page, the archive, the `.ics` (`STATUS:CANCELLED`) and the
   calendars show it (`isCancelled()`, `eventNote()`, `CalendarEntry.cancelled`, which a Události title starting with
   "Zrušeno: " also sets). A cancelled event is never in "Doporučujeme" or "Další akce".
-  Aktuality, ohlášky and albums are added with the `farnost-create-*` skills (CLAUDE.md "Managing content");
+  Events, service sheets and albums are added with the `parish-create-*` skills (CLAUDE.md "Managing content");
   their uploaded files are linked root-relative (`/uploads/…`, absolute only where a URL leaves the page, e.g.
   JSON-LD), never committed.
 - Dates are ISO `YYYY-MM-DD`, times `H:MM`, both **Europe/Prague wall-clock**. Use `pragueDateTime()` /
@@ -41,18 +41,18 @@ build-time next mass.
   the title otherwise. First-Friday/Saturday variants use `rule: "first-in-month"` (and `"not-first-in-month"` for
   what they replace). Exceptions (`scheduleExceptions()`) **replace the whole day's services**, titled ones included;
   never hard-code those variants in logic.
-- Ohlášky (`content/ohlasky.json`, design §14.5–14.7): one `ServiceSheet` per week (a week, or two weeks around holidays; `isOneWeek()` switches the labels), loaded and checked by `server/ohlasky.ts` (`ohlaskyFileSchema`); a sheet is added in advance with `pnpm stage porad … --record`, which removes the sheets before the current one and the later changes the sheets cover or that are before the current sheet. The later changes (`content/schedule-exceptions.json`, loaded and checked by `content/schedule-exceptions.ts` as `laterExceptions`, added with `pnpm add-exception`) are the changes announced for days no sheet covers: after the last sheet, or in a week the parish published no ohlášky for. A sheet has `days[].rows[]` and
+- Service sheets (`content/service-sheets.json`, design §14.5–14.7): one `ServiceSheet` per week (a week, or two weeks around holidays; `isOneWeek()` switches the labels), loaded and checked by `server/service-sheets.ts` (`serviceSheetsFileSchema`); a sheet is added in advance with `pnpm stage sheet … --record`, which removes the sheets before the current one and the later changes the sheets cover or that are before the current sheet. The later changes (`content/schedule-exceptions.json`, loaded and checked by `content/schedule-exceptions.ts` as `laterExceptions`, added with `pnpm add-exception`) are the changes announced for days no sheet covers: after the last sheet, or in a week the parish published no service sheet for. A sheet has `days[].rows[]` and
   `announcements[]`. For every day of every sheet (the newer sheet wins the Sunday two sheets share) the `mass` and `service` rows (adoration,
   "Velikonoční obřady"; never "Pohřeb" or "Křest dětí") are the day's only services (`sheetExceptions()`), never
   combined with `regularServices`; on the days no sheet covers the regular schedule applies, except on
   the `laterExceptions` (changes announced for those days; `scheduleExceptions()` merges them with the sheets' days by
   date and drops the ones a sheet covers). The site shows the sheet whose week has started last (`currentSheet()`), chosen in the browser by `CurrentSheet` / `NextMass` from the build day's choice. Only the sheets and `laterExceptions` are content: the combined
   exceptions are `currentExceptions` in `server/services.ts` (homepage, `server/calendar.ts`). `changed` only adds the "změna" tag; `markChanges()` sets it on masses that are not in the regular schedule. Intentions are published word for word, names included (the parish's decision: the PDF
-  is public too). `server/ohlasky.ts` is `server-only`: pages pass what they show and client components get only
+  is public too). `server/service-sheets.ts` is `server-only`: pages pass what they show and client components get only
   props, never the module.
 - Petrklíč (`content/petrklic.json`, loaded and checked by `content/petrklic.ts` with `petrklicFileSchema` from
   `src/lib/petrklic/schema.ts`): one record per issue (`year`, `number`, `note`, `rev`, `pageCount`), newest
-  first, added by `pnpm stage petrklic` (`farnost-create-petrklic`); the id (`issueId()`), the URLs (`toIssue()`)
+  first, added by `pnpm stage petrklic` (`parish-create-petrklic`); the id (`issueId()`), the URLs (`toIssue()`)
   and the volume are computed (`volumeOf()`). Each issue is one folder uploaded to `/uploads/petrklic/<id>/`
   (`<id>-r<rev>/` for a corrected PDF, `issueFolder()`, as the server's files are never overwritten): the PDF
   `petrklic-<id>.pdf`, `cover.webp` and the current issue's viewer `pages/<n>.webp` (rendered by
@@ -64,7 +64,7 @@ build-time next mass.
   homepage: the build's week, the one before and the next four; "Tento týden" always runs Monday to Sunday). `useCalendarEntries()` re-reads every shown range in the browser (TanStack Query, one query per range) and merges it over the
   build's entries (`mergeEntries()`); a range outside the prerendered one is dimmed with a loading or error message
   until Google answers. Without `NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY` the entries are a fallback generated from
-  `regularServices` and the Aktuality records, nothing is fetched, and paging stops at the prerendered months; a release build (`RELEASE_BUILD=1`) fails without the key instead (`src/lib/shared/build-env.ts`). An Události event links to its Aktuality record when its description holds the detail page's URL (`aktualitaPaths()`; only pages the build has, `linkablePages` in `server/calendar.ts`); `pnpm aktualita-calendar <id>` checks it and writes the `.ics` to import. The weekly table and the
+  `regularServices` and the event records, nothing is fetched, and paging stops at the prerendered months; a release build (`RELEASE_BUILD=1`) fails without the key instead (`src/lib/shared/build-env.ts`). An Události event links to its event record when its description holds the detail page's URL (`eventPaths()`; only pages the build has, `linkablePages` in `server/calendar.ts`); `pnpm event-calendar <id>` checks it and writes the `.ics` to import. The weekly table and the
   next-mass countdown still use `regularServices` / `scheduleExceptions()`.
 - Fotogalerie (`content/gallery.json`, loaded and checked by `content/gallery.ts` with `galleryFileSchema` from
   `src/lib/gallery/schema.ts`): Zonerama albums, newest first, at most `MAX_ALBUMS` (`pnpm add-album` removes the
@@ -72,7 +72,7 @@ build-time next mass.
   (`small`/`large` URLs). An album without `photos` shows `photoCount` designed placeholders in the strips and the homepage
   carousel; alt texts are computed (`photoAlt()` in `src/lib/gallery/albums.ts`). A photo opens the
   lightbox (DESIGN.md §21) at `#album-<id>-foto-N`; an event poster that is an image opens it at `#plakat` (detail page)
-  or `#plakat-<event id>` (Aktuality), a PDF poster opens in the browser.
+  or `#plakat-<event id>` (the Aktuality page), a PDF poster opens in the browser.
 - Finanční podpora (`content/support.ts`, design §22): the projects of the year with budget, grants, gifts and
   the optional work done (whole Kč, valid on `asOf`), the regular gifts (VS 1111) and the Fond PULS years (`null` =
   not known yet). Progress, the IBAN and the QR Platba string are computed in `src/lib/support/payment.ts`; the QR
@@ -93,7 +93,7 @@ build-time next mass.
   (`content/religious-education.ts`, §24): the school year, one timetable per school, the form and rules under
   `/uploads/vyuka-nabozenstvi/` and the contact; update it each September.
 - Group pages (`content/groups.ts`, §27, §27.1): one `GroupPage` per group (Schola, Chrámový sbor, Společenství
-  mládeže, Katecheze pro děti), served at `/aktivity/<id>/` by `src/app/aktivity/[skupina]/` like its breadcrumb
+  mládeže, Katecheze pro děti), served at `/aktivity/<id>/` by `src/app/aktivity/[group]/` like its breadcrumb
   (`public/.htaccess` redirects the old URLs), every block optional; texts the old pages lacked are drafts from the
   design that each group should confirm; photos and video thumbnails are uploaded to `/uploads/skupiny/<group>/` (WebP, `small` 480 px
   square, `large` ≤ 1600 px). The hero and the photos share one lightbox at `#foto-N` (the hero is
@@ -102,8 +102,8 @@ build-time next mass.
   calendars whose title contains that text (`src/lib/activities/meetings.ts`): read at build time for eight weeks
   and re-read in the browser like the other calendars; hidden when there is none.
 - Pages not rebuilt yet (`content/planned-pages.ts`): every old-site URL from farakurim.cz/sitemap has a page with
-  its breadcrumb and "Stránku připravujeme" (noindex, not in the sitemap), built by `src/app/[...stranka]/` (never under
-  `/aktivity/`, where `src/app/aktivity/[skupina]/` builds only the group pages). The groups live under `/aktivity/`;
+  its breadcrumb and "Stránku připravujeme" (noindex, not in the sitemap), built by `src/app/[...path]/` (never under
+  `/aktivity/`, where `src/app/aktivity/[group]/` builds only the group pages). The groups live under `/aktivity/`;
   `public/.htaccess` redirects their old URLs. Remove a page from the list when it is rebuilt. Mimořádné katecheze are not rebuilt: the
   Katecheze link card and `public/.htaccess` lead to them on the old site (`OLD_SITE_URL`, same path). Neither are
   Tábor 2019–2026 and Betlémy 2024 and 2025: `public/.htaccess` redirects them to the old site. The old site's own

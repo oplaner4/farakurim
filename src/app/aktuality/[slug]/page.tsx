@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: PageProps<"/aktuality/[slug]"
   };
 }
 
-export default async function AktualitySlugPage({ params }: PageProps<"/aktuality/[slug]">) {
+export default async function NewsEventPage({ params }: PageProps<"/aktuality/[slug]">) {
   const { slug } = await params;
   const filter = filterFromSlug(slug);
   if (filter) return <NewsPage filter={filter} />;

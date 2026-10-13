@@ -8,7 +8,7 @@ import { strToU8, zipSync } from "fflate";
 import sharp from "sharp";
 import { afterEach, beforeEach, vi } from "vitest";
 import type { NewsEvent } from "@/content/types/news";
-import { EXCEPTIONS_FILE, NEWS_DIR, OHLASKY_FILE, PETRKLIC_FILE } from "./content-files";
+import { EXCEPTIONS_FILE, NEWS_DIR, SERVICE_SHEETS_FILE, PETRKLIC_FILE } from "./content-files";
 import type { StageEnv } from "./stage/core";
 import { UPLOADS_DIR } from "./uploads";
 
@@ -108,7 +108,7 @@ export function useNewsFixture(months: Record<string, NewsEvent[]>) {
 }
 
 /**
- * A temp uploads/, news/, ohlasky.json, schedule-exceptions.json, petrklic.json and home for the `pnpm stage` tests, fresh for each test: `env`
+ * A temp uploads/, news/, service-sheets.json, schedule-exceptions.json, petrklic.json and home for the `pnpm stage` tests, fresh for each test: `env`
  * points there and asks a fetch stub that answers 404 (the name is free) until `status()` changes it.
  */
 export function useStageFixture() {
@@ -121,7 +121,7 @@ export function useStageFixture() {
     dir = mkdtempSync(join(tmpdir(), "stage-"));
     mkdirSync(join(dir, "home", "Downloads"), { recursive: true });
     cpSync(NEWS_DIR, join(dir, "news"), { recursive: true });
-    cpSync(OHLASKY_FILE, join(dir, "ohlasky.json"));
+    cpSync(SERVICE_SHEETS_FILE, join(dir, "service-sheets.json"));
     cpSync(EXCEPTIONS_FILE, join(dir, "schedule-exceptions.json"));
     cpSync(PETRKLIC_FILE, join(dir, "petrklic.json"));
     fetchMock.mockReset();
@@ -129,7 +129,7 @@ export function useStageFixture() {
     Object.assign(env, {
       uploadsDir: join(dir, UPLOADS_DIR),
       newsDir: join(dir, "news"),
-      ohlaskyFile: join(dir, "ohlasky.json"),
+      serviceSheetsFile: join(dir, "service-sheets.json"),
       exceptionsFile: join(dir, "schedule-exceptions.json"),
       petrklicFile: join(dir, "petrklic.json"),
       home: join(dir, "home"),

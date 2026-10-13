@@ -1,6 +1,6 @@
 import type { ClockTime, IsoDate } from "./shared";
 
-// Aktuality (news/): the events, their detail pages and the archive.
+// News (news/): the events, their detail pages and the archive.
 
 /** A file attached to an event; the type label ("PNG", "PDF") comes from the file extension. */
 export type EventAttachment = {
@@ -123,14 +123,14 @@ export type NewsEvent = {
   longTerm?: true | { weeklyAt: ClockTime };
   /**
    * Shown in the "Doporučujeme" panel while it is not finished. At most one record is pinned: set it with
-   * `pnpm pin-aktualita` (scripts/lib/news/pin-aktualita.ts), never by hand.
+   * `pnpm pin-event` (scripts/lib/news/pin-event.ts), never by hand.
    */
   pinned?: boolean;
   /** Hidden by an admin from the archive; the detail page stays reachable by its URL. */
   archiveHidden?: boolean;
   /**
    * The day the record was added to the site (Prague date), the shared link's `article:published_time`. Set by
-   * `farnost-create-aktualita` from October 2026; older records have none.
+   * `parish-create-event` from October 2026; older records have none.
    */
   published?: IsoDate;
 };

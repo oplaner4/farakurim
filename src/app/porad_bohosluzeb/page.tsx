@@ -5,12 +5,12 @@ import { InfoCards } from "@/components/services/InfoCards";
 import { IntentionsCard } from "@/components/services/IntentionsCard";
 import { RegularServices } from "@/components/services/RegularServices";
 import { CurrentSheet } from "@/components/services/CurrentSheet";
-import { OhlaskyPanel } from "@/components/services/OhlaskyPanel";
+import { ServiceSheetPanel } from "@/components/services/ServiceSheetPanel";
 import { WeekSchedule } from "@/components/services/WeekSchedule";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { intentions, places, regularServices, sacraments } from "@/content/masses";
 import { events } from "@/content/news";
-import { serviceSheets } from "@/server/ohlasky";
+import { serviceSheets } from "@/server/service-sheets";
 import { links } from "@/content/site";
 import type { PlaceId, ServiceSheet } from "@/content/types/services";
 import { BUILD_TIME } from "@/lib/shared/build-time";
@@ -68,7 +68,7 @@ export default function ServicesPage() {
             validFrom: sheet.validFrom,
             node: (
               <>
-                <OhlaskyPanel sheet={sheet} newsHref={newsHref} />
+                <ServiceSheetPanel sheet={sheet} newsHref={newsHref} />
                 <WeekSchedule days={shownDays(sheet)} oneWeek={isOneWeek(sheet)} renderedAt={BUILD_TIME} />
               </>
             ),

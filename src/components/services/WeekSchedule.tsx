@@ -10,15 +10,15 @@ import { useToday } from "@/hooks/use-now";
 type Props = {
   /** The sheet's days (`markChanges`), with place names instead of IDs. */
   days: SheetDay[];
-  /** The ohlášky cover one week (`isOneWeek`); a longer sheet drops "tento týden" from the labels. */
+  /** The service sheet covers one week (`isOneWeek`); a longer sheet drops "tento týden" from the labels. */
   oneWeek: boolean;
   renderedAt: number;
 };
 
 /**
- * "Rozpis bohoslužeb tento týden", or "Rozpis bohoslužeb" for a longer sheet (design/DESIGN.md §14.6): one row per day of the ohlášky. Today and the coming
- * days show by default; the toggle adds the past days, dimmed. Without JS the build day decides and the toggle
- * is hidden.
+ * "Rozpis bohoslužeb tento týden", or "Rozpis bohoslužeb" for a longer sheet (design/DESIGN.md §14.6): one row per day
+ * of the service sheet. Today and the coming days show by default; the toggle adds the past days, dimmed. Without JS
+ * the build day decides and the toggle is hidden.
  */
 export function WeekSchedule({ days, oneWeek, renderedAt }: Props) {
   const today = useToday(renderedAt);

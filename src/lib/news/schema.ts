@@ -5,9 +5,9 @@ import { kebabIdSchema, slug } from "@/lib/shared/slug";
 import { uploadSchema } from "@/lib/shared/uploads";
 import { eventMeetings } from "./timing";
 
-// The rules of one Aktuality record, in one place: src/content/news/index.ts checks every month file with them on
-// import (a broken file fails the tests, the build and the scripts), and scripts/lib/news/add-aktualita.ts checks a new record
-// before the farnost-create-aktualita skill stages its files. The rules across records (unique IDs, one pinned
+// The rules of one event record, in one place: src/content/news/index.ts checks every month file with them on
+// import (a broken file fails the tests, the build and the scripts), and scripts/lib/news/add-event.ts checks a new record
+// before the parish-create-event skill stages its files. The rules across records (unique IDs, one pinned
 // event, the month files' order) stay in news.test.ts.
 
 const date = z.iso.date();

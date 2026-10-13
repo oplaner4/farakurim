@@ -2,7 +2,7 @@ import * as z from "zod";
 import { fold } from "./czech";
 
 // ASCII ids from Czech titles: the Fotogalerie album ids (scripts/lib/gallery/add-album.ts), the Petrklíč issue ids
-// (issueId() in src/lib/petrklic/issues.ts) and the Aktuality attachments' file names (scripts/lib/stage/aktualita.ts,
+// (issueId() in src/lib/petrklic/issues.ts) and the event attachments' file names (scripts/lib/stage/event.ts,
 // checked for clashes by src/lib/news/schema.ts). Built on fold(), so Czech letters lose their accents; any other
 // character becomes a dash. The content schemas check the ids with kebabIdSchema.
 

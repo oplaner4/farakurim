@@ -1,12 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import {
-  aktualitaPaths,
-  eventsUrl,
-  fetchGoogleCalendar,
-  parseEventsPage,
-  refererInit,
-  toEntries,
-} from "./google-calendar";
+import { eventPaths, eventsUrl, fetchGoogleCalendar, parseEventsPage, refererInit, toEntries } from "./google-calendar";
 
 describe("eventsUrl", () => {
   it("asks for expanded events of the Prague days", () => {
@@ -54,19 +47,19 @@ describe("parseEventsPage", () => {
   });
 });
 
-describe("aktualitaPaths", () => {
+describe("eventPaths", () => {
   it("finds the detail page URLs in a description, also in Google's HTML", () => {
-    expect(aktualitaPaths("Zveme.\n\nhttps://farakurim.cz/aktuality/hody-ceska/")).toEqual(["/aktuality/hody-ceska/"]);
+    expect(eventPaths("Zveme.\n\nhttps://farakurim.cz/aktuality/hody-ceska/")).toEqual(["/aktuality/hody-ceska/"]);
     expect(
-      aktualitaPaths('<a href="https://www.farakurim.cz/aktuality/hody">https://www.farakurim.cz/aktuality/hody</a>'),
+      eventPaths('<a href="https://www.farakurim.cz/aktuality/hody">https://www.farakurim.cz/aktuality/hody</a>'),
     ).toEqual(["/aktuality/hody/", "/aktuality/hody/"]);
-    expect(aktualitaPaths("farakurim.cz/aktuality/a-1 a /aktuality/b/")).toEqual(["/aktuality/a-1/", "/aktuality/b/"]);
+    expect(eventPaths("farakurim.cz/aktuality/a-1 a /aktuality/b/")).toEqual(["/aktuality/a-1/", "/aktuality/b/"]);
   });
 
   it("ignores other sites and descriptions without a link", () => {
-    expect(aktualitaPaths("https://example.cz/aktuality/hody/ a https://stary.farakurim.cz/aktuality/x/")).toEqual([]);
-    expect(aktualitaPaths("Sraz na faře")).toEqual([]);
-    expect(aktualitaPaths(undefined)).toEqual([]);
+    expect(eventPaths("https://example.cz/aktuality/hody/ a https://stary.farakurim.cz/aktuality/x/")).toEqual([]);
+    expect(eventPaths("Sraz na faře")).toEqual([]);
+    expect(eventPaths(undefined)).toEqual([]);
   });
 });
 

@@ -1,6 +1,6 @@
 // What `pnpm dev` (scripts/dev-server.mjs) and `pnpm preview` (scripts/preview.mjs) answer like the web host,
 // where these files live on the server only: /uploads/… is served from the local uploads/ folder (files staged by
-// the farnost-* skills and not uploaded yet), and anything not staged there is redirected to the live site, where
+// the parish-* skills and not uploaded yet), and anything not staged there is redirected to the live site, where
 // the uploaded files live. /virtualni_prohlidka/ (not in the build) is redirected to the live site too.
 import { join } from "node:path";
 import sirv from "sirv";

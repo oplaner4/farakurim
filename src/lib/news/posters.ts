@@ -1,7 +1,7 @@
 import type { NewsEvent } from "@/content/types/news";
 import { atClockTime, formatEventWhen } from "@/lib/shared/czech";
 
-// The posters of Aktuality: the WebP shown on the site and the uploaded file it was made from.
+// The posters of events: the WebP shown on the site and the uploaded file it was made from.
 
 /** The poster's name after its file's: a WebP attachment would otherwise be overwritten by its own poster. */
 export const POSTER_SUFFIX = "-poster.webp";
@@ -20,7 +20,7 @@ export const isPosterOf = (src: string, file: string) => posterSource(src) === w
 
 /**
  * What the detail page's poster opens full size: the poster's original (its file is named like the poster WebP, before
- * `.webp` or, since `pnpm stage aktualita` names posters `<file>-poster.webp`, before `-poster.webp`), else the
+ * `.webp` or, since `pnpm stage event` names posters `<file>-poster.webp`, before `-poster.webp`), else the
  * "Plakát" attachment, else the WebP itself. Undefined without a poster or a "Plakát" attachment.
  */
 export function posterHref(event: NewsEvent): string | undefined {

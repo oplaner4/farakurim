@@ -1,11 +1,11 @@
 import "server-only";
 import { places } from "@/content/masses";
 import { laterExceptions } from "@/content/schedule-exceptions";
-import { serviceSheets } from "@/server/ohlasky";
+import { serviceSheets } from "@/server/service-sheets";
 import { scheduleExceptions } from "@/lib/services/service-sheet";
 import type { PlaceId } from "@/content/types/services";
 
-// The schedule derived from the ohlášky, for the pages that need it at build time.
+// The schedule derived from the service sheets, for the pages that need it at build time.
 
 /**
  * Every sheet's days and the changes announced for later (`laterExceptions`) as schedule exceptions

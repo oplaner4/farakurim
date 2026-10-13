@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { ScheduleException } from "@/content/types/services";
 import { addException, exceptionLine, parseCommand } from "./add-exception";
-import { readScheduleExceptions } from "./add-ohlasky";
+import { readScheduleExceptions } from "./add-service-sheet";
 
 /** A sheet for 4.–11. 10. 2026, every day with one mass. */
 const SHEET = {
@@ -19,17 +19,20 @@ const SHEET = {
 
 const PILGRIMAGE: ScheduleException = { date: "2026-10-25", services: [], reason: "pouť" };
 
-describe("addException on a temp ohlasky.json and schedule-exceptions.json", () => {
+describe("addException on a temp service-sheets.json and schedule-exceptions.json", () => {
   let dir: string;
-  let files: { ohlaskyFile: string; exceptionsFile: string };
+  let files: { serviceSheetsFile: string; exceptionsFile: string };
   const now = new Date("2026-10-09T10:00:00+02:00");
   const dates = () => readScheduleExceptions(files.exceptionsFile).exceptions.map((x) => x.date);
   const raw = () => readFileSync(files.exceptionsFile, "utf8");
 
   beforeEach(() => {
     dir = mkdtempSync(join(tmpdir(), "add-exception-"));
-    files = { ohlaskyFile: join(dir, "ohlasky.json"), exceptionsFile: join(dir, "schedule-exceptions.json") };
-    writeFileSync(files.ohlaskyFile, JSON.stringify({ sheets: [SHEET] }));
+    files = {
+      serviceSheetsFile: join(dir, "service-sheets.json"),
+      exceptionsFile: join(dir, "schedule-exceptions.json"),
+    };
+    writeFileSync(files.serviceSheetsFile, JSON.stringify({ sheets: [SHEET] }));
     writeFileSync(files.exceptionsFile, JSON.stringify({ exceptions: [PILGRIMAGE] }));
   });
   afterEach(() => rmSync(dir, { recursive: true, force: true }));

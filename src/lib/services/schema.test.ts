@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import * as z from "zod";
 import type { ServiceSheetRecord } from "@/content/types/services";
-import { ohlaskyFileSchema, scheduleExceptionSchema, scheduleExceptionsFileSchema, serviceSheetSchema } from "./schema";
+import {
+  serviceSheetsFileSchema,
+  scheduleExceptionSchema,
+  scheduleExceptionsFileSchema,
+  serviceSheetSchema,
+} from "./schema";
 
 const sheet = (fields: Partial<ServiceSheetRecord> = {}): ServiceSheetRecord => ({
   validFrom: "2026-10-11",
@@ -18,7 +23,7 @@ const sheet = (fields: Partial<ServiceSheetRecord> = {}): ServiceSheetRecord => 
     },
     { date: "2026-10-12", rows: [] },
   ],
-  announcements: [{ category: "pozvanka", html: "<p>Zveme.</p>", newsId: "farni-den-2026" }],
+  announcements: [{ category: "invitation", html: "<p>Zveme.</p>", newsId: "farni-den-2026" }],
   ...fields,
 });
 
@@ -70,7 +75,7 @@ describe("serviceSheetSchema", () => {
   });
 });
 
-describe("scheduleExceptionSchema and ohlaskyFileSchema", () => {
+describe("scheduleExceptionSchema and serviceSheetsFileSchema", () => {
   const exception = { date: "2026-10-25", services: [{ time: "10:00", place: "kurim" }], reason: "Hody" };
   const issues = (schema: z.ZodType, input: unknown) => {
     const result = schema.safeParse(input);
@@ -89,7 +94,7 @@ describe("scheduleExceptionSchema and ohlaskyFileSchema", () => {
     const later = { exceptions: [exception] };
     expect(scheduleExceptionsFileSchema.parse(later)).toEqual(later);
     const file = { sheets: [sheet()] };
-    expect(ohlaskyFileSchema.parse(file)).toEqual(file);
+    expect(serviceSheetsFileSchema.parse(file)).toEqual(file);
   });
 
   it("names a bad date, time, place and unknown field", () => {
@@ -103,11 +108,11 @@ describe("scheduleExceptionSchema and ohlaskyFileSchema", () => {
     expect(issues(scheduleExceptionSchema, { ...exception, cancelled: true })).toContain(
       'Unrecognized key: "cancelled"',
     );
-    expect(issues(ohlaskyFileSchema, { sheets: [], laterExceptions: [] })).toContain(
+    expect(issues(serviceSheetsFileSchema, { sheets: [], laterExceptions: [] })).toContain(
       'Unrecognized key: "laterExceptions"',
     );
     expect(issues(scheduleExceptionsFileSchema, {})).toContain("exceptions");
-    expect(issues(ohlaskyFileSchema, { sheets: [{ ...sheet(), validTo: "2026-10-11" }] })).toContain(
+    expect(issues(serviceSheetsFileSchema, { sheets: [{ ...sheet(), validTo: "2026-10-11" }] })).toContain(
       "sheets[0].validTo",
     );
   });

@@ -32,7 +32,7 @@ type Props = {
   entries: CalendarEntry[];
   /** The days `entries` cover. */
   range: DateRange;
-  /** The Aktuality detail pages Události events may link to. */
+  /** The event detail pages Události events may link to. */
   linkablePages: string[];
   renderedAt: number;
 };

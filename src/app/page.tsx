@@ -3,7 +3,7 @@ import { ContactsPanel } from "@/components/home/ContactsPanel";
 import { GallerySection } from "@/components/home/GallerySection";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { NewsSection } from "@/components/home/NewsSection";
-import { serviceSheets } from "@/server/ohlasky";
+import { serviceSheets } from "@/server/service-sheets";
 import { NextMass } from "@/components/home/NextMass";
 import { PetrklicPanel } from "@/components/home/PetrklicPanel";
 import { WeekCalendar } from "@/components/home/WeekCalendar";

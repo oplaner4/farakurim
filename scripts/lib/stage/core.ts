@@ -5,17 +5,17 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, statSync } from "nod
 import { homedir } from "node:os";
 import { basename, dirname, join } from "node:path";
 import { actionVerb } from "../command";
-import { EXCEPTIONS_FILE, NEWS_DIR, OHLASKY_FILE, PETRKLIC_FILE } from "../content-files";
+import { EXCEPTIONS_FILE, NEWS_DIR, SERVICE_SHEETS_FILE, PETRKLIC_FILE } from "../content-files";
 import { defaultUploadsEnv, onServer, serverUrl, UPLOADS_DIR, type UploadsEnv } from "../uploads";
 
 const MB = 1024 * 1024;
 /** The largest source file each command stages, in MB; the usage and the size error name them. */
-export const MAX_MB = { aktualita: 10, porad: 20, petrklic: 40 };
+export const MAX_MB = { event: 10, sheet: 20, petrklic: 40 };
 
 /** Where a command stages and adds content, and how it asks the server; the tests point it at a temp folder. */
 export interface StageEnv extends UploadsEnv {
   newsDir: string;
-  ohlaskyFile: string;
+  serviceSheetsFile: string;
   exceptionsFile: string;
   petrklicFile: string;
   /** The home folder whose Downloads/ holds sources given without a folder. */
@@ -25,7 +25,7 @@ export interface StageEnv extends UploadsEnv {
 export const defaultEnv = (): StageEnv => ({
   ...defaultUploadsEnv(),
   newsDir: NEWS_DIR,
-  ohlaskyFile: OHLASKY_FILE,
+  serviceSheetsFile: SERVICE_SHEETS_FILE,
   exceptionsFile: EXCEPTIONS_FILE,
   petrklicFile: PETRKLIC_FILE,
   home: homedir(),

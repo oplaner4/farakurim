@@ -2,7 +2,7 @@ import { contacts, links, OLD_SITE_URL } from "./site";
 import type { GroupPage } from "./types/activities";
 
 /*
- * The group pages (design/DESIGN.md §27), served at /aktivity/<id>/ by src/app/aktivity/[skupina]/, rebuilt from
+ * The group pages (design/DESIGN.md §27), served at /aktivity/<id>/ by src/app/aktivity/[group]/, rebuilt from
  * the old site's /schola, /chramovy_sbor, /spolecenstvi_mladych/setkavani and /katecheze_pro_deti/pravidelne
  * (public/.htaccess redirects them). Texts the old pages did not have are drafts from the design (§27.1): times,
  * places and contacts are to be confirmed by each group. Photos and video thumbnails are uploaded to

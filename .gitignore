@@ -47,7 +47,7 @@ next-env.d.ts
 # Playwright MCP logs
 /.playwright-mcp/
 
-# files staged for /uploads/ on the server (farnost-publish-content)
+# files staged for /uploads/ on the server (parish-publish-content)
 /uploads/
 
 # brainstorming mockups (superpowers visual companion)

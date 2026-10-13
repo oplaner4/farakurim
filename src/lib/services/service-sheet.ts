@@ -16,7 +16,7 @@ import { revSuffix } from "@/lib/shared/revision";
 import { UPLOADS_PATH } from "@/lib/shared/uploads";
 import { servicesOnDate } from "./masses";
 
-// The weekly ohlášky as structured content (design/DESIGN.md §14.5–14.7).
+// The weekly service sheets as structured content (design/DESIGN.md §14.5–14.7).
 
 /** The sheet's PDF in /uploads/: "porady_bohosluzeb/2026-10-04-porad-bohosluzeb.pdf", "…-r2.pdf" for a corrected one. */
 export const sheetPdfFile = ({ validFrom, rev }: Pick<ServiceSheet, "validFrom" | "rev">) =>
@@ -39,9 +39,9 @@ export const periodDates = (validFrom: IsoDate, validTo: IsoDate): IsoDate[] =>
   ).map((day) => pragueDate(day));
 
 /**
- * Schedule exceptions from the ohlášky: every day of the sheet's week gets exactly the masses and mass-like services
- * its rows list at the parish churches, never the regular schedule, so a change or a cancellation is entered only once. Days after the
- * week fall back to the regular schedule.
+ * Schedule exceptions from the service sheet: every day of the sheet's week gets exactly the masses and mass-like
+ * services its rows list at the parish churches, never the regular schedule, so a change or a cancellation is entered
+ * only once. Days after the week fall back to the regular schedule.
  */
 export function sheetExceptions(
   sheet: Pick<ServiceSheet, "days" | "validFrom" | "validTo">,
@@ -132,7 +132,7 @@ export function markChanges(days: SheetDay[], regular: RegularService[]): SheetD
 
 /** Changes first, the rest in the editor's order (§14.5). */
 export const sortAnnouncements = (items: Announcement[]): Announcement[] =>
-  [...items].sort((a, b) => Number(b.category === "zmena") - Number(a.category === "zmena"));
+  [...items].sort((a, b) => Number(b.category === "change") - Number(a.category === "change"));
 
 export type WeekView = {
   days: SheetDay[];
@@ -152,8 +152,8 @@ export function weekView(days: SheetDay[], today: IsoDate, showPast: boolean): W
 }
 
 /**
- * Whether the ohlášky cover one week (up to 8 days, Sunday to Sunday): the labels then say "týden". A longer sheet
- * (two weeks around holidays) is labelled by its dates only.
+ * Whether the service sheet covers one week (up to 8 days, Sunday to Sunday): the labels then say "týden". A longer
+ * sheet (two weeks around holidays) is labelled by its dates only.
  */
 export const isOneWeek = (sheet: Pick<ServiceSheet, "validFrom" | "validTo">): boolean => periodLength(sheet) < 8;
 

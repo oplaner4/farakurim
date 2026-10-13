@@ -1,6 +1,6 @@
 import * as z from "zod";
 import {
-  type OhlaskyFile,
+  type ServiceSheetsFile,
   PLACE_IDS,
   type ScheduleException,
   type ScheduleExceptionsFile,
@@ -10,10 +10,10 @@ import { clockMinutes, clockSchema } from "@/lib/shared/clock";
 import { revSchema } from "@/lib/shared/revision";
 import { periodDates } from "./service-sheet";
 
-// The rules of the ohlášky, in one place: src/server/ohlasky.ts checks src/content/ohlasky.json with them when the
-// site loads it, and scripts/lib/services/add-ohlasky.ts checks a new record and the file before the farnost-create-porad-bohosluzeb
-// skill stages its PDF. The rules across sheets (their order, the aktuality an announcement links) are
-// sheetOrderProblems() and the content test's.
+// The rules of the service sheets, in one place: src/server/service-sheets.ts checks src/content/service-sheets.json
+// with them when the site loads it, and scripts/lib/services/add-service-sheet.ts checks a new record and the file
+// before the parish-create-service-sheet skill stages its PDF. The rules across sheets (their order, the events an
+// announcement links) are sheetOrderProblems() and the content test's.
 
 const date = z.iso.date();
 const text = z.string().trim().min(1);
@@ -36,7 +36,7 @@ const daySchema = z.strictObject({
 });
 
 const announcementSchema = z.strictObject({
-  category: z.enum(["zmena", "smireni", "pozvanka", "podekovani", "info"]),
+  category: z.enum(["change", "confession", "invitation", "thanks", "info"]),
   html: text,
   newsId: text.optional(),
 });
@@ -94,10 +94,10 @@ export const scheduleExceptionSchema = z.strictObject({
   reason: text.optional(),
 }) satisfies z.ZodType<ScheduleException>;
 
-/** The whole of src/content/ohlasky.json; src/server/ohlasky.ts and scripts/lib/services/add-ohlasky.ts parse it. */
-export const ohlaskyFileSchema = z.strictObject({
+/** The whole of src/content/service-sheets.json; src/server/service-sheets.ts and scripts/lib/services/add-service-sheet.ts parse it. */
+export const serviceSheetsFileSchema = z.strictObject({
   sheets: z.array(serviceSheetSchema),
-}) satisfies z.ZodType<OhlaskyFile>;
+}) satisfies z.ZodType<ServiceSheetsFile>;
 
 /** The whole of src/content/schedule-exceptions.json; src/content/schedule-exceptions.ts and the scripts parse it. */
 export const scheduleExceptionsFileSchema = z.strictObject({

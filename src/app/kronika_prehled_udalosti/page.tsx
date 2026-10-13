@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   description: `${lead} Založení kostela, vznik farnosti, přestavba v 18. století, zvony, varhany a opravy.`,
 };
 
-/** The jubilee article, while it is among the current Aktuality. */
+/** The jubilee article, while it is among the current events. */
 const jubilee = events.find((e) => e.id === "jubileum-800-2026");
 
 /** Kronika farnosti (design/DESIGN.md §26): the history of the church and the parish as a timeline per era. */

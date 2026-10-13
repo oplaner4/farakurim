@@ -8,7 +8,7 @@ import { links as siteLinks, SITE_HOST } from "@/content/site";
 // Reads the parish's public Google Calendars with the Calendar API (`events.list`, design/DESIGN.md §16.4).
 // `singleEvents=true` makes Google expand recurring events and apply their exceptions, so no RRULE handling
 // is needed here. Runs at build time and in the browser (the key is restricted to the site's referrer).
-// An event of the Události calendar links to an Aktuality detail page when its description holds the page's URL
+// An event of the Události calendar links to an event detail page when its description holds the page's URL
 // (pasted, or imported with the page's "Přidat do kalendáře" file).
 
 const API = "https://www.googleapis.com/calendar/v3/calendars";
@@ -74,8 +74,8 @@ const PAGE_URL = new RegExp(
   "g",
 );
 
-/** The Aktuality detail paths ("/aktuality/<id>/") an event description links to, also inside Google's HTML. */
-export const aktualitaPaths = (description: string | undefined): string[] =>
+/** The event detail paths ("/aktuality/<id>/") an event description links to, also inside Google's HTML. */
+export const eventPaths = (description: string | undefined): string[] =>
   [...(description ?? "").matchAll(PAGE_URL)].map((m) => `${m[1]}/`);
 
 const dayBefore = (date: string) => pragueDate(addDays(pragueDateTime(date, "12:00"), -1, { in: inPrague }));
@@ -110,7 +110,7 @@ export function parseTitle(summary: string | undefined): { title: string; cancel
 
 /**
  * Turns Google events into calendar entries. An Události event links to the first of `linkablePages` (the built
- * Aktuality detail pages) its description links to; a page not built yet is left out, so a URL pasted before the
+ * event detail pages) its description links to; a page not built yet is left out, so a URL pasted before the
  * release links nothing instead of a missing page.
  */
 export function toEntries(events: GoogleEvent[], calendar: CalendarId, linkablePages: string[]): CalendarEntry[] {
@@ -119,7 +119,7 @@ export function toEntries(events: GoogleEvent[], calendar: CalendarId, linkableP
     if (event.status === "cancelled") return [];
     const days = eventDays(event);
     if (!days) return [];
-    const href = calendar === "events" ? aktualitaPaths(event.description).find((path) => pages.has(path)) : undefined;
+    const href = calendar === "events" ? eventPaths(event.description).find((path) => pages.has(path)) : undefined;
     const { title, cancelled } = parseTitle(event.summary);
     return [
       {

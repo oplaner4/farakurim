@@ -1,5 +1,5 @@
-// Adds a change for a day no ohlášky sheet covers to the later changes, so the next-mass countdown is right before
-// that week's ohlášky arrive, or removes one. The record is one ScheduleException: it replaces its whole day
+// Adds a change for a day no service sheet covers to the later changes, so the next-mass countdown is right before
+// that week's service sheet arrives, or removes one. The record is one ScheduleException: it replaces its whole day
 // (`services: []` cancels it); a record for a date already there replaces it, and the entries stay in date order. A
 // date a sheet covers is refused (the sheet is corrected instead), and so is a past one.
 
@@ -10,8 +10,14 @@ import { period, sheetCovering } from "@/lib/services/service-sheet";
 import { parseOrThrow } from "@/lib/shared/json-file";
 import { pragueDate } from "@/lib/shared/prague";
 import { actionVerb, parseCommandLine, readJsonRecord } from "../command";
-import { EXCEPTIONS_FILE, formatAndTest, OHLASKY_FILE, OHLASKY_TESTS, writeContentFile } from "../content-files";
-import { readOhlasky, readScheduleExceptions } from "./add-ohlasky";
+import {
+  EXCEPTIONS_FILE,
+  formatAndTest,
+  SERVICE_SHEETS_FILE,
+  SERVICE_SHEETS_TESTS,
+  writeContentFile,
+} from "../content-files";
+import { readServiceSheets, readScheduleExceptions } from "./add-service-sheet";
 
 export type ExceptionChange = { add: unknown } | { remove: IsoDate };
 
@@ -27,11 +33,11 @@ export type AddExceptionResult = {
 
 /**
  * Applies `change` to `exceptionsFile` and returns what it did; `check` only validates. Throws, before anything is
- * written, for a record that breaks the schema, a date a sheet in `ohlaskyFile` covers, a past date, or a removal of
+ * written, for a record that breaks the schema, a date a sheet in `serviceSheetsFile` covers, a past date, or a removal of
  * a date that has no entry.
  */
 export function addException(
-  { ohlaskyFile, exceptionsFile }: { ohlaskyFile: string; exceptionsFile: string },
+  { serviceSheetsFile, exceptionsFile }: { serviceSheetsFile: string; exceptionsFile: string },
   change: ExceptionChange,
   { check = false, now = new Date() } = {},
 ): AddExceptionResult {
@@ -44,7 +50,7 @@ export function addException(
   } else {
     exception = parseOrThrow(scheduleExceptionSchema, change.add, "the record");
     date = exception.date;
-    const sheet = sheetCovering(readOhlasky(ohlaskyFile).sheets, date);
+    const sheet = sheetCovering(readServiceSheets(serviceSheetsFile).sheets, date);
     if (sheet) {
       throw new Error(`the sheet ${period(sheet)} covers ${date}: correct that sheet instead`);
     }
@@ -100,7 +106,9 @@ export function parseCommand(args: string[]): { change: ExceptionChange; check: 
 
 /** Adds or removes the change and prints it; then formats and tests the file written. */
 export async function execute({ change, check }: { change: ExceptionChange; check: boolean }) {
-  const result = addException({ ohlaskyFile: OHLASKY_FILE, exceptionsFile: EXCEPTIONS_FILE }, change, { check });
+  const result = addException({ serviceSheetsFile: SERVICE_SHEETS_FILE, exceptionsFile: EXCEPTIONS_FILE }, change, {
+    check,
+  });
   console.log(exceptionLine(result, check));
-  if (result.written.length > 0) await formatAndTest(result.written, OHLASKY_TESTS);
+  if (result.written.length > 0) await formatAndTest(result.written, SERVICE_SHEETS_TESTS);
 }

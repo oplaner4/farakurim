@@ -1,6 +1,6 @@
 import type { PlannedPage } from "@/content/types/planned";
 
-// Placeholder pages ("Stránku připravujeme") at the old site's URLs, built by the `[...stranka]` route.
+// Placeholder pages ("Stránku připravujeme") at the old site's URLs, built by the `[...path]` route.
 
 /** "/farni_tabor/2024/" → ["farni_tabor", "2024"] */
 export const pathSegments = (path: string) => path.split("/").filter(Boolean);

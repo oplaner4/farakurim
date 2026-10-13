@@ -1,7 +1,7 @@
 # Deployment
 
 How the site gets to https://farakurim.cz/: releases, the weekly refresh, the GitHub setup and the server. An agent
-releases with the `farnost-release` skill; the rules it must never break are in `CLAUDE.md` § Deployment.
+releases with the `parish-release` skill; the rules it must never break are in `CLAUDE.md` § Deployment.
 
 The site is deployed to the web root `/farakurim.cz/` with rsync over SSH. The old PHP site is backed up in
 `/stary.farakurim.cz/` on the server.

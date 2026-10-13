@@ -1,6 +1,6 @@
 import * as z from "zod";
 
-// The revision of a corrected upload: a Petrklíč issue (issueFolder()) or an ohlášky sheet (sheetPdfFile()). Files on
+// The revision of a corrected upload: a Petrklíč issue (issueFolder()) or a service sheet (sheetPdfFile()). Files on
 // the server are never overwritten, so a corrected PDF gets a new name ending in -r2, -r3, …, which
 // `pnpm stage … --corrected` picks and stores as `rev` in the record.
 

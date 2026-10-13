@@ -39,7 +39,7 @@ export const links = {
   questionnaireConsent: "/gdpr/",
   webLinks: "/odkazy/",
   privacy: "/ochrana-osobnich-udaju/",
-  /** Lapentor tour copied from the old site; it lives only on the server (see the farnost-release skill). */
+  /** Lapentor tour copied from the old site; it lives only on the server (see the parish-release skill). */
   virtualTour: "/virtualni_prohlidka/",
   viraCz: "https://www.vira.cz/",
 };
@@ -128,7 +128,7 @@ export const parishCalendars: Record<CalendarId, { name: string; googleId: strin
 
 /**
  * Browser key for the Google Calendar API, restricted to the site's referrer. Without it (local and CI builds), the
- * calendars fall back to entries generated from the schedule and Aktuality (`server/calendar.ts`).
+ * calendars fall back to entries generated from the schedule and the events (`server/calendar.ts`).
  */
 export const GOOGLE_CALENDAR_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY || undefined;
 

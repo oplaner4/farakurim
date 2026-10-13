@@ -16,7 +16,7 @@ describe("Stránky skupin (groups.ts)", () => {
   });
 
   it("serves each group page under Seznam aktivit at its id", () => {
-    // The route src/app/aktivity/[skupina]/ builds /aktivity/<id>/; a different href would link to a 404.
+    // The route src/app/aktivity/[group]/ builds /aktivity/<id>/; a different href would link to a 404.
     expect(groupPages.filter((g) => g.href !== `${links.activities}${g.id}/`).map((g) => g.id)).toEqual([]);
   });
 });

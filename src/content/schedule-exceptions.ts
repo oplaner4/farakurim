@@ -3,11 +3,11 @@ import type { ScheduleException } from "@/content/types/services";
 import { scheduleExceptionsFileSchema } from "@/lib/services/schema";
 import data from "./schedule-exceptions.json";
 
-// The changes the parish announces for days no ohlášky sheet covers, after the last one or in a week without one
-// (src/content/schedule-exceptions.json, added by `pnpm add-exception`, farnost-create-vyjimka skill), so the
-// next-mass countdown is right before that week's ohlášky arrive. Each replaces its whole day (`services: []` cancels
-// it); `scheduleExceptions()` drops the ones a sheet covers, and `pnpm stage porad … --record` removes those and the
-// past ones. Checked on import, so a broken file fails the build naming the field.
+// The changes the parish announces for days no service sheet covers, after the last one or in a week without one
+// (src/content/schedule-exceptions.json, added by `pnpm add-exception`, parish-create-exception skill), so the
+// next-mass countdown is right before that week's service sheet arrives. Each replaces its whole day (`services: []`
+// cancels it); `scheduleExceptions()` drops the ones a sheet covers, and `pnpm stage sheet … --record` removes those
+// and the past ones. Checked on import, so a broken file fails the build naming the field.
 
 const parsed = scheduleExceptionsFileSchema.safeParse(data);
 if (!parsed.success) {

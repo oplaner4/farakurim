@@ -3,8 +3,29 @@
 The project conventions for people and agents. `README.md` links here and `CLAUDE.md` imports this file, so keep it
 short.
 
-- **Language:** UI copy (all visible text, alt texts, aria-labels) is **Czech**; code (identifiers, comments, file
-  names) and commit messages are **English**.
+- **Language:** Czech is kept only where a person outside the code reads it or a public URL depends on it:
+  - UI copy (all visible text, alt texts, aria-labels, metadata, JSON-LD, the `.ics`);
+  - public addresses: route folders (`/aktuality/`), `/uploads/` paths and file names, HTML ids (they are URL
+    fragments: `#obsah`, `#plakat`), the redirects in `public/.htaccess`;
+  - content values in `src/content/` (texts, labels, ids that become URLs) and the parish's conventions outside the
+    code (the "Bohoslužby" and "Události" calendars, the `Zrušeno: ` title prefix);
+  - proper names, also inside identifiers (Petrklíč as `petrklic`, places, Fond PULS);
+  - quoted Czech in English text (`"Doporučujeme"`, source text, the trigger words in a skill's description).
+
+  Everything else is **English**: identifiers (route params included: `[year]`, not `[rok]`), enum keys stored in
+  content, file names, `pnpm` commands, skill names, script output, comments, docs and commit messages. The test: if
+  renaming it would break a link or confuse the parish, it stays Czech; if it only touches the repo, it is English.
+  A Czech page name (Aktuality, Kalendář) may name its page in English text; the parish's terms otherwise use these
+  English names:
+
+  | Czech                     | English                                                 |
+  | ------------------------- | ------------------------------------------------------- |
+  | aktualita, aktuality      | event, events (the domain and the page: news)           |
+  | ohlášky, pořad bohoslužeb | service sheet (one week's sheet), services (the domain) |
+  | výjimka                   | schedule exception                                      |
+  | plakát, příloha           | poster, attachment                                      |
+  | farnost (a skill prefix)  | parish                                                  |
+
 - **Stack:** Next.js 16 (App Router), React 19, TypeScript and **pnpm only**. Styling with Tailwind CSS v4 and the
   design tokens in `src/styles/globals.css` only (no hex or arbitrary values); dates with date-fns v4 and
   `@date-fns/tz` (Prague time); the lightbox is yet-another-react-lightbox, loaded on first use and restyled in

@@ -45,7 +45,7 @@ export function servicesOnDate(date: IsoDate, source: ScheduleSource): ServiceEn
     .sort((a, b) => clockMinutes(a.time) - clockMinutes(b.time));
 }
 
-/** Monday first, as the week is printed in the ohlášky. */
+/** Monday first, as the week is printed on the service sheet. */
 export const WEEK_ORDER: Weekday[] = [1, 2, 3, 4, 5, 6, 0];
 
 export type ScheduleRow = {

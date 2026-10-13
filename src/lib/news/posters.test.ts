@@ -34,10 +34,10 @@ describe("posterHref", () => {
     event("x", "2026-10-18", undefined, { poster: { src: `/uploads/aktuality/${src}`, alt: "" }, attachments });
 
   it("opens the poster's original, named like the poster", () => {
-    const pozvanka = file("Pozvánka", "x-pozvanka.pdf");
+    const invitation = file("Pozvánka", "x-pozvanka.pdf");
     const program = file("Program", "x-program.pdf");
-    expect(posterHref(withPoster("x-pozvanka-poster.webp", [program, pozvanka]))).toBe(pozvanka.file);
-    expect(posterHref(withPoster("x-pozvanka.webp", [program, pozvanka]))).toBe(pozvanka.file);
+    expect(posterHref(withPoster("x-pozvanka-poster.webp", [program, invitation]))).toBe(invitation.file);
+    expect(posterHref(withPoster("x-pozvanka.webp", [program, invitation]))).toBe(invitation.file);
     expect(posterHref(withPoster("x-pozvanka-r2-poster.webp", [file("Pozvánka", "x-pozvanka-r2.png")]))).toBe(
       "/uploads/aktuality/x-pozvanka-r2.png",
     );

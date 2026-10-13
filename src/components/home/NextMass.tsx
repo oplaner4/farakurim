@@ -20,9 +20,9 @@ const isoDateTime = (date: string, time: string) =>
 
 type Props = {
   renderedAt: number;
-  /** From the server: the ohlášky module is server-only. */
+  /** From the server: the service sheet module is server-only. */
   exceptions: ScheduleException[];
-  /** Every ohlášky sheet (sorted by `validFrom`): the one valid today gives the PDF link and its dates. */
+  /** Every service sheet (sorted by `validFrom`): the one valid today gives the PDF link and its dates. */
   sheets: Pick<ServiceSheet, "pdfUrl" | "validFrom" | "validTo">[];
   showCountdown?: boolean;
 };

@@ -1,6 +1,6 @@
-// pnpm add-exception: adds or removes a change the parish announces for a day no ohlášky sheet covers, in
-// src/content/schedule-exceptions.json (farnost-create-vyjimka skill), then formats the file and runs the ohlášky
-// tests. The record is one ScheduleException: every service of that date at the parish churches (`services: []`
+// pnpm add-exception: adds or removes a change the parish announces for a day no service sheet covers, in
+// src/content/schedule-exceptions.json (parish-create-exception skill), then formats the file and runs the service
+// sheet tests. The record is one ScheduleException: every service of that date at the parish churches (`services: []`
 // cancels the day); a record for a date already there replaces it. A date a sheet covers is refused (correct that
 // sheet instead), and so is a past one.
 //

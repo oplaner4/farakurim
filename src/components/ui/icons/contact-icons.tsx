@@ -58,7 +58,7 @@ export const UserIcon = (p: IconProps) => (
   </Icon>
 );
 
-/** A church front: invitations (Pozvánka) in the ohlášky. */
+/** A church front: invitations (Pozvánka) in the service sheets. */
 export const ChurchIcon = (p: IconProps) => (
   <Icon {...p}>
     <path d="M4 20V6l8-3 8 3v14" />

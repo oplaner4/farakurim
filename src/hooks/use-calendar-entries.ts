@@ -46,7 +46,7 @@ const combineReads = (results: UseQueryResult<Read>[]) => results.flatMap((r) =>
 
 /**
  * Entries for `range` and around it: the prerendered `initial` ones, with the days of every range read from
- * Google Calendar replaced by Google's entries. `linkablePages` are the Aktuality detail pages Události events may link to.
+ * Google Calendar replaced by Google's entries. `linkablePages` are the event detail pages Události events may link to.
  */
 export function useCalendarEntries(
   initial: InitialCalendar,

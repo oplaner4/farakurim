@@ -4,7 +4,7 @@ import { pageImages, toIssue } from "@/lib/petrklic/issues";
 import { petrklicFileSchema } from "@/lib/petrklic/schema";
 import data from "./petrklic.json";
 
-// The Petrklíč issues (src/content/petrklic.json, added by `pnpm stage petrklic`, farnost-create-petrklic skill):
+// The Petrklíč issues (src/content/petrklic.json, added by `pnpm stage petrklic`, parish-create-petrklic skill):
 // the old site's archive (farakurim.cz/petrklic/archiv) and the new issues, newest first. Each issue is a folder
 // /uploads/petrklic/<id>/ (<id>-r<rev>/ for a corrected PDF) with petrklic-<id>.pdf, cover.webp and, for the current
 // issue, pages/<n>.webp, rendered from the PDF; the id and the URLs are computed (toIssue()). Checked on import, so a broken file fails the build naming

@@ -8,6 +8,6 @@ export const metadata: Metadata = {
   description: "Pozvánky na akce farnosti Kuřim a okolí: nadcházející akce, dlouhodobé programy a plakáty.",
 };
 
-export default function AktualityPage() {
+export default function NewsIndexPage() {
   return <NewsPage filter="upcoming" />;
 }
