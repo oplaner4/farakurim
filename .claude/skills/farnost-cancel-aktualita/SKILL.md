@@ -65,8 +65,10 @@ the event in the Události calendar:
 - cancelled, or the cancellation withdrawn: rename the event as the lines say (`rename "…" to "Zrušeno: …"`, or back
   without the prefix), and never delete it; a dropped meeting is renamed on that occurrence only. Run
   `pnpm aktualita-calendar <id>` after the user's edit: it says `nothing to do` once the titles match;
-- moved: move the existing event to the new date. The check reports it `missing` and writes an `.ics`, but importing
-  it would add a second event.
+- moved: move the existing event to the new date and time, as the line `"…" is still on <old date>: move it to …`
+  says, and never import an `.ics` for it, which would add a second event. The check writes one only when the event
+  is on neither date. Run `pnpm aktualita-calendar <id>` after the user's edit: it says `nothing to do` once the
+  event is on the new date.
 
 ## 6. Publish
 

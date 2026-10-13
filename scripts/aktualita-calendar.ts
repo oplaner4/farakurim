@@ -5,6 +5,7 @@
 //   missing    no such event: when no meeting is in the calendar, it writes the aktualita's .ics to import into
 //              Události (the file of "Přidat do kalendáře", whose description holds the URL); a cancelled meeting
 //              needs none.
+//   moved      a moved aktualita's event is still on the date before the move: move it to the new date (no .ics).
 // A found event whose "Zrušeno: " title prefix does not match the meeting (cancelled or dropped on the site, or no
 // longer) is to be renamed, as the calendars take the cancelled status from that prefix alone.
 // It reads the calendar with NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY from .env.local; without the key, or when Google

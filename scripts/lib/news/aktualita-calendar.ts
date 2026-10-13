@@ -1,8 +1,10 @@
 // Matches an aktualita's meetings with the events of the Události Google Calendar: the calendar links an event to the
 // detail page when the event's description holds the page's URL, so each meeting is linked (an event that day holds
 // the URL), not linked (an event that day has a matching title) or missing. A found event's "Zrušeno: " title prefix
-// must match the meeting's cancelled status, as the calendars take the status from the prefix alone. Writes the
-// aktualita's .ics for a missing one, and reads the calendar with NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY from .env.local.
+// must match the meeting's cancelled status, as the calendars take the status from the prefix alone. A moved
+// aktualita's first meeting missing on its new date is looked for on the date before the move, to be moved there.
+// Writes the aktualita's .ics for a missing one, and reads the calendar with NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY from
+// .env.local.
 
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
@@ -35,31 +37,55 @@ const sameTitle = (a: string, b: string) => {
 
 export type MeetingMatch = {
   meeting: Meeting;
-  status: "linked" | "unlinked" | "missing";
-  /** The calendar event found that day; `cancelled` when its title starts with "Zrušeno: ". */
-  found?: { title: string; date: string; cancelled: boolean };
+  /** `moved`: missing on the meeting's day, but found on the day before the aktualita moved. */
+  status: "linked" | "unlinked" | "missing" | "moved";
+  /**
+   * The calendar event found that day: `cancelled` when its title starts with "Zrušeno: ", `linked` when its
+   * description links the page.
+   */
+  found?: { title: string; date: string; cancelled: boolean; linked: boolean };
 };
+
+/** The event of the aktualita in `calendar` on the days `from`–`to`: one linking `href`, else one with its title. */
+function findEvent(calendar: GoogleEvent[], event: NewsEvent, href: string, from: string, to: string) {
+  const sameDay = calendar.flatMap((e) => {
+    const days = e.status === "cancelled" ? undefined : eventDays(e);
+    return days && days.date <= to && (days.end ?? days.date) >= from ? [{ e, days }] : [];
+  });
+  const linked = sameDay.find(({ e }) => aktualitaPaths(e.description).includes(href));
+  const match = linked ?? sameDay.find(({ e }) => sameTitle(parseTitle(e.summary).title, event.title));
+  if (!match) return undefined;
+  const { e, days } = match;
+  const title = e.summary?.trim() ?? "";
+  return { title, date: days.date, cancelled: parseTitle(e.summary).cancelled, linked: linked !== undefined };
+}
 
 /** How each meeting of `event` stands in the Události `calendar`. */
 export function matchMeetings(event: NewsEvent, calendar: GoogleEvent[]): MeetingMatch[] {
   const href = eventHref(event);
+  const { change } = event;
   return meetingsOf(event).map((meeting): MeetingMatch => {
-    const sameDay = calendar.flatMap((e) => {
-      const days = e.status === "cancelled" ? undefined : eventDays(e);
-      return days && days.date <= meeting.end && (days.end ?? days.date) >= meeting.start ? [{ e, days }] : [];
-    });
-    const found = ({ e, days }: (typeof sameDay)[number]) => ({
-      title: e.summary?.trim() ?? "",
-      date: days.date,
-      cancelled: parseTitle(e.summary).cancelled,
-    });
-    const linked = sameDay.find(({ e }) => aktualitaPaths(e.description).includes(href));
-    if (linked) return { meeting, status: "linked", found: found(linked) };
-    const titled = sameDay.find(({ e }) => sameTitle(parseTitle(e.summary).title, event.title));
-    if (titled) return { meeting, status: "unlinked", found: found(titled) };
+    const found = findEvent(calendar, event, href, meeting.start, meeting.end);
+    if (found) return { meeting, status: found.linked ? "linked" : "unlinked", found };
+    if (change?.status === "moved" && meeting.start === event.start) {
+      const before = findEvent(calendar, event, href, change.previousStart, change.previousStart);
+      if (before) return { meeting, status: "moved", found: before };
+    }
     return { meeting, status: "missing" };
   });
 }
+
+/** The days a calendar check reads: every meeting, and a moved aktualita's day before the move. */
+function checkedRange(event: NewsEvent): { from: string; to: string } {
+  const days = meetingsOf(event).flatMap((m) => [m.start, m.end]);
+  if (event.change?.status === "moved") days.push(event.change.previousStart);
+  days.sort();
+  return { from: days[0], to: days.at(-1)! };
+}
+
+/** "13:00–18:00" or "13:00" after a date, or nothing for an all-day meeting. */
+const timesText = ({ startTime, endTime }: Meeting) =>
+  startTime ? ` ${startTime}${endTime ? `–${endTime}` : ""}` : "";
 
 /** Writes the aktualita's .ics (as "Přidat do kalendáře" serves it) to `outDir`; returns its path. */
 export function writeIcs(event: NewsEvent, outDir: string): string {
@@ -73,8 +99,8 @@ const IMPORT =
   'import it into "Události" at https://calendar.google.com/calendar/u/0/r/settings/export, not into a personal calendar';
 /** Closes a report that asks the user to add or link an event. */
 const WHEN = "This can be done before or after the release: the Kalendář links the event once both are in place.";
-/** Closes a report that asks the user to rename an event. */
-const RENAME_WHEN = "The Kalendář shows the new title once Google has it, with or without a release.";
+/** Closes a report that asks the user to rename or move an event. */
+const CHANGE_WHEN = "The Kalendář shows the change once Google has it, with or without a release.";
 
 /** The title a found event should have, or undefined when its "Zrušeno: " prefix matches the meeting. */
 function titleToSet({ meeting, found }: MeetingMatch): string | undefined {
@@ -100,7 +126,7 @@ export async function checkCalendar(event: NewsEvent, { apiKey, outDir }: CheckO
   ];
   if (!apiKey) return unchecked("no NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY in .env.local");
   const meetings = meetingsOf(event);
-  const range = { from: meetings[0].start, to: meetings.reduce((last, m) => (m.end > last ? m.end : last), "") };
+  const range = checkedRange(event);
   let calendar: GoogleEvent[];
   try {
     calendar = await fetchGoogleCalendar(parishCalendars.events.googleId, apiKey, range, refererInit(SITE_URL));
@@ -130,14 +156,26 @@ export async function checkCalendar(event: NewsEvent, { apiKey, outDir }: CheckO
     const rename = renames[i]
       ? `rename "${found!.title}" to "${renames[i]}"${occurrence}, as the meeting is ${meeting.cancelled ? "cancelled (do not delete the event)" : "no longer cancelled"}`
       : undefined;
+    if (status === "moved") {
+      const also = [!found!.linked && `add ${url} to its description`, rename].filter(Boolean);
+      const more = also.length > 0 ? `, then ${also.join(" and ")}` : "";
+      return `${day}: "${found!.title}" is still on ${found!.date}: move it to ${meeting.start}${timesText(meeting)}${more}. Do not import an .ics: it would add a second event.`;
+    }
     if (status === "unlinked") {
       return `${day}: "${found!.title}" has no link: add ${url} to its description${rename ? `, and ${rename}` : ""}.`;
     }
     return rename ? `${day}: linked, but ${rename}.` : `${day}: linked ("${found!.title}").`;
   });
   const closing = [
-    ...(matches.some((m) => m.status === "unlinked" || (m.status === "missing" && !m.meeting.cancelled)) ? [WHEN] : []),
-    ...(renames.some(Boolean) ? [RENAME_WHEN] : []),
+    ...(matches.some(
+      (m) =>
+        m.status === "unlinked" ||
+        (m.status === "missing" && !m.meeting.cancelled) ||
+        (m.status === "moved" && !m.found!.linked),
+    )
+      ? [WHEN]
+      : []),
+    ...(renames.some(Boolean) || matches.some((m) => m.status === "moved") ? [CHANGE_WHEN] : []),
   ];
   return [...lines, ...closing];
 }
