@@ -48,6 +48,10 @@
     "longTerm": {
       "weeklyAt": "18:30"
     },
+    "poster": {
+      "src": "/uploads/aktuality/obnova-v-duchu-svatem-2026-pozvanka-poster.webp",
+      "alt": "Pozvánka: Obnova v Duchu svatém"
+    },
     "attachments": [
       {
         "label": "Pozvánka",
