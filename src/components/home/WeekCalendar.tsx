@@ -181,7 +181,7 @@ function DayCard({
         {hidden > 0 && (
           <a
             href={`${links.calendar}?den=${date}`}
-            aria-label={`Další ${hidden} ${plural(hidden, ["akce", "akce", "akcí"])} v kalendáři`}
+            aria-label={`${plural(hidden, ["Další", "Další", "Dalších"])} ${hidden} ${plural(hidden, ["akce", "akce", "akcí"])} v kalendáři`}
             className="ml-3 self-start rounded-6 bg-magenta-tint px-2 py-0.5 text-13 font-bold text-magenta-ink no-underline hover:text-magenta-ink hover:underline"
           >
             {moreEventsLabel(hidden)}
