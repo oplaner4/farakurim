@@ -1,4 +1,4 @@
-import { existsSync, rmSync } from "node:fs";
+import { existsSync, readFileSync, rmSync } from "node:fs";
 import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 import { readEvents } from "@/content/news";
@@ -43,7 +43,8 @@ describe("posterAktualita", { timeout: 30_000 }, () => {
       alt: "Plakát: Farní den 20. října",
     });
     const webp = uploaded("aktuality", "test-farni-den-2026-letak-poster.webp");
-    expect((await sharp(webp).metadata()).width).toBe(POSTER_WIDTH);
+    // Read from a buffer: sharp keeps a file it opened locked on Windows, and the fixture could not delete it.
+    expect((await sharp(readFileSync(webp)).metadata()).width).toBe(POSTER_WIDTH);
     expect(await lines("Leták")).toEqual(['"Leták" is already the poster of test-farni-den-2026']);
   });
 

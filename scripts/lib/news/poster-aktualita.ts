@@ -4,7 +4,7 @@
 // (replaceAktualita()), keeping its `published`, its pin and the poster's alt text.
 
 import { existsSync } from "node:fs";
-import { extname, join, relative } from "node:path";
+import { extname, join, relative, sep } from "node:path";
 import { readEvents } from "@/content/news";
 import type { EventAttachment, NewsEvent } from "@/content/types/news";
 import { isPosterOf, posterOf } from "@/lib/news/posters";
@@ -92,7 +92,7 @@ export function posterLines(
   uploadsDir: string,
 ): string[] {
   if (result.already) return [`"${label}" is already the poster of ${id}`];
-  const local = (path: string) => `${UPLOADS_DIR}${relative(uploadsDir, path)}`;
+  const local = (path: string) => `${UPLOADS_DIR}${relative(uploadsDir, path).replaceAll(sep, "/")}`;
   const poster =
     label === null
       ? `${actionVerb(check, "remove")} the poster (its WebP stays on the server)`

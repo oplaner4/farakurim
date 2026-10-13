@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { relative } from "node:path";
+import { relative, sep } from "node:path";
 import * as z from "zod";
 
 // Reading a JSON content file that is read rather than imported (the Aktuality month files, and every file the
@@ -12,9 +12,12 @@ export function parseOrThrow<T>(schema: z.ZodType<T>, input: unknown, what: stri
   return parsed.data;
 }
 
-/** The JSON file `file`, checked by `schema`; a file that is not JSON or breaks the schema throws, naming it. */
+/**
+ * The JSON file `file`, checked by `schema`; a file that is not JSON or breaks the schema throws, naming it (with `/`
+ * on every OS).
+ */
 export function readJsonFile<T>(file: string, schema: z.ZodType<T>): T {
-  const name = relative(process.cwd(), file);
+  const name = relative(process.cwd(), file).replaceAll(sep, "/");
   let data: unknown;
   try {
     data = JSON.parse(readFileSync(file, "utf8"));
