@@ -68,6 +68,14 @@ jobs:
       # next dev and next build generate them locally, next typegen does it without building.
       - run: pnpm exec next typegen && pnpm exec tsc --noEmit
 
+      # Next's build cache (.next/cache, mostly Turbopack's) keeps the builds warm. Safe for a release too: pnpm build
+      # deletes the fetch cache first (scripts/clear-fetch-cache.mjs), so no build reuses old calendars or verses.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .next/cache
+          key: nextjs-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('src/**', 'public/**', '*.config.*', 'tsconfig.json') }}
+          restore-keys: nextjs-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+
       # Without keys (pushes and pull requests) the calendars use generated entries and the tracker is off; the build
       # only has to succeed. A release passes the repository variables (the calendar key is public in the built JS
       # anyway) and RELEASE_BUILD, so next.config.ts fails the build when one is missing (src/lib/shared/build-env.ts).
