@@ -69,7 +69,7 @@ export default async function HomePage() {
         </noscript>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: jsonLdScript(parishJsonLd(`${SITE_URL}${links.home}`)) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdScript(parishJsonLd(`${SITE_URL}${links.home}`, buildDay)) }}
         />
       </main>
     </>

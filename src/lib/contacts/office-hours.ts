@@ -1,6 +1,7 @@
+import { addDays } from "date-fns";
 import type { OfficeHours } from "@/content/types/contacts";
 import type { IsoDate } from "@/content/types/shared";
-import { pragueDate, pragueDateTime, pragueWeekday } from "@/lib/shared/prague";
+import { inPrague, pragueDate, pragueDateTime, pragueWeekday } from "@/lib/shared/prague";
 
 /** Whether a slot applies on a date: its weekday, outside its yearly break (which may wrap over New Year). */
 export function officeHoursApply(slot: OfficeHours, date: IsoDate): boolean {
@@ -10,6 +11,23 @@ export function officeHoursApply(slot: OfficeHours, date: IsoDate): boolean {
   const { from, to } = slot.closed;
   const inBreak = from <= to ? day >= from && day <= to : day >= from || day <= to;
   return !inBreak;
+}
+
+const shiftDate = (date: IsoDate, days: number) =>
+  pragueDate(addDays(pragueDateTime(date, "12:00"), days, { in: inPrague }));
+
+/**
+ * The days a slot with a yearly break applies between two breaks: the season that runs on `today`, or the next one
+ * when `today` is in the break. "07-01"–"08-31" on 14. 10. 2026 → 1. 9. 2026 – 30. 6. 2027.
+ */
+export function openSeason(closed: NonNullable<OfficeHours["closed"]>, today: IsoDate): { from: IsoDate; to: IsoDate } {
+  const year = Number(today.slice(0, 4));
+  const seasons = [year - 1, year, year + 1].map((y) => {
+    const from = shiftDate(`${y}-${closed.to}`, 1);
+    const nextBreak = `${y}-${closed.from}` > from ? `${y}-${closed.from}` : `${y + 1}-${closed.from}`;
+    return { from, to: shiftDate(nextBreak, -1) };
+  });
+  return seasons.find((season) => season.to >= today)!;
 }
 
 export type OfficeStatus = { open: boolean; text: string };

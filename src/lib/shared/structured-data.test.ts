@@ -42,7 +42,7 @@ describe("eventJsonLd", () => {
 });
 
 describe("parishJsonLd", () => {
-  const church = parishJsonLd("https://farakurim.cz/kontakty/");
+  const church = parishJsonLd("https://farakurim.cz/kontakty/", "2026-10-14");
 
   it("describes the parish with one id on every page", () => {
     expect(church).toMatchObject({
@@ -52,10 +52,10 @@ describe("parishJsonLd", () => {
       address: { streetAddress: "Křížkovského 55/5", postalCode: "664 34", addressLocality: "Kuřim" },
       email: "fara.kurim@seznam.cz",
     });
-    expect(parishJsonLd("https://farakurim.cz/")["@id"]).toBe(church["@id"]);
+    expect(parishJsonLd("https://farakurim.cz/", "2026-10-14")["@id"]).toBe(church["@id"]);
   });
 
-  it("gives the phone in international form and the office hours as schema.org days and HH:mm", () => {
+  it("gives the phone in international form and the office hours with a break limited to its season", () => {
     expect(church.telephone).toBe("+420723661146");
     expect(church.openingHoursSpecification).toEqual([
       {
@@ -69,7 +69,14 @@ describe("parishJsonLd", () => {
         dayOfWeek: "https://schema.org/Thursday",
         opens: "19:00",
         closes: "20:00",
+        validFrom: "2026-09-01",
+        validThrough: "2027-06-30",
       },
     ]);
+  });
+
+  it("never publishes a slot as open during its summer break", () => {
+    const thursday = parishJsonLd("https://farakurim.cz/", "2027-07-15").openingHoursSpecification[1];
+    expect(thursday).toMatchObject({ validFrom: "2027-09-01", validThrough: "2028-06-30" });
   });
 });

@@ -1,6 +1,8 @@
 import { format } from "date-fns";
 import { contacts, parish, SITE_URL } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
+import type { IsoDate } from "@/content/types/shared";
+import { openSeason } from "@/lib/contacts/office-hours";
 import { telHref } from "./links";
 import { eventTimes } from "@/lib/news/timing";
 import { inPrague, pragueDateTime } from "./prague";
@@ -44,12 +46,14 @@ export function eventJsonLd(event: NewsEvent, url: string) {
 
 const SCHEMA_DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const hhmm = (time: string) => time.padStart(5, "0");
+const validSeason = ({ from, to }: { from: IsoDate; to: IsoDate }) => ({ validFrom: from, validThrough: to });
 
 /**
  * schema.org/Church of the Kontakty page (design/DESIGN.md §15.3) and the home page: address, phone, e-mail, office
- * hours. The shared `@id` tells search engines both pages describe the same parish.
+ * hours. The shared `@id` tells search engines both pages describe the same parish. A slot with a yearly break is
+ * valid only for its season around `today` (the build day), so the break is not published as open.
  */
-export function parishJsonLd(url: string) {
+export function parishJsonLd(url: string, today: IsoDate) {
   return {
     "@context": "https://schema.org",
     "@type": "Church",
@@ -70,6 +74,7 @@ export function parishJsonLd(url: string) {
       dayOfWeek: `https://schema.org/${SCHEMA_DAYS[slot.weekday]}`,
       opens: hhmm(slot.from),
       closes: hhmm(slot.to),
+      ...(slot.closed && validSeason(openSeason(slot.closed, today))),
     })),
   };
 }

@@ -9,6 +9,7 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { contacts, links, SITE_URL } from "@/content/site";
 import { BUILD_TIME } from "@/lib/shared/build-time";
+import { pragueDate } from "@/lib/shared/prague";
 import { jsonLdScript, parishJsonLd } from "@/lib/shared/structured-data";
 
 export const metadata: Metadata = {
@@ -46,7 +47,9 @@ export default function ContactsPage() {
         </noscript>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: jsonLdScript(parishJsonLd(`${SITE_URL}${links.contacts}`)) }}
+          dangerouslySetInnerHTML={{
+            __html: jsonLdScript(parishJsonLd(`${SITE_URL}${links.contacts}`, pragueDate(BUILD_TIME))),
+          }}
         />
       </main>
     </>

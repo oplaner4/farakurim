@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { OfficeHours } from "@/content/types/contacts";
-import { officeHoursApply, officeStatus } from "./office-hours";
+import { officeHoursApply, officeStatus, openSeason } from "./office-hours";
 import { pragueDateTime } from "@/lib/shared/prague";
 
 const hours: OfficeHours[] = [
@@ -26,6 +26,29 @@ describe("officeHoursApply", () => {
     const slot = { ...hours[1], closed: { from: "12-24", to: "01-06" } };
     expect(officeHoursApply(slot, "2026-12-31")).toBe(false);
     expect(officeHoursApply(slot, "2027-01-07")).toBe(true);
+  });
+});
+
+describe("openSeason", () => {
+  const summer = { from: "07-01", to: "08-31" };
+  const season = (from: string, to: string) => ({ from, to });
+
+  it("is the season running on the day, from the day after the break to the day before the next one", () => {
+    expect(openSeason(summer, "2026-10-14")).toEqual(season("2026-09-01", "2027-06-30"));
+    expect(openSeason(summer, "2026-09-01")).toEqual(season("2026-09-01", "2027-06-30"));
+    expect(openSeason(summer, "2027-06-30")).toEqual(season("2026-09-01", "2027-06-30"));
+  });
+
+  it("is the next season during the break", () => {
+    expect(openSeason(summer, "2026-07-01")).toEqual(season("2026-09-01", "2027-06-30"));
+    expect(openSeason(summer, "2026-08-31")).toEqual(season("2026-09-01", "2027-06-30"));
+  });
+
+  it("handles a break over New Year", () => {
+    const christmas = { from: "12-24", to: "01-06" };
+    expect(openSeason(christmas, "2026-10-14")).toEqual(season("2026-01-07", "2026-12-23"));
+    expect(openSeason(christmas, "2026-12-28")).toEqual(season("2027-01-07", "2027-12-23"));
+    expect(openSeason(christmas, "2027-01-03")).toEqual(season("2027-01-07", "2027-12-23"));
   });
 });
 
