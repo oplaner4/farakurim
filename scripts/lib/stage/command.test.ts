@@ -2,9 +2,8 @@ import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { SERVICE_SHEETS_TESTS } from "../content-files";
-import { weekDays } from "./sheet";
 import { runStage } from "./command";
-import { useStageFixture } from "../test-helpers";
+import { emptyWeek, useStageFixture } from "../test-helpers";
 
 describe("runStage", { timeout: 30_000 }, () => {
   const { env, download, poster } = useStageFixture();
@@ -18,7 +17,7 @@ describe("runStage", { timeout: 30_000 }, () => {
     writeFileSync(
       sheetFile,
       JSON.stringify({
-        days: weekDays("2099-10-04", "2099-10-11").map((d) => ({ date: d.slice(3), rows: [] })),
+        days: emptyWeek("2099-10-04", "2099-10-11"),
         announcements: [],
       }),
     );

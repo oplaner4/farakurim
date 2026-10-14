@@ -1,9 +1,8 @@
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { hasPoppler, pdfWithText } from "./test-helpers";
+import { describe, expect, it } from "vitest";
+import { hasPoppler, pdfWithText, freshTempDir } from "./test-helpers";
 import {
   extractPdfPages,
   pdfPageCount,
@@ -14,15 +13,11 @@ import {
   toWebp,
 } from "./images";
 
-let dir: string;
-beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), "images-"));
-});
-afterEach(() => rmSync(dir, { recursive: true, force: true }));
+const dir = freshTempDir("images");
 
 /** A plain image of `width`×`height` written as `name`. */
 const image = async (name: string, width: number, height: number, orientation?: number) => {
-  const file = join(dir, name);
+  const file = join(dir(), name);
   let img = sharp({ create: { width, height, channels: 3, background: { r: 40, g: 90, b: 160 } } }).jpeg();
   if (orientation) img = img.withMetadata({ orientation });
   await img.toFile(file);
@@ -38,17 +33,17 @@ const size = async (file: string) => {
 describe("toWebp", () => {
   it("scales a large image down to the width and keeps a small one", async () => {
     expect(
-      await toWebp(await image("big.jpg", 1360, 1920), join(dir, "big.webp"), { width: 680, quality: 78 }),
+      await toWebp(await image("big.jpg", 1360, 1920), join(dir(), "big.webp"), { width: 680, quality: 78 }),
     ).toEqual({ width: 680, height: 960 });
-    expect(await size(join(dir, "big.webp"))).toEqual({ width: 680, height: 960, format: "webp" });
+    expect(await size(join(dir(), "big.webp"))).toEqual({ width: 680, height: 960, format: "webp" });
     expect(
-      await toWebp(await image("small.jpg", 300, 400), join(dir, "small.webp"), { width: 680, quality: 78 }),
+      await toWebp(await image("small.jpg", 300, 400), join(dir(), "small.webp"), { width: 680, quality: 78 }),
     ).toEqual({ width: 300, height: 400 });
   });
 
   it("turns a photo upright by its EXIF orientation and creates the folder", async () => {
     // Orientation 6: stored landscape, shown rotated by 90°.
-    const out = join(dir, "nested", "photo.webp");
+    const out = join(dir(), "nested", "photo.webp");
     expect(await toWebp(await image("photo.jpg", 400, 200, 6), out, { width: 680, quality: 78 })).toEqual({
       width: 200,
       height: 400,
@@ -59,26 +54,26 @@ describe("toWebp", () => {
 
 describe("renderPoster", () => {
   it("renders an image poster at the poster width", async () => {
-    const out = join(dir, "plakat.webp");
+    const out = join(dir(), "plakat.webp");
     expect((await renderPoster(await image("plakat.jpg", 1000, 1414), out)).width).toBe(POSTER_WIDTH);
     expect((await size(out)).format).toBe("webp");
   });
 
   it.skipIf(!hasPoppler)("renders page 1 of a PDF poster", async () => {
-    const pdf = join(dir, "plakat.pdf");
+    const pdf = join(dir(), "plakat.pdf");
     writeFileSync(pdf, pdfWithText(["Hody v Ceske", "Program"]));
-    const out = join(dir, "plakat.webp");
+    const out = join(dir(), "plakat.webp");
     // An A4 page (595 × 842 pt) scaled to the poster width: 1018.9 px high, rounded either way by pdftoppm.
     const { width, height } = await renderPoster(pdf, out);
     expect(width).toBe(POSTER_WIDTH);
     expect(Math.abs(height - 1018.9)).toBeLessThan(1);
-    expect(readdirSync(dir).sort()).toEqual(["plakat.pdf", "plakat.webp"]);
+    expect(readdirSync(dir()).sort()).toEqual(["plakat.pdf", "plakat.webp"]);
   });
 });
 
 describe.skipIf(!hasPoppler)("renderPetrklic", () => {
   const issue = () => {
-    const folder = join(dir, "2026-2");
+    const folder = join(dir(), "2026-2");
     mkdirSync(folder);
     writeFileSync(join(folder, "petrklic-2026-2.pdf"), pdfWithText(["Petrklic 1", "Strana 2", "Strana 3"]));
     return folder;
@@ -98,19 +93,19 @@ describe.skipIf(!hasPoppler)("renderPetrklic", () => {
   });
 
   it("refuses a missing PDF", async () => {
-    await expect(renderPetrklic(join(dir, "2026-3", "petrklic-2026-3.pdf"))).rejects.toThrow("missing");
+    await expect(renderPetrklic(join(dir(), "2026-3", "petrklic-2026-3.pdf"))).rejects.toThrow("missing");
   });
 });
 
 describe.skipIf(!hasPoppler)("pdfPageTexts and extractPdfPages", () => {
   it("reads each page's text and cuts out one page or a range", () => {
-    const pdf = join(dir, "doc.pdf");
+    const pdf = join(dir(), "doc.pdf");
     writeFileSync(pdf, pdfWithText(["Week one", "Week two", "Week two again"]));
     expect(pdfPageTexts(pdf).map((t) => t.trim())).toEqual(["Week one", "Week two", "Week two again"]);
-    const one = join(dir, "out", "one.pdf");
+    const one = join(dir(), "out", "one.pdf");
     extractPdfPages(pdf, [1, 1], one);
     expect(pdfPageTexts(one).map((t) => t.trim())).toEqual(["Week one"]);
-    const two = join(dir, "two.pdf");
+    const two = join(dir(), "two.pdf");
     extractPdfPages(pdf, [2, 3], two);
     expect(pdfPageTexts(two).map((t) => t.trim())).toEqual(["Week two", "Week two again"]);
   });

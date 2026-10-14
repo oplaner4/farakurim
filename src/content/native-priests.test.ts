@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { nativePriests } from "./native-priests";
-import { duplicates, localHrefs } from "@/lib/test/content-checks";
+import { duplicates, localHrefs } from "@/test/content-checks";
 import { isUpload } from "@/lib/shared/uploads";
 
 describe("Kněží – rodáci (native-priests.ts)", () => {

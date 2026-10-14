@@ -13,7 +13,7 @@ import {
   NEWS_FILTERS,
   otherEvents,
 } from "./events";
-import { at, event, events, ids, TODAY } from "./test-fixtures";
+import { at, event, events, ids, TODAY } from "@/test/fixtures";
 
 describe("currentNews", () => {
   it("drops finished and long-term items, sorts by start and applies the limit", () => {

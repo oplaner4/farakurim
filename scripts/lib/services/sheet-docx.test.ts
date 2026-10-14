@@ -1,9 +1,8 @@
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { docxWeeks } from "./sheet-docx";
-import { docxWithBody, wordml } from "../test-helpers";
+import { docxWithBody, freshTempDir, wordml } from "../test-helpers";
 
 const { p, run, table } = wordml;
 
@@ -35,14 +34,10 @@ const week = table([
 const heading = (text: string) => p(run(text, { bold: true }));
 
 describe("docxWeeks", () => {
-  let dir = "";
-  beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), "docx-"));
-  });
-  afterEach(() => rmSync(dir, { recursive: true, force: true }));
+  const dir = freshTempDir("docx");
 
   const docx = (body: string, links: Record<string, string> = {}) => {
-    const file = join(dir, "porad.docx");
+    const file = join(dir(), "porad.docx");
     writeFileSync(file, docxWithBody(body, links));
     return file;
   };
@@ -254,9 +249,9 @@ describe("docxWeeks", () => {
   });
 
   it("refuses a file that is not a DOCX", async () => {
-    const file = join(dir, "porad.docx");
+    const file = join(dir(), "porad.docx");
     writeFileSync(file, "%PDF");
     await expect(docxWeeks(file)).rejects.toThrow("is not a Word document (.docx)");
-    await expect(docxWeeks(join(dir, "chybi.docx"))).rejects.toThrow("ENOENT");
+    await expect(docxWeeks(join(dir(), "chybi.docx"))).rejects.toThrow("ENOENT");
   });
 });

@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { stageSheet, weekDays } from "./sheet";
 import { extractPdfPages, pdfPageTexts } from "../images";
 import { docxToPdf } from "../services/docx-to-pdf";
-import { docxWithBody, hasPoppler, hasSoffice, pdfWithText, useStageFixture, wordml } from "../test-helpers";
+import { docxWithBody, emptyWeek, hasPoppler, hasSoffice, pdfWithText, useStageFixture, wordml } from "../test-helpers";
 
 // The real converter and PDF tools, wrapped so the DOCX tests below can run without LibreOffice and poppler.
 vi.mock("../services/docx-to-pdf", async (importOriginal) => {
@@ -66,7 +66,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
   });
   /** A record covering 2099-10-04 – 2099-10-11, after every real sheet, so the tests keep passing. */
   const record = () => ({
-    days: weekDays("2099-10-04", "2099-10-11").map((d) => ({ date: d.slice(3), rows: [] })),
+    days: emptyWeek("2099-10-04", "2099-10-11"),
     announcements: [{ category: "info", html: "<p>Sbírka.</p>" }],
   });
 
@@ -195,7 +195,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
       expect(existsSync(uploaded("porady_bohosluzeb"))).toBe(false);
 
       // Staged twice (a rerun converts again): the week's page only, replaced.
-      const days = weekDays("2099-10-04", "2099-10-11").map((d) => ({ date: d.slice(3), rows: [] }));
+      const days = emptyWeek("2099-10-04", "2099-10-11");
       const week = { source, record: { ...record(), days } };
       await stageSheet(env, week);
       await stageSheet(env, week);
@@ -208,7 +208,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
       // The last week of the document: its page, without the blank one after it.
       const older = { source, validFrom: "2099-09-27", validTo: "2099-10-04", check: true };
       await stageSheet(env, { ...older, draft: join(env.home, "older.json") });
-      const olderDays = weekDays("2099-09-27", "2099-10-04").map((d) => ({ date: d.slice(3), rows: [] }));
+      const olderDays = emptyWeek("2099-09-27", "2099-10-04");
       await stageSheet(env, { ...older, check: false, record: { ...record(), days: olderDays } });
       const olderPages = pdfPageTexts(uploaded("porady_bohosluzeb", "2099-09-27-porad-bohosluzeb.pdf"));
       expect(olderPages.map((page) => page.replace(/\s+/g, " "))).toEqual([expect.stringContaining("za rodinu")]);
@@ -262,7 +262,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     });
 
     it("stages the last week's page without the blank one after it", async () => {
-      const days = weekDays("2099-09-27", "2099-10-04").map((d) => ({ date: d.slice(3), rows: [] }));
+      const days = emptyWeek("2099-09-27", "2099-10-04");
       const older = { validFrom: "2099-09-27", validTo: "2099-10-04", record: { ...record(), days } };
       await stageSheet(env, { source: yearDocx(), ...older });
       expect(readFileSync(uploaded("porady_bohosluzeb", "2099-09-27-porad-bohosluzeb.pdf"), "utf8")).toBe("pages 2–2");

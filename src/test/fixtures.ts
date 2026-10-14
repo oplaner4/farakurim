@@ -1,8 +1,20 @@
 import type { NewsEvent } from "@/content/types/news";
 import { pragueDateTime } from "@/lib/shared/prague";
 
-// Events shared by the event and archive tests.
+// Fixtures shared by the site's tests: event records, instants of Prague time and the events of the event and archive
+// tests.
 
+/** A complete event record, valid for the record schema: "Hody v České" on 18. 10. 2026; `fields` replace defaults. */
+export const newsEvent = (fields: Partial<NewsEvent> = {}): NewsEvent => ({
+  id: "hody-v-ceske",
+  title: "Hody v České",
+  place: "Česká, náves",
+  text: "Stavění máje.",
+  start: "2026-10-18",
+  ...fields,
+});
+
+/** A bare event record: its id as the title, without a place or a text. */
 export const event = (id: string, start: string, end?: string, extra: Partial<NewsEvent> = {}): NewsEvent => ({
   id,
   title: id,

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ScheduleSource } from "./masses";
 import { countdown, formatMassDay, servicesOnDate, upcomingServices, weeklySchedule } from "./masses";
-import { pragueDateTime } from "@/lib/shared/prague";
+import { at } from "@/test/fixtures";
 
 const source: ScheduleSource = {
   regular: [
@@ -27,8 +27,6 @@ const source: ScheduleSource = {
     { date: "2026-10-12", services: [] },
   ],
 };
-
-const at = (date: string, time: string) => pragueDateTime(date, time).getTime();
 
 describe("pragueDateTime", () => {
   it("uses CEST (UTC+2) in summer and CET (UTC+1) in winter", () => {

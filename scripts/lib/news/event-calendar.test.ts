@@ -1,12 +1,13 @@
-import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { parishCalendars } from "@/content/site";
 import { events } from "@/content/news";
 import type { NewsEvent } from "@/content/types/news";
 import type { GoogleEvent } from "@/lib/calendar/google-calendar";
+import { googlePage } from "@/test/fetch";
 import { checkCalendar, matchMeetings, parseCommand, writeIcs } from "./event-calendar";
+import { freshTempDir } from "../test-helpers";
 
 const URL_OF = "https://farakurim.cz/aktuality/adoracni-den-2026/";
 
@@ -88,25 +89,21 @@ describe("parseCommand", () => {
 });
 
 describe("with a temp folder", () => {
-  let dir: string;
-  beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), "event-calendar-"));
-  });
+  const dir = freshTempDir("event-calendar");
   afterEach(() => {
-    rmSync(dir, { recursive: true, force: true });
     vi.unstubAllGlobals();
   });
 
   /** Answers the calendar request with `items`, recording the URL and options asked for. */
   const stubCalendar = (items: GoogleEvent[], status = 200) => {
-    const fetch = vi.fn<typeof globalThis.fetch>(async () => new Response(JSON.stringify({ items }), { status }));
+    const fetch = vi.fn<typeof globalThis.fetch>(async () => googlePage(items, status));
     vi.stubGlobal("fetch", fetch);
     return fetch;
   };
 
   it("writes the .ics of the detail page", () => {
-    const path = writeIcs(testEvent(), dir);
-    expect(path).toBe(join(dir, "adoracni-den-2026.ics"));
+    const path = writeIcs(testEvent(), dir());
+    expect(path).toBe(join(dir(), "adoracni-den-2026.ics"));
     const ics = readFileSync(path, "utf8");
     expect(ics).toContain("SUMMARY:Adorační den kuřimské farnosti");
     // Long lines are folded with a CRLF and a space or tab.
@@ -115,53 +112,53 @@ describe("with a temp folder", () => {
 
   it("asks only Události, with the site as referrer, and writes nothing when linked", async () => {
     const fetch = stubCalendar([google("a", "2026-10-12", "Adorace", URL_OF)]);
-    expect(await checkCalendar(testEvent(), { apiKey: "KEY", outDir: dir })).toEqual([
+    expect(await checkCalendar(testEvent(), { apiKey: "KEY", outDir: dir() })).toEqual([
       'Události: linked ("Adorace" on 2026-10-12): nothing to do.',
     ]);
     const [url, init] = fetch.mock.calls[0];
     expect(url).toContain(encodeURIComponent(parishCalendars.events.googleId));
     expect(init?.headers).toEqual({ Referer: "https://farakurim.cz/" });
-    expect(readdirSync(dir)).toEqual([]);
+    expect(readdirSync(dir())).toEqual([]);
   });
 
   it("asks for the link when the event is there without it", async () => {
     stubCalendar([google("a", "2026-10-12", "Adorační den")]);
-    expect(await checkCalendar(testEvent(), { apiKey: "KEY", outDir: dir })).toEqual([
+    expect(await checkCalendar(testEvent(), { apiKey: "KEY", outDir: dir() })).toEqual([
       `Události, 2026-10-12: "Adorační den" has no link: add ${URL_OF} to its description.`,
       expect.stringMatching(/^This can be done before or after the release/),
     ]);
-    expect(readdirSync(dir)).toEqual([]);
+    expect(readdirSync(dir())).toEqual([]);
   });
 
   it("writes the .ics when no meeting is in the calendar", async () => {
     stubCalendar([]);
-    const lines = await checkCalendar(testEvent(), { apiKey: "KEY", outDir: dir });
+    const lines = await checkCalendar(testEvent(), { apiKey: "KEY", outDir: dir() });
     expect(lines[0]).toBe("Události: no event on 2026-10-12.");
     expect(lines[1]).toMatch(/^Wrote .*adoracni-den-2026\.ics: import it into "Události" .*, not into a personal/);
-    expect(readdirSync(dir)).toEqual(["adoracni-den-2026.ics"]);
+    expect(readdirSync(dir())).toEqual(["adoracni-den-2026.ics"]);
   });
 
   const cancelled = { change: { status: "cancelled", announced: "2026-10-10" } } as const;
 
   it('asks for the "Zrušeno: " prefix when a linked event is cancelled on the site', async () => {
     stubCalendar([google("a", "2026-10-12", "Adorace", URL_OF)]);
-    expect(await checkCalendar(testEvent(cancelled), { apiKey: "KEY", outDir: dir })).toEqual([
+    expect(await checkCalendar(testEvent(cancelled), { apiKey: "KEY", outDir: dir() })).toEqual([
       'Události, 2026-10-12: linked, but rename "Adorace" to "Zrušeno: Adorace", as the meeting is cancelled (do not delete the event).',
       "The Kalendář shows the change once Google has it, with or without a release.",
     ]);
-    expect(readdirSync(dir)).toEqual([]);
+    expect(readdirSync(dir())).toEqual([]);
   });
 
   it("has nothing to do when the cancelled event has the prefix", async () => {
     stubCalendar([google("a", "2026-10-12", "Zrušeno: Adorace", URL_OF)]);
-    expect(await checkCalendar(testEvent(cancelled), { apiKey: "KEY", outDir: dir })).toEqual([
+    expect(await checkCalendar(testEvent(cancelled), { apiKey: "KEY", outDir: dir() })).toEqual([
       'Události: linked ("Zrušeno: Adorace" on 2026-10-12): nothing to do.',
     ]);
   });
 
   it("asks to remove the prefix when the cancellation is withdrawn", async () => {
     stubCalendar([google("a", "2026-10-12", "Zrušeno: Adorace", URL_OF)]);
-    expect(await checkCalendar(testEvent(), { apiKey: "KEY", outDir: dir })).toEqual([
+    expect(await checkCalendar(testEvent(), { apiKey: "KEY", outDir: dir() })).toEqual([
       'Události, 2026-10-12: linked, but rename "Zrušeno: Adorace" to "Adorace", as the meeting is no longer cancelled.',
       "The Kalendář shows the change once Google has it, with or without a release.",
     ]);
@@ -169,7 +166,7 @@ describe("with a temp folder", () => {
 
   it("asks for the link and the prefix together on an unlinked event", async () => {
     stubCalendar([google("a", "2026-10-12", "Adorační den")]);
-    expect(await checkCalendar(testEvent(cancelled), { apiKey: "KEY", outDir: dir })).toEqual([
+    expect(await checkCalendar(testEvent(cancelled), { apiKey: "KEY", outDir: dir() })).toEqual([
       `Události, 2026-10-12: "Adorační den" has no link: add ${URL_OF} to its description, and rename "Adorační den" to "Zrušeno: Adorační den", as the meeting is cancelled (do not delete the event).`,
       expect.stringMatching(/^This can be done before or after the release/),
       "The Kalendář shows the change once Google has it, with or without a release.",
@@ -178,10 +175,10 @@ describe("with a temp folder", () => {
 
   it("writes no .ics for a cancelled event missing from the calendar", async () => {
     stubCalendar([]);
-    expect(await checkCalendar(testEvent(cancelled), { apiKey: "KEY", outDir: dir })).toEqual([
+    expect(await checkCalendar(testEvent(cancelled), { apiKey: "KEY", outDir: dir() })).toEqual([
       "Události, 2026-10-12: no event, and the meeting is cancelled: nothing to do.",
     ]);
-    expect(readdirSync(dir)).toEqual([]);
+    expect(readdirSync(dir())).toEqual([]);
   });
 
   it("asks for the prefix on a dropped meeting only", async () => {
@@ -196,7 +193,7 @@ describe("with a temp folder", () => {
       google("a", "2026-10-11", "Manželské večery", link),
       google("b", "2026-10-18", "Manželské večery", link),
     ]);
-    expect(await checkCalendar(event, { apiKey: "KEY", outDir: dir })).toEqual([
+    expect(await checkCalendar(event, { apiKey: "KEY", outDir: dir() })).toEqual([
       'Události, 2026-10-11: linked ("Manželské večery").',
       'Události, 2026-10-18: linked, but rename "Manželské večery" to "Zrušeno: Manželské večery" (this occurrence only), as the meeting is cancelled (do not delete the event).',
       "The Kalendář shows the change once Google has it, with or without a release.",
@@ -210,19 +207,19 @@ describe("with a temp folder", () => {
 
   it("asks to move the event still on the date before the move, reading both dates", async () => {
     const fetch = stubCalendar([google("a", "2026-10-12", "Adorace", URL_OF)]);
-    expect(await checkCalendar(testEvent(moved), { apiKey: "KEY", outDir: dir })).toEqual([
+    expect(await checkCalendar(testEvent(moved), { apiKey: "KEY", outDir: dir() })).toEqual([
       'Události, 2026-10-24: "Adorace" is still on 2026-10-12: move it to 2026-10-24 13:00–18:00. Do not import an .ics: it would add a second event.',
       "The Kalendář shows the change once Google has it, with or without a release.",
     ]);
     const url = new URL(String(fetch.mock.calls[0][0]));
     expect(url.searchParams.get("timeMin")).toMatch(/^2026-10-1[12]T/);
     expect(url.searchParams.get("timeMax")).toMatch(/^2026-10-2[45]T/);
-    expect(readdirSync(dir)).toEqual([]);
+    expect(readdirSync(dir())).toEqual([]);
   });
 
   it("asks to link the moved event when it has no link", async () => {
     stubCalendar([google("a", "2026-10-12", "Adorační den")]);
-    expect(await checkCalendar(testEvent(moved), { apiKey: "KEY", outDir: dir })).toEqual([
+    expect(await checkCalendar(testEvent(moved), { apiKey: "KEY", outDir: dir() })).toEqual([
       `Události, 2026-10-24: "Adorační den" is still on 2026-10-12: move it to 2026-10-24 13:00–18:00, then add ${URL_OF} to its description. Do not import an .ics: it would add a second event.`,
       expect.stringMatching(/^This can be done before or after the release/),
       "The Kalendář shows the change once Google has it, with or without a release.",
@@ -231,27 +228,27 @@ describe("with a temp folder", () => {
 
   it("has nothing to do once the event is on the new date", async () => {
     stubCalendar([google("a", "2026-10-24", "Adorace", URL_OF)]);
-    expect(await checkCalendar(testEvent(moved), { apiKey: "KEY", outDir: dir })).toEqual([
+    expect(await checkCalendar(testEvent(moved), { apiKey: "KEY", outDir: dir() })).toEqual([
       'Události: linked ("Adorace" on 2026-10-24): nothing to do.',
     ]);
   });
 
   it("writes the .ics for a moved event on neither date", async () => {
     stubCalendar([]);
-    expect((await checkCalendar(testEvent(moved), { apiKey: "KEY", outDir: dir }))[0]).toBe(
+    expect((await checkCalendar(testEvent(moved), { apiKey: "KEY", outDir: dir() }))[0]).toBe(
       "Události: no event on 2026-10-24.",
     );
-    expect(readdirSync(dir)).toEqual(["adoracni-den-2026.ics"]);
+    expect(readdirSync(dir())).toEqual(["adoracni-den-2026.ics"]);
   });
 
   it("writes the .ics, saying why, without a key or when Google fails", async () => {
-    expect((await checkCalendar(testEvent(), { outDir: dir }))[0]).toBe(
+    expect((await checkCalendar(testEvent(), { outDir: dir() }))[0]).toBe(
       "Události: not checked (no NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY in .env.local).",
     );
     stubCalendar([], 403);
-    const lines = await checkCalendar(testEvent(), { apiKey: "KEY", outDir: dir });
+    const lines = await checkCalendar(testEvent(), { apiKey: "KEY", outDir: dir() });
     expect(lines[0]).toMatch(/^Události: not checked \(Google Calendar .*: HTTP 403\)\.$/);
     expect(lines[1]).toContain(`unless the event is there already; then add ${URL_OF} to its description.`);
-    expect(readdirSync(dir)).toEqual(["adoracni-den-2026.ics"]);
+    expect(readdirSync(dir())).toEqual(["adoracni-den-2026.ics"]);
   });
 });

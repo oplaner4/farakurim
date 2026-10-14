@@ -1,13 +1,12 @@
-// @vitest-environment jsdom
-
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, renderHook, waitFor } from "@testing-library/react";
+import { renderHook, waitFor } from "@testing-library/react";
 import { createElement, type ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { parishCalendars } from "@/content/site";
 import type { CalendarEntry } from "@/content/types/calendar";
 import type { DateRange } from "@/lib/calendar/agenda";
 import { pragueDateTime } from "@/lib/shared/prague";
+import { googlePage } from "@/test/fetch";
 
 // The build's entries cover October; Google has one mass on the first day of every range it is asked for.
 const OCTOBER = { from: "2026-10-01", to: "2026-10-31" };
@@ -37,7 +36,7 @@ function googleFetch(url: string) {
         },
       ]
     : [];
-  return Promise.resolve(new Response(JSON.stringify({ items }), { status: 200 }));
+  return Promise.resolve(googlePage(items));
 }
 
 /** The hook evaluated with the API key `key` ("" = none), with a fresh query cache that does not retry. */
@@ -55,7 +54,6 @@ async function setup(key: string, fetchMock: (url: string) => Promise<Response>)
 }
 
 afterEach(() => {
-  cleanup();
   vi.unstubAllEnvs();
   vi.unstubAllGlobals();
 });

@@ -1,10 +1,8 @@
-// @vitest-environment jsdom
-
-import { act, cleanup, renderHook } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { at } from "@/lib/news/test-fixtures";
+import { at } from "@/test/fixtures";
 import { useHydrated, useNow, useToday } from "./use-now";
 
 const BUILT = at("2026-10-01");
@@ -23,7 +21,6 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  cleanup();
   vi.useRealTimers();
 });
 

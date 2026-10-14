@@ -1,14 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { OfficeHours } from "@/content/types/contacts";
+import { at } from "@/test/fixtures";
 import { officeHoursApply, officeStatus, openSeason } from "./office-hours";
-import { pragueDateTime } from "@/lib/shared/prague";
 
 const hours: OfficeHours[] = [
   { weekday: 1, from: "9:00", to: "10:00" },
   { weekday: 4, from: "19:00", to: "20:00", closed: { from: "07-01", to: "08-31" } },
 ];
-
-const at = (date: string, time: string) => pragueDateTime(date, time).getTime();
 
 describe("officeHoursApply", () => {
   it("matches the weekday", () => {

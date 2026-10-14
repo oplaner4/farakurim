@@ -1,7 +1,6 @@
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import type { ScheduleException, SheetDay } from "@/content/types/services";
 import {
   addServiceSheet,
@@ -10,6 +9,7 @@ import {
   readScheduleExceptions,
   type SheetWeek,
 } from "./add-service-sheet";
+import { freshTempDir } from "../test-helpers";
 
 /** Two hand-entered changes: one the 11.–18. 10. sheet covers (its last day), one after it (no reason, a note). */
 const LATER: ScheduleException[] = [
@@ -32,7 +32,7 @@ const datesOf = (from: number, to: number) =>
   Array.from({ length: to - from + 1 }, (_, i) => `2026-10-${String(from + i).padStart(2, "0")}`);
 
 describe("addServiceSheet on a temp service-sheets.json, schedule-exceptions.json and news/", () => {
-  let dir: string;
+  const dir = freshTempDir("add-service-sheet");
   let file: string;
   let laterFile: string;
   let files: { serviceSheetsFile: string; exceptionsFile: string; newsDir: string };
@@ -41,10 +41,9 @@ describe("addServiceSheet on a temp service-sheets.json, schedule-exceptions.jso
   const raw = () => readFileSync(file, "utf8");
 
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), "add-service-sheet-"));
-    file = join(dir, "service-sheets.json");
-    laterFile = join(dir, "schedule-exceptions.json");
-    const news = join(dir, "news");
+    file = join(dir(), "service-sheets.json");
+    laterFile = join(dir(), "schedule-exceptions.json");
+    const news = join(dir(), "news");
     files = { serviceSheetsFile: file, exceptionsFile: laterFile, newsDir: news };
     mkdirSync(join(news, "2026"), { recursive: true });
     writeFileSync(
@@ -60,7 +59,6 @@ describe("addServiceSheet on a temp service-sheets.json, schedule-exceptions.jso
     addServiceSheet(files, record(september), week("2026-09-27", "2026-10-04"), setup);
     addServiceSheet(files, record(datesOf(4, 11)), week("2026-10-04", "2026-10-11"), setup);
   });
-  afterEach(() => rmSync(dir, { recursive: true, force: true }));
 
   it("adds the next week in advance, prunes the outdated sheet and the covered exception", () => {
     const result = addServiceSheet(files, record(datesOf(11, 18), "farni-den-2026"), week("2026-10-11", "2026-10-18"), {

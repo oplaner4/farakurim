@@ -2,7 +2,7 @@ import { isMatch } from "date-fns";
 import { CLOCK } from "@/lib/shared/clock";
 
 // Shared checks of the content tests (`<domain>.test.ts` beside each content file in src/content/). They guard the content the
-// farnost-create-* skills write from posters and PDFs: a typo there does not break the build, it quietly shows the
+// parish-create-* skills write from posters and PDFs: a typo there does not break the build, it quietly shows the
 // wrong thing (an event without its time, a missing poster, a misplaced album).
 
 export const isClock = (time: string) => CLOCK.test(time);

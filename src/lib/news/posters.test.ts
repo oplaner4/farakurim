@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { isPosterOf, posterAlt, posterHref, posterOf } from "./posters";
-import { event } from "./test-fixtures";
+import { event } from "@/test/fixtures";
 
 describe("posterAlt", () => {
   it("names the event, its date, time and place", () => {

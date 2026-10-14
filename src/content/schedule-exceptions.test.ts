@@ -1,10 +1,8 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { sheetCovering } from "@/lib/services/service-sheet";
-import { isSorted } from "@/lib/test/content-checks";
+import { isSorted } from "@/test/content-checks";
 import { serviceSheets } from "@/server/service-sheets";
 import { laterExceptions } from "./schedule-exceptions";
-
-vi.mock("server-only", () => ({}));
 
 // The rules of an entry (dates, times, parish churches, unknown fields) are scheduleExceptionsFileSchema's:
 // schedule-exceptions.ts checks them on import, so a broken file fails here naming the field.

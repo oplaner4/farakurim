@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { support } from "./support";
-import { duplicates, isSorted } from "@/lib/test/content-checks";
+import { duplicates, isSorted } from "@/test/content-checks";
 import { isIsoDate } from "@/lib/shared/prague";
 
 describe("Finanční podpora (support.ts)", () => {

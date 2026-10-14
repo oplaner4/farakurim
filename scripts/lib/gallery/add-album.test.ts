@@ -1,7 +1,6 @@
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import type { Album } from "@/content/types/gallery";
 import { MAX_ALBUMS } from "@/lib/gallery/albums";
 import {
@@ -18,6 +17,7 @@ import {
   titleAndDate,
   type ZoneramaItem,
 } from "./add-album";
+import { freshTempDir } from "../test-helpers";
 
 // An album page with Zonerama's markup (eu.zonerama.com/FarnostKurim/Album/<n>): the title, then the photos as JSON in
 // `var result = {...}` inside a script. Items without a photoId are banners; data-type="video" marks a video.
@@ -208,17 +208,15 @@ const stored = (n: number, fields: Partial<Album> = {}): Album => ({
 const FULL = Array.from({ length: MAX_ALBUMS }, (_, i) => stored(MAX_ALBUMS - i));
 
 describe("addAlbum on a temp gallery.json", () => {
-  let dir: string;
+  const dir = freshTempDir("gallery");
   let file: string;
   const save = (albums: Album[]) => writeFileSync(file, `${JSON.stringify({ albums }, null, 2)}\n`);
   const raw = () => readFileSync(file, "utf8");
   const idsInFile = () => readGallery(file).albums.map((a) => a.id);
 
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), "gallery-"));
-    file = join(dir, "gallery.json");
+    file = join(dir(), "gallery.json");
   });
-  afterEach(() => rmSync(dir, { recursive: true, force: true }));
 
   it("inserts newest first, a same-day album before the older one", () => {
     save([stored(3), stored(2), stored(1)]);

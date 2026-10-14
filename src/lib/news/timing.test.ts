@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { NewsEvent } from "@/content/types/news";
 import { eventProgress, eventTimes, isPast, meetingsOf, progressLabel, relativeEventLabel } from "./timing";
-import { at, event, events, TODAY } from "./test-fixtures";
+import { at, event, events, TODAY } from "@/test/fixtures";
 
 describe("isPast", () => {
   it("is past from the day after the end", () => {

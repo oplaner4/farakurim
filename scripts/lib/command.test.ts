@@ -1,8 +1,8 @@
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, type MockInstance, vi } from "vitest";
 import { actionVerb, commandExitCode, errorMessage, parseCommandLine, readJsonRecord } from "./command";
+import { freshTempDir } from "./test-helpers";
 
 describe("errorMessage", () => {
   it("adds the cause, as fetch() reports a network failure", () => {
@@ -74,19 +74,15 @@ describe("parseCommandLine", () => {
 });
 
 describe("readJsonRecord", () => {
-  let dir: string;
-  beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), "command-"));
-  });
-  afterEach(() => rmSync(dir, { recursive: true, force: true }));
+  const dir = freshTempDir("command");
 
   it("reads the JSON, or throws naming the file", () => {
-    const file = join(dir, "record.json");
+    const file = join(dir(), "record.json");
     writeFileSync(file, '{ "id": "x" }');
     expect(readJsonRecord(file)).toEqual({ id: "x" });
     writeFileSync(file, "{ id");
     expect(() => readJsonRecord(file)).toThrow(`${file} is not a JSON file:`);
-    expect(() => readJsonRecord(join(dir, "missing.json"))).toThrow("missing.json is not a JSON file:");
+    expect(() => readJsonRecord(join(dir(), "missing.json"))).toThrow("missing.json is not a JSON file:");
   });
 });
 

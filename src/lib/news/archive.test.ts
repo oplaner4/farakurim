@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { archiveListing, archivedEvents, archiveYearList, archiveYears, groupByMonth, searchEvents } from "./archive";
-import { event, events, ids, TODAY } from "./test-fixtures";
+import { event, events, ids, TODAY } from "@/test/fixtures";
 
 describe("archive", () => {
   const list = [

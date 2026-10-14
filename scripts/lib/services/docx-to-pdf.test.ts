@@ -1,9 +1,8 @@
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { pdfPageTexts } from "../images";
-import { docxWithBody, hasPoppler, hasSoffice, wordml } from "../test-helpers";
+import { docxWithBody, hasPoppler, hasSoffice, freshTempDir, wordml } from "../test-helpers";
 import { docxToPdf, sofficeCandidates } from "./docx-to-pdf";
 
 describe("sofficeCandidates", () => {
@@ -19,17 +18,13 @@ describe("sofficeCandidates", () => {
 });
 
 describe.skipIf(!hasSoffice || !hasPoppler)("docxToPdf", { timeout: 120_000 }, () => {
-  let dir = "";
-  beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), "docx-pdf-"));
-  });
-  afterEach(() => rmSync(dir, { recursive: true, force: true }));
+  const dir = freshTempDir("docx-pdf");
 
   it("converts a DOCX with LibreOffice, page breaks included", () => {
-    const src = join(dir, "Pořad bohoslužeb.docx");
+    const src = join(dir(), "Pořad bohoslužeb.docx");
     const pageBreak = '<w:p><w:r><w:br w:type="page"/></w:r></w:p>';
     writeFileSync(src, docxWithBody(wordml.p("První týden") + pageBreak + wordml.p("Druhý týden")));
-    const pdf = docxToPdf(src, join(dir, "out"), "linux");
+    const pdf = docxToPdf(src, join(dir(), "out"), "linux");
     expect(pdfPageTexts(pdf).map((t) => t.trim())).toEqual(["První týden", "Druhý týden"]);
   });
 });

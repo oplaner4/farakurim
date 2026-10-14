@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { groupPages } from "./groups";
 import { links } from "./site";
-import { duplicates } from "@/lib/test/content-checks";
+import { duplicates } from "@/test/content-checks";
 import { isUpload } from "@/lib/shared/uploads";
 
 describe("Stránky skupin (groups.ts)", () => {

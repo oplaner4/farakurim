@@ -23,6 +23,7 @@ rada and Kněží – rodáci; content in `parish-council.ts` and `native-priest
 | `src/content/<domain>.ts`      | The content (hand-edited data only): the boundary an API could replace                |
 | `src/server/<domain>.ts`       | Server-only build-time code that combines content with `lib`: fetches, derived values |
 | `src/content/types/<group>.ts` | The content types of one domain; `shared.ts` holds `IsoDate`, `ClockTime`, `Weekday`  |
+| `src/test/`                    | What several site tests share: fixtures, checks, fetch answers and the test setup     |
 
 - **`src/lib`** files are named after their topic inside the group, not after the group: `lib/news/events.ts`,
   `lib/news/timing.ts`, `lib/news/archive.ts`, `lib/news/ics.ts`, `lib/services/masses.ts`,
@@ -33,7 +34,6 @@ rada and Kněží – rodáci; content in `parish-council.ts` and `native-priest
   list of what really is shared, instead of a drawer for everything without an obvious home.
 - `lib` may import `@/content/site` for URLs and
   `@/content/types/*` for types, never the content data itself (tests may, to check real records).
-  `lib/test/content-checks.ts` holds the checks the content tests share (dates, times, order, `/uploads/` links).
 - When a `lib` file grows two independent topics, split it by topic (as `news/events.ts`, `news/timing.ts`,
   `news/posters.ts` and `news/archive.ts`) rather than letting it pass ~300 lines.
 - **`src/server`** files start with `import "server-only"` and are named after their domain: `server/calendar.ts`
@@ -45,6 +45,11 @@ rada and Kněží – rodáci; content in `parish-council.ts` and `native-priest
   There is no `types` index file (no barrel). A type used by two domains lives in the domain that owns the data
   (`ChurchColor` in `services.ts`, used by `contacts.ts`).
 - **Imports:** same folder `./x`, anything else `@/…` (no `../`).
+- **Tests** sit beside their module; what several of them share goes in `src/test/` (`fixtures.ts` with the
+  `newsEvent()` and `event()` records and `at()`, `content-checks.ts` for the content tests, `fetch.ts` for stubbed
+  answers) or, for the scripts, `scripts/lib/test-helpers.ts` (`freshTempDir()`, `useStageFixture()`, `emptyWeek()`).
+  `vitest.config.mts` stands in for `server-only` and runs `src/hooks/` in jsdom with `cleanup()` after each test, so
+  the tests need neither a mock nor an environment comment.
 
 ## Scripts
 

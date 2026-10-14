@@ -1,6 +1,4 @@
-// @vitest-environment jsdom
-
-import { act, cleanup, renderHook } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
 import type { MouseEvent } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useLoadMore } from "./use-load-more";
@@ -34,7 +32,6 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  cleanup();
   document.body.innerHTML = "";
 });
 

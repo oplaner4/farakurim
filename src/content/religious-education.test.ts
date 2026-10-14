@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { religiousEducation } from "./religious-education";
-import { duplicates } from "@/lib/test/content-checks";
+import { duplicates } from "@/test/content-checks";
 import { isUpload } from "@/lib/shared/uploads";
 
 describe("Výuka náboženství (religious-education.ts)", () => {

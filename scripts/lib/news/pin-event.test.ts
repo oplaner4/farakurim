@@ -3,17 +3,12 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { readEvents } from "@/content/news";
 import type { NewsEvent } from "@/content/types/news";
+import { newsEvent } from "@/test/fixtures";
 import { assertPinnable, parseCommand, pinEvent, pinLines } from "./pin-event";
 import { useNewsFixture } from "../test-helpers";
 
-const event = (id: string, start: string, fields: Partial<NewsEvent> = {}): NewsEvent => ({
-  id,
-  title: `Akce ${id}`,
-  start,
-  place: "Kuřim",
-  text: "Srdečně zveme.",
-  ...fields,
-});
+const event = (id: string, start: string, fields: Partial<NewsEvent> = {}): NewsEvent =>
+  newsEvent({ id, title: `Akce ${id}`, start, place: "Kuřim", text: "Srdečně zveme.", ...fields });
 
 // 7 October 2026 in Prague: "zari-2026" has ended, "dnes-2026" ends today, "hody-2026" is upcoming.
 const now = new Date("2026-10-07T10:00:00Z");

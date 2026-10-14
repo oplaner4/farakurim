@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { ARCHIVE_YEARS } from "@/components/news/ArchivePage";
 import { groupPages } from "@/content/groups";
 import { events } from "@/content/news";
@@ -7,8 +7,6 @@ import { links, SITE_URL } from "@/content/site";
 import { archiveYearHref, archiveYears } from "@/lib/news/archive";
 import { eventHref } from "@/lib/news/events";
 import sitemap from "./sitemap";
-
-vi.mock("server-only", () => ({}));
 
 const urls = sitemap().map(({ url }) => url);
 const paths = urls.map((url) => url.slice(SITE_URL.length));

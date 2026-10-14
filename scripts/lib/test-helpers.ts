@@ -8,6 +8,7 @@ import { strToU8, zipSync } from "fflate";
 import sharp from "sharp";
 import { afterEach, beforeEach, vi } from "vitest";
 import type { NewsEvent } from "@/content/types/news";
+import { periodDates } from "@/lib/services/service-sheet";
 import { EXCEPTIONS_FILE, NEWS_DIR, SERVICE_SHEETS_FILE, PETRKLIC_FILE } from "./content-files";
 import type { StageEnv } from "./stage/core";
 import { UPLOADS_DIR } from "./uploads";
@@ -90,21 +91,33 @@ export function docxWithBody(body: string, links: Record<string, string> = {}): 
   );
 }
 
+/** The days of a service sheet record from `validFrom` to `validTo`, all without services. */
+export const emptyWeek = (validFrom: string, validTo: string) =>
+  periodDates(validFrom, validTo).map((date) => ({ date, rows: [] }));
+
+/** A temp folder for each test, created before it and removed after it; returns a getter of its path. */
+export function freshTempDir(prefix: string): () => string {
+  let dir = "";
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), `${prefix}-`));
+  });
+  afterEach(() => rmSync(dir, { recursive: true, force: true }));
+  return () => dir;
+}
+
 /**
  * A temp news folder holding only `months` (`"<year>/<MM>.json"` → records), fresh for each test; `dir()` is its
  * path. For the tests that must not depend on the real records (which event is pinned).
  */
 export function useNewsFixture(months: Record<string, NewsEvent[]>) {
-  let dir = "";
+  const dir = freshTempDir("news");
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), "news-"));
     for (const [file, list] of Object.entries(months)) {
-      mkdirSync(join(dir, file.slice(0, 4)), { recursive: true });
-      writeFileSync(join(dir, file), `${JSON.stringify(list, null, 2)}\n`);
+      mkdirSync(join(dir(), file.slice(0, 4)), { recursive: true });
+      writeFileSync(join(dir(), file), `${JSON.stringify(list, null, 2)}\n`);
     }
   });
-  afterEach(() => rmSync(dir, { recursive: true, force: true }));
-  return { dir: () => dir };
+  return { dir };
 }
 
 /**
@@ -114,11 +127,11 @@ export function useNewsFixture(months: Record<string, NewsEvent[]>) {
 export function useStageFixture() {
   const fetchMock = vi.fn();
   const env = { fetch: fetchMock as unknown as typeof fetch, site: "https://example.cz" } as StageEnv;
-  let dir = "";
+  const tempDir = freshTempDir("stage");
   const status = (code: number) => fetchMock.mockResolvedValue(new Response(null, { status: code }));
 
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), "stage-"));
+    const dir = tempDir();
     mkdirSync(join(dir, "home", "Downloads"), { recursive: true });
     cpSync(NEWS_DIR, join(dir, "news"), { recursive: true });
     cpSync(SERVICE_SHEETS_FILE, join(dir, "service-sheets.json"));
@@ -135,7 +148,6 @@ export function useStageFixture() {
       home: join(dir, "home"),
     });
   });
-  afterEach(() => rmSync(dir, { recursive: true, force: true }));
 
   /** A file in ~/Downloads/; returns its name. */
   const download = (name: string, content: Buffer | string) => {

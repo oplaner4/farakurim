@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { jsonResponse } from "@/test/fetch";
 import { eventPaths, eventsUrl, fetchGoogleCalendar, parseEventsPage, refererInit, toEntries } from "./google-calendar";
 
 describe("eventsUrl", () => {
@@ -182,7 +183,7 @@ describe("fetchGoogleCalendar", () => {
     const fetch = vi.fn(async (url: string) => {
       tokens.push(new URL(url).searchParams.get("pageToken"));
       const { status = 200, body = {} } = pages[tokens.length - 1];
-      return new Response(JSON.stringify(body), { status });
+      return jsonResponse(body, status);
     });
     vi.stubGlobal("fetch", fetch);
     return tokens;

@@ -1,10 +1,10 @@
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import type { ScheduleException } from "@/content/types/services";
 import { addException, exceptionLine, parseCommand } from "./add-exception";
 import { readScheduleExceptions } from "./add-service-sheet";
+import { freshTempDir } from "../test-helpers";
 
 /** A sheet for 4.–11. 10. 2026, every day with one mass. */
 const SHEET = {
@@ -20,22 +20,20 @@ const SHEET = {
 const PILGRIMAGE: ScheduleException = { date: "2026-10-25", services: [], reason: "pouť" };
 
 describe("addException on a temp service-sheets.json and schedule-exceptions.json", () => {
-  let dir: string;
+  const dir = freshTempDir("add-exception");
   let files: { serviceSheetsFile: string; exceptionsFile: string };
   const now = new Date("2026-10-09T10:00:00+02:00");
   const dates = () => readScheduleExceptions(files.exceptionsFile).exceptions.map((x) => x.date);
   const raw = () => readFileSync(files.exceptionsFile, "utf8");
 
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), "add-exception-"));
     files = {
-      serviceSheetsFile: join(dir, "service-sheets.json"),
-      exceptionsFile: join(dir, "schedule-exceptions.json"),
+      serviceSheetsFile: join(dir(), "service-sheets.json"),
+      exceptionsFile: join(dir(), "schedule-exceptions.json"),
     };
     writeFileSync(files.serviceSheetsFile, JSON.stringify({ sheets: [SHEET] }));
     writeFileSync(files.exceptionsFile, JSON.stringify({ exceptions: [PILGRIMAGE] }));
   });
-  afterEach(() => rmSync(dir, { recursive: true, force: true }));
 
   it("adds a change in date order", () => {
     const add = { date: "2026-10-18", services: [{ time: "10:00", place: "kurim", note: "hody" }] };
@@ -92,13 +90,13 @@ describe("addException on a temp service-sheets.json and schedule-exceptions.jso
 });
 
 describe("parseCommand", () => {
+  const argsDir = freshTempDir("add-exception-args");
+
   it("reads a record file, or --remove with a date, and --check", () => {
-    const dir = mkdtempSync(join(tmpdir(), "add-exception-args-"));
-    const record = join(dir, "record.json");
+    const record = join(argsDir(), "record.json");
     writeFileSync(record, JSON.stringify(PILGRIMAGE));
     expect(parseCommand([record, "--check"])).toEqual({ change: { add: PILGRIMAGE }, check: true });
     expect(parseCommand(["--remove", "2026-10-25"])).toEqual({ change: { remove: "2026-10-25" }, check: false });
-    rmSync(dir, { recursive: true, force: true });
   });
 
   it("refuses wrong arguments with the usage", () => {

@@ -1,6 +1,4 @@
-// @vitest-environment jsdom
-
-import { act, cleanup, renderHook } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
 import type { SetValues } from "nuqs";
 import type { ChangeEvent, SubmitEvent } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -28,7 +26,6 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  cleanup();
   vi.useRealTimers();
 });
 

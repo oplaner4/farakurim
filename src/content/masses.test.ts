@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { parishChurches, places, regularServices } from "./masses";
 import { parish } from "./site";
-import { isClock } from "@/lib/test/content-checks";
+import { isClock } from "@/test/content-checks";
 
 describe("Pravidelné bohoslužby (masses.ts)", () => {
   it("has a valid regular schedule", () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { eventChangeBanner, eventNote } from "./change";
-import { event } from "./test-fixtures";
+import { event } from "@/test/fixtures";
 
 const lecture = (change: Parameters<typeof event>[3]) => event("prednaska-2026", "2026-10-24", undefined, change);
 

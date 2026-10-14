@@ -1,55 +1,46 @@
 import { describe, expect, it } from "vitest";
-import type { NewsEvent } from "@/content/types/news";
+import { newsEvent } from "@/test/fixtures";
 import { eventJsonLd, parishJsonLd } from "./structured-data";
 
-const URL = "https://farakurim.cz/aktuality/x/";
-
-const event = (extra: Partial<NewsEvent>): NewsEvent => ({
-  id: "x",
-  title: "Hody v České",
-  place: "Česká, náves",
-  text: "Stavění máje.",
-  start: "2026-10-18",
-  ...extra,
-});
+const URL = "https://farakurim.cz/aktuality/hody-v-ceske/";
 
 describe("eventJsonLd", () => {
   it("makes a root-relative poster absolute", () => {
     const poster = { src: "/uploads/aktuality/hody-ceska-plakat.webp", alt: "Plakát" };
-    expect(eventJsonLd(event({ poster }), URL).image).toBe(
+    expect(eventJsonLd(newsEvent({ poster }), URL).image).toBe(
       "https://farakurim.cz/uploads/aktuality/hody-ceska-plakat.webp",
     );
   });
 
   it("keeps an absolute poster and omits a missing one", () => {
     const poster = { src: "https://example.cz/plakat.webp", alt: "Plakát" };
-    expect(eventJsonLd(event({ poster }), URL).image).toBe("https://example.cz/plakat.webp");
-    expect(eventJsonLd(event({}), URL)).not.toHaveProperty("image");
+    expect(eventJsonLd(newsEvent({ poster }), URL).image).toBe("https://example.cz/plakat.webp");
+    expect(eventJsonLd(newsEvent({}), URL)).not.toHaveProperty("image");
   });
 
   it("marks a cancelled or postponed event", () => {
-    expect(eventJsonLd(event({ change: { status: "cancelled" } }), URL).eventStatus).toBe(
+    expect(eventJsonLd(newsEvent({ change: { status: "cancelled" } }), URL).eventStatus).toBe(
       "https://schema.org/EventCancelled",
     );
     const moved = eventJsonLd(
-      event({ change: { status: "moved", previousStart: "2026-10-11", previousStartTime: "9:30" } }),
+      newsEvent({ change: { status: "moved", previousStart: "2026-10-11", previousStartTime: "9:30" } }),
       URL,
     );
     expect(moved.eventStatus).toBe("https://schema.org/EventRescheduled");
     expect(moved.previousStartDate).toBe("2026-10-11T09:30+02:00");
-    const movedDay = eventJsonLd(event({ change: { status: "moved", previousStart: "2026-10-11" } }), URL);
+    const movedDay = eventJsonLd(newsEvent({ change: { status: "moved", previousStart: "2026-10-11" } }), URL);
     expect(movedDay.previousStartDate).toBe("2026-10-11");
-    expect(eventJsonLd(event({}), URL)).not.toHaveProperty("eventStatus");
+    expect(eventJsonLd(newsEvent({}), URL)).not.toHaveProperty("eventStatus");
   });
 
   it("dates a one-day event with its Prague times, and a multi-day one by its days", () => {
-    const timed = eventJsonLd(event({ startTime: "18:00", endTime: "20:00" }), URL);
+    const timed = eventJsonLd(newsEvent({ startTime: "18:00", endTime: "20:00" }), URL);
     expect([timed.startDate, timed.endDate]).toEqual(["2026-10-18T18:00+02:00", "2026-10-18T20:00+02:00"]);
-    const winter = eventJsonLd(event({ start: "2026-11-01", startTime: "9:30" }), URL);
+    const winter = eventJsonLd(newsEvent({ start: "2026-11-01", startTime: "9:30" }), URL);
     expect([winter.startDate, winter.endDate]).toEqual(["2026-11-01T09:30+01:00", "2026-11-01"]);
-    const allDay = eventJsonLd(event({}), URL);
+    const allDay = eventJsonLd(newsEvent({}), URL);
     expect([allDay.startDate, allDay.endDate]).toEqual(["2026-10-18", "2026-10-18"]);
-    const days = eventJsonLd(event({ end: "2026-10-19", startTime: "18:00", endTime: "20:00" }), URL);
+    const days = eventJsonLd(newsEvent({ end: "2026-10-19", startTime: "18:00", endTime: "20:00" }), URL);
     expect([days.startDate, days.endDate]).toEqual(["2026-10-18", "2026-10-19"]);
   });
 });

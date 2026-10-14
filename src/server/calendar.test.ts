@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { parishCalendars } from "@/content/site";
-import { at, event } from "@/lib/news/test-fixtures";
+import { at, event } from "@/test/fixtures";
+import { googlePage } from "@/test/fetch";
 
-vi.mock("server-only", () => ({}));
 // Fixed records and no sheets, so the entries do not change with the content.
 vi.mock("@/content/news", () => ({
   events: [
@@ -21,8 +21,6 @@ async function load(key: string, now = at("2026-10-14")) {
   vi.resetModules();
   return import("./calendar");
 }
-
-const page = (items: unknown[]) => new Response(JSON.stringify({ items }), { status: 200 });
 
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ["Date"] });
@@ -77,8 +75,8 @@ describe("loadCalendarEntries with an API key", () => {
     const fetchMock = vi.fn((url: string) =>
       Promise.resolve(
         url.includes(encodeURIComponent(parishCalendars.services.googleId))
-          ? page([{ id: "m1", summary: "Mše svatá", start: { dateTime: "2026-10-18T08:00:00+02:00" }, end: {} }])
-          : page([
+          ? googlePage([{ id: "m1", summary: "Mše svatá", start: { dateTime: "2026-10-18T08:00:00+02:00" }, end: {} }])
+          : googlePage([
               {
                 id: "e1",
                 summary: "Zrušeno: Hody",

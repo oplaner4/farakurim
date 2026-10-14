@@ -1,12 +1,11 @@
-import { cpSync, existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { cpSync, existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { readEvents, readMonth } from "@/content/news";
 import type { NewsEvent } from "@/content/types/news";
 import { addEvent, insertRecord, parseCommand, targetLine } from "./add-event";
 import { formatFiles, NEWS_DIR } from "../content-files";
-import { useNewsFixture } from "../test-helpers";
+import { useNewsFixture, freshTempDir } from "../test-helpers";
 
 // The newest year folder in news/ and the one after it, which does not exist yet: the new-year test must keep
 // passing after a real event of that year adds its folder.
@@ -62,14 +61,12 @@ describe("targetLine", () => {
 
 // Prettier makes these slower than the unit tests.
 describe("addEvent on a copy of news/", { timeout: 30_000 }, () => {
-  let dir: string;
+  const dir = freshTempDir("add-event");
   let news: string;
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), "add-event-"));
-    news = join(dir, "news");
+    news = join(dir(), "news");
     cpSync(NEWS_DIR, news, { recursive: true });
   });
-  afterEach(() => rmSync(dir, { recursive: true, force: true }));
 
   const now = new Date("2026-10-07T10:00:00Z");
   const full = record({

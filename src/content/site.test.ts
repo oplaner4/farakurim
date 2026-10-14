@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { contacts } from "./site";
 import { clockMinutes } from "@/lib/shared/clock";
-import { isClock, isMonthDay } from "@/lib/test/content-checks";
+import { isClock, isMonthDay } from "@/test/content-checks";
 
 describe("Úřední hodiny (site.ts)", () => {
   it("has valid office hours", () => {

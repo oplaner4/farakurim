@@ -1,10 +1,10 @@
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import type { PetrklicRecord } from "@/content/types/petrklic";
 import { issueId } from "@/lib/petrklic/issues";
 import { addPetrklic, petrklicLines, readPetrklic } from "./add-petrklic";
+import { freshTempDir } from "../test-helpers";
 
 const record = (year: number, number: number, fields: Partial<PetrklicRecord> = {}): PetrklicRecord => ({
   year,
@@ -14,18 +14,16 @@ const record = (year: number, number: number, fields: Partial<PetrklicRecord> = 
 });
 
 describe("addPetrklic on a temp petrklic.json", () => {
-  let dir: string;
+  const dir = freshTempDir("petrklic");
   let file: string;
   const save = (issues: PetrklicRecord[]) => writeFileSync(file, `${JSON.stringify({ issues }, null, 2)}\n`);
   const raw = () => readFileSync(file, "utf8");
   const ids = () => readPetrklic(file).issues.map(issueId);
 
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), "petrklic-"));
-    file = join(dir, "petrklic.json");
+    file = join(dir(), "petrklic.json");
     save([record(2026, 1), record(2025, 4), record(2025, 3)]);
   });
-  afterEach(() => rmSync(dir, { recursive: true, force: true }));
 
   it("puts the next issue first, as the current one", () => {
     const result = addPetrklic(file, record(2026, 2, { pageCount: 36 }));
