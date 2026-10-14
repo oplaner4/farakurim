@@ -81,6 +81,9 @@ describe("newsEventSchema", () => {
     expect(problems({ ...series, sessions: meeting({ endTime: "20:00" }) })).toEqual([
       "sessions.1.endTime: needs startTime",
     ]);
+    expect(problems({ ...series, sessions: meeting({ end: "2026-10-23" }) })).toContain(
+      "sessions.1.end: must be after date",
+    );
   });
 
   it("needs attachment labels that differ in more than accents, case or punctuation", () => {

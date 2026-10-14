@@ -156,6 +156,13 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     );
   };
 
+  it("refuses a DOCX without a week's heading", async () => {
+    const source = download("Pořad bohoslužeb 2099.docx", docxWithBody(wordml.p("Ohlášky farnosti")));
+    await expect(stageSheet(env, { source, check: true })).rejects.toThrow(
+      "no 'ROZPIS BOHOSLUŽEB … od … do …' heading in the DOCX",
+    );
+  });
+
   it("refuses --draft with a PDF or with a record, and a DOCX week it does not have", async () => {
     const pdf = download("porad.pdf", "%PDF");
     const draft = join(env.home, "draft.json");

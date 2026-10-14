@@ -104,6 +104,29 @@ describe("toEntries", () => {
     ]);
   });
 
+  it("handles an event without an end, one past midnight, and drops one without a start", () => {
+    const entries = toEntries(
+      [
+        { id: "a", summary: "Pouť", start: { date: "2026-10-07" }, end: {} },
+        { id: "t", summary: "Adorace", start: { dateTime: "2026-10-09T20:00:00+02:00" }, end: {} },
+        {
+          id: "n",
+          summary: "Noc kostelů",
+          start: { dateTime: "2026-10-09T20:00:00+02:00" },
+          end: { dateTime: "2026-10-10T01:00:00+02:00" },
+        },
+        { id: "x", summary: "Bez začátku", start: {}, end: {} },
+      ],
+      "events",
+      pages,
+    );
+    expect(entries).toEqual([
+      { id: "a", calendar: "events", title: "Pouť", date: "2026-10-07" },
+      { id: "t", calendar: "events", title: "Adorace", date: "2026-10-09", time: "20:00" },
+      { id: "n", calendar: "events", title: "Noc kostelů", date: "2026-10-09", time: "20:00", end: "2026-10-10" },
+    ]);
+  });
+
   it("links an Události event to the first built page in its description", () => {
     const event = (id: string, description?: string) => ({
       id,

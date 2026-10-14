@@ -45,6 +45,11 @@ describe("addPetrklic on a temp petrklic.json", () => {
     ]);
   });
 
+  it("puts an issue older than all the others last", () => {
+    addPetrklic(file, record(2024, 4));
+    expect(ids()).toEqual(["2026-1", "2025-4", "2025-3", "2024-4"]);
+  });
+
   it("puts a new part before the older parts", () => {
     save([record(2012, 1, { note: "1. část" })]);
     addPetrklic(file, record(2012, 1, { note: "2. část" }));

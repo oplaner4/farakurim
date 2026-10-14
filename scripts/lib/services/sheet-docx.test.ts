@@ -173,6 +173,34 @@ describe("docxWeeks", () => {
     expect(days[7].rows.map((r) => r.service)).toEqual([undefined, undefined, true]);
   });
 
+  it("reads a day whose date cell is merged over several rows", async () => {
+    const { cell } = wordml;
+    const file = docx(
+      heading("ROZPIS BOHOSLUŽEB V TÝDNU od 11. 10. 2026 do 18. 10. 2026") +
+        table([
+          [
+            cell(["11. 10.", "Ne"], "restart"),
+            cell(["28. NEDĚLE V MEZIDOBÍ"], "restart"),
+            ["Kuřim"],
+            ["8:00"],
+            ["Mše sv."],
+          ],
+          [cell([], "continue"), cell([], "continue"), ["Kuřim"], ["9:30"], ["Mše sv."]],
+          [cell([], "continue"), cell([], "continue"), ["Jinačovice"], ["11:00"], ["Mše sv."]],
+          [["12. 10.", "Po"], [], ["Kuřim"], ["18:00"], ["Mše sv."]],
+          [["18. 10.", "Ne"], [], ["Kuřim"], ["8:00"], ["Mše sv."]],
+        ]),
+    );
+    const { days } = (await docxWeeks(file))[0].draft();
+    expect(days[0]).toMatchObject({ date: "2026-10-11", feast: "28. neděle v mezidobí" });
+    expect(days[0].rows.map((r) => [r.time, r.place])).toEqual([
+      ["8:00", "kurim"],
+      ["9:30", "kurim"],
+      ["11:00", "jinacovice"],
+    ]);
+    expect(days[1].rows.map((r) => [r.time, r.place])).toEqual([["18:00", "kurim"]]);
+  });
+
   it("adds the feasts of a day's later rows, each once, and splits a cell into its names", async () => {
     const file = docx(
       heading("ROZPIS BOHOSLUŽEB V TÝDNU od 11. 10. 2026 do 18. 10. 2026") +

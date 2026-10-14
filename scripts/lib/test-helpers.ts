@@ -53,13 +53,13 @@ export const wordml = {
     `<w:r>${bold || italic ? `<w:rPr>${bold ? "<w:b/>" : ""}${italic ? "<w:i/>" : ""}</w:rPr>` : ""}<w:t xml:space="preserve">${escapeXml(text)}</w:t></w:r>`,
   /** A paragraph of runs; a plain string is one run. */
   p: (...runs: string[]) => `<w:p>${runs.map((r) => (r.startsWith("<w:") ? r : wordml.run(r))).join("")}</w:p>`,
-  /** A table: rows of cells, each cell its lines as paragraphs. */
-  table: (rows: string[][][]) =>
+  /** A table cell of `lines`, merged with the cells below it ("restart") or into the one above ("continue"). */
+  cell: (lines: string[], merge?: "restart" | "continue") =>
+    `<w:tc>${merge ? `<w:tcPr><w:vMerge${merge === "restart" ? ' w:val="restart"' : ""}/></w:tcPr>` : ""}${(lines.length ? lines : [""]).map((l) => wordml.p(l)).join("")}</w:tc>`,
+  /** A table: rows of cells, each cell its lines as paragraphs, or a `cell()`. */
+  table: (rows: (string[] | string)[][]) =>
     `<w:tbl>${rows
-      .map(
-        (cells) =>
-          `<w:tr>${cells.map((lines) => `<w:tc>${(lines.length ? lines : [""]).map((l) => wordml.p(l)).join("")}</w:tc>`).join("")}</w:tr>`,
-      )
+      .map((cells) => `<w:tr>${cells.map((c) => (typeof c === "string" ? c : wordml.cell(c))).join("")}</w:tr>`)
       .join("")}</w:tbl>`,
 };
 

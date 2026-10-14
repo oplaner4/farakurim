@@ -75,6 +75,22 @@ describe("agendaByDate", () => {
     expect(days.get("2026-10-03")).toHaveLength(1);
     expect(days.get("2026-10-04")).toEqual([]);
   });
+
+  it("clips an entry longer than the range to its days, and skips one outside it", () => {
+    const days = agendaByDate(
+      [
+        entry({ id: "tabor", date: "2026-09-28", end: "2026-10-09" }),
+        entry({ id: "pred", date: "2026-09-30", end: "2026-10-01" }),
+        entry({ id: "po", date: "2026-10-05" }),
+      ],
+      range,
+    );
+    expect([...days.entries()].map(([day, items]) => [day, items.map((i) => i.title)])).toEqual([
+      ["2026-10-02", ["tabor"]],
+      ["2026-10-03", ["tabor"]],
+      ["2026-10-04", ["tabor"]],
+    ]);
+  });
 });
 
 describe("labels", () => {

@@ -41,6 +41,8 @@ describe("nextMeeting", () => {
       entry("early", "2026-10-11", "Společenství mladých", "9:00"),
     ];
     expect(nextMeeting(day, title, "2026-10-11")?.id).toBe("early");
+    const withAllDay = [...day, entry("all-day", "2026-10-11", "Víkend společenství mladých")];
+    expect(nextMeeting(withAllDay, title, "2026-10-11")?.id).toBe("all-day");
   });
 
   it("skips a cancelled meeting", () => {

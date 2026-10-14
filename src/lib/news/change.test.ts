@@ -62,6 +62,12 @@ describe("eventChangeBanner", () => {
     expect(eventChangeBanner(lecture({ change: { status: "moved", previousStart: "2026-10-17" } }))?.text).toBe(
       "Nový termín: sobota 24. 10. 2026. Původně 17. 10.",
     );
+    // A multi-day event moves by its days; its times belong to the first day only, so they are left out.
+    const days = event("prednaska-2026", "2026-10-24", "2026-10-25", {
+      startTime: "14:00",
+      change: { status: "moved", previousStart: "2026-10-17" },
+    });
+    expect(eventChangeBanner(days)?.text).toBe("Nový termín: 24. 10. – 25. 10. 2026. Původně 17. 10.");
   });
 
   it("is missing for an event without a change", () => {

@@ -37,7 +37,20 @@ describe("eventJsonLd", () => {
     );
     expect(moved.eventStatus).toBe("https://schema.org/EventRescheduled");
     expect(moved.previousStartDate).toBe("2026-10-11T09:30+02:00");
+    const movedDay = eventJsonLd(event({ change: { status: "moved", previousStart: "2026-10-11" } }), URL);
+    expect(movedDay.previousStartDate).toBe("2026-10-11");
     expect(eventJsonLd(event({}), URL)).not.toHaveProperty("eventStatus");
+  });
+
+  it("dates a one-day event with its Prague times, and a multi-day one by its days", () => {
+    const timed = eventJsonLd(event({ startTime: "18:00", endTime: "20:00" }), URL);
+    expect([timed.startDate, timed.endDate]).toEqual(["2026-10-18T18:00+02:00", "2026-10-18T20:00+02:00"]);
+    const winter = eventJsonLd(event({ start: "2026-11-01", startTime: "9:30" }), URL);
+    expect([winter.startDate, winter.endDate]).toEqual(["2026-11-01T09:30+01:00", "2026-11-01"]);
+    const allDay = eventJsonLd(event({}), URL);
+    expect([allDay.startDate, allDay.endDate]).toEqual(["2026-10-18", "2026-10-18"]);
+    const days = eventJsonLd(event({ end: "2026-10-19", startTime: "18:00", endTime: "20:00" }), URL);
+    expect([days.startDate, days.endDate]).toEqual(["2026-10-18", "2026-10-19"]);
   });
 });
 
