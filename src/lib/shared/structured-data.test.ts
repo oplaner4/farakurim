@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { NewsEvent } from "@/content/types/news";
-import { eventJsonLd } from "./structured-data";
+import { eventJsonLd, parishJsonLd } from "./structured-data";
 
 const URL = "https://farakurim.cz/aktuality/x/";
 
@@ -38,5 +38,38 @@ describe("eventJsonLd", () => {
     expect(moved.eventStatus).toBe("https://schema.org/EventRescheduled");
     expect(moved.previousStartDate).toBe("2026-10-11T09:30+02:00");
     expect(eventJsonLd(event({}), URL)).not.toHaveProperty("eventStatus");
+  });
+});
+
+describe("parishJsonLd", () => {
+  const church = parishJsonLd("https://farakurim.cz/kontakty/");
+
+  it("describes the parish with one id on every page", () => {
+    expect(church).toMatchObject({
+      "@type": "Church",
+      "@id": "https://farakurim.cz/#farnost",
+      url: "https://farakurim.cz/kontakty/",
+      address: { streetAddress: "Křížkovského 55/5", postalCode: "664 34", addressLocality: "Kuřim" },
+      email: "fara.kurim@seznam.cz",
+    });
+    expect(parishJsonLd("https://farakurim.cz/")["@id"]).toBe(church["@id"]);
+  });
+
+  it("gives the phone in international form and the office hours as schema.org days and HH:mm", () => {
+    expect(church.telephone).toBe("+420723661146");
+    expect(church.openingHoursSpecification).toEqual([
+      {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: "https://schema.org/Monday",
+        opens: "09:00",
+        closes: "10:00",
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: "https://schema.org/Thursday",
+        opens: "19:00",
+        closes: "20:00",
+      },
+    ]);
   });
 });

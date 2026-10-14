@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { displayDomain, externalLinkAttrs, isExternalHref, withExternalLinkTargets } from "./links";
+import { displayDomain, externalLinkAttrs, isExternalHref, isModifiedClick, withExternalLinkTargets } from "./links";
 
 describe("isExternalHref", () => {
   it("treats other sites as external", () => {
@@ -49,5 +49,19 @@ describe("displayDomain", () => {
     ["https://donator.cz/projekt/tisnovpastorace", "donator.cz"],
   ])("%s → %s", (href, expected) => {
     expect(displayDomain(href)).toBe(expected);
+  });
+});
+
+describe("isModifiedClick", () => {
+  const click = { button: 0, metaKey: false, ctrlKey: false, shiftKey: false, altKey: false };
+
+  it("lets a plain left click open the lightbox", () => {
+    expect(isModifiedClick(click)).toBe(false);
+  });
+
+  it("leaves a middle click or a click with a modifier key to the browser", () => {
+    expect(isModifiedClick({ ...click, button: 1 })).toBe(true);
+    for (const key of ["metaKey", "ctrlKey", "shiftKey", "altKey"] as const)
+      expect(isModifiedClick({ ...click, [key]: true })).toBe(true);
   });
 });
