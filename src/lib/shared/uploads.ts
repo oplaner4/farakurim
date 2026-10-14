@@ -1,5 +1,3 @@
-import * as z from "zod";
-
 // Files uploaded to the server, never committed: the content links each one root-relative under /uploads/ (CLAUDE.md
 // "Content and data"), and the scripts map that path to the repo's uploads/ folder (scripts/lib/uploads.ts). The
 // content schemas, the content tests and `pnpm stage` check the links with these rules.
@@ -13,10 +11,8 @@ export const IMAGE_EXTENSIONS = [".png", ".jpg", ".webp"];
 /** The file types the content links: images, PDFs and MP3 recordings. */
 export const UPLOAD_EXTENSIONS = [".pdf", ...IMAGE_EXTENSIONS, ".mp3"];
 
-const UPLOAD = new RegExp(`^${UPLOADS_PATH}\\S+\\.(${UPLOAD_EXTENSIONS.map((e) => e.slice(1)).join("|")})$`);
+/** A root-relative /uploads/ file of a linked type (isUpload(), uploadSchema in schema.ts). */
+export const UPLOAD = new RegExp(`^${UPLOADS_PATH}\\S+\\.(${UPLOAD_EXTENSIONS.map((e) => e.slice(1)).join("|")})$`);
 
 /** Whether `href` links an uploaded file: "/uploads/aktuality/x-plakat.pdf". */
 export const isUpload = (href: string) => UPLOAD.test(href);
-
-/** A content field linking an uploaded file. */
-export const uploadSchema = z.string().regex(UPLOAD, "must be a /uploads/… file");

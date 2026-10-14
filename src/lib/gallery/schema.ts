@@ -1,6 +1,6 @@
 import * as z from "zod";
 import type { Album, GalleryFile } from "@/content/types/gallery";
-import { kebabIdSchema } from "@/lib/shared/slug";
+import { kebabIdSchema } from "@/lib/shared/schema";
 
 // The rules of the Fotogalerie albums, in one place: src/content/gallery.ts checks src/content/gallery.json with them
 // when the site loads it, and scripts/lib/gallery/add-album.ts checks a new album and the file before it writes. How many albums

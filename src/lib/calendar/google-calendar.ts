@@ -1,5 +1,5 @@
 import { addDays, format, subMinutes } from "date-fns";
-import * as z from "zod";
+import * as z from "zod/mini";
 import type { CalendarEntry, CalendarId } from "@/content/types/calendar";
 import type { DateRange } from "./agenda";
 import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
@@ -7,23 +7,27 @@ import { links as siteLinks, SITE_HOST } from "@/content/site";
 
 // Reads the parish's public Google Calendars with the Calendar API (`events.list`, design/DESIGN.md §16.4).
 // `singleEvents=true` makes Google expand recurring events and apply their exceptions, so no RRULE handling
-// is needed here. Runs at build time and in the browser (the key is restricted to the site's referrer).
+// is needed here. Runs at build time and in the browser (the key is restricted to the site's referrer); zod/mini
+// keeps the browser bundle small.
 // An event of the Události calendar links to an event detail page when its description holds the page's URL
 // (pasted, or imported with the page's "Přidat do kalendáře" file).
 
 const API = "https://www.googleapis.com/calendar/v3/calendars";
 
 /** An all-day event has `date` ("2026-10-05"), a timed one `dateTime` (RFC 3339). */
-const googleTime = z.object({ date: z.iso.date().optional(), dateTime: z.iso.datetime({ offset: true }).optional() });
+const googleTime = z.object({
+  date: z.optional(z.iso.date()),
+  dateTime: z.optional(z.iso.datetime({ offset: true })),
+});
 
 /** The fields of an `events.list` item the calendars use; Google's other fields are dropped. */
 const googleEvent = z.object({
   id: z.string(),
-  recurringEventId: z.string().optional(),
-  status: z.string().optional(),
-  summary: z.string().optional(),
-  location: z.string().optional(),
-  description: z.string().optional(),
+  recurringEventId: z.optional(z.string()),
+  status: z.optional(z.string()),
+  summary: z.optional(z.string()),
+  location: z.optional(z.string()),
+  description: z.optional(z.string()),
   start: googleTime,
   end: googleTime,
 });
@@ -32,8 +36,8 @@ export type GoogleEvent = z.infer<typeof googleEvent>;
 
 /** One result page; the items are checked one by one, so a malformed event is left out instead of the calendar. */
 const googleEventsPage = z.object({
-  items: z.array(z.unknown()).optional(),
-  nextPageToken: z.string().optional(),
+  items: z.optional(z.array(z.unknown())),
+  nextPageToken: z.optional(z.string()),
 });
 
 /** The events of a result page, without the ones that do not match `googleEvent`; throws for anything else. */

@@ -6,8 +6,8 @@ import {
   type ScheduleExceptionsFile,
   type ServiceSheetRecord,
 } from "@/content/types/services";
-import { clockMinutes, clockSchema } from "@/lib/shared/clock";
-import { revSchema } from "@/lib/shared/revision";
+import { clockMinutes } from "@/lib/shared/clock";
+import { clockSchema, revSchema } from "@/lib/shared/schema";
 import { periodDates } from "./service-sheet";
 
 // The rules of the service sheets, in one place: src/server/service-sheets.ts checks src/content/service-sheets.json

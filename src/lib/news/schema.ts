@@ -1,8 +1,8 @@
 import * as z from "zod";
 import type { EventTimes, NewsEvent } from "@/content/types/news";
-import { CLOCK, clockMinutes, clockSchema } from "@/lib/shared/clock";
-import { kebabIdSchema, slug } from "@/lib/shared/slug";
-import { uploadSchema } from "@/lib/shared/uploads";
+import { CLOCK, clockMinutes } from "@/lib/shared/clock";
+import { clockSchema, kebabIdSchema, uploadSchema } from "@/lib/shared/schema";
+import { slug } from "@/lib/shared/slug";
 import { eventMeetings } from "./timing";
 
 // The rules of one event record, in one place: src/content/news/index.ts checks every month file with them on

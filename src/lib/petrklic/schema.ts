@@ -1,6 +1,6 @@
 import * as z from "zod";
 import type { PetrklicFile, PetrklicRecord } from "@/content/types/petrklic";
-import { revSchema } from "@/lib/shared/revision";
+import { revSchema } from "@/lib/shared/schema";
 import { slug } from "@/lib/shared/slug";
 import { FIRST_YEAR, isNewerIssue, issueId, issueLabel } from "./issues";
 

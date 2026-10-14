@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isUpload, uploadSchema } from "./uploads";
+import { isUpload } from "./uploads";
 
 describe("isUpload", () => {
   it("takes a root-relative /uploads/ file of a linked type", () => {
@@ -19,11 +19,5 @@ describe("isUpload", () => {
     ]) {
       expect(isUpload(href), href).toBe(false);
     }
-  });
-});
-
-describe("uploadSchema", () => {
-  it("names the rule", () => {
-    expect(uploadSchema.safeParse("/nahrane/plakat.pdf").error?.issues[0].message).toBe("must be a /uploads/… file");
   });
 });

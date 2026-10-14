@@ -1,10 +1,10 @@
 import { decodeHTML } from "entities";
-import * as z from "zod";
+import * as z from "zod/mini";
 import type { BibleQuote } from "@/content/types/layout";
 import type { IsoDate } from "@/content/types/shared";
 
 // "Slovo na dnešek" (design/DESIGN.md §20.5): the vira.cz widget, read at build time and, in the browser,
-// through `public/biblicky-citat.php` (vira.cz sends no CORS headers).
+// through `public/biblicky-citat.php` (vira.cz sends no CORS headers). zod/mini, as every page imports this module.
 
 /** The vira.cz widget: HTML with the day's verse. */
 export const VIRA_QUOTE_URL = "https://www.vira.cz/biblicky-citat.php";
@@ -32,7 +32,11 @@ export function parseViraQuote(html: string, date: IsoDate): BibleQuote | undefi
 }
 
 /** What the proxy answers: the `BibleQuote` of a day. */
-const quoteJson = z.object({ date: z.iso.date(), text: z.string().min(1), reference: z.string().min(1) });
+const quoteJson = z.object({
+  date: z.iso.date(),
+  text: z.string().check(z.minLength(1)),
+  reference: z.string().check(z.minLength(1)),
+});
 
 /** The proxy's JSON as a quote; none for anything else (an error page, the PHP source on a dev server). */
 export function parseQuoteJson(value: unknown): BibleQuote | undefined {
