@@ -1,9 +1,20 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { stageSheet, weekDays } from "./sheet";
-import { pdfPageTexts } from "../images";
+import { extractPdfPages, pdfPageTexts } from "../images";
+import { docxToPdf } from "../services/docx-to-pdf";
 import { docxWithBody, hasPoppler, hasSoffice, pdfWithText, useStageFixture, wordml } from "../test-helpers";
+
+// The real converter and PDF tools, wrapped so the DOCX tests below can run without LibreOffice and poppler.
+vi.mock("../services/docx-to-pdf", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../services/docx-to-pdf")>();
+  return { ...actual, docxToPdf: vi.fn(actual.docxToPdf) };
+});
+vi.mock("../images", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../images")>();
+  return { ...actual, pdfPageTexts: vi.fn(actual.pdfPageTexts), extractPdfPages: vi.fn(actual.extractPdfPages) };
+});
 
 describe("weekDays", () => {
   it("lists every day with its Czech weekday", () => {
@@ -196,4 +207,74 @@ describe("stageSheet", { timeout: 30_000 }, () => {
       expect(olderPages.map((page) => page.replace(/\s+/g, " "))).toEqual([expect.stringContaining("za rodinu")]);
     },
   );
+
+  describe("from a DOCX, with the converter and the PDF tools faked", () => {
+    // The converted year: each week on its page, and the blank page the empty paragraphs at the end fill.
+    const convertedPages = [
+      "ROZPIS BOHOSLUŽEB V TÝDNU od 4. 10. 2099 do 11. 10. 2099\nMše sv. – za farníky",
+      "ROZPIS BOHOSLUŽEB V TÝDNU od 27. 9. 2099 do 4. 10. 2099\nMše sv. – za rodinu",
+      " \n",
+    ];
+
+    beforeEach(() => {
+      vi.mocked(docxToPdf).mockImplementation((_file, dir) => {
+        mkdirSync(dir, { recursive: true });
+        writeFileSync(join(dir, "converted.pdf"), "%PDF");
+        return join(dir, "converted.pdf");
+      });
+      vi.mocked(pdfPageTexts).mockImplementation(() => convertedPages);
+      vi.mocked(extractPdfPages).mockImplementation((_pdf, [first, last], dest) =>
+        writeFileSync(dest, `pages ${first}–${last}`),
+      );
+    });
+
+    afterEach(() => {
+      vi.mocked(docxToPdf).mockReset();
+      vi.mocked(pdfPageTexts).mockReset();
+      vi.mocked(extractPdfPages).mockReset();
+    });
+
+    it("drafts the newest week and stages only its page", async () => {
+      const source = yearDocx();
+      const draft = join(env.home, "draft.json");
+      const { lines } = await stageSheet(env, { source, draft });
+      expect(lines).toEqual([
+        `Wrote the draft record of 2099-10-04 – 2099-10-11 to ${draft}`,
+        "Days without services (tell the user): 2099-10-05, 2099-10-06, 2099-10-07, 2099-10-08, 2099-10-09, 2099-10-10",
+        "Would stage uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf",
+        '  validFrom: "2099-10-04",\n  validTo: "2099-10-11",',
+        `days: ${weekDays("2099-10-04", "2099-10-11").join(", ")}`,
+      ]);
+      expect(JSON.parse(readFileSync(draft, "utf8")).days[0].rows).toEqual([
+        { time: "8:00", place: "kurim", title: "Mše sv.", detail: "za farníky", mass: true },
+      ]);
+      expect(existsSync(uploaded("porady_bohosluzeb"))).toBe(false);
+
+      await stageSheet(env, { source, record: record() });
+      expect(readFileSync(uploaded("porady_bohosluzeb", "2099-10-04-porad-bohosluzeb.pdf"), "utf8")).toBe("pages 1–1");
+    });
+
+    it("stages the last week's page without the blank one after it", async () => {
+      const days = weekDays("2099-09-27", "2099-10-04").map((d) => ({ date: d.slice(3), rows: [] }));
+      const older = { validFrom: "2099-09-27", validTo: "2099-10-04", record: { ...record(), days } };
+      await stageSheet(env, { source: yearDocx(), ...older });
+      expect(readFileSync(uploaded("porady_bohosluzeb", "2099-09-27-porad-bohosluzeb.pdf"), "utf8")).toBe("pages 2–2");
+    });
+
+    it("writes the draft before converting, so it can be checked without a converter", async () => {
+      vi.mocked(docxToPdf).mockImplementation(() => {
+        throw new Error("no Word or LibreOffice to convert the DOCX");
+      });
+      const draft = join(env.home, "draft.json");
+      await expect(stageSheet(env, { source: yearDocx(), draft })).rejects.toThrow("no Word or LibreOffice");
+      expect(JSON.parse(readFileSync(draft, "utf8")).days).toHaveLength(8);
+    });
+
+    it("refuses a converted document whose pages lack the week's heading", async () => {
+      vi.mocked(pdfPageTexts).mockImplementation(() => ["Mše sv. – za farníky"]);
+      await expect(stageSheet(env, { source: yearDocx(), check: true })).rejects.toThrow(
+        "no page of the converted DOCX has the heading of 2099-10-04 – 2099-10-11",
+      );
+    });
+  });
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseWeek, weekHeading } from "./sheet-week";
+import { parseWeek, weekHeading, weekPages } from "./sheet-week";
 
 describe("parseWeek", () => {
   it("reads the week from the heading", () => {
@@ -28,5 +28,32 @@ describe("weekHeading", () => {
       validTo: "2026-10-18",
     });
     expect(weekHeading("Výuka bude od 12. 10. do 19. 10. 2026")).toBeNull();
+  });
+});
+
+describe("weekPages", () => {
+  const heading = (from: string, to: string) => `ROZPIS BOHOSLUŽEB V TÝDNU od ${from} do ${to}`;
+  const october = { validFrom: "2099-10-04", validTo: "2099-10-11" };
+
+  it("takes the week's heading page and the pages up to the next heading", () => {
+    const pages = [heading("4. 10. 2099", "11. 10. 2099"), "Ohlášky", heading("27. 9. 2099", "4. 10. 2099"), "Sbírka"];
+    expect(weekPages(pages, october)).toEqual([1, 2]);
+    expect(weekPages(pages, { validFrom: "2099-09-27", validTo: "2099-10-04" })).toEqual([3, 4]);
+  });
+
+  it("leaves out the blank pages at the end, never the heading page", () => {
+    expect(weekPages([heading("4. 10. 2099", "11. 10. 2099"), "Ohlášky", " \n", ""], october)).toEqual([1, 2]);
+    expect(weekPages([heading("4. 10. 2099", "11. 10. 2099"), "  "], october)).toEqual([1, 1]);
+  });
+
+  it("matches both dates, as a typo can give two headings the same first day", () => {
+    const pages = [heading("4. 10. 2099", "4. 10. 2099"), "Chyba", heading("4. 10. 2099", "11. 10. 2099"), "Týden"];
+    expect(weekPages(pages, october)).toEqual([3, 4]);
+  });
+
+  it("throws when no page has the week's heading", () => {
+    expect(() => weekPages(["Ohlášky", heading("27. 9. 2099", "4. 10. 2099")], october)).toThrow(
+      "no page of the converted DOCX has the heading of 2099-10-04 – 2099-10-11",
+    );
   });
 });
