@@ -1,5 +1,5 @@
 import { format, getDay, isLastDayOfMonth } from "date-fns";
-import { cs } from "date-fns/locale";
+import { cs } from "date-fns/locale/cs";
 import type { EventTimes, NewsEvent } from "@/content/types/news";
 import type { IsoDate } from "@/content/types/shared";
 import { inPrague, pragueDateTime } from "./prague";

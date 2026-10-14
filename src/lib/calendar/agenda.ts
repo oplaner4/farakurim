@@ -1,5 +1,5 @@
 import { addDays, addMonths, differenceInCalendarDays, endOfMonth, endOfWeek, format, startOfWeek } from "date-fns";
-import { cs } from "date-fns/locale";
+import { cs } from "date-fns/locale/cs";
 import type { CalendarEntry, CalendarId } from "@/content/types/calendar";
 import type { NewsEvent } from "@/content/types/news";
 import type { Place, PlaceId } from "@/content/types/services";

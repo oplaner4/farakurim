@@ -40,7 +40,7 @@ const eslintConfig = defineConfig([
     },
   },
   {
-    // The site: no debug output, and nothing a static export cannot run (docs/conventions.md).
+    // The site: no debug output, nothing a static export cannot run (docs/conventions.md), no date-fns locale barrel.
     files: ["src/**/*.{ts,tsx}"],
     rules: {
       "no-console": "error",
@@ -51,6 +51,11 @@ const eslintConfig = defineConfig([
             { name: "next/headers", message: "The site is a static export: there is no request at build time." },
             { name: "next/server", message: "The site is a static export: there is no Node server." },
             { name: "next/image", message: "The static export has no image optimizer: use <img> or <picture>." },
+            {
+              name: "date-fns/locale",
+              message:
+                "Import the one locale: `date-fns/locale/cs` (the barrel loads all of them, ~2 s per test file).",
+            },
           ],
         },
       ],

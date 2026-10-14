@@ -3,7 +3,7 @@
 import { DayPicker } from "@daypicker/react";
 import { clsx } from "clsx";
 import { format } from "date-fns";
-import { cs } from "date-fns/locale";
+import { cs } from "date-fns/locale/cs";
 import type { IsoDate } from "@/content/types/shared";
 import { type AgendaItem, type CalendarStatus, dayCellLabel, type IsoMonth } from "@/lib/calendar/agenda";
 import { capitalize } from "@/lib/shared/czech";
