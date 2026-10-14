@@ -26,7 +26,10 @@ export const withExternalLinkTargets = (html: string) =>
       : tag,
   );
 
-/** A click that should follow the link as usual (new tab or window, download) instead of opening a lightbox. */
+/**
+ * A click that should follow the link as usual (new tab or window, download) instead of being handled by the page
+ * (a lightbox, "Načíst další").
+ */
 export const isModifiedClick = (e: Pick<MouseEvent, "button" | "metaKey" | "ctrlKey" | "shiftKey" | "altKey">) =>
   e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey;
 

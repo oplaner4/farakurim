@@ -1,6 +1,7 @@
 "use client";
 
 import type { MouseEvent } from "react";
+import { isModifiedClick } from "@/lib/shared/links";
 import { useFocusAfterChange } from "./use-focus-after-change";
 
 /**
@@ -14,7 +15,7 @@ export function useLoadMore(
 ): (e: MouseEvent<HTMLAnchorElement>, firstNewId: string) => void {
   const focusAfterPaging = useFocusAfterChange(page);
   return (e, firstNewId) => {
-    if (!setPage || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (!setPage || isModifiedClick(e)) return;
     e.preventDefault();
     focusAfterPaging(firstNewId);
     void setPage(page + 1);
