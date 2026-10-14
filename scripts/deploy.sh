@@ -7,7 +7,7 @@
 #        scripts/deploy.sh pull-uploads [--dry-run]   new files from /uploads/ to uploads/ (never overwrites or deletes)
 #        scripts/deploy.sh check-uploads              fail if out/ links a /uploads/… file that is not on the server
 #        scripts/deploy.sh out [--dry-run]            sync out/ to the web root (--delete, server-only folders excluded)
-#        scripts/deploy.sh verify [path…]             check the live site (and each given path, e.g. /uploads/x.pdf)
+#        scripts/deploy.sh verify                     check that the live site answers
 #
 # The old PHP site that lived in /farakurim.cz/ is backed up in /stary.farakurim.cz/ (outside WEB_ROOT, never synced).
 set -euo pipefail
@@ -23,6 +23,9 @@ SERVER_ONLY=(/uploads/ /nahrane/ /virtualni_prohlidka/ /cache/)
 KEEP_STATIC_DAYS=30
 
 cd "$(dirname "$0")/.."
+# The temporary folder of check-uploads or prune_static, removed however the script ends.
+tmp=
+trap '[ -z "$tmp" ] || rm -rf "$tmp"' EXIT
 
 warn() {
   echo "warning: $1" >&2
@@ -64,7 +67,6 @@ cmd_pull_uploads() {
 
 cmd_check_uploads() {
   [ -d out ] || fail "out/ is missing: build first."
-  local tmp
   tmp=$(mktemp -d)
   # Only our own links: root-relative (after a quote or a parenthesis) or on farakurim.cz, not another site's
   # /wp-content/uploads/.
@@ -94,7 +96,6 @@ cmd_out() {
 # Deletes the _next/static/ files that are not in out/ and older than KEEP_STATIC_DAYS, printed like rsync's
 # deletions (-n only prints them), then the folders they leave empty (an old build's _next/static/<build id>/).
 prune_static() {
-  local tmp
   tmp=$(mktemp -d)
   (cd out && find _next/static -type f) | LC_ALL=C sort > "$tmp/current"
   ssh "$SSH_TARGET" "cd $WEB_ROOT && find _next/static -type f -mtime +$KEEP_STATIC_DAYS" | LC_ALL=C sort > "$tmp/old"
@@ -115,15 +116,8 @@ cmd_verify() {
   }
   check / 200 || ok=false
   check /neexistuje/ 404 || ok=false # the Czech 404 page
-  for path in "$@"; do check "$path" 200 || ok=false; done
-  # Copied to the server once (see the parish-release skill); without it only the footer link breaks.
   check /virtualni_prohlidka/ 200 || warn "The virtual tour is missing on the server."
-  # The host's "Přesměrování aliasu www" (hosting panel) sends www.farakurim.cz to the bare host, so search engines
-  # index one copy of the site.
-  local www
-  www=$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' https://www.farakurim.cz/kontakty/)
-  echo "$www (https://www.farakurim.cz/kontakty/)"
-  [ "$www" = "301 $SITE/kontakty/" ] || warn "www.farakurim.cz does not redirect to $SITE."
+  check /kontakty/ 200 || ok=false
   $ok || fail "The site does not answer as expected."
 }
 

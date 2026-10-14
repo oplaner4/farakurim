@@ -43,16 +43,6 @@ and pushes; the commit's trailer `Release-Deploy: local` keeps the workflow from
 version and the verify lines. If the run stops after the sync (verify failed), the site is live but untagged: tell the
 user, fix it in a new commit and release again.
 
-## Other commands
-
-All need the user's yes first, like a release, except the dry runs, `check-uploads` and `verify`:
-
-- `scripts/deploy.sh uploads [--dry-run]`: only upload the staged files (never overwrites or deletes on the server).
-- `scripts/deploy.sh out [--dry-run]` then `scripts/deploy.sh verify [/uploads/…]`: deploy `out/` without a
-  release. Build first with `RELEASE_BUILD=1 pnpm build` (it fails without the keys in `.env.local`) and show the user every
-  `*deleting` line of the dry run.
-- **Virtual tour**, one time, when `verify` warns that it is missing: copy it on the server from the old site
-  (`ssh <SSH_TARGET from scripts/deploy.sh> 'cp -a /stary.farakurim.cz/virtualni_prohlidka /farakurim.cz/'`). It is a
-  self-contained PHP app; do not edit its files.
+## Notes
 
 `/stary.farakurim.cz/` on the server is the backup of the old PHP site: never deploy there or delete it.
