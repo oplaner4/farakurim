@@ -2,6 +2,7 @@
 // in the PDF or the DOCX.
 
 import type { IsoDate } from "@/content/types/shared";
+import { period } from "@/lib/services/service-sheet";
 import { isIsoDate } from "@/lib/shared/prague";
 
 /** An ISO date of a valid day, month and year; throws for 31. 2. */
@@ -27,3 +28,19 @@ export function parseWeek(text: string): { validFrom: IsoDate; validTo: IsoDate 
 
 /** The week of a heading ("ROZPIS BOHOSLUŽEB V TÝDNU od … do …") in `text` (a paragraph or a page), else null. */
 export const weekHeading = (text: string) => (/rozpis|po[řr]ad/i.test(text) ? parseWeek(text) : null);
+
+/**
+ * The pages (1-based, inclusive) of `week` in a document of several weeks, given each page's text: from the page with
+ * its heading to the page before the next heading, without the blank pages the empty paragraphs at the end can fill.
+ * Throws when no page has the week's heading.
+ */
+export function weekPages(pages: string[], week: { validFrom: IsoDate; validTo: IsoDate }): [number, number] {
+  const headings = pages.map(weekHeading);
+  // Both dates: a typo can give two headings the same first day.
+  const first = headings.findIndex((h) => h?.validFrom === week.validFrom && h.validTo === week.validTo);
+  if (first < 0) throw new Error(`no page of the converted DOCX has the heading of ${period(week)}`);
+  const next = headings.findIndex((heading, i) => i > first && heading);
+  let last = next < 0 ? pages.length : next;
+  while (last > first + 1 && !pages[last - 1].trim()) last--;
+  return [first + 1, last];
+}
