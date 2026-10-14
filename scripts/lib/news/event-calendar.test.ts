@@ -3,9 +3,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { parishCalendars } from "@/content/site";
+import { events } from "@/content/news";
 import type { NewsEvent } from "@/content/types/news";
 import type { GoogleEvent } from "@/lib/calendar/google-calendar";
-import { checkCalendar, matchMeetings, writeIcs } from "./event-calendar";
+import { checkCalendar, matchMeetings, parseCommand, writeIcs } from "./event-calendar";
 
 const URL_OF = "https://farakurim.cz/aktuality/adoracni-den-2026/";
 
@@ -67,6 +68,22 @@ describe("matchMeetings", () => {
       google("b", "2026-10-18", "Manželské večery"),
     ]).map((m) => m.status);
     expect(statuses).toEqual(["linked", "unlinked", "missing"]);
+  });
+});
+
+describe("parseCommand", () => {
+  const USAGE = "Usage: pnpm event-calendar <id> [--out <dir>]";
+
+  it("finds the event of the id, with --out", async () => {
+    const { id } = events[0];
+    expect(await parseCommand([id])).toEqual({ event: events[0], out: undefined });
+    expect(await parseCommand([id, "--out", "C:/tmp"])).toEqual({ event: events[0], out: "C:/tmp" });
+  });
+
+  it("shows the usage without exactly one id, and refuses an unknown one", async () => {
+    await expect(parseCommand([])).rejects.toThrow(USAGE);
+    await expect(parseCommand(["a", "b"])).rejects.toThrow(USAGE);
+    await expect(parseCommand(["neni-takova-akce"])).rejects.toThrow("no event with the id neni-takova-akce");
   });
 });
 

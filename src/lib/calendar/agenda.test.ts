@@ -183,6 +183,50 @@ describe("newsEntries", () => {
     const days = agendaByDate(newsEntries(events, href), { from: "2026-10-02", to: "2026-10-02" });
     expect(days.get("2026-10-02")?.[0].cancelled).toBe(true);
   });
+
+  it("gives a weekly series one entry a week, on the weekday it starts, at its time", () => {
+    const weekly: NewsEvent = {
+      ...base,
+      id: "spolco",
+      title: "Společenství mládeže",
+      start: "2026-10-01",
+      end: "2026-10-29",
+      longTerm: { weeklyAt: "18:30" },
+    };
+    expect(newsEntries([weekly], href)).toEqual(
+      ["2026-10-01", "2026-10-08", "2026-10-15", "2026-10-22", "2026-10-29"].map((date) => ({
+        id: `spolco-${date}`,
+        calendar: "events",
+        title: "Společenství mládeže",
+        date,
+        time: "18:30",
+        place: "Tišnov",
+        href: "/aktuality/spolco/",
+      })),
+    );
+    // Across the end of summer time, still Thursdays at 18:30; an end on another weekday adds no day.
+    const winter = newsEntries([{ ...weekly, start: "2026-10-22", end: "2026-11-04" }], href);
+    expect(winter.map((e) => [e.date, e.time])).toEqual([
+      ["2026-10-22", "18:30"],
+      ["2026-10-29", "18:30"],
+    ]);
+  });
+
+  it("marks every week of a cancelled weekly series", () => {
+    const weekly: NewsEvent = {
+      ...base,
+      id: "spolco",
+      title: "Společenství mládeže",
+      start: "2026-10-01",
+      end: "2026-10-08",
+      longTerm: { weeklyAt: "18:30" },
+      change: { status: "cancelled" },
+    };
+    expect(newsEntries([weekly], href).map((e) => [e.date, e.cancelled])).toEqual([
+      ["2026-10-01", true],
+      ["2026-10-08", true],
+    ]);
+  });
 });
 
 describe("query parameters", () => {
