@@ -22,7 +22,8 @@ header and footer §20, nav groups in `navGroups`).
 ## Done means checked
 
 Never call work done before the full check and the browser check in `docs/conventions.md` pass. A content-only
-change (`src/content/` through the content skills) needs no browser check: its tests check the data.
+change (`src/content/` through the content skills) needs no browser check: its tests check the data. A change only
+under `scripts/` takes the shorter check `docs/conventions.md` gives for it.
 
 ## Git and commits
 

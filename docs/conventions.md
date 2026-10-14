@@ -47,3 +47,12 @@ short.
   ```sh
   pnpm format && pnpm test && pnpm lint && pnpm exec tsc --noEmit && pnpm build
   ```
+
+  A change only under `scripts/` needs neither the build, the site tests nor the browser check: nothing in `src/`
+  imports `scripts/` and none of it ends up in `out/`. Lint and the types still cover it:
+
+  ```sh
+  pnpm format && pnpm test:scripts && pnpm lint && pnpm exec tsc --noEmit
+  ```
+
+  The reverse does not hold: the scripts import `src/lib`, so a change there takes the full check.

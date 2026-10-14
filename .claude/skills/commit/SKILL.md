@@ -14,7 +14,8 @@ The husky `commit-msg` hook (`.husky/commit-msg`) rejects anything else, so vali
 1. **Look at the change.** Run `git status` and `git diff` (plus `git diff --staged`). If the work mixes
    unrelated changes, propose separate commits rather than one catch-all.
 2. **Verify it.** Unless the change is docs-only, run
-   `pnpm format && pnpm test && pnpm lint && pnpm exec tsc --noEmit && pnpm build`.
+   `pnpm format && pnpm test && pnpm lint && pnpm exec tsc --noEmit && pnpm build`; for a change only under
+   `scripts/`, `pnpm format && pnpm test:scripts && pnpm lint && pnpm exec tsc --noEmit` (`docs/conventions.md`).
    Do not commit failing code; report the failure instead.
 3. **Stage explicitly.** Use `git add <paths>`, not `git add -A`/`.`. Never stage `out/`, `.next/`,
    `.design-preview/`, `node_modules/`, `.env*` or screenshots (`.gitignore` covers most of them; check anyway).
