@@ -33,6 +33,7 @@ Every page has a **light and a dark theme**.
 | `mockups/vyuka-nabozenstvi/`, `mockups/aktivity/`, `mockups/kronika/`, `mockups/skupina-schola/`, `mockups/financni-podpora-starsi/` (each `{light,dark}`) | Sections 24–28 |
 | `mockups/skupina-chramovy-sbor/`, `mockups/skupina-spolecenstvi-mladeze/`, `mockups/skupina-katecheze/` | More pages from the group template (27.1) |
 | `mockups/menu/{light,dark}/` | Homepage with the "Více" menu open (section 20) |
+| `mockups/tabor-o-taboru/`, `mockups/tabor-vedouci/`, `mockups/tabor-kontakt/`, `mockups/tabor-rocniky/`, `mockups/lightbox-tym/` (each `{light,dark}`) | Tábor (section 29), and a leader's photo in the lightbox (29.3) |
 | `assets/logo-farnost-kurim.svg` | Cleaned logo (also the future favicon) |
 
 Desktop mockups are fluid with content max-width 1200 px; mobile and tablet are
@@ -991,7 +992,7 @@ and Historie, Pastorační rada and Společenství mladých each held only 1–2
 |---|---|
 | **Farnost** (blue) | Kalendář `/kalendar` · Finanční podpora `/financni_podpora/aktualne` · Pastorační rada – členové `/pastoracni_rada/clenove` · Zápisy pastorační rady `/pastoracni_rada/zapisy` · Kronika farnosti `/kronika_prehled_udalosti` · Kněží – rodáci `/knezi_rodaci` · Odkazy `/odkazy` |
 | **Život ve farnosti** (green) | Schola `/schola` · Chrámový sbor `/chramovy_sbor` · Katecheze pro děti `/katecheze_pro_deti/pravidelne` · Výuka náboženství `/vyuka_nabozenstvi` · Společenství mladých `/spolecenstvi_mladych/setkavani` · Seznam aktivit `/aktivity` |
-| **Farní tábor** (magenta) | Tábor 2026 `/farni_tabor/2026` (the current year, automatic) · O táboru · Vedoucí · Kontakt · Ročníky |
+| **Tábor** (magenta) | O táboru `/farni_tabor/informace` · Vedoucí `/farni_tabor/vedouci` · Kontakt `/farni_tabor/kontakt` · Ročníky `/farni_tabor/rocniky` (section 29). "Tábor 2027" is added as the first link once its page exists; there is no link to past years' pages. |
 | **Petrklíč a archivy** (orange) | Petrklíč – aktuální číslo `/petrklic/aktualni` · Archiv Petrklíče `/petrklic/archiv` · Archiv aktualit `/aktuality/archiv` |
 
 The main menu items (Úvod, Aktuality, Bohoslužby, Fotogalerie, Petrklíč, Kontakty)
@@ -1064,9 +1065,10 @@ footer on every page**, so it is visible everywhere without competing with page 
 
 ## 21. Lightbox (photos and posters)
 
-One shared full-screen viewer, used in two places:
+One shared full-screen viewer, used in three places:
 - **Fotogalerie** (section 19): tapping a photo in an album strip opens that album at that photo.
 - **Event posters**: the poster on Detail akce (13.3) and **image** attachments ("Plakát JPG/PNG") in Aktuality and Archiv aktualit. PDF attachments keep opening in the browser's PDF viewer.
+- **Tábor – Vedoucí** (29.3): a team member's photo opens the team's photos at that person.
 Not used for the homepage carousels.
 
 Mockups: `mockups/lightbox-foto/` and `mockups/lightbox-plakat/` (the open state at 390×844, 834×1112 and 1440×900).
@@ -1218,4 +1220,66 @@ Mockups: `mockups/financni-podpora-starsi/`. Colour: orange.
   - mobile: one card per year (year + costs on top, the works, then a 3-column mini `<dl>` Rozpočet / Dotace / Dary).
 - "—" when a value is not recorded. Two rows for one year are allowed (fara 2020: two stages).
 - Link back "← Aktuální projekty a jak přispět".
+
+## 29. Tábor (`/farni_tabor/…`)
+
+Mockups: `mockups/tabor-o-taboru/`, `mockups/tabor-vedouci/`, `mockups/tabor-kontakt/`,
+`mockups/tabor-rocniky/`. Colour: magenta (the footer group's colour), with the
+other brand tints for cards. The menu group is called **"Tábor"** (it was "Farní tábor").
+The old year pages (`/farni_tabor/2019` … `/2026`) are **not** rebuilt; the 2027 page
+will be designed later.
+
+### 29.1 Shared header
+
+Each of the four pages keeps its old route and starts with the same header:
+- breadcrumb `Úvod › Tábor › <page>` ("Tábor" links to O táboru);
+- eyebrow **"Farní tábor"** (13 px, uppercase, magenta-ink) above the H1 with the magenta shard; the H1 is the page name (O táboru, Vedoucí, Kontakt, Ročníky); a one-line lead;
+- **sub-navigation** `<nav aria-label="Stránky tábora">`: four 44 px pills O táboru · Vedoucí · Kontakt · Ročníky. Current page: magenta fill, white text, `aria-current="page"`; others `--surface` with a `--line` border. Mobile: one horizontal scrolling row bleeding to the screen edges; tablet/desktop: wrapping row.
+
+### 29.2 O táboru (`/farni_tabor/informace`)
+
+1. **Hero photo** (220 / 320 / 400 px, radius 24–28) with a green shard top-left and an orange shard bottom-right.
+2. **"Tábor 2027 – připravujeme"** panel (magenta tint, magenta corner shard, tent icon tile): two white boxes **Termín** ("upřesníme" until known) and **Přihlášky** ("zveřejníme zde a v aktualitách"), buttons "Zeptat se vedoucích" (→ Kontakt) and "Minulé ročníky". When the 2027 page exists, the panel shows the real dates and its main button becomes "Více o táboru 2027 →". Desktop: the panel sits beside "Jak to začalo" (grid 1.5fr / 1fr); mobile/tablet: it comes **before** the text, right under the hero.
+3. **Jak to začalo**: the camp has run since 2019, started by the společenství mladých (linked to its page, 27.1).
+4. **Pro koho je tábor**: three tinted cards with a corner shard: *Děti do 15 let* (účastníci, blue), *Mládež 15–18 let* (praktikanti, green), *Dospělí* (vedoucí, orange); 1 / 3 / 3 columns. Under them a surface note about the **setkání všech účastníků** before the summer.
+5. **Co na táboře děláme**: icon rows (Hry, Rozvojové programy, Duchovní program, Táboráky, Výlet do okolí); 1 / 2 / 3 columns.
+6. **Co pro nás tábor znamená**: quote cards (`<figure>` + `<blockquote>` + `<figcaption>` with an initial avatar and the first name). The texts are the participants' own words from the current page (Jakub, Terka, Štěpánka, Ondra, Dori); the mockup shows three with placeholders.
+
+### 29.3 Vedoucí (`/farni_tabor/vedouci`)
+
+- Lead: "Tým tábora 2026: …" (the year changes with the team).
+- Three groups, each an H2 with a count ("Vedoucí 6"):
+  1. **Hlavní vedoucí a zdravotnice** (magenta): larger cards on the magenta tint, role badge in solid magenta;
+  2. **Vedoucí** (blue);
+  3. **Praktikanti** (green), with the line "Praktikanti jsou mladí od 15 do 18 let, kteří se učí vést tábor."
+- Card: photo, **first name**, age muted ("22 let", optional), role badge (Hlavní vedoucí, Zdravotnice, Vedoucí, Praktikant / Praktikantka), and a 1–2 sentence bio.
+- **Photo size:**
+  - **Mobile / tablet:** a round avatar (64 px for the first group on tablet, 52 px otherwise) beside the text; 1 / 2 columns.
+  - **Desktop:** a large portrait photo, **4:5**, radius 16. First group: horizontal cards (photo 200×250 left, text right), 2 columns. Vedoucí and Praktikanti: vertical cards (photo on top, text below), **4 columns**.
+- **Lightbox:** a photo is a link (`aria-label="Zobrazit fotku: Honza"`) with a round magnifier badge (24 px on the avatar, 36 px on the desktop photo). It opens the photo lightbox (section 21) at that person, as a portrait (4:5) image: counter "1 / 15" and the name at the top; caption "Honza · Hlavní vedoucí · 22 let" (mobile: the role between the arrows); prev/next and swipe go through **everyone who has a photo**, in page order; thumbnails on desktop; closing returns to Vedoucí. There is no Zonerama button. Mockups: `mockups/lightbox-tym/`.
+- **Without a photo** (Olda and Dominik in the mockup): the first-name initial on the group tint, in the same shape and size, not clickable and not in the lightbox.
+- Many team members are **minors**: show only first names, keep ages and photos optional, and publish a photo only with consent (parents' consent for under-18s).
+- Ends with a magenta-tint link card "Máte dotaz k táboru?" → Kontakt.
+- Data per person: first name, age (optional), role, bio, photo (optional), order. Group by role.
+
+### 29.4 Kontakt (`/farni_tabor/kontakt`)
+
+- Lead: "S jakýmkoli dotazem nebo žádostí k táboru se prosím obracejte pouze na tyto kontaktní osoby."
+- Two cards (1 / 2 / 2 columns), each in its own tint with a corner shard: initials avatar, H2 name, uppercase role (**Tomáš Planer** – komunikace s rodiči, blue; **Jan Cejnek** – hlavní vedoucí, green).
+  - Telefon as a 20 px bold `tel:` link; E-mail as a `mailto:` link with the subject "Farní tábor" (wraps anywhere on mobile).
+  - "Zkopírovat e-mail" outline button on its own line (fixed min-width 190 px; label changes to "Zkopírováno", same rule as 15.1).
+  - Buttons **Zavolat** (filled) and **Napsat e-mail** (outline), each at least 140–160 px and wrapping.
+- Under the cards: a surface note **"Během tábora"** (when the leaders can be reached; text to confirm) and a link card "Jiné záležitosti farnosti" → `/kontakty`.
+
+### 29.5 Ročníky (`/farni_tabor/rocniky`)
+
+- A grid of year cards, newest first (1 / 2 / 4 columns), from 2019.
+- Card (`--surface`, radius 18–22): a photo area (190 / 170 / 190 px) in the year's tint with a **big year label** on a white chip bottom-left; H2 = the theme of the camp game (e.g. "Piráti z Ostrova"; the year is in the heading for screen readers: "Tábor 2019: Piráti z Ostrova"); the dates; the place with a pin; and **"Fotky z tábora"** linking to that year's Zonerama album (new window, external icon, hidden "(otevře se v novém okně)").
+- There are **no detail pages** for past years. Old URLs `/farni_tabor/2019` … `/2026` should redirect (301) to Ročníky (optionally with `#rok-2019` anchors on the cards).
+- Known data: 2019 *Piráti z Ostrova*, 15.–21. 8. 2019, fara v Ostrově u Macochy, album 5571364; 2020: 15.–22. 8. 2020, Staré Hutě, album 6515817. The other years (themes, dates, places, album links) must be filled in; the mockup marks them with `[…]`.
+- Data per year: year, theme, start/end date, place, cover photo, album URL.
+
+### 29.6 Dark theme
+
+The usual mapping (section 10). White boxes and chips on tints (Termín/Přihlášky, avatars, the year chip) map to `--raised`.
 
