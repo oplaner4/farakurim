@@ -19,6 +19,9 @@ Working on it with Claude Code: `CLAUDE.md` adds the rules an agent follows on t
   its tests skip the PDF cases without it
 - **LibreOffice** (`soffice` on the `PATH` or in its usual install folder), or **Word** on Windows, to convert the
   parish's service sheet DOCX with `pnpm stage sheet`; its tests skip the conversion without LibreOffice
+- **Bash, ssh and rsync**, and SSH key access to the server, to release (`pnpm release` with new files in
+  `uploads/`, `pnpm release --local`) and for `pnpm pull-uploads`: set up once as in
+  [docs/deployment.md § SSH access](docs/deployment.md#ssh-access). On Windows, Git Bash has ssh but not rsync
 - Optional: `pip install --user fonttools brotli` to regenerate the web fonts (`pnpm fonts`), and PHP to try
   `public/biblicky-citat.php` locally (`php -S`)
 

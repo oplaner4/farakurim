@@ -59,6 +59,22 @@ The server details (SSH target, web root, rsync flags, server-only folders, veri
 `scripts/deploy.sh`, used by both the workflow and `pnpm release`. Its commands (`uploads`, `pull-uploads`,
 `check-uploads`, `out`, `verify`, with `--dry-run` where it changes the server) also work on their own.
 
+### SSH access
+
+`scripts/deploy.sh` runs `ssh` and `rsync` against its `SSH_TARGET` with this machine's SSH key, several times per
+release, so the machine that releases needs, once:
+
+1. **rsync** next to ssh (on Windows, Git Bash ships ssh but not rsync: add rsync to it, e.g. from MSYS2).
+2. **A key pair** (`ssh-keygen -t ed25519`) whose public key is added to the hosting account's authorized SSH keys
+   (in the hosting's administration). A key with a passphrase goes into `ssh-agent`, or every connection asks.
+3. **The server's host key** in `~/.ssh/known_hosts`: connect once with `ssh <SSH_TARGET> exit` and accept it after
+   checking the fingerprint against the hosting's.
+
+Then `pnpm pull-uploads` (it only downloads) shows that the access works. GitHub Actions uses its own key and host
+key (`DEPLOY_SSH_KEY`, `DEPLOY_KNOWN_HOSTS`, [GitHub setup](#github-setup)), not this machine's.
+
+### What the sync keeps
+
 - The sync deletes files that are no longer in `out/`, except four folders that live only on the server: `/uploads/`,
   `/nahrane/` (the old site's uploads), `/virtualni_prohlidka/` (the old site's virtual tour) and `/cache/` (the last
   vira.cz verse).
