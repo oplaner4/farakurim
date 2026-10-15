@@ -1,12 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  formatDuration,
-  groupPhotoFromHash,
-  groupPhotoHash,
-  groupPhotoSet,
-  otherGroups,
-  youtubeEmbedUrl,
-} from "./groups";
+import { formatDuration, groupPhotoSet, otherGroups, youtubeEmbedUrl } from "./groups";
 
 describe("formatDuration", () => {
   it.each([
@@ -22,20 +15,6 @@ describe("formatDuration", () => {
 describe("youtubeEmbedUrl", () => {
   it("plays from youtube-nocookie.com and starts at once", () => {
     expect(youtubeEmbedUrl("abc")).toBe("https://www.youtube-nocookie.com/embed/abc?autoplay=1&rel=0");
-  });
-});
-
-describe("group photo hash", () => {
-  it("round-trips a photo number", () => {
-    expect(groupPhotoHash(3)).toBe("#foto-3");
-    expect(groupPhotoFromHash(groupPhotoHash(3), 19)).toBe(2);
-  });
-
-  it("ignores other hashes and photos out of range", () => {
-    expect(groupPhotoFromHash("", 19)).toBeNull();
-    expect(groupPhotoFromHash("#foto-0", 19)).toBeNull();
-    expect(groupPhotoFromHash("#foto-20", 19)).toBeNull();
-    expect(groupPhotoFromHash("#obsah", 19)).toBeNull();
   });
 });
 

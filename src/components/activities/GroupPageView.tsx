@@ -6,7 +6,7 @@ import { links } from "@/content/site";
 import { groupPhotoSet, otherGroups } from "@/lib/activities/groups";
 import { externalLinkAttrs } from "@/lib/shared/links";
 import { MusicIcon } from "@/components/ui/icons/media-icons";
-import { ArrowRightIcon, ExternalLinkIcon } from "@/components/ui/icons/navigation-icons";
+import { ExternalLinkIcon } from "@/components/ui/icons/navigation-icons";
 import { LockIcon } from "@/components/ui/icons/status-icons";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -16,6 +16,7 @@ import { GroupLightbox } from "./GroupLightbox";
 import { GroupPhotos } from "./GroupPhotos";
 import { VideoCard } from "./VideoCard";
 import { ArrowLink } from "@/components/ui/ArrowLink";
+import { LinkCard } from "@/components/ui/LinkCard";
 
 const card = clsx("rounded-18 bg-surface p-4 text-ink no-underline hover:bg-line hover:text-ink");
 
@@ -125,17 +126,7 @@ export function GroupPageView({ group, groups, nextMeeting }: Props) {
       {group.downloads && <Downloads downloads={group.downloads} />}
 
       {group.linkCard && (
-        <a
-          href={group.linkCard.href}
-          {...externalLinkAttrs(group.linkCard.href)}
-          className="flex items-center justify-between gap-4 rounded-18 bg-orange-tint px-5 py-4.5 text-ink no-underline hover:bg-orange-tint-alt hover:text-ink"
-        >
-          <span className="flex flex-col gap-0.5">
-            <strong className="text-17">{group.linkCard.title}</strong>
-            <span className="text-14 text-ink-2">{group.linkCard.text}</span>
-          </span>
-          <ArrowRightIcon size={22} className="flex-none text-orange-ink" />
-        </a>
+        <LinkCard href={group.linkCard.href} title={group.linkCard.title} text={group.linkCard.text} tone="orange" />
       )}
 
       <section aria-labelledby="dalsi-skupiny" className="flex flex-col gap-3">

@@ -124,7 +124,7 @@ fonts-source/        Original Oxygen TTFs and their OFL licence (input for `pnpm
 .claude/             Claude Code project skills (content, release, commit, design) and rules by topic
 .agents/skills/      Third-party agent skills (see License), pinned in skills-lock.json
 docs/                Conventions, deployment, and design specs and plans of larger features
-uploads/             Uploaded files (posters, PDFs, Petrklíč, group photos) staged for the server; git-ignored
+uploads/             Uploaded files (posters, PDFs, Petrklíč, group and camp photos) staged for the server; git-ignored
 ```
 
 Where code goes and the conventions per topic (styling tokens, accessibility, dates and "now" in a static build,

@@ -36,6 +36,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     links.religiousEducation,
     links.activities,
     ...groupPages.map((group) => group.href),
+    links.campAbout,
+    links.campTeam,
+    links.campContact,
+    links.campYears,
   ];
   return paths.map((path) => ({ url: `${SITE_URL}${path}` }));
 }

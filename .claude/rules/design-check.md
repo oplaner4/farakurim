@@ -13,8 +13,9 @@ in both themes (emulate `prefers-color-scheme: dark` for the dark mockups).
 The mockups are design-tool templates (`<x-dc>`, `<sc-if>`, `{{holes}}`) and cannot be opened directly.
 `pnpm mockups` renders them to `.design-preview/` and serves them at http://localhost:4174/mockups/
 (`<page>/light/mobile-390.html`, `tablet-834.html`, `desktop-1440.html`, and `<page>/dark/*-dark.html`; pages: `home`, `aktuality`, `archiv`, `detail`, `detail-zrusena`, `porad-bohosluzeb`, `kontakty`, `kalendar`, `petrklic`, `petrklic-archiv`, `fotogalerie`, `financni-podpora`, `financni-podpora-starsi`, `odkazy`, `kronika`, `vyuka-nabozenstvi`,
-`aktivity`, `skupina-schola`, `skupina-chramovy-sbor`, `skupina-spolecenstvi-mladeze`, `skupina-katecheze`, `menu` (the homepage with the "Více" menu open), `lightbox-foto` and `lightbox-plakat` (the open lightbox: open the build's
-Fotogalerie at `#album-<id>-foto-3` and a detail page at `#plakat`)). Serve the build with `pnpm preview` and compare
+`aktivity`, `skupina-schola`, `skupina-chramovy-sbor`, `skupina-spolecenstvi-mladeze`, `skupina-katecheze`, `archiv-hledani` (Archiv aktualit while searching),
+`tabor-o-taboru`, `tabor-vedouci`, `tabor-kontakt`, `tabor-rocniky`, `menu` (the homepage with the "Více" menu open), `lightbox-foto`, `lightbox-plakat` and `lightbox-tym` (the open lightbox: open the build's
+Fotogalerie at `#album-<id>-foto-3`, a detail page at `#plakat` and Tábor – Vedoucí at `#foto-1`)). Serve the build with `pnpm preview` and compare
 screenshots plus block positions (`getBoundingClientRect()` of each `section[aria-labelledby]`).
 
 - The mockup frames are fixed-width, so give the browser a viewport ~15 px wider for the scrollbar.
@@ -24,5 +25,6 @@ screenshots plus block positions (`getBoundingClientRect()` of each `section[ari
   and video thumbnails instead of tinted boxes, the Společenství
   mládeže poster shown whole as its hero, the old site's full texts (Kronika, Schola "O nás") instead of the
   mockups' shortened ones, real Petrklíč covers and pages instead of
-  `[obálka]` / `[strana]`, the service sheet intentions left out (or shown) instead of `[úmysl]` / `[jméno]`, and calendar entries: the build
+  `[obálka]` / `[strana]`, the service sheet intentions left out (or shown) instead of `[úmysl]` / `[jméno]`, the Tábor pages' real photos,
+  quotes, team (every member with a photo) and years (a theme only where known) instead of the placeholders, and calendar entries: the build
   links every event and keeps a mass in the services calendar when an event shares its time.

@@ -109,7 +109,7 @@ export const activityGroups: ActivityGroup[] = [
       { name: "Farní den", contacts: "hledáme" },
       { name: "Poutní zájezdy", contacts: "Lída Císařová" },
       { name: "Farní dovolená rodin v Jeseníkách", contacts: "manželé Drahovští" },
-      { name: "Farní tábor", contacts: "Tomáš Planer" },
+      { name: "Farní tábor", contacts: "Tomáš Planer", href: links.campAbout },
       { name: "Pěší pouť Sedmiradostnou cestou na Vranov", contacts: "Bára Jordanová (Česká)" },
       { name: "Den národnostních menšin", contacts: "otec Jaroslav" },
       { name: "Pěší pouť na Vranov", contacts: "Milan Císař, Hanka Švábová (MK)" },

@@ -24,3 +24,16 @@ export const isImageFile = (file: string) => IMAGE_EXTENSIONS.includes(`.${fileT
  */
 export const thumbStart = (index: number, count: number, size: number) =>
   Math.max(0, Math.min(count - size, index - Math.floor(size / 2)));
+
+/**
+ * Hash of the N-th photo (1-based) open in the lightbox of a page with one set of photos (a group page, Vedoucí):
+ * "#foto-3".
+ */
+export const photoHash = (n: number) => `#foto-${n}`;
+
+/** The photo (0-based) a hash opens, or `null` when it is not one of the `count` photos. */
+export function photoFromHash(hash: string, count: number): number | null {
+  const match = /^#foto-(\d+)$/.exec(hash);
+  const n = match ? Number(match[1]) : 0;
+  return n >= 1 && n <= count ? n - 1 : null;
+}

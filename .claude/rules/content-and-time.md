@@ -106,9 +106,18 @@ build-time next mass.
   `/aktivity/`, where `src/app/aktivity/[group]/` builds only the group pages). The groups live under `/aktivity/`;
   `public/.htaccess` redirects their old URLs. Remove a page from the list when it is rebuilt. Mimořádné katecheze are not rebuilt: the
   Katecheze link card and `public/.htaccess` lead to them on the old site (stary.farakurim.cz, same path). Neither are
-  Tábor 2019–2026 and Betlémy 2024 and 2025: `public/.htaccess` redirects them to the old site. The old site's own
-  `.htaccess` (on the server, not in git) sends `X-Robots-Tag: noindex` on every page except these, so search engines
-  index them there.
+  Betlémy 2024 and 2025: `public/.htaccess` redirects them to the old site. Tábor 2019–2026 have no pages either:
+  `public/.htaccess` redirects each to its card on Ročníky (`/farni_tabor/rocniky/#rok-<year>`). The old site's own
+  `.htaccess` (on the server, not in git) sends `X-Robots-Tag: noindex` on every page except the Mimořádné katecheze and
+  Betlémy pages, so search engines index those there (the Tábor years are noindex there too).
+- Tábor (`content/camp.ts`, types in `types/camp.ts`, design §29): O táboru, Vedoucí, Kontakt and Ročníky under
+  `/farni_tabor/`, with the shared header and sub-navigation (`CampPageHeading`). The texts, the team, the contacts
+  and the years come from the old site's pages. `nextCamp` is the "Tábor <year> – připravujeme" panel: add `start`/`end`
+  once the dates are known and `href` once the year has its page. The team (`campTeam`, first names only, many are
+  minors) is grouped by `role` (`teamGroups()` in `src/lib/camp/team.ts`); a photo is published only with consent
+  and uploaded to `/uploads/tabor/vedouci/` (WebP 4:5, `small` 320 px, `large` 720 px); the photos share one lightbox
+  at `#foto-N`, in page order. Each year of `campYears` (newest first) links its Zonerama album, with a cover photo
+  from it (a Zonerama URL); a year without an album yet shows a tent on its tint.
 - Odkazy (`content/web-links.ts`, design §23): link groups with a colour; "Obce farnosti" reuses `parish.villages`
   (also the footer), and the card's domain is computed (`displayDomain()`).
 - Office hours (`content/site.ts`): weekly slots with an optional yearly `closed` break; the live status is
@@ -123,4 +132,4 @@ build-time next mass.
   forces a `/cs/…` prefix on every page (no locale negotiation, no localized pathnames).
 - The site's routes sit in `content/site.ts` (`links` and the "Více" menu / footer groups `navGroups`); a page not
   rebuilt yet is linked to its placeholder (`planned-pages.ts`), never to the old site. The footer ©
-  follows `BUILD_YEAR`; the menu has no "Tábor <year>" link for now (Tábor 2026 is on the old site).
+  follows `BUILD_YEAR`; the menu has no "Tábor <year>" link until that year's page is designed (§20.1, §29).

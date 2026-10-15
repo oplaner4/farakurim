@@ -66,7 +66,7 @@ export default function PrivacyPage() {
                 <strong>Google</strong> – události v kalendářích (Google Kalendář),
               </li>
               <li>
-                <strong>Zonerama</strong> – fotografie z alb na úvodní stránce a ve Fotogalerii,
+                <strong>Zonerama</strong> – fotografie z alb na úvodní stránce, ve Fotogalerii a v ročnících tábora,
               </li>
               <li>
                 <strong>Mapy.com</strong> – mapa na stránce Kontakty,

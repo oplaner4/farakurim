@@ -15,16 +15,6 @@ export const youtubeEmbedUrl = (id: string) => `https://www.youtube-nocookie.com
 /** The video on YouTube: the link without JS. */
 export const youtubeWatchUrl = (id: string) => `https://www.youtube.com/watch?v=${id}`;
 
-/** Hash of the N-th photo (1-based) open in the lightbox: "#foto-3". A group page has one set of photos. */
-export const groupPhotoHash = (n: number) => `#foto-${n}`;
-
-/** The photo (0-based) a hash opens, or `null` when it is not one of the `count` photos. */
-export function groupPhotoFromHash(hash: string, count: number): number | null {
-  const match = /^#foto-(\d+)$/.exec(hash);
-  const n = match ? Number(match[1]) : 0;
-  return n >= 1 && n <= count ? n - 1 : null;
-}
-
 /** Every photo the page's lightbox shows: the hero first, then the "Fotografie" grid's photos. */
 export function groupPhotoSet(group: Pick<GroupPage, "hero" | "photos">): AlbumPhoto[] {
   const hero = group.hero ? [{ small: group.hero.small, large: group.hero.src }] : [];

@@ -45,9 +45,8 @@ RedirectMatch 301 ^/(?:aktivity/)?katecheze_pro_deti/mimoradne(?:/index)?(?:\.ph
 RedirectMatch 301 ^/(?:aktivity/)?katecheze_pro_deti/mimoradne/(adventni_doba|postni_doba|vanocni_doba)(?:/index)?(?:\.php)?/?$ https://stary.farakurim.cz/katecheze_pro_deti/mimoradne/$1/rozcestnik
 RedirectMatch 301 ^/(?:aktivity/)?katecheze_pro_deti/mimoradne/(.+?)(?:\.php)?/?$ https://stary.farakurim.cz/katecheze_pro_deti/mimoradne/$1
 
-# Neither are Tábor 2019–2026 and Betlémy 2024 and 2025: their URLs, which earlier releases served as placeholders,
-# lead to the same page on the old site.
-RedirectMatch 301 ^/farni_tabor/(2019|202[0-6])(?:\.php)?/?$ https://stary.farakurim.cz/farni_tabor/$1
+# Neither are Betlémy 2024 and 2025: their URLs, which earlier releases served as placeholders, lead to the same page
+# on the old site.
 RedirectMatch 301 ^/betlemy/(2024|2025)(?:\.php)?/?$ https://stary.farakurim.cz/betlemy/$1
 
 # Aktuality detail pages moved from a URL made from the title to the record's ID (/aktuality/<id>/). The records
@@ -74,6 +73,9 @@ RedirectMatch 301 ^/aktuality/farni-pout-do-lukova-a-adventni-trebice(?:/(.*))?$
 # string is matched with mod_rewrite because RedirectMatch doesn't see it; the trailing "?" drops it from the target.
 <IfModule mod_rewrite.c>
   RewriteEngine On
+  # Tábor 2019–2026 have no pages of their own: each year's URL opens its card on Ročníky (design/DESIGN.md §29.5).
+  # mod_rewrite, as RedirectMatch would escape the "#"; NE keeps it.
+  RewriteRule ^farni_tabor/(2019|202[0-6])(?:\.php)?/?$ /farni_tabor/rocniky/#rok-$1 [NE,R=301,L]
   RewriteCond %{QUERY_STRING} (?:^|&)id=69c644a4d07bf(?:&|$)
   RewriteRule ^petrklic/pdf(?:\.php)?/?$ /uploads/petrklic/2026-1/petrklic-2026-1.pdf? [R=301,L]
   RewriteCond %{QUERY_STRING} (?:^|&)id=693c68d1aff4f(?:&|$)

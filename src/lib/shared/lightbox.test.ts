@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isImageFile, thumbStart, zoomLabel, zoomStep } from "./lightbox";
+import { isImageFile, photoFromHash, photoHash, thumbStart, zoomLabel, zoomStep } from "./lightbox";
 
 describe("poster zoom", () => {
   it("labels the fitted size and percentages", () => {
@@ -32,5 +32,19 @@ describe("lightbox files and thumbnails", () => {
     expect(thumbStart(6, 12, 9)).toBe(2);
     expect(thumbStart(11, 12, 9)).toBe(3);
     expect(thumbStart(3, 5, 9)).toBe(0);
+  });
+});
+
+describe("photo hash", () => {
+  it("round-trips a photo number", () => {
+    expect(photoHash(3)).toBe("#foto-3");
+    expect(photoFromHash(photoHash(3), 19)).toBe(2);
+  });
+
+  it("ignores other hashes and photos out of range", () => {
+    expect(photoFromHash("", 19)).toBeNull();
+    expect(photoFromHash("#foto-0", 19)).toBeNull();
+    expect(photoFromHash("#foto-20", 19)).toBeNull();
+    expect(photoFromHash("#obsah", 19)).toBeNull();
   });
 });

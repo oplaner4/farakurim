@@ -7,25 +7,30 @@ import { CheckIcon, CopyIcon } from "./icons/status-icons";
 
 const RESET_MS = 3000;
 
-export const copyButton = cva(
-  "flex cursor-pointer items-center justify-center border-2 border-orange-ink font-bold text-orange-ink-deep hover:bg-orange-tint-alt",
-  {
-    variants: {
-      size: {
-        default: "min-h-11 rounded-12 px-4 text-15",
-        /* The payment box of a project card (§22.1). The mockup's 40px is raised to the 44px touch target. */
-        small: "min-h-11 rounded-10 px-3 text-14",
-      },
-      /* A fixed minimum width that fits the longer label, so "Zkopírováno" never resizes the button (§22). */
-      width: {
-        default: "min-w-42",
-        account: "min-w-57.5",
-        vs: "min-w-40",
-      },
+export const copyButton = cva("flex cursor-pointer items-center justify-center border-2 font-bold", {
+  variants: {
+    /* Orange on Finanční podpora; the Tábor contact cards take their card's colour (§29.4). */
+    tone: {
+      orange: "border-orange-ink text-orange-ink-deep hover:bg-orange-tint-alt",
+      blue: "border-blue text-blue-ink hover:bg-raised",
+      green: "border-green text-green-ink hover:bg-raised",
     },
-    defaultVariants: { size: "default", width: "default" },
+    size: {
+      default: "min-h-11 rounded-12 px-4 text-15",
+      /* The payment box of a project card (§22.1). The mockup's 40px is raised to the 44px touch target. */
+      small: "min-h-11 rounded-10 px-3 text-14",
+    },
+    /* A fixed minimum width that fits the longer label, so "Zkopírováno" never resizes the button (§22). */
+    width: {
+      default: "min-w-42",
+      account: "min-w-57.5",
+      vs: "min-w-40",
+      /* "Zkopírovat e-mail" (§29.4). */
+      email: "min-w-47.5",
+    },
   },
-);
+  defaultVariants: { tone: "orange", size: "default", width: "default" },
+});
 
 type Props = VariantProps<typeof copyButton> & {
   text: string;
@@ -39,7 +44,7 @@ type Props = VariantProps<typeof copyButton> & {
  * Copies `text` with the Clipboard API; the label switches to "Zkopírováno" with a tick for a moment (§15.1, §22).
  * The changed label fades in; the live region around it stays mounted so the change is announced.
  */
-export function CopyButton({ text, label = "Zkopírovat", size, width, className }: Props) {
+export function CopyButton({ text, label = "Zkopírovat", tone, size, width, className }: Props) {
   const [copied, setCopied] = useState(false);
   // No fade on the first render, only when the label changes.
   const [changed, setChanged] = useState(false);
@@ -62,7 +67,7 @@ export function CopyButton({ text, label = "Zkopírovat", size, width, className
 
   return (
     // Needs JS: hidden by the page's <noscript> style.
-    <button type="button" onClick={copy} data-js-only className={copyButton({ size, width, className })}>
+    <button type="button" onClick={copy} data-js-only className={copyButton({ tone, size, width, className })}>
       <span aria-live="polite" className="flex items-center">
         <span
           key={String(copied)}

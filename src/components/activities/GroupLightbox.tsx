@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import type { MouseEvent } from "react";
 import type { AlbumPhoto } from "@/content/types/gallery";
-import { groupPhotoFromHash, groupPhotoHash } from "@/lib/activities/groups";
+import { photoFromHash, photoHash } from "@/lib/shared/lightbox";
 import { isModifiedClick } from "@/lib/shared/links";
 import { clearHash, pushHash, replaceHash } from "@/lib/shared/location-hash";
 import { useLocationHash } from "@/hooks/use-location-hash";
@@ -19,7 +19,7 @@ const PhotoLightbox = dynamic(() => loadGroupLightbox().then((m) => m.PhotoLight
 export const openGroupPhoto = (n: number) => (e: MouseEvent) => {
   if (isModifiedClick(e)) return;
   e.preventDefault();
-  pushHash(groupPhotoHash(n));
+  pushHash(photoHash(n));
 };
 
 /**
@@ -27,14 +27,14 @@ export const openGroupPhoto = (n: number) => (e: MouseEvent) => {
  * while the hash is `#foto-N`, so the back button closes it and a link can open it.
  */
 export function GroupLightbox({ name, photos }: { name: string; photos: AlbumPhoto[] }) {
-  const open = groupPhotoFromHash(useLocationHash(), photos.length);
+  const open = photoFromHash(useLocationHash(), photos.length);
   if (open === null) return null;
   return (
     <PhotoLightbox
       album={{ title: name, photoCount: photos.length, photos }}
       index={open}
       position={0}
-      onView={(i) => replaceHash(groupPhotoHash(i + 1))}
+      onView={(i) => replaceHash(photoHash(i + 1))}
       onClose={clearHash}
     />
   );

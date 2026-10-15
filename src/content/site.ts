@@ -23,6 +23,11 @@ export const links = {
   religiousEducation: "/vyuka_nabozenstvi/",
   activities: "/aktivity/",
   chronicle: "/kronika_prehled_udalosti/",
+  /** Tábor (design/DESIGN.md §29): the old site's routes. O táboru is "Tábor" in the breadcrumb. */
+  campAbout: "/farni_tabor/informace/",
+  campTeam: "/farni_tabor/vedouci/",
+  campContact: "/farni_tabor/kontakt/",
+  campYears: "/farni_tabor/rocniky/",
   /** Group pages live under Seznam aktivit (`/aktivity/<group id>/`), like their breadcrumb. */
   schola: "/aktivity/schola/",
   choir: "/aktivity/chramovy_sbor/",
@@ -82,13 +87,13 @@ export const navGroups = [
     ],
   },
   {
-    title: "Farní tábor",
+    title: "Tábor",
     color: "magenta",
     links: [
-      { label: "O táboru", href: "/farni_tabor/informace/" },
-      { label: "Vedoucí", href: "/farni_tabor/vedouci/" },
-      { label: "Kontakt", href: "/farni_tabor/kontakt/" },
-      { label: "Ročníky", href: "/farni_tabor/rocniky/" },
+      { label: "O táboru", href: links.campAbout },
+      { label: "Vedoucí", href: links.campTeam },
+      { label: "Kontakt", href: links.campContact },
+      { label: "Ročníky", href: links.campYears },
     ],
   },
   {

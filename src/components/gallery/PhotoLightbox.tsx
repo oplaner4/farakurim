@@ -21,6 +21,16 @@ import { AlbumPhotoTile } from "./AlbumPhotoTile";
 /** Thumbnails in the desktop strip. */
 const THUMBS = 9;
 
+/** What the lightbox says about each photo when the photos are people, not an album (Tábor – Vedoucí, §29.3). */
+export type PhotoLabel = {
+  /** The top bar's second line: "Honza". */
+  title: string;
+  /** Under the photo from tablet up, and its alt text: "Honza · Hlavní vedoucí · 22 let". */
+  caption: string;
+  /** Between the arrows on mobile: "Hlavní vedoucí". */
+  short: string;
+};
+
 type Props = {
   album: PhotoSet;
   /** The photo to show, 0-based. */
@@ -29,6 +39,10 @@ type Props = {
   position: number;
   onView: (index: number) => void;
   onClose: () => void;
+  /** One per photo: replaces the album's title, date and alt texts. */
+  labels?: PhotoLabel[];
+  /** The mobile swipe hint: "Přejeďte prstem pro další fotografii" by default. */
+  hint?: string;
 };
 
 /**
@@ -36,12 +50,12 @@ type Props = {
  * swipe and the arrow keys), the date and title, and on desktop a strip of thumbnails. A group page's photos have
  * no date and no Zonerama album, so those parts are left out.
  */
-export function PhotoLightbox({ album, index, position, onView, onClose }: Props) {
+export function PhotoLightbox({ album, index, position, onView, onClose, labels, hint }: Props) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const count = album.photoCount;
   const slides = Array.from({ length: count }, (_, i) => ({
     src: album.photos?.[i]?.large ?? "",
-    alt: photoAlt(album, i + 1),
+    alt: labels?.[i]?.caption ?? photoAlt(album, i + 1),
   }));
 
   // An album without photo URLs shows the strip's placeholders, 4:3 in the free space.
@@ -77,19 +91,24 @@ export function PhotoLightbox({ album, index, position, onView, onClose }: Props
         slideContainer: ({ children }) => (
           <div className="mx-auto flex size-full items-center justify-center md:max-w-190 lg:max-w-260">{children}</div>
         ),
-        controls: () => <PhotoControls album={album} position={position} closeRef={closeRef} />,
+        controls: () => (
+          <PhotoControls album={album} position={position} closeRef={closeRef} labels={labels} hint={hint} />
+        ),
       }}
     />
   );
 }
 
-type ControlsProps = { album: PhotoSet; position: number; closeRef: RefObject<HTMLButtonElement | null> };
+type ControlsProps = Pick<Props, "album" | "position" | "labels" | "hint"> & {
+  closeRef: RefObject<HTMLButtonElement | null>;
+};
 
-function PhotoControls({ album, position, closeRef }: ControlsProps) {
+function PhotoControls({ album, position, closeRef, labels, hint }: ControlsProps) {
   const { currentIndex } = useLightboxState();
   const { prev, next } = useController();
   const count = album.photoCount;
   const date = album.date && formatLongDate(album.date);
+  const label = labels?.[currentIndex];
   const go = (k: number) => {
     if (k > currentIndex) next({ count: k - currentIndex });
     else if (k < currentIndex) prev({ count: currentIndex - k });
@@ -112,7 +131,7 @@ function PhotoControls({ album, position, closeRef }: ControlsProps) {
       <LightboxTopBar
         heading={`${currentIndex + 1} / ${count}`}
         live
-        title={album.title}
+        title={label?.title ?? album.title}
         closeRef={closeRef}
         actions={
           album.href && (
@@ -137,14 +156,16 @@ function PhotoControls({ album, position, closeRef }: ControlsProps) {
 
       <div className="flex flex-col gap-3.5 px-4 pt-4 pb-7 max-md:mt-auto md:px-6 md:pb-8 lg:px-8 lg:pb-6">
         <p className="text-center text-15 text-lightbox-ink-2 max-md:hidden">
-          {date ? `${date} · ${album.title}` : album.title}
+          {label?.caption ?? (date ? `${date} · ${album.title}` : album.title)}
         </p>
         <div className="flex items-center justify-between gap-3 md:hidden">
           {prevButton("")}
-          <span className="text-14 text-lightbox-ink-2">{date ?? album.title}</span>
+          <span className="text-14 text-lightbox-ink-2">{label?.short ?? date ?? album.title}</span>
           {nextButton("")}
         </div>
-        <p className="text-center text-13 text-lightbox-hint md:hidden">Přejeďte prstem pro další fotografii</p>
+        <p className="text-center text-13 text-lightbox-hint md:hidden">
+          {hint ?? "Přejeďte prstem pro další fotografii"}
+        </p>
         <ul aria-label="Náhledy" className="flex justify-center gap-2 max-lg:hidden">
           {Array.from({ length: Math.min(THUMBS, count) }, (_, k) => {
             const i = from + k;
@@ -153,7 +174,7 @@ function PhotoControls({ album, position, closeRef }: ControlsProps) {
               <li key={i}>
                 <button
                   type="button"
-                  aria-label={`Fotografie ${i + 1}`}
+                  aria-label={labels ? `Fotka: ${labels[i]?.title}` : `Fotografie ${i + 1}`}
                   aria-current={current || undefined}
                   className={clsx(
                     "pointer-events-auto block h-13.5 w-18 cursor-pointer overflow-hidden rounded-8 border-2 p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
