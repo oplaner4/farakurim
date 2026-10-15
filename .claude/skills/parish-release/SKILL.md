@@ -17,7 +17,7 @@ scripts' business (`docs/deployment.md`), not this skill's.
    tree (often `AGENTS.md` re-added by `next dev`), ask the user to commit or discard it.
 2. **Ask** the user, with the version, the commits and the uploads from the preview, for example:
 
-   > Release v1.1.0 to https://farakurim.cz/? (2 commits, 3 new files in /uploads/)
+   > Release v1.1.0? (2 commits, 3 new files in /uploads/)
 
    Wait for a clear yes; it publishes the site. Without it, stop: the commits stay as they are.
 
