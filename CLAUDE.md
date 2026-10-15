@@ -44,6 +44,11 @@ says how an agent runs it. What an agent must never get wrong:
   backup), and so do `pnpm release --yes` (it pushes the tag), `pnpm release --local --yes`, `scripts/deploy.sh out`
   and `scripts/deploy.sh uploads`: ask the user for an explicit yes before any of them. Preview with `pnpm release`,
   and run `pnpm release --yes` only after that yes.
+- **Never connect to the server yourself**: no `ssh`, `scp`, `sftp`, `rsync` or any other command against it, not
+  even to read. Only the scripts reach it (`pnpm release`, `pnpm pull-uploads`, `scripts/deploy.sh`), as they know
+  which folders to leave alone and never overwrite or delete what lives only there. There is nothing to check by
+  hand either: the release checks the linked uploads and verifies the live site. When something on the server needs
+  changing, change `scripts/deploy.sh` or ask the user.
 - `/stary.farakurim.cz/` on the server is the backup of the old PHP site: never deploy there or delete it.
 - Never delete `/uploads/`, `/nahrane/`, `/virtualni_prohlidka/` or `/cache/` on the server: they live only there.
 - The SSH target, web root, rsync flags, server-only folders and verify checks live only in `scripts/deploy.sh`
