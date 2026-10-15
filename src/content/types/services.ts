@@ -124,7 +124,7 @@ export type ServiceSheet = {
   pdfUrl: string;
   validFrom: IsoDate;
   validTo: IsoDate;
-  /** Revision of a released week's corrected PDF, from 2: a new file name, as the server's files stay. */
+  /** Revision of a released week's corrected PDF, from 2: a new file name, as a released upload is never replaced. */
   rev?: number;
   days: SheetDay[];
   /** In the editor's order; changes are shown first. */

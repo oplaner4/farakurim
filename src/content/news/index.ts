@@ -6,7 +6,7 @@ import { newsEventSchema } from "@/lib/news/schema";
 import { readJsonFile } from "@/lib/shared/json-file";
 
 // Every aktualita, one JSON file per start month: news/<year>/<MM>.json, each in start-date order. 2019–2025 were
-// migrated once from the old site's database (farakurim.cz); scripts/lib/news/add-aktualita.ts (farnost-create-aktualita
+// migrated once from the old site's database; scripts/lib/news/add-event.ts (parish-create-event
 // skill) adds the new ones. Which ones are current and which archived is decided by date (src/lib/news/), not by the
 // file they are in. The folder is read, not imported, so a new month needs no code, and every file is checked with
 // the record schema on import: a broken file fails the tests, the build and the scripts, naming the file and field.

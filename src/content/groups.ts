@@ -1,4 +1,4 @@
-import { contacts, links, OLD_SITE_URL } from "./site";
+import { contacts, links } from "./site";
 import type { GroupPage } from "./types/activities";
 
 /*
@@ -174,7 +174,7 @@ export const catechesis: GroupPage = {
     title: "Mimořádné katecheze",
     text: "Příběhy na doma pro advent, půst, Vánoce a Velikonoce",
     // Not rebuilt here: the stories stay on the old site.
-    href: `${OLD_SITE_URL}/katecheze_pro_deti/mimoradne/rozcestnik`,
+    href: "https://stary.farakurim.cz/katecheze_pro_deti/mimoradne/rozcestnik",
   },
 };
 

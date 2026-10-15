@@ -105,7 +105,7 @@ build-time next mass.
   its breadcrumb and "Stránku připravujeme" (noindex, not in the sitemap), built by `src/app/[...path]/` (never under
   `/aktivity/`, where `src/app/aktivity/[group]/` builds only the group pages). The groups live under `/aktivity/`;
   `public/.htaccess` redirects their old URLs. Remove a page from the list when it is rebuilt. Mimořádné katecheze are not rebuilt: the
-  Katecheze link card and `public/.htaccess` lead to them on the old site (`OLD_SITE_URL`, same path). Neither are
+  Katecheze link card and `public/.htaccess` lead to them on the old site (stary.farakurim.cz, same path). Neither are
   Tábor 2019–2026 and Betlémy 2024 and 2025: `public/.htaccess` redirects them to the old site. The old site's own
   `.htaccess` (on the server, not in git) sends `X-Robots-Tag: noindex` on every page except these, so search engines
   index them there.

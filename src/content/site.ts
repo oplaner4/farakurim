@@ -8,9 +8,6 @@ export const SITE_URL = "https://farakurim.cz";
 /** The site's host name: "farakurim.cz" (external links, calendar file UIDs). */
 export const SITE_HOST = new URL(SITE_URL).hostname;
 
-/** The old PHP site, kept for the pages not moved here (Mimořádné katecheze, Tábor 2019–2026, Betlémy 2024–2025). */
-export const OLD_SITE_URL = "https://stary.farakurim.cz";
-
 export const links = {
   home: "/",
   news: "/aktuality/",
@@ -39,7 +36,7 @@ export const links = {
   questionnaireConsent: "/gdpr/",
   webLinks: "/odkazy/",
   privacy: "/ochrana-osobnich-udaju/",
-  /** Lapentor tour copied from the old site; it lives only on the server (see the parish-release skill). */
+  /** Lapentor tour copied from the old site; served at this path, not part of the repo. */
   virtualTour: "/virtualni_prohlidka/",
   viraCz: "https://www.vira.cz/",
 };

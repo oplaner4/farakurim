@@ -22,7 +22,7 @@ export const linkablePages: string[] = events.filter((e) => eventEnd(e) >= linke
 
 /**
  * Entries of both calendars in `range`: from Google Calendar when an API key is set, otherwise fallback entries
- * generated from the regular schedule and the event records. A failing API fails the build, so a deploy
+ * generated from the regular schedule and the event records. A failing API fails the build, so a release
  * never ships an empty calendar.
  */
 export async function loadCalendarEntries(range: DateRange): Promise<CalendarEntry[]> {

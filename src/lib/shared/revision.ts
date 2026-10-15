@@ -1,5 +1,5 @@
-// The revision of a corrected upload: a Petrklíč issue (issueFolder()) or a service sheet (sheetPdfFile()). Files on
-// the server are never overwritten, so a corrected PDF gets a new name ending in -r2, -r3, …, which
+// The revision of a corrected upload: a Petrklíč issue (issueFolder()) or a service sheet (sheetPdfFile()). An uploaded
+// file is never replaced once released, so a corrected PDF gets a new name ending in -r2, -r3, …, which
 // `pnpm stage … --corrected` picks and stores as `rev` in the record (revSchema in schema.ts).
 
 /** "-r2" for rev 2, "" for the first PDF. */

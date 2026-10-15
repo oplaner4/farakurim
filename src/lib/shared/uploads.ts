@@ -1,4 +1,4 @@
-// Files uploaded to the server, never committed: the content links each one root-relative under /uploads/ (CLAUDE.md
+// Uploaded files, never committed: the content links each one root-relative under /uploads/ (CLAUDE.md
 // "Content and data"), and the scripts map that path to the repo's uploads/ folder (scripts/lib/uploads.ts). The
 // content schemas, the content tests and `pnpm stage` check the links with these rules.
 
