@@ -5,8 +5,8 @@ description: Correct a Petrklíč issue already on the new farakurim.cz site - s
 
 # Correct a Petrklíč issue
 
-The id comes from the year, number and note (`2026-2`, `2026-3-mimoradne`). Files on the server are never
-overwritten, so `pnpm stage petrklic --corrected` stages a corrected PDF of a released issue in a new folder.
+The id comes from the year, number and note (`2026-2`, `2026-3-mimoradne`). A released file is never
+replaced, so `pnpm stage petrklic --corrected` stages a corrected PDF of a released issue in a new folder.
 
 ## 1. Find the issue
 
@@ -35,7 +35,7 @@ It renders the cover and pages again and updates the issue.
 Edit the issue's record in `src/content/petrklic.json`, then run `pnpm test src/content/petrklic`. A new year, number
 or note changes the id, so the issue's folder in `uploads/petrklic/` must be renamed to the new id (with its
 `-r<rev>` if it has one), and the PDF in it to `petrklic-<id>.pdf`. A released issue's new folder is uploaded as a
-whole; tell the user the old folder stays on the server.
+whole; tell the user the old folder stays online.
 
 ## 4. Publish
 
@@ -43,6 +43,6 @@ Follow **`parish-publish-content`**.
 
 ## Common mistakes
 
-- Replacing the PDF in an issue's folder by hand: the server keeps the old files, so stage it with `--corrected`.
+- Replacing the PDF in an issue's folder by hand: a released file is never replaced, so stage it with `--corrected`.
 - Staging a corrected PDF without `--corrected`: it is refused as an issue already in the file.
 - Renaming the record's id without renaming its folder and PDF: the covers, the viewer and the download break.

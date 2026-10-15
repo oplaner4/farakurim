@@ -6,7 +6,7 @@ description: Correct a week's service sheet (the "pořad bohoslužeb" or "ohlá�
 # Correct a service sheet
 
 Never edit a sheet in `src/content/service-sheets.json` by hand: a correction reruns `pnpm stage sheet` with a corrected
-record, which replaces the sheet of the same week. Files on the server are never overwritten, so once the week is
+record, which replaces the sheet of the same week. A released file is never replaced, so once the week is
 released its PDF's name is taken and the rerun takes `--corrected`.
 
 ## 1. Find the week
@@ -38,8 +38,8 @@ pnpm stage sheet "<source>" --record <scratchpad>/record.json [--corrected] --ch
 
 `<source>` is the corrected PDF or DOCX, which always takes `--corrected` (with a DOCX, also `--from` and `--to`
 when the week is not its newest). When only the record changes, it is the week's
-staged PDF in `uploads/porady_bohosluzeb/` (`pnpm pull-uploads` fetches it from the server): `--corrected` only once
-the week is on the server, as the check refuses the taken name otherwise. Show the user what changes
+staged PDF in `uploads/porady_bohosluzeb/` (`pnpm pull-uploads` fetches the released files): `--corrected` only once
+the week is released, as the check refuses the taken name otherwise. Show the user what changes
 (day by day, the rows and announcements that differ).
 
 Wait for the user's yes or corrections to these before staging anything.
@@ -51,7 +51,7 @@ pnpm stage sheet "<source>" --record <scratchpad>/record.json [--corrected]
 ```
 
 It replaces the sheet of the same week, formats the file and runs the service sheet test. Before the release it
-replaces the staged PDF; once the week is on the server, `--corrected` stages `…-porad-bohosluzeb-r2.pdf` (then `-r3`, …) and
+replaces the staged PDF; once the week is released, `--corrected` stages `…-porad-bohosluzeb-r2.pdf` (then `-r3`, …) and
 stores the sheet's `rev`.
 
 ## 5. Publish
@@ -64,6 +64,6 @@ the user to mirror changed or cancelled services in the "Bohoslužby" Google Cal
 - Editing a sheet in `service-sheets.json` by hand instead of rerunning the command with a corrected record.
 - Rewriting the whole record from the PDF and losing earlier fixes (a category, a `newsId`): start
   from the sheet.
-- Leaving out `--corrected` after the release: the PDF's name is taken on the server.
+- Leaving out `--corrected` after the release: the PDF's name is taken.
 - Putting `validFrom`, `validTo` or `rev` into `record.json`: the script reads the dates from the heading and sets
   `rev`.

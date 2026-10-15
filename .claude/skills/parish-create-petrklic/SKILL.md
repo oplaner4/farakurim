@@ -1,11 +1,11 @@
 ---
 name: parish-create-petrklic
-description: Add a new issue of the Petrklíč parish newsletter to the new farakurim.cz site from its PDF - confirm the issue number with the user, stage the PDF for the server, render the cover and viewer pages, add the issue, then publish. Use whenever the user brings a new Petrklíč, zpravodaj or newsletter PDF.
+description: Add a new issue of the Petrklíč parish newsletter to the new farakurim.cz site from its PDF - confirm the issue number with the user, stage the PDF for upload, render the cover and viewer pages, add the issue, then publish. Use whenever the user brings a new Petrklíč, zpravodaj or newsletter PDF.
 ---
 
 # Create a Petrklíč issue
 
-`pnpm stage petrklic` stages the issue's PDF and images for the server and adds the issue. The newest issue is the
+`pnpm stage petrklic` stages the issue's PDF and images for upload and adds the issue. The newest issue is the
 current one (aktuální číslo): the Petrklíč page shows its pages in the viewer and the homepage card shows its cover.
 
 ## 1. Read the PDF

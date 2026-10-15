@@ -1,21 +1,19 @@
 ---
 name: parish-release
-description: Release the new farakurim.cz site with `pnpm release` - preview the commits, version and staged uploads, ask the user for an explicit yes, then upload uploads/, tag vX.Y.Z and push, so GitHub Actions checks, builds and deploys out/ to farakurim.cz (or, with --local when Actions is down, check, build and deploy from this machine). Use at the end of parish-publish-content, or whenever the user asks to deploy, release, upload, publish to the server or sync the site.
+description: Release the new farakurim.cz site with `pnpm release` - preview the commits, version and staged uploads, ask the user for an explicit yes, then upload uploads/, tag vX.Y.Z and push, which checks, builds and publishes the site (or, with --local when GitHub Actions is down, does it from this machine). Use at the end of parish-publish-content, or whenever the user asks to deploy, release, upload, publish to the server or sync the site.
 ---
 
 # Release the site
 
-`pnpm release` (`scripts/release.sh`) does the release: it uploads the staged files, tags and pushes, and GitHub
-Actions (`.github/workflows/deploy.yml`) checks, builds and deploys the tag. `pnpm release --local` deploys from this
-machine instead. The server details (SSH target, web root `/farakurim.cz/`, rsync flags, the server-only folders
-`/uploads/`, `/nahrane/`, `/virtualni_prohlidka/`, `/cache/`, the verify checks) live in `scripts/deploy.sh`, which
-both use. Change them there, nowhere else.
+`pnpm release` does the release: it uploads the staged files, tags and pushes, and the pushed tag is checked, built
+and published. `pnpm release --local` publishes from this machine instead. How and where the site is deployed is the
+scripts' business (`docs/deployment.md`), not this skill's.
 
 ## Release
 
 1. **Preview:** run `pnpm release`. Without a terminal it only previews: it checks the tree is clean, on `main` and
    not behind `origin/main`, lists the commits since the last tag, picks the version (minor for a `feat` outside the
-   `content` scope, patch otherwise) and lists the new files for `/uploads/` (rsync dry run). If it stops on a dirty
+   `content` scope, patch otherwise) and lists the new files for `/uploads/`. If it stops on a dirty
    tree (often `AGENTS.md` re-added by `next dev`), ask the user to commit or discard it.
 2. **Ask** the user, with the version, the commits and the uploads from the preview, for example:
 
@@ -38,11 +36,7 @@ builds with `RELEASE_BUILD=1`, which stops first unless `.env.local` sets the Go
 variables, runs the full check (Prettier, the site tests, lint, types) and a fresh `pnpm build`, and summarises the sync
 of `out/` (new, changed, deleted files) with every deleted file outside `_next/`. Name any deleted page or file outside
 `_next/` in the question. After the yes, `pnpm release --local --yes` runs the checks and the build again, uploads the
-new files, checks that every linked upload is on the server, syncs `out/`, verifies the live site, then commits, tags
+new files, checks that every linked upload is online, publishes `out/`, verifies the live site, then commits, tags
 and pushes; the commit's trailer `Release-Deploy: local` keeps the workflow from deploying the tag again. Report the
-version and the verify lines. If the run stops after the sync (verify failed), the site is live but untagged: tell the
+version and the verify lines. If the run stops after publishing (verify failed), the site is live but untagged: tell the
 user, fix it in a new commit and release again.
-
-## Notes
-
-`/stary.farakurim.cz/` on the server is the backup of the old PHP site: never deploy there or delete it.

@@ -53,4 +53,4 @@ Follow **`parish-publish-content`**.
 
 - Using the profile or tab URL instead of the album URL (the script refuses it).
 - Writing the record or its photo URLs by hand instead of `--write`.
-- Downloading photos or hosting them on the server: the URLs point at Zonerama.
+- Downloading photos or uploading them: the URLs point at Zonerama.

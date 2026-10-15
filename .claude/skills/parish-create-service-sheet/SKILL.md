@@ -1,6 +1,6 @@
 ---
 name: parish-create-service-sheet
-description: Publish the weekly service sheet (the "pořad bohoslužeb" or "ohlášky") on the new farakurim.cz site from the parish's DOCX of the year or its weekly PDF - extract the week's days, services and announcements into a sheet record, confirm with the user, stage the week's PDF for the server, then publish. Use whenever the user brings a new service sheet ("pořad bohoslužeb", "rozpis bohoslužeb", "ohlášky") DOCX or PDF.
+description: Publish the weekly service sheet (the "pořad bohoslužeb" or "ohlášky") on the new farakurim.cz site from the parish's DOCX of the year or its weekly PDF - extract the week's days, services and announcements into a sheet record, confirm with the user, stage the week's PDF for upload, then publish. Use whenever the user brings a new service sheet ("pořad bohoslužeb", "rozpis bohoslužeb", "ohlášky") DOCX or PDF.
 ---
 
 # Create a service sheet
@@ -20,7 +20,7 @@ The user gives at least a file name; without a folder, look in `~/Downloads/`. T
   The DOCX holds a year of intentions with names: it never goes to `uploads/` or the repo, only the week's page does.
 - **A PDF of the week** (page 1 exported by the user), when there is no DOCX or no converter.
 
-**From the DOCX**, draft the record (it also refuses a week already on the server):
+**From the DOCX**, draft the record (it also refuses a week already released):
 
 ```sh
 pnpm stage sheet "<source>" --draft <scratchpad>/record.json
@@ -40,7 +40,7 @@ say, as the error is in their document. The draft is a starting point: step 2a s
 
 Read the **whole** page: the announcements are the paragraphs below the table.
 
-Get the week and its dates (it refuses a week already on the server):
+Get the week and its dates (it refuses a week already released):
 
 ```sh
 pnpm stage sheet "<source>" --check
