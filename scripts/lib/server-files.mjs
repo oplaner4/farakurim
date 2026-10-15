@@ -7,7 +7,7 @@ import sirv from "sirv";
 
 const PREFIX = "/uploads/";
 const TOUR = "/virtualni_prohlidka/";
-export const LIVE = "https://farakurim.cz"; // SITE_URL (src/content/site.ts), which plain Node cannot import
+export const LIVE = "https://farakurim.cz"; // SITE_URL (src/content/site.ts), which plain Node cannot import; a test checks it
 
 /** A one-line description of the handling, for the servers' start-up message. */
 export const SERVER_FILES_NOTE = `${PREFIX} from uploads/, else ${LIVE}`;

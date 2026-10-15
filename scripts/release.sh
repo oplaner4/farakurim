@@ -16,6 +16,7 @@
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
+site=$(sed -n 's/^SITE=//p' scripts/deploy.sh)
 
 yes=false
 major=false
@@ -102,7 +103,7 @@ if ! $yes; then
     exit 0
   fi
   if $deploy_here; then how="from this machine"; else how="through GitHub Actions"; fi
-  read -r -p "Publish v$next to https://farakurim.cz/ $how? [y/N] " answer
+  read -r -p "Publish v$next to $site/ $how? [y/N] " answer
   [[ "$answer" =~ ^[yY]$ ]] || { echo "Nothing was published."; exit 0; }
 fi
 
@@ -129,7 +130,7 @@ git push origin main --follow-tags
 
 echo
 if $deploy_here; then
-  echo "Released v$next to https://farakurim.cz/."
+  echo "Released v$next to $site/."
 else
   echo "Released v$next: GitHub Actions now checks, builds and deploys it (the repo's Actions tab)."
 fi
