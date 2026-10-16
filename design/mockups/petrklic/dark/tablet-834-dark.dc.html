@@ -14,6 +14,9 @@
 body{margin:0;background:#111923}
 a{color:#7DB8EE}a:hover{color:#A9D1F5}summary::-webkit-details-marker{display:none}details[open]>summary .chev{transform:rotate(180deg)}
 </style>
+<style>
+[data-tip]{position:relative}[data-tip]::after{content:attr(data-tip);position:absolute;top:calc(100% + 10px);right:0;z-index:40;padding:7px 11px;border-radius:8px;background:#EEF2F7;color:#111923;font:700 14px/1.3 Oxygen,'Segoe UI',sans-serif;letter-spacing:0;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s}[data-tip]::before{content:'';position:absolute;top:100%;right:calc(50% - 5px);z-index:40;border:5px solid transparent;border-bottom-color:#EEF2F7;pointer-events:none;opacity:0;transition:opacity .12s}@media (hover:hover){[data-tip]:hover::after,[data-tip]:hover::before{opacity:1;transition-delay:.4s}}[data-tip]:focus-visible::after,[data-tip]:focus-visible::before{opacity:1}[data-tip-pos~=start]::after{right:auto;left:0}[data-tip-pos~=start]::before{right:auto;left:calc(50% - 5px)}[data-tip-pos~=center]::after{right:auto;left:50%;transform:translateX(-50%)}[data-tip-pos~=top]::after{top:auto;bottom:calc(100% + 10px)}[data-tip-pos~=top]::before{top:auto;bottom:100%;border-bottom-color:transparent;border-top-color:#EEF2F7}
+</style>
 </helmet>
 <div style="width: 834px; min-height: 2920px; box-sizing: border-box; display: flex; flex-direction: column; background: #111923; color: #EEF2F7; font-family: Oxygen, 'Segoe UI', 'Helvetica Neue', sans-serif; font-size: 17px; line-height: 1.5">
   <header style="display: flex; flex-direction: column; background: #111923">
@@ -30,7 +33,7 @@ a{color:#7DB8EE}a:hover{color:#A9D1F5}summary::-webkit-details-marker{display:no
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6"></path><path d="M12 12v6M9 15l3 3 3-3"></path></svg>
           Ohlášky
         </a>
-        <a href="#" aria-label="Přepnout na světlý režim" title="Přepnout na světlý režim" style="width: 48px; height: 48px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 14px; background: #172A40; color: #7DB8EE; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"></path></svg></a>
+        <a href="#" aria-label="Přepnout na světlý režim" data-tip="Přepnout na světlý režim" style="width: 48px; height: 48px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 14px; background: #172A40; color: #7DB8EE; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"></path></svg></a>
         <button type="button" aria-label="Otevřít menu" aria-expanded="{{menuExp}}" onClick="{{toggleMenu}}" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 14px; background: #172A40; color: #7DB8EE; cursor: pointer">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"></path></svg>
         </button>

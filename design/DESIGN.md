@@ -33,6 +33,7 @@ Every page has a **light and a dark theme**.
 | `mockups/vyuka-nabozenstvi/`, `mockups/aktivity/`, `mockups/kronika/`, `mockups/skupina-schola/`, `mockups/financni-podpora-starsi/` (each `{light,dark}`) | Sections 24–28 |
 | `mockups/skupina-chramovy-sbor/`, `mockups/skupina-spolecenstvi-mladeze/`, `mockups/skupina-katecheze/` | More pages from the group template (27.1) |
 | `mockups/menu/{light,dark}/` | Homepage with the "Více" menu open (section 20) |
+| `mockups/komponenty/tooltip.dc.html` | Tooltip on icon-only buttons (section 5, Tooltips) |
 | `mockups/tabor-o-taboru/`, `mockups/tabor-vedouci/`, `mockups/tabor-kontakt/`, `mockups/tabor-rocniky/`, `mockups/lightbox-tym/` (each `{light,dark}`) | Tábor (section 29), and a leader's photo in the lightbox (29.3) |
 | `assets/logo-farnost-kurim.svg` | Cleaned logo (also the future favicon) |
 
@@ -233,6 +234,22 @@ considers the calendar essential, so it is the second thing visitors see.
 - The copy buttons' "Zkopírováno" fades in with a tick icon.
 - **No** lift or shadow on hover, **no** page transitions, **no** whole-page animation on a theme switch.
 
+### Tooltips
+Mockup: `mockups/komponenty/tooltip.dc.html` (light, dark and lightbox), plus hover/focus in every mockup.
+- **Only for buttons that show just an icon:** the theme toggle (all pages), and in the lightbox on tablet/desktop Zavřít, Předchozí / Další and the zoom buttons (Oddálit, velikost, Přiblížit). Buttons with a visible text label get none.
+- **Text = the button's `aria-label`**, phrased as the action: "Přepnout na tmavý režim" / "Přepnout na světlý režim", "Zavřít (Esc)", "Další fotografie", "Přiblížit".
+- **Look:** a pill under the button, aligned to its right edge (left edge for a button at the left side, centred and **above** for the lightbox zoom bar), 10 px gap, a 5 px arrow pointing at the button's centre; padding 7×11, radius 8, 14 px bold, no wrapping, above everything else (`z-index`).
+  - light pages: `--ink` fill, white text;
+  - dark pages: `#EEF2F7` fill, `#111923` text;
+  - lightbox (always dark): white fill, `#0B1118` text.
+- **Behaviour** (WCAG 1.4.13):
+  - mouse: appears after **400 ms** of hover, fades in 120 ms (no movement);
+  - keyboard: appears **immediately** on `:focus-visible`;
+  - hides when the pointer or focus leaves, or on **Esc** (Esc does not also close the lightbox while a tooltip is open, the first Esc only hides the tooltip); moving the pointer onto the tooltip keeps it open;
+  - **never on touch**: only under `@media (hover: hover)` for hover, and not on mobile layouts.
+- **Markup:** one shared tooltip element (`role="tooltip"`, `aria-hidden="true"` so the label is not read twice) positioned by JS, or a CSS `::after` with `content: attr(data-tip)` as in the mockups. Remove the **`title` attribute** from these buttons: it duplicates the label, shows the browser's own tooltip and never appears on focus.
+- On mobile, the theme switch confirms itself with a short status message ("Tmavý režim zapnut", `role="status"`, 2 s) instead of a tooltip.
+
 ### Next mass and countdown
 - **Server-side** computes the next mass from the regular schedule **plus exceptions**, and renders it into HTML (works without JS).
 - Emit `<time datetime="YYYY-MM-DDTHH:MM">`. JS reads it, updates the countdown every 20–30 s, and when the time passes, swaps to the next item (embed the next few as JSON).
@@ -300,7 +317,7 @@ Mockups: `mockups/home/dark/` and `mockups/aktuality/dark/`.
   hamburger on mobile/tablet and after the nav on desktop. It sets
   `<html data-theme="light|dark">`, saved in `localStorage`, applied by a tiny inline
   script in `<head>` before CSS paints (no flash). `aria-label="Přepnout na tmavý režim"` /
-  `"Přepnout na světlý režim"`, `aria-pressed` reflects the dark state.
+  `"Přepnout na světlý režim"`, `aria-pressed` reflects the dark state, and the same text appears as a tooltip on hover and focus (section 5, Tooltips).
   The mockups show it (moon in light, sun in dark); in the design tool's Play
   mode it jumps to the other theme's artboard.
 - Set `color-scheme: light` / `color-scheme: dark` on `:root` so form controls

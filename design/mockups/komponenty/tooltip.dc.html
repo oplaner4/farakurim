@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<title>Tooltip – ukázka</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oxygen:wght@300;400;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FFFFFF}
+</style>
+</helmet>
+<div style="width: 1100px; min-height: 480px; box-sizing: border-box; padding: 32px; display: flex; flex-direction: column; gap: 22px; background: #FFFFFF; color: #1B2533; font-family: Oxygen, 'Segoe UI', 'Helvetica Neue', sans-serif; font-size: 16px; line-height: 1.5">
+  <div style="display: flex; flex-direction: column; gap: 4px"><h1 style="margin: 0; font-size: 28px; font-weight: 700">Tooltip u tlačítek s ikonou</h1><span style="color: #556070">Stav při najetí myší nebo fokusu klávesnicí (DESIGN.md 5, Tooltips)</span></div>
+  <div style="display: flex; gap: 20px"><figure style="margin: 0; flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+  <div style="position: relative; height: 190px; border-radius: 20px; background: #FFFFFF; border: 1px solid #E6EAF0; display: flex; align-items: flex-start; justify-content: flex-end; gap: 8px; padding: 24px; box-sizing: border-box"><span style="display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 18px; border-radius: 14px; background: #1D71B7; color: #FFFFFF; font-weight: 700">Ohlášky</span><span style="position: relative; width: 48px; height: 48px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 14px; background: #EAF3FB; color: #165A93; outline: 3px solid #1D71B7; outline-offset: 2px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"></path></svg><span aria-hidden="true" style="position: absolute; top: 100%; right: 19px; width: 0; height: 0; border: 5px solid transparent; border-bottom-color: #1B2533"></span><span aria-hidden="true" style="position: absolute; top: calc(100% + 10px); right: 0; padding: 7px 11px; border-radius: 8px; background: #1B2533; color: #FFFFFF; font-size: 14px; font-weight: 700; line-height: 1.3; white-space: nowrap">Přepnout na tmavý režim</span></span></div>
+  <figcaption style="display: flex; flex-direction: column; gap: 2px"><strong style="font-size: 16px">Světlý režim</strong><span style="font-size: 14px; color: #556070">tooltip: ink #1B2533, bílý text</span></figcaption>
+</figure><figure style="margin: 0; flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+  <div style="position: relative; height: 190px; border-radius: 20px; background: rgb(17,25,35); border: 1px solid rgb(42,54,72); display: flex; align-items: flex-start; justify-content: flex-end; gap: 8px; padding: 24px; box-sizing: border-box"><span style="display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 18px; border-radius: 14px; background: rgb(29,113,183); color: rgb(255,255,255); font-weight: 700">Ohlášky</span><span style="position: relative; width: 48px; height: 48px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 14px; background: rgb(23,42,64); color: rgb(125,184,238); outline: 3px solid rgb(125,184,238); outline-offset: 2px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"></path></svg><span aria-hidden="true" style="position: absolute; top: 100%; right: 19px; width: 0; height: 0; border: 5px solid transparent; border-bottom-color: rgb(238,242,247)"></span><span aria-hidden="true" style="position: absolute; top: calc(100% + 10px); right: 0; padding: 7px 11px; border-radius: 8px; background: rgb(238,242,247); color: rgb(17,25,35); font-size: 14px; font-weight: 700; line-height: 1.3; white-space: nowrap">Přepnout na světlý režim</span></span></div>
+  <figcaption style="display: flex; flex-direction: column; gap: 2px"><strong style="font-size: 16px">Tmavý režim</strong><span style="font-size: 14px; color: #556070">tooltip: světlý #EEF2F7, text #111923</span></figcaption>
+</figure><figure style="margin: 0; flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+  <div style="position: relative; height: 190px; border-radius: 20px; background: rgb(11,17,24); border: 1px solid rgb(11,17,24); display: flex; align-items: flex-start; justify-content: flex-end; gap: 8px; padding: 24px; box-sizing: border-box"><span style="position: relative; width: 48px; height: 48px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255,255,255,0.14); color: rgb(255,255,255)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg><span aria-hidden="true" style="position: absolute; top: 100%; right: 19px; width: 0; height: 0; border: 5px solid transparent; border-bottom-color: rgb(255,255,255)"></span><span aria-hidden="true" style="position: absolute; top: calc(100% + 10px); right: 0; padding: 7px 11px; border-radius: 8px; background: rgb(255,255,255); color: rgb(11,17,24); font-size: 14px; font-weight: 700; line-height: 1.3; white-space: nowrap">Zavřít (Esc)</span></span></div>
+  <figcaption style="display: flex; flex-direction: column; gap: 2px"><strong style="font-size: 16px">Lightbox (desktop, tablet)</strong><span style="font-size: 14px; color: #556070">tooltip: bílý, text #0B1118</span></figcaption>
+</figure></div>
+  <ul style="margin: 0; padding: 0 0 0 20px; display: flex; flex-direction: column; gap: 4px; font-size: 15px; color: #3A4656">
+  <li>Jen pro tlačítka, která mají <strong>pouze ikonu</strong>. Text tooltipu = jejich <code>aria-label</code>.</li>
+  <li>Myš: objeví se po 400 ms. Klávesnice: hned při <code>:focus-visible</code>. Zmizí po odjetí, ztrátě fokusu nebo klávesou Esc.</li>
+  <li>Na dotykových zařízeních se nezobrazuje.</li>
+</ul>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1100,"height":480}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
