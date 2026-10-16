@@ -2,9 +2,10 @@
 
 import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
-import type { ComponentProps, ReactNode, Ref, RefObject } from "react";
+import type { ComponentProps, ComponentPropsWithoutRef, ReactNode, Ref, RefObject } from "react";
 import YetAnotherLightbox, { type LightboxExternalProps, useController } from "yet-another-react-lightbox";
 import { CloseIcon } from "./icons/navigation-icons";
+import { Tooltip } from "./Tooltip";
 import "@/styles/lightbox.css";
 
 /** The round translucent buttons of the lightbox (design/DESIGN.md §21.1): close 48 px, prev/next 56 px. */
@@ -103,25 +104,36 @@ export function LightboxTopBar({ heading, live, title, actions, closeRef, classN
       </div>
       <div className="flex items-center gap-2">
         {actions}
-        <button
-          ref={closeRef}
-          type="button"
-          aria-label="Zavřít (Esc)"
-          className={lightboxButton({ size: "close" })}
-          onClick={close}
-        >
-          <CloseIcon size={24} />
-        </button>
+        <Tooltip label="Zavřít (Esc)" tone="lightbox">
+          <button
+            ref={closeRef}
+            type="button"
+            aria-label="Zavřít (Esc)"
+            className={lightboxButton({ size: "close" })}
+            onClick={close}
+          >
+            <CloseIcon size={24} />
+          </button>
+        </Tooltip>
       </div>
     </div>
   );
 }
 
-/** A round lightbox button ("Předchozí fotografie", "Oddálit"). */
-export function LightboxButton({
-  size = "nav",
-  className,
-  ...rest
-}: ComponentProps<"button"> & VariantProps<typeof lightboxButton>) {
-  return <button type="button" className={lightboxButton({ size, className })} {...rest} />;
+type ButtonProps = Omit<ComponentProps<"button">, "aria-label"> &
+  VariantProps<typeof lightboxButton> &
+  Pick<ComponentPropsWithoutRef<typeof Tooltip>, "side" | "align"> & {
+    /** The `aria-label` and tooltip: "Předchozí fotografie", "Oddálit". */
+    label: string;
+    /** Placement of the button (`absolute top-1/2 left-6`). */
+    placement?: string;
+  };
+
+/** A round lightbox button with its tooltip from tablet up ("Předchozí fotografie", "Oddálit"). */
+export function LightboxButton({ size = "nav", label, side, align, placement, className, ...rest }: ButtonProps) {
+  return (
+    <Tooltip label={label} side={side} align={align} tone="lightbox" className={placement}>
+      <button type="button" aria-label={label} className={lightboxButton({ size, className })} {...rest} />
+    </Tooltip>
+  );
 }

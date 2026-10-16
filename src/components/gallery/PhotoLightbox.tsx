@@ -116,12 +116,12 @@ function PhotoControls({ album, position, closeRef, labels, hint }: ControlsProp
   const from = thumbStart(currentIndex, count, THUMBS);
 
   const prevButton = (className: string) => (
-    <LightboxButton aria-label="Předchozí fotografie" className={className} onClick={() => prev()}>
+    <LightboxButton label="Předchozí fotografie" align="start" placement={className} onClick={() => prev()}>
       <ChevronLeftIcon size={24} />
     </LightboxButton>
   );
   const nextButton = (className: string) => (
-    <LightboxButton aria-label="Další fotografie" className={className} onClick={() => next()}>
+    <LightboxButton label="Další fotografie" placement={className} onClick={() => next()}>
       <ChevronRightIcon size={24} />
     </LightboxButton>
   );

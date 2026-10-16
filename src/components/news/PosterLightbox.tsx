@@ -70,18 +70,28 @@ function PosterControls({ src, title, zoom, zoomRef, closeRef }: ControlsProps) 
         <div className="flex items-center gap-2.5">
           <LightboxButton
             size="close"
-            aria-label="Oddálit"
+            label="Oddálit"
+            side="top"
+            align="center"
             className="text-24 font-bold"
             onClick={() => changeZoom(zoomStep(zoom, -1))}
           >
             −
           </LightboxButton>
-          <LightboxButton size="label" aria-label="Velikost podle obrazovky" onClick={() => changeZoom(1)}>
+          <LightboxButton
+            size="label"
+            label="Velikost podle obrazovky"
+            side="top"
+            align="center"
+            onClick={() => changeZoom(1)}
+          >
             {zoomLabel(zoom)}
           </LightboxButton>
           <LightboxButton
             size="close"
-            aria-label="Přiblížit"
+            label="Přiblížit"
+            side="top"
+            align="center"
             className="text-24 font-bold"
             onClick={() => changeZoom(zoomStep(zoom, 1))}
           >
