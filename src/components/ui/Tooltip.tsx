@@ -55,7 +55,7 @@ type Props = {
 
 /**
  * The tooltip of an icon-only button (design/DESIGN.md §5, Tooltips). It hides when the pointer or focus leaves,
- * and the first Esc only hides it. It is `aria-hidden`, as the button's `aria-label` already says the same.
+ * on a click (until the pointer or focus comes back), and the first Esc only hides it. It is `aria-hidden`, as the button's `aria-label` already says the same.
  */
 export function Tooltip({ label, side = "bottom", align = "end", tone = "page", className, children }: Props) {
   const tipRef = useRef<HTMLSpanElement>(null);
@@ -80,6 +80,7 @@ export function Tooltip({ label, side = "bottom", align = "end", tone = "page", 
         setFocused(e.target.matches(":focus-visible"));
       }}
       onBlur={() => setFocused(false)}
+      onClick={() => setDismissed(true)}
     >
       {children}
       <span ref={tipRef} role="tooltip" aria-hidden className={layer({ side })}>
