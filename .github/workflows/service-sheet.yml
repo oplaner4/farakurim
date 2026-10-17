@@ -3,20 +3,22 @@
 # porad@farakurim.cz over IMAP (`pnpm sheet-mail`): only the parish's DKIM-signed message with one DOCX is a sheet.
 # Two jobs, so that no step holding a secret runs code from a workspace Claude has touched:
 # - `sheet` fetches the mail and lets Claude (claude-code-action, workload identity federation, no API key) run the
-#   service sheet skills unattended on the DOCX: it drafts, corrects and stages the weeks and writes a report. Claude
-#   writes only to $RUNNER_TEMP/sheet. The job hands on the report, the change to src/content/ as a patch and the
-#   staged PDFs as a one-day artifact. The year's DOCX (intentions with names) never leaves this job: it is not
-#   uploaded, cached or logged, and it is deleted at the end.
+#   service sheet skills unattended on the DOCX: it drafts, corrects and stages the weeks and writes a report. Claude's
+#   file tools may write only in $RUNNER_TEMP/sheet (the checkout is denied); only `pnpm stage sheet` writes
+#   src/content/ and uploads/. The job hands on the report, the change to src/content/ as a patch and the staged PDFs
+#   as a one-day artifact. The year's DOCX (intentions with names) never leaves this job: it is not uploaded, cached
+#   or logged, and it is deleted at the end.
 # - `publish` starts from a fresh checkout, applies the patch only if it touches nothing but src/content/*.json, then
 #   tests, builds, commits as the GitHub App's bot and opens or updates the one service-sheet/* PR, its body the
-#   report, a draft while the report has a blocking question. It holds the App key and the IMAP login; it has no
-#   id-token, so it cannot act as Claude.
-# Merging and releasing stay with the maintainer, who downloads the staged PDF from the run's artifact. Nothing
-# changed: no PR. The mail is filed (Zpracováno, Odmítnuto) only once its outcome is done, so a run that breaks
-# retries the sheet the next night. Both jobs run in the environment `service-sheet` (the IMAP login, the App key; the
-# federation rule matches it). The job summary and the failure (refused week, document error, a parish message
-# without exactly one DOCX) tell the maintainer; no e-mail is sent. The runner image and the actions are pinned
-# (actions by commit SHA).
+#   report, a draft while the report has a blocking question (an update turns it back into one). It has no id-token,
+#   so it cannot act as Claude.
+# Merging and releasing stay with the maintainer, who downloads the staged PDFs from the artifacts of the PR's
+# commits. Nothing changed: no PR. The mail is filed (Zpracováno, Odmítnuto) only once its outcome is done, so a run
+# that breaks retries the sheet the next night. Two environments: `sheet` runs in `service-sheet` (the IMAP login; the
+# federation rule matches only it), `publish` in `service-sheet-publish` (the App key and the IMAP login), so the App
+# key is never in the environment of Claude's job. The job summary and the failure (refused week, document error, a
+# parish message without exactly one DOCX) tell the maintainer; no e-mail is sent. The runner image and the actions
+# are pinned (actions by commit SHA).
 
 name: Service sheet
 
@@ -119,6 +121,9 @@ jobs:
           if [ -n "$found" ]; then read -r pr branch <<< "$found"; fi
           if [ -n "$pr" ]; then
             git checkout -B "$branch" "origin/$branch"
+            # The report of the earlier runs, so Claude keeps its question ids. The conversation is locked: only
+            # collaborators can edit this body.
+            gh pr view "$pr" --json body --jq .body > "$RUNNER_TEMP/sheet/previous-report.md"
           else
             date="$MAIL_DATE"
             if ! [[ "$date" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then date=$(TZ=Europe/Prague date +%F); fi
@@ -134,9 +139,11 @@ jobs:
           echo "branch=$branch" >> "$GITHUB_OUTPUT"
           echo "base=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-      # The prompt holds no sheet rules: they live in the skills. Claude can read files, write in the checkout and in
-      # $RUNNER_TEMP/sheet only (not the runner's file commands), stage the sheet and read PDFs; no git, no network.
-      # github.token (read-only) keeps the action from fetching its own App token.
+      # The prompt holds no sheet rules: they live in the skills. Claude can read files, write with its file tools in
+      # $RUNNER_TEMP/sheet only (an `Edit(...)` rule covers Write too; the deny on the checkout wins over any allow, so
+      # it cannot change scripts, package.json, node_modules, hooks or .git), stage the sheet and read PDFs; no git, no
+      # network. A rule's `//` marks an absolute path (runner.temp starts with `/`). github.token (read-only) keeps the
+      # action from fetching its own App token; the action's output stays out of the public log.
       - name: Run the service sheet skills
         id: claude
         if: steps.fetch.outputs.docx != ''
@@ -148,15 +155,19 @@ jobs:
           anthropic_organization_id: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
           anthropic_service_account_id: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
           anthropic_workspace_id: ${{ vars.ANTHROPIC_WORKSPACE_ID }}
+          show_full_output: false
+          display_report: false
           claude_args: |
             --model claude-opus-5-5
             --add-dir ${{ runner.temp }}/sheet
-            --allowedTools "Read,Write,Edit,Bash(pnpm stage sheet:*),Bash(pdftotext:*),Bash(ls:*),Bash(cat:*)"
-            --disallowedTools "WebFetch,WebSearch"
+            --allowedTools "Read,Edit(/${{ runner.temp }}/sheet/**),Bash(pnpm stage sheet:*),Bash(pdftotext:*),Bash(ls:*),Bash(cat:*)"
+            --disallowedTools "WebFetch,WebSearch,NotebookEdit,Edit(./**)"
           prompt: |
             The parish sent its service sheet DOCX: ${{ runner.temp }}/sheet/mail/porad.docx.
             Run the service sheet skills unattended (their "Unattended run" section). The report file is
             ${{ runner.temp }}/sheet/report.md and the scratchpad is ${{ runner.temp }}/sheet.
+            The previous report of this PR, if present: ${{ runner.temp }}/sheet/previous-report.md; keep its
+            question ids and mark each resolved or still open.
             Handle the DOCX's newest week with parish-create-service-sheet when it is not in
             src/content/service-sheets.json. For every week already there from the current sheet on, draft it and,
             when its text differs from the sheet, correct it with parish-correct-service-sheet. A week the script
@@ -195,9 +206,15 @@ jobs:
     needs: sheet
     if: always()
     runs-on: ubuntu-24.04
-    environment: service-sheet
+    environment: service-sheet-publish
     permissions:
       contents: read # the push and the PR use the App token
+    env:
+      # Reads `Outcome:` lines tolerantly: drops a list marker and bold around `Outcome:` (`- **Outcome:** created`,
+      # `**Outcome: unchanged**`), so every check sees `Outcome: <outcome>`.
+      OUTCOME_SED: >-
+        s/^[[:space:]]*[-*][[:space:]]+//; s/^\*\*(Outcome:[^*]*)\*\*/\1/; s/^\*\*Outcome\*\*:/Outcome:/;
+        s/^Outcome:[[:space:]]*/Outcome: /
     steps:
       # Missing when `sheet` failed before handing on: this job then only reports, and files nothing.
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -226,9 +243,11 @@ jobs:
       - if: steps.download.outcome == 'success'
         run: pnpm install --frozen-lockfile
 
-      # The report: line 1 `blocking: yes|no`, line 2 `commit: <message>`, then the PR body. With a change, the patch
-      # is applied only if it touches nothing but src/content/*.json. Without one, the report must show the work was
-      # done: a valid first line and every week unchanged, refused or a document error (the last two fail the summary).
+      # The report: line 1 `blocking: yes|no`, line 2 `commit: <message>`, then the PR body. On every path each week
+      # (a `## ` section other than `## Zrcadlit v kalendáři`) has exactly one `Outcome:` line, else nothing is applied
+      # or filed. With a change, the patch is applied only if it touches nothing but src/content/*.json. Without one,
+      # the report must show the work was done: a valid first line and every week unchanged, refused or a document
+      # error (the last two fail the summary).
       - name: Apply the change
         id: changes
         if: steps.download.outcome == 'success' && needs.sheet.result == 'success' && needs.sheet.outputs.docx != ''
@@ -240,10 +259,20 @@ jobs:
           report="$run/report.md"
           patch="$run/content.patch"
           first=$(sed -n 1p "$report" 2>/dev/null || true)
+          normalized=$(sed -E "$OUTCOME_SED" "$report" 2>/dev/null || true)
+          weeks=$(awk '
+            function done() { if (week != "" && week != "Zrcadlit v kalendáři") print n "\t" week }
+            /^## / { done(); week = substr($0, 4); n = 0; next }
+            /^Outcome: / { n++ }
+            END { done() }' <<< "$normalized")
+          if [ ! -s "$report" ] || [ -z "$weeks" ] || grep -qv $'^1\t' <<< "$weeks"; then
+            echo "::error::The report does not give each week exactly one Outcome line: the sheet stays unread."
+            exit 1
+          fi
+          outcomes=$(grep '^Outcome: ' <<< "$normalized" || true)
           if [ ! -s "$patch" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
-            outcomes=$(grep '^Outcome: ' "$report" 2>/dev/null || true)
-            if [ ! -f "$report" ] || ! [[ "$first" =~ ^blocking:\ (yes|no)$ ]] || [ -z "$outcomes" ] \
+            if ! [[ "$first" =~ ^blocking:\ (yes|no)$ ]] \
               || grep -qvE '^Outcome: (unchanged$|refused: |document error: )' <<< "$outcomes"; then
               echo "::error::Nothing changed, but the report does not show every week unchanged: the sheet stays unread."
               exit 1
@@ -267,12 +296,12 @@ jobs:
           echo "draft=$([ "$first" = "blocking: no" ] && echo false || echo true)" >> "$GITHUB_OUTPUT"
           echo "message=$message" >> "$GITHUB_OUTPUT"
           {
-            if [ -s "$report" ]; then tail -n +3 "$report"; else echo "The run wrote no report."; fi
+            tail -n +3 "$report"
             echo
             echo "---"
             echo
             echo "Opened by the service sheet workflow (\`service-sheet.yml\`). Merge to publish, then release."
-            echo "The staged PDF is in the run's artifacts: $RUN_URL"
+            echo "The staged PDFs are in the artifact \`service-sheet-pdf-<sha>\` of each commit; this run: $RUN_URL"
           } > "$run/pr-body.md"
 
       - name: Test
@@ -320,8 +349,9 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
-      # The conversation is locked on every run (the repo is public): only collaborators with write access can
-      # comment. An open PR keeps its draft state: the maintainer marks it ready.
+      # The conversation is locked (the repo is public): only collaborators with write access can comment. An update
+      # also refreshes the title, and a report that is not exactly `blocking: no` turns the PR back into a draft, so a
+      # new blocking question cannot be merged; otherwise the draft state stays (the maintainer marks it ready).
       - name: Open or update the PR
         id: pr
         if: steps.commit.outcome == 'success'
@@ -334,7 +364,10 @@ jobs:
         run: |
           body="$RUNNER_TEMP/run/pr-body.md"
           if [ -n "$PR" ]; then
-            gh pr edit "$PR" --body-file "$body"
+            gh pr edit "$PR" --title "$MESSAGE" --body-file "$body"
+            if [ "$DRAFT" != false ] && [ "$(gh pr view "$PR" --json isDraft --jq .isDraft)" != true ]; then
+              gh pr ready --undo "$PR"
+            fi
             url=$(gh pr view "$PR" --json url --jq .url)
             echo "action=updated" >> "$GITHUB_OUTPUT"
           else
@@ -343,7 +376,8 @@ jobs:
             url=$(gh pr create --base main --head "$BRANCH" --title "$MESSAGE" --body-file "$body" "${draft[@]}")
             echo "action=opened" >> "$GITHUB_OUTPUT"
           fi
-          gh api -X PUT "repos/$GITHUB_REPOSITORY/issues/${url##*/}/lock" -f lock_reason=resolved
+          issue="repos/$GITHUB_REPOSITORY/issues/${url##*/}"
+          if [ "$(gh api "$issue" --jq .locked)" != true ]; then gh api -X PUT "$issue/lock" -f lock_reason=resolved; fi
           echo "url=$url" >> "$GITHUB_OUTPUT"
 
       # Dates, kinds, weeks and the script's messages only, never the e-mail's text. Fails the job when something
@@ -365,8 +399,9 @@ jobs:
           PR_URL: ${{ steps.pr.outputs.url }}
         run: |
           report="$RUNNER_TEMP/run/report.md"
-          failed=$(awk '/^## / { week = substr($0, 4) } /^Outcome: (refused|document error)/ { print "- " week ": " $0 }' \
-            "$report" 2>/dev/null || true)
+          failed=$(sed -E "$OUTCOME_SED" "$report" 2>/dev/null \
+            | awk '/^## / { week = substr($0, 4) } /^Outcome: (refused|document error)/ { print "- " week ": " $0 }' \
+            || true)
           {
             echo "## Service sheet"
             echo
