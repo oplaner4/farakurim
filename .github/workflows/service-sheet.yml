@@ -141,9 +141,10 @@ jobs:
 
       # The prompt holds no sheet rules: they live in the skills. Claude can read files, write with its file tools in
       # $RUNNER_TEMP/sheet only (an `Edit(...)` rule covers Write too; the deny on the checkout wins over any allow, so
-      # it cannot change scripts, package.json, node_modules, hooks or .git), stage the sheet and read PDFs; no git, no
-      # network. A rule's `//` marks an absolute path (runner.temp starts with `/`). github.token (read-only) keeps the
-      # action from fetching its own App token; the action's output stays out of the public log.
+      # it cannot change scripts, package.json, node_modules, hooks or .git), stage the sheet and read PDFs to stdout
+      # only (pdftotext writes the file a second argument names, which no Edit rule checks); no git, no network. A
+      # rule's `//` marks an absolute path (runner.temp starts with `/`). github.token (read-only) keeps the action from
+      # fetching its own App token; the action's output stays out of the public log.
       - name: Run the service sheet skills
         id: claude
         if: steps.fetch.outputs.docx != ''
@@ -160,7 +161,7 @@ jobs:
           claude_args: |
             --model claude-opus-5-5
             --add-dir ${{ runner.temp }}/sheet
-            --allowedTools "Read,Edit(/${{ runner.temp }}/sheet/**),Bash(pnpm stage sheet:*),Bash(pdftotext:*),Bash(ls:*),Bash(cat:*)"
+            --allowedTools "Read,Edit(/${{ runner.temp }}/sheet/**),Bash(pnpm stage sheet:*),Bash(pdftotext -layout * -),Bash(ls:*),Bash(cat:*)"
             --disallowedTools "WebFetch,WebSearch,NotebookEdit,Edit(./**)"
           prompt: |
             The parish sent its service sheet DOCX: ${{ runner.temp }}/sheet/mail/porad.docx.
