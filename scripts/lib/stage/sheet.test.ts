@@ -195,6 +195,12 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     );
   };
 
+  it("asks a DOCX without a record for --draft first", async () => {
+    await expect(stageSheet(env, { source: yearDocx() })).rejects.toThrow(
+      "--record is required to stage the week's page; for a DOCX, first write the draft record with --draft <file>",
+    );
+  });
+
   it("refuses a DOCX without a week's heading", async () => {
     const source = download("Pořad bohoslužeb 2099.docx", docxWithBody(wordml.p("Ohlášky farnosti")));
     await expect(stageSheet(env, { source, check: true })).rejects.toThrow(

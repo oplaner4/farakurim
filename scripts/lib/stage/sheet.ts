@@ -133,6 +133,21 @@ async function sourceWeek(
   return { pdf: docxWeekPdf(src, week, dir), week, lines };
 }
 
+/** Throws for a run that would stage without a record, or that both drafts and adds a record. */
+function checkRecordOptions(options: SheetOptions, check: boolean) {
+  // A PDF staged without its sheet would go to the server with nothing linking it, and take the week's name there.
+  if (!options.record && !check) {
+    throw new Error(
+      extname(options.source).toLowerCase() === ".docx"
+        ? "--record is required to stage the week's page; for a DOCX, first write the draft record with --draft <file> (or only print the week with --check)"
+        : "--record is required to stage the PDF; without it, only --check",
+    );
+  }
+  if (options.draft !== undefined && options.record) {
+    throw new Error("--draft writes a record to check: not with --record");
+  }
+}
+
 /**
  * Stages the weekly PDF (or the week's page of the DOCX) and adds its sheet (the record); without a record, `check`
  * only prints the week and its days, and `draft` writes the DOCX week's draft record. Returns the lines to print and
@@ -141,11 +156,7 @@ async function sourceWeek(
 export async function stageSheet(env: StageEnv, options: SheetOptions) {
   const { corrected = false } = options;
   const check = options.check || options.draft !== undefined;
-  // A PDF staged without its sheet would go to the server with nothing linking it, and take the week's name there.
-  if (!options.record && !check) throw new Error("--record is required to stage the PDF; without it, only --check");
-  if (options.draft !== undefined && options.record) {
-    throw new Error("--draft writes a record to check: not with --record");
-  }
+  checkRecordOptions(options, check);
   const src = sourceFile(options.source, MAX_MB.sheet, env.home);
   const dir = mkdtempSync(join(tmpdir(), "sheet-"));
   try {
