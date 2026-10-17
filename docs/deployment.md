@@ -70,8 +70,8 @@ The parish e-mails the year's service sheet DOCX from `fara.kurim@seznam.cz` to 
 4. files the mail in `Zpracováno` once the outcome is done, so a run that breaks retries the sheet the next night.
 
 The DOCX (it holds intentions with names) never leaves the `sheet` job: it is not uploaded, cached or logged. Claude's
-file tools may write only in the job's scratch folder, never in the checkout. The second job, `publish`, holds the App
-key in its own environment and cannot act as Claude.
+file tools may write only in the job's scratch folder, never in the checkout. The second job, `publish`, uses the App
+key from a fresh checkout and has no id-token, so it cannot act as Claude.
 
 **Answering the PR (phase 1):** merge means yes, close means no. A **draft** PR has a blocking question in its body:
 answer it, mark the PR ready, merge. A correction is a commit pushed to the PR's branch, or made locally with the
@@ -104,22 +104,16 @@ one DOCX, or a failed step. A failed step leaves the mail unseen for the next ru
 
 - **Mailbox** (cesky-hosting.cz administration): create `porad@farakurim.cz` and note its IMAP host. The script
   creates the folders `Zpracováno` and `Odmítnuto` itself.
-- **Environments** (repository Settings → Environments), so that the App key is never in the environment of
-  Claude's job:
-  - `service-sheet` for the `sheet` job (it fetches the mail, and the federation rule matches only it): secrets
-    `IMAP_HOST`, `IMAP_USER` and `IMAP_PASSWORD`;
-  - `service-sheet-publish` for the `publish` job (it pushes and files the mail): secrets `SHEET_APP_PRIVATE_KEY`,
-    `IMAP_HOST`, `IMAP_USER` and `IMAP_PASSWORD`.
-
-  The IMAP secrets are in both. Neither environment may have required reviewers (the nightly run would wait), and
-  their deployment branches must allow `main`.
+- **Environment** `service-sheet-publish` (repository Settings → Environments), for both jobs: variable `IMAP_HOST`,
+  secrets `IMAP_USER`, `IMAP_PASSWORD` and `SHEET_APP_PRIVATE_KEY`. It may have no required reviewers (the nightly run
+  would wait), and its deployment branches must allow `main`.
 
 - **GitHub App** (Settings → Developer settings → GitHub Apps), installed on this repository only, repository
   permissions `contents: write` and `pull-requests: write` (the latter also covers locking the PR). Its ID is the
   repository variable `SHEET_APP_ID`; a generated private key is the environment secret `SHEET_APP_PRIVATE_KEY`.
 - **Claude Console** (Settings → Workload identity → Connect workload → GitHub Actions): an issuer for
   `https://token.actions.githubusercontent.com`, a service account for the pipeline and one federation rule:
-  `subject_prefix` exactly `repo:oplaner4/farakurim:environment:service-sheet` (no `*`), audience
+  `subject_prefix` exactly `repo:oplaner4/farakurim:environment:service-sheet-publish` (no `*`), audience
   `https://api.anthropic.com`, the narrowest scope that runs Claude Code (`workspace:inference` if it suffices), token
   lifetime 3600 s. Then the repository variables `ANTHROPIC_FEDERATION_RULE_ID`, `ANTHROPIC_ORGANIZATION_ID`,
   `ANTHROPIC_SERVICE_ACCOUNT_ID` and `ANTHROPIC_WORKSPACE_ID`. Never set `ANTHROPIC_API_KEY`: a leftover one, even

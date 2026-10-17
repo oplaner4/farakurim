@@ -82,13 +82,13 @@ Platform's workload identity federation (the maintainer's preference), which `cl
 
 - Console (Settings › Workload identity › Connect workload › GitHub Actions): an issuer for
   `https://token.actions.githubusercontent.com`, a service account for the pipeline, and one federation rule.
-- The rule matches only this repo's Claude jobs: they run in the GitHub environment `service-sheet`, and the rule's
-  `subject_prefix` is exactly `repo:oplaner4/farakurim:environment:service-sheet` (no `*`, so no other repo, branch or fork
-  PR matches); audience `https://api.anthropic.com`. The narrowest `oauth_scope` that runs Claude Code
+- The rule matches only this repo's sheet jobs: they run in the GitHub environment `service-sheet-publish`, and the
+  rule's `subject_prefix` is exactly `repo:oplaner4/farakurim:environment:service-sheet-publish` (no `*`, so no other
+  repo, branch or fork PR matches; only the job with a Claude step has an id-token); audience `https://api.anthropic.com`. The narrowest `oauth_scope` that runs Claude Code
   (`workspace:inference` if it suffices) and the rule's token lifetime 3600 s, longer than a run.
 - The jobs with a Claude step have `permissions: id-token: write`; the IDs (rule, organization, service account,
-  workspace) are repository variables, not secrets: without a token from this repo's `service-sheet` environment they grant
-  nothing.
+  workspace) are repository variables, not secrets: without a token from this repo's `service-sheet-publish` environment
+  they grant nothing.
 - No `ANTHROPIC_API_KEY` is set anywhere in the workflows: a leftover one, even empty, silently wins over federation.
 - A denial is a bare 401; the reason is in the Console's workload identity history.
 
@@ -257,11 +257,11 @@ Everything goes to the maintainer through GitHub (my call on the channel; the ma
 - A GitHub App installed on this repo only, `contents: write`, `pull-requests: write`. Its key is a secret of the jobs
   that push; never in Claude's step environment. `main` keeps today's rules (no required checks),
   so the maintainer's direct pushes and local `pnpm release` keep working unchanged.
-- Environments: `service-sheet` (IMAP host, user and password; every job with a Claude step runs in it, as the mail
-  and the Claude step share one job so the DOCX never leaves it, and the federation rule matches it),
-  `service-sheet-publish` (the App key and the IMAP secrets, for the job that pushes and files the mail, so the App
-  key is never in a Claude job's environment; neither has required reviewers, both allow `main`), `Production`
-  (existing).
+- Environments: `service-sheet-publish` (the IMAP host as a variable, the IMAP user and password and the App key as
+  secrets; every job of the sheet workflows runs in it, the federation rule matches it; no required reviewers, `main`
+  allowed), `Production` (existing). One environment is enough: Claude writes only in its scratch folder and runs only
+  `pnpm stage sheet` and `pdftotext` to stdout, so it cannot run code of its own to reach a secret its step does not
+  name.
 - Repository variables: the federation IDs (above) and, as today, those for the build. No Anthropic secret.
 
 ## Phases
@@ -276,9 +276,9 @@ each useful alone, and stops when one is enough (agreed with the maintainer):
 
 ## Open checks before building
 
-- Workload identity federation from a job in the `service-sheet` environment: the token exchange succeeds with the rule
-  above, `workspace:inference` is enough for Claude Code, and the action refreshes the token in a run longer than the
-  GitHub identity token's few minutes (the action's docs do not describe it yet).
+- Workload identity federation from a job in the `service-sheet-publish` environment: the token exchange succeeds
+  with the rule above, `workspace:inference` is enough for Claude Code, and the action refreshes the token in a run
+  longer than the GitHub identity token's few minutes (the action's docs do not describe it yet).
 
 - An IMAP login to `porad@farakurim.cz` from a GitHub runner works (the hosting may limit IMAP by IP or rate), and
   the folders `Zpracováno` and `Odmítnuto` can be created there.

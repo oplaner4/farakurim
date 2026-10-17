@@ -14,11 +14,11 @@
 #   so it cannot act as Claude.
 # Merging and releasing stay with the maintainer, who downloads the staged PDFs from the artifacts of the PR's
 # commits. Nothing changed: no PR. The mail is filed (Zpracováno, Odmítnuto) only once its outcome is done, so a run
-# that breaks retries the sheet the next night. Two environments: `sheet` runs in `service-sheet` (the IMAP login; the
-# federation rule matches only it), `publish` in `service-sheet-publish` (the App key and the IMAP login), so the App
-# key is never in the environment of Claude's job. The job summary and the failure (refused week, document error, a
-# parish message without exactly one DOCX) tell the maintainer; no e-mail is sent. The runner image and the actions
-# are pinned (actions by commit SHA).
+# that breaks retries the sheet the next night. Both jobs run in the environment `service-sheet-publish` (the IMAP
+# login, the App key; the federation rule matches it, but only `sheet` has an id-token, and a secret reaches only the
+# steps that name it). The job summary and the failure (refused week, document error, a parish message without
+# exactly one DOCX) tell the maintainer; no e-mail is sent. The runner image and the actions are pinned (actions by
+# commit SHA).
 
 name: Service sheet
 
@@ -38,7 +38,7 @@ permissions:
 jobs:
   sheet:
     runs-on: ubuntu-24.04
-    environment: service-sheet
+    environment: service-sheet-publish
     permissions:
       contents: read
       pull-requests: read # find the open sheet PR
@@ -79,7 +79,7 @@ jobs:
       - name: Fetch the mail
         id: fetch
         env:
-          IMAP_HOST: ${{ secrets.IMAP_HOST }}
+          IMAP_HOST: ${{ vars.IMAP_HOST }}
           IMAP_USER: ${{ secrets.IMAP_USER }}
           IMAP_PASSWORD: ${{ secrets.IMAP_PASSWORD }}
         run: |
@@ -450,7 +450,7 @@ jobs:
       - name: File the mail
         if: always() && steps.download.outcome == 'success'
         env:
-          IMAP_HOST: ${{ secrets.IMAP_HOST }}
+          IMAP_HOST: ${{ vars.IMAP_HOST }}
           IMAP_USER: ${{ secrets.IMAP_USER }}
           IMAP_PASSWORD: ${{ secrets.IMAP_PASSWORD }}
           DONE: >-
