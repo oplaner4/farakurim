@@ -44,6 +44,8 @@ the week is released, as the check refuses the taken name otherwise. Show the us
 
 Wait for the user's yes or corrections to these before staging anything.
 
+Unattended: write this into the report instead, see "Unattended run" below.
+
 ## 4. Stage
 
 ```sh
@@ -58,6 +60,19 @@ stores the sheet's `rev`.
 
 Follow **`parish-publish-content`**. Remind
 the user to mirror changed or cancelled services in the "Bohoslužby" Google Calendar, which the Kalendář reads.
+
+## Unattended run
+
+Only when the prompt says the run is **unattended**; a local run follows steps 1 to 5 as written. Follow
+**`parish-create-service-sheet`** "Unattended run": the same rules (never asks, blocking questions and notes, stage
+right after the report, no `parish-publish-content`, no commit, no release), the scratchpad `$RUNNER_TEMP`, and the
+same report file the prompt gives, in the same format (the first two lines `blocking:` and `commit:`, per week the
+`Outcome:` line, the summary, `### Questions`, then `## Zrcadlit v kalendáři`). Here the commit line is a `fix(content):
+correct the service sheet for …` message, the week's outcome is `corrected` (or `unchanged` when its text matches the
+sheet: then nothing is staged), and the summary is what differs from the published sheet.
+
+A comment correction (the workflow's second phase) works the same: the prompt gives the correction as the user's
+words, and step 2's "a correction the user describes" applies.
 
 ## Common mistakes
 

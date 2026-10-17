@@ -150,6 +150,8 @@ matching event.
 
 Wait for the user's yes or corrections to these before staging anything.
 
+Unattended: write this into the report instead, see "Unattended run" below.
+
 ## 4. Stage the PDF and add the sheet
 
 ```sh
@@ -182,6 +184,49 @@ sheets and runs the service sheet tests. A line it prints that asks the user som
 
 Follow **`parish-publish-content`**. Remind the user to mirror changed or cancelled services in the "Mše,
 adorace" Google Calendar, which the Kalendář reads.
+
+## Unattended run
+
+Only when the prompt says the run is **unattended** (the daily workflow gives the parish's DOCX and a report file);
+a local run follows steps 1 to 5 as written. An unattended run follows them too, with these changes:
+
+- It never asks and never waits. Every "confirm with the user" or "ask the user" step (step 3, a document error, the
+  placeholder dots, the "Days without services" note) writes into the report instead; the report file is the one the
+  prompt gives. The scratchpad is `$RUNNER_TEMP` (`record.json`, `draft.json`); the PDF is staged in `uploads/` as
+  usual.
+- Staging (step 4) runs right after the report is written, `--corrected` when the script asks for it. A week the
+  script refuses (before the current sheet, overlapping another) or cannot draft (a document error) is not staged:
+  its `Outcome:` line carries the script's message.
+- Skip step 5: no `parish-publish-content`, no commit, no release. The workflow commits and opens the PR.
+- A question whose answer changes what is published (an unreadable row, placeholder dots, a doubtful cancellation) is
+  **blocking**; the run still stages its best reading. For placeholder dots that is the record with the document's
+  text, without the dots: never publish them. Any other question is a note.
+
+**The report** is English, with site content quoted in Czech, and starts with exactly these two lines:
+
+```
+blocking: yes|no
+commit: <message>
+```
+
+`blocking: yes` when any question is blocking. `commit:` is the message `parish-publish-content` prescribes for this
+change (`feat(content): publish the service sheet for 19.–25. 10. 2026`, `fix(content): correct the service sheet
+for …`, several weeks combined the way that skill combines them). With nothing changed (every week unchanged) the
+line is still written.
+
+Then, per week:
+
+- `## <week>` (e.g. `## 19.–25. 10. 2026`);
+- one line `Outcome: created`, `Outcome: corrected`, `Outcome: unchanged`, `Outcome: refused: <message>` or
+  `Outcome: document error: <message>` (the script's message as printed). The workflow fails the run on any
+  `refused` or `document error`;
+- the summary step 3 would show: the rows day by day, the announcements with categories and each `newsId` with its
+  event's title and date, and for a correction what differs from the published sheet;
+- `### Questions`, one per line: `- **q1** (blocking|note) <where>: <question> — proposal: <proposal>`. A later run
+  on the same report keeps the existing ids and marks each question `resolved` or `still open`.
+
+Finally `## Zrcadlit v kalendáři`: a list (Czech rows) of the services added, changed or removed against the
+published sheets, for the "Bohoslužby" calendar.
 
 ## Common mistakes
 
