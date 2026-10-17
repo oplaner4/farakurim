@@ -1,18 +1,22 @@
 # Opens a pull request with the week's service sheet from the parish's e-mail (phase 1 of
 # docs/superpowers/specs/2026-10-16-service-sheet-email-pipeline-design.md). Every night it reads the unseen mail of
 # porad@farakurim.cz over IMAP (`pnpm sheet-mail`): only the parish's DKIM-signed message with one DOCX is a sheet.
-# Claude (claude-code-action, authenticated by workload identity federation, no API key) runs the service sheet
-# skills unattended on that DOCX: it drafts, corrects and stages the weeks and writes a report. The job then tests,
-# builds, commits src/content/ as the GitHub App's bot and opens or updates the one service-sheet/* PR, its body the
-# report, a draft while the report has a blocking question. Merging and releasing stay with the maintainer, who
-# downloads the staged PDF from the run's artifact. Nothing changed: no PR. The mail is filed (Zpracováno, Odmítnuto)
-# only once its outcome is done, so a run that breaks retries the sheet the next night.
-# The job runs in the environment `service-sheet`, which holds the IMAP login and which the federation rule matches.
-# The year's DOCX (intentions with names) never leaves this job: it is not uploaded, cached or logged, and it is
-# deleted at the end. Claude's step sees neither the IMAP password nor a token that can write: the App token is
-# created only after it, since a step's outputs pass through files on the runner.
-# The job summary and the failure (refused week, document error, a parish message without exactly one DOCX) tell the
-# maintainer; no e-mail is sent. The runner image and the actions are pinned (actions by commit SHA).
+# Two jobs, so that no step holding a secret runs code from a workspace Claude has touched:
+# - `sheet` fetches the mail and lets Claude (claude-code-action, workload identity federation, no API key) run the
+#   service sheet skills unattended on the DOCX: it drafts, corrects and stages the weeks and writes a report. Claude
+#   writes only to $RUNNER_TEMP/sheet. The job hands on the report, the change to src/content/ as a patch and the
+#   staged PDFs as a one-day artifact. The year's DOCX (intentions with names) never leaves this job: it is not
+#   uploaded, cached or logged, and it is deleted at the end.
+# - `publish` starts from a fresh checkout, applies the patch only if it touches nothing but src/content/*.json, then
+#   tests, builds, commits as the GitHub App's bot and opens or updates the one service-sheet/* PR, its body the
+#   report, a draft while the report has a blocking question. It holds the App key and the IMAP login; it has no
+#   id-token, so it cannot act as Claude.
+# Merging and releasing stay with the maintainer, who downloads the staged PDF from the run's artifact. Nothing
+# changed: no PR. The mail is filed (Zpracováno, Odmítnuto) only once its outcome is done, so a run that breaks
+# retries the sheet the next night. Both jobs run in the environment `service-sheet` (the IMAP login, the App key; the
+# federation rule matches it). The job summary and the failure (refused week, document error, a parish message
+# without exactly one DOCX) tell the maintainer; no e-mail is sent. The runner image and the actions are pinned
+# (actions by commit SHA).
 
 name: Service sheet
 
@@ -37,12 +41,26 @@ jobs:
       contents: read
       pull-requests: read # find the open sheet PR
       id-token: write # Claude's workload identity federation
+    # The uids and the summary come from the fetch step, which ran before Claude's: they are not read back from files
+    # Claude could have changed.
+    outputs:
+      fetched: ${{ steps.fetch.outputs.fetched }}
+      docx: ${{ steps.fetch.outputs.docx }}
+      sheet: ${{ steps.fetch.outputs.sheet }}
+      superseded: ${{ steps.fetch.outputs.superseded }}
+      rejected: ${{ steps.fetch.outputs.rejected }}
+      no_docx: ${{ steps.fetch.outputs.no_docx }}
+      summary: ${{ steps.fetch.outputs.summary }}
+      pr: ${{ steps.branch.outputs.pr }}
+      branch: ${{ steps.branch.outputs.branch }}
+      base: ${{ steps.branch.outputs.base }}
+      claude: ${{ steps.claude.outcome }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: main
-          fetch-depth: 0 # the sheet PR's branch
-          persist-credentials: false # only the push step gets a token
+          fetch-depth: 0 # the sheet PR's branch and the names taken
+          persist-credentials: false # nothing here pushes
 
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
 
@@ -54,7 +72,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       # The outcome is one JSON document on stdout (--silent keeps pnpm's banner out of it); it holds uids, dates and
-      # kinds, never message text. The DOCX lands in $RUNNER_TEMP/mail/porad.docx.
+      # kinds, never message text. The DOCX lands in $RUNNER_TEMP/sheet/mail/porad.docx, mail.json in
+      # $RUNNER_TEMP/run (the artifact's folder, outside Claude's reach).
       - name: Fetch the mail
         id: fetch
         env:
@@ -62,14 +81,19 @@ jobs:
           IMAP_USER: ${{ secrets.IMAP_USER }}
           IMAP_PASSWORD: ${{ secrets.IMAP_PASSWORD }}
         run: |
-          pnpm --silent sheet-mail fetch --out "$RUNNER_TEMP/mail" > "$RUNNER_TEMP/mail.json"
+          mkdir -p "$RUNNER_TEMP/sheet" "$RUNNER_TEMP/run"
+          mail="$RUNNER_TEMP/run/mail.json"
+          pnpm --silent sheet-mail fetch --out "$RUNNER_TEMP/sheet/mail" > "$mail"
           jq -r '
             "docx=\(.docx // "")",
             "sheet=\(.sheetUid // "")",
             "superseded=\(.superseded | map(tostring) | join(","))",
             "rejected=\(.rejected + .noDocx | map(tostring) | join(","))",
-            "no_docx=\(.noDocx | length)"
-          ' "$RUNNER_TEMP/mail.json" >> "$GITHUB_OUTPUT"
+            "no_docx=\(.noDocx | length)",
+            "summary=\(.summary | tojson)",
+            "date=\([.summary[] | select(endswith(": sheet (newest)")) | .[0:10]] | first // "")"
+          ' "$mail" >> "$GITHUB_OUTPUT"
+          echo "fetched=true" >> "$GITHUB_OUTPUT"
 
       - name: Install LibreOffice and poppler
         if: steps.fetch.outputs.docx != ''
@@ -78,12 +102,14 @@ jobs:
           sudo apt-get install -y --no-install-recommends libreoffice-writer poppler-utils
 
       # At most one open sheet PR: a later e-mail adds a commit to its branch, so service-sheets.json never conflicts.
-      # Only a branch of this repo counts (a fork's PR can carry any branch name).
+      # Only a branch of this repo counts (a fork's PR can carry any branch name). A new branch is named after the
+      # newest sheet's date (Prague time), the run's date if it has none.
       - name: Check out the sheet branch
         id: branch
         if: steps.fetch.outputs.docx != ''
         env:
           GH_TOKEN: ${{ github.token }}
+          MAIL_DATE: ${{ steps.fetch.outputs.date }}
         run: |
           # A failing lookup fails the step: a second PR would conflict with the open one.
           found=$(gh pr list --state open --json headRefName,number,isCrossRepository --jq '
@@ -94,21 +120,23 @@ jobs:
           if [ -n "$pr" ]; then
             git checkout -B "$branch" "origin/$branch"
           else
+            date="$MAIL_DATE"
+            if ! [[ "$date" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then date=$(TZ=Europe/Prague date +%F); fi
             # A closed PR's branch may still be there: a second branch the same day gets a suffix.
-            date=$(TZ=Europe/Prague date +%F)
             branch="service-sheet/$date"
             n=2
             while git show-ref --quiet --verify "refs/remotes/origin/$branch"; do
               branch="service-sheet/$date-$n"
               n=$((n + 1))
             done
-            git checkout -b "$branch"
           fi
           echo "pr=$pr" >> "$GITHUB_OUTPUT"
           echo "branch=$branch" >> "$GITHUB_OUTPUT"
+          echo "base=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-      # The prompt holds no sheet rules: they live in the skills. Claude can read and write files, stage the sheet and
-      # read PDFs; no git, no network. github.token (read-only) keeps the action from fetching its own App token.
+      # The prompt holds no sheet rules: they live in the skills. Claude can read files, write in the checkout and in
+      # $RUNNER_TEMP/sheet only (not the runner's file commands), stage the sheet and read PDFs; no git, no network.
+      # github.token (read-only) keeps the action from fetching its own App token.
       - name: Run the service sheet skills
         id: claude
         if: steps.fetch.outputs.docx != ''
@@ -122,32 +150,114 @@ jobs:
           anthropic_workspace_id: ${{ vars.ANTHROPIC_WORKSPACE_ID }}
           claude_args: |
             --model claude-opus-5-5
-            --add-dir ${{ runner.temp }}
+            --add-dir ${{ runner.temp }}/sheet
             --allowedTools "Read,Write,Edit,Bash(pnpm stage sheet:*),Bash(pdftotext:*),Bash(ls:*),Bash(cat:*)"
             --disallowedTools "WebFetch,WebSearch"
           prompt: |
-            The parish sent its service sheet DOCX: ${{ runner.temp }}/mail/porad.docx.
+            The parish sent its service sheet DOCX: ${{ runner.temp }}/sheet/mail/porad.docx.
             Run the service sheet skills unattended (their "Unattended run" section). The report file is
-            ${{ runner.temp }}/report.md and the scratchpad is ${{ runner.temp }}.
+            ${{ runner.temp }}/sheet/report.md and the scratchpad is ${{ runner.temp }}/sheet.
             Handle the DOCX's newest week with parish-create-service-sheet when it is not in
             src/content/service-sheets.json. For every week already there from the current sheet on, draft it and,
             when its text differs from the sheet, correct it with parish-correct-service-sheet. A week the script
             refuses or cannot draft goes into the report.
 
-      # The report: line 1 `blocking: yes|no`, line 2 `commit: <message>`, then the PR body.
-      - name: Read the report
-        id: changes
-        if: steps.fetch.outputs.docx != ''
+      # What `publish` needs, never the DOCX: the report, the change to src/content/ against the branch head (new
+      # files included) and the staged files that really are PDFs.
+      - name: Collect the outcome
+        if: always() && steps.fetch.outputs.fetched == 'true'
         env:
+          BRANCH: ${{ steps.branch.outputs.branch }}
+        run: |
+          run="$RUNNER_TEMP/run"
+          printf '%s\n' "$BRANCH" > "$run/branch"
+          if [ -f "$RUNNER_TEMP/sheet/report.md" ]; then cp "$RUNNER_TEMP/sheet/report.md" "$run/report.md"; fi
+          git add --intent-to-add -- src/content
+          git diff --binary HEAD -- src/content > "$run/content.patch"
+          mkdir -p "$run/pdf"
+          for file in uploads/porady_bohosluzeb/*.pdf; do
+            if [ -f "$file" ] && [ "$(head -c 4 "$file")" = "%PDF" ]; then cp "$file" "$run/pdf/"; fi
+          done
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always() && steps.fetch.outputs.fetched == 'true'
+        with:
+          name: service-sheet-run-${{ github.run_id }}
+          path: ${{ runner.temp }}/run/
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Delete the DOCX
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/sheet"
+
+  publish:
+    needs: sheet
+    if: always()
+    runs-on: ubuntu-24.04
+    environment: service-sheet
+    permissions:
+      contents: read # the push and the PR use the App token
+    steps:
+      # Missing when `sheet` failed before handing on: this job then only reports, and files nothing.
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        id: download
+        continue-on-error: true
+        with:
+          name: service-sheet-run-${{ github.run_id }}
+          path: ${{ runner.temp }}/run/
+
+      # A fresh checkout of the commit Claude's change is based on: nothing from `sheet`'s workspace runs here.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.download.outcome == 'success'
+        with:
+          ref: ${{ needs.sheet.outputs.base || 'main' }}
+          persist-credentials: false # only the push step gets a token
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        if: steps.download.outcome == 'success'
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        if: steps.download.outcome == 'success'
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - if: steps.download.outcome == 'success'
+        run: pnpm install --frozen-lockfile
+
+      # The report: line 1 `blocking: yes|no`, line 2 `commit: <message>`, then the PR body. With a change, the patch
+      # is applied only if it touches nothing but src/content/*.json. Without one, the report must show the work was
+      # done: a valid first line and every week unchanged, refused or a document error (the last two fail the summary).
+      - name: Apply the change
+        id: changes
+        if: steps.download.outcome == 'success' && needs.sheet.result == 'success' && needs.sheet.outputs.docx != ''
+        env:
+          BRANCH: ${{ needs.sheet.outputs.branch }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          if [ -z "$(git status --porcelain -- src/content)" ]; then
+          run="$RUNNER_TEMP/run"
+          report="$run/report.md"
+          patch="$run/content.patch"
+          first=$(sed -n 1p "$report" 2>/dev/null || true)
+          if [ ! -s "$patch" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
+            outcomes=$(grep '^Outcome: ' "$report" 2>/dev/null || true)
+            if [ ! -f "$report" ] || ! [[ "$first" =~ ^blocking:\ (yes|no)$ ]] || [ -z "$outcomes" ] \
+              || grep -qvE '^Outcome: (unchanged$|refused: |document error: )' <<< "$outcomes"; then
+              echo "::error::Nothing changed, but the report does not show every week unchanged: the sheet stays unread."
+              exit 1
+            fi
             exit 0
           fi
+          bad=$(git apply --numstat "$patch" | cut -f3- | grep -vE '^src/content/[^/]+\.json$' || true)
+          if [ -n "$bad" ] || git apply --summary "$patch" | grep -q ' mode 120000'; then
+            echo "::error::The change touches more than src/content/*.json: not applied."
+            exit 1
+          fi
+          git apply "$patch"
+          git checkout -B "$BRANCH"
           echo "changed=true" >> "$GITHUB_OUTPUT"
-          report="$RUNNER_TEMP/report.md"
-          first=$(sed -n 1p "$report" 2>/dev/null || true)
           message=$(sed -n 2p "$report" 2>/dev/null | sed 's/^commit: //' || true)
           if [ -z "$message" ] || ! printf '%s\n' "$message" | pnpm exec commitlint > /dev/null; then
             echo "::warning::The report has no valid commit message: using the default."
@@ -163,7 +273,7 @@ jobs:
             echo
             echo "Opened by the service sheet workflow (\`service-sheet.yml\`). Merge to publish, then release."
             echo "The staged PDF is in the run's artifacts: $RUN_URL"
-          } > "$RUNNER_TEMP/pr-body.md"
+          } > "$run/pr-body.md"
 
       - name: Test
         if: steps.changes.outputs.changed == 'true'
@@ -175,7 +285,6 @@ jobs:
           NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY: ${{ vars.GOOGLE_CALENDAR_API_KEY }}
         run: pnpm build
 
-      # Created only now: Claude's step has ended, so it cannot read the token.
       - name: Create the App token
         id: app
         if: steps.changes.outputs.changed == 'true'
@@ -184,20 +293,22 @@ jobs:
           app-id: ${{ vars.SHEET_APP_ID }}
           private-key: ${{ secrets.SHEET_APP_PRIVATE_KEY }}
 
-      # src/content/ only: the staged PDF is in uploads/, which git ignores. Never a force-push.
+      # src/content/ only: the staged PDF is in uploads/, which git ignores. No hooks (the message is checked
+      # already), never a force-push: a branch moved since `sheet` rejects the push and the sheet is retried.
       - name: Commit and push
         id: commit
         if: steps.changes.outputs.changed == 'true'
         env:
           TOKEN: ${{ steps.app.outputs.token }}
           APP_SLUG: ${{ steps.app.outputs.app-slug }}
-          BRANCH: ${{ steps.branch.outputs.branch }}
+          BRANCH: ${{ needs.sheet.outputs.branch }}
           MESSAGE: ${{ steps.changes.outputs.message }}
         run: |
           bot="${APP_SLUG}[bot]"
           id=$(GH_TOKEN="$TOKEN" gh api "/users/$bot" --jq .id)
           git add -- src/content
-          git -c user.name="$bot" -c user.email="$id+$bot@users.noreply.github.com" commit -m "$MESSAGE"
+          git -c core.hooksPath=/dev/null -c user.name="$bot" -c user.email="$id+$bot@users.noreply.github.com" \
+            commit -m "$MESSAGE"
           git push "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/$BRANCH"
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
@@ -205,23 +316,23 @@ jobs:
         if: steps.commit.outcome == 'success'
         with:
           name: service-sheet-pdf-${{ steps.commit.outputs.sha }}
-          path: uploads/porady_bohosluzeb/*.pdf
+          path: ${{ runner.temp }}/run/pdf/*.pdf
           if-no-files-found: warn
           retention-days: 30
 
-      # A new PR is locked right away (the repo is public): only collaborators with write access can comment. An open
-      # PR keeps its draft state: the maintainer marks it ready.
+      # The conversation is locked on every run (the repo is public): only collaborators with write access can
+      # comment. An open PR keeps its draft state: the maintainer marks it ready.
       - name: Open or update the PR
         id: pr
         if: steps.commit.outcome == 'success'
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
-          PR: ${{ steps.branch.outputs.pr }}
-          BRANCH: ${{ steps.branch.outputs.branch }}
+          PR: ${{ needs.sheet.outputs.pr }}
+          BRANCH: ${{ needs.sheet.outputs.branch }}
           MESSAGE: ${{ steps.changes.outputs.message }}
           DRAFT: ${{ steps.changes.outputs.draft }}
         run: |
-          body="$RUNNER_TEMP/pr-body.md"
+          body="$RUNNER_TEMP/run/pr-body.md"
           if [ -n "$PR" ]; then
             gh pr edit "$PR" --body-file "$body"
             url=$(gh pr view "$PR" --json url --jq .url)
@@ -230,9 +341,9 @@ jobs:
             draft=()
             if [ "$DRAFT" != false ]; then draft=(--draft); fi
             url=$(gh pr create --base main --head "$BRANCH" --title "$MESSAGE" --body-file "$body" "${draft[@]}")
-            gh api -X PUT "repos/$GITHUB_REPOSITORY/issues/${url##*/}/lock" -f lock_reason=resolved
             echo "action=opened" >> "$GITHUB_OUTPUT"
           fi
+          gh api -X PUT "repos/$GITHUB_REPOSITORY/issues/${url##*/}/lock" -f lock_reason=resolved
           echo "url=$url" >> "$GITHUB_OUTPUT"
 
       # Dates, kinds, weeks and the script's messages only, never the e-mail's text. Fails the job when something
@@ -240,32 +351,40 @@ jobs:
       - name: Summary
         if: always()
         env:
-          FETCH: ${{ steps.fetch.outcome }}
-          DOCX: ${{ steps.fetch.outputs.docx }}
-          NO_DOCX: ${{ steps.fetch.outputs.no_docx }}
-          CLAUDE: ${{ steps.claude.outcome }}
+          FETCHED: ${{ needs.sheet.outputs.fetched }}
+          SUMMARY: ${{ needs.sheet.outputs.summary }}
+          DOCX: ${{ needs.sheet.outputs.docx }}
+          NO_DOCX: ${{ needs.sheet.outputs.no_docx }}
+          SHEET_RESULT: ${{ needs.sheet.result }}
+          CLAUDE: ${{ needs.sheet.outputs.claude }}
+          DOWNLOAD: ${{ steps.download.outcome }}
+          APPLY: ${{ steps.changes.outcome }}
           CHANGED: ${{ steps.changes.outputs.changed }}
           PR_OUTCOME: ${{ steps.pr.outcome }}
           PR_ACTION: ${{ steps.pr.outputs.action }}
           PR_URL: ${{ steps.pr.outputs.url }}
         run: |
-          report="$RUNNER_TEMP/report.md"
+          report="$RUNNER_TEMP/run/report.md"
           failed=$(awk '/^## / { week = substr($0, 4) } /^Outcome: (refused|document error)/ { print "- " week ": " $0 }' \
             "$report" 2>/dev/null || true)
           {
             echo "## Service sheet"
             echo
-            if [ "$FETCH" != success ]; then
+            if [ "$FETCHED" != true ]; then
               echo "The mail could not be read."
-            elif [ "$(jq '.summary | length' "$RUNNER_TEMP/mail.json")" = 0 ]; then
+            elif [ "$(jq 'length' <<< "$SUMMARY")" = 0 ]; then
               echo "No new mail."
             else
-              jq -r '.summary[] | "- " + .' "$RUNNER_TEMP/mail.json"
+              jq -r '.[] | "- " + .' <<< "$SUMMARY"
             fi
             echo
             if [ -n "$DOCX" ]; then
               if [ "$CLAUDE" != success ]; then
                 echo "Claude's run failed: the sheet stays unread and the next run retries it."
+              elif [ "$SHEET_RESULT" != success ] || [ "$DOWNLOAD" != success ]; then
+                echo "The sheet job failed after Claude's run (see the log): the sheet stays unread for the next run."
+              elif [ "$APPLY" != success ]; then
+                echo "The change or the report was not accepted (see the log): the sheet stays unread for the next run."
               elif [ "$CHANGED" = false ]; then
                 echo "Nothing changed: no PR."
               elif [ "$PR_OUTCOME" = success ]; then
@@ -289,20 +408,21 @@ jobs:
             exit 1
           fi
 
-      # Only once the outcome is done (PR opened or updated, nothing changed, or the problem in the summary). After an
-      # unexpected failure the sheet and the superseded mail stay unseen for the next run; the rejected mail is filed.
+      # Only once the outcome is done (PR opened or updated, nothing changed, or the problem in the summary) and only
+      # when `sheet` succeeded; otherwise the sheet and the superseded mail stay unseen for the next run. The rejected
+      # mail is filed whenever `sheet` handed on its outcome.
       - name: File the mail
-        if: always() && steps.fetch.outcome == 'success'
+        if: always() && steps.download.outcome == 'success'
         env:
           IMAP_HOST: ${{ secrets.IMAP_HOST }}
           IMAP_USER: ${{ secrets.IMAP_USER }}
           IMAP_PASSWORD: ${{ secrets.IMAP_PASSWORD }}
           DONE: >-
-            ${{ steps.fetch.outputs.docx == '' || (steps.changes.outcome == 'success'
-            && (steps.changes.outputs.changed == 'false' || steps.pr.outcome == 'success')) }}
-          SHEET: ${{ steps.fetch.outputs.sheet }}
-          SUPERSEDED: ${{ steps.fetch.outputs.superseded }}
-          REJECTED: ${{ steps.fetch.outputs.rejected }}
+            ${{ needs.sheet.result == 'success' && (needs.sheet.outputs.docx == '' || (steps.changes.outcome == 'success'
+            && (steps.changes.outputs.changed == 'false' || steps.pr.outcome == 'success'))) }}
+          SHEET: ${{ needs.sheet.outputs.sheet }}
+          SUPERSEDED: ${{ needs.sheet.outputs.superseded }}
+          REJECTED: ${{ needs.sheet.outputs.rejected }}
         run: |
           processed=""
           if [ "$DONE" = true ]; then
@@ -313,7 +433,3 @@ jobs:
             exit 0
           fi
           pnpm --silent sheet-mail file --processed="$processed" --rejected="$REJECTED"
-
-      - name: Delete the DOCX
-        if: always()
-        run: rm -rf "$RUNNER_TEMP/mail"
