@@ -1,5 +1,28 @@
 [
   {
+    "id": "vecer-smireni-tisnov-2026",
+    "title": "Večer smíření pro každého",
+    "start": "2026-11-05",
+    "startTime": "18:00",
+    "endTime": "20:00",
+    "place": "Tišnov, kostel sv. Václava",
+    "text": "Prostor pro pokoj, odpuštění, smíření a nový začátek. Přijďte se na chvíli zastavit.",
+    "lead": "Všichni jste srdečně zváni.",
+    "body": "<p>Večer nabídne:</p><ul><li>ticho</li><li>modlitbu</li><li>rozhovor s knězem či psychologem</li><li>slovo o odpuštění a smíření</li></ul>",
+    "published": "2026-10-17",
+    "poster": {
+      "src": "/uploads/aktuality/vecer-smireni-tisnov-2026-plakat-poster.webp",
+      "alt": "Plakát: Večer smíření pro každého"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/vecer-smireni-tisnov-2026-plakat.png",
+        "size": 1162196
+      }
+    ]
+  },
+  {
     "id": "pokoj-srdce-2026",
     "title": "Pokoj srdce – víkendové setkání pro mladé ženy",
     "start": "2026-11-06",
