@@ -30,11 +30,11 @@ describe("stageSheet", { timeout: 30_000 }, () => {
 
   it("lists the week's days with check and refuses to stage without a record", async () => {
     const source = download("porad.pdf", "%PDF");
-    const week = { source, validFrom: "2026-10-04", validTo: "2026-10-11" };
+    const week = { source, validFrom: "2099-10-04", validTo: "2099-10-11" };
     expect((await stageSheet(env, { ...week, check: true })).lines).toEqual([
-      "Would stage uploads/porady_bohosluzeb/2026-10-04-porad-bohosluzeb.pdf",
-      '  validFrom: "2026-10-04",\n  validTo: "2026-10-11",',
-      `days: ${weekDays("2026-10-04", "2026-10-11").join(", ")}`,
+      "Would stage uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf",
+      '  validFrom: "2099-10-04",\n  validTo: "2099-10-11",',
+      `days: ${weekDays("2099-10-04", "2099-10-11").join(", ")}`,
     ]);
     await expect(stageSheet(env, week)).rejects.toThrow("--record is required to stage the PDF");
     expect(existsSync(uploaded("porady_bohosluzeb"))).toBe(false);
@@ -44,7 +44,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     const source = download("porad.pdf", "%PDF");
     status(200);
     await expect(
-      stageSheet(env, { source, validFrom: "2026-10-04", validTo: "2026-10-11", check: true }),
+      stageSheet(env, { source, validFrom: "2099-10-04", validTo: "2099-10-11", check: true }),
     ).rejects.toThrow("this week is already published; for a corrected PDF pass --corrected");
   });
 
@@ -59,8 +59,8 @@ describe("stageSheet", { timeout: 30_000 }, () => {
   });
 
   it.skipIf(!hasPoppler)("reads the week from the PDF heading", async () => {
-    const source = download("porad.pdf", pdfWithText(["Porad bohosluzeb od 4. 10. do 11. 10. 2026"]));
-    expect((await stageSheet(env, { source, check: true })).lines[1]).toContain('validFrom: "2026-10-04"');
+    const source = download("porad.pdf", pdfWithText(["Porad bohosluzeb od 4. 10. do 11. 10. 2099"]));
+    expect((await stageSheet(env, { source, check: true })).lines[1]).toContain('validFrom: "2099-10-04"');
     const blank = download("prazdny.pdf", pdfWithText(["Farnost Kurim"]));
     await expect(stageSheet(env, { source: blank, check: true })).rejects.toThrow("no 'od … do …' week");
   });
@@ -109,6 +109,45 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     expect(readFileSync(uploaded("porady_bohosluzeb", "2099-10-04-porad-bohosluzeb-r2.pdf"), "utf8")).toBe(
       "%PDF fixed again",
     );
+  });
+
+  it("refuses a week before the current sheet, even without a record and once published", async () => {
+    const source = download("porad.pdf", "%PDF");
+    const week = { source, validFrom: "2000-01-02", validTo: "2000-01-09" };
+    const before = "the sheet 2000-01-02 – 2000-01-09 is before the current sheet";
+    await expect(stageSheet(env, { ...week, check: true })).rejects.toThrow(before);
+    await expect(stageSheet(env, { ...week, record: record() })).rejects.toThrow(before);
+    // Not the --corrected hint for its PDF on the server, nor "no sheet" with --corrected.
+    status(200);
+    await expect(stageSheet(env, { ...week, check: true })).rejects.toThrow(before);
+    await expect(stageSheet(env, { ...week, corrected: true, check: true })).rejects.toThrow(before);
+  });
+
+  it("refuses a week overlapping a sheet, even without a record", async () => {
+    await stageSheet(env, {
+      source: download("porad.pdf", "%PDF"),
+      validFrom: "2099-10-04",
+      validTo: "2099-10-11",
+      record: record(),
+    });
+    const source = download("porad 2.pdf", "%PDF other");
+    await expect(
+      stageSheet(env, { source, validFrom: "2099-10-07", validTo: "2099-10-14", check: true }),
+    ).rejects.toThrow("2099-10-07 – 2099-10-14 starts before 2099-10-04 – 2099-10-11 ends");
+    // Sharing the boundary Sunday is fine.
+    await expect(
+      stageSheet(env, { source, validFrom: "2099-10-11", validTo: "2099-10-18", check: true }),
+    ).resolves.toBeDefined();
+  });
+
+  it("says a week already there is replaced by its record, unless --corrected", async () => {
+    const week = { source: download("porad.pdf", "%PDF"), validFrom: "2099-10-04", validTo: "2099-10-11" };
+    expect((await stageSheet(env, { ...week, check: true })).lines).toHaveLength(3);
+    await stageSheet(env, { ...week, record: record() });
+    expect((await stageSheet(env, { ...week, check: true })).lines.at(-1)).toBe(
+      "The sheet 2099-10-04 – 2099-10-11 is already in src/content/service-sheets.json, not released yet: --record replaces it, so start the record from that sheet to keep its fixes",
+    );
+    expect((await stageSheet(env, { ...week, corrected: true, check: true })).lines).toHaveLength(3);
   });
 
   it("refuses --corrected for a week not in service-sheets.json", async () => {

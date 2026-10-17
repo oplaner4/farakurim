@@ -26,6 +26,30 @@ export const readServiceSheets = (serviceSheetsFile: string): ServiceSheetsFile 
 export const readScheduleExceptions = (exceptionsFile: string): ScheduleExceptionsFile =>
   readJsonFile(exceptionsFile, scheduleExceptionsFileSchema);
 
+/**
+ * `sheets` with `sheet` added (a sheet of the same week replaced, `replaced`), sorted (`all`), and those from the
+ * current one on (`kept`; the current sheet is the last whose week has started, today in Prague). Throws when `sheet`
+ * is before the current sheet or overlaps another kept sheet.
+ */
+export function placeSheet<T extends Pick<ServiceSheetRecord, "validFrom" | "validTo">>(
+  sheets: T[],
+  sheet: T,
+  now = new Date(),
+) {
+  const replaced = sheets.some((s) => s.validFrom === sheet.validFrom);
+  const all = [...sheets.filter((s) => s.validFrom !== sheet.validFrom), sheet].sort((a, b) =>
+    a.validFrom < b.validFrom ? -1 : 1,
+  );
+  const current = currentSheet(all, pragueDate(now))!;
+  const kept = all.filter((s) => s.validFrom >= current.validFrom);
+  if (!kept.includes(sheet)) {
+    throw new Error(`the sheet ${period(sheet)} is before the current sheet (${current.validFrom}): nothing to add`);
+  }
+  const problems = sheetOrderProblems(kept);
+  if (problems.length > 0) throw new Error(problems.join("\n"));
+  return { all, current, kept, replaced };
+}
+
 export type AddServiceSheetResult = {
   sheet: ServiceSheetRecord;
   /** A sheet of the same week was replaced. */
@@ -71,18 +95,7 @@ export function addServiceSheet(
 
   const { sheets } = readServiceSheets(serviceSheetsFile);
   const { exceptions } = readScheduleExceptions(exceptionsFile);
-  const replaced = sheets.some((s) => s.validFrom === sheet.validFrom);
-  const all = [...sheets.filter((s) => s.validFrom !== sheet.validFrom), sheet].sort((a, b) =>
-    a.validFrom < b.validFrom ? -1 : 1,
-  );
-  const current = currentSheet(all, pragueDate(now))!;
-  const kept = all.filter((s) => s.validFrom >= current.validFrom);
-  if (!kept.includes(sheet)) {
-    throw new Error(`the sheet ${period(sheet)} is before the current sheet (${current.validFrom}): nothing to add`);
-  }
-  const problems = sheetOrderProblems(kept);
-  if (problems.length > 0) throw new Error(problems.join("\n"));
-
+  const { all, current, kept, replaced } = placeSheet(sheets, sheet, now);
   const removed = all.filter((s) => !kept.includes(s)).map(period);
   const coveredExceptions = exceptions.filter((x) => sheetCovering(kept, x.date)).map((x) => x.date);
   const pastExceptions = exceptions

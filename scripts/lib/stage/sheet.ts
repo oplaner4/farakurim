@@ -1,9 +1,10 @@
 // Stages a service sheet PDF as uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-r<rev>].pdf, with the
 // week read from its heading ("od 4. 10. 2026 do 11. 10. 2026"), and adds the sheet to src/content/service-sheets.json
-// (addServiceSheet()); without a record it only checks and prints the week. The sheet stores the rev, so a rerun keeps it
-// and a corrected PDF gets the next one. The source can also be the parish's DOCX of the whole year: then the week is
-// its newest one (or the one --from names), its PDF that week's page of the converted document, and its draft record
-// is read from the week's table and announcements.
+// (addServiceSheet()); without a record it only checks and prints the week. The week is checked against the sheets
+// first, with or without a record: one before the current sheet or overlapping another is refused, and one already
+// there is named. The sheet stores the rev, so a rerun keeps it and a corrected PDF gets the next one. The source can
+// also be the parish's DOCX of the whole year: then the week is its newest one (or the one --from names), its PDF that
+// week's page of the converted document, and its draft record is read from the week's table and announcements.
 
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -12,7 +13,13 @@ import type { IsoDate } from "@/content/types/shared";
 import { WEEKDAY_SHORT } from "@/lib/shared/czech";
 import { pragueWeekday } from "@/lib/shared/prague";
 import { period, periodDates, periodLength, sheetPdfFile } from "@/lib/services/service-sheet";
-import { addServiceSheet, serviceSheetLines, readServiceSheets } from "../services/add-service-sheet";
+import {
+  addServiceSheet,
+  placeSheet,
+  serviceSheetLines,
+  readServiceSheets,
+  type SheetWeek,
+} from "../services/add-service-sheet";
 import { docxToPdf } from "../services/docx-to-pdf";
 import { docxWeeks, type DocxWeek } from "../services/sheet-docx";
 import { parseWeek, weekPages } from "../services/sheet-week";
@@ -144,6 +151,8 @@ export async function stageSheet(env: StageEnv, options: SheetOptions) {
   try {
     const { pdf, week, lines } = await sourceWeek(src, options, dir);
     const { validFrom, validTo } = week;
+    // Refuses a week before the current sheet or overlapping another before anything else, even without a record.
+    const there = placeSheet<SheetWeek>(readServiceSheets(env.serviceSheetsFile).sheets, week).replaced;
     const rev = await sheetRev(env, validFrom, corrected);
     const rel = sheetPdfFile({ validFrom, rev });
     const sheet = { validFrom, validTo, ...(rev !== undefined && { rev }) };
@@ -155,7 +164,16 @@ export async function stageSheet(env: StageEnv, options: SheetOptions) {
     // Each conversion writes a new file, so a DOCX's page replaces the one staged before (never one on the server).
     await stage(env, pdf, rel, check, correctedHint("this week"), corrected || pdf !== src);
     lines.push(stagedLine(check, rel));
-    if (!options.record) return { lines: [...lines, ...weekLines(sheet)], written: [] };
+    if (!options.record) {
+      // Past the server check, so the week is not released: a record replaces its sheet, as a correction does.
+      const note =
+        there && !corrected
+          ? [
+              `The sheet ${period(week)} is already in src/content/service-sheets.json, not released yet: --record replaces it, so start the record from that sheet to keep its fixes`,
+            ]
+          : [];
+      return { lines: [...lines, ...weekLines(sheet), ...note], written: [] };
+    }
     if (check) return { lines, written: [] };
     const result = addServiceSheet(env, options.record, sheet);
     lines.push(...serviceSheetLines(result, false));

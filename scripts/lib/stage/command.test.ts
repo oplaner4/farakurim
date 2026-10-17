@@ -10,8 +10,8 @@ describe("runStage", { timeout: 30_000 }, () => {
 
   it("parses each command's arguments", async () => {
     const source = download("porad.pdf", "%PDF");
-    const { lines } = await runStage(env, ["sheet", source, "--from", "2026-10-04", "--to", "2026-10-11", "--check"]);
-    expect(lines[0]).toBe("Would stage uploads/porady_bohosluzeb/2026-10-04-porad-bohosluzeb.pdf");
+    const { lines } = await runStage(env, ["sheet", source, "--from", "2099-10-04", "--to", "2099-10-11", "--check"]);
+    expect(lines[0]).toBe("Would stage uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf");
 
     const sheetFile = join(env.home, "sheet.json");
     writeFileSync(

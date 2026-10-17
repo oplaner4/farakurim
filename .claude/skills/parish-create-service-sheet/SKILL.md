@@ -20,7 +20,9 @@ The user gives at least a file name; without a folder, look in `~/Downloads/`. T
   The DOCX holds a year of intentions with names: it never goes to `uploads/` or the repo, only the week's page does.
 - **A PDF of the week** (page 1 exported by the user), when there is no DOCX or no converter.
 
-**From the DOCX**, draft the record (it also refuses a week already released):
+**From the DOCX**, draft the record (it also refuses a week already released, before the current sheet or
+overlapping another, and says when the week's sheet is already in `service-sheets.json`: then the week was staged
+before, so take it to **`parish-correct-service-sheet`**):
 
 ```sh
 pnpm stage sheet "<source>" --draft <scratchpad>/record.json
@@ -40,7 +42,7 @@ say, as the error is in their document. The draft is a starting point: step 2a s
 
 Read the **whole** page: the announcements are the paragraphs below the table.
 
-Get the week and its dates (it refuses a week already released):
+Get the week and its dates (it refuses and names a week the same way as `--draft`):
 
 ```sh
 pnpm stage sheet "<source>" --check
