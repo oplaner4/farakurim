@@ -17,7 +17,7 @@ const resolver = async (name: string, type: string): Promise<string[][]> => {
 };
 
 /** A plain MIME message from `from` with a base64 part per file name. */
-function message({ from, files }: { from: string; files: string[] }): Buffer {
+function message({ from, files, headers = [] }: { from: string; files: string[]; headers?: string[] }): Buffer {
   const boundary = "sheet-boundary";
   const parts = files.map((name) =>
     [
@@ -32,6 +32,7 @@ function message({ from, files }: { from: string; files: string[] }): Buffer {
   return Buffer.from(
     [
       `From: ${from}`,
+      ...headers,
       "To: web@farakurim.cz",
       "Subject: Pořad bohoslužeb",
       "Date: Fri, 16 Oct 2026 08:00:00 +0000",
@@ -47,9 +48,9 @@ function message({ from, files }: { from: string; files: string[] }): Buffer {
 }
 
 /** `raw` with one more DKIM signature of `domain` in front. */
-async function signed(raw: Buffer, domain: string): Promise<Buffer> {
+async function signed(raw: Buffer, domain: string, maxBodyLength?: number): Promise<Buffer> {
   const { signatures, errors } = await dkimSign(raw, {
-    signatureData: [{ signingDomain: domain, selector: "test", privateKey }],
+    signatureData: [{ signingDomain: domain, selector: "test", privateKey, maxBodyLength }],
   });
   if (errors.length) throw new Error("the test message could not be signed");
   return Buffer.concat([Buffer.from(signatures), raw]);
@@ -86,6 +87,37 @@ describe("judgeMessage", () => {
         .replace("Subject: Pořad", "Subject: Jiný"),
     );
     expect(await judgeMessage(tampered, { resolver })).toEqual({ kind: "rejected", reason: "dkim" });
+  });
+
+  it("takes the author from the one From header the signature covers", async () => {
+    const attacker = "attacker@seznam.cz";
+    const forged = Buffer.concat([
+      Buffer.from(`From: ${parish}\r\n`),
+      await signed(message({ from: attacker, files: ["a.docx"] }), "seznam.cz"),
+    ]);
+    expect(await judgeMessage(forged, { resolver })).toEqual({ kind: "rejected", reason: "sender" });
+    const two = await signed(message({ from: `${parish}, ${attacker}`, files: ["a.docx"] }), "seznam.cz");
+    expect(await judgeMessage(two, { resolver })).toEqual({ kind: "rejected", reason: "sender" });
+    const sender = message({ from: attacker, files: ["a.docx"], headers: [`Sender: ${parish}`] });
+    expect(await judgeMessage(await signed(sender, "seznam.cz"), { resolver })).toEqual({
+      kind: "rejected",
+      reason: "sender",
+    });
+  });
+
+  it("accepts an encoded display name with the parish's address", async () => {
+    const from = `=?UTF-8?B?${Buffer.from("Fara Kuřim").toString("base64")}?= <${parish}>`;
+    const raw = await signed(message({ from, files: ["a.docx"] }), "seznam.cz");
+    expect((await judgeMessage(raw, { resolver })).kind).toBe("sheet");
+  });
+
+  it("refuses a signature of only the first bytes of a body that was extended", async () => {
+    const original = message({ from: parish, files: ["a.docx"] });
+    const bodyLength = original.length - original.indexOf("\r\n\r\n") - 4;
+    const raw = await signed(original, "seznam.cz", bodyLength);
+    expect((await judgeMessage(raw, { resolver })).kind).toBe("sheet");
+    const extended = Buffer.concat([raw, Buffer.from("--extra\r\nmore\r\n")]);
+    expect(await judgeMessage(extended, { resolver })).toEqual({ kind: "rejected", reason: "dkim" });
   });
 
   it("needs a passing seznam.cz signature", async () => {
