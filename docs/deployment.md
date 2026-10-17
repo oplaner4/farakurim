@@ -64,25 +64,38 @@ The parish e-mails the year's service sheet DOCX from `fara.kurim@seznam.cz` to 
 2. lets Claude run the service sheet skills unattended on the DOCX (workload identity federation, no API key): it
    drafts, corrects and stages the weeks and writes a report;
 3. tests and builds the change to `src/content/`, commits it as the GitHub App's bot and opens (or adds a commit to)
-   the one `service-sheet/*` pull request, its body the report. The conversation is locked: only collaborators with
-   write access can comment. Nothing changed: no PR;
+   the one `service-sheet/*` pull request, its body the report (a later run gets the previous report, keeps its
+   question ids and turns the PR back into a draft on a new blocking question). The conversation is locked: only
+   collaborators with write access can comment. Nothing changed: no PR;
 4. files the mail in `Zpracováno` once the outcome is done, so a run that breaks retries the sheet the next night.
 
-The DOCX (it holds intentions with names) never leaves the `sheet` job: it is not uploaded, cached or logged. The
-second job, `publish`, holds the App key and cannot act as Claude.
+The DOCX (it holds intentions with names) never leaves the `sheet` job: it is not uploaded, cached or logged. Claude's
+file tools may write only in the job's scratch folder, never in the checkout. The second job, `publish`, holds the App
+key in its own environment and cannot act as Claude.
 
 **Answering the PR (phase 1):** merge means yes, close means no. A **draft** PR has a blocking question in its body:
 answer it, mark the PR ready, merge. A correction is a commit pushed to the PR's branch, or made locally with the
-skills (`parish-correct-service-sheet`); comments with `@claude` come in phase 2. After the merge, publish the sheet:
+skills (`parish-correct-service-sheet`); comments with `@claude` come in phase 2. After the merge, publish the sheet.
+Each run uploads only the PDFs it staged, as the artifact `service-sheet-pdf-<sha>` of its commit, so download the
+artifact of every commit of the PR, oldest first (a later correction overwrites an earlier PDF of the same name):
 
 ```sh
 git switch main && git pull
-gh run download <run id> -n service-sheet-pdf-<sha> -D uploads/porady_bohosluzeb/
+pr=<PR number>
+tmp=$(mktemp -d)
+for sha in $(gh pr view "$pr" --json commits --jq '.commits[].oid'); do
+  if gh run download -n "service-sheet-pdf-$sha" -D "$tmp/$sha"; then
+    cp "$tmp/$sha"/*.pdf uploads/porady_bohosluzeb/
+  else
+    echo "No PDF artifact for $sha (a commit the workflow did not make)."
+  fi
+done
 pnpm release
 ```
 
-The run id and the exact artifact name are in the PR body's link to the run; the PDF artifact stays 30 days. An agent
-never logs in to the mailbox and never runs the dry run below.
+`gh run download -n <name>` without a run id searches the repository's runs; the names are unique, as each holds its
+commit. A PDF artifact stays 30 days. A commit you pushed yourself has no artifact: stage its PDF with the skill. An
+agent never logs in to the mailbox and never runs the dry run below.
 
 The run goes **red** (and its summary says why) on a refused week, a document error, a parish e-mail without exactly
 one DOCX, or a failed step. A failed step leaves the mail unseen for the next run.
@@ -91,8 +104,16 @@ one DOCX, or a failed step. A failed step leaves the mail unseen for the next ru
 
 - **Mailbox** (cesky-hosting.cz administration): create `porad@farakurim.cz` and note its IMAP host. The script
   creates the folders `Zpracováno` and `Odmítnuto` itself.
-- **Environment `service-sheet`** (repository Settings → Environments), secrets `IMAP_HOST`, `IMAP_USER`,
-  `IMAP_PASSWORD` and `SHEET_APP_PRIVATE_KEY`. Both jobs run in it, and the federation rule matches it.
+- **Environments** (repository Settings → Environments), so that the App key is never in the environment of
+  Claude's job:
+  - `service-sheet` for the `sheet` job (it fetches the mail, and the federation rule matches only it): secrets
+    `IMAP_HOST`, `IMAP_USER` and `IMAP_PASSWORD`;
+  - `service-sheet-publish` for the `publish` job (it pushes and files the mail): secrets `SHEET_APP_PRIVATE_KEY`,
+    `IMAP_HOST`, `IMAP_USER` and `IMAP_PASSWORD`.
+
+  The IMAP secrets are in both. Neither environment may have required reviewers (the nightly run would wait), and
+  their deployment branches must allow `main`.
+
 - **GitHub App** (Settings → Developer settings → GitHub Apps), installed on this repository only, repository
   permissions `contents: write` and `pull-requests: write` (the latter also covers locking the PR). Its ID is the
   repository variable `SHEET_APP_ID`; a generated private key is the environment secret `SHEET_APP_PRIVATE_KEY`.
@@ -115,9 +136,12 @@ DOCX from `fara.kurim@seznam.cz` and one from another address, run the workflow 
 - DKIM is accepted and the stranger's mail is filed in `Odmítnuto`;
 - the federation exchange succeeds (on a 401, see the Console's history);
 - the skills load and the report is written;
+- Claude could not write in the checkout: the log shows its Write and Edit calls only under the scratch folder
+  (`…/_temp/sheet/`), and any attempt elsewhere was denied;
 - LibreOffice produces the sheet's PDF page;
 - the PR is opened and locked, and a draft when the report has a blocking question;
-- a second run while the PR is open adds a commit to it.
+- a second run while the PR is open adds a commit to it, keeps the question ids of the previous report, updates the
+  title and turns the PR back into a draft when the new report has a blocking question.
 
 ## Server
 

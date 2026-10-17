@@ -160,8 +160,8 @@ The maintainer answers the PR as they answer the skill locally:
   - it never asks and never waits.
 - The report is a file the job reads afterwards (`report.md`: English, site content quoted in Czech, with a first
   line `blocking: yes|no`).
-- Tools: Read, Write, Edit, and Bash limited to `pnpm stage sheet …`, `pdftotext` and read-only commands
-  (`--allowedTools` in `claude_args`). No git, no push, no web. The job's later steps commit and push with the App
+- Tools: Read, Write and Edit only in the job's scratch folder (the checkout denied), and Bash limited to
+  `pnpm stage sheet …`, `pdftotext` and read-only commands (`--allowedTools` in `claude_args`). No git, no push, no web. The job's later steps commit and push with the App
   token, which Claude's step never sees.
 - **Same content**: a week whose DOCX text did not change gets no correction, so `service-sheets.json` does not change.
   With nothing to commit, no PR is opened and the run summary says "nothing changed". No comparison code: the skill's
@@ -257,9 +257,11 @@ Everything goes to the maintainer through GitHub (my call on the channel; the ma
 - A GitHub App installed on this repo only, `contents: write`, `pull-requests: write`. Its key is a secret of the jobs
   that push; never in Claude's step environment. `main` keeps today's rules (no required checks),
   so the maintainer's direct pushes and local `pnpm release` keep working unchanged.
-- Environments: `service-sheet` (IMAP host, user and password; every job of the two sheet workflows runs in it, as
-  the mail and the Claude step share one job so the DOCX never leaves it, and the federation rule matches it),
-  `Production` (existing).
+- Environments: `service-sheet` (IMAP host, user and password; every job with a Claude step runs in it, as the mail
+  and the Claude step share one job so the DOCX never leaves it, and the federation rule matches it),
+  `service-sheet-publish` (the App key and the IMAP secrets, for the job that pushes and files the mail, so the App
+  key is never in a Claude job's environment; neither has required reviewers, both allow `main`), `Production`
+  (existing).
 - Repository variables: the federation IDs (above) and, as today, those for the build. No Anthropic secret.
 
 ## Phases
