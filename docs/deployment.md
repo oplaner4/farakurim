@@ -1,7 +1,8 @@
 # Deployment
 
-How the site gets to https://farakurim.cz/: releases, the weekly refresh, the GitHub setup and the server. An agent
-releases with the `parish-release` skill; the rules it must never break are in `CLAUDE.md` § Deployment.
+How the site gets to https://farakurim.cz/: releases, the weekly refresh, the GitHub setup, the service sheet by
+e-mail and the server. An agent releases with the `parish-release` skill; the rules it must never break are in
+`CLAUDE.md` § Deployment.
 
 The site is deployed to the web root `/farakurim.cz/` with rsync over SSH. The old PHP site is backed up in
 `/stary.farakurim.cz/` on the server.
@@ -52,6 +53,71 @@ Actions tab.
 `.github/workflows/check.yml` checks and builds pushes to `main` and pull requests with no secrets, skipping docs-only
 changes and release commits. The deploy workflow calls it for the tag, so a release runs the same check (with the site's
 tests only) before it builds with the variables above.
+
+## Service sheet by e-mail
+
+The parish e-mails the year's service sheet DOCX from `fara.kurim@seznam.cz` to `porad@farakurim.cz`.
+`.github/workflows/service-sheet.yml` (daily, 04:40 Prague summer time, or **Run workflow** by hand) then:
+
+1. reads the unseen mail over IMAP (`pnpm sheet-mail`): only the parish's DKIM-signed message with exactly one DOCX is
+   a sheet, any other mail is filed in `Odmítnuto`;
+2. lets Claude run the service sheet skills unattended on the DOCX (workload identity federation, no API key): it
+   drafts, corrects and stages the weeks and writes a report;
+3. tests and builds the change to `src/content/`, commits it as the GitHub App's bot and opens (or adds a commit to)
+   the one `service-sheet/*` pull request, its body the report. The conversation is locked: only collaborators with
+   write access can comment. Nothing changed: no PR;
+4. files the mail in `Zpracováno` once the outcome is done, so a run that breaks retries the sheet the next night.
+
+The DOCX (it holds intentions with names) never leaves the `sheet` job: it is not uploaded, cached or logged. The
+second job, `publish`, holds the App key and cannot act as Claude.
+
+**Answering the PR (phase 1):** merge means yes, close means no. A **draft** PR has a blocking question in its body:
+answer it, mark the PR ready, merge. A correction is a commit pushed to the PR's branch, or made locally with the
+skills (`parish-correct-service-sheet`); comments with `@claude` come in phase 2. After the merge, publish the sheet:
+
+```sh
+git switch main && git pull
+gh run download <run id> -n service-sheet-pdf-<sha> -D uploads/porady_bohosluzeb/
+pnpm release
+```
+
+The run id and the exact artifact name are in the PR body's link to the run; the PDF artifact stays 30 days. An agent
+never logs in to the mailbox and never runs the dry run below.
+
+The run goes **red** (and its summary says why) on a refused week, a document error, a parish e-mail without exactly
+one DOCX, or a failed step. A failed step leaves the mail unseen for the next run.
+
+### Setup (once)
+
+- **Mailbox** (cesky-hosting.cz administration): create `porad@farakurim.cz` and note its IMAP host. The script
+  creates the folders `Zpracováno` and `Odmítnuto` itself.
+- **Environment `service-sheet`** (repository Settings → Environments), secrets `IMAP_HOST`, `IMAP_USER`,
+  `IMAP_PASSWORD` and `SHEET_APP_PRIVATE_KEY`. Both jobs run in it, and the federation rule matches it.
+- **GitHub App** (Settings → Developer settings → GitHub Apps), installed on this repository only, repository
+  permissions `contents: write` and `pull-requests: write` (the latter also covers locking the PR). Its ID is the
+  repository variable `SHEET_APP_ID`; a generated private key is the environment secret `SHEET_APP_PRIVATE_KEY`.
+- **Claude Console** (Settings → Workload identity → Connect workload → GitHub Actions): an issuer for
+  `https://token.actions.githubusercontent.com`, a service account for the pipeline and one federation rule:
+  `subject_prefix` exactly `repo:oplaner4/farakurim:environment:service-sheet` (no `*`), audience
+  `https://api.anthropic.com`, the narrowest scope that runs Claude Code (`workspace:inference` if it suffices), token
+  lifetime 3600 s. Then the repository variables `ANTHROPIC_FEDERATION_RULE_ID`, `ANTHROPIC_ORGANIZATION_ID`,
+  `ANTHROPIC_SERVICE_ACCOUNT_ID` and `ANTHROPIC_WORKSPACE_ID`. Never set `ANTHROPIC_API_KEY`: a leftover one, even
+  empty, wins over federation. A denial is a bare 401; the reason is in the Console's workload identity history.
+- **Repository variable** `GOOGLE_CALENDAR_API_KEY` (already set, [GitHub setup](#github-setup)) for the build in
+  `publish`.
+
+### First run
+
+The maintainer does this after the setup; an agent never does (it reads the mailbox). Send a test e-mail with the
+DOCX from `fara.kurim@seznam.cz` and one from another address, run the workflow by hand, and check in the run:
+
+- the IMAP login works and both folders exist;
+- DKIM is accepted and the stranger's mail is filed in `Odmítnuto`;
+- the federation exchange succeeds (on a 401, see the Console's history);
+- the skills load and the report is written;
+- LibreOffice produces the sheet's PDF page;
+- the PR is opened and locked, and a draft when the report has a blocking question;
+- a second run while the PR is open adds a commit to it.
 
 ## Server
 
