@@ -101,7 +101,7 @@ fara.kurim@seznam.cz ──DOCX──▶ porad@farakurim.cz
  service-sheet.yml   1 mail      accept / reject
                      2 run skill Claude (claude-code-action) runs the service sheet skills unattended:
                                  drafts, fixes and stages the weeks, writes the report
-                     3 PR        commit, build, screenshot; PR with the report (a draft PR with blocking questions)
+                     3 PR        test, build, commit; PR with the report (a draft PR with blocking questions)
                                  nothing changed → no PR
  service-sheet-fix.yml      @claude comments on that PR → parish-correct-service-sheet on its branch
  service-sheet-release.yml  PR merged → pnpm release --yes → tag → deploy.yml (unchanged)
@@ -173,11 +173,12 @@ The maintainer answers the PR as they answer the skill locally:
   e-mail while it is open runs on that branch and adds a commit (never a force-push), so `service-sheets.json` never
   conflicts between two sheet PRs. Message as `parish-publish-content` says:
   `feat(content): publish the service sheet for 19.–25. 10. 2026`, or `fix(content): correct the service sheet for …`.
-- Before the PR: `pnpm test` and `pnpm build` with the calendar key, a Playwright screenshot of `/porad-bohosluzeb/` at
-  390 and 1440 px, and the week's PDF page rendered to an image. The staged PDFs are uploaded as an artifact named
-  after the PR head commit, retention 30 days (longer than any PR stays open).
-- The body: the report (§2), the PDF page images next to the screenshots, and "Zrcadlit v kalendáři": the services
-  added, changed or removed, for the "Bohoslužby" calendar (from the report).
+- Before the PR: `pnpm test` and `pnpm build` with the calendar key. The staged PDFs are uploaded as an artifact named
+  after the PR head commit, retention 30 days (longer than any PR stays open), outside git.
+- The body: the report (§2), with "Zrcadlit v kalendáři": the services added, changed or removed, for the
+  "Bohoslužby" calendar, and a link to the run's PDF artifact. No images (the maintainer's call): the report is what
+  the skill shows locally, and the PR diff shows the change to `service-sheets.json`; hosting images would need a
+  branch or another store that grows with every run.
 - `blocking: yes` opens the PR as a **draft**. GitHub cannot merge a draft, so a blocking question cannot be
   published by mistake: the maintainer answers it (§6) and marks the PR ready.
 - Committed with the GitHub App token, so `check.yml` runs on it.
@@ -223,7 +224,7 @@ Everything goes to the maintainer through GitHub (my call on the channel; the ma
 - The job checks out the branch, downloads the PR's PDF artifact into `uploads/porady_bohosluzeb/`, and runs Claude
   with `parish-correct-service-sheet` unattended, the comment being the user's correction ("a correction the user
   describes"); the source is the staged PDF, as locally when only the record changes. Then the same steps as §3:
-  test, build, screenshot, report, commit, PDF artifact, PR body updated; a reply comment says what changed.
+  test, build, report, commit, PDF artifact, PR body updated; a reply comment says what changed.
 - An answer that settles a question without a change ("@claude q2: correct as is") is recorded in the report; when no
   blocking question is left, the maintainer marks the PR ready.
 - A comment asking for a fact the document does not have is made as asked: the maintainer is the one confirming, as
