@@ -157,11 +157,18 @@ export function parseCommand(args: string[]): SheetMailCommand {
   throw new Error(USAGE);
 }
 
-/** The IMAP login from IMAP_HOST, IMAP_USER and IMAP_PASSWORD; missing ones throw, naming them. */
+/**
+ * The IMAP login from IMAP_HOST, IMAP_USER and IMAP_PASSWORD; missing ones throw, naming them, and so does a host
+ * that is a URL or carries a port (the DNS lookup would fail on it with a bare ENOTFOUND).
+ */
 export function imapEnv(env: Record<string, string | undefined> = process.env) {
   const missing = ["IMAP_HOST", "IMAP_USER", "IMAP_PASSWORD"].filter((name) => !env[name]);
   if (missing.length) throw new Error(`set ${missing.join(", ")}`);
-  return { host: env.IMAP_HOST!, user: env.IMAP_USER!, password: env.IMAP_PASSWORD! };
+  const host = env.IMAP_HOST!.trim();
+  if (!/^[a-z0-9.-]+$/i.test(host)) {
+    throw new Error("IMAP_HOST is a host name like mail.example.cz: no http://, no path, no port (993 is used)");
+  }
+  return { host, user: env.IMAP_USER!, password: env.IMAP_PASSWORD! };
 }
 
 /** Runs `fetch` (the outcome as one JSON document on stdout) or `file`. */

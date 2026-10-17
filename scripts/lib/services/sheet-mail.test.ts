@@ -106,4 +106,12 @@ describe("command line", () => {
       password: "p",
     });
   });
+
+  it("refuses an IMAP_HOST that is not a bare host name", () => {
+    const login = { IMAP_USER: "u", IMAP_PASSWORD: "p" };
+    for (const host of ["http://mail.cesky-hosting.cz/", "mail.cesky-hosting.cz:993", "mail.cesky-hosting.cz/"]) {
+      expect(() => imapEnv({ ...login, IMAP_HOST: host })).toThrow("IMAP_HOST is a host name");
+    }
+    expect(imapEnv({ ...login, IMAP_HOST: " mail.cesky-hosting.cz " }).host).toBe("mail.cesky-hosting.cz");
+  });
 });

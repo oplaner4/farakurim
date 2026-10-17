@@ -104,9 +104,10 @@ one DOCX, or a failed step. A failed step leaves the mail unseen for the next ru
 
 - **Mailbox** (cesky-hosting.cz administration): create `porad@farakurim.cz` and note its IMAP host. The script
   creates the folders `Zpracováno` and `Odmítnuto` itself.
-- **Environment** `service-sheet-publish` (repository Settings → Environments), for both jobs: variable `IMAP_HOST`,
-  secrets `IMAP_USER`, `IMAP_PASSWORD` and `SHEET_APP_PRIVATE_KEY`. It may have no required reviewers (the nightly run
-  would wait), and its deployment branches must allow `main`.
+- **Environment** `service-sheet-publish` (repository Settings → Environments), for both jobs: variable `IMAP_HOST`
+  (the host name only, e.g. `mail.cesky-hosting.cz`), secrets `IMAP_USER`, `IMAP_PASSWORD` and
+  `SHEET_APP_PRIVATE_KEY`. It may have no required reviewers (the nightly run would wait), and its deployment branches
+  must allow `main`.
 
 - **GitHub App** (Settings → Developer settings → GitHub Apps), installed on this repository only, repository
   permissions `contents: write` and `pull-requests: write` (the latter also covers locking the PR). Its ID is the
