@@ -70,8 +70,9 @@ the gain is that the work becomes a short review that can be done anywhere.
 - Mailbox: `porad@farakurim.cz` at cesky-hosting.cz, a mailbox for the pipeline only, read only over IMAP on port 993
   (TLS) at the host the hosting's mail settings give; no SMTP. The username is the whole address, the password is the
   mailbox's own password, used for nothing else.
-- The only accepted sender: `fara.kurim@seznam.cz`, compared exactly (lowercased, dots significant: Seznam does not
-  ignore them).
+- The accepted senders: `fara.kurim@seznam.cz` (the parish) and `oplaner4@gmail.com` (the webmaster, who may send a
+  DOCX on the parish's behalf), compared exactly (lowercased, dots significant: Seznam does not ignore them), each
+  with its own provider's DKIM domain (`seznam.cz`, `gmail.com`).
 
 ### Claude authentication (workload identity federation)
 
@@ -123,11 +124,12 @@ The maintainer answers the PR as they answer the skill locally:
   change that cannot wait. Daily is enough (the maintainer's call).
 - Reads unseen messages in INBOX, oldest first. Folders hold the state: a message moves to `Zpracováno` or `Odmítnuto`
   only after its outcome (PR opened or updated, nothing changed, or the problem reported, §5) is done, so a crashed run retries it.
-- **Accepted** only when `From` is exactly `fara.kurim@seznam.cz` **and** the message carries a valid DKIM signature with
-  `d=seznam.cz`, verified by a DKIM library on the raw message (the signature is Seznam's, made when the parish
-  sends). An `Authentication-Results` header is not trusted: Seznam no longer receives the mail, and unless the
-  hosting's mail server is known to add and strip that header, a forged message can carry its own. Anything else
-  moves to `Odmítnuto` with no reply.
+- **Accepted** only when `From` is exactly one of the accepted senders **and** the message carries a valid DKIM
+  signature of that sender's domain (`d=seznam.cz` for the parish, `d=gmail.com` for the webmaster), verified by a
+  DKIM library on the raw message (the signature is the provider's, made when the sender sends). An
+  `Authentication-Results` header is not trusted: the providers no longer receive the mail, and unless the hosting's
+  mail server is known to add and strip that header, a forged message can carry its own. Anything else moves to
+  `Odmítnuto` with no reply.
 - An accepted message with exactly one `.docx` attachment is a sheet. With none or several (a described change in
   the text, a PDF, a reply), it moves to `Odmítnuto` and the run reports it to the maintainer (§5); its text is never
   posted to GitHub.

@@ -56,11 +56,13 @@ tests only) before it builds with the variables above.
 
 ## Service sheet by e-mail
 
-The parish e-mails the year's service sheet DOCX from `fara.kurim@seznam.cz` to `porad@farakurim.cz`.
+The parish e-mails the year's service sheet DOCX from `fara.kurim@seznam.cz` (or the webmaster from
+`oplaner4@gmail.com`) to `porad@farakurim.cz`. Each sender must carry its provider's DKIM signature (seznam.cz,
+gmail.com); the list is `SENDERS` in `scripts/lib/services/mailbox.ts`.
 `.github/workflows/service-sheet.yml` (daily, 04:40 Prague summer time, or **Run workflow** by hand) then:
 
-1. reads the unseen mail over IMAP (`pnpm sheet-mail`): only the parish's DKIM-signed message with exactly one DOCX is
-   a sheet, any other mail is filed in `Odmítnuto`;
+1. reads the unseen mail over IMAP (`pnpm sheet-mail`): only an accepted sender's DKIM-signed message with exactly
+   one DOCX is a sheet, any other mail is filed in `Odmítnuto`;
 2. lets Claude run the service sheet skills unattended on the DOCX (workload identity federation, no API key): it
    drafts, corrects and stages the weeks and writes a report;
 3. tests and builds the change to `src/content/`, commits it as the GitHub App's bot and opens (or adds a commit to)
@@ -125,7 +127,8 @@ one DOCX, or a failed step. A failed step leaves the mail unseen for the next ru
 ### First run
 
 The maintainer does this after the setup; an agent never does (it reads the mailbox). Send a test e-mail with the
-DOCX from `fara.kurim@seznam.cz` and one from another address, run the workflow by hand, and check in the run:
+DOCX from `fara.kurim@seznam.cz` (or `oplaner4@gmail.com`) and one from another address, run the workflow by hand,
+and check in the run:
 
 - the IMAP login works and both folders exist;
 - DKIM is accepted and the stranger's mail is filed in `Odmítnuto`;

@@ -1,5 +1,5 @@
-// Which e-mail is accepted as the parish's service sheet: sent from the parish's own address, carrying a valid DKIM
-// signature of the sender's provider (seznam.cz), with exactly one DOCX attached. The `From` header is forged
+// Which e-mail is accepted as the parish's service sheet: sent from one of SENDERS (the parish's own address, or the
+// webmaster's), carrying a valid DKIM signature of that sender's provider, with exactly one DOCX attached. The `From` header is forged
 // easily and an `Authentication-Results` header is written by whoever relayed the message, so neither is trusted:
 // the DKIM signatures are verified here on the raw message, and the author is the one From header that
 // verification parsed. A verdict never carries the message's text.
@@ -7,8 +7,11 @@
 import { dkimVerify, type DNSResolver } from "mailauth";
 import { simpleParser } from "mailparser";
 
-export const SENDER = "fara.kurim@seznam.cz";
-export const DKIM_DOMAIN = "seznam.cz";
+/** The accepted senders, each with the domain whose DKIM signature must vouch for it. */
+export const SENDERS: Readonly<Record<string, string>> = {
+  "fara.kurim@seznam.cz": "seznam.cz",
+  "oplaner4@gmail.com": "gmail.com", // the webmaster
+};
 
 export type Verdict =
   | { kind: "sheet"; date: Date; docx: { name: string; content: Buffer } }
@@ -19,12 +22,11 @@ export type Verdict =
 export async function judgeMessage(raw: Buffer, { resolver }: { resolver?: DNSResolver } = {}): Promise<Verdict> {
   const { results, fromFields, headerFrom } = await dkimVerify(raw, { resolver });
   // Exactly one From header with one address: a second header or address could differ from the signed one.
-  if (fromFields !== 1 || headerFrom.length !== 1 || headerFrom[0].toLowerCase() !== SENDER) {
-    return { kind: "rejected", reason: "sender" };
-  }
+  const dkimDomain = fromFields === 1 && headerFrom.length === 1 ? SENDERS[headerFrom[0].toLowerCase()] : undefined;
+  if (!dkimDomain) return { kind: "rejected", reason: "sender" };
   // A signature of the first `l=` bytes (`underSized`) says nothing about the rest of the body.
   const signed = results.some(
-    (r) => r.status.result === "pass" && !r.status.underSized && r.signingDomain === DKIM_DOMAIN,
+    (r) => r.status.result === "pass" && !r.status.underSized && r.signingDomain === dkimDomain,
   );
   if (!signed) return { kind: "rejected", reason: "dkim" };
 

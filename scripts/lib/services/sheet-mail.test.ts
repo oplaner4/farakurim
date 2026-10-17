@@ -2,10 +2,10 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { dkimSigned, fakeDkimResolver as resolver, freshTempDir, mailMessage } from "../test-helpers";
-import { SENDER } from "./mailbox";
 import { fetchSheet, fileMessages, imapEnv, parseCommand, type Mailbox } from "./sheet-mail";
 
 const dir = freshTempDir("sheet-mail");
+const parish = "fara.kurim@seznam.cz";
 
 function fakeMailbox(messages: { uid: number; source: Buffer }[]) {
   const move = vi.fn<Mailbox["move"]>(async () => {});
@@ -14,7 +14,7 @@ function fakeMailbox(messages: { uid: number; source: Buffer }[]) {
 }
 
 const sheet = (name: string, date: string) =>
-  dkimSigned(mailMessage({ from: SENDER, files: [{ name, content: Buffer.from(`docx ${date}`) }], date }), "seznam.cz");
+  dkimSigned(mailMessage({ from: parish, files: [{ name, content: Buffer.from(`docx ${date}`) }], date }), "seznam.cz");
 
 describe("fetchSheet", () => {
   it("writes the newest sheet as porad.docx and sorts the other messages", async () => {
@@ -43,7 +43,7 @@ describe("fetchSheet", () => {
   });
 
   it("reports a message without exactly one DOCX", async () => {
-    const none = await dkimSigned(mailMessage({ from: SENDER, files: ["a.docx", "b.docx"] }), "seznam.cz");
+    const none = await dkimSigned(mailMessage({ from: parish, files: ["a.docx", "b.docx"] }), "seznam.cz");
     const { mailbox } = fakeMailbox([{ uid: 7, source: none }]);
     const outcome = await fetchSheet(mailbox, dir(), { resolver });
     expect(outcome).toMatchObject({ superseded: [], rejected: [], noDocx: [7] });

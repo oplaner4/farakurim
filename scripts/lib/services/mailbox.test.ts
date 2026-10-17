@@ -69,6 +69,18 @@ describe("judgeMessage", () => {
     expect(await judgeMessage(extended, { resolver })).toEqual({ kind: "rejected", reason: "dkim" });
   });
 
+  it("accepts the webmaster's gmail.com-signed message", async () => {
+    const raw = await dkimSigned(message({ from: "oplaner4@gmail.com", files: ["a.docx"] }), "gmail.com");
+    expect((await judgeMessage(raw, { resolver })).kind).toBe("sheet");
+  });
+
+  it("needs the signature of each sender's own provider", async () => {
+    const webmaster = await dkimSigned(message({ from: "oplaner4@gmail.com", files: ["a.docx"] }), "seznam.cz");
+    expect(await judgeMessage(webmaster, { resolver })).toEqual({ kind: "rejected", reason: "dkim" });
+    const fromGmail = await dkimSigned(message({ from: parish, files: ["a.docx"] }), "gmail.com");
+    expect(await judgeMessage(fromGmail, { resolver })).toEqual({ kind: "rejected", reason: "dkim" });
+  });
+
   it("needs a passing seznam.cz signature", async () => {
     const raw = await dkimSigned(message({ from: parish, files: ["a.docx"] }), "evil.example");
     expect(await judgeMessage(raw, { resolver })).toEqual({ kind: "rejected", reason: "dkim" });
