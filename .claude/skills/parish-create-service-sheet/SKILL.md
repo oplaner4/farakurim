@@ -194,9 +194,11 @@ a local run follows steps 1 to 5 as written. An unattended run follows them too,
   placeholder dots, the "Days without services" note) writes into the report instead; the report file is the one the
   prompt gives. The scratchpad is `$RUNNER_TEMP` (`record.json`, `draft.json`); the PDF is staged in `uploads/` as
   usual.
-- Staging (step 4) runs right after the report is written, `--corrected` when the script asks for it. A week the
-  script refuses (before the current sheet, overlapping another) or cannot draft (a document error) is not staged:
-  its `Outcome:` line carries the script's message.
+- Write the report first, with each week's summary and questions, then stage (step 4, `--corrected` when the script
+  asks for it), then fill in each week's `Outcome:` line from what the script did, and add any line it printed for
+  the user as a question (blocking when its answer changes what is published, else a note). `blocking:` is final only
+  after that. A week the script refuses (before the current sheet, overlapping another) or cannot draft (a document
+  error) is not staged: its `Outcome:` line carries the script's message.
 - Skip step 5: no `parish-publish-content`, no commit, no release. The workflow commits and opens the PR.
 - A question whose answer changes what is published (an unreadable row, placeholder dots, a doubtful cancellation) is
   **blocking**; the run still stages its best reading. For placeholder dots that is the record with the document's
@@ -209,10 +211,12 @@ blocking: yes|no
 commit: <message>
 ```
 
-`blocking: yes` when any question is blocking. `commit:` is the message `parish-publish-content` prescribes for this
-change (`feat(content): publish the service sheet for 19.–25. 10. 2026`, `fix(content): correct the service sheet
-for …`, several weeks combined the way that skill combines them). With nothing changed (every week unchanged) the
-line is still written.
+`blocking: yes` when any question is blocking. `commit:` is the run's commit message and covers all its weeks. One
+week: the message `parish-publish-content` prescribes (`feat(content): publish the service sheet for 19.–25. 10.
+2026`, or `fix(content): correct the service sheet for …`). Several weeks:
+`<type>(content): publish the service sheets for 19.–25. 10. and 26. 10.–1. 11. 2026` (with only corrections:
+`correct the service sheets for …`); the type is `feat` if any week was created, else `fix`. With nothing changed
+(every week unchanged) the line is still written.
 
 Then, per week:
 
