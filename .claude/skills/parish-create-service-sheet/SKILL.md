@@ -192,8 +192,9 @@ a local run follows steps 1 to 5 as written. An unattended run follows them too,
 
 - It never asks and never waits. Every "confirm with the user" or "ask the user" step (step 3, a document error, the
   placeholder dots, the "Days without services" note) writes into the report instead; the report file is the one the
-  prompt gives. The scratchpad is `$RUNNER_TEMP` (`record.json`, `draft.json`); the PDF is staged in `uploads/` as
-  usual.
+  prompt gives. The scratchpad is the one the prompt gives (`record.json`, `draft.json`; write nothing in the
+  repo); the PDF is staged in `uploads/` as usual. The prompt may also give the previous report of the open PR: keep
+  its question ids and mark each `resolved` or `still open`.
 - Write the report first, with each week's summary and questions, then stage (step 4, `--corrected` when the script
   asks for it), then fill in each week's `Outcome:` line from what the script did, and add any line it printed for
   the user as a question (blocking when its answer changes what is published, else a note). `blocking:` is final only
