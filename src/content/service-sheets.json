@@ -1,178 +1,6 @@
 {
   "sheets": [
     {
-      "validFrom": "2026-10-04",
-      "validTo": "2026-10-11",
-      "days": [
-        {
-          "date": "2026-10-04",
-          "feast": "27. neděle v mezidobí",
-          "solemnity": true,
-          "rows": [
-            {
-              "time": "8:00",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za živou a † rodinu Valíčkovu",
-              "mass": true
-            },
-            {
-              "time": "9:30",
-              "place": "moravske-kninice",
-              "title": "Mše sv.",
-              "detail": "za živou a zemřelou rodinu, přízeň a DO",
-              "mass": true
-            },
-            {
-              "time": "11:00",
-              "place": "kurim",
-              "title": "Hodová mše sv.",
-              "detail": "za obec Česká, její obyvatele a rodáky",
-              "mass": true
-            }
-          ]
-        },
-        {
-          "date": "2026-10-05",
-          "feast": "sv. Faustyna Kowalská",
-          "rows": [
-            {
-              "time": "8:00",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za posilu v pastýřské službě",
-              "mass": true
-            }
-          ]
-        },
-        {
-          "date": "2026-10-06",
-          "rows": [
-            {
-              "time": "8:00",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za dar jednoty ve smýšlení a společném konání",
-              "mass": true
-            }
-          ]
-        },
-        {
-          "date": "2026-10-07",
-          "feast": "Panna Maria Růžencová",
-          "rows": [
-            {
-              "time": "8:00",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za živé a † farníky a dobrodince naší farnosti",
-              "mass": true
-            }
-          ]
-        },
-        {
-          "date": "2026-10-08",
-          "rows": [
-            {
-              "time": "17:30",
-              "place": "kurim",
-              "title": "Adorace",
-              "service": true
-            },
-            {
-              "time": "18:00",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za uzdravení bratrských vztahů a obnovení důvěry",
-              "mass": true
-            }
-          ]
-        },
-        {
-          "date": "2026-10-09",
-          "rows": [
-            {
-              "time": "16:45",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za † Janku Križalkovičovu",
-              "mass": true
-            },
-            {
-              "time": "18:00",
-              "place": "moravske-kninice",
-              "title": "Mše sv.",
-              "detail": "za nemocnou osobu",
-              "mass": true
-            }
-          ]
-        },
-        {
-          "date": "2026-10-10",
-          "rows": [
-            {
-              "time": "16:30",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za Komunitu Emmanuel",
-              "mass": true
-            }
-          ]
-        },
-        {
-          "date": "2026-10-11",
-          "feast": "28. neděle v mezidobí",
-          "solemnity": true,
-          "rows": [
-            {
-              "time": "8:00",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za rodinu Skoupou a Kábelovu",
-              "mass": true
-            },
-            {
-              "time": "9:30",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za Boží požehnání pro vnoučata a kmotřence",
-              "mass": true
-            },
-            {
-              "time": "11:00",
-              "place": "moravske-kninice",
-              "title": "Mše sv.",
-              "detail": "na poděkování za prožitá léta a požehnání pro celou rodinu",
-              "mass": true
-            }
-          ]
-        }
-      ],
-      "announcements": [
-        {
-          "category": "confession",
-          "html": "<p>V Kuřimi se zpovídá ve čtvrtek od 17.30 hod, v Moravských Knínicích v pátek po mši svaté.</p>"
-        },
-        {
-          "category": "invitation",
-          "html": "<p>Připravujeme <strong>farní pouť</strong> do Lukova, rodiště blahoslaveného Jana Buly, a na adventní trhy do Třebíče. Pojede se v sobotu <strong>19. prosince</strong>, cena 300 Kč, přihláška do <strong>10. října</strong> na <a href=\"mailto:poutnicimkk@seznam.cz\">poutnicimkk@seznam.cz</a></p>",
-          "newsId": "pout-lukov-trebic-2026"
-        },
-        {
-          "category": "invitation",
-          "html": "<p>V návaznosti na blahořečení Jana Buly a Václava Drboly vznikl v naší diecézi projekt <strong>Začni, kde jsi</strong>, který otevírá téma odpuštění a smíření. Chce připomenout, že odpuštění může být cestou k uzdravení vztahů, vnitřní svobodě a pokoji – a že někdy stačí začít jedním malým krokem.</p><p>K zapojení do projektu jsou zváni všichni lidé – věřící i nevěřící v celé diecézi. Jednou z možností je napsat dopis člověku, kterému potřebujete něco říct nebo přinést do vztahu s ním odpuštění. Nemusíte dopis posílat ani odevzdávat tomu člověku. Dopis můžete napsat anonymně na webu <a href=\"https://zacnikdejsi.cz\">zacnikdejsi.cz</a>, nebo ho fyzicky vložit do schránky v brněnské katedrále. Dopisy se nebudou ukládat ani číst. Každou první neděli v měsíci až do konce roku bude v katedrále <strong>v 10:30 hod</strong> sloužena mše svatá za všechny tyto úmysly.</p>"
-        },
-        {
-          "category": "invitation",
-          "html": "<p>V pondělí <strong>12. října</strong> je <strong>Adorační den farnosti</strong>. Od 13 hod do 17:30 bude tichá adorace, v 17:30 společná modlitba růžence, svátostné požehnání s žehnáním farnosti a možnost přistoupit ke svatému přijímání. Po celé odpoledne bude kostel otevřen k modlitbě a uctění Nejsvětější svátosti.</p>"
-        },
-        {
-          "category": "invitation",
-          "html": "<p>Na <strong>Slavnost posvěcení kostela</strong> přijal pozvání Otec biskup Vojtěch Cikrle. V neděli <strong>18. října v 9.30 hod</strong> bude s námi slavit pontifikální mši svatou, a pak přibližně v 10.30 přijde do naší misijní kavárny na faře.</p>"
-        }
-      ]
-    },
-    {
       "validFrom": "2026-10-11",
       "validTo": "2026-10-18",
       "days": [
@@ -357,6 +185,189 @@
         {
           "category": "info",
           "html": "<p>Sbírka příští neděle je na misie.</p>"
+        }
+      ]
+    },
+    {
+      "validFrom": "2026-10-18",
+      "validTo": "2026-10-25",
+      "days": [
+        {
+          "date": "2026-10-18",
+          "feast": "Slavnost posvěcení farního kostela – 29. neděle v mezidobí",
+          "solemnity": true,
+          "rows": [
+            {
+              "time": "8:00",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za Idu Toncrovu, Otílii Virovu, P. Richarda Toncra, Marii Gejdošovu a DO",
+              "mass": true
+            },
+            {
+              "time": "9:30",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za město Kuřim a Boží požehnání pro jeho představitele a obyvatele",
+              "mass": true
+            },
+            {
+              "time": "11:00",
+              "place": "moravske-kninice",
+              "title": "Mše sv.",
+              "detail": "na poděkování za 49 let života s prosbou o požehnání do dalších let",
+              "mass": true
+            }
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "solemnity": false,
+          "rows": [
+            {
+              "time": "8:00",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za Hanu Synkovu a rodinu",
+              "mass": true
+            }
+          ]
+        },
+        {
+          "date": "2026-10-20",
+          "solemnity": false,
+          "rows": [
+            {
+              "time": "8:00",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za sestru Janu a Marii",
+              "mass": true
+            }
+          ]
+        },
+        {
+          "date": "2026-10-21",
+          "feast": "blahoslavený Karel Rakouský",
+          "solemnity": false,
+          "rows": [
+            {
+              "time": "8:00",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za Marii Wuscherovu a Marii Nehybovu",
+              "mass": true
+            }
+          ]
+        },
+        {
+          "date": "2026-10-22",
+          "feast": "sv. Jan Pavel II.",
+          "solemnity": false,
+          "rows": [
+            {
+              "time": "17:30",
+              "place": "kurim",
+              "title": "Adorace",
+              "service": true
+            },
+            {
+              "time": "18:00",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za Tomáše Vlastu",
+              "mass": true
+            }
+          ]
+        },
+        {
+          "date": "2026-10-23",
+          "feast": "sv. Jan Kapistránský",
+          "solemnity": false,
+          "rows": [
+            {
+              "time": "16:45",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za Blažeje Pernikáře, jeho bratra Josefa a rodinu",
+              "mass": true
+            },
+            {
+              "time": "18:00",
+              "place": "moravske-kninice",
+              "title": "Mše sv.",
+              "detail": "za uzdravení vztahů v rodině",
+              "mass": true
+            }
+          ]
+        },
+        {
+          "date": "2026-10-24",
+          "solemnity": false,
+          "rows": [
+            {
+              "time": "8:00",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za Vlastika Nerušila",
+              "mass": true
+            }
+          ]
+        },
+        {
+          "date": "2026-10-25",
+          "feast": "30. neděle v mezidobí",
+          "solemnity": true,
+          "rows": [
+            {
+              "time": "8:00",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za † maminku Marii Veškrňovu, celou rodinu a rodinu Kašparovskou",
+              "mass": true
+            },
+            {
+              "time": "9:30",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za všechny lesníky a živé a † zaměstnance Lesů města Brna",
+              "mass": true
+            },
+            {
+              "time": "11:00",
+              "place": "moravske-kninice",
+              "title": "Mše sv.",
+              "detail": "za živé a † farníky a dobrodince naší farnosti",
+              "mass": true
+            }
+          ]
+        }
+      ],
+      "announcements": [
+        {
+          "category": "confession",
+          "html": "<p>V Kuřimi se zpovídá ve čtvrtek od <strong>17.30 hod</strong>, v Moravských Knínicích <strong>v pátek po mši svaté</strong>.</p>"
+        },
+        {
+          "category": "invitation",
+          "html": "<p><strong>Dnes (18. 10.)</strong> po mši svaté v 9.30 jste zváni do naší misijní kavárny na faře. A potom ještě v <strong>18 hod</strong> do kostela, kde bude koncert spirituálů a duchovních písní „Ať svoboda zní“. Vystoupí sbory <em>Dej nám akord</em> z Brna a <em>Danielis</em> z Rousínova.</p>",
+          "newsId": "koncert-at-svoboda-zni-2026"
+        },
+        {
+          "category": "invitation",
+          "html": "<p><strong>V pondělí (19. 10.) v 18 hod</strong> se na brněnském výstavišti koná koncert skupiny Godzone. V programu zazní působivá svědectví o životě s Bohem, oslovující zvláště mládež. Vstup je zdarma. Vezměte s sebou i svoje přátele a pozvěte i mladé lidi ze svého okolí, kterým tato příležitost může zprostředkovat setkání s Bohem.</p>"
+        },
+        {
+          "category": "info",
+          "html": "<p><strong>Ve čtvrtek (22. 10.)</strong> po mši svaté je zasedání Pastorační rady farnosti. Členům rady můžete předat svoje postřehy a podněty k životu farnosti. Prosíme také o modlitbu za naši farnost a její směřování.</p>"
+        },
+        {
+          "category": "info",
+          "html": "<p><strong>V sobotu (24. 10.) od 10 hod</strong> je v Brně na Petrově pastorační veletrh na téma „malá otevřená společenství“. Vytváření takových společenství je důležité pro život církve a výzvou pro všechny farnosti.</p>"
+        },
+        {
+          "category": "info",
+          "html": "<p>Upozorňujeme, že <strong>ze soboty 24. na neděli 25. října</strong> je změna na zimní čas. Noc se prodlouží o hodinu.</p>"
         }
       ]
     }
