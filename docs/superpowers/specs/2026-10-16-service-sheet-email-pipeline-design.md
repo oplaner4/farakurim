@@ -1,7 +1,8 @@
 # Service sheet by e-mail: design
 
-Status: draft, to be simplified: the pre-flight should rely on `pnpm stage sheet --check` (which already refuses a
-published week) instead of the guard's comparisons and the routing below. No plan yet. Date: 2026-10-16.
+Status: draft. The pre-flight (§2) now routes on the week check `pnpm stage sheet` runs on every run, `--draft`
+included: it refuses a released week without `--corrected`, a week before the current sheet and one overlapping
+another, and names a week already in `service-sheets.json`. No plan yet. Date: 2026-10-16, updated 2026-10-17.
 
 ## Intent
 
@@ -16,8 +17,8 @@ published facts match the parish's document.
 
 ## Goals
 
-- The parish sends the year's DOCX to `porad@seznam.cz`; by the next morning every week that is new or changed has a PR
-  ready for review, or the maintainer is told why not.
+- The parish sends the year's DOCX to `porad@farakurim.cz`; by the next morning every week that is new or changed has a
+  PR ready for review, or the maintainer is told why not.
 - What is published as fact (dates, services, times, places, intentions, announcement text) comes only from the
   document, and code, not the model, proves it.
 - The maintainer's merge is the explicit "yes" to publish; the release still goes through a `vX.Y.Z` tag and the
@@ -57,21 +58,24 @@ published facts match the parish's document.
   never do.
 - seznam.cz publishes DMARC `p=none`: mail claiming `From: fara.kurim@seznam.cz` from elsewhere is delivered, so the
   address alone proves nothing.
+- The mailbox is at the hosting provider (cesky-hosting.cz), which also hosts the site, but it is a mail service, not
+  the web server: the workflow reads it over IMAP only. `CLAUDE.md` § Deployment still holds for the web server, and
+  an agent never logs in to the mailbox either.
 
 ## Decisions
 
 ### Addresses
 
-- Mailbox: `porad@seznam.cz` (Seznam), read only over IMAP `imap.seznam.cz:993` (TLS); no SMTP. The username is the
-  whole address, the password is an app password ("Heslo pro aplikace", two-factor login on), never the account
-  password.
+- Mailbox: `porad@farakurim.cz` at cesky-hosting.cz, a mailbox for the pipeline only, read only over IMAP on port 993
+  (TLS) at the host the hosting's mail settings give; no SMTP. The username is the whole address, the password is the
+  mailbox's own password, used for nothing else.
 - The only accepted sender: `fara.kurim@seznam.cz`, compared exactly (lowercased, dots significant: Seznam does not
   ignore them).
 
 ### Overview
 
 ```
-fara.kurim@seznam.cz ──DOCX──▶ porad@seznam.cz
+fara.kurim@seznam.cz ──DOCX──▶ porad@farakurim.cz
                                   │ daily IMAP poll (≈ 4:40 Prague summer, 3:40 winter)
                                   ▼
  service-sheet.yml   1 mail      accept / reject
@@ -93,8 +97,10 @@ fara.kurim@seznam.cz ──DOCX──▶ porad@seznam.cz
 - Reads unseen messages in INBOX, oldest first. Folders hold the state: a message moves to `Zpracováno` or `Odmítnuto`
   only after its outcome (PR opened or updated, or the problem reported, §8) is done, so a crashed run retries it.
 - **Accepted** only when `From` is exactly `fara.kurim@seznam.cz` **and** the message carries a valid DKIM signature with
-  `d=seznam.cz` (from Seznam's `Authentication-Results` header, or verified by a DKIM library if that header proves
-  unreliable). Anything else moves to `Odmítnuto` with no reply.
+  `d=seznam.cz`, verified by a DKIM library on the raw message (the signature is Seznam's, made when the parish
+  sends). An `Authentication-Results` header is not trusted: Seznam no longer receives the mail, and unless the
+  hosting's mail server is known to add and strip that header, a forged message can carry its own. Anything else
+  moves to `Odmítnuto` with no reply.
 - An accepted message with exactly one `.docx` attachment is a sheet. With none or several (a described change in
   the text, a PDF, a reply), it moves to `Odmítnuto` and the run reports it to the maintainer (§8); its text is never
   posted to GitHub.
@@ -102,28 +108,40 @@ fara.kurim@seznam.cz ──DOCX──▶ porad@seznam.cz
   `Zpracováno` as superseded, listed in the run summary.
 - The DOCX is written to the runner's temp directory and processed **in the same job**; it is never uploaded as an
   artifact, cached or logged, and is deleted at the end of the job.
-- Libraries: `imapflow`, `mailparser` (check each with context7 before use, per `CLAUDE.md`).
+- Libraries: `imapflow`, `mailparser` and a DKIM verifier such as `mailauth` (check each with context7 before use, per
+  `CLAUDE.md`).
 
 ### 2. Pre-flight: routing (no LLM)
 
 From the DOCX, draft **every week the site still shows** (the current sheet in `service-sheets.json` on `main` and any
-later ones) plus the newest week of the DOCX. For each week, pick a base and a route:
+later ones) plus the newest week of the DOCX (§3). The draft run checks the week against `service-sheets.json` (today
+in Prague) and the server, and the pre-flight routes on its answer, adding only what the script cannot know (an open
+PR) and "same content". A week with an open PR `service-sheet/<validFrom>` is drafted on that branch, every other week
+on `main`:
 
-| The week                                     | Route                    | Base                  |
-| -------------------------------------------- | ------------------------ | --------------------- |
-| not in `service-sheets.json`, no open PR     | create                   | the draft             |
-| has an open PR `service-sheet/<validFrom>`   | correct the PR           | the PR branch's sheet |
-| in `service-sheets.json` on `main`           | correct (published)      | the sheet on `main`   |
-| before the current sheet                     | refused                  | —                     |
-| facts equal to the base (see "Same content") | unchanged: nothing to do | —                     |
+| The draft run's answer for the week                                         | Route                    | Base                  |
+| --------------------------------------------------------------------------- | ------------------------ | --------------------- |
+| a new week (not in `service-sheets.json`)                                   | create                   | the draft             |
+| on its open PR's branch: already there, not released                        | correct the PR           | the PR branch's sheet |
+| on `main`: already there, not released (merged, `pnpm release` not run yet) | correct (staged)         | the sheet on `main`   |
+| released (its PDF is on the server): drafted again with `--corrected`       | correct (published)      | the sheet on `main`   |
+| refused: before the current sheet                                           | refused                  | —                     |
+| refused: overlaps another sheet (a heading's dates do not fit the sheets)   | document error           | —                     |
+| facts equal to the base (see "Same content")                                | unchanged: nothing to do | —                     |
+
+- The pre-flight calls the stage logic (`stageSheet()` in `scripts/lib/stage/sheet.ts`) instead of parsing the
+  command's text, and routes on a typed result: the builder makes it return the week's state (new, already there,
+  released) and throw a typed refusal (before the current sheet, overlap), where today it prints a line or throws a
+  message.
 
 - A document error the draft script throws (a date outside the week, a weekday that does not fit, times that do not
   pair with services, a table outside the heading's dates) is reported to the maintainer with the week and day (§8),
   and that week stops. The other weeks continue.
-- A correction of a week on `main` uses `--corrected` if the week's PDF is already on the server, decided by the
-  existing logic in `pnpm stage sheet` (`correctedRev()` and `stage()` in `scripts/lib/stage/core.ts`, a HEAD request
-  to the public `https://farakurim.cz/uploads/…` URL through `onServer()` in `scripts/lib/uploads.ts`); else it
-  replaces the staged PDF. This is the script's own public HTTP check, not an SSH connection, so it stays within
+- Whether a week is released is decided by the existing logic in `pnpm stage sheet` (`stage()` and `correctedRev()`
+  in `scripts/lib/stage/core.ts`, a HEAD request to the public `https://farakurim.cz/uploads/…` URL through
+  `onServer()` in `scripts/lib/uploads.ts`): without `--corrected` it refuses a week whose PDF is on the server, and
+  with it the PDF takes the next `rev`. A week already there but not released takes no `--corrected`: its staged PDF
+  is replaced under the same name. This is the script's own public HTTP check, not an SSH connection, so it stays within
   `CLAUDE.md` § Deployment (my call). The server, not git, is the truth here, because `release.sh` uploads before it
   tags.
 - **Same content**: the guard's comparison (§5) of the new draft with the base returns "facts equal". The DOCX's bytes
@@ -138,13 +156,14 @@ later ones) plus the newest week of the DOCX. For each week, pick a base and a r
   differs and the calendar items to mirror. The merge releases it as any other (§10); the old PDF stays on the
   server, the site links the new one. It is published the next morning at the earliest, after the maintainer's
   review; a change that cannot wait is run by hand (`workflow_dispatch`) or made locally.
-- A week whose sheet is no longer in `service-sheets.json` (a newer sheet has started and the script removed it) is
-  refused and reported: past weeks are not corrected, as locally.
+- A week before the current sheet (a newer sheet has started and the script removed it) is refused by the draft run
+  itself and reported: past weeks are not corrected, as locally.
 
 ### 3. Draft (no LLM)
 
 `pnpm stage sheet "<docx>" --from <validFrom> --to <validTo> [--corrected] --draft <tmp>/draft.json` for each week to
-create or correct. Existing behaviour; nothing changes here.
+create or correct. Existing behaviour: the same run gives §2 its answer (the week check against
+`service-sheets.json` and the server), so a week is drafted once, again only with `--corrected` when it is released.
 
 ### 4. Review (Claude)
 
@@ -291,7 +310,7 @@ Everything goes to the maintainer through GitHub (my call on the channel; the ma
 - A GitHub App installed on this repo only, `contents: write`, `pull-requests: write`, `checks: write`. Its key is a
   secret of the jobs that push; never in Claude's step environment. `main` keeps today's rules (no required checks),
   so the maintainer's direct pushes and local `pnpm release` keep working unchanged.
-- Environments: `Mailbox` (IMAP user and app password), `Production` (existing).
+- Environments: `Mailbox` (IMAP host, user and password), `Production` (existing).
 - Secret `ANTHROPIC_API_KEY`; repository variables as today for the build.
 
 ## Phases
@@ -300,7 +319,7 @@ The maintainer's earlier assessment: the full pipeline saves little time and add
 each useful alone, and stops when one is enough (agreed with the maintainer; phase 1 first):
 
 1. **Local**: the guard (§5), the all-weeks comparison and "same content" (§2) inside `pnpm stage sheet` and the two
-   skills. About a day.
+   skills. About a day. The week check §2 routes on is already there; its typed result comes with phase 2.
 2. **Mail → PR**: §1–§8, routing and corrections included (a resent DOCX updates or opens PRs as §2 says); without
    the comment workflow (§9) and the release job (§10). The maintainer fixes a PR by pushing to its branch, merges,
    then downloads the week's PDF artifact into `uploads/porady_bohosluzeb/` (`gh run download`) and runs
@@ -309,9 +328,10 @@ each useful alone, and stops when one is enough (agreed with the maintainer; pha
 
 ## Open checks before building
 
-- An IMAP login to `porad@seznam.cz` from a GitHub runner works (Seznam may flag data-centre IPs).
-- A test e-mail from `fara.kurim@seznam.cz` carries an `Authentication-Results` header with `dkim=pass` and
-  `d=seznam.cz`; another Seznam account cannot send with that `From`.
+- An IMAP login to `porad@farakurim.cz` from a GitHub runner works (the hosting may limit IMAP by IP or rate), and
+  the folders `Zpracováno` and `Odmítnuto` can be created there.
+- A test e-mail from `fara.kurim@seznam.cz` reaches the mailbox with Seznam's DKIM signature (`d=seznam.cz`) intact
+  and verifiable (no forwarding or rewriting on the way); another Seznam account cannot send with that `From`.
 - claude-code-action: `--json-schema` and `structured_output` as documented; whether its comment mode commits on its
   own (then use a custom `prompt`, agent mode, which makes no commits, and commit in a later step); whether
   `--append-system-prompt` passes through `claude_args`.
