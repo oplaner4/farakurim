@@ -84,9 +84,11 @@ Platform's workload identity federation (the maintainer's preference), which `cl
 - Console (Settings › Workload identity › Connect workload › GitHub Actions): an issuer for
   `https://token.actions.githubusercontent.com`, a service account for the pipeline, and one federation rule.
 - The rule matches only this repo's sheet jobs: they run in the GitHub environment `service-sheet-publish`, and the
-  rule's `subject_prefix` is exactly `repo:oplaner4/farakurim:environment:service-sheet-publish` (no `*`, so no other
-  repo, branch or fork PR matches; only the job with a Claude step has an id-token); audience `https://api.anthropic.com`. The narrowest `oauth_scope` that runs Claude Code
-  (`workspace:inference` if it suffices) and the rule's token lifetime 3600 s, longer than a run.
+  rule's `subject_prefix` is exactly `repo:oplaner4@38047115/farakurim@1403139652:environment:service-sheet-publish`
+  (GitHub's subject format with the account and repository IDs after the names; no `*`, so no other repo, branch,
+  fork PR or recreated repo of the same name matches; only the job with a Claude step has an id-token); audience
+  `https://api.anthropic.com`. The narrowest `oauth_scope` that runs Claude Code (`workspace:inference` if it
+  suffices) and the rule's token lifetime 3600 s, longer than a run.
 - The jobs with a Claude step have `permissions: id-token: write`; the IDs (rule, organization, service account,
   workspace) are repository variables, not secrets: without a token from this repo's `service-sheet-publish` environment
   they grant nothing.

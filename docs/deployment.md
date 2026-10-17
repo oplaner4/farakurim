@@ -116,7 +116,9 @@ one DOCX, or a failed step. A failed step leaves the mail unseen for the next ru
   repository variable `SHEET_APP_ID`; a generated private key is the environment secret `SHEET_APP_PRIVATE_KEY`.
 - **Claude Console** (Settings → Workload identity → Connect workload → GitHub Actions): an issuer for
   `https://token.actions.githubusercontent.com`, a service account for the pipeline and one federation rule:
-  `subject_prefix` exactly `repo:oplaner4/farakurim:environment:service-sheet-publish` (no `*`), audience
+  `subject_prefix` exactly `repo:oplaner4@38047115/farakurim@1403139652:environment:service-sheet-publish` (no `*`;
+  GitHub's subject carries the account and repository IDs after the names, so a recreated repo of the same name does
+  not match; the Console's workload identity History shows the subject a run sent), audience
   `https://api.anthropic.com`, the narrowest scope that runs Claude Code (`workspace:inference` if it suffices), token
   lifetime 3600 s. Then the repository variables `ANTHROPIC_FEDERATION_RULE_ID`, `ANTHROPIC_ORGANIZATION_ID`,
   `ANTHROPIC_SERVICE_ACCOUNT_ID` and `ANTHROPIC_WORKSPACE_ID`. Never set `ANTHROPIC_API_KEY`: a leftover one, even
