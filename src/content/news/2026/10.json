@@ -321,7 +321,6 @@
         }
       ]
     },
-    "pinned": true,
     "poster": {
       "src": "/uploads/aktuality/jubileum-800-2026-plakat.webp",
       "alt": "Plakát: Slavnostní mše k jubileu 800 let 18. října 2026"
@@ -378,6 +377,7 @@
         "file": "/uploads/aktuality/hubertska-mse-2026-pozvanka.pdf",
         "size": 2594721
       }
-    ]
+    ],
+    "pinned": true
   }
 ]
