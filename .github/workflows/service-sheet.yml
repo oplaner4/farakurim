@@ -244,7 +244,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       # The report: line 1 `blocking: yes|no`, line 2 `commit: <message>`, then the PR body. On every path each week
-      # (a `## ` section other than `## Zrcadlit v kalendáři`) has exactly one `Outcome:` line, else nothing is applied
+      # (a `## ` section other than `## Mirror in the calendar`) has exactly one `Outcome:` line, else nothing is applied
       # or filed. With a change, the patch is applied only if it touches nothing but src/content/*.json. Without one,
       # the report must explain it: a valid first line and the week corrected (a correction of a week not released
       # yet can change nothing), refused or a document error (the last two fail the summary).
@@ -261,7 +261,7 @@ jobs:
           first=$(sed -n 1p "$report" 2>/dev/null || true)
           normalized=$(sed -E "$OUTCOME_SED" "$report" 2>/dev/null || true)
           weeks=$(awk '
-            function done() { if (week != "" && week != "Zrcadlit v kalendáři") print n "\t" week }
+            function done() { if (week != "" && week != "Mirror in the calendar") print n "\t" week }
             /^## / { done(); week = substr($0, 4); n = 0; next }
             /^Outcome: / { n++ }
             END { done() }' <<< "$normalized")

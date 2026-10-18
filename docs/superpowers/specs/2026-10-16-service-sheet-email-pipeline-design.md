@@ -181,7 +181,7 @@ The maintainer answers the PR as they answer the skill locally:
   `feat(content): publish the service sheet for 19.–25. 10. 2026`, or `fix(content): correct the service sheet for …`.
 - Before the PR: `pnpm test` and `pnpm build` with the calendar key. The staged PDFs are uploaded as an artifact named
   after the PR head commit, retention 30 days (longer than any PR stays open), outside git.
-- The body: the report (§2), with "Zrcadlit v kalendáři": the services added, changed or removed, for the
+- The body: the report (§2), with "Mirror in the calendar": the week's services, to check against the
   "Bohoslužby" calendar, and a link to the run's PDF artifact. No images (the maintainer's call): the report is what
   the skill shows locally, and the PR diff shows the change to `service-sheets.json`; hosting images would need a
   branch or another store that grows with every run.

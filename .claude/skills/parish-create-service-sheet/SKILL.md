@@ -231,7 +231,7 @@ Then, for the week:
 - `### Questions`, one per line: `- **q1** (blocking|note) <where>: <question> — proposal: <proposal>`. A later run
   on the same report keeps the existing ids and marks each question `resolved` or `still open`.
 
-Finally `## Zrcadlit v kalendáři`: a list (Czech rows) of the week's services, to check against the "Bohoslužby"
+Finally `## Mirror in the calendar`: a list (Czech rows) of the week's services, to check against the "Bohoslužby"
 calendar.
 
 ## Common mistakes
