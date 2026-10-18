@@ -167,8 +167,8 @@ jobs:
             The parish sent its service sheet DOCX: ${{ runner.temp }}/sheet/mail/porad.docx.
             Run the service sheet skills unattended (their "Unattended run" section). The report file is
             ${{ runner.temp }}/sheet/report.md and the scratchpad is ${{ runner.temp }}/sheet.
-            The previous report of this PR, if present: ${{ runner.temp }}/sheet/previous-report.md; keep its
-            question ids and mark each resolved or still open.
+            The previous report of this PR, if present: ${{ runner.temp }}/sheet/previous-report.md; the new report
+            carries it over as that section says.
             Handle the DOCX's newest week only, with parish-create-service-sheet: create it when it is not in
             src/content/service-sheets.json, else correct it as that section says. Leave older weeks alone. A week
             the script refuses or cannot draft goes into the report.

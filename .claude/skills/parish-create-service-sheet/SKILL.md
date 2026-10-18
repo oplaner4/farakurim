@@ -197,8 +197,12 @@ a local run follows steps 1 to 5 as written. An unattended run follows them too,
 - It never asks and never waits. Every "confirm with the user" or "ask the user" step (step 3, a document error, the
   placeholder dots, the "Days without services" note) writes into the report instead; the report file is the one the
   prompt gives. The scratchpad is the one the prompt gives (`record.json`, `draft.json`; write nothing in the
-  repo); the PDF is staged in `uploads/` as usual. The prompt may also give the previous report of the open PR: keep
-  its question ids and mark each `resolved` or `still open`.
+  repo); the PDF is staged in `uploads/` as usual.
+- The prompt may give the **previous report** of the open PR (the run then works on that PR's branch). The new report
+  describes the whole PR, not only this run: copy over each previous week section whose week is in the PR
+  (`created` or `corrected`) as it is, replace the section of the week this run handled, and drop previous `refused`
+  or `document error` sections (those weeks are not in the PR). Keep the question ids and mark each `resolved` or
+  `still open`; number new questions after the highest id.
 - Write the report first, with each week's summary and questions, then stage (step 4, `--corrected` when the script
   asks for it), then fill in each week's `Outcome:` line from what the script did, and add any line it printed for
   the user as a question (blocking when its answer changes what is published, else a note). `blocking:` is final only
@@ -216,11 +220,14 @@ blocking: yes|no
 commit: <message>
 ```
 
-`blocking: yes` when any question is blocking. `commit:` is the message `parish-publish-content` prescribes for the
-week: `feat(content): publish the service sheet for 19.–25. 10. 2026` for a new week, or
-`fix(content): correct the service sheet for …` for a correction.
+`blocking: yes` when any open question of the report is blocking. `commit:` covers every week in the PR (it is also
+the PR's title, and the squash commit on `main`). One week: the message `parish-publish-content` prescribes,
+`feat(content): publish the service sheet for 19.–25. 10. 2026` for a new week, or
+`fix(content): correct the service sheet for …` for a correction. Several weeks:
+`<type>(content): publish the service sheets for 19.–25. 10. and 26. 10.–1. 11. 2026` (with only corrections:
+`correct the service sheets for …`); the type is `feat` if any week was created, else `fix`.
 
-Then, for the week:
+Then, per week, oldest first:
 
 - `## <week>` (e.g. `## 19.–25. 10. 2026`);
 - one line `Outcome: created`, `Outcome: corrected`, `Outcome: refused: <message>` or
@@ -231,8 +238,8 @@ Then, for the week:
 - `### Questions`, one per line: `- **q1** (blocking|note) <where>: <question> — proposal: <proposal>`. A later run
   on the same report keeps the existing ids and marks each question `resolved` or `still open`.
 
-Finally `## Mirror in the calendar`: a list (Czech rows) of the week's services, to check against the "Bohoslužby"
-calendar.
+Finally `## Mirror in the calendar`: a list (Czech rows) of the services of every week in the report, to check against
+the "Bohoslužby" calendar.
 
 ## Common mistakes
 

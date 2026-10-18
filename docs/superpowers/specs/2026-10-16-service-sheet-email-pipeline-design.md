@@ -177,7 +177,9 @@ The maintainer answers the PR as they answer the skill locally:
 
 - At most one open sheet PR: the branch `service-sheet/<date of the e-mail>` with one commit by the bot; a later
   e-mail while it is open runs on that branch and adds a commit (never a force-push), so `service-sheets.json` never
-  conflicts between two sheet PRs. Message as `parish-publish-content` says:
+  conflicts between two sheet PRs. Its report accumulates: Claude gets the previous one and keeps the sections of the
+  weeks already in the PR, so the body and the title (the `commit:` line, the squash commit on `main`) always describe
+  every week the PR holds. Message as `parish-publish-content` says:
   `feat(content): publish the service sheet for 19.–25. 10. 2026`, or `fix(content): correct the service sheet for …`.
 - Before the PR: `pnpm test` and `pnpm build` with the calendar key. The staged PDFs are uploaded as an artifact named
   after the PR head commit, retention 30 days (longer than any PR stays open), outside git.
