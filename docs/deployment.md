@@ -68,7 +68,9 @@ gmail.com); the list is `SENDERS` in `scripts/lib/services/mailbox.ts`.
 3. tests and builds the change to `src/content/`, commits it as the GitHub App's bot and opens (or adds a commit to)
    the one `service-sheet/*` pull request, its body the report (a later run gets the previous report, keeps its
    question ids and turns the PR back into a draft on a new blocking question). The conversation is locked: only
-   collaborators with write access can comment. Nothing changed: no PR;
+   collaborators with write access can comment. Every e-mail is about the DOCX's newest week: a new week is created,
+   a week already on the site is replaced from the new draft (a correction, never compared with the published sheet),
+   so a resend opens a PR you close when nothing changed;
 4. files the mail in `Zpracováno` once the outcome is done, so a run that breaks retries the sheet the next night.
 
 The DOCX (it holds intentions with names) never leaves the `sheet` job: it is not uploaded, cached or logged. Claude's

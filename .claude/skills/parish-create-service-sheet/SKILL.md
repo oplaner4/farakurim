@@ -190,6 +190,10 @@ adorace" Google Calendar, which the Kalendář reads.
 Only when the prompt says the run is **unattended** (the daily workflow gives the parish's DOCX and a report file);
 a local run follows steps 1 to 5 as written. An unattended run follows them too, with these changes:
 
+- It handles the DOCX's **newest week only**. Not in `src/content/service-sheets.json`: steps 1 to 4 as written
+  (`Outcome: created`). Already there: it is a **correction**, always, without comparing with the published sheet:
+  draft the week, build the record from the draft as step 2a says (not from the published sheet), and stage it with
+  `--corrected` when the script says the week is already published (`Outcome: corrected`). Never touch older weeks.
 - It never asks and never waits. Every "confirm with the user" or "ask the user" step (step 3, a document error, the
   placeholder dots, the "Days without services" note) writes into the report instead; the report file is the one the
   prompt gives. The scratchpad is the one the prompt gives (`record.json`, `draft.json`; write nothing in the
@@ -212,26 +216,23 @@ blocking: yes|no
 commit: <message>
 ```
 
-`blocking: yes` when any question is blocking. `commit:` is the run's commit message and covers all its weeks. One
-week: the message `parish-publish-content` prescribes (`feat(content): publish the service sheet for 19.–25. 10.
-2026`, or `fix(content): correct the service sheet for …`). Several weeks:
-`<type>(content): publish the service sheets for 19.–25. 10. and 26. 10.–1. 11. 2026` (with only corrections:
-`correct the service sheets for …`); the type is `feat` if any week was created, else `fix`. With nothing changed
-(every week unchanged) the line is still written.
+`blocking: yes` when any question is blocking. `commit:` is the message `parish-publish-content` prescribes for the
+week: `feat(content): publish the service sheet for 19.–25. 10. 2026` for a new week, or
+`fix(content): correct the service sheet for …` for a correction.
 
-Then, per week:
+Then, for the week:
 
 - `## <week>` (e.g. `## 19.–25. 10. 2026`);
-- one line `Outcome: created`, `Outcome: corrected`, `Outcome: unchanged`, `Outcome: refused: <message>` or
+- one line `Outcome: created`, `Outcome: corrected`, `Outcome: refused: <message>` or
   `Outcome: document error: <message>` (the script's message as printed). The workflow fails the run on any
   `refused` or `document error`;
 - the summary step 3 would show: the rows day by day, the announcements with categories and each `newsId` with its
-  event's title and date, and for a correction what differs from the published sheet;
+  event's title and date;
 - `### Questions`, one per line: `- **q1** (blocking|note) <where>: <question> — proposal: <proposal>`. A later run
   on the same report keeps the existing ids and marks each question `resolved` or `still open`.
 
-Finally `## Zrcadlit v kalendáři`: a list (Czech rows) of the services added, changed or removed against the
-published sheets, for the "Bohoslužby" calendar.
+Finally `## Zrcadlit v kalendáři`: a list (Czech rows) of the week's services, to check against the "Bohoslužby"
+calendar.
 
 ## Common mistakes
 

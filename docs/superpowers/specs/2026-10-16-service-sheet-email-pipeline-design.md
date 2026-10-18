@@ -23,8 +23,8 @@ the gain is that the work becomes a short review that can be done anywhere.
   document; the maintainer's review of the PR checks it, as their confirmation does locally today.
 - The maintainer's merge is the explicit "yes" to publish; the release still goes through a `vX.Y.Z` tag and the
   existing `.github/workflows/deploy.yml`.
-- Corrections to weeks already in the PR or on the site, duplicates and resends are handled; where nothing changed,
-  no PR is opened.
+- Every e-mail is about the DOCX's newest week: a new week is created, a week already on the site is corrected
+  (replaced from the new draft). A resend that changes nothing still opens a PR, which the maintainer closes.
 
 ## Non-goals
 
@@ -146,15 +146,17 @@ The maintainer answers the PR as they answer the skill locally:
 
 - `anthropics/claude-code-action@v1`, authenticated by workload identity federation (below), latest Claude model, in a job with the repo checked out,
   `pnpm install` done and LibreOffice and poppler installed; the DOCX's path is given in the prompt.
-- The prompt is short and holds no sheet rules: the parish sent this DOCX; run the service sheet skills **unattended**
-  (the skills' own section, below). Handle the DOCX's newest week with `parish-create-service-sheet` when it is not in
-  `service-sheets.json`; for every week already there from the current sheet on, draft it and, when its text differs
-  from the sheet, correct it with `parish-correct-service-sheet` (as locally for a corrected DOCX). A week the script
-  refuses (before the current sheet, overlapping another) or cannot draft (a document error) goes into the report.
+- The prompt is short and holds no sheet rules: the parish sent this DOCX; run `parish-create-service-sheet`
+  **unattended** (the skills' own section, below) on the DOCX's **newest week only**. Not in `service-sheets.json`: it
+  is created. Already there: it is a **correction**, always: the record is built from the new draft as for a new week,
+  without comparing with or starting from the published sheet, and the script replaces the sheet (the next PDF
+  revision once the week is released). Corrections matter only for the newest week, typically the current one (the
+  parish sends a corrected DOCX on Monday or Tuesday); the script refuses a week before the current sheet anyway. A
+  week the script refuses or cannot draft (a document error) goes into the report. Older weeks are never touched.
 - **The skills get one section, "Unattended run"**, which both follow when the prompt says so:
   - every "confirm with the user" or "ask the user" step writes into the report instead: the summary the step would
-    show (for each week: the rows day by day, the announcements with categories and each `newsId` with its event's
-    title and date, for a correction what differs from the published sheet), and each question with an id (`q1`, …)
+    show (the rows day by day, the announcements with categories and each `newsId` with its event's title and date),
+    and each question with an id (`q1`, …)
     and its proposal; a later run keeps the ids and marks each question resolved or still open;
   - a question whose answer changes what is published (an unreadable row, placeholder dots, a doubtful
     cancellation) is **blocking**; the run still stages its best reading, never the placeholder dots (left as they
@@ -167,9 +169,9 @@ The maintainer answers the PR as they answer the skill locally:
 - Tools: Read, Write and Edit only in the job's scratch folder (the checkout denied), and Bash limited to
   `pnpm stage sheet …`, `pdftotext` and read-only commands (`--allowedTools` in `claude_args`). No git, no push, no web. The job's later steps commit and push with the App
   token, which Claude's step never sees.
-- **Same content**: a week whose DOCX text did not change gets no correction, so `service-sheets.json` does not change.
-  With nothing to commit, no PR is opened and the run summary says "nothing changed". No comparison code: the skill's
-  correction takes over only the differences.
+- **No comparison**: nothing decides whether a resent DOCX differs. A correction of a released week always changes
+  `service-sheets.json` (its `rev`), so a PR opens and the maintainer closes it when nothing really changed. Only a
+  correction of a week not released yet can leave the file unchanged: then no PR, and the summary says so.
 
 ### 3. PR
 
@@ -193,10 +195,11 @@ The maintainer answers the PR as they answer the skill locally:
 ### 4. A correction of a released week (example)
 
 The week 19.–25. 10. was released with `2026-10-19-porad-bohosluzeb.pdf`; on Wednesday the parish sends the DOCX with
-a funeral added on Friday. Claude drafts the week, finds the text differs from the sheet and runs
-`parish-correct-service-sheet`: it starts from the published sheet, takes over the funeral, and the script, finding the
-PDF on the server, asks for `--corrected` and stages `2026-10-19-porad-bohosluzeb-r2.pdf` with `rev: 2`. The PR
-(`fix(content): correct the service sheet for 19.–25. 10. 2026`) shows what differs and the calendar item to mirror.
+a funeral added on Friday. The week is the DOCX's newest and already on the site, so Claude treats it as a
+correction: it drafts the week, builds the record from the draft, and the script, finding the PDF on the server, asks
+for `--corrected` and stages `2026-10-19-porad-bohosluzeb-r2.pdf` with `rev: 2`. The PR
+(`fix(content): correct the service sheet for 19.–25. 10. 2026`) shows the change in its diff and the calendar item to
+mirror.
 The merge releases it (§7); the old PDF stays on the server, the site links the new one. A change that cannot wait is
 run by hand (`workflow_dispatch`) or made locally.
 
@@ -209,8 +212,8 @@ Everything goes to the maintainer through GitHub (my call on the channel; the ma
 - Every run writes a job summary listing each message (accepted, rejected, superseded) and its outcome (PR opened or
   updated with its link, nothing changed, refused week, document error with week and day).
 - A run **fails** (red, so GitHub notifies the maintainer) when something needs action without a PR: a document error,
-  an accepted message without exactly one `.docx`, a refused week. A run with only rejected strangers' mail or
-  unchanged weeks stays green.
+  an accepted message without exactly one `.docx`, a refused week. A run with only rejected strangers' mail, or a
+  correction that changed nothing, stays green.
 - Questions only the parish can answer are questions to the maintainer, who asks the parish as today.
 - The repo is public: summaries and logs carry dates, days and error messages, never message text, intentions or the
   sender's other content.

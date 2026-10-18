@@ -169,10 +169,9 @@ jobs:
             ${{ runner.temp }}/sheet/report.md and the scratchpad is ${{ runner.temp }}/sheet.
             The previous report of this PR, if present: ${{ runner.temp }}/sheet/previous-report.md; keep its
             question ids and mark each resolved or still open.
-            Handle the DOCX's newest week with parish-create-service-sheet when it is not in
-            src/content/service-sheets.json. For every week already there from the current sheet on, draft it and,
-            when its text differs from the sheet, correct it with parish-correct-service-sheet. A week the script
-            refuses or cannot draft goes into the report.
+            Handle the DOCX's newest week only, with parish-create-service-sheet: create it when it is not in
+            src/content/service-sheets.json, else correct it as that section says. Leave older weeks alone. A week
+            the script refuses or cannot draft goes into the report.
 
       # What `publish` needs, never the DOCX: the report, the change to src/content/ against the branch head (new
       # files included) and the staged files that really are PDFs.
@@ -212,7 +211,7 @@ jobs:
       contents: read # the push and the PR use the App token
     env:
       # Reads `Outcome:` lines tolerantly: drops a list marker and bold around `Outcome:` (`- **Outcome:** created`,
-      # `**Outcome: unchanged**`), so every check sees `Outcome: <outcome>`.
+      # `**Outcome: corrected**`), so every check sees `Outcome: <outcome>`.
       OUTCOME_SED: >-
         s/^[[:space:]]*[-*][[:space:]]+//; s/^\*\*(Outcome:[^*]*)\*\*/\1/; s/^\*\*Outcome\*\*:/Outcome:/;
         s/^Outcome:[[:space:]]*/Outcome: /
@@ -247,8 +246,8 @@ jobs:
       # The report: line 1 `blocking: yes|no`, line 2 `commit: <message>`, then the PR body. On every path each week
       # (a `## ` section other than `## Zrcadlit v kalendáři`) has exactly one `Outcome:` line, else nothing is applied
       # or filed. With a change, the patch is applied only if it touches nothing but src/content/*.json. Without one,
-      # the report must show the work was done: a valid first line and every week unchanged, refused or a document
-      # error (the last two fail the summary).
+      # the report must explain it: a valid first line and the week corrected (a correction of a week not released
+      # yet can change nothing), refused or a document error (the last two fail the summary).
       - name: Apply the change
         id: changes
         if: steps.download.outcome == 'success' && needs.sheet.result == 'success' && needs.sheet.outputs.docx != ''
@@ -274,8 +273,8 @@ jobs:
           if [ ! -s "$patch" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             if ! [[ "$first" =~ ^blocking:\ (yes|no)$ ]] \
-              || grep -qvE '^Outcome: (unchanged$|refused: |document error: )' <<< "$outcomes"; then
-              echo "::error::Nothing changed, but the report does not show every week unchanged: the sheet stays unread."
+              || grep -qvE '^Outcome: (corrected$|refused: |document error: )' <<< "$outcomes"; then
+              echo "::error::Nothing changed, but the report does not explain why: the sheet stays unread."
               exit 1
             fi
             exit 0

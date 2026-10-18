@@ -63,17 +63,14 @@ the user to mirror changed or cancelled services in the "Bohoslužby" Google Cal
 
 ## Unattended run
 
-Only when the prompt says the run is **unattended**; a local run follows steps 1 to 5 as written. Follow
-**`parish-create-service-sheet`** "Unattended run": the same rules (never asks, blocking questions and notes, report
-first, then stage, no `parish-publish-content`, no commit, no release), the scratchpad the prompt gives, the previous
-report if the prompt gives one, and the same report file the prompt gives, in the same format (the first two lines
-`blocking:` and `commit:`, per week the `Outcome:` line, the summary, `### Questions`, then `## Zrcadlit v
-kalendáři`). Here the commit line is a `fix(content): correct the service sheet for …` message (the create skill's
-rule for several weeks applies), the week's outcome is `corrected` (or `unchanged` when its text matches the sheet:
-then nothing is staged), and the summary is what differs from the published sheet.
-
-A comment correction (the workflow's second phase) works the same: the prompt gives the correction as the user's
-words, and step 2's "a correction the user describes" applies.
+Only when the prompt says the run is **unattended**; a local run follows steps 1 to 5 as written. The parish's
+e-mailed DOCX never comes here: `parish-create-service-sheet` handles its newest week, corrections included. This
+section is for a correction the prompt gives in words (a PR comment, the workflow's second phase): step 2's "a
+correction the user describes" applies. Follow the rules of **`parish-create-service-sheet`** "Unattended run" except
+its newest-week bullet (never asks, blocking questions and notes, report first, then stage, no
+`parish-publish-content`, no commit, no release), with the scratchpad, the previous report and the report file the
+prompt gives, in the same format. Here the commit line is a `fix(content): correct the service sheet for …` message,
+the week's outcome is `corrected`, and the summary is what differs from the published sheet.
 
 ## Common mistakes
 
