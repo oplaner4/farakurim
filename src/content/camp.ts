@@ -191,9 +191,16 @@ const cover = (photoId: number, height: number) => `https://eu.zonerama.com/phot
 
 /** Newest first. The themes the old pages did not name are left out. */
 export const campYears: CampYear[] = [
-  { year: 2026, start: "2026-08-08", end: "2026-08-15", place: "fara v Cizkrajově" },
+  {
+    year: 2026,
+    theme: "Cesta kolem světa za 80 dní",
+    start: "2026-08-08",
+    end: "2026-08-15",
+    place: "fara v Cizkrajově",
+  },
   {
     year: 2025,
+    theme: "Western a kovbojové",
     start: "2025-08-09",
     end: "2025-08-16",
     place: "horská chata Olšanka ve Velkém Vrbně",
@@ -202,6 +209,7 @@ export const campYears: CampYear[] = [
   },
   {
     year: 2024,
+    theme: "Asterix a Obelix",
     start: "2024-08-10",
     end: "2024-08-17",
     place: "skautská základna v Čachnově",
@@ -210,6 +218,7 @@ export const campYears: CampYear[] = [
   },
   {
     year: 2023,
+    theme: "Pán prstenů",
     start: "2023-08-12",
     end: "2023-08-19",
     place: "skautská základna v Čachnově",
@@ -218,6 +227,7 @@ export const campYears: CampYear[] = [
   },
   {
     year: 2022,
+    theme: "Sherlock Holmes",
     start: "2022-08-13",
     end: "2022-08-20",
     place: "skautský dům v Hostinném",
@@ -235,6 +245,7 @@ export const campYears: CampYear[] = [
   },
   {
     year: 2020,
+    theme: "Řečtí bohové",
     start: "2020-08-15",
     end: "2020-08-22",
     place: "Staré Hutě",
