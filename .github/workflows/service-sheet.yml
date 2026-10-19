@@ -24,7 +24,9 @@ name: Service sheet
 
 on:
   schedule:
-    - cron: "40 2 * * *" # daily, 04:40 Prague summer time, 03:40 winter
+    # 20:40 Prague summer time, 19:40 winter: GitHub starts scheduled runs late (4 to 8 hours seen), so it starts the
+    # evening before for the PR to be there by morning.
+    - cron: "40 18 * * *"
   workflow_dispatch:
 
 # One run at a time; a run started meanwhile waits, so two runs never read the same mail.

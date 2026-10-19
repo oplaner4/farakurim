@@ -59,7 +59,8 @@ tests only) before it builds with the variables above.
 The parish e-mails the year's service sheet DOCX from `fara.kurim@seznam.cz` (or the webmaster from
 `oplaner4@gmail.com`) to `porad@farakurim.cz`. Each sender must carry its provider's DKIM signature (seznam.cz,
 gmail.com); the list is `SENDERS` in `scripts/lib/services/mailbox.ts`.
-`.github/workflows/service-sheet.yml` (daily, 04:40 Prague summer time, or **Run workflow** by hand) then:
+`.github/workflows/service-sheet.yml` (daily, 20:40 Prague summer time, as GitHub starts it
+hours late, or **Run workflow** by hand) then:
 
 1. reads the unseen mail over IMAP (`pnpm sheet-mail`): only an accepted sender's DKIM-signed message with exactly
    one DOCX is a sheet, any other mail is filed in `Odmítnuto`;

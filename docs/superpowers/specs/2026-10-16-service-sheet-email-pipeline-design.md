@@ -122,7 +122,8 @@ The maintainer answers the PR as they answer the skill locally:
 
 ### 1. Mail (`scripts/sheet-mail.ts`, logic in `scripts/lib/services/mailbox.ts`)
 
-- Schedule: `cron: "40 2 * * *"` (UTC; before 5:00 Prague all year, off the full hour) plus `workflow_dispatch` for a
+- Schedule: `cron: "40 18 * * *"` (UTC; 20:40 Prague in summer, off the full hour: GitHub starts scheduled runs 4 to 8
+  hours late, so an evening start still opens the PR by morning) plus `workflow_dispatch` for a
   change that cannot wait. Daily is enough (the maintainer's call).
 - Reads unseen messages in INBOX, oldest first. Folders hold the state: a message moves to `Zpracováno` or `Odmítnuto`
   only after its outcome (PR opened or updated, nothing changed, or the problem reported, §5) is done, so a crashed run retries it.
