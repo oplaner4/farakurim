@@ -34,6 +34,7 @@ Every page has a **light and a dark theme**.
 | `mockups/skupina-chramovy-sbor/`, `mockups/skupina-spolecenstvi-mladeze/`, `mockups/skupina-katecheze/` | More pages from the group template (27.1) |
 | `mockups/menu/{light,dark}/` | Homepage with the "Více" menu open (section 20) |
 | `mockups/komponenty/tooltip.dc.html` | Tooltip on icon-only buttons (section 5, Tooltips) |
+| `mockups/komponenty/fotogalerie-1-fotka/{light,dark}/` | Homepage Fotogalerie when the newest album has one photo (section 5, Carousel) |
 | `mockups/tabor-o-taboru/`, `mockups/tabor-vedouci/`, `mockups/tabor-kontakt/`, `mockups/tabor-rocniky/`, `mockups/lightbox-tym/` (each `{light,dark}`) | Tábor (section 29), and a leader's photo in the lightbox (29.3) |
 | `assets/logo-farnost-kurim.svg` | Cleaned logo (also the future favicon) |
 
@@ -222,6 +223,11 @@ considers the calendar essential, so it is the second thing visitors see.
 - Slide 1 `fetchpriority="high"`, others `loading="lazy"`. Meaningful `alt` per photo.
 - Autoplay (every carousel, 6 s) pauses on hover and focus and while the carousel is off screen, stops for good once the visitor swipes or uses the arrows, dots or arrow keys, and is off under `prefers-reduced-motion`.
 - Buttons have `aria-label` ("Předchozí fotografie", "Další fotografie", "Fotografie N"); the active dot has `aria-current="true"`.
+- **Too few photos to scroll → no carousel.** When every photo fits at once (1 photo, or in an album strip no more than the visible count: 1 on mobile, 2 on tablet, 3 on desktop), render plain images: **no arrows, dots, counter, swipe or autoplay**, and drop `aria-roledescription="carousel"` (each image keeps its `alt`). From one photo more than fits, the normal carousel applies (with 2 photos the arrows wrap around).
+  - **Hero (4.2):** one photo stays at full size, as a static image. With no photos, show the brand tint with the corner shards, so the next-mass card still has something to overlap.
+  - **Homepage Fotogalerie (4.5):** the single photo fills the stage and is a link to the lightbox; the date, the album title, "Celé album →" and "Další alba" stay. Mockup: `mockups/komponenty/fotogalerie-1-fotka/` (light and dark, three sizes).
+  - **Album strip (19):** photos keep their normal tile width and line up from the left (a 2-photo album on desktop shows two tiles and an empty third slot); they are never stretched. The count uses Czech plurals: "1 fotografie", "2–4 fotografie", "5 fotografií". The Fotogalerie mockups include a 2-photo album (Den národnostních menšin) and a 1-photo album (Poutní mše v Jinačovicích).
+  - **Lightbox (21):** with one photo, no prev/next buttons, no "1 / 1" counter, no thumbnails and no swipe; the caption, Zavřít and the Zonerama link stay.
 
 ### Motion
 - **Colour changes fade (~150 ms)** on everything interactive (links, buttons, pills, cards, menu items), also under `prefers-reduced-motion`.
