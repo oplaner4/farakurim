@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# `pnpm release`: publishes the site. Uploads the new files staged in uploads/, bumps the version in package.json,
-# commits and tags it vX.Y.Z and pushes main with the tag; GitHub Actions then checks, builds and deploys out/
+# `pnpm release`: publishes the site. Uploads the new files staged in uploads/ and the scripts in cron-scripts/,
+# bumps the version in package.json, commits and tags it vX.Y.Z and pushes main with the tag; GitHub Actions then
+# checks, builds and deploys out/
 # (.github/workflows/deploy.yml). With --local it deploys from this machine instead, e.g. when Actions is down: it
 # runs the full check and a production build (with the keys in .env.local), shows what the sync will change, deploys
 # out/ and verifies the live site before it tags; the release commit then carries the trailer Release-Deploy: local,
@@ -25,7 +26,7 @@ for arg in "$@"; do
     --yes) yes=true ;;
     --major) major=true ;;
     --local) deploy_here=true ;;
-    *) sed -n '9,12p' "$0" | sed 's/^# \{0,1\}//' >&2 && exit 2 ;;
+    *) sed -n '10,13p' "$0" | sed 's/^# \{0,1\}//' >&2 && exit 2 ;;
   esac
 done
 
@@ -55,6 +56,10 @@ echo
 echo "New files for /uploads/:"
 uploads=$(scripts/deploy.sh uploads --dry-run)
 sed 's/^/  /' <<< "${uploads:-(none)}"
+echo
+echo "New or changed cron scripts (cron-scripts/):"
+cron=$(scripts/deploy.sh cron --dry-run)
+sed 's/^/  /' <<< "${cron:-(none)}"
 echo
 
 # 3–5 only with --local; without it GitHub Actions checks and builds the tagged commit.
@@ -106,8 +111,10 @@ if ! $yes; then
   [[ "$answer" =~ ^[yY]$ ]] || { echo "Nothing was published."; exit 0; }
 fi
 
-# 7. Uploads first, so no deployed page links a file that is not on the server yet; then, with --local, the site.
+# 7. Uploads first, so no deployed page links a file that is not on the server yet; the cron scripts; then, with
+# --local, the site.
 scripts/deploy.sh uploads > /dev/null
+scripts/deploy.sh cron > /dev/null
 if $deploy_here; then
   scripts/deploy.sh check-uploads
   scripts/deploy.sh out > /dev/null

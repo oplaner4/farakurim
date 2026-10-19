@@ -3,8 +3,10 @@
 # `pnpm release --local` is already deployed from the maintainer's machine: its commit carries the trailer
 # `Release-Deploy: local`, and this workflow then only says so.
 # The site is static, so what depends on the date (the year, the prerendered calendars, the next mass without JS)
-# ages with the build. A daily schedule rebuilds and redeploys the latest release tag when the last deploy (on the
-# Production environment, or a --local release's commit) is 7 days old; running the workflow by hand does it now.
+# ages with the build. A daily run rebuilds and redeploys the latest release tag when the last deploy (on the
+# Production environment, or a --local release's commit) is 7 days old: the hosting's cron dispatches it daily with
+# refresh=due (cron-scripts/deploy.php; GitHub's own schedule starts runs hours late). Running the workflow by hand
+# (refresh=now, the default) does it now.
 # A refresh publishes nothing new: the tag was released, so it needs no yes. It always builds, a --local tag too.
 # Uploaded files (/uploads/) are not in git: `pnpm release` uploads them from the local uploads/ folder before it
 # pushes the tag, and the deploy stops if the build links a file that is not on the server yet.
@@ -17,9 +19,13 @@ name: Deploy
 on:
   push:
     tags: ["v*"]
-  schedule:
-    - cron: "17 3 * * *" # daily, 05:17 Prague summer time
   workflow_dispatch:
+    inputs:
+      refresh:
+        description: "now: deploy the latest release now; due: only when the last deploy is 7 days old"
+        type: choice
+        options: [now, due]
+        default: now
 
 permissions:
   contents: read
@@ -66,6 +72,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           MAX_AGE_DAYS: 7
+          REFRESH: ${{ inputs.refresh }}
         run: |
           tags=$(git tag --list 'v*' --merged origin/main --sort=-v:refname)
           tag=${tags%%$'\n'*}
@@ -74,7 +81,7 @@ jobs:
             exit 1
           fi
           echo "ref=$tag" >> "$GITHUB_OUTPUT"
-          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
+          if [ "$REFRESH" != due ]; then
             echo "deploy=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi

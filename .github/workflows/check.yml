@@ -26,7 +26,7 @@ on:
         type: boolean
         default: false
       ref:
-        description: The release tag to check out (a scheduled refresh runs on main, not on the tag).
+        description: The release tag to check out (a refresh runs on main, not on the tag).
         type: string
         default: ""
 

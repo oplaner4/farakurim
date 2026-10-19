@@ -30,14 +30,14 @@ the server, syncs `out/` and verifies the live site before it tags. Its release 
 ## Weekly refresh
 
 What depends on the date (the © year, the prerendered calendars, the next mass for visitors without JS) ages with the
-build. So the deploy workflow also runs daily and **refreshes** the latest release tag on `main` once the last deploy
-is 7 days old: it checks, builds and deploys that tag like a release (a `--local` one too). A refresh publishes
-nothing that was not released, so it needs no yes. On a day it is not due, the run ends green after a few seconds with
-the `check` and `deploy` jobs skipped.
+build. So the deploy workflow also runs daily (at 04:50,
+[started by the hosting's cron](hosting.md#starting-the-workflows-on-time)) and **refreshes** the latest
+release tag on `main` once the last deploy is 7 days old: it checks, builds and deploys that tag like a release (a
+`--local` one too). A refresh publishes nothing that was not released, so it needs no yes. On a day it is not due,
+the run ends green after a few seconds with the `check` and `deploy` jobs skipped.
 
-To refresh now, run the workflow by hand: Actions tab → Deploy → **Run workflow** on `main`; a manual run skips the
-7-day check. GitHub pauses scheduled workflows after 60 days without activity in the repository: re-enable it in the
-Actions tab.
+To refresh now, run the workflow by hand: Actions tab → Deploy → **Run workflow** on `main` with `refresh` left at
+`now`, which skips the 7-day check (the cron sends `due`).
 
 ## GitHub setup
 
@@ -59,8 +59,8 @@ tests only) before it builds with the variables above.
 The parish e-mails the year's service sheet DOCX from `fara.kurim@seznam.cz` (or the webmaster from
 `oplaner4@gmail.com`) to `porad@farakurim.cz`. Each sender must carry its provider's DKIM signature (seznam.cz,
 gmail.com); the list is `SENDERS` in `scripts/lib/services/mailbox.ts`.
-`.github/workflows/service-sheet.yml` (daily, 20:40 Prague summer time, as GitHub starts it
-hours late, or **Run workflow** by hand) then:
+`.github/workflows/service-sheet.yml` (daily at 04:50,
+[started by the hosting's cron](hosting.md#starting-the-workflows-on-time), or **Run workflow** by hand) then:
 
 1. reads the unseen mail over IMAP (`pnpm sheet-mail`): only an accepted sender's DKIM-signed message with exactly
    one DOCX is a sheet, any other mail is filed in `Odmítnuto`;
@@ -73,7 +73,7 @@ hours late, or **Run workflow** by hand) then:
    collaborators with write access can comment. Every e-mail is about the DOCX's newest week: a new week is created,
    a week already on the site is replaced from the new draft (a correction, never compared with the published sheet),
    so a resend opens a PR you close when nothing changed;
-4. files the mail in `Zpracováno` once the outcome is done, so a run that breaks retries the sheet the next night.
+4. files the mail in `Zpracováno` once the outcome is done, so a run that breaks retries the sheet on the next run.
 
 The DOCX (it holds intentions with names) never leaves the `sheet` job: it is not uploaded, cached or logged. Claude's
 file tools may write only in the job's scratch folder, never in the checkout. The second job, `publish`, uses the App
@@ -112,7 +112,7 @@ one DOCX, or a failed step. A failed step leaves the mail unseen for the next ru
   creates the folders `Zpracováno` and `Odmítnuto` itself.
 - **Environment** `service-sheet-publish` (repository Settings → Environments), for both jobs: variable `IMAP_HOST`
   (the host name only, e.g. `mail.cesky-hosting.cz`), secrets `IMAP_USER`, `IMAP_PASSWORD` and
-  `SHEET_APP_PRIVATE_KEY`. It may have no required reviewers (the nightly run would wait), and its deployment branches
+  `SHEET_APP_PRIVATE_KEY`. It may have no required reviewers (the daily run would wait), and its deployment branches
   must allow `main`.
 
 - **GitHub App** (Settings → Developer settings → GitHub Apps), installed on this repository only, repository
@@ -151,7 +151,7 @@ and check in the run:
 
 The server details (SSH target, web root, rsync flags, server-only folders, verify checks) live only in
 `scripts/deploy.sh`, used by both the workflow and `pnpm release`. Its commands (`uploads`, `pull-uploads`,
-`check-uploads`, `out`, `verify`, with `--dry-run` where it changes the server) also work on their own.
+`check-uploads`, `out`, `cron`, `verify`, with `--dry-run` where it changes the server) also work on their own.
 
 ### SSH access
 

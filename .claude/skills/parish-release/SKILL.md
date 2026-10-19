@@ -13,16 +13,17 @@ scripts' business (`docs/deployment.md`), not this skill's.
 
 1. **Preview:** run `pnpm release`. Without a terminal it only previews: it checks the tree is clean, on `main` and
    not behind `origin/main`, lists the commits since the last tag, picks the version (minor for a `feat` outside the
-   `content` scope, patch otherwise) and lists the new files for `/uploads/`. If it stops on a dirty
-   tree (often `AGENTS.md` re-added by `next dev`), ask the user to commit or discard it.
-2. **Ask** the user, with the version, the commits and the uploads from the preview, for example:
+   `content` scope, patch otherwise) and lists the new files for `/uploads/` and the new or changed cron scripts
+   (`cron-scripts/`). If it stops on a dirty tree (often `AGENTS.md` re-added by `next dev`), ask the user to commit or
+   discard it.
+2. **Ask** the user, with the version, the commits, the uploads and any cron scripts from the preview, for example:
 
    > Release v1.1.0? (2 commits, 3 new files in /uploads/)
 
    Wait for a clear yes; it publishes the site. Without it, stop: the commits stay as they are.
 
-3. **Release:** `pnpm release --yes` (add `--major` only when the user asks). It uploads the new files, makes the
-   commit `chore(release): vX.Y.Z` and the tag, and pushes `main` with the tag.
+3. **Release:** `pnpm release --yes` (add `--major` only when the user asks). It uploads the new files and the cron
+   scripts, makes the commit `chore(release): vX.Y.Z` and the tag, and pushes `main` with the tag.
 4. **Stop there:** do not query the run (no `gh`, no GitHub API). Tell the user the release is pushed and that the
    repo's Actions tab shows the check, the build, the linked-uploads check, the deploy and the Verify step. A failed
    run is fixed in a new commit and released with a new version.

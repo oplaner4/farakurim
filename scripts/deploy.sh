@@ -7,6 +7,7 @@
 #        scripts/deploy.sh pull-uploads [--dry-run]   new files from /uploads/ to uploads/ (never overwrites or deletes)
 #        scripts/deploy.sh check-uploads              fail if out/ links a /uploads/… file that is not on the server
 #        scripts/deploy.sh out [--dry-run]            sync out/ to the web root (--delete, server-only folders excluded)
+#        scripts/deploy.sh cron [--dry-run]           the PHP scripts of cron-scripts/ to the hosting's cron folder
 #        scripts/deploy.sh verify                     check that the live site answers
 #
 # The old PHP site that lived in /farakurim.cz/ is backed up in /stary.farakurim.cz/ (outside WEB_ROOT, never synced).
@@ -21,6 +22,9 @@ SERVER_ONLY=(/uploads/ /nahrane/ /virtualni_prohlidka/ /cache/)
 # Days an old build's _next/static/ file stays on the server, so a tab opened before a release still loads the
 # chunks it asks for later (the lightbox, the next page).
 KEEP_STATIC_DAYS=30
+# The folder whose executable scripts a cron on the server runs daily (at 04:50), outside WEB_ROOT: cron-scripts/ goes
+# there. The token and the log of the workflow dispatch live next to the scripts, only on the server.
+CRON_DIR=/CRON.04-50
 
 cd "$(dirname "$0")/.."
 # The temporary folder of check-uploads or prune_static, removed however the script ends.
@@ -106,6 +110,15 @@ prune_static() {
     ssh "$SSH_TARGET" "cd $WEB_ROOT && xargs rm -f -- && find _next/static -mindepth 1 -type d -empty -delete" < "$tmp/stale"
 }
 
+cmd_cron() {
+  local n
+  parse_dry_run "$@"
+  # The PHP files alone, so the cron folder's own permissions stay; no --delete, so the token and the log next to
+  # them stay. 700: the hosting runs only executable scripts.
+  rsync -tz --perms "${n[@]}" --itemize-changes --chmod=F700 cron-scripts/*.php "$SSH_TARGET:$CRON_DIR/" |
+    { grep '^<f' || true; } | sed "s|^[^ ]* |$CRON_DIR/|"
+}
+
 cmd_verify() {
   local ok=true
   check() {
@@ -126,6 +139,7 @@ case "${1:-}" in
   pull-uploads) shift && cmd_pull_uploads "$@" ;;
   check-uploads) cmd_check_uploads ;;
   out) shift && cmd_out "$@" ;;
+  cron) shift && cmd_cron "$@" ;;
   verify) shift && cmd_verify "$@" ;;
-  *) sed -n '6,10p' "$0" | sed 's/^# \{0,1\}//' >&2 && exit 2 ;;
+  *) sed -n '6,11p' "$0" | sed 's/^# \{0,1\}//' >&2 && exit 2 ;;
 esac
