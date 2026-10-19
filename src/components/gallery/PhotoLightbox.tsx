@@ -48,7 +48,8 @@ type Props = {
 /**
  * The photo lightbox (design/DESIGN.md §21.2): the album's large photos with prev/next (wrapping around, also by
  * swipe and the arrow keys), the date and title, and on desktop a strip of thumbnails. A group page's photos have
- * no date and no Zonerama album, so those parts are left out.
+ * no date and no Zonerama album, so those parts are left out. A single photo has no prev/next, swipe hint,
+ * thumbnails or swipe (§5, Carousel).
  */
 export function PhotoLightbox({ album, index, position, onView, onClose, labels, hint }: Props) {
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -83,6 +84,8 @@ export function PhotoLightbox({ album, index, position, onView, onClose, labels,
       closeRef={closeRef}
       slides={slides}
       index={index}
+      // One photo: nothing to swipe to.
+      carousel={{ finite: count === 1 }}
       close={onClose}
       on={{ view: ({ index: i }) => onView(i) }}
       render={{
@@ -107,13 +110,9 @@ function PhotoControls({ album, position, closeRef, labels, hint }: ControlsProp
   const { currentIndex } = useLightboxState();
   const { prev, next } = useController();
   const count = album.photoCount;
+  const single = count === 1;
   const date = album.date && formatLongDate(album.date);
   const label = labels?.[currentIndex];
-  const go = (k: number) => {
-    if (k > currentIndex) next({ count: k - currentIndex });
-    else if (k < currentIndex) prev({ count: currentIndex - k });
-  };
-  const from = thumbStart(currentIndex, count, THUMBS);
 
   const prevButton = (className: string) => (
     <LightboxButton label="Předchozí fotografie" align="start" placement={className} onClick={() => prev()}>
@@ -150,52 +149,75 @@ function PhotoControls({ album, position, closeRef, labels, hint }: ControlsProp
 
       {/* Tablet and desktop: the arrows beside the photo. */}
       <div className="relative flex-1 max-md:hidden">
-        {prevButton("absolute top-1/2 left-6 -translate-y-1/2 lg:left-8")}
-        {nextButton("absolute top-1/2 right-6 -translate-y-1/2 lg:right-8")}
+        {!single && (
+          <>
+            {prevButton("absolute top-1/2 left-6 -translate-y-1/2 lg:left-8")}
+            {nextButton("absolute top-1/2 right-6 -translate-y-1/2 lg:right-8")}
+          </>
+        )}
       </div>
 
       <div className="flex flex-col gap-3.5 px-4 pt-4 pb-7 max-md:mt-auto md:px-6 md:pb-8 lg:px-8 lg:pb-6">
         <p className="text-center text-15 text-lightbox-ink-2 max-md:hidden">
           {label?.caption ?? (date ? `${date} · ${album.title}` : album.title)}
         </p>
-        <div className="flex items-center justify-between gap-3 md:hidden">
-          {prevButton("")}
-          <span className="text-14 text-lightbox-ink-2">{label?.short ?? date ?? album.title}</span>
-          {nextButton("")}
+        <div className="flex items-center gap-3 md:hidden">
+          {!single && prevButton("")}
+          <span className="flex-1 text-center text-14 text-lightbox-ink-2">{label?.short ?? date ?? album.title}</span>
+          {!single && nextButton("")}
         </div>
-        <p className="text-center text-13 text-lightbox-hint md:hidden">
-          {hint ?? "Přejeďte prstem pro další fotografii"}
-        </p>
-        <ul aria-label="Náhledy" className="flex justify-center gap-2 max-lg:hidden">
-          {Array.from({ length: Math.min(THUMBS, count) }, (_, k) => {
-            const i = from + k;
-            const current = i === currentIndex;
-            return (
-              <li key={i}>
-                <button
-                  type="button"
-                  aria-label={labels ? `Fotka: ${labels[i]?.title}` : `Fotografie ${i + 1}`}
-                  aria-current={current || undefined}
-                  className={clsx(
-                    "pointer-events-auto block h-13.5 w-18 cursor-pointer overflow-hidden rounded-8 border-2 p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
-                    current ? "border-white" : "border-transparent opacity-60 hover:opacity-100",
-                  )}
-                  onClick={() => go(i)}
-                >
-                  <AlbumPhotoTile
-                    photo={album.photos?.[i]}
-                    size="small"
-                    index={i + position}
-                    alt=""
-                    iconSize={20}
-                    shardClassName="h-4 w-5"
-                  />
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+        {!single && (
+          <>
+            <p className="text-center text-13 text-lightbox-hint md:hidden">
+              {hint ?? "Přejeďte prstem pro další fotografii"}
+            </p>
+            <PhotoThumbs album={album} position={position} labels={labels} />
+          </>
+        )}
       </div>
     </LightboxControls>
+  );
+}
+
+/** The desktop strip of thumbnails around the current photo. */
+function PhotoThumbs({ album, position, labels }: Pick<Props, "album" | "position" | "labels">) {
+  const { currentIndex } = useLightboxState();
+  const { prev, next } = useController();
+  const count = album.photoCount;
+  const go = (k: number) => {
+    if (k > currentIndex) next({ count: k - currentIndex });
+    else if (k < currentIndex) prev({ count: currentIndex - k });
+  };
+  const from = thumbStart(currentIndex, count, THUMBS);
+  return (
+    <ul aria-label="Náhledy" className="flex justify-center gap-2 max-lg:hidden">
+      {Array.from({ length: Math.min(THUMBS, count) }, (_, k) => {
+        const i = from + k;
+        const current = i === currentIndex;
+        return (
+          <li key={i}>
+            <button
+              type="button"
+              aria-label={labels ? `Fotka: ${labels[i]?.title}` : `Fotografie ${i + 1}`}
+              aria-current={current || undefined}
+              className={clsx(
+                "pointer-events-auto block h-13.5 w-18 cursor-pointer overflow-hidden rounded-8 border-2 p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+                current ? "border-white" : "border-transparent opacity-60 hover:opacity-100",
+              )}
+              onClick={() => go(i)}
+            >
+              <AlbumPhotoTile
+                photo={album.photos?.[i]}
+                size="small"
+                index={i + position}
+                alt=""
+                iconSize={20}
+                shardClassName="h-4 w-5"
+              />
+            </button>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
