@@ -4,6 +4,6 @@
 
 declare(strict_types=1);
 
-require __DIR__ . '/github.inc.php';
+require_once __DIR__ . '/github.inc.php';
 
 exit(dispatchWorkflow('service-sheet.yml'));
