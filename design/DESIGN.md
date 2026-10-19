@@ -227,7 +227,7 @@ considers the calendar essential, so it is the second thing visitors see.
   - **Hero (4.2):** one photo stays at full size, as a static image. With no photos, show the brand tint with the corner shards, so the next-mass card still has something to overlap.
   - **Homepage Fotogalerie (4.5):** the single photo fills the stage and is a link to the lightbox; the date, the album title, "Celé album →" and "Další alba" stay. Mockup: `mockups/komponenty/fotogalerie-1-fotka/` (light and dark, three sizes).
   - **Album strip (19):** photos keep their normal tile width and line up from the left (a 2-photo album on desktop shows two tiles and an empty third slot); they are never stretched. The count uses Czech plurals: "1 fotografie", "2–4 fotografie", "5 fotografií". The Fotogalerie mockups include a 2-photo album (Den národnostních menšin) and a 1-photo album (Poutní mše v Jinačovicích).
-  - **Lightbox (21):** no exception: it looks and works the same for any number of photos (with one photo: "1 / 1", the arrows and one thumbnail).
+  - **Lightbox (21):** with one photo, no prev/next buttons, no swipe hint, no thumbnails and no swipe; the top bar ("1 / 1" and the title), the caption, Zavřít and the Zonerama link stay.
 
 ### Motion
 - **Colour changes fade (~150 ms)** on everything interactive (links, buttons, pills, cards, menu items), also under `prefers-reduced-motion`.
