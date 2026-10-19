@@ -80,10 +80,10 @@ export function LightboxControls({ children }: { children: ReactNode }) {
 }
 
 type TopBarProps = {
-  /** Bold first line: the counter ("3 / 12", announced) or "Plakát". */
-  heading: string;
+  /** Bold first line: the counter ("3 / 12", announced) or "Plakát"; none for a single photo. */
+  heading?: string;
   live?: boolean;
-  /** Muted second line, one line with an ellipsis; none when the heading says it all. */
+  /** Muted second line, one line with an ellipsis. */
   title?: string;
   /** Buttons before the close button ("Album na Zonerama"). */
   actions?: ReactNode;
@@ -91,15 +91,20 @@ type TopBarProps = {
   className?: string;
 };
 
-/** The top bar (design/DESIGN.md §21.1): heading and title on the left, actions and "Zavřít" on the right. */
+/**
+ * The top bar (design/DESIGN.md §21.1): heading and title on the left (empty for a single photo, §5), actions and
+ * "Zavřít" on the right.
+ */
 export function LightboxTopBar({ heading, live, title, actions, closeRef, className }: TopBarProps) {
   const { close } = useController();
   return (
     <div className={clsx("flex items-center justify-between gap-3 p-3 md:px-6 md:py-4 lg:px-8 lg:py-5", className)}>
       <div className="flex min-w-0 flex-col leading-card">
-        <span aria-live={live ? "polite" : undefined} className="text-15 font-bold">
-          {heading}
-        </span>
+        {heading && (
+          <span aria-live={live ? "polite" : undefined} className="text-15 font-bold">
+            {heading}
+          </span>
+        )}
         {title && <span className="truncate text-14 text-lightbox-ink-2">{title}</span>}
       </div>
       <div className="flex items-center gap-2">

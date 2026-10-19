@@ -113,7 +113,6 @@ function PhotoControls({ album, position, closeRef, labels, hint }: ControlsProp
   const single = count === 1;
   const date = album.date && formatLongDate(album.date);
   const label = labels?.[currentIndex];
-  const title = label?.title ?? album.title;
 
   const prevButton = (className: string) => (
     <LightboxButton label="Předchozí fotografie" align="start" placement={className} onClick={() => prev()}>
@@ -129,10 +128,10 @@ function PhotoControls({ album, position, closeRef, labels, hint }: ControlsProp
   return (
     <LightboxControls>
       <LightboxTopBar
-        // One photo has no counter: its title takes the first line.
-        heading={single ? title : `${currentIndex + 1} / ${count}`}
-        live={!single}
-        title={single ? undefined : title}
+        // One photo has no counter, and the top left stays empty (§5, Carousel).
+        heading={single ? undefined : `${currentIndex + 1} / ${count}`}
+        live
+        title={single ? undefined : (label?.title ?? album.title)}
         closeRef={closeRef}
         actions={
           album.href && (
