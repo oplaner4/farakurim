@@ -1,6 +1,6 @@
 # Renders the design-tool mockups (design/mockups/<page>/<light|dark>/*.dc.html) to static HTML for visual comparison.
 # Usage: python3 scripts/render-mockups.py [out-dir]  (default: .design-preview, served by `pnpm mockups`)
-# Output: <out-dir>/mockups/<page>/<light|dark>/<name>.html
+# Output: <out-dir>/mockups/<page>/<light|dark>/<name>.html (a component state: <page> is komponenty/<name>)
 #
 # Each mockup's `renderVals()` (its script block) runs in Node with the initial state, then the
 # `{{holes}}`, <sc-for> and <sc-if> are filled from the result. The clock is pinned to Saturday 3. 10. 2026
@@ -85,8 +85,9 @@ def fill(s, ctx):
   return re.sub(r"\{\{\s*([\w.]+)\s*\}\}", lambda h: "" if (v := lookup(ctx, h.group(1))) is None else str(v), "".join(out))
 
 
-for f in sorted(src_dir.glob("*/*/*.dc.html")):
-  page, theme = f.parent.parent.name, f.parent.name
+# Pages, and the component states under komponenty/<name>/ (komponenty/fotogalerie-1-fotka).
+for f in sorted([*src_dir.glob("*/*/*.dc.html"), *src_dir.glob("komponenty/*/*/*.dc.html")]):
+  page, theme = f.parent.parent.relative_to(src_dir).as_posix(), f.parent.name
   s = f.read_text()
   script = re.search(r'<script type="text/x-dc".*?>(.*?)</script>', s, flags=re.S).group(1)
   props = {k: v["default"] for k, v in json.loads(re.search(r"data-props='(.*?)'", s).group(1)).items() if "default" in v}

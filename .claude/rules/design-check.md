@@ -15,7 +15,8 @@ The mockups are design-tool templates (`<x-dc>`, `<sc-if>`, `{{holes}}`) and can
 (`<page>/light/mobile-390.html`, `tablet-834.html`, `desktop-1440.html`, and `<page>/dark/*-dark.html`; pages: `home`, `aktuality`, `archiv`, `detail`, `detail-zrusena`, `porad-bohosluzeb`, `kontakty`, `kalendar`, `petrklic`, `petrklic-archiv`, `fotogalerie`, `financni-podpora`, `financni-podpora-starsi`, `odkazy`, `kronika`, `vyuka-nabozenstvi`,
 `aktivity`, `skupina-schola`, `skupina-chramovy-sbor`, `skupina-spolecenstvi-mladeze`, `skupina-katecheze`, `archiv-hledani` (Archiv aktualit while searching),
 `tabor-o-taboru`, `tabor-vedouci`, `tabor-kontakt`, `tabor-rocniky`, `menu` (the homepage with the "Více" menu open), `lightbox-foto`, `lightbox-plakat` and `lightbox-tym` (the open lightbox: open the build's
-Fotogalerie at `#album-<id>-foto-3`, a detail page at `#plakat` and Tábor – Vedoucí at `#foto-1`)). Serve the build with `pnpm preview` and compare
+Fotogalerie at `#album-<id>-foto-3`, a detail page at `#plakat` and Tábor – Vedoucí at `#foto-1`), and
+`komponenty/fotogalerie-1-fotka` (the homepage Fotogalerie when the newest album has one photo)). Serve the build with `pnpm preview` and compare
 screenshots plus block positions (`getBoundingClientRect()` of each `section[aria-labelledby]`).
 
 - The mockup frames are fixed-width, so give the browser a viewport ~15 px wider for the scrollbar.
