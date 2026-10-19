@@ -83,8 +83,8 @@ type TopBarProps = {
   /** Bold first line: the counter ("3 / 12", announced) or "Plakát". */
   heading: string;
   live?: boolean;
-  /** Muted second line, one line with an ellipsis. */
-  title: string;
+  /** Muted second line, one line with an ellipsis; none when the heading says it all. */
+  title?: string;
   /** Buttons before the close button ("Album na Zonerama"). */
   actions?: ReactNode;
   closeRef: Ref<HTMLButtonElement>;
@@ -100,7 +100,7 @@ export function LightboxTopBar({ heading, live, title, actions, closeRef, classN
         <span aria-live={live ? "polite" : undefined} className="text-15 font-bold">
           {heading}
         </span>
-        <span className="truncate text-14 text-lightbox-ink-2">{title}</span>
+        {title && <span className="truncate text-14 text-lightbox-ink-2">{title}</span>}
       </div>
       <div className="flex items-center gap-2">
         {actions}

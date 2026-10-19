@@ -1,5 +1,6 @@
 "use client";
 
+import { clsx } from "clsx";
 import dynamic from "next/dynamic";
 import type { Album } from "@/content/types/gallery";
 import { formatLongDate } from "@/lib/shared/czech";
@@ -32,14 +33,15 @@ type Props = {
 /**
  * One album of the Fotogalerie page (design/DESIGN.md §19.1): date, title, photo count and a link to Zonerama, then
  * a strip of 1 / 2 / 3 photos per screen that the arrows page through (wrapping around) and that turns a page every
- * few seconds until the visitor takes over (not while the lightbox is open). Each photo opens the
+ * few seconds until the visitor takes over (not while the lightbox is open). An album with no more photos than fit
+ * on the screen is no carousel: its photos line up from the left, without arrows or counter (§5). Each photo opens the
  * lightbox at that photo (§21, `#album-<id>-foto-3`); without JS it links to the album on Zonerama.
  */
 export function AlbumStrip({ album, position }: Props) {
   const count = album.photoCount;
   const id = albumElementId(album);
   const open = photoFromHash(album, useLocationHash());
-  const { view, regionProps, trackProps, prev, next } = useSnapCarousel<HTMLUListElement>(count, {
+  const { view, scrollable, regionProps, trackProps, prev, next } = useSnapCarousel<HTMLUListElement>(count, {
     paused: open !== null,
   });
   return (
@@ -67,7 +69,7 @@ export function AlbumStrip({ album, position }: Props) {
       </div>
       <div
         role="region"
-        aria-roledescription="carousel"
+        aria-roledescription={scrollable ? "carousel" : undefined}
         aria-label={`Fotografie z alba ${album.title}`}
         className="flex flex-col gap-2.5"
         {...regionProps}
@@ -76,7 +78,7 @@ export function AlbumStrip({ album, position }: Props) {
         <ul
           {...trackProps}
           // Focusable, so the arrow keys work without reaching for the buttons.
-          tabIndex={0}
+          tabIndex={scrollable ? 0 : undefined}
           aria-label="Fotografie"
           className="-mx-1.5 no-scrollbar flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain motion-safe:scroll-smooth md:-mx-1.75 lg:-mx-2"
         >
@@ -110,28 +112,37 @@ export function AlbumStrip({ album, position }: Props) {
             </li>
           ))}
         </ul>
-        <div data-js-only className="flex items-center justify-between gap-3">
-          <ArrowButton
-            direction="prev"
-            variant="outline"
-            tone="green"
-            aria-label="Předchozí fotografie"
-            onClick={prev}
-          />
-          <span aria-live="polite" className="text-15 font-bold text-ink-2">
-            {view ? (
-              photoCounter(view.first + 1, view.last + 1, count)
-            ) : (
-              // Before the strip is measured: the first page at each breakpoint.
-              <>
-                <span className="md:hidden">{photoCounter(1, 1, count)}</span>
-                <span className="hidden md:inline lg:hidden">{photoCounter(1, Math.min(2, count), count)}</span>
-                <span className="hidden lg:inline">{photoCounter(1, Math.min(3, count), count)}</span>
-              </>
+        {count > 1 && (
+          <div
+            data-js-only
+            // Only where more photos than fit: 1 on mobile, 2 on tablet, 3 on desktop.
+            className={clsx(
+              "flex items-center justify-between gap-3",
+              count <= 2 ? "md:hidden" : count <= 3 && "lg:hidden",
             )}
-          </span>
-          <ArrowButton direction="next" variant="outline" tone="green" aria-label="Další fotografie" onClick={next} />
-        </div>
+          >
+            <ArrowButton
+              direction="prev"
+              variant="outline"
+              tone="green"
+              aria-label="Předchozí fotografie"
+              onClick={prev}
+            />
+            <span aria-live="polite" className="text-15 font-bold text-ink-2">
+              {view ? (
+                photoCounter(view.first + 1, view.last + 1, count)
+              ) : (
+                // Before the strip is measured: the first page at each breakpoint.
+                <>
+                  <span className="md:hidden">{photoCounter(1, 1, count)}</span>
+                  <span className="hidden md:inline lg:hidden">{photoCounter(1, Math.min(2, count), count)}</span>
+                  <span className="hidden lg:inline">{photoCounter(1, Math.min(3, count), count)}</span>
+                </>
+              )}
+            </span>
+            <ArrowButton direction="next" variant="outline" tone="green" aria-label="Další fotografie" onClick={next} />
+          </div>
+        )}
       </div>
       {open !== null && (
         <PhotoLightbox

@@ -9,6 +9,11 @@ import { plural } from "@/lib/shared/czech";
  */
 export const MAX_ALBUMS = 6;
 
+/**
+ * `sizes` of the homepage's photo stage (§4.5): full width up to the desktop, then beside the 340 px "Další alba".
+ */
+export const STAGE_SIZES = "(min-width: 75rem) 836px, (min-width: 48rem) calc(100vw - 64px), calc(100vw - 32px)";
+
 /** The link an album keeps to the parish's album `number` on Zonerama. */
 export const albumHref = (number: string) => `https://www.zonerama.com/FarnostKurim/Album/${number}`;
 

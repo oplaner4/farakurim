@@ -14,8 +14,10 @@ export type SnapView = { first: number; last: number };
  * hero's dots). The first item in view stays in place when the track's width changes (rotation, window resize).
  *
  * It turns a page every few seconds while it is on screen, unless `paused`, hovered or focused, and never under
- * `prefers-reduced-motion`; autoplay stops for good once the visitor swipes or uses the arrows. Spread
- * `regionProps` on the carousel and `trackProps` on the track.
+ * `prefers-reduced-motion`; autoplay stops for good once the visitor swipes or uses the arrows. `scrollable` is
+ * false while every item is in view (design/DESIGN.md §5: then it is no carousel, without autoplay or arrow keys);
+ * before the track is measured it assumes one item per page. Spread `regionProps` on the carousel and `trackProps`
+ * on the track.
  */
 export function useSnapCarousel<T extends HTMLElement>(count: number, { paused = false } = {}) {
   const trackRef = useRef<T>(null);
@@ -68,16 +70,18 @@ export function useSnapCarousel<T extends HTMLElement>(count: number, { paused =
     else track.scrollBy({ left: direction * track.clientWidth });
   }, []);
 
+  const scrollable = view ? view.last - view.first + 1 < count : count > 1;
+
   // Restarted on every page turn, so each page stays the full interval.
   const first = view?.first;
   useEffect(() => {
-    if (count < 2 || stopped || paused || hovered || focused || !onScreen) return;
+    if (!scrollable || stopped || paused || hovered || focused || !onScreen) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const id = setInterval(() => {
       if (document.visibilityState === "visible") go(1);
     }, AUTOPLAY_MS);
     return () => clearInterval(id);
-  }, [count, stopped, paused, hovered, focused, onScreen, first, go]);
+  }, [scrollable, stopped, paused, hovered, focused, onScreen, first, go]);
 
   const userGo = (direction: 1 | -1) => {
     setStopped(true);
@@ -94,7 +98,7 @@ export function useSnapCarousel<T extends HTMLElement>(count: number, { paused =
 
   /** Arrow keys anywhere in the carousel turn the page. */
   const onKeyDown = (event: KeyboardEvent) => {
-    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    if (!scrollable || (event.key !== "ArrowLeft" && event.key !== "ArrowRight")) return;
     event.preventDefault();
     userGo(event.key === "ArrowRight" ? 1 : -1);
   };
@@ -116,5 +120,5 @@ export function useSnapCarousel<T extends HTMLElement>(count: number, { paused =
     },
   };
 
-  return { view, regionProps, trackProps, prev: () => userGo(-1), next: () => userGo(1), goTo };
+  return { view, scrollable, regionProps, trackProps, prev: () => userGo(-1), next: () => userGo(1), goTo };
 }

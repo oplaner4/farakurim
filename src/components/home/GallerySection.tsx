@@ -1,7 +1,7 @@
 import type { Album } from "@/content/types/gallery";
 import { links } from "@/content/site";
 import { formatDayMonth, formatLongDate } from "@/lib/shared/czech";
-import { albumAnchor } from "@/lib/gallery/albums";
+import { STAGE_SIZES, albumAnchor, photoAlt, photoHash } from "@/lib/gallery/albums";
 import { AlbumPhotoTile } from "@/components/gallery/AlbumPhotoTile";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { AlbumCarousel } from "./AlbumCarousel";
@@ -9,7 +9,8 @@ import { ArrowLink } from "@/components/ui/ArrowLink";
 
 /**
  * Fotogalerie (design/DESIGN.md §4.5): the newest album's photos in a carousel, then the next three albums as
- * compact rows ("Další alba"), under the carousel on mobile and tablet and beside it on desktop.
+ * compact rows ("Další alba"), under the carousel on mobile and tablet and beside it on desktop. An album of one photo
+ * shows it as a plain image that opens the lightbox on the Fotogalerie page (§5, Carousel).
  */
 export function GallerySection({ albums }: { albums: Album[] }) {
   const [newest, ...older] = albums;
@@ -25,7 +26,27 @@ export function GallerySection({ albums }: { albums: Album[] }) {
       />
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-6">
         <figure className="flex min-w-0 flex-col gap-3 lg:flex-1">
-          <AlbumCarousel album={newest} />
+          {newest.photoCount > 1 ? (
+            <AlbumCarousel album={newest} />
+          ) : (
+            <a
+              href={`${links.gallery}${photoHash(newest, 1)}`}
+              aria-label={`${newest.title} – zobrazit fotografii zvětšenou`}
+              className="group block aspect-4/3 overflow-hidden rounded-20 md:aspect-16/9 md:rounded-24 lg:aspect-16/10 lg:rounded-28"
+            >
+              <AlbumPhotoTile
+                photo={newest.photos?.[0]}
+                size="large"
+                sizes={STAGE_SIZES}
+                index={0}
+                alt={photoAlt(newest, 1)}
+                eager
+                iconSize={48}
+                shardClassName="h-24 w-32 md:h-32 md:w-44"
+                className="motion-safe:group-hover:scale-103"
+              />
+            </a>
+          )}
           <figcaption className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
             <span className="flex flex-col">
               <time dateTime={newest.date} className="text-14 text-muted">
