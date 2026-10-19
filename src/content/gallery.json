@@ -1,6 +1,19 @@
 {
   "albums": [
     {
+      "id": "adoracni-den-2026",
+      "title": "Adorační den",
+      "date": "2026-10-12",
+      "href": "https://www.zonerama.com/FarnostKurim/Album/17091587",
+      "photoCount": 1,
+      "photos": [
+        {
+          "small": "https://eu.zonerama.com/photos/679691557_800x800_2.jpg",
+          "large": "https://eu.zonerama.com/photos/679691557_800x800_2.jpg"
+        }
+      ]
+    },
+    {
       "id": "pesi-pout-vranov",
       "title": "Pěší pouť na Vranov",
       "date": "2026-09-27",
