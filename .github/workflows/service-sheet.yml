@@ -12,11 +12,11 @@
 #   tests, builds, commits as the GitHub App's bot and opens or updates the one service-sheet/* PR, its body the
 #   report, a draft while the report has a blocking question (an update turns it back into one). It has no id-token,
 #   so it cannot act as Claude.
-# Merging and releasing stay with the maintainer, who downloads the staged PDFs from the artifacts of the PR's
-# commits. Nothing changed: no PR. The mail is filed (Zpracováno, Odmítnuto) only once its outcome is done, so a run
-# that breaks retries the sheet on the next run. Both jobs run in the environment `service-sheet-publish` (the IMAP
-# login, the App key; the federation rule matches it, but only `sheet` has an id-token, and a secret reaches only the
-# steps that name it). The job summary and the failure (refused week, document error, a parish message without
+# The maintainer's merge releases the site (service-sheet-release.yml), with the staged PDFs from the artifacts of
+# the PR's commits. Nothing changed: no PR. The mail is filed (Zpracováno, Odmítnuto) only once its outcome is done, so
+# a run that breaks retries the sheet on the next run. Both jobs run in the environment `service-sheet-publish` (the
+# IMAP login; the federation rule matches it, but only `sheet` has an id-token). The App key is a repository secret,
+# shared with service-sheet-release.yml; a secret reaches only the steps that name it. The job summary and the failure (refused week, document error, a parish message without
 # exactly one DOCX) tell the maintainer; no e-mail is sent. The runner image and the actions are pinned (actions by
 # commit SHA).
 
@@ -300,7 +300,7 @@ jobs:
             echo
             echo "---"
             echo
-            echo "Opened by the service sheet workflow (\`service-sheet.yml\`). Merge to publish, then release."
+            echo "Opened by the service sheet workflow (\`service-sheet.yml\`). Squash merge to publish: the merge releases the site."
             echo "The staged PDFs are in the artifact \`service-sheet-pdf-<sha>\` of each commit; this run: $RUN_URL"
           } > "$run/pr-body.md"
 

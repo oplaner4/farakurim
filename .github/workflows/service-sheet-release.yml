@@ -1,0 +1,259 @@
+# Releases the site when a service sheet PR is merged (phase 2, §7 of
+# docs/superpowers/specs/2026-10-16-service-sheet-email-pipeline-design.md). The maintainer's squash merge of a
+# `service-sheet/*` PR (opened by service-sheet.yml) is the yes to publish. It runs on the push to main rather than
+# on `pull_request: closed`: an environment's deployment branch rule is matched against GITHUB_REF, which is
+# refs/pull/N/merge for a pull request run, and Production allows only the tags v* and main.
+# - `plan` runs `pnpm sheet-release` (scripts/sheet-release.ts) on the pushed commit and the commits since the last
+#   tag. It skips a push that is not a sheet PR's squash commit (the maintainer's own pushes) and ends green when an
+#   earlier run released everything. It stops with a comment on the sheet PRs, releasing nothing, unless every
+#   unreleased commit is a merged sheet PR's squash commit (another commit's uploads live only on the maintainer's
+#   machine) or when a PDF artifact expired: then the maintainer releases by hand (docs/deployment.md).
+# - `release` (environment Production: the SSH key) downloads the PDF artifacts of every commit of those PRs into
+#   uploads/porady_bohosluzeb/: each service-sheet.yml run hands on only the PDFs it staged, and the PRs in merge
+#   order, their commits oldest first, let the newest PDF of a week win. Then `pnpm release --yes` uploads them,
+#   bumps the version, tags and pushes main with the App token, so the tag starts deploy.yml, which checks, builds
+#   and deploys unchanged. The job waits for that deploy and comments "Released in vX.Y.Z" on each PR and deletes its
+#   branch, or comments the failure. A PDF that has no artifact (a commit the maintainer pushed to the branch) is not
+#   uploaded: deploy.yml then stops at check-uploads with the live site untouched. A failed release is fixed in a new
+#   commit; never move a tag.
+# Two sheet PRs merged close together go out in one release: the runs queue, and the second finds nothing to release.
+# The App key is a repository secret (SHEET_APP_PRIVATE_KEY, shared with service-sheet.yml); a secret reaches only the
+# steps that name it. The runner image and the actions are pinned (actions by commit SHA).
+
+name: Service sheet release
+
+on:
+  push:
+    branches: [main]
+    # A sheet PR changes only src/content/; the release commit (package.json) does not start it.
+    paths: ["src/content/**"]
+
+# One run at a time, never cancelled mid-release; a newer pending run replaces an older one, and it sees every merge.
+concurrency:
+  group: service-sheet-release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: read # the PRs of the commits
+      actions: read # the PDF artifacts
+    outputs:
+      action: ${{ steps.plan.outputs.action }}
+      plan: ${{ steps.plan.outputs.plan }}
+      sha: ${{ steps.plan.outputs.sha }}
+    steps:
+      # main, not the pushed commit: a run that waited in the queue then sees every merge since.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          fetch-depth: 0 # the commits since the last tag
+          persist-credentials: false # nothing here pushes
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Plan
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          plan="$RUNNER_TEMP/plan.json"
+          pnpm --silent sheet-release --pushed "$GITHUB_SHA" > "$plan"
+          action=$(jq -r .action "$plan")
+          {
+            echo "action=$action"
+            echo "plan=$(jq -c . "$plan")"
+            echo "sha=$(git rev-parse HEAD)"
+          } >> "$GITHUB_OUTPUT"
+          case "$action" in
+            skip | none) echo "::notice::$(jq -r .reason "$plan")" ;;
+            release) echo "Releasing PR(s) $(jq -r '[.pulls[] | "#\(.number)"] | join(", ")' "$plan")." ;;
+          esac
+
+      - name: Create the App token
+        id: app
+        if: steps.plan.outputs.action == 'blocked'
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          app-id: ${{ vars.SHEET_APP_ID }}
+          private-key: ${{ secrets.SHEET_APP_PRIVATE_KEY }}
+
+      # The App token: the PR conversation is locked, and only collaborators can comment.
+      - name: Report why nothing is released
+        if: steps.plan.outputs.action == 'blocked'
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          PLAN: ${{ steps.plan.outputs.plan }}
+        run: |
+          reason=$(jq -r .reason <<< "$PLAN")
+          for pr in $(jq -r '.pulls[].number' <<< "$PLAN"); do
+            gh pr comment "$pr" --repo "$GITHUB_REPOSITORY" --body "Not released: $reason. Release with \`pnpm release\` by hand once that is sorted out (docs/deployment.md)."
+          done
+          echo "::error::$reason"
+          exit 1
+
+  release:
+    needs: plan
+    if: needs.plan.outputs.action == 'release'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    environment:
+      name: Production
+      url: https://farakurim.cz/porad_bohosluzeb/
+    permissions:
+      contents: read # the push and the comments use the App token
+      actions: read # the PDF artifacts and the deploy run
+    env:
+      PLAN: ${{ needs.plan.outputs.plan }}
+    steps:
+      - name: Create the App token
+        id: app
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          app-id: ${{ vars.SHEET_APP_ID }}
+          private-key: ${{ secrets.SHEET_APP_PRIVATE_KEY }}
+
+      # With the App token persisted: release.sh fetches main and pushes it with the tag, and a push made with the
+      # App's token (unlike github.token) starts deploy.yml.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          fetch-depth: 0 # the tags, for the version
+          token: ${{ steps.app.outputs.token }}
+
+      # A commit pushed since the plan was not checked: release nothing (the maintainer releases by hand).
+      - name: Check out the planned main
+        env:
+          PLANNED: ${{ needs.plan.outputs.sha }}
+        run: |
+          if [ "$(git rev-parse HEAD)" != "$PLANNED" ]; then
+            echo "::error::main moved since the plan: nothing was released."
+            exit 1
+          fi
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # The release commit is the App's bot's; the commit-msg hook stays on (chore(release): vX.Y.Z passes it).
+      - name: Set the committer
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          APP_SLUG: ${{ steps.app.outputs.app-slug }}
+        run: |
+          bot="${APP_SLUG}[bot]"
+          id=$(gh api "/users/$bot" --jq .id)
+          git config user.name "$bot"
+          git config user.email "$id+$bot@users.noreply.github.com"
+
+      - name: Set up SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          # The host key is public, so it may be a variable; the private key must be a secret.
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS || vars.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          if [ -z "$DEPLOY_SSH_KEY" ] || [ -z "$DEPLOY_KNOWN_HOSTS" ]; then
+            echo "::error::Set DEPLOY_SSH_KEY (secret) and DEPLOY_KNOWN_HOSTS in the Production environment."
+            exit 1
+          fi
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      # In the plan's order, so a later PDF of the same name (a correction) overwrites an earlier one.
+      - name: Download the PDFs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p uploads/porady_bohosluzeb
+          jq -r '.pulls[].artifacts[] | "\(.runId) \(.name)"' <<< "$PLAN" | while read -r run name; do
+            gh run download "$run" --repo "$GITHUB_REPOSITORY" -n "$name" -D "$RUNNER_TEMP/pdf/$name"
+            cp "$RUNNER_TEMP/pdf/$name"/*.pdf uploads/porady_bohosluzeb/
+          done
+          ls -l uploads/porady_bohosluzeb
+
+      # Uploads the PDFs (and the cron scripts) first, then the version commit and the tag, pushed with main.
+      - name: Release
+        id: release
+        run: |
+          pnpm release --yes
+          echo "tag=v$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for the deploy
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ steps.release.outputs.sha }}
+        run: |
+          id=""
+          for _ in $(seq 30); do
+            id=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow deploy.yml --commit "$SHA" \
+              --json databaseId --jq '.[0].databaseId // empty')
+            if [ -n "$id" ]; then break; fi
+            sleep 10
+          done
+          if [ -z "$id" ]; then
+            echo "::error::No deploy run started for $SHA within 5 minutes."
+            exit 1
+          fi
+          echo "Deploy run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$id"
+          gh run watch "$id" --repo "$GITHUB_REPOSITORY" --exit-status --interval 30 > /dev/null
+
+      - name: Report the release
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          jq -r '.pulls[] | "\(.number) \(.branch)"' <<< "$PLAN" | while read -r pr branch; do
+            gh pr comment "$pr" --repo "$GITHUB_REPOSITORY" --body "Released in $TAG: https://farakurim.cz/porad_bohosluzeb/"
+            gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$branch" > /dev/null || true
+          done
+
+      - name: Report a failure
+        if: failure() && steps.app.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          body="The release failed: $RUN_URL."
+          if [ -n "$TAG" ]; then
+            body="$body $TAG was tagged and pushed, but its deploy did not succeed. If deploy.yml stopped at check-uploads, upload the missing PDF (\`pnpm release\` uploads uploads/) and re-run the deploy run; otherwise fix it in a new commit and release with \`pnpm release\` (never move a tag)."
+          else
+            body="$body Nothing was tagged or published. Fix it and release with \`pnpm release\` (docs/deployment.md)."
+          fi
+          for pr in $(jq -r '.pulls[].number' <<< "$PLAN"); do
+            gh pr comment "$pr" --repo "$GITHUB_REPOSITORY" --body "$body"
+          done
+
+      - name: Summary
+        if: always()
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+          OUTCOME: ${{ job.status }}
+        run: |
+          {
+            echo "## Service sheet release"
+            echo
+            jq -r '.pulls[] | "- PR #\(.number) (\(.branch)): \(.artifacts | length) PDF artifact(s)"' <<< "$PLAN"
+            echo
+            echo "Release: ${TAG:-not tagged}, $OUTCOME."
+          } >> "$GITHUB_STEP_SUMMARY"
