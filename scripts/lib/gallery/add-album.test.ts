@@ -15,6 +15,7 @@ import {
   readGallery,
   selectPhotos,
   titleAndDate,
+  titleAndDateFromZip,
   type ZoneramaItem,
 } from "./add-album";
 import { freshTempDir } from "../test-helpers";
@@ -111,6 +112,25 @@ describe("selectPhotos", () => {
 
   it("stops on an album without photos", () => {
     expect(() => selectPhotos([])).toThrow(/no photos/);
+  });
+
+  it("takes any photo with a size, such as the originals of a zip", () => {
+    const files = [
+      { file: "a.jpg", width: 4000, height: 3000 },
+      { file: "b.jpg", width: 3000, height: 4000 },
+      { file: "c.jpg", width: 4000, height: 3000 },
+    ];
+    expect(selectPhotos(files).group.map((p) => p.file)).toEqual(["a.jpg", "c.jpg"]);
+  });
+});
+
+describe("titleAndDateFromZip", () => {
+  it("reads the title and the date from the zip's name", () => {
+    expect(titleAndDateFromZip("/x/2026_09_27 pesi pout na Vranov.zip")).toEqual({
+      title: "Pesi pout na Vranov",
+      date: "2026-09-27",
+    });
+    expect(titleAndDateFromZip("fotky.ZIP")).toEqual({ title: "Fotky", date: "" });
   });
 });
 

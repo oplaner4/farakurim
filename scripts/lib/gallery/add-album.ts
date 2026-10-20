@@ -4,6 +4,7 @@
 // album to the gallery file, newest first, and removes the albums beyond MAX_ALBUMS. The album's rules are
 // albumSchema's (src/lib/gallery/schema.ts).
 
+import { basename, extname } from "node:path";
 import { decodeHTML } from "entities";
 import type { Album, AlbumPhoto, GalleryFile } from "@/content/types/gallery";
 import { albumHref, MAX_ALBUMS, scaledHeight } from "@/lib/gallery/albums";
@@ -44,7 +45,15 @@ const PAGE_CHANGED = "has Zonerama changed its album page?";
 export function titleAndDate(page: string): { title: string; date: string } {
   const raw = page.match(/<title>([^]*?) \| Zonerama/)?.[1];
   if (raw === undefined) throw new Error(`the page has no Zonerama title: ${NOT_ALBUM}`);
-  const text = decodeHTML(raw).trim();
+  return datedTitle(decodeHTML(raw));
+}
+
+/** "/x/2026_09_27 pesi pout na Vranov.zip" → { title: "Pesi pout na Vranov", date: "2026-09-27" }, as titleAndDate. */
+export const titleAndDateFromZip = (zip: string) => datedTitle(basename(zip, extname(zip)));
+
+/** "2026_08_30 pouť na Vranov" → { title: "Pouť na Vranov", date: "2026-08-30" }; without the prefix no date. */
+function datedTitle(name: string): { title: string; date: string } {
+  const text = name.trim();
   const m = text.match(/^(\d{4})_(\d{2})_(\d{2})\s+([^]*)$/);
   const [title, date] = m ? [m[4], `${m[1]}-${m[2]}-${m[3]}`] : [text, ""];
   return { title: capitalize(title), date };
@@ -78,8 +87,11 @@ export function photoItems(page: string): ZoneramaItem[] {
 }
 
 /** Width / height rounded to 2 dp: tolerates crops of a pixel or two, still separates 3:2 from 4:3. */
-const ratioOf = (p: ZoneramaItem) => Math.round((Number(p.width) / Number(p.height)) * 100) / 100;
-const sizeOf = (p: ZoneramaItem) => `${p.width}x${p.height}`;
+/** A photo with a size: a Zonerama item or an original from a zip. */
+type Sized = { width: number; height: number };
+
+const ratioOf = (p: Sized) => Math.round((Number(p.width) / Number(p.height)) * 100) / 100;
+const sizeOf = (p: Sized) => `${p.width}x${p.height}`;
 
 function tally<T>(values: T[]): Map<T, number> {
   const counts = new Map<T, number>();
@@ -91,7 +103,7 @@ function tally<T>(values: T[]): Map<T, number> {
  * The strips crop every photo to 4:3, so the album shows photos of one shape: the most common landscape aspect ratio
  * (the first seen on a tie), uncropped photos (the most common exact size) first.
  */
-export function selectPhotos(items: ZoneramaItem[]): { ratio: number; group: ZoneramaItem[] } {
+export function selectPhotos<T extends Sized>(items: T[]): { ratio: number; group: T[] } {
   if (items.length === 0) throw new Error("the album has no photos");
   const landscape = items.filter((p) => ratioOf(p) >= 1);
   const pool = landscape.length > 0 ? landscape : items;
