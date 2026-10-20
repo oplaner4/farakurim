@@ -16,9 +16,12 @@ set -euo pipefail
 SSH_TARGET=farakurim_cz@91.239.200.63
 WEB_ROOT=/farakurim.cz
 SITE=https://farakurim.cz
+# The folder of the uploaded files, in the repo and in WEB_ROOT: UPLOADS_PATH (src/lib/shared/uploads.ts) without
+# its slashes; a test checks it.
+UPLOADS=uploads
 # Not in out/ and only on the server: uploaded files, the old site's files (kept so old links keep working), the old
 # site's virtual tour, the last vira.cz verse.
-SERVER_ONLY=(/uploads/ /nahrane/ /virtualni_prohlidka/ /cache/)
+SERVER_ONLY=("/$UPLOADS/" /nahrane/ /virtualni_prohlidka/ /cache/)
 # Days an old build's _next/static/ file stays on the server, so a tab opened before a release still loads the
 # chunks it asks for later (the lightbox, the next page).
 KEEP_STATIC_DAYS=30
@@ -52,22 +55,22 @@ parse_dry_run() {
 cmd_uploads() {
   local n
   parse_dry_run "$@"
-  if [ -z "$(find uploads -type f 2>/dev/null | head -1)" ]; then
-    echo "uploads/ is empty: nothing to upload."
+  if [ -z "$(find "$UPLOADS" -type f 2>/dev/null | head -1)" ]; then
+    echo "$UPLOADS/ is empty: nothing to upload."
     return
   fi
   # --ignore-existing and no --delete: the server holds the only copy of earlier uploads.
   rsync -az "${n[@]}" --itemize-changes --ignore-existing --chmod=D755,F644 \
-    uploads/ "$SSH_TARGET:$WEB_ROOT/uploads/" | { grep '^<f' || true; } | sed 's|^[^ ]* |/uploads/|'
+    "$UPLOADS/" "$SSH_TARGET:$WEB_ROOT/$UPLOADS/" | { grep '^<f' || true; } | sed "s|^[^ ]* |/$UPLOADS/|"
 }
 
 cmd_pull_uploads() {
   local n
   parse_dry_run "$@"
-  mkdir -p uploads
+  mkdir -p "$UPLOADS"
   # --ignore-existing and no --delete: files staged but not released yet stay as they are.
   rsync -az "${n[@]}" --itemize-changes --ignore-existing \
-    "$SSH_TARGET:$WEB_ROOT/uploads/" uploads/ | { grep '^>f' || true; } | sed 's|^[^ ]* |uploads/|'
+    "$SSH_TARGET:$WEB_ROOT/$UPLOADS/" "$UPLOADS/" | { grep '^>f' || true; } | sed "s|^[^ ]* |$UPLOADS/|"
 }
 
 cmd_check_uploads() {
@@ -75,13 +78,13 @@ cmd_check_uploads() {
   tmp=$(mktemp -d)
   # Only our own links: root-relative (after a quote or a parenthesis) or on farakurim.cz, not another site's
   # /wp-content/uploads/.
-  grep -rhoE '(["'\''(]|farakurim\.cz)/uploads/[A-Za-z0-9._/%-]+\.[A-Za-z0-9]+' out | sed -E 's|^[^/]*||' |
+  grep -rhoE "([\"'(]|farakurim\.cz)/$UPLOADS/[A-Za-z0-9._/%-]+\.[A-Za-z0-9]+" out | sed -E 's|^[^/]*||' |
     sort -u > "$tmp/linked"
-  ssh "$SSH_TARGET" "cd $WEB_ROOT && find uploads -type f" | sed 's|^|/|' | sort -u > "$tmp/on-server"
+  ssh "$SSH_TARGET" "cd $WEB_ROOT && find $UPLOADS -type f" | sed 's|^|/|' | sort -u > "$tmp/on-server"
   comm -23 "$tmp/linked" "$tmp/on-server" > "$tmp/missing"
   if [ -s "$tmp/missing" ]; then
     cat "$tmp/missing"
-    fail "The build links files that are not in $WEB_ROOT/uploads/ yet. Upload them first (pnpm release)."
+    fail "The build links files that are not in $WEB_ROOT/$UPLOADS/ yet. Upload them first (pnpm release)."
   fi
   echo "All $(wc -l < "$tmp/linked") linked uploads are on the server."
 }
