@@ -1,5 +1,6 @@
 import * as z from "zod";
 import type { Album, GalleryFile } from "@/content/types/gallery";
+import { albumPhoto } from "@/lib/gallery/albums";
 import { kebabIdSchema } from "@/lib/shared/schema";
 
 // The rules of the Fotogalerie albums, in one place: src/content/gallery.ts checks src/content/gallery.json with them
@@ -7,7 +8,9 @@ import { kebabIdSchema } from "@/lib/shared/schema";
 // the site keeps (MAX_ALBUMS) is the content test's rule and the script's, not the loader's.
 
 const text = z.string().trim().min(1);
-const photoUrl = z.string().regex(/^https:\/\/eu\.zonerama\.com\/photos\/\S+$/, "must be a Zonerama photo URL");
+const photoUrl = z
+  .string()
+  .regex(/^\/uploads\/fotogalerie\/[a-z0-9-]+\/foto-\d+-\d+\.webp$/, "must be an uploaded album photo");
 
 /** The album's number on Zonerama: the same for its eu. and www. URL. */
 export const albumNumber = (href: string) => href.split("/").at(-1)!;
@@ -30,6 +33,17 @@ export const albumSchema = z
     if (album.photos && album.photos.length > album.photoCount) {
       ctx.addIssue({ code: "custom", path: ["photos"], message: `more than photoCount (${album.photoCount})` });
     }
+    // Each photo in the album's own folder, at its position, as albumPhoto() names it (the 800 and 1600 px files).
+    album.photos?.forEach((photo, i) => {
+      const expected = albumPhoto(album.id, i + 1);
+      if (photo.small !== expected.small || photo.large !== expected.large) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["photos"],
+          message: `photo ${i + 1} must be ${expected.small} and ${expected.large}`,
+        });
+      }
+    });
   }) satisfies z.ZodType<Album>;
 
 export const galleryFileSchema = z.strictObject({ albums: z.array(albumSchema) }).superRefine(({ albums }, ctx) => {

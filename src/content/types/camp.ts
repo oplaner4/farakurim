@@ -50,7 +50,7 @@ export type CampYear = {
   place: string;
   /** The year's album on Zonerama, once published. */
   album?: string;
-  /** A landscape photo from the album (a Zonerama URL), shown on the year's tint. */
+  /** A landscape photo of the year, uploaded to /uploads/tabor/rocniky/<year>.webp, shown on the year's tint. */
   cover?: string;
 };
 

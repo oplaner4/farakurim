@@ -18,10 +18,11 @@ describe("Tábor (camp.ts)", () => {
     expect(wrong.map((y) => y.year)).toEqual([]);
   });
 
-  it("links each year's album and cover on the parish's Zonerama profile", () => {
+  it("links each year's album on the parish's Zonerama profile and its uploaded cover", () => {
     const album = /^https:\/\/eu\.zonerama\.com\/FarnostKurim\/Album\/\d+$/;
-    const cover = /^https:\/\/eu\.zonerama\.com\/photos\/\d+_800x\d+_18\.jpg$/;
-    const wrong = campYears.filter((y) => (y.album && !album.test(y.album)) || (y.cover && !cover.test(y.cover)));
+    const wrong = campYears.filter(
+      (y) => (y.album && !album.test(y.album)) || (y.cover && y.cover !== `/uploads/tabor/rocniky/${y.year}.webp`),
+    );
     expect(wrong.map((y) => y.year)).toEqual([]);
   });
 

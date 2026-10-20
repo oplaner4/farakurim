@@ -7,7 +7,7 @@
 import { basename, extname } from "node:path";
 import { decodeHTML } from "entities";
 import type { Album, AlbumPhoto, GalleryFile } from "@/content/types/gallery";
-import { albumHref, MAX_ALBUMS, scaledHeight } from "@/lib/gallery/albums";
+import { albumHref, albumPhoto, MAX_ALBUMS, scaledHeight } from "@/lib/gallery/albums";
 import { albumNumber, albumSchema, galleryFileSchema } from "@/lib/gallery/schema";
 import { capitalize } from "@/lib/shared/czech";
 import { slug } from "@/lib/shared/slug";
@@ -16,9 +16,6 @@ import { actionVerb, parseCommandLine } from "../command";
 import { formatAndTest, GALLERY_FILE, writeContentFile } from "../content-files";
 
 const MAX_PHOTOS = 15;
-/** Photo widths: 2× a strip tile (about 390 px), and the homepage carousel and the lightbox. */
-const SMALL = 800;
-const LARGE = 1600;
 
 /** An album URL of the parish's profile, with an optional trailing slash, query or hash; group 2 is the number. */
 const ALBUM_URL = /^https:\/\/(eu|www)\.zonerama\.com\/FarnostKurim\/Album\/(\d+)\/?([?#].*)?$/;
@@ -151,9 +148,7 @@ export function readAlbumPage(
   const id = overrides.id || albumId(title, date);
   const items = photoItems(page);
   const { ratio, group } = selectPhotos(items);
-  const photos: AlbumPhoto[] = group
-    .slice(0, MAX_PHOTOS)
-    .map((p) => ({ small: photoUrl(p, SMALL), large: photoUrl(p, LARGE) }));
+  const photos: AlbumPhoto[] = group.slice(0, MAX_PHOTOS).map((_, i) => albumPhoto(id, i + 1));
   return {
     proposal: { id, title, date, ratio, total: items.length, inRatio: group.length, photos: photos.length },
     album: {

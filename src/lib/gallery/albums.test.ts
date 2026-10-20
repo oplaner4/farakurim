@@ -11,7 +11,6 @@ import {
   photoFromHash,
   photoHash,
   scaledHeight,
-  zoneramaSrcSet,
 } from "./albums";
 
 describe("gallery labels", () => {
@@ -46,23 +45,6 @@ describe("albumHref and scaledHeight", () => {
   it("links the parish's album and scales a photo's height to a width", () => {
     expect(albumHref("13811797")).toBe("https://www.zonerama.com/FarnostKurim/Album/13811797");
     expect(scaledHeight(800, 1600, 1067)).toBe(534);
-  });
-});
-
-describe("zoneramaSrcSet", () => {
-  it("offers the photo in four widths at its aspect ratio", () => {
-    expect(zoneramaSrcSet("https://eu.zonerama.com/photos/662362586_1600x1067_18.jpg")).toBe(
-      [
-        "https://eu.zonerama.com/photos/662362586_400x267_18.jpg 400w",
-        "https://eu.zonerama.com/photos/662362586_800x534_18.jpg 800w",
-        "https://eu.zonerama.com/photos/662362586_1200x800_18.jpg 1200w",
-        "https://eu.zonerama.com/photos/662362586_1600x1067_18.jpg 1600w",
-      ].join(", "),
-    );
-  });
-
-  it("leaves other photos alone", () => {
-    expect(zoneramaSrcSet("/uploads/skupiny/schola/1-large.webp")).toBeUndefined();
   });
 });
 

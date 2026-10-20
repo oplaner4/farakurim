@@ -1,8 +1,11 @@
 import type { IsoDate } from "./shared";
 
-// Fotogalerie (gallery.json): Zonerama albums.
+// Fotogalerie (gallery.json): the parish's Zonerama albums, their photos uploaded to /uploads/fotogalerie/<id>/.
 
-/** One photo of an album, in the two sizes Zonerama serves (design/DESIGN.md §19.2). */
+/**
+ * One uploaded photo in two sizes (design/DESIGN.md §19.2). An album's photo is uploaded in four widths
+ * (`albumPhoto()`, `albumSrcSet()` in src/lib/gallery/albums.ts), and these are its 800 and 1600 px files.
+ */
 export type AlbumPhoto = {
   /** Thumbnail for the album strips, the "Další alba" rows and the lightbox thumbnails. */
   small: string;

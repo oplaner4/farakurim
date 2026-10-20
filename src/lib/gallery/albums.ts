@@ -49,8 +49,6 @@ export function photoFromHash(album: Pick<Album, "id" | "photoCount">, hash: str
   return Number.isInteger(n) && n >= 1 && n <= album.photoCount ? n - 1 : null;
 }
 
-/** Zonerama scales a photo to the `<width>x<height>` in its URL, so a page can pick the size it needs. */
-const ZONERAMA_PHOTO = /^(https:\/\/eu\.zonerama\.com\/photos\/\d+)_(\d+)x(\d+)(_\d+\.jpg)$/;
 /** The widths each album photo is uploaded in: `small` is the 800 px one, `large` the 1600 px one. */
 export const ALBUM_PHOTO_WIDTHS = [400, 800, 1200, 1600] as const;
 
@@ -72,17 +70,4 @@ const ALBUM_PHOTO = /^(\/uploads\/fotogalerie\/[a-z0-9-]+\/foto-\d+)-\d+\.webp$/
 export function albumSrcSet(url: string): string | undefined {
   const base = ALBUM_PHOTO.exec(url)?.[1];
   return base && ALBUM_PHOTO_WIDTHS.map((w) => `${base}-${w}.webp ${w}w`).join(", ");
-}
-
-/**
- * `srcset` of a Zonerama photo in 400–1600 px widths at its aspect ratio, so a phone doesn't download the desktop
- * size; `undefined` for any other URL (the group pages' own uploads).
- */
-export function zoneramaSrcSet(url: string): string | undefined {
-  const match = ZONERAMA_PHOTO.exec(url);
-  if (!match) return undefined;
-  const [, base, width, height, suffix] = match;
-  return ALBUM_PHOTO_WIDTHS.map(
-    (w) => `${base}_${w}x${scaledHeight(w, Number(width), Number(height))}${suffix} ${w}w`,
-  ).join(", ");
 }

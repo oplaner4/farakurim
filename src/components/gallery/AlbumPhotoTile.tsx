@@ -2,7 +2,7 @@
 
 import { clsx } from "clsx";
 import type { AlbumPhoto } from "@/content/types/gallery";
-import { zoneramaSrcSet } from "@/lib/gallery/albums";
+import { albumSrcSet } from "@/lib/gallery/albums";
 import { useFadeInOnLoad } from "@/hooks/use-fade-in-on-load";
 import { PosterPlaceholder } from "@/components/ui/PosterPlaceholder";
 
@@ -19,7 +19,7 @@ type Props = {
   photo?: AlbumPhoto;
   size: keyof AlbumPhoto;
   /**
-   * The tile's rendered width (`sizes`): a Zonerama photo then comes in the width the screen needs (`srcset`), and
+   * The tile's rendered width (`sizes`): an album photo then comes in the width the screen needs (`srcset`), and
    * `size` is only the fallback.
    */
   sizes?: string;
@@ -44,7 +44,7 @@ const MOTION = "motion-safe:transition-[opacity,scale] motion-safe:duration-300 
  */
 export function AlbumPhotoTile({ photo, size, sizes, index, alt, eager, iconSize, shardClassName, className }: Props) {
   const fadeIn = useFadeInOnLoad();
-  const srcSet = photo && sizes ? zoneramaSrcSet(photo.large) : undefined;
+  const srcSet = photo && sizes ? albumSrcSet(photo.large) : undefined;
   if (photo)
     return (
       <span className="relative isolate block size-full">

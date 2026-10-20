@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { Album } from "@/content/types/gallery";
-import { MAX_ALBUMS } from "@/lib/gallery/albums";
+import { albumPhoto, MAX_ALBUMS } from "@/lib/gallery/albums";
 import {
   addAlbum,
   albumId,
@@ -54,11 +54,6 @@ const page = (title: string, items: object[] = ITEMS) =>
         var result = ${JSON.stringify({ items, isEnd: true })};
     }</script></body></html>`;
 const ids = (items: ZoneramaItem[]) => items.map((i) => i.photoId);
-/** The { small, large } URLs the album gets for photo `n` of `width` × 1000. */
-const urls = (n: number, width: number) => ({
-  small: photoUrl(item(n, width, 1000), 800),
-  large: photoUrl(item(n, width, 1000), 1600),
-});
 
 describe("titleAndDate", () => {
   it("takes the date from the YYYY_MM_DD prefix and upper-cases the title", () => {
@@ -174,7 +169,7 @@ describe("readAlbumPage", () => {
       date: "2026-09-27",
       href: "https://www.zonerama.com/FarnostKurim/Album/16583642",
       photoCount: 4,
-      photos: [urls(1, 1500), urls(5, 1500), urls(8, 1500), urls(3, 1497)],
+      photos: [1, 2, 3, 4].map((n) => albumPhoto("pesi-pout-na-vranov-2026", n)),
     });
   });
 
@@ -216,12 +211,7 @@ const stored = (n: number, fields: Partial<Album> = {}): Album => ({
   date: `2026-06-${String(10 + n).padStart(2, "0")}`,
   href: `https://www.zonerama.com/FarnostKurim/Album/${n}`,
   photoCount: 1,
-  photos: [
-    {
-      small: `https://eu.zonerama.com/photos/${n}_800x533_18.jpg`,
-      large: `https://eu.zonerama.com/photos/${n}_1600x1067_18.jpg`,
-    },
-  ],
+  photos: [albumPhoto(fields.id ?? `album-${n}`, 1)],
   ...fields,
 });
 /** A full gallery: albums MAX_ALBUMS … 1, newest first. */

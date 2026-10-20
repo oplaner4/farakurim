@@ -3,7 +3,8 @@ import type { CampContacts, CampQuote, CampTeam, CampTeamMember, CampYear, NextC
 /*
  * Tábor (design/DESIGN.md §29): the texts, the team, the contacts and the past years from the old site's pages
  * (farni_tabor/informace, vedouci, kontakt and the year pages). The team's photos are the old site's, cropped to 4:5
- * and uploaded to /uploads/tabor/vedouci/; the year covers are photos from the year's Zonerama album.
+ * and uploaded to /uploads/tabor/vedouci/; each year's cover is a photo the parish chose, uploaded to
+ * /uploads/tabor/rocniky/<year>.webp (the original resized to 800 px wide as WebP).
  */
 
 /** The wide photo of O táboru (§29.2, 1), the old page's photo. */
@@ -187,7 +188,8 @@ export const campContacts: CampContacts = {
 };
 
 const zonerama = (album: number) => `https://eu.zonerama.com/FarnostKurim/Album/${album}`;
-const cover = (photoId: number, height: number) => `https://eu.zonerama.com/photos/${photoId}_800x${height}_18.jpg`;
+/** The year's cover, uploaded as an 800 px wide WebP. */
+const cover = (year: number) => `/uploads/tabor/rocniky/${year}.webp`;
 
 /** Newest first. The themes the old pages did not name are left out. */
 export const campYears: CampYear[] = [
@@ -205,7 +207,7 @@ export const campYears: CampYear[] = [
     end: "2025-08-16",
     place: "horská chata Olšanka ve Velkém Vrbně",
     album: zonerama(13713597),
-    cover: cover(570332671, 533),
+    cover: cover(2025),
   },
   {
     year: 2024,
@@ -214,7 +216,7 @@ export const campYears: CampYear[] = [
     end: "2024-08-17",
     place: "skautská základna v Čachnově",
     album: zonerama(11898112),
-    cover: cover(478313476, 600),
+    cover: cover(2024),
   },
   {
     year: 2023,
@@ -223,7 +225,7 @@ export const campYears: CampYear[] = [
     end: "2023-08-19",
     place: "skautská základna v Čachnově",
     album: zonerama(10239838),
-    cover: cover(405095076, 533),
+    cover: cover(2023),
   },
   {
     year: 2022,
@@ -232,7 +234,7 @@ export const campYears: CampYear[] = [
     end: "2022-08-20",
     place: "skautský dům v Hostinném",
     album: zonerama(8801519),
-    cover: cover(339597170, 533),
+    cover: cover(2022),
   },
   {
     year: 2021,
@@ -241,7 +243,7 @@ export const campYears: CampYear[] = [
     end: "2021-08-21",
     place: "fara v Pačlavicích",
     album: zonerama(7550569),
-    cover: cover(281039575, 600),
+    cover: cover(2021),
   },
   {
     year: 2020,
@@ -250,7 +252,7 @@ export const campYears: CampYear[] = [
     end: "2020-08-22",
     place: "Staré Hutě",
     album: zonerama(6515817),
-    cover: cover(237534053, 533),
+    cover: cover(2020),
   },
   {
     year: 2019,
@@ -259,6 +261,6 @@ export const campYears: CampYear[] = [
     end: "2019-08-21",
     place: "fara v Ostrově u Macochy",
     album: zonerama(5571364),
-    cover: cover(198457670, 533),
+    cover: cover(2019),
   },
 ];
