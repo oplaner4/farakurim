@@ -1,5 +1,6 @@
-import type { Album } from "@/content/types/gallery";
+import type { Album, AlbumPhoto } from "@/content/types/gallery";
 import { plural } from "@/lib/shared/czech";
+import { UPLOADS_PATH } from "@/lib/shared/uploads";
 
 // Fotogalerie (design/DESIGN.md §19) and the homepage carousel (§4.5).
 
@@ -50,7 +51,28 @@ export function photoFromHash(album: Pick<Album, "id" | "photoCount">, hash: str
 
 /** Zonerama scales a photo to the `<width>x<height>` in its URL, so a page can pick the size it needs. */
 const ZONERAMA_PHOTO = /^(https:\/\/eu\.zonerama\.com\/photos\/\d+)_(\d+)x(\d+)(_\d+\.jpg)$/;
-const SRCSET_WIDTHS = [400, 800, 1200, 1600];
+/** The widths each album photo is uploaded in: `small` is the 800 px one, `large` the 1600 px one. */
+export const ALBUM_PHOTO_WIDTHS = [400, 800, 1200, 1600] as const;
+
+/** The album's folder of uploaded photos: "/uploads/fotogalerie/den-mensin-2026". */
+export const albumFolder = (id: string) => `${UPLOADS_PATH}fotogalerie/${id}`;
+
+/** The album's N-th photo (1-based) at `width`: "/uploads/fotogalerie/den-mensin-2026/foto-3-800.webp". */
+export const albumPhotoPath = (id: string, n: number, width: number) => `${albumFolder(id)}/foto-${n}-${width}.webp`;
+
+/** The album's N-th photo (1-based) as the site links it. */
+export const albumPhoto = (id: string, n: number): AlbumPhoto => ({
+  small: albumPhotoPath(id, n, 800),
+  large: albumPhotoPath(id, n, 1600),
+});
+
+const ALBUM_PHOTO = /^(\/uploads\/fotogalerie\/[a-z0-9-]+\/foto-\d+)-\d+\.webp$/;
+
+/** `srcset` of an uploaded album photo in its four widths; `undefined` for any other URL (the group pages' photos). */
+export function albumSrcSet(url: string): string | undefined {
+  const base = ALBUM_PHOTO.exec(url)?.[1];
+  return base && ALBUM_PHOTO_WIDTHS.map((w) => `${base}-${w}.webp ${w}w`).join(", ");
+}
 
 /**
  * `srcset` of a Zonerama photo in 400–1600 px widths at its aspect ratio, so a phone doesn't download the desktop
@@ -60,7 +82,7 @@ export function zoneramaSrcSet(url: string): string | undefined {
   const match = ZONERAMA_PHOTO.exec(url);
   if (!match) return undefined;
   const [, base, width, height, suffix] = match;
-  return SRCSET_WIDTHS.map((w) => `${base}_${w}x${scaledHeight(w, Number(width), Number(height))}${suffix} ${w}w`).join(
-    ", ",
-  );
+  return ALBUM_PHOTO_WIDTHS.map(
+    (w) => `${base}_${w}x${scaledHeight(w, Number(width), Number(height))}${suffix} ${w}w`,
+  ).join(", ");
 }

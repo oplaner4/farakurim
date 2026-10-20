@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   albumAnchor,
   albumHref,
+  albumPhoto,
+  albumPhotoPath,
+  albumSrcSet,
   photoAlt,
   photoCountLabel,
   photoCounter,
@@ -60,5 +63,27 @@ describe("zoneramaSrcSet", () => {
 
   it("leaves other photos alone", () => {
     expect(zoneramaSrcSet("/uploads/skupiny/schola/1-large.webp")).toBeUndefined();
+  });
+});
+
+describe("album photo paths", () => {
+  it("names each width in the album's folder", () => {
+    expect(albumPhotoPath("den-mensin-2026", 3, 1200)).toBe("/uploads/fotogalerie/den-mensin-2026/foto-3-1200.webp");
+    expect(albumPhoto("den-mensin-2026", 3)).toEqual({
+      small: "/uploads/fotogalerie/den-mensin-2026/foto-3-800.webp",
+      large: "/uploads/fotogalerie/den-mensin-2026/foto-3-1600.webp",
+    });
+  });
+});
+
+describe("albumSrcSet", () => {
+  it("offers an album photo in four widths", () => {
+    const at = (w: number) => `/uploads/fotogalerie/den-mensin-2026/foto-3-${w}.webp ${w}w`;
+    expect(albumSrcSet(albumPhoto("den-mensin-2026", 3).large)).toBe([400, 800, 1200, 1600].map(at).join(", "));
+  });
+
+  it("leaves other photos alone", () => {
+    expect(albumSrcSet("/uploads/skupiny/schola/foto-1.webp")).toBeUndefined();
+    expect(albumSrcSet("https://eu.zonerama.com/photos/662362586_1600x1067_18.jpg")).toBeUndefined();
   });
 });

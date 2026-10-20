@@ -16,6 +16,7 @@ export const POSTER_WIDTH = 720;
 export const POSTER_QUALITY = 78;
 export const PETRKLIC_WIDTH = 600; // 2× the largest cover and viewer page (300 px)
 export const PETRKLIC_QUALITY = 72;
+export const ALBUM_PHOTO_QUALITY = 80; // album photos and camp covers, close to Zonerama's JPEGs
 
 // stderr is piped, so the font warnings of poppler builds without fonts stay quiet; a failure still reports it.
 const poppler = (tool: string, args: string[]) => execFileSync(tool, args, { encoding: "utf8", stdio: "pipe" });
@@ -48,13 +49,17 @@ export function extractPdfPages(pdf: string, [first, last]: [number, number], de
 }
 
 /**
- * `input` (an image) as a WebP at `dest`, at most `width` px wide, turned upright by its EXIF orientation and on
+ * `input` (an image file or its bytes) as a WebP at `dest`, at most `width` px wide, turned upright by its EXIF orientation and on
  * white where it is transparent. Returns the WebP's size.
  */
-export async function toWebp(input: string, dest: string, { width, quality }: { width: number; quality: number }) {
+export async function toWebp(
+  input: string | Buffer,
+  dest: string,
+  { width, quality }: { width: number; quality: number },
+) {
   mkdirSync(dirname(dest), { recursive: true });
   // A buffer, not the path: sharp would keep the file open, and Windows then cannot delete or replace it.
-  const info = await sharp(readFileSync(input))
+  const info = await sharp(typeof input === "string" ? readFileSync(input) : input)
     .autoOrient()
     .resize({ width, withoutEnlargement: true })
     .flatten({ background: "#ffffff" })
