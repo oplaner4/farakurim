@@ -19,8 +19,8 @@
 #   branch, or comments the failure. A failed release is fixed in a new commit; never move a tag.
 # Two sheet PRs merged close together go out in one release: the runs queue, and a later one finds nothing to
 # release.
-# The App key is a repository secret (SHEET_APP_PRIVATE_KEY, shared with service-sheet.yml); a secret reaches only the
-# steps that name it. The runner image and the actions are pinned (actions by commit SHA).
+# The App key is a repository secret (CONTENT_APP_PRIVATE_KEY, shared with service-sheet.yml); a secret reaches only
+# the steps that name it. The runner image and the actions are pinned (actions by commit SHA).
 
 name: Service sheet release
 
@@ -85,8 +85,8 @@ jobs:
         if: steps.plan.outputs.action == 'blocked'
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
-          app-id: ${{ vars.SHEET_APP_ID }}
-          private-key: ${{ secrets.SHEET_APP_PRIVATE_KEY }}
+          app-id: ${{ vars.CONTENT_APP_ID }}
+          private-key: ${{ secrets.CONTENT_APP_PRIVATE_KEY }}
 
       # The App token: the PR conversation is locked, and only collaborators can comment.
       - name: Report why nothing is released
@@ -122,8 +122,8 @@ jobs:
         id: app
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
-          app-id: ${{ vars.SHEET_APP_ID }}
-          private-key: ${{ secrets.SHEET_APP_PRIVATE_KEY }}
+          app-id: ${{ vars.CONTENT_APP_ID }}
+          private-key: ${{ secrets.CONTENT_APP_PRIVATE_KEY }}
 
       # With the App token persisted: release.sh fetches main and pushes it with the tag, and a push made with the
       # App's token (unlike github.token) starts deploy.yml.

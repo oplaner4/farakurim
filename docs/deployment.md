@@ -132,10 +132,13 @@ one DOCX, or a failed step. A failed step leaves the mail unseen for the next ru
   variable `IMAP_HOST` (the host name only, e.g. `mail.cesky-hosting.cz`), secrets `IMAP_USER` and `IMAP_PASSWORD`.
   It may have no required reviewers (the daily run would wait), and its deployment branches must allow `main`.
 
-- **GitHub App** (Settings → Developer settings → GitHub Apps), installed on this repository only, repository
-  permissions `contents: write` and `pull-requests: write` (the latter also covers locking the PR). Its ID is the
-  repository variable `SHEET_APP_ID`; a generated private key is the **repository** secret `SHEET_APP_PRIVATE_KEY`,
-  shared by the sheet workflow and the release (whose `release` job runs in `Production`). If `main` has a ruleset or
+- **GitHub App** (Settings → Developer settings → GitHub Apps), e.g. "Farakurim content": one App for every workflow
+  that commits content and opens PRs (a later one for events reuses it), installed on this repository only,
+  repository permissions `contents: write` and `pull-requests: write` (the latter also covers locking the PR). Its ID
+  is the repository variable `CONTENT_APP_ID`; a generated private key is the **repository** secret
+  `CONTENT_APP_PRIVATE_KEY`, shared by the sheet workflow and the release (whose `release` job runs in `Production`).
+  GitHub never shows a secret again: to replace a lost key, generate a new one in the App (**Private keys**), store it
+  in the secret and delete the old key. If `main` has a ruleset or
   branch protection that restricts pushes, add the App as a bypass actor: the release commit and tag are pushed with
   its token, so that the tag starts `deploy.yml`.
 - **Squash merging** allowed (Settings → General → Pull Requests): the release counts only a PR's squash commit.

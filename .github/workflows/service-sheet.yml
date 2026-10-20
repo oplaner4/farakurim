@@ -15,9 +15,10 @@
 # The maintainer's merge releases the site (service-sheet-release.yml), with the staged PDFs from the artifacts of
 # the PR's commits. Nothing changed: no PR. The mail is filed (Zpracováno, Odmítnuto) only once its outcome is done, so
 # a run that breaks retries the sheet on the next run. Both jobs run in the environment `service-sheet-publish` (the
-# IMAP login; the federation rule matches it, but only `sheet` has an id-token). The App key is a repository secret,
-# shared with service-sheet-release.yml; a secret reaches only the steps that name it. The job summary and the failure (refused week, document error, a parish message without
-# exactly one DOCX) tell the maintainer; no e-mail is sent. The runner image and the actions are pinned (actions by
+# IMAP login; the federation rule matches it, but only `sheet` has an id-token). The App key is the repository secret
+# CONTENT_APP_PRIVATE_KEY, shared with service-sheet-release.yml; a secret reaches only the steps that name it. The
+# job summary and the failure (refused week, document error, a parish message without exactly one DOCX) tell the
+# maintainer; no e-mail is sent. The runner image and the actions are pinned (actions by
 # commit SHA).
 
 name: Service sheet
@@ -319,8 +320,8 @@ jobs:
         if: steps.changes.outputs.changed == 'true'
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
-          app-id: ${{ vars.SHEET_APP_ID }}
-          private-key: ${{ secrets.SHEET_APP_PRIVATE_KEY }}
+          app-id: ${{ vars.CONTENT_APP_ID }}
+          private-key: ${{ secrets.CONTENT_APP_PRIVATE_KEY }}
 
       # src/content/ only: the staged PDF is in uploads/, which git ignores. No hooks (the message is checked
       # already), never a force-push: a branch moved since `sheet` rejects the push and the sheet is retried.
