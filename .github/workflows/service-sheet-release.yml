@@ -14,8 +14,8 @@
 #   bumps the version, tags and pushes main with the App token, so the tag starts deploy.yml, which checks, builds
 #   and deploys unchanged. The job waits for that deploy and comments "Released in vX.Y.Z" on each PR and deletes its
 #   branch, or comments the failure. A PDF that has no artifact (a commit the maintainer pushed to the branch) is not
-#   uploaded: deploy.yml then stops at check-uploads with the live site untouched. A failed release is fixed in a new
-#   commit; never move a tag.
+#   uploaded: deploy.yml then stops at check-uploads with the live site untouched (upload it with
+#   `scripts/deploy.sh uploads`, re-run the deploy). A failed release is fixed in a new commit; never move a tag.
 # Two sheet PRs merged close together go out in one release: the runs queue, and the second finds nothing to release.
 # The App key is a repository secret (SHEET_APP_PRIVATE_KEY, shared with service-sheet.yml); a secret reaches only the
 # steps that name it. The runner image and the actions are pinned (actions by commit SHA).
@@ -236,7 +236,7 @@ jobs:
         run: |
           body="The release failed: $RUN_URL."
           if [ -n "$TAG" ]; then
-            body="$body $TAG was tagged and pushed, but its deploy did not succeed. If deploy.yml stopped at check-uploads, upload the missing PDF (\`pnpm release\` uploads uploads/) and re-run the deploy run; otherwise fix it in a new commit and release with \`pnpm release\` (never move a tag)."
+            body="$body $TAG was tagged and pushed, but its deploy did not succeed. If deploy.yml stopped at check-uploads, upload the missing PDF (\`scripts/deploy.sh uploads\`) and re-run the deploy run; otherwise fix it in a new commit and release with \`pnpm release\` (never move a tag)."
           else
             body="$body Nothing was tagged or published. Fix it and release with \`pnpm release\` (docs/deployment.md)."
           fi
