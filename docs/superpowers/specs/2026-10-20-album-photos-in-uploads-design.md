@@ -16,10 +16,9 @@ Success means:
 
 - the site renders what it renders today: the same albums, the same photos in the same order, the same sizes in the
   same `srcset` widths, the same camp covers, now from `/uploads/…`;
-- `pnpm add-album <url> --write` downloads the chosen photos into `uploads/` as WebP, so `pnpm release` uploads them
-  with the other staged files and its `check-uploads` verifies them (it reads the first `srcset` entry, `-400`, and
-  the `-800` and `-1600` paths; the `-1200` file is not checked separately, as it is always written and uploaded with
-  the other three: `scripts/deploy.sh` stays as it is, my call);
+- `pnpm add-album <url> --photos <zip> --write` stages the chosen photos from the user's zip of the album's
+  originals into `uploads/` as WebP, so `pnpm release` uploads them with the other staged files and `check-uploads`
+  verifies them;
 - no page of `out/` references `eu.zonerama.com/photos/`.
 
 Non-goals: choosing photos differently, more or fewer photos per album, changing `MAX_ALBUMS`, a lightbox or layout
@@ -45,13 +44,13 @@ unique on the site; it is Czech because it is a public URL (`fotogalerie` matche
 
 Camp covers: `uploads/tabor/rocniky/<year>.webp`, 800 px wide (the width they load at today, no `srcset`, as now).
 
-The photos are downloaded from Zonerama at 1600 px (`photoUrl(item, 1600)`), and every width is resized from that
-one download with sharp (`autoOrient`, `withoutEnlargement`). The WebP drops the EXIF data, GPS included.
+The photos come from the user's zip of the album's original photos, never from Zonerama: Zonerama answers scripted
+requests for a photo with a 512 × 512 "Bot Detected" image and status 200 (found on 2026-10-20 during the migration),
+so a download cannot be trusted. Every width is resized from the original with sharp (`autoOrient`,
+`withoutEnlargement`). The WebP drops the EXIF data, GPS included.
 
-A photo smaller than 1600 px still gets all four files, each at most its original size, never upscaled: Zonerama
-does the same today (the `adoracni-den-2026` photo is 512 × 512 px, and Zonerama serves it at 512 px under every
-size in its URL), so the page renders it as it does now, and the schema and `albumSrcSet` keep one fixed set of four
-widths. (My call.)
+A photo smaller than 1600 px still gets all four files, each at most its original size, never upscaled, so the schema
+and `albumSrcSet` keep one fixed set of four widths. (My call.)
 
 ## Data and rules
 
@@ -72,59 +71,58 @@ as today). The `ZONERAMA_PHOTO` regex and Zonerama-specific comments go. `AlbumP
 
 ## `pnpm add-album`
 
-The proposal (no option) is unchanged and downloads nothing.
+`pnpm add-album <album-url> --photos <zip>`: the album URL gives the album number (`href`) and, from its page, the
+title and the date (Zonerama's `YYYY_MM_DD` prefix), as today. When the page cannot be read (Zonerama answers 500 at
+times), the title and date come from the zip's name (`2026_09_27 pesi pout na Vranov.zip`, without diacritics), and
+the user corrects them with `--title`/`--date` as today. `--photos` is required.
+
+The photos are chosen from the zip by today's rule (`selectPhotos`): up to 15 photos of the most common landscape
+aspect ratio, uncropped (the most common exact size) first, otherwise in file-name order (numeric: `dnm-9` before
+`dnm-10`). The sizes are the originals' upright sizes (EXIF orientation applied). Only image files (`.jpg`, `.jpeg`,
+`.png`, `.webp`) count; folders inside the zip are ignored (only the file name is used), two images with the same
+name refuse the zip.
+
+The proposal (no `--write`/`--check`) prints the same JSON as today: `total` counts the zip's photos.
 
 `--write`, after the record passes `albumSchema` and `addAlbum`'s checks, and before `gallery.json` is written:
 
 1. asks the server (`onServer`, `scripts/lib/uploads.ts`) whether `fotogalerie/<id>/foto-1-800.webp` exists; if it
-   does, it refuses: "the folder fotogalerie/<id>/ is already on the server: pass another id with --id". The server
-   never overwrites, so a name taken there can never be reused;
-2. downloads each chosen photo and writes its four WebPs to `uploads/fotogalerie/<id>/`, replacing files left there
-   by an earlier run that was not released (local staged files are not on the server yet);
-3. writes `gallery.json` only after every photo is written, so a failed download leaves `gallery.json` unchanged.
+   does, it refuses: "… is already on the server: pass another id with --id". The server never overwrites, so a name
+   taken there can never be reused;
+2. writes each chosen photo's four WebPs to `uploads/fotogalerie/<id>/`, replacing files left there by an earlier run
+   that was not released (local staged files are not on the server yet);
+3. writes `gallery.json` only after every photo is written, so a failure leaves `gallery.json` unchanged.
 
-`--check` does step 1 and prints the files it would write (`Would stage uploads/fotogalerie/<id>/foto-1-*.webp …`
-or a count), without downloading.
+`--check` does step 1 and says how many photos it would stage, without writing.
 
 The lines printed after `--write` add "Staged N photos in uploads/fotogalerie/<id>/". An album removed beyond
 `MAX_ALBUMS` loses only its record: its files stay in `uploads/` and on the server (they live only there and are never
 deleted), and old shared links to its photos keep working.
 
-The download and the resize go in `scripts/lib/gallery/` (or `scripts/lib/images.ts` if the resize is general
-enough); the tests stub `fetch` for both the Zonerama page, the photos and the server HEAD, and write into the temp
-uploads folder of `scripts/lib/test-helpers.ts`.
+The zip is unpacked into a temporary folder, removed when the command ends.
 
 ## Migration (one-off)
 
-All six albums in `gallery.json` and the seven camp covers (2019–2025; 2026 has no album yet) move now, keeping
-today's photos and order. The photos are not downloaded from Zonerama: the user gives a zip archive of each album's
-original photos, asked for when the migration step is reached (the camp albums' archives too, unless the user says
-otherwise then).
-
-- Each zip is unpacked into its own new scratchpad folder (untrusted data). Each stored photo is matched to its
-  original: Zonerama's album page gives every photo's id, original `width` × `height` and position, which narrow it
-  down; what they leave ambiguous is settled by looking at the candidates next to the photo on the live site, and
-  anything still unsure is asked. A stored photo without an original in the zip is reported, not guessed.
-- Each matched original is resized to the four widths at `foto-<n>-*`, `<n>` its current position (`autoOrient`,
-  `withoutEnlargement`); `gallery.json` is rewritten with the new paths.
-- Each camp cover's original is resized to 800 px wide and saved as `uploads/tabor/rocniky/<year>.webp`, cropped as
-  the Zonerama cover is today if it differs; `camp.ts` drops the `cover()` helper and points at the files.
+Zonerama's photos cannot be fetched (see Files), so today's selection cannot be matched to the originals: the five
+albums that stay are chosen again from the user's zips (`~/Downloads/<YYYY_MM_DD> <title>.zip`) by the same rule as
+`pnpm add-album`, keeping each album's id, title, date and `href`. "Pouť Sedmiradostnou cestou na Vranov"
+(`pout-vranov`) is removed from `gallery.json` (the user's decision; it has no zip). The camp covers are the photos the
+user chose (`~/Downloads/<year>.jpg`, 2019–2025, some different from today's), each resized to 800 px wide as
+`uploads/tabor/rocniky/<year>.webp`; `camp.ts` drops the `cover()` helper and points at the files.
 
 The migration is a throwaway script run once from the scratchpad, not committed; its result is: `gallery.json` and
 `camp.ts` are committed, the files are staged in `uploads/` (git-ignored) and go to the server with the next release.
 It must check that no target name is already on the server, like `--write`.
 
-New albums after the migration still come through `pnpm add-album --write`, which downloads from Zonerama.
-
 ## Docs and pages
 
-- `.claude/skills/parish-create-album/SKILL.md`: the photos are downloaded and staged by `--write`; publish uploads
-  them; "Common mistakes" no longer says not to download; mention the `--id` refusal for a folder on the server.
+- `.claude/skills/parish-create-album/SKILL.md`: ask the user for the album's zip of originals; `--photos <zip>` chooses the photos and `--write` stages them; publish uploads
+  them; "Common mistakes" no longer says not to download, and warns against downloading from Zonerama (it serves a bot image); mention the `--id` refusal for a folder on the server.
 - `.claude/skills/parish-publish-content/SKILL.md`: albums now have staged files.
 - `README.md` § Content: "Album photos stay on Zonerama" becomes where they are staged; the `pnpm add-album` row
   says `--write` stages the photos.
 - `src/content/camp.ts` header comment: covers are uploaded to `/uploads/tabor/rocniky/`; how to add next year's
-  (download the cover from the year's album at 800 px as WebP).
+  (the original from the parish, resized to 800 px wide WebP).
 - `src/app/ochrana-osobnich-udaju/page.tsx`: the Zonerama item goes from "Obsah z jiných služeb" (nothing loads from
   it any more).
 - `design/DESIGN.md` stays as it is (it is the design handoff).
@@ -140,4 +138,4 @@ site; in the network panel, no request goes to `eu.zonerama.com`. `pnpm preview`
 
 - The WebP quality (around 80, close to Zonerama's JPEGs at a smaller size), checked by eye on two or three photos.
 - Whether the resize lives in `scripts/lib/images.ts` or the gallery module.
-- Parallel or sequential downloads (15 photos; sequential is fine).
+- How the zip is unpacked (`fflate` is already a dependency).

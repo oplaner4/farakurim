@@ -10,7 +10,7 @@ Zonerama, so the site loads nothing from Zonerama.
 (`/uploads/fotogalerie/<id>/foto-<n>-<width>.webp`) for the site, the schema and the scripts. A scripts module
 resizes a source photo into the four widths and checks the server. A one-off migration stages today's photos from
 the user's zip archives and switches the schema, the `srcset`, `gallery.json` and `camp.ts` in one commit. Then
-`pnpm add-album --write` downloads and stages new albums' photos.
+`pnpm add-album --photos <zip> --write` stages new albums' photos from the user's zip.
 
 **Tech Stack:** TypeScript, Next.js 16 static export, zod 4, sharp, Vitest, tsx scripts.
 
@@ -34,8 +34,9 @@ the user's zip archives and switches the schema, the `srcset`, `gallery.json` an
 
 - A source photo smaller than 1600 px: all four files exist, none wider than the source (Task 1 test).
 - A photo with EXIF orientation and GPS: written upright, without EXIF (Task 1 test).
-- A download failing halfway through `--write`: `gallery.json` unchanged (Task 3 test).
-- An album id whose folder is already on the server: refused before any download (Task 3 test); server unreachable:
+- Staging failing halfway through `--write` (an unreadable image): `gallery.json` unchanged (Task 4 test).
+- A zip with folders, non-images or two photos of one name; a 500 MB zip (streamed, Task 2).
+- An album id whose folder is already on the server: refused before anything is written (Task 4 test); server unreachable:
   refused, not treated as free (covered by `onServer`).
 - A re-run after an unreleased `--write`: local files replaced without error (Task 1 test).
 
@@ -126,134 +127,102 @@ Expected: PASS.
 Run the full check (`docs/conventions.md`); no browser check (nothing renders differently). Commit:
 `feat(gallery): add upload paths and staging for album photos`.
 
-### Task 2: Migrate today's albums and camp covers (needs the user's zips)
+### Task 2: Photos from a zip of originals
+
+Replanned on 2026-10-20 (see the spec's Files and Migration): Zonerama serves a bot image to scripts, so the photos
+come from the user's zip. The old Task 2 (migration) becomes Task 3, the old Task 3 (`add-album`) Task 4.
 
 **Files:**
 
-- Modify: `src/lib/gallery/schema.ts`, `src/lib/gallery/schema.test.ts`, `src/lib/gallery/albums.ts`,
-  `src/lib/gallery/albums.test.ts`, `src/components/gallery/AlbumPhotoTile.tsx`, `src/content/types/gallery.ts`,
-  `src/content/types/camp.ts`, `src/content/gallery.json`, `src/content/camp.ts`, `src/content/camp.test.ts`,
-  `src/app/ochrana-osobnich-udaju/page.tsx`
-- Create (not committed): the migration script in the scratchpad
-- Staged (git-ignored): `uploads/fotogalerie/<id>/…` for the six albums, `uploads/tabor/rocniky/2019…2025.webp`
+- Create: `scripts/lib/gallery/zip-photos.ts`, `scripts/lib/gallery/zip-photos.test.ts`
+- Modify: `scripts/lib/gallery/add-album.ts` (`selectPhotos` generic), `scripts/lib/gallery/add-album.test.ts`
 
 **Interfaces:**
 
-- Consumes: `albumPhoto`, `albumSrcSet`, `ALBUM_PHOTO_WIDTHS`, `stageAlbumPhotos`, `assertFreeOnServer`,
-  `toWebp`, `ALBUM_PHOTO_QUALITY` (Task 1)
-- Produces: `albumSchema` accepting only upload paths (Task 3's `--write` relies on it); `zoneramaSrcSet` removed.
-
-- [ ] **Step 1: Ask the user for the zip archives**
-
-List the six albums in `gallery.json` (id, title, Zonerama `href`) and the camp years 2019–2025 (their `album`
-link), and ask for a zip of each album's original photos. Wait for them. Unpack each into its own new, empty
-scratchpad folder.
-
-- [ ] **Step 2: Write the failing schema and camp tests**
-
-`schema.test.ts`: the `photo` fixture becomes `albumPhoto("pout-vranov", n)`, and:
-
-- `"refuses a Zonerama photo URL"`: a photo `{ small: "https://eu.zonerama.com/photos/1_800x533_18.jpg", … }` fails
-  on `photos.0.small`.
-- `"refuses a photo in another album's folder, at the wrong width or position"`: `albumPhoto("jine-album", 1)`,
-  `{ small: albumPhotoPath(id, 1, 400), large }`, and photos `[albumPhoto(id, 2), albumPhoto(id, 1)]` each fail on
-  `photos`.
-
-`camp.test.ts`: the cover regex becomes `^/uploads/tabor/rocniky/(\d{4})\.webp$` with the capture equal to `year`.
-
-Run: `pnpm exec vitest run src/lib/gallery/schema.test.ts src/content/camp.test.ts` — Expected: FAIL.
-
-- [ ] **Step 3: Switch the schema, the srcset and the copy**
-
-`schema.ts`: `photoUrl` is `/^\/uploads\/fotogalerie\/[a-z0-9-]+\/foto-\d+-\d+\.webp$/`; the album `superRefine`
-adds an issue at `photos` unless `photos[i]` equals `albumPhoto(album.id, i + 1)`. `albums.ts`: remove
-`zoneramaSrcSet`, `ZONERAMA_PHOTO` and its tests; `AlbumPhotoTile` calls `albumSrcSet`. Type comments in
-`types/gallery.ts` (`AlbumPhoto`: uploaded in four widths, `small`/`large` the 800/1600 ones) and `types/camp.ts`
-(`cover`: uploaded to `/uploads/tabor/rocniky/<year>.webp`). Privacy page: remove the Zonerama `<li>`.
-
-- [ ] **Step 4: Run the migration**
-
-A scratchpad script (`pnpm exec tsx <script>`, run from the repo root so `@/` resolves):
-
-1. `assertFreeOnServer` for each `fotogalerie/<id>/foto-1-800.webp` and `tabor/rocniky/<year>.webp`; stop on any
-   taken.
-2. For each album and camp album, fetch its Zonerama album page and read `photoItems` (from
-   `scripts/lib/gallery/add-album.ts`): `photoId → width × height, position`.
-3. Match each stored photo (its photo id from the `large` URL; a camp cover's from `cover`) to an original in the
-   zip: the same `width × height` (or swapped, if the file's EXIF rotates it) and the nearest position in sorted
-   file order. Print the matches; settle an ambiguous one by viewing the candidates next to the live-site photo; ask
-   the user when still unsure; stop on a photo with no candidate or a format sharp cannot read.
-4. `stageAlbumPhotos(uploadsDir, id, originals)` per album in stored order; `toWebp(original,
-uploads/tabor/rocniky/<year>.webp, { width: 800, quality: ALBUM_PHOTO_QUALITY })` per cover.
-5. Rewrite each album's `photos` in `gallery.json` with `albumPhoto(id, n)` (`writeContentFile`); in `camp.ts`
-   replace `cover()` with `` const cover = (year: number) => `/uploads/tabor/rocniky/${year}.webp` `` and
-   `cover(<year>)` per year; update its header comment (how to add next year's cover: the original from the year's
-   album, 800 px wide WebP).
-
-- [ ] **Step 5: Check**
-
-Run: `grep -rn "zonerama.com/photos" src/` — Expected: no match. Run the full check, then the browser check at 390,
-834 and 1440 px in both themes: homepage carousel, Fotogalerie strips and lightbox, camp page, compared with the
-mockups and with the live site (same photos, same crops); in the network panel no request to `eu.zonerama.com`.
-
-- [ ] **Step 6: Commit**
-
-`feat(gallery): serve album photos and camp covers from uploads`, body naming the staged folders for the release.
-
-### Task 3: `pnpm add-album --write` stages the photos
-
-**Files:**
-
-- Modify: `scripts/lib/gallery/add-album.ts`, `scripts/lib/gallery/add-album.test.ts`, `scripts/add-album.ts`
-  (header comment)
-
-**Interfaces:**
-
-- Consumes: `albumPhoto`, `stageAlbumPhotos`, `assertFreeOnServer` (Task 1); the upload-path `albumSchema` (Task 2)
 - Produces:
-  - `readAlbumPage(page, number, overrides)` returns `{ proposal, album, sources }`: `album.photos` are
-    `albumPhoto(id, n)`, `sources[i]` the Zonerama `photoUrl(item, 1600)` of photo `i + 1`
-  - `execute(command: Command, env: UploadsEnv = defaultUploadsEnv(), galleryFile = GALLERY_FILE): Promise<void>` —
-    `env.fetch` reads the page, the photos and the server; the test passes a temp `uploadsDir` and `gallery.json`
+  - `type LocalPhoto = { file: string; width: number; height: number }` — `file` an absolute path, the size upright
+  - `extractPhotos(zip: string, dir: string): Promise<LocalPhoto[]>` — unpacks the zip's images (`.jpg`, `.jpeg`,
+    `.png`, `.webp`, any case) flat into `dir` by file name, ignoring folders and other files, sorted by name with
+    `localeCompare(…, "cs", { numeric: true })`; two images with the same name throw `the zip has two photos named
+<name>`; no image throws `the zip has no photos`
+  - `titleAndDateFromZip(zip: string): { title: string; date: string }` — the zip's base name through the same
+    `YYYY_MM_DD` rule as `titleAndDate`
+  - `selectPhotos<T extends { width: number; height: number }>(items: T[])` — unchanged rule, any sized item
 
-- [ ] **Step 1: Write the failing tests**
+- [ ] **Step 1: Write the failing tests** (`zip-photos.test.ts`, zips built with fflate `zipSync` from sharp JPEGs):
+      `"unpacks the images flat, sorted by number"` (`b/dnm-10.jpg`, `a/dnm-9.JPG`, `notes.txt` → `dnm-9.JPG`,
+      `dnm-10.jpg`, sizes read); `"reads a rotated photo upright"` (orientation 6, 2000 × 1500 → 1500 × 2000);
+      `"refuses two photos with one name"`; `"refuses a zip without photos"`; `titleAndDateFromZip("/x/2026_09_27 pesi
+pout na Vranov.zip")` → `{ title: "Pesi pout na Vranov", date: "2026-09-27" }`. In `add-album.test.ts`,
+      `selectPhotos` also takes `{ width, height, file }` items.
+- [ ] **Step 2: Run** `pnpm exec vitest run scripts/lib/gallery/` — Expected: FAIL (module missing).
+- [ ] **Step 3: Implement** with fflate's streaming `Unzip` + `UnzipInflate` over `createReadStream` (zips reach
+      500 MB; never the whole archive in memory), sizes via sharp `metadata()` (swap for orientation ≥ 5). Factor the
+      `YYYY_MM_DD` parsing out of `titleAndDate` and reuse it.
+- [ ] **Step 4: Run** `pnpm exec vitest run scripts/lib/gallery/` — Expected: PASS.
+- [ ] **Step 5: Scripts check and commit** `feat(gallery): read album photos from a zip of originals`.
 
-In `add-album.test.ts`, `readAlbumPage`'s expectations use `albumPhoto(id, n)` and a new `sources` assertion
-(`urls(n, w).large`). A new `describe("execute on a temp gallery.json and uploads/")` with a fetch stub routing by
-URL: the album page → `page(...)`, a `/photos/` URL → a 2000 × 1333 sharp JPEG, a `HEAD` to the site → 404:
+### Task 3: Migrate today's albums and camp covers
 
-- `"stages the photos and adds the album"`: `--write` → `uploads/fotogalerie/<id>/foto-1-*.webp` … for each photo,
-  and the album in the temp `gallery.json` with upload paths.
-- `"refuses a folder already on the server before downloading"`: HEAD → 200 → rejects with `pass another id with
---id`; no `/photos/` request made; `gallery.json` unchanged.
-- `"leaves gallery.json unchanged when a photo download fails"`: the third `/photos/` URL → 500 → rejects naming the
-  URL; `gallery.json` byte-identical.
-- `"only reports with --check"`: no `/photos/` request, no files; output contains `Would stage 4 photos in
-uploads/fotogalerie/<id>/`.
-- `"downloads nothing for the proposal"`: no option → no `/photos/` and no HEAD request.
+**Files:** as the old plan's Task 2: `src/lib/gallery/schema.ts` (+ test), `src/lib/gallery/albums.ts` (+ test),
+`src/components/gallery/AlbumPhotoTile.tsx`, `src/content/types/gallery.ts`, `src/content/types/camp.ts`,
+`src/content/gallery.json`, `src/content/camp.ts` (+ test), `src/app/ochrana-osobnich-udaju/page.tsx`; the
+migration script in the scratchpad (not committed); staged `uploads/fotogalerie/<id>/…`, `uploads/tabor/rocniky/…`.
 
-- [ ] **Step 2: Run them to see them fail**
+**Interfaces:** consumes Task 1 and Task 2; produces `albumSchema` accepting only upload paths; `zoneramaSrcSet`
+removed.
 
-Run: `pnpm exec vitest run scripts/lib/gallery/add-album.test.ts` — Expected: FAIL.
+- [ ] **Step 1: Write the failing schema and camp tests** — as specified before: `schema.test.ts` fixture
+      `albumPhoto("pout-vranov", n)`, `"refuses a Zonerama photo URL"`, `"refuses a photo in another album's folder, at
+the wrong width or position"`; `camp.test.ts` cover regex `^/uploads/tabor/rocniky/(\d{4})\.webp$` equal to `year`.
+      Run `pnpm exec vitest run src/lib/gallery/schema.test.ts src/content/camp.test.ts` — Expected: FAIL.
+- [ ] **Step 2: Switch the schema, the srcset and the copy** — `photoUrl` regex
+      `^/uploads/fotogalerie/[a-z0-9-]+/foto-\d+-\d+\.webp$`, the album `superRefine` requires `photos[i]` to equal
+      `albumPhoto(album.id, i + 1)`; remove `zoneramaSrcSet`/`ZONERAMA_PHOTO`; `AlbumPhotoTile` uses `albumSrcSet`; type
+      comments; privacy page drops the Zonerama `<li>`.
+- [ ] **Step 3: Run the migration** (scratchpad script, `pnpm exec tsx`): `assertFreeOnServer` for every target;
+      for each of the five zips `extractPhotos` → `selectPhotos` → first 15 → `stageAlbumPhotos`; rewrite each album's
+      `photos` with `albumPhoto(id, n)` and `photoCount` with their number, drop `pout-vranov`; covers via
+      `toWebp(<year>.jpg, uploads/tabor/rocniky/<year>.webp, { width: 800, quality: ALBUM_PHOTO_QUALITY })`; `camp.ts`
+      `` const cover = (year: number) => `/uploads/tabor/rocniky/${year}.webp` `` and its header comment. Print per album
+      "N of M photos (ratio r)" for the user; ask before continuing if fewer than 6 fit (the skill's rule).
+- [ ] **Step 4: Check** — `grep -rn "zonerama.com/photos" src/` empty; full check; browser check at 390/834/1440 in
+      both themes (homepage carousel, Fotogalerie strips and lightbox, camp Ročníky) against the mockups; no request to
+      `eu.zonerama.com` in the network panel.
+- [ ] **Step 5: Commit** `feat(gallery): serve album photos and camp covers from uploads`.
 
-- [ ] **Step 3: Implement**
+### Task 4: `pnpm add-album --photos <zip>` stages the photos
 
-Order in `execute` with `--write`/`--check`: date check; `addAlbum(galleryFile, album, { check: true })` (validates,
-no write); `assertFreeOnServer(env, "fotogalerie/<id>/foto-1-800.webp", "pass another id with --id")`; then, only
-for `--write`, download each source sequentially (`${url} answered ${status}` on a non-OK response), stage them with
-`stageAlbumPhotos`, and only then `addAlbum(galleryFile, album)` and `formatAndTest`. Print `albumLines` plus
-`` `${actionVerb(check, "stage")} ${n} photos in uploads/fotogalerie/${id}/` ``.
+**Files:** `scripts/lib/gallery/add-album.ts` (+ test), `scripts/add-album.ts` (header and usage).
 
-- [ ] **Step 4: Run them to see them pass**
+**Interfaces:**
 
-Run: `pnpm exec vitest run scripts/lib/gallery/add-album.test.ts` — Expected: PASS.
+- Consumes: `extractPhotos`, `titleAndDateFromZip`, `selectPhotos` (Task 2); `albumPhoto`, `stageAlbumPhotos`,
+  `assertFreeOnServer` (Task 1); upload-path `albumSchema` (Task 3)
+- Produces:
+  - `Command` gains `photos: string` (required: a missing `--photos` throws the usage)
+  - `proposeAlbum(page: string | null, zip: string, photos: LocalPhoto[], number: string, overrides)` →
+    `{ proposal, album, sources }` (replaces `readAlbumPage`): title/date from the page, else `titleAndDateFromZip`;
+    `album.photos` = `albumPhoto(id, n)`, `sources[i]` the chosen `LocalPhoto.file`
+  - `execute(command, env: UploadsEnv = defaultUploadsEnv(), galleryFile = GALLERY_FILE)`
 
-- [ ] **Step 5: Scripts check and commit**
+- [ ] **Step 1: Write the failing tests** — `proposeAlbum` with a page and with `null` (zip-name title and date);
+      `parseCommand` refuses a missing `--photos`; `describe("execute on a temp gallery.json and uploads/")` with a
+      fetch stub (album page → `page(...)` or 500; HEAD → 404/200) and a temp zip: `"stages the photos and adds the
+album"`; `"falls back to the zip's name when the page fails"`; `"refuses a folder already on the server before
+writing"` (no files, `gallery.json` unchanged); `"leaves gallery.json unchanged when staging fails"` (an
+      unreadable image in the zip); `"only reports with --check"` (`Would stage N photos in uploads/fotogalerie/<id>/`,
+      no files); `"writes nothing for the proposal"` (no HEAD request, no files). No request to `/photos/` is ever made.
+- [ ] **Step 2: Run** `pnpm exec vitest run scripts/lib/gallery/add-album.test.ts` — Expected: FAIL.
+- [ ] **Step 3: Implement** — order: parse; `extractPhotos` into `mkdtempSync` (removed in `finally`); fetch the
+      page (a non-OK answer or a page without a Zonerama title → `null`); `proposeAlbum`; proposal → print; else date
+      check, `addAlbum(…, { check: true })`, `assertFreeOnServer`, then for `--write` `stageAlbumPhotos`, `addAlbum`,
+      `formatAndTest`; print `albumLines` plus `` `${actionVerb(check, "stage")} ${n} photos in
+uploads/fotogalerie/${id}/` ``. `photoUrl` and the Zonerama `image` template go if nothing else uses them.
+- [ ] **Step 4: Run** `pnpm exec vitest run scripts/lib/gallery/add-album.test.ts` — Expected: PASS.
+- [ ] **Step 5: Scripts check and commit** `feat(gallery): stage a new album's photos from its zip`.
 
-Run `pnpm format && pnpm test:scripts && pnpm lint && pnpm exec tsc --noEmit`. Commit:
-`feat(gallery): stage the photos of a new album in uploads`.
-
-### Task 4: Skills and README
+### Task 5: Skills and README
 
 **Files:**
 
@@ -262,7 +231,8 @@ Run `pnpm format && pnpm test:scripts && pnpm lint && pnpm exec tsc --noEmit`. C
 
 - [ ] **Step 1: Update the text**
 
-- `parish-create-album`: intro — `--write` downloads the chosen photos and stages them in
+- `parish-create-album`: ask the user for the album's zip of originals (never download from Zonerama: it serves
+  a bot image); intro — `--photos <zip>` chooses the photos and `--write` stages them in
   `uploads/fotogalerie/<id>/` (four widths), publishing uploads them; step 4 — mention the refusal of an id whose
   folder is on the server (`--id`); "Common mistakes" — replace "Downloading photos or uploading them" with
   "Downloading or converting photos by hand instead of `--write`".
@@ -274,7 +244,7 @@ Run `pnpm format && pnpm test:scripts && pnpm lint && pnpm exec tsc --noEmit`. C
 
 Run `pnpm format`. Commit: `docs(skills): describe staged album photos`.
 
-### Task 5: Final verification
+### Task 6: Final verification
 
 - [ ] **Step 1:** Full check, then `grep -rln "eu.zonerama.com/photos" out/` — Expected: no files.
 - [ ] **Step 2:** `pnpm add-album <a current album URL> --check` — Expected: it refuses (album already in
