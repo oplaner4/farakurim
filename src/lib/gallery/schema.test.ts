@@ -5,7 +5,7 @@ import { albumNumber, albumSchema, galleryFileSchema } from "./schema";
 
 /** An album whose two photos are uploaded in the folder of its id. */
 const album = (fields: Partial<Album> = {}): Album => {
-  const id = fields.id ?? "pout-vranov";
+  const id = fields.id ?? "pout-vranov-2026";
   return {
     id,
     title: "Pouť na Vranov",
@@ -16,7 +16,7 @@ const album = (fields: Partial<Album> = {}): Album => {
     ...fields,
   };
 };
-const photo = (n: number) => albumPhoto("pout-vranov", n);
+const photo = (n: number) => albumPhoto("pout-vranov-2026", n);
 
 /** The paths of the problems zod found, "" for the root. */
 const problemPaths = (result: { success: boolean; error?: { issues: { path: PropertyKey[] }[] } }) =>
@@ -31,6 +31,9 @@ describe("albumSchema", () => {
 
   it.each<[string, Partial<Album>, string]>([
     ["a non-kebab id", { id: "Pout_Vranov" }, "id"],
+    ["an id without the album's year", { id: "pout-vranov" }, "id"],
+    ["an id with another year", { id: "pout-vranov-2025" }, "id"],
+    ["an id with the year only inside a number", { id: "pout-vranov-20260" }, "id"],
     ["an empty title", { title: "  " }, "title"],
     ["an invalid date", { date: "2026-02-30" }, "date"],
     ["another site's album", { href: "https://example.com/FarnostKurim/Album/1" }, "href"],
@@ -57,7 +60,7 @@ describe("albumSchema", () => {
     ["a photo in another album's folder", { photos: [photo(1), albumPhoto("jine-album", 2)] }, "photos"],
     [
       "a photo at the wrong width",
-      { photos: [{ ...photo(1), small: albumPhotoPath("pout-vranov", 1, 400) }, photo(2)] },
+      { photos: [{ ...photo(1), small: albumPhotoPath("pout-vranov-2026", 1, 400) }, photo(2)] },
       "photos",
     ],
     ["photos out of position", { photos: [photo(2), photo(1)] }, "photos"],
@@ -72,7 +75,11 @@ describe("albumSchema", () => {
 });
 
 describe("galleryFileSchema", () => {
-  const second = album({ id: "medovy-den", date: "2026-08-20", href: "https://www.zonerama.com/FarnostKurim/Album/2" });
+  const second = album({
+    id: "medovy-den-2026",
+    date: "2026-08-20",
+    href: "https://www.zonerama.com/FarnostKurim/Album/2",
+  });
 
   it("accepts albums newest first, two on the same day too", () => {
     expect(galleryFileSchema.safeParse({ albums: [album(), second] }).success).toBe(true);

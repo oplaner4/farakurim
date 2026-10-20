@@ -32,10 +32,10 @@ export const photoCounter = (first: number, last: number, count: number) =>
 /** `id` of the album's block on the Fotogalerie page. */
 export const albumElementId = (album: Pick<Album, "id">) => `album-${album.id}`;
 
-/** Link fragment of the album's block: "#album-den-mensin". */
+/** Link fragment of the album's block: "#album-den-mensin-2026". */
 export const albumAnchor = (album: Pick<Album, "id">) => `#${albumElementId(album)}`;
 
-/** Hash of the album's N-th photo (1-based) open in the lightbox: "#album-den-mensin-foto-3". */
+/** Hash of the album's N-th photo (1-based) open in the lightbox: "#album-den-mensin-2026-foto-3". */
 export const photoHash = (album: Pick<Album, "id">, n: number) => `#${albumElementId(album)}-foto-${n}`;
 
 /** The photo (0-based) a hash opens in this album's lightbox, or `null` when it is not one of its photos. */

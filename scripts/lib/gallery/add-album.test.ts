@@ -169,12 +169,12 @@ describe("proposeAlbum", () => {
 
 /** Album `n`, dated 2026-06-(10 + n), so a higher n is newer. */
 const stored = (n: number, fields: Partial<Album> = {}): Album => ({
-  id: `album-${n}`,
+  id: `album-${n}-2026`,
   title: `Album ${n}`,
   date: `2026-06-${String(10 + n).padStart(2, "0")}`,
   href: `https://www.zonerama.com/FarnostKurim/Album/${n}`,
   photoCount: 1,
-  photos: [albumPhoto(fields.id ?? `album-${n}`, 1)],
+  photos: [albumPhoto(fields.id ?? `album-${n}-2026`, 1)],
   ...fields,
 });
 /** A full gallery: albums MAX_ALBUMS … 1, newest first. */
@@ -194,30 +194,30 @@ describe("addAlbum on a temp gallery.json", () => {
   it("inserts newest first, a same-day album before the older one", () => {
     save([stored(3), stored(2), stored(1)]);
     const result = addAlbum(file, stored(20, { date: stored(2).date }));
-    expect(idsInFile()).toEqual(["album-3", "album-20", "album-2", "album-1"]);
+    expect(idsInFile()).toEqual(["album-3-2026", "album-20-2026", "album-2-2026", "album-1-2026"]);
     expect(result).toMatchObject({ position: 2, removed: [], written: [file] });
   });
 
   it("removes the oldest album when a full gallery gets a newer one", () => {
     save(FULL);
     const result = addAlbum(file, stored(20, { date: "2026-07-01" }));
-    expect(idsInFile()).toEqual(["album-20", ...FULL.slice(0, -1).map((a) => a.id)]);
+    expect(idsInFile()).toEqual(["album-20-2026", ...FULL.slice(0, -1).map((a) => a.id)]);
     expect(result.position).toBe(1);
-    expect(result.removed).toEqual([{ id: "album-1", date: stored(1).date }]);
+    expect(result.removed).toEqual([{ id: "album-1-2026", date: stored(1).date }]);
   });
 
   it("removes the oldest album when the new one goes into the middle", () => {
     save(FULL);
     const result = addAlbum(file, stored(20, { date: stored(3).date }));
-    expect(result.position).toBe(FULL.findIndex((a) => a.id === "album-3") + 1);
-    expect(result.removed).toEqual([{ id: "album-1", date: stored(1).date }]);
+    expect(result.position).toBe(FULL.findIndex((a) => a.id === "album-3-2026") + 1);
+    expect(result.removed).toEqual([{ id: "album-1-2026", date: stored(1).date }]);
     expect(idsInFile()).toHaveLength(MAX_ALBUMS);
   });
 
   it("removes every album over the limit (one added by hand)", () => {
     save([...FULL, stored(0)]);
     const result = addAlbum(file, stored(20, { date: "2026-07-01" }));
-    expect(result.removed.map((a) => a.id)).toEqual(["album-1", "album-0"]);
+    expect(result.removed.map((a) => a.id)).toEqual(["album-1-2026", "album-0-2026"]);
     expect(idsInFile()).toHaveLength(MAX_ALBUMS);
   });
 
@@ -225,14 +225,14 @@ describe("addAlbum on a temp gallery.json", () => {
     save(FULL);
     const before = raw();
     expect(() => addAlbum(file, stored(20, { date: "2026-01-01" }))).toThrow(
-      `the album album-20 (2026-01-01) is older than the ${MAX_ALBUMS} albums kept: nothing to add`,
+      `the album album-20-2026 (2026-01-01) is older than the ${MAX_ALBUMS} albums kept: nothing to add`,
     );
     expect(raw()).toBe(before);
   });
 
   it("refuses a taken id or album", () => {
     save([stored(2), stored(1)]);
-    expect(() => addAlbum(file, stored(20, { id: "album-1" }))).toThrow(/pass another one with --id/);
+    expect(() => addAlbum(file, stored(20, { id: "album-1-2026" }))).toThrow(/pass another one with --id/);
     expect(() => addAlbum(file, stored(20, { href: "https://eu.zonerama.com/FarnostKurim/Album/2" }))).toThrow(
       "the album https://eu.zonerama.com/FarnostKurim/Album/2 is already in gallery.json",
     );
@@ -254,7 +254,7 @@ describe("addAlbum on a temp gallery.json", () => {
     save(FULL);
     const before = raw();
     const result = addAlbum(file, stored(20, { date: "2026-07-01" }), { check: true });
-    expect(result).toMatchObject({ position: 1, removed: [{ id: "album-1" }], written: [] });
+    expect(result).toMatchObject({ position: 1, removed: [{ id: "album-1-2026" }], written: [] });
     expect(raw()).toBe(before);
   });
 
@@ -276,19 +276,19 @@ describe("addAlbum on a temp gallery.json", () => {
 });
 
 describe("albumLines", () => {
-  const result = { album: stored(20), position: 1, removed: [{ id: "album-1", date: "2026-06-11" }], written: [] };
+  const result = { album: stored(20), position: 1, removed: [{ id: "album-1-2026", date: "2026-06-11" }], written: [] };
 
   it("says what was added and removed", () => {
     expect(albumLines(result, false)).toEqual([
-      "Added album-20 (1 photos) at position 1 in src/content/gallery.json",
-      "Removed the old album album-1 (2026-06-11)",
+      "Added album-20-2026 (1 photos) at position 1 in src/content/gallery.json",
+      "Removed the old album album-1-2026 (2026-06-11)",
     ]);
   });
 
   it("says would under check", () => {
     expect(albumLines(result, true)).toEqual([
-      "Would add album-20 (1 photos) at position 1 in src/content/gallery.json",
-      "Would remove the old album album-1 (2026-06-11)",
+      "Would add album-20-2026 (1 photos) at position 1 in src/content/gallery.json",
+      "Would remove the old album album-1-2026 (2026-06-11)",
     ]);
   });
 });

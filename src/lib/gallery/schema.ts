@@ -30,6 +30,12 @@ export const albumSchema = z
     photos: z.array(z.strictObject({ small: photoUrl, large: photoUrl })).optional(),
   })
   .superRefine((album, ctx) => {
+    // The album's year in its id ("medovy-den-2026", as `pnpm add-album` proposes it), so next year's album of the
+    // same event never takes over this one's links and photo folder.
+    const year = album.date.slice(0, 4);
+    if (!album.id.split("-").includes(year)) {
+      ctx.addIssue({ code: "custom", path: ["id"], message: `must contain the album's year (${year})` });
+    }
     if (album.photos && album.photos.length > album.photoCount) {
       ctx.addIssue({ code: "custom", path: ["photos"], message: `more than photoCount (${album.photoCount})` });
     }

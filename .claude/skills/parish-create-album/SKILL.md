@@ -29,8 +29,8 @@ If the download fails ("could not download album …"), ask the user for the alb
 album on Zonerama with "Stáhnout", usually to `~/Downloads/<YYYY_MM_DD> <title>.zip`) and run it again with
 `--photos "<zip>"`. A large album takes a while to prepare and download (about 500 MB for 140 photos).
 
-It prints JSON with the proposed `id` (ASCII kebab-case from the title, ending with the year: `medovy-den-2026`, so
-next year's album never takes over this one's links), the title (sentence case, without
+It prints JSON with the proposed `id` (ASCII kebab-case from the title with the year, usually at the end: `medovy-den-2026`,
+so next year's album never takes over this one's links and photo folder; the site refuses an id without it), the title (sentence case, without
 Zonerama's `YYYY_MM_DD` prefix), the date from that prefix, and the photo counts. It picks up to 15 photos of the
 zip's most common landscape aspect ratio, in file-name order, because the strips crop every photo to 4:3: one shape
 keeps the crops consistent, and portraits would lose most of the picture. `total` / `inRatio` / `photos` say how many
@@ -57,8 +57,9 @@ Pass the confirmed values (each only when it differs from the JSON), and `--phot
 reuses the zip step 2 downloaded and removes it once the album is added. It stages the photos in
 `uploads/fotogalerie/<id>/`, adds the album, removes the oldest albums beyond the site's limit (they stay on Zonerama,
 their files on the server) and prints each one it removed, then runs the gallery test. It refuses an id or album
-already on the site, an album older than all the kept ones, and an id whose folder is already on the server (the
-server's files are never overwritten): pass another `--id`.
+already on the site, an id without the album's year (`--id` must keep it, e.g. `vranov-2026`), an album older than
+all the kept ones, and an id whose folder is already on the server (the server's files are never overwritten): pass
+another `--id`.
 
 ## 5. Publish
 
