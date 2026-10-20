@@ -42,6 +42,10 @@ concurrency:
 permissions:
   contents: read
 
+# The folder of the uploaded files: UPLOADS_PATH (src/lib/shared/uploads.ts) without its slashes; a test checks it.
+env:
+  UPLOADS: uploads
+
 jobs:
   plan:
     # A merged sheet PR of this repo only; a fork can name its branch the same.
@@ -205,12 +209,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          mkdir -p uploads/porady_bohosluzeb
+          mkdir -p "$UPLOADS/porady_bohosluzeb"
           jq -r '.pulls[].artifacts[] | "\(.runId) \(.name)"' "$RUNNER_TEMP/plan.json" | while read -r run name; do
             gh run download "$run" --repo "$GITHUB_REPOSITORY" -n "$name" -D "$RUNNER_TEMP/pdf/$name"
-            cp "$RUNNER_TEMP/pdf/$name"/*.pdf uploads/porady_bohosluzeb/
+            cp "$RUNNER_TEMP/pdf/$name"/*.pdf "$UPLOADS/porady_bohosluzeb/"
           done
-          ls -l uploads/porady_bohosluzeb
+          ls -l "$UPLOADS/porady_bohosluzeb"
 
       # Uploads the PDFs (and the cron scripts) first, then the version commit and the tag, pushed with main.
       - name: Release

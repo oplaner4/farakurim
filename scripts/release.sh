@@ -53,7 +53,7 @@ sed 's/^/  /' <<< "$commits"
 echo
 echo "Version: v$next ($bump)"
 echo
-echo "New files for /uploads/:"
+echo "New files to upload:"
 uploads=$(scripts/deploy.sh uploads --dry-run)
 sed 's/^/  /' <<< "${uploads:-(none)}"
 echo

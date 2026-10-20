@@ -36,6 +36,10 @@ concurrency:
 permissions:
   contents: read
 
+# The folder of the uploaded files: UPLOADS_PATH (src/lib/shared/uploads.ts) without its slashes; a test checks it.
+env:
+  UPLOADS: uploads
+
 jobs:
   sheet:
     runs-on: ubuntu-24.04
@@ -187,7 +191,7 @@ jobs:
           git add --intent-to-add -- src/content
           git diff --binary HEAD -- src/content > "$run/content.patch"
           mkdir -p "$run/pdf"
-          for file in uploads/porady_bohosluzeb/*.pdf; do
+          for file in "$UPLOADS"/porady_bohosluzeb/*.pdf; do
             if [ -f "$file" ] && [ "$(head -c 4 "$file")" = "%PDF" ]; then cp "$file" "$run/pdf/"; fi
           done
 
