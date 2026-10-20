@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { zipSync } from "fflate";
 import sharp from "sharp";
@@ -51,6 +51,24 @@ describe("extractPhotos", () => {
     const photo = await jpeg(10, 10);
     const { file, dir } = zip({ "a/x.jpg": photo, "b/x.jpg": photo });
     await expect(extractPhotos(file, dir)).rejects.toThrow("the zip has two photos named x.jpg");
+  });
+
+  it("skips the macOS resource files of a zip made on a Mac", async () => {
+    const { file, dir } = zip({ "a.jpg": await jpeg(30, 20), "__MACOSX/._a.jpg": "AppleDouble", "._b.jpg": "x" });
+    expect((await extractPhotos(file, dir)).map((p) => basename(p.file))).toEqual(["a.jpg"]);
+  });
+
+  it("names a photo it cannot read", async () => {
+    const { file, dir } = zip({ "a.jpg": await jpeg(30, 20), "b.jpg": "not a photo" });
+    await expect(extractPhotos(file, dir)).rejects.toThrow("b.jpg in the zip is not a photo that can be read");
+  });
+
+  it("stops on a damaged zip with its own message", async () => {
+    const { file, dir } = zip({ "a.jpg": "a".repeat(200_000), "b.jpg": await jpeg(30, 20) });
+    const bytes = readFileSync(file);
+    bytes.fill(0xff, 60, 68); // inside a.jpg's compressed data
+    writeFileSync(file, bytes);
+    await expect(extractPhotos(file, dir)).rejects.toThrow(/^the zip cannot be read/);
   });
 
   it("refuses a zip without photos", async () => {

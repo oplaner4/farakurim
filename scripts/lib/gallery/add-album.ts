@@ -246,7 +246,15 @@ export async function runAlbum(
     if (!album.date) throw new Error("the album title has no date: pass the date of the event with --date YYYY-MM-DD");
     addAlbum(galleryFile, album, { check: true });
     await assertFreeOnServer(env, `fotogalerie/${album.id}/foto-1-800.webp`, "pass another id with --id");
-    if (!check) await stageAlbumPhotos(env.uploadsDir, album.id, sources);
+    if (!check) {
+      try {
+        await stageAlbumPhotos(env.uploadsDir, album.id, sources);
+      } catch (error) {
+        // The folder is not on the server (checked above): remove what was staged, or the release would upload it.
+        rmSync(join(env.uploadsDir, "fotogalerie", album.id), { recursive: true, force: true });
+        throw error;
+      }
+    }
     const result = check ? addAlbum(galleryFile, album, { check: true }) : addAlbum(galleryFile, album);
     const staged = `${actionVerb(check, "stage")} ${sources.length} photos in ${UPLOADS_DIR}fotogalerie/${album.id}/`;
     return { output: [...note, ...albumLines(result, check), staged].join("\n"), written: result.written };

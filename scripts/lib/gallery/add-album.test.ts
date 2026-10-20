@@ -422,6 +422,8 @@ describe("runAlbum on a temp gallery.json, uploads/ and zip", () => {
     const before = readFileSync(galleryFile, "utf8");
     await expect(runAlbum({ url: URL, photos: zip, write: true, check: false }, env(), galleryFile)).rejects.toThrow();
     expect(readFileSync(galleryFile, "utf8")).toBe(before);
+    // Nor are the photos staged before the failure left for the release to upload.
+    expect(staged()).toEqual([]);
   });
 
   it("only reports with --check", async () => {
