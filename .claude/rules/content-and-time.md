@@ -68,8 +68,9 @@ build-time next mass.
   next-mass countdown still use `regularServices` / `scheduleExceptions()`.
 - Fotogalerie (`content/gallery.json`, loaded and checked by `content/gallery.ts` with `galleryFileSchema` from
   `src/lib/gallery/schema.ts`): Zonerama albums, newest first, at most `MAX_ALBUMS` (`pnpm add-album` removes the
-  older ones), with `photoCount` and optional `photos`
-  (`small`/`large` URLs). An album without `photos` shows `photoCount` designed placeholders in the strips and the homepage
+  older ones), with `photoCount` and optional `photos` uploaded to `/uploads/fotogalerie/<id>/` in four widths
+  (`albumPhoto()`, `albumSrcSet()`; `small`/`large` are the 800/1600 px files; taken from the parish's zip of the
+  originals, never downloaded from Zonerama). An album without `photos` shows `photoCount` designed placeholders in the strips and the homepage
   carousel; alt texts are computed (`photoAlt()` in `src/lib/gallery/albums.ts`). A photo opens the
   lightbox (DESIGN.md §21) at `#album-<id>-foto-N`; an event poster that is an image opens it at `#plakat` (detail page)
   or `#plakat-<event id>` (the Aktuality page), a PDF poster opens in the browser.
@@ -117,7 +118,7 @@ build-time next mass.
   minors) is grouped by `role` (`teamGroups()` in `src/lib/camp/team.ts`); a photo is published only with consent
   and uploaded to `/uploads/tabor/vedouci/` (WebP 4:5, `small` 320 px, `large` 720 px); the photos share one lightbox
   at `#foto-N`, in page order. Each year of `campYears` (newest first) links its Zonerama album, with a cover photo
-  from it (a Zonerama URL); a year without an album yet shows a tent on its tint.
+  the parish chose (`/uploads/tabor/rocniky/<year>.webp`, 800 px wide); a year without an album yet shows a tent on its tint.
 - Odkazy (`content/web-links.ts`, design §23): link groups with a colour; "Obce farnosti" reuses `parish.villages`
   (also the footer), and the card's domain is computed (`displayDomain()`).
 - Office hours (`content/site.ts`): weekly slots with an optional yearly `closed` break; the live status is

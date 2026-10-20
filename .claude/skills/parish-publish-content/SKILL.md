@@ -10,9 +10,10 @@ The site is a static export: content lives in `src/content/*.ts`, and a change g
 publishes nothing when a check fails. So this skill does not run them, and a content change needs no
 browser check: the content tests check the data, and the pages are built from components already checked.
 
-Uploaded files (posters, attachments, the weekly PDF, Petrklíč issues) are **not** in git or `out/`: they are
+Uploaded files (posters, attachments, the weekly PDF, Petrklíč issues, album photos) are **not** in git or `out/`: they are
 uploaded to `/uploads/…` and the content links them root-relative, as `/uploads/…`.
-The create skills stage them in `uploads/` (git-ignored) with `pnpm stage`, and the release uploads them.
+The create skills stage them in `uploads/` (git-ignored) with `pnpm stage` (album photos with
+`pnpm add-album --write`), and the release uploads them.
 
 ## 1. Commit
 

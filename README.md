@@ -90,16 +90,16 @@ they show the build's verse. The "Zdroj: www.vira.cz" link is vira.cz's conditio
 
 Content tooling, used by the content skills (see [Content](#content)):
 
-| Command                                                         | What it does                                                                                                                                                        |
-| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm stage event\|sheet\|petrklic … [--check]`                 | Stage files in `uploads/`; petrklic adds the issue to `petrklic.json`, the others add a `--record` (without one, only `--check`); `--corrected` for corrected files |
-| `pnpm add-event <record.json> [--check]`                        | Add an event to its month's JSON file in `src/content/news/`, checked by its schema                                                                                 |
-| `pnpm replace-event <record.json> [--check]`                    | Correct the event with the record's id, keeping its `published` and pin; a new start month moves it to that month's file                                            |
-| `pnpm pin-event <id> \| --none [--check]`                       | Pin an event for "Doporučujeme" and unpin every other one (`--none`: unpin all); a pinned new record moves the pin itself                                           |
-| `pnpm event-poster <id> "<label>" \| --none [--check]`          | Make an attachment of the event its poster (rendering `<file>-poster.webp`), or remove the poster                                                                   |
-| `pnpm event-calendar <id> [--out <dir>]`                        | Check that the event's Události event links its page and has `Zrušeno: ` when cancelled; else write the `.ics`                                                      |
-| `pnpm add-exception <record.json> \| --remove <date> [--check]` | Add a change announced for a day no service sheet covers to `schedule-exceptions.json` (`--remove`: take it out)                                                    |
-| `pnpm add-album <album-url> [--write \| --check …]`             | Read a Zonerama album as JSON; `--write` adds it to `gallery.json` and removes the oldest beyond 6, `--check` only says what `--write` would do                     |
+| Command                                                            | What it does                                                                                                                                                                                                                                   |
+| ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm stage event\|sheet\|petrklic … [--check]`                    | Stage files in `uploads/`; petrklic adds the issue to `petrklic.json`, the others add a `--record` (without one, only `--check`); `--corrected` for corrected files                                                                            |
+| `pnpm add-event <record.json> [--check]`                           | Add an event to its month's JSON file in `src/content/news/`, checked by its schema                                                                                                                                                            |
+| `pnpm replace-event <record.json> [--check]`                       | Correct the event with the record's id, keeping its `published` and pin; a new start month moves it to that month's file                                                                                                                       |
+| `pnpm pin-event <id> \| --none [--check]`                          | Pin an event for "Doporučujeme" and unpin every other one (`--none`: unpin all); a pinned new record moves the pin itself                                                                                                                      |
+| `pnpm event-poster <id> "<label>" \| --none [--check]`             | Make an attachment of the event its poster (rendering `<file>-poster.webp`), or remove the poster                                                                                                                                              |
+| `pnpm event-calendar <id> [--out <dir>]`                           | Check that the event's Události event links its page and has `Zrušeno: ` when cancelled; else write the `.ics`                                                                                                                                 |
+| `pnpm add-exception <record.json> \| --remove <date> [--check]`    | Add a change announced for a day no service sheet covers to `schedule-exceptions.json` (`--remove`: take it out)                                                                                                                               |
+| `pnpm add-album <album-url> --photos <zip> [--write \| --check …]` | Propose a Zonerama album with photos from the zip of its originals as JSON; `--write` stages the photos in `uploads/fotogalerie/<id>/`, adds it to `gallery.json` and removes the oldest beyond 6, `--check` only says what `--write` would do |
 
 Before you commit, run the full check and compare the change with the mockups: see
 [docs/conventions.md](docs/conventions.md), which also holds the language, stack, static-export and commit conventions.
@@ -144,7 +144,7 @@ Content lives in `src/content/` and is added with the Claude Code project skills
 | `parish-create-service-sheet`  | The weekly service sheet (the parish's DOCX or PDF), into `service-sheets.json`                 |
 | `parish-correct-service-sheet` | A corrected service sheet (record, DOCX or PDF)                                                 |
 | `parish-create-exception`      | A change to the mass schedule on a day no service sheet covers, into `schedule-exceptions.json` |
-| `parish-create-album`          | A Zonerama album, into `gallery.json`                                                           |
+| `parish-create-album`          | A Zonerama album and the zip of its photos, into `gallery.json`                                 |
 | `parish-create-petrklic`       | A Petrklíč newsletter PDF, into `petrklic.json`                                                 |
 | `parish-correct-petrklic`      | A corrected Petrklíč PDF or issue record                                                        |
 
@@ -156,8 +156,9 @@ Setup and use:
 [docs/deployment.md](docs/deployment.md#service-sheet-by-e-mail).
 
 Uploaded files are not in git: they are staged in `uploads/` (git-ignored, mirrors `/uploads/` on the server) and
-linked root-relative as `/uploads/…`; `pnpm pull-uploads` downloads the server's files you lack. Album photos stay on
-Zonerama. The old site's uploads in `/nahrane/` stay on the server so old links keep working, but new content never
+linked root-relative as `/uploads/…`; `pnpm pull-uploads` downloads the server's files you lack. Album photos are staged
+in `uploads/fotogalerie/<id>/` by `pnpm add-album --write`, from the zip of the album's originals (Zonerama serves
+scripts a bot image instead of a photo). The old site's uploads in `/nahrane/` stay on the server so old links keep working, but new content never
 links or adds to them.
 
 ## Deployment
