@@ -19,8 +19,8 @@ Working on it with Claude Code: `CLAUDE.md` adds the rules an agent follows on t
   its tests skip the PDF cases without it
 - **LibreOffice** (`soffice` on the `PATH` or in its usual install folder), or **Word** on Windows, to convert the
   parish's service sheet DOCX with `pnpm stage sheet`; its tests skip the conversion without LibreOffice
-- **Bash, ssh and rsync**, and SSH key access to the server, to release (`pnpm release` with new files in
-  `uploads/`, `pnpm release --local`) and for `pnpm pull-uploads`: set up once as in
+- **Bash, ssh and rsync**, and SSH key access to the server, to release (`pnpm release` with newly staged uploads,
+  `pnpm release --local`) and for `pnpm pull-uploads`: set up once as in
   [docs/deployment.md § SSH access](docs/deployment.md#ssh-access). On Windows, Git Bash has ssh but not rsync
 - Optional: `pip install --user fonttools brotli` to regenerate the web fonts (`pnpm fonts`), and PHP to try
   `public/biblicky-citat.php` locally (`php -S`)
@@ -32,8 +32,8 @@ pnpm install   # also installs the git hooks (husky)
 pnpm dev       # http://localhost:3000
 ```
 
-`pnpm dev` and `pnpm preview` serve `/uploads/…` from the local `uploads/` folder (git-ignored, see
-[Content](#content)) and redirect missing files to the live site.
+`pnpm dev` and `pnpm preview` serve the uploaded files from the local staging folder (see [Content](#content)) and
+redirect missing files to the live site.
 
 ### Keys in `.env.local` (optional)
 
@@ -75,7 +75,7 @@ they show the build's verse. The "Zdroj: www.vira.cz" link is vira.cz's conditio
 
 | Command                                    | What it does                                                                                                    |
 | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
-| `pnpm dev`                                 | Dev server at http://localhost:3000, `/uploads/…` from `uploads/` or the live site                              |
+| `pnpm dev`                                 | Dev server at http://localhost:3000, uploaded files from the staging folder or the live site                    |
 | `pnpm build`                               | Static export to `out/`; clears Next's fetch cache first, so calendars and the verse are read anew              |
 | `pnpm preview`                             | Serve `out/` at http://localhost:4173 (run `pnpm build` first), uploads as in `pnpm dev`                        |
 | `pnpm test`                                | Vitest unit tests: `test:site` (`src/**/*.test.ts`, hooks in jsdom) and `test:scripts` (`scripts/**/*.test.ts`) |
@@ -84,22 +84,22 @@ they show the build's verse. The "Zdroj: www.vira.cz" link is vira.cz's conditio
 | `pnpm format`                              | Prettier, including Tailwind class sorting                                                                      |
 | `pnpm mockups`                             | Render the design mockups and serve them at http://localhost:4174/mockups/                                      |
 | `pnpm release [--local] [--yes] [--major]` | Publish the site (see [Deployment](#deployment)); asks unless `--yes`                                           |
-| `pnpm pull-uploads [--dry-run]`            | Download the server's `/uploads/` files missing in `uploads/` (never overwrites or deletes)                     |
+| `pnpm pull-uploads [--dry-run]`            | Download the server's uploaded files missing in the staging folder (never overwrites or deletes)                |
 | `pnpm icons`                               | Regenerate `src/app/icon.png` and `apple-icon.png` from `src/app/icon.svg`                                      |
 | `pnpm fonts`                               | Build `src/fonts/farnost-sans-*.woff2` (Oxygen with fixed `ť ď ľ Ľ`) from `fonts-source/`                       |
 
 Content tooling, used by the content skills (see [Content](#content)):
 
-| Command                                                              | What it does                                                                                                                                                                                                                                              |
-| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm stage event\|sheet\|petrklic … [--check]`                      | Stage files in `uploads/`; petrklic adds the issue to `petrklic.json`, the others add a `--record` (without one, only `--check`); `--corrected` for corrected files                                                                                       |
-| `pnpm add-event <record.json> [--check]`                             | Add an event to its month's JSON file in `src/content/news/`, checked by its schema                                                                                                                                                                       |
-| `pnpm replace-event <record.json> [--check]`                         | Correct the event with the record's id, keeping its `published` and pin; a new start month moves it to that month's file                                                                                                                                  |
-| `pnpm pin-event <id> \| --none [--check]`                            | Pin an event for "Doporučujeme" and unpin every other one (`--none`: unpin all); a pinned new record moves the pin itself                                                                                                                                 |
-| `pnpm event-poster <id> "<label>" \| --none [--check]`               | Make an attachment of the event its poster (rendering `<file>-poster.webp`), or remove the poster                                                                                                                                                         |
-| `pnpm event-calendar <id> [--out <dir>]`                             | Check that the event's Události event links its page and has `Zrušeno: ` when cancelled; else write the `.ics`                                                                                                                                            |
-| `pnpm add-exception <record.json> \| --remove <date> [--check]`      | Add a change announced for a day no service sheet covers to `schedule-exceptions.json` (`--remove`: take it out)                                                                                                                                          |
-| `pnpm add-album <album-url> [--photos <zip>] [--write \| --check …]` | Propose a Zonerama album with photos from its zip (downloaded, or `--photos`) as JSON; `--write` stages the photos in `uploads/fotogalerie/<id>/`, adds it to `gallery.json` and removes the oldest beyond 6, `--check` only says what `--write` would do |
+| Command                                                              | What it does                                                                                                                                                                                                               |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm stage event\|sheet\|petrklic … [--check]`                      | Stage files for upload; petrklic adds the issue to `petrklic.json`, the others add a `--record` (without one, only `--check`); `--corrected` for corrected files                                                           |
+| `pnpm add-event <record.json> [--check]`                             | Add an event to its month's JSON file in `src/content/news/`, checked by its schema                                                                                                                                        |
+| `pnpm replace-event <record.json> [--check]`                         | Correct the event with the record's id, keeping its `published` and pin; a new start month moves it to that month's file                                                                                                   |
+| `pnpm pin-event <id> \| --none [--check]`                            | Pin an event for "Doporučujeme" and unpin every other one (`--none`: unpin all); a pinned new record moves the pin itself                                                                                                  |
+| `pnpm event-poster <id> "<label>" \| --none [--check]`               | Make an attachment of the event its poster (rendering `<file>-poster.webp`), or remove the poster                                                                                                                          |
+| `pnpm event-calendar <id> [--out <dir>]`                             | Check that the event's Události event links its page and has `Zrušeno: ` when cancelled; else write the `.ics`                                                                                                             |
+| `pnpm add-exception <record.json> \| --remove <date> [--check]`      | Add a change announced for a day no service sheet covers to `schedule-exceptions.json` (`--remove`: take it out)                                                                                                           |
+| `pnpm add-album <album-url> [--photos <zip>] [--write \| --check …]` | Propose a Zonerama album with photos from its zip (downloaded, or `--photos`) as JSON; `--write` stages the photos, adds it to `gallery.json` and removes the oldest beyond 6, `--check` only says what `--write` would do |
 
 Before you commit, run the full check and compare the change with the mockups: see
 [docs/conventions.md](docs/conventions.md), which also holds the language, stack, static-export and commit conventions.
@@ -150,21 +150,18 @@ Content lives in `src/content/` and is added with the Claude Code project skills
 
 Each finishes with `parish-publish-content`, which commits and releases with `parish-release`.
 
-The weekly service sheet can also arrive by e-mail: the parish sends its DOCX to `porad@farakurim.cz` and a daily
+The weekly service sheet can also arrive by e-mail: the parish sends its DOCX to the service sheet mailbox and a daily
 workflow opens a pull request with the week, which the maintainer reviews and merges; the merge releases the site.
-Setup and use:
-[docs/deployment.md](docs/deployment.md#service-sheet-by-e-mail).
+Setup and use: [docs/deployment.md](docs/deployment.md#service-sheet-by-e-mail).
 
-Uploaded files are not in git: they are staged in `uploads/` (git-ignored, mirrors `/uploads/` on the server) and
-linked root-relative as `/uploads/…`; `pnpm pull-uploads` downloads the server's files you lack. Album photos are staged
-in `uploads/fotogalerie/<id>/` by `pnpm add-album --write`, from the album's zip, which it downloads from Zonerama (or
-`--photos <zip>`; Zonerama serves scripts a bot image instead of a single photo). The old site's uploads in
-`/nahrane/` stay on the server so old links keep working, but new content never
-links or adds to them.
+Uploaded files (posters, PDFs, photos) are not in git: they are staged in a configurable git-ignored folder that
+mirrors the one on the server and linked root-relative; `pnpm pull-uploads` downloads the server's files you lack.
+The old site's uploads in `/nahrane/` stay on the server so old links keep working, but new content never links or
+adds to them.
 
 ## Deployment
 
-`pnpm release` publishes the site: it uploads the new files in `uploads/`, tags `vX.Y.Z` and pushes, and GitHub
+`pnpm release` publishes the site: it uploads the newly staged files, tags `vX.Y.Z` and pushes, and GitHub
 Actions checks, builds and deploys the tag to https://farakurim.cz/ over SSH. The workflow also rebuilds the latest
 release weekly, so date-dependent content stays current. The old PHP site is backed up in `/stary.farakurim.cz/` on
 the server. Releases, the refresh, the GitHub setup and the server: [docs/deployment.md](docs/deployment.md).
