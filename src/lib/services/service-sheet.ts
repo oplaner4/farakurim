@@ -18,9 +18,12 @@ import { servicesOnDate } from "./masses";
 
 // The weekly service sheets as structured content (design/DESIGN.md §14.5–14.7).
 
+/** The folder of the sheet PDFs under UPLOADS_PATH. */
+export const SHEETS_FOLDER = "porady_bohosluzeb/";
+
 /** The sheet's uploaded PDF: "porady_bohosluzeb/2026-10-04-porad-bohosluzeb.pdf", "…-r2.pdf" for a corrected one. */
 export const sheetPdfFile = ({ validFrom, rev }: Pick<ServiceSheet, "validFrom" | "rev">) =>
-  `porady_bohosluzeb/${validFrom}-porad-bohosluzeb${revSuffix(rev)}.pdf`;
+  `${SHEETS_FOLDER}${validFrom}-porad-bohosluzeb${revSuffix(rev)}.pdf`;
 
 /** The full sheet of a stored record: the URL of its PDF. */
 export const toSheet = (record: ServiceSheetRecord): ServiceSheet => ({

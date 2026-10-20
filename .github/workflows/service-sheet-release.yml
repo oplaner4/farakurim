@@ -42,9 +42,14 @@ concurrency:
 permissions:
   contents: read
 
-# The folder of the uploaded files: UPLOADS_PATH (src/lib/shared/uploads.ts) without its slashes; a test checks it.
+# The copies a test checks: the folder of the uploaded files (UPLOADS_PATH in src/lib/shared/uploads.ts) and of the
+# sheet PDFs in it (SHEETS_FOLDER in src/lib/services/service-sheet.ts), without their slashes, the site (SITE_URL in src/content/site.ts) and its
+# Pořad bohoslužeb page (links.services).
 env:
   UPLOADS: uploads
+  SHEETS: porady_bohosluzeb
+  SITE: https://farakurim.cz
+  SERVICES_PAGE: /porad_bohosluzeb/
 
 jobs:
   plan:
@@ -121,7 +126,7 @@ jobs:
     timeout-minutes: 60
     environment:
       name: Production
-      url: https://farakurim.cz/porad_bohosluzeb/
+      url: ${{ env.SITE }}${{ env.SERVICES_PAGE }}
     permissions:
       contents: read # the push and the comments use the App token
       pull-requests: read # the PRs of the commits
@@ -209,12 +214,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          mkdir -p "$UPLOADS/porady_bohosluzeb"
+          mkdir -p "$UPLOADS/$SHEETS"
           jq -r '.pulls[].artifacts[] | "\(.runId) \(.name)"' "$RUNNER_TEMP/plan.json" | while read -r run name; do
             gh run download "$run" --repo "$GITHUB_REPOSITORY" -n "$name" -D "$RUNNER_TEMP/pdf/$name"
-            cp "$RUNNER_TEMP/pdf/$name"/*.pdf "$UPLOADS/porady_bohosluzeb/"
+            cp "$RUNNER_TEMP/pdf/$name"/*.pdf "$UPLOADS/$SHEETS/"
           done
-          ls -l "$UPLOADS/porady_bohosluzeb"
+          ls -l "$UPLOADS/$SHEETS"
 
       # Uploads the PDFs (and the cron scripts) first, then the version commit and the tag, pushed with main.
       - name: Release
@@ -252,7 +257,7 @@ jobs:
           TAG: ${{ steps.release.outputs.tag }}
         run: |
           jq -r '.pulls[] | "\(.number) \(.branch)"' "$RUNNER_TEMP/plan.json" | while read -r pr branch; do
-            gh pr comment "$pr" --repo "$GITHUB_REPOSITORY" --body "Released in $TAG: https://farakurim.cz/porad_bohosluzeb/"
+            gh pr comment "$pr" --repo "$GITHUB_REPOSITORY" --body "Released in $TAG: $SITE$SERVICES_PAGE"
             gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$branch" > /dev/null || true
           done
 

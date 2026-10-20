@@ -30,6 +30,10 @@ on:
 permissions:
   contents: read
 
+# The site: SITE_URL (src/content/site.ts); a test checks it.
+env:
+  SITE: https://farakurim.cz
+
 jobs:
   # Picks what to deploy: the pushed tag, or on a refresh the latest tag on main if it is due.
   release:
@@ -123,7 +127,7 @@ jobs:
       cancel-in-progress: false
     environment:
       name: Production
-      url: https://farakurim.cz/
+      url: ${{ env.SITE }}/
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

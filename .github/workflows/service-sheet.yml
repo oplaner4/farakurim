@@ -36,9 +36,11 @@ concurrency:
 permissions:
   contents: read
 
-# The folder of the uploaded files: UPLOADS_PATH (src/lib/shared/uploads.ts) without its slashes; a test checks it.
+# The copies a test checks: the folder of the uploaded files (UPLOADS_PATH in src/lib/shared/uploads.ts) and of the
+# sheet PDFs in it (SHEETS_FOLDER in src/lib/services/service-sheet.ts), without their slashes.
 env:
   UPLOADS: uploads
+  SHEETS: porady_bohosluzeb
 
 jobs:
   sheet:
@@ -191,7 +193,7 @@ jobs:
           git add --intent-to-add -- src/content
           git diff --binary HEAD -- src/content > "$run/content.patch"
           mkdir -p "$run/pdf"
-          for file in "$UPLOADS"/porady_bohosluzeb/*.pdf; do
+          for file in "$UPLOADS/$SHEETS"/*.pdf; do
             if [ -f "$file" ] && [ "$(head -c 4 "$file")" = "%PDF" ]; then cp "$file" "$run/pdf/"; fi
           done
 

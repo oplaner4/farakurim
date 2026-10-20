@@ -2,7 +2,7 @@
 
 import { spawnSync } from "node:child_process";
 import { generateKeyPairSync } from "node:crypto";
-import { cpSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { strToU8, zipSync } from "fflate";
@@ -11,7 +11,7 @@ import sharp from "sharp";
 import { afterEach, beforeEach, vi } from "vitest";
 import type { NewsEvent } from "@/content/types/news";
 import { periodDates } from "@/lib/services/service-sheet";
-import { EXCEPTIONS_FILE, NEWS_DIR, SERVICE_SHEETS_FILE, PETRKLIC_FILE } from "./content-files";
+import { EXCEPTIONS_FILE, NEWS_DIR, ROOT, SERVICE_SHEETS_FILE, PETRKLIC_FILE } from "./content-files";
 import type { StageEnv } from "./stage/core";
 import { UPLOADS_DIR } from "./uploads";
 
@@ -92,6 +92,12 @@ export function docxWithBody(body: string, links: Record<string, string> = {}): 
     }),
   );
 }
+
+/** The value of `name` in the top-level `env:` of the workflow `file` (.github/workflows/<file>); undefined without it. */
+export const workflowEnv = (file: string, name: string) =>
+  new RegExp(`^env:\\n(?: {2}.*\\n)*? {2}${name}: (\\S+)$`, "m").exec(
+    readFileSync(join(ROOT, ".github/workflows", file), "utf8"),
+  )?.[1];
 
 /** The days of a service sheet record from `validFrom` to `validTo`, all without services. */
 export const emptyWeek = (validFrom: string, validTo: string) =>
