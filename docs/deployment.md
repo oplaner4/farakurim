@@ -84,8 +84,8 @@ means no, and nothing happens (the branch stays). A **draft** PR has a blocking 
 the PR ready, merge. A correction is a commit pushed to the PR's branch, or made locally with the skills
 (`parish-correct-service-sheet`); comments with `@claude` come in phase 2.
 
-The merge starts `.github/workflows/service-sheet-release.yml` (on the push to `main`; `pnpm sheet-release` plans
-it). Each run of the sheet workflow uploads only the PDFs it staged, as the artifact `service-sheet-pdf-<sha>` of its
+The merge starts `.github/workflows/service-sheet-release.yml` (`pull_request_target: closed`, so your own pushes to
+`main` and `pnpm release` never start it; `pnpm sheet-release` plans it). Each run of the sheet workflow uploads only the PDFs it staged, as the artifact `service-sheet-pdf-<sha>` of its
 commit, so the release downloads the artifact of every commit of the PR, oldest first (a later correction overwrites
 an earlier PDF of the same name), runs `pnpm release --yes` with the App token, waits for the deploy and comments
 "Released in vX.Y.Z" on the PR and deletes its branch. Two PRs merged close together go out in one release. It

@@ -1,10 +1,13 @@
 # Releases the site when a service sheet PR is merged (phase 2, §7 of
 # docs/superpowers/specs/2026-10-16-service-sheet-email-pipeline-design.md). The maintainer's squash merge of a
-# `service-sheet/*` PR (opened by service-sheet.yml) is the yes to publish. It runs on the push to main rather than
-# on `pull_request: closed`: an environment's deployment branch rule is matched against GITHUB_REF, which is
-# refs/pull/N/merge for a pull request run, and Production allows only the tags v* and main.
+# `service-sheet/*` PR (opened by service-sheet.yml) is the yes to publish. It runs on `pull_request_target: closed`,
+# so a push to main (the maintainer's own content, `pnpm release`) never starts it, and every other closed PR only
+# makes a skipped run. Not `pull_request`: an environment's deployment branch rule is matched against GITHUB_REF,
+# which is refs/pull/N/merge for a pull request run, while a pull_request_target run has main, which Production
+# allows. pull_request_target runs with the secrets even for a fork's PR, so the jobs check out main only, never the
+# PR's code, and the `plan` job runs only for a merged PR from a `service-sheet/` branch of this repo.
 # - `plan` runs `pnpm sheet-release` (scripts/sheet-release.ts) on the commits since the last tag. It skips when none
-#   of them is a sheet PR's squash commit (the maintainer's own pushes) and ends green when an earlier run released
+#   of them is a sheet PR's squash commit and ends green when an earlier run released
 #   everything. It stops with a comment on the sheet PRs, releasing nothing, unless every unreleased commit is a
 #   merged sheet PR's squash commit (another commit's uploads live only on the maintainer's machine), when a PDF
 #   artifact expired, or when a commit of such a PR was pushed by hand and has no artifact (its PDF may exist only on
@@ -25,14 +28,16 @@
 name: Service sheet release
 
 on:
-  push:
-    branches: [main]
-    # A sheet PR changes only src/content/; the release commit (package.json) does not start it.
-    paths: ["src/content/**"]
+  pull_request_target:
+    types: [closed]
+    branches: [main] # the PR's base
 
-# One run at a time, never cancelled mid-release; a newer pending run replaces an older one, and it sees every merge.
+# One sheet release at a time, never cancelled mid-release; a newer pending run replaces an older one, and it sees
+# every merge. Any other closed PR gets a group of its own, so its skipped run never replaces a sheet merge's.
 concurrency:
-  group: service-sheet-release
+  group: >-
+    ${{ github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'service-sheet/')
+    && 'service-sheet-release' || format('service-sheet-release-{0}', github.run_id) }}
   cancel-in-progress: false
 
 permissions:
@@ -40,6 +45,10 @@ permissions:
 
 jobs:
   plan:
+    # A merged sheet PR of this repo only; a fork can name its branch the same.
+    if: >-
+      github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'service-sheet/')
+      && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -49,7 +58,7 @@ jobs:
       action: ${{ steps.plan.outputs.action }}
       plan: ${{ steps.plan.outputs.plan }}
     steps:
-      # main, not the pushed commit: a run that waited in the queue then sees every merge since.
+      # main, never the PR's code; a run that waited in the queue then sees every merge since.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: main
