@@ -77,11 +77,12 @@ cmd_check_uploads() {
   [ -d out ] || fail "out/ is missing: build first."
   tmp=$(mktemp -d)
   # Only our own links: root-relative (after a quote or a parenthesis) or on farakurim.cz, not another site's
-  # /wp-content/uploads/.
+  # /wp-content/uploads/. Sorted and compared in the C locale: in another, comm can call sort's order unsorted and
+  # stop before it names the missing files.
   grep -rhoE "([\"'(]|farakurim\.cz)/$UPLOADS/[A-Za-z0-9._/%-]+\.[A-Za-z0-9]+" out | sed -E 's|^[^/]*||' |
-    sort -u > "$tmp/linked"
-  ssh "$SSH_TARGET" "cd $WEB_ROOT && find $UPLOADS -type f" | sed 's|^|/|' | sort -u > "$tmp/on-server"
-  comm -23 "$tmp/linked" "$tmp/on-server" > "$tmp/missing"
+    LC_ALL=C sort -u > "$tmp/linked"
+  ssh "$SSH_TARGET" "cd $WEB_ROOT && find $UPLOADS -type f" | sed 's|^|/|' | LC_ALL=C sort -u > "$tmp/on-server"
+  LC_ALL=C comm -23 "$tmp/linked" "$tmp/on-server" > "$tmp/missing"
   if [ -s "$tmp/missing" ]; then
     cat "$tmp/missing"
     fail "The build links files that are not in $WEB_ROOT/$UPLOADS/ yet. Upload them first (pnpm release)."
