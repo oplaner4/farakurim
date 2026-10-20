@@ -30,10 +30,10 @@ the server, syncs `out/` and verifies the live site before it tags. Its release 
 ## Weekly refresh
 
 What depends on the date (the © year, the prerendered calendars, the next mass for visitors without JS) ages with the
-build. So the deploy workflow also runs daily (at 04:50,
-[started by the hosting's cron](hosting.md#starting-the-workflows-on-time)) and **refreshes** the latest
+build. So the deploy workflow also runs on the cron's schedule
+([started by the hosting's cron](hosting.md#starting-the-workflows-on-time)) and **refreshes** the latest
 release tag on `main` once the last deploy is 7 days old: it checks, builds and deploys that tag like a release (a
-`--local` one too). A refresh publishes nothing that was not released, so it needs no yes. On a day it is not due,
+`--local` one too). A refresh publishes nothing that was not released, so it needs no yes. When it is not due,
 the run ends green after a few seconds with the `check` and `deploy` jobs skipped.
 
 To refresh now, run the workflow by hand: Actions tab → Deploy → **Run workflow** on `main` with `refresh` left at
@@ -44,7 +44,7 @@ To refresh now, run the workflow by hand: Actions tab → Deploy → **Run workf
 - **`Production` environment**: the secret `DEPLOY_SSH_KEY`, `DEPLOY_KNOWN_HOSTS` (secret or variable) and optionally
   the variable `CHECK_UPLOADS=false`, which skips the check that every `/uploads/…` file the build links is on the
   server.
-- **Its deployment branches and tags** must allow the tags `v*` (releases) **and the branch `main`**: the daily and
+- **Its deployment branches and tags** must allow the tags `v*` (releases) **and the branch `main`**: the scheduled and
   manual refreshes run on `main`, and without it GitHub rejects their `deploy` job ("Branch "main" is not allowed to
   deploy to Production").
 - **Repository variables** `GOOGLE_CALENDAR_API_KEY`, `MATOMO_URL` and `MATOMO_SITE_ID` for the build (the build job
@@ -59,7 +59,7 @@ tests only) before it builds with the variables above.
 The parish e-mails the year's service sheet DOCX from `fara.kurim@seznam.cz` (or the webmaster from
 `oplaner4@gmail.com`) to `porad@farakurim.cz`. Each sender must carry its provider's DKIM signature (seznam.cz,
 gmail.com); the list is `SENDERS` in `scripts/lib/services/mailbox.ts`.
-`.github/workflows/service-sheet.yml` (daily at 04:50,
+`.github/workflows/service-sheet.yml` (on the cron's schedule,
 [started by the hosting's cron](hosting.md#starting-the-workflows-on-time), or **Run workflow** by hand) then:
 
 1. reads the unseen mail over IMAP (`pnpm sheet-mail`): only an accepted sender's DKIM-signed message with exactly
@@ -130,7 +130,7 @@ one DOCX, or a failed step. A failed step leaves the mail unseen for the next ru
   creates the folders `Zpracováno` and `Odmítnuto` itself.
 - **Environment** `service-sheet-publish` (repository Settings → Environments), for both jobs of the sheet workflow:
   variable `IMAP_HOST` (the host name only, e.g. `mail.cesky-hosting.cz`), secrets `IMAP_USER` and `IMAP_PASSWORD`.
-  It may have no required reviewers (the daily run would wait), and its deployment branches must allow `main`.
+  It may have no required reviewers (the scheduled run would wait), and its deployment branches must allow `main`.
 
 - **GitHub App** (Settings → Developer settings → GitHub Apps), e.g. "Farakurim content": one App for every workflow
   that commits content and opens PRs (a later one for events reuses it), installed on this repository only,

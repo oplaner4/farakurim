@@ -1,6 +1,6 @@
-# Opens a pull request with the week's service sheet from the parish's e-mail (phase 1 of
-# docs/superpowers/specs/2026-10-16-service-sheet-email-pipeline-design.md). Every day it reads the unseen mail of
-# porad@farakurim.cz over IMAP (`pnpm sheet-mail`): only the parish's DKIM-signed message with one DOCX is a sheet.
+# Opens a pull request with the week's service sheet from the parish's e-mail (docs/deployment.md "Service sheet by
+# e-mail"). On each run of the hosting's cron it reads the unseen mail of porad@farakurim.cz over IMAP
+# (`pnpm sheet-mail`): only the parish's DKIM-signed message with one DOCX is a sheet.
 # Two jobs, so that no step holding a secret runs code from a workspace Claude has touched:
 # - `sheet` fetches the mail and lets Claude (claude-code-action, workload identity federation, no API key) run the
 #   service sheet skills unattended on the DOCX: it drafts, corrects and stages the weeks and writes a report. Claude's
@@ -24,8 +24,8 @@
 name: Service sheet
 
 on:
-  # The hosting's cron dispatches it daily (cron-scripts/service-sheet.php): GitHub's own schedule starts runs 4 to 8
-  # hours late.
+  # The hosting's cron dispatches it on its schedule (cron-scripts/service-sheet.php): GitHub's own schedule starts runs
+  # 4 to 8 hours late.
   workflow_dispatch:
 
 # One run at a time; a run started meanwhile waits, so two runs never read the same mail.

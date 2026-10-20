@@ -1,11 +1,10 @@
-# Releases the site when a service sheet PR is merged (phase 2, §7 of
-# docs/superpowers/specs/2026-10-16-service-sheet-email-pipeline-design.md). The maintainer's squash merge of a
-# `service-sheet/*` PR (opened by service-sheet.yml) is the yes to publish. It runs on `pull_request_target: closed`,
-# so a push to main (the maintainer's own content, `pnpm release`) never starts it, and every other closed PR only
-# makes a skipped run. Not `pull_request`: an environment's deployment branch rule is matched against GITHUB_REF,
-# which is refs/pull/N/merge for a pull request run, while a pull_request_target run has main, which Production
-# allows. pull_request_target runs with the secrets even for a fork's PR, so the jobs check out main only, never the
-# PR's code, and the `plan` job runs only for a merged PR from a `service-sheet/` branch of this repo.
+# Releases the site when a service sheet PR is merged (docs/deployment.md "Service sheet by e-mail"). The maintainer's
+# squash merge of a `service-sheet/*` PR (opened by service-sheet.yml) is the yes to publish. It runs on
+# `pull_request_target: closed`, so a push to main (the maintainer's own content, `pnpm release`) never starts it, and
+# every other closed PR only makes a skipped run. Not `pull_request`: an environment's deployment branch rule is matched
+# against GITHUB_REF, which is refs/pull/N/merge for a pull request run, while a pull_request_target run has main, which
+# Production allows. pull_request_target runs with the secrets even for a fork's PR, so the jobs check out main only,
+# never the PR's code, and the `plan` job runs only for a merged PR from a `service-sheet/` branch of this repo.
 # - `plan` runs `pnpm sheet-release` (scripts/sheet-release.ts) on the commits since the last tag. It skips when none
 #   of them is a sheet PR's squash commit and ends green when an earlier run released
 #   everything. It stops with a comment on the sheet PRs, releasing nothing, unless every unreleased commit is a

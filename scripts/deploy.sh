@@ -22,8 +22,9 @@ SERVER_ONLY=(/uploads/ /nahrane/ /virtualni_prohlidka/ /cache/)
 # Days an old build's _next/static/ file stays on the server, so a tab opened before a release still loads the
 # chunks it asks for later (the lightbox, the next page).
 KEEP_STATIC_DAYS=30
-# The folder whose executable scripts a cron on the server runs daily (at 04:50), outside WEB_ROOT: cron-scripts/ goes
-# there. The token and the log of the workflow dispatch live next to the scripts, only on the server.
+# The folder whose executable scripts a cron on the server runs, named after the cron (its schedule is set only on
+# the hosting), outside WEB_ROOT: cron-scripts/ goes there. The token and the log of the workflow dispatch live next
+# to the scripts, only on the server.
 CRON_DIR=/CRON.04-50
 
 cd "$(dirname "$0")/.."
