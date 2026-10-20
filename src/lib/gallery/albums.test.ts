@@ -10,7 +10,6 @@ import {
   photoCounter,
   photoFromHash,
   photoHash,
-  scaledHeight,
 } from "./albums";
 
 describe("gallery labels", () => {
@@ -41,10 +40,9 @@ describe("gallery labels", () => {
   });
 });
 
-describe("albumHref and scaledHeight", () => {
-  it("links the parish's album and scales a photo's height to a width", () => {
+describe("albumHref", () => {
+  it("links the parish's album", () => {
     expect(albumHref("13811797")).toBe("https://www.zonerama.com/FarnostKurim/Album/13811797");
-    expect(scaledHeight(800, 1600, 1067)).toBe(534);
   });
 });
 

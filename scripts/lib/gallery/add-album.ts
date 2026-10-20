@@ -1,19 +1,25 @@
-// Reads a Zonerama album of the parish (design/DESIGN.md §19.2) and proposes its record: the title without
-// Zonerama's "YYYY_MM_DD" prefix (first letter upper-cased), the date from that prefix, the id (the title's slug with
-// the year) and up to MAX_PHOTOS photos of the most common aspect ratio as { small, large } Zonerama URLs. Adds the
-// album to the gallery file, newest first, and removes the albums beyond MAX_ALBUMS. The album's rules are
-// albumSchema's (src/lib/gallery/schema.ts).
+// Proposes the record of a Zonerama album of the parish (design/DESIGN.md §19.2) from its page and a zip of its
+// original photos: the title without Zonerama's "YYYY_MM_DD" prefix (first letter upper-cased), the date from that
+// prefix (both from the zip's name when the page cannot be read), the id (the title's slug with the year) and up to
+// MAX_PHOTOS photos of the most common aspect ratio. Stages those photos in uploads/fotogalerie/<id>/, adds the album
+// to the gallery file, newest first, and removes the albums beyond MAX_ALBUMS. The photos never come from Zonerama:
+// it answers a script with a "Bot Detected" image. The album's rules are albumSchema's (src/lib/gallery/schema.ts).
 
-import { basename, extname } from "node:path";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { basename, extname, join } from "node:path";
 import { decodeHTML } from "entities";
 import type { Album, AlbumPhoto, GalleryFile } from "@/content/types/gallery";
-import { albumHref, albumPhoto, MAX_ALBUMS, scaledHeight } from "@/lib/gallery/albums";
+import { albumHref, albumPhoto, MAX_ALBUMS } from "@/lib/gallery/albums";
 import { albumNumber, albumSchema, galleryFileSchema } from "@/lib/gallery/schema";
 import { capitalize } from "@/lib/shared/czech";
 import { slug } from "@/lib/shared/slug";
 import { parseOrThrow, readJsonFile } from "@/lib/shared/json-file";
 import { actionVerb, parseCommandLine } from "../command";
 import { formatAndTest, GALLERY_FILE, writeContentFile } from "../content-files";
+import { defaultUploadsEnv, UPLOADS_DIR, type UploadsEnv } from "../uploads";
+import { assertFreeOnServer, stageAlbumPhotos } from "./album-photos";
+import { extractPhotos, type LocalPhoto } from "./zip-photos";
 
 const MAX_PHOTOS = 15;
 
@@ -29,11 +35,7 @@ export function albumNumberFromUrl(url: string): string {
   return number;
 }
 
-/** A photo in the album page's `var result` data. */
-export type ZoneramaItem = { photoId: number; width: number; height: number; image: string; html: string };
-
 const NOT_ALBUM = "is it an album page?";
-const PAGE_CHANGED = "has Zonerama changed its album page?";
 
 /**
  * "2026_08_30 pouť na Vranov | Zonerama.com" → { title: "Pouť na Vranov", date: "2026-08-30" }; without the prefix
@@ -56,35 +58,8 @@ function datedTitle(name: string): { title: string; date: string } {
   return { title: capitalize(title), date };
 }
 
-/** The album's photos from `var result = {...}`, found by brace counting (a regex is unreliable on it). */
-export function photoItems(page: string): ZoneramaItem[] {
-  const marker = "var result = ";
-  const start = page.indexOf(`${marker}{`);
-  if (start === -1) throw new Error(`the page has no photo data (var result): ${NOT_ALBUM}`);
-  const from = start + marker.length;
-  let depth = 0;
-  let end = from;
-  for (; end < page.length; end++) {
-    if (page[end] === "{") depth++;
-    else if (page[end] === "}" && --depth === 0) break;
-  }
-  let items: unknown;
-  try {
-    ({ items } = JSON.parse(page.slice(from, end + 1)));
-  } catch {
-    throw new Error(`the photo data (var result) is not valid JSON: ${NOT_ALBUM}`);
-  }
-  if (!Array.isArray(items)) throw new Error(`the photo data (var result) has no items: ${NOT_ALBUM}`);
-  const photos = (items as Partial<ZoneramaItem>[]).filter(
-    (i): i is ZoneramaItem => i.photoId !== undefined && !!i.image && !(i.html ?? "").includes('data-type="video"'),
-  );
-  const unsized = photos.find((p) => !(Number(p.width) > 0 && Number(p.height) > 0));
-  if (unsized) throw new Error(`photo ${unsized.photoId} has no width and height: ${PAGE_CHANGED}`);
-  return photos;
-}
-
 /** Width / height rounded to 2 dp: tolerates crops of a pixel or two, still separates 3:2 from 4:3. */
-/** A photo with a size: a Zonerama item or an original from a zip. */
+/** A photo with a size (an original from a zip). */
 type Sized = { width: number; height: number };
 
 const ratioOf = (p: Sized) => Math.round((Number(p.width) / Number(p.height)) * 100) / 100;
@@ -110,12 +85,6 @@ export function selectPhotos<T extends Sized>(items: T[]): { ratio: number; grou
   return { ratio, group: group.toSorted((a, b) => sizes.get(sizeOf(b))! - sizes.get(sizeOf(a))!) };
 }
 
-/** The photo's URL at `width`, the height scaled to it. */
-export function photoUrl(item: ZoneramaItem, width: number): string {
-  const height = scaledHeight(width, Number(item.width), Number(item.height));
-  return item.image.replace("{width}", String(width)).replace("{height}", String(height));
-}
-
 /** The proposed id: the title's slug with the album's year, so a yearly event never reuses last year's anchors
  * ("Medový den", 2026 → "medovy-den-2026"); a title with the year already in it keeps it once. */
 export function albumId(title: string, date: string): string {
@@ -135,30 +104,30 @@ export type Proposal = {
   photos: number;
 };
 
-/** The proposal for the album page `page` (album `number`) with the user's overrides, and the album record. */
-export function readAlbumPage(
-  page: string,
+/**
+ * The proposal for album `number` from its page (`null` when it cannot be read: the title and the date then come from
+ * the name of `zip`) and the zip's `photos`, with the user's overrides; the album record; and the original file of
+ * each of its photos, in order.
+ */
+export function proposeAlbum(
+  page: string | null,
+  zip: string,
+  photos: LocalPhoto[],
   number: string,
   overrides: { title?: string; date?: string; id?: string } = {},
-): { proposal: Proposal; album: Album } {
-  const proposed = titleAndDate(page);
+): { proposal: Proposal; album: Album; sources: string[] } {
+  const proposed = page === null ? titleAndDateFromZip(zip) : titleAndDate(page);
   // `||`, not `??`: an empty override counts as not given.
   const title = overrides.title || proposed.title;
   const date = overrides.date || proposed.date;
   const id = overrides.id || albumId(title, date);
-  const items = photoItems(page);
-  const { ratio, group } = selectPhotos(items);
-  const photos: AlbumPhoto[] = group.slice(0, MAX_PHOTOS).map((_, i) => albumPhoto(id, i + 1));
+  const { ratio, group } = selectPhotos(photos);
+  const chosen = group.slice(0, MAX_PHOTOS);
+  const albumPhotos: AlbumPhoto[] = chosen.map((_, i) => albumPhoto(id, i + 1));
   return {
-    proposal: { id, title, date, ratio, total: items.length, inRatio: group.length, photos: photos.length },
-    album: {
-      id,
-      title,
-      date,
-      href: albumHref(number),
-      photoCount: photos.length,
-      photos,
-    },
+    proposal: { id, title, date, ratio, total: photos.length, inRatio: group.length, photos: chosen.length },
+    album: { id, title, date, href: albumHref(number), photoCount: chosen.length, photos: albumPhotos },
+    sources: chosen.map((p) => p.file),
   };
 }
 
@@ -213,15 +182,24 @@ export function albumLines({ album, position, removed }: AddAlbumResult, check: 
 }
 
 const USAGE =
-  "Usage: pnpm add-album https://eu.zonerama.com/FarnostKurim/Album/<n> " +
+  "Usage: pnpm add-album https://eu.zonerama.com/FarnostKurim/Album/<n> --photos <zip of the originals> " +
   '[--write | --check] [--title "<title>"] [--date YYYY-MM-DD] [--id <kebab-id>]';
 
-/** The command line: the album URL and the options. */
-export type Command = { url: string; write: boolean; check: boolean; title?: string; date?: string; id?: string };
+/** The command line: the album URL, the zip of its originals and the options. */
+export type Command = {
+  url: string;
+  photos: string;
+  write: boolean;
+  check: boolean;
+  title?: string;
+  date?: string;
+  id?: string;
+};
 
-/** Reads the command line `args`; a missing URL, a missing option value or an unknown option throws with the usage. */
+/** Reads the command line `args`; a missing URL or zip, a missing option value or an unknown option throws with the usage. */
 export function parseCommand(args: string[]): Command {
   const options = {
+    photos: { type: "string" },
     write: { type: "boolean" },
     check: { type: "boolean" },
     title: { type: "string" },
@@ -230,23 +208,56 @@ export function parseCommand(args: string[]): Command {
   } as const;
   const parsed = parseCommandLine(args, options, USAGE);
   const [url] = parsed.positionals;
-  if (!url) throw new Error(USAGE);
-  const { write = false, check = false, ...overrides } = parsed.values;
-  return { url, write, check, ...overrides };
+  const { photos, write = false, check = false, ...overrides } = parsed.values;
+  if (!url || !photos) throw new Error(USAGE);
+  return { url, photos, write, check, ...overrides };
 }
 
-/** Reads the album at `url` and prints the proposal, or (`write`, `check`) adds it; then formats and tests the gallery. */
-export async function execute({ url, write, check, ...overrides }: Command) {
-  const number = albumNumberFromUrl(url);
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`${url} answered ${response.status}`);
-  const { proposal, album } = readAlbumPage(await response.text(), number, overrides);
-  if (!write && !check) {
-    console.log(JSON.stringify(proposal, null, 2));
-    return;
+/** The album page at `url`, or `null` when it does not answer or has no Zonerama title (Zonerama answers 500 at times). */
+async function readPage(url: string, env: UploadsEnv): Promise<string | null> {
+  try {
+    const response = await env.fetch(url, { signal: AbortSignal.timeout(15_000) });
+    const page = response.ok ? await response.text() : null;
+    return page && /<title>[^]*? \| Zonerama/.test(page) ? page : null;
+  } catch {
+    return null;
   }
-  if (!album.date) throw new Error("the album title has no date: pass the date of the event with --date YYYY-MM-DD");
-  const result = addAlbum(GALLERY_FILE, album, { check });
-  console.log(albumLines(result, check).join("\n"));
-  if (!check) await formatAndTest(result.written, "src/content/gallery.test.ts");
+}
+
+/**
+ * Proposes the album at `url` from the zip `photos`, or (`write`, `check`) stages its photos in `env.uploadsDir` and
+ * adds it to `galleryFile`. Returns the output and the files to format and test. The photos are staged before
+ * `galleryFile` is written, so a failure leaves it as it was.
+ */
+export async function runAlbum(
+  { url, photos: zip, write, check, ...overrides }: Command,
+  env: UploadsEnv,
+  galleryFile: string,
+): Promise<{ output: string; written: string[] }> {
+  const number = albumNumberFromUrl(url);
+  const dir = mkdtempSync(join(tmpdir(), "album-"));
+  try {
+    const photos = await extractPhotos(zip, dir);
+    const page = await readPage(url, env);
+    const { proposal, album, sources } = proposeAlbum(page, zip, photos, number, overrides);
+    const note =
+      page === null ? ["The album page did not answer: the title and the date are from the zip's name."] : [];
+    if (!write && !check) return { output: [...note, JSON.stringify(proposal, null, 2)].join("\n"), written: [] };
+    if (!album.date) throw new Error("the album title has no date: pass the date of the event with --date YYYY-MM-DD");
+    addAlbum(galleryFile, album, { check: true });
+    await assertFreeOnServer(env, `fotogalerie/${album.id}/foto-1-800.webp`, "pass another id with --id");
+    if (!check) await stageAlbumPhotos(env.uploadsDir, album.id, sources);
+    const result = check ? addAlbum(galleryFile, album, { check: true }) : addAlbum(galleryFile, album);
+    const staged = `${actionVerb(check, "stage")} ${sources.length} photos in ${UPLOADS_DIR}fotogalerie/${album.id}/`;
+    return { output: [...note, ...albumLines(result, check), staged].join("\n"), written: result.written };
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+/** Runs the command on the repo's gallery and uploads/, then formats and tests the gallery it wrote. */
+export async function execute(command: Command) {
+  const { output, written } = await runAlbum(command, defaultUploadsEnv(), GALLERY_FILE);
+  console.log(output);
+  if (written.length > 0) await formatAndTest(written, "src/content/gallery.test.ts");
 }

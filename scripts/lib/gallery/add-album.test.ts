@@ -1,6 +1,8 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { beforeEach, describe, expect, it } from "vitest";
+import { zipSync } from "fflate";
+import sharp from "sharp";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Album } from "@/content/types/gallery";
 import { albumPhoto, MAX_ALBUMS } from "@/lib/gallery/albums";
 import {
@@ -9,51 +11,31 @@ import {
   albumLines,
   albumNumberFromUrl,
   parseCommand,
-  photoItems,
-  photoUrl,
-  readAlbumPage,
+  proposeAlbum,
   readGallery,
+  runAlbum,
   selectPhotos,
   titleAndDate,
   titleAndDateFromZip,
-  type ZoneramaItem,
 } from "./add-album";
+import type { LocalPhoto } from "./zip-photos";
 import { freshTempDir } from "../test-helpers";
 
-// An album page with Zonerama's markup (eu.zonerama.com/FarnostKurim/Album/<n>): the title, then the photos as JSON in
-// `var result = {...}` inside a script. Items without a photoId are banners; data-type="video" marks a video.
-const item = (photoId: number, width: number, height: number, type = "photo") => ({
-  photoId,
-  width,
-  height,
-  html: `<div class="gallery-inner " data-type="${type}" data-id="${photoId}"></div>`,
-  image: `https://eu.zonerama.com/photos/${photoId}_{width}x{height}_18.jpg`,
-});
-const banner = {
-  width: 1050,
-  height: 800,
-  html: '<div class="gallery-inner" data-banner="photo"></div>',
-  image: "https://eu.zonerama.com/View/Banner/Image?id=6a83&width={width}&height={height}",
-};
-/** 3:2 photos (one cropped by 3 px), 4:3 photos, a portrait, a video, a photo without an image and a banner. */
-const ITEMS = [
-  banner,
-  item(1, 1500, 1000),
-  item(2, 1600, 1200),
-  item(3, 1497, 1000),
-  item(4, 1000, 1500),
-  item(5, 1500, 1000),
-  item(6, 1600, 1200),
-  item(7, 1920, 1080, "video"),
-  item(8, 1500, 1000),
-  { ...item(9, 1500, 1000), image: "" },
+// An album page with Zonerama's title (eu.zonerama.com/FarnostKurim/Album/<n>); the photos come from a zip.
+const page = (title: string) => `<html><head><title>${title} | Zonerama.com</title></head><body></body></html>`;
+const sized = (file: string, width: number, height: number): LocalPhoto => ({ file, width, height });
+/** 3:2 photos (one cropped by 3 px), 4:3 photos and a portrait, in file-name order. */
+const PHOTOS = [
+  sized("1.jpg", 1500, 1000),
+  sized("2.jpg", 1600, 1200),
+  sized("3.jpg", 1497, 1000),
+  sized("4.jpg", 1000, 1500),
+  sized("5.jpg", 1500, 1000),
+  sized("6.jpg", 1600, 1200),
+  sized("8.jpg", 1500, 1000),
 ];
-const page = (title: string, items: object[] = ITEMS) =>
-  `<html><head><title>${title} | Zonerama.com</title></head><body><script type="text/javascript">
-    function _flowLayout_Album_Init(){
-        var result = ${JSON.stringify({ items, isEnd: true })};
-    }</script></body></html>`;
-const ids = (items: ZoneramaItem[]) => items.map((i) => i.photoId);
+const files = (photos: LocalPhoto[]) => photos.map((p) => p.file);
+const ZIP = "/x/2026_09_27 pesi pout na Vranov.zip";
 
 describe("titleAndDate", () => {
   it("takes the date from the YYYY_MM_DD prefix and upper-cases the title", () => {
@@ -68,54 +50,27 @@ describe("titleAndDate", () => {
   });
 });
 
-describe("photoItems", () => {
-  it("keeps the photos with an image, without banners and videos", () => {
-    expect(ids(photoItems(page("x")))).toEqual([1, 2, 3, 4, 5, 6, 8]);
-  });
-
-  it("says the page changed when its photo data has no items or does not parse", () => {
-    const withResult = (json: string) => `<title>x | Zonerama.com</title><script>var result = ${json};</script>`;
-    expect(() => photoItems(withResult('{"photos": []}'))).toThrow(/is it an album page/);
-    expect(() => photoItems(withResult('{"items": [{"photoId": 1,}]}'))).toThrow(/is it an album page/);
-  });
-
-  it("says the page changed when a photo has no size", () => {
-    const { width, ...noWidth } = item(5, 1500, 1000);
-    expect(() => photoItems(page("x", [item(1, 1500, 1000), noWidth]))).toThrow(
-      "photo 5 has no width and height: has Zonerama changed its album page?",
-    );
-  });
-
+describe("titleAndDate on a page without a title", () => {
   it("stops on a page without album data", () => {
-    expect(() => photoItems("<html><title>FarnostKurim | Zonerama.com</title></html>")).toThrow(/is it an album page/);
     expect(() => titleAndDate("<html></html>")).toThrow(/is it an album page/);
   });
 });
 
 describe("selectPhotos", () => {
   it("takes the most common landscape ratio, the most common size first", () => {
-    const { ratio, group } = selectPhotos(photoItems(page("x")));
+    const { ratio, group } = selectPhotos(PHOTOS);
     expect(ratio).toBe(1.5);
-    expect(ids(group)).toEqual([1, 5, 8, 3]);
+    expect(files(group)).toEqual(["1.jpg", "5.jpg", "8.jpg", "3.jpg"]);
   });
 
   it("takes all photos when none is landscape", () => {
-    const { ratio, group } = selectPhotos([item(4, 1000, 1500)]);
+    const { ratio, group } = selectPhotos([sized("4.jpg", 1000, 1500)]);
     expect(ratio).toBe(0.67);
-    expect(ids(group)).toEqual([4]);
+    expect(files(group)).toEqual(["4.jpg"]);
   });
 
   it("stops on an album without photos", () => {
     expect(() => selectPhotos([])).toThrow(/no photos/);
-  });
-
-  it("takes any photo with a size, such as the originals of a zip", () => {
-    const files = [
-      { file: "a.jpg", width: 4000, height: 3000 },
-      { file: "b.jpg", width: 3000, height: 4000 },
-      { file: "c.jpg", width: 4000, height: 3000 },
-    ];
-    expect(selectPhotos(files).group.map((p) => p.file)).toEqual(["a.jpg", "c.jpg"]);
   });
 });
 
@@ -126,13 +81,6 @@ describe("titleAndDateFromZip", () => {
       date: "2026-09-27",
     });
     expect(titleAndDateFromZip("fotky.ZIP")).toEqual({ title: "Fotky", date: "" });
-  });
-});
-
-describe("photoUrl", () => {
-  it("fills the width and the height scaled to it", () => {
-    expect(photoUrl(item(1, 1500, 1000), 800)).toBe("https://eu.zonerama.com/photos/1_800x533_18.jpg");
-    expect(photoUrl(item(1, 1500, 1000), 1600)).toBe("https://eu.zonerama.com/photos/1_1600x1067_18.jpg");
   });
 });
 
@@ -151,9 +99,14 @@ describe("albumId", () => {
   });
 });
 
-describe("readAlbumPage", () => {
+describe("proposeAlbum", () => {
   it("proposes the album and builds its record", () => {
-    const { proposal, album } = readAlbumPage(page("2026_09_27 pěš&#237; pouť na Vranov"), "16583642");
+    const { proposal, album, sources } = proposeAlbum(
+      page("2026_09_27 pěš&#237; pouť na Vranov"),
+      ZIP,
+      PHOTOS,
+      "16583642",
+    );
     expect(proposal).toEqual({
       id: "pesi-pout-na-vranov-2026",
       title: "Pěší pouť na Vranov",
@@ -171,12 +124,21 @@ describe("readAlbumPage", () => {
       photoCount: 4,
       photos: [1, 2, 3, 4].map((n) => albumPhoto("pesi-pout-na-vranov-2026", n)),
     });
+    expect(sources).toEqual(["1.jpg", "5.jpg", "8.jpg", "3.jpg"]);
+  });
+
+  it("takes the title and the date from the zip's name without the page", () => {
+    expect(proposeAlbum(null, ZIP, PHOTOS, "1").proposal).toMatchObject({
+      id: "pesi-pout-na-vranov-2026",
+      title: "Pesi pout na Vranov",
+      date: "2026-09-27",
+    });
   });
 
   it("takes the overrides, the id from the overridden title", () => {
     const page1 = page("2026_09_27 pěš&#237; pouť na Vranov");
-    expect(readAlbumPage(page1, "1", { title: "Pouť na Vranov" }).proposal.id).toBe("pout-na-vranov-2026");
-    expect(readAlbumPage(page1, "1", { id: "vranov", date: "2026-09-28" }).album).toMatchObject({
+    expect(proposeAlbum(page1, ZIP, PHOTOS, "1", { title: "Pouť na Vranov" }).proposal.id).toBe("pout-na-vranov-2026");
+    expect(proposeAlbum(page1, ZIP, PHOTOS, "1", { id: "vranov", date: "2026-09-28" }).album).toMatchObject({
       id: "vranov",
       title: "Pěší pouť na Vranov",
       date: "2026-09-28",
@@ -184,7 +146,7 @@ describe("readAlbumPage", () => {
   });
 
   it("ignores empty overrides, as if they were not given", () => {
-    const { proposal } = readAlbumPage(page("2026_09_27 pěš&#237; pouť na Vranov"), "1", {
+    const { proposal } = proposeAlbum(page("2026_09_27 pěš&#237; pouť na Vranov"), ZIP, PHOTOS, "1", {
       title: "",
       date: "",
       id: "",
@@ -197,10 +159,11 @@ describe("readAlbumPage", () => {
   });
 
   it("takes at most 15 photos", () => {
-    const many = Array.from({ length: 20 }, (_, i) => item(i + 1, 1500, 1000));
-    const { proposal, album } = readAlbumPage(page("2026_01_01 Album", many), "1");
+    const many = Array.from({ length: 20 }, (_, i) => sized(`${i + 1}.jpg`, 1500, 1000));
+    const { proposal, album, sources } = proposeAlbum(page("2026_01_01 Album"), ZIP, many, "1");
     expect(proposal).toMatchObject({ total: 20, inRatio: 20, photos: 15 });
     expect(album.photoCount).toBe(15);
+    expect(sources).toHaveLength(15);
   });
 });
 
@@ -334,10 +297,13 @@ describe("parseCommand", () => {
   const URL = "https://eu.zonerama.com/FarnostKurim/Album/16583642";
 
   it("reads the URL and the options", () => {
-    expect(parseCommand([URL])).toEqual({ url: URL, write: false, check: false });
-    expect(parseCommand([URL, "--check"])).toEqual({ url: URL, write: false, check: true });
-    expect(parseCommand([URL, "--write", "--title", "Pouť", "--date", "2026-09-27", "--id", "pout"])).toEqual({
+    expect(parseCommand([URL, "--photos", "a.zip"])).toEqual({ url: URL, photos: "a.zip", write: false, check: false });
+    expect(parseCommand([URL, "--photos", "a.zip", "--check"])).toMatchObject({ write: false, check: true });
+    expect(
+      parseCommand([URL, "--photos", "a.zip", "--write", "--title", "Pouť", "--date", "2026-09-27", "--id", "pout"]),
+    ).toEqual({
       url: URL,
+      photos: "a.zip",
       write: true,
       check: false,
       title: "Pouť",
@@ -348,6 +314,7 @@ describe("parseCommand", () => {
 
   it("refuses a missing URL, a missing option value and an unknown option with the usage", () => {
     expect(() => parseCommand([])).toThrow(/^Usage: pnpm add-album/m);
+    expect(() => parseCommand([URL])).toThrow(/^Usage: pnpm add-album/m);
     expect(() => parseCommand([URL, "--write", "--title"])).toThrow(/--title[^]*\nUsage: pnpm add-album/);
     expect(() => parseCommand([URL, "--dryrun"])).toThrow(/--dryrun[^]*\nUsage: pnpm add-album/);
   });
@@ -368,5 +335,110 @@ describe("albumNumberFromUrl", () => {
     ]) {
       expect(() => albumNumberFromUrl(url), url).toThrow(/expected an album URL/);
     }
+  });
+});
+
+describe("runAlbum on a temp gallery.json, uploads/ and zip", () => {
+  const tempDir = freshTempDir("run-album");
+  const URL = "https://eu.zonerama.com/FarnostKurim/Album/16583642";
+  const ID = "pesi-pout-na-vranov-2026";
+  let galleryFile = "";
+  let uploadsDir = "";
+  let zip = "";
+  /** The answers of the stubbed fetch: the album page and the server's HEAD. */
+  const answers = { page: 200, head: 404 };
+  const fetchMock = vi.fn(async (_url: string, init?: RequestInit) =>
+    init?.method === "HEAD"
+      ? new Response(null, { status: answers.head })
+      : new Response(page("2026_09_27 pěš&#237; pouť na Vranov"), { status: answers.page }),
+  );
+  const env = () => ({ uploadsDir, site: "https://example.cz", fetch: fetchMock as unknown as typeof fetch });
+  const jpeg = (width: number) =>
+    sharp({ create: { width, height: (width * 2) / 3, channels: 3, background: { r: 30, g: 90, b: 160 } } })
+      .jpeg()
+      .toBuffer();
+  const makeZip = (photos: Record<string, Buffer>) => {
+    zip = join(tempDir(), "2026_09_27 pesi pout na Vranov.zip");
+    writeFileSync(zip, zipSync(Object.fromEntries(Object.entries(photos).map(([n, b]) => [n, new Uint8Array(b)]))));
+  };
+  const staged = () =>
+    existsSync(join(uploadsDir, "fotogalerie", ID)) ? readdirSync(join(uploadsDir, "fotogalerie", ID)) : [];
+
+  beforeEach(async () => {
+    galleryFile = join(tempDir(), "gallery.json");
+    uploadsDir = join(tempDir(), "uploads");
+    writeFileSync(galleryFile, JSON.stringify({ albums: [stored(1)] }));
+    Object.assign(answers, { page: 200, head: 404 });
+    fetchMock.mockClear();
+    makeZip({ "a.jpg": await jpeg(1500), "b.jpg": await jpeg(1500), "c.jpg": await jpeg(1500) });
+  });
+  afterEach(() => {
+    // Only the album page and the server are asked, never a Zonerama photo.
+    expect(fetchMock.mock.calls.every(([url]) => url === URL || url.startsWith("https://example.cz/uploads/"))).toBe(
+      true,
+    );
+  });
+
+  it("stages the photos and adds the album", async () => {
+    const { output, written } = await runAlbum(
+      { url: URL, photos: zip, write: true, check: false },
+      env(),
+      galleryFile,
+    );
+    expect(staged()).toHaveLength(12);
+    expect(staged()).toContain("foto-3-1600.webp");
+    expect(readGallery(galleryFile).albums[0]).toMatchObject({
+      id: ID,
+      photoCount: 3,
+      photos: [1, 2, 3].map((n) => albumPhoto(ID, n)),
+    });
+    expect(written).toEqual([galleryFile]);
+    expect(output).toContain(`Staged 3 photos in uploads/fotogalerie/${ID}/`);
+  });
+
+  it("falls back to the zip's name when the page fails", async () => {
+    answers.page = 500;
+    await runAlbum({ url: URL, photos: zip, write: true, check: false }, env(), galleryFile);
+    expect(readGallery(galleryFile).albums[0]).toMatchObject({
+      id: ID,
+      title: "Pesi pout na Vranov",
+      date: "2026-09-27",
+    });
+  });
+
+  it("refuses a folder already on the server before writing", async () => {
+    answers.head = 200;
+    const before = readFileSync(galleryFile, "utf8");
+    await expect(runAlbum({ url: URL, photos: zip, write: true, check: false }, env(), galleryFile)).rejects.toThrow(
+      "pass another id with --id",
+    );
+    expect(staged()).toEqual([]);
+    expect(readFileSync(galleryFile, "utf8")).toBe(before);
+  });
+
+  it("leaves gallery.json unchanged when staging fails", async () => {
+    const broken = await jpeg(1500);
+    makeZip({ "a.jpg": await jpeg(1500), "b.jpg": broken.subarray(0, broken.length / 2), "c.jpg": await jpeg(1500) });
+    const before = readFileSync(galleryFile, "utf8");
+    await expect(runAlbum({ url: URL, photos: zip, write: true, check: false }, env(), galleryFile)).rejects.toThrow();
+    expect(readFileSync(galleryFile, "utf8")).toBe(before);
+  });
+
+  it("only reports with --check", async () => {
+    const { output, written } = await runAlbum(
+      { url: URL, photos: zip, write: false, check: true },
+      env(),
+      galleryFile,
+    );
+    expect(output).toContain(`Would stage 3 photos in uploads/fotogalerie/${ID}/`);
+    expect(staged()).toEqual([]);
+    expect(written).toEqual([]);
+  });
+
+  it("writes nothing for the proposal", async () => {
+    const { output } = await runAlbum({ url: URL, photos: zip, write: false, check: false }, env(), galleryFile);
+    expect(JSON.parse(output)).toMatchObject({ id: ID, total: 3, photos: 3 });
+    expect(fetchMock.mock.calls.some(([, init]) => init?.method === "HEAD")).toBe(false);
+    expect(staged()).toEqual([]);
   });
 });
