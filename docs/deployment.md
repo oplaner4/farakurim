@@ -91,13 +91,15 @@ an earlier PDF of the same name), runs `pnpm release --yes` with the App token, 
 "Released in vX.Y.Z" on the PR and deletes its branch. Two PRs merged close together go out in one release. It
 releases nothing and comments why when:
 
-- `main` has other unreleased commits (an event, a Petrklíč issue: their uploads are only on your machine), or a PDF
-  artifact expired (they stay 30 days): release by hand, below;
-- `main` moved while it ran, or a step failed: the comment links the run.
+- `main` has other unreleased commits (an event, a Petrklíč issue: their uploads are only on your machine);
+- a PDF artifact expired (they stay 30 days);
+- a commit you pushed to the PR's branch yourself has no artifact: its PDF may exist only on your machine, even under
+  the name of a PDF an artifact holds (a correction keeps its rev until the week is on the server);
+- a step failed: the comment links the run.
 
-A commit you pushed to the branch yourself has no artifact, so its PDF is not uploaded: `deploy.yml` then stops at
-`check-uploads` with the live site untouched. Stage the PDF in `uploads/`, upload it with `scripts/deploy.sh uploads`
-(`pnpm release` would stop at "Nothing to release" first) and re-run the failed deploy run.
+Then release by hand, below (with your corrected PDF staged in `uploads/` for a commit of your own). Only artifacts
+of runs on this repository's `main` count, never one a fork's pull request run uploaded under the same name. A merge
+that lands while the release runs goes out with it.
 
 **Releasing by hand:** download the artifact of every commit of the PR, oldest first, then release:
 
