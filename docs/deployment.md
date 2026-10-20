@@ -56,9 +56,8 @@ tests only) before it builds with the variables above.
 
 ## Service sheet by e-mail
 
-The parish e-mails the year's service sheet DOCX from `fara.kurim@seznam.cz` (or the webmaster from
-`oplaner4@gmail.com`) to `porad@farakurim.cz`. Each sender must carry its provider's DKIM signature (seznam.cz,
-gmail.com); the list is `SENDERS` in `scripts/lib/services/mailbox.ts`.
+The parish (or the webmaster) e-mails the year's service sheet DOCX to the service sheet mailbox. Each sender must be
+in `SENDERS` in `scripts/lib/services/mailbox.ts` and carry its provider's DKIM signature.
 `.github/workflows/service-sheet.yml` (on the cron's schedule,
 [started by the hosting's cron](hosting.md#starting-the-workflows-on-time), or **Run workflow** by hand) then:
 
@@ -126,8 +125,8 @@ one DOCX, or a failed step. A failed step leaves the mail unseen for the next ru
 
 ### Setup (once)
 
-- **Mailbox** (cesky-hosting.cz administration): create `porad@farakurim.cz` and note its IMAP host. The script
-  creates the folders `Zpracováno` and `Odmítnuto` itself.
+- **Mailbox** (cesky-hosting.cz administration): create a mailbox for the service sheets and note its IMAP host (its
+  address is the secret `IMAP_USER` below). The script creates the folders `Zpracováno` and `Odmítnuto` itself.
 - **Environment** `service-sheet-publish` (repository Settings → Environments), for both jobs of the sheet workflow:
   variable `IMAP_HOST` (the host name only, e.g. `mail.cesky-hosting.cz`), secrets `IMAP_USER` and `IMAP_PASSWORD`.
   It may have no required reviewers (the scheduled run would wait), and its deployment branches must allow `main`.
