@@ -151,7 +151,8 @@ Content lives in `src/content/` and is added with the Claude Code project skills
 Each finishes with `parish-publish-content`, which commits and releases with `parish-release`.
 
 The weekly service sheet can also arrive by e-mail: the parish sends its DOCX to `porad@farakurim.cz` and a daily
-workflow opens a pull request with the week, which the maintainer merges and releases. Setup and use:
+workflow opens a pull request with the week, which the maintainer reviews and merges; the merge releases the site.
+Setup and use:
 [docs/deployment.md](docs/deployment.md#service-sheet-by-e-mail).
 
 Uploaded files are not in git: they are staged in `uploads/` (git-ignored, mirrors `/uploads/` on the server) and

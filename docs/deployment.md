@@ -79,11 +79,27 @@ The DOCX (it holds intentions with names) never leaves the `sheet` job: it is no
 file tools may write only in the job's scratch folder, never in the checkout. The second job, `publish`, uses the App
 key from a fresh checkout and has no id-token, so it cannot act as Claude.
 
-**Answering the PR (phase 1):** merge means yes, close means no. A **draft** PR has a blocking question in its body:
-answer it, mark the PR ready, merge. A correction is a commit pushed to the PR's branch, or made locally with the
-skills (`parish-correct-service-sheet`); comments with `@claude` come in phase 2. After the merge, publish the sheet.
-Each run uploads only the PDFs it staged, as the artifact `service-sheet-pdf-<sha>` of its commit, so download the
-artifact of every commit of the PR, oldest first (a later correction overwrites an earlier PDF of the same name):
+**Answering the PR:** a **squash merge** means yes (the PR title becomes the commit) and releases the site; close
+means no, and nothing happens (the branch stays). A **draft** PR has a blocking question in its body: answer it, mark
+the PR ready, merge. A correction is a commit pushed to the PR's branch, or made locally with the skills
+(`parish-correct-service-sheet`); comments with `@claude` come in phase 2.
+
+The merge starts `.github/workflows/service-sheet-release.yml` (on the push to `main`; `pnpm sheet-release` plans
+it). Each run of the sheet workflow uploads only the PDFs it staged, as the artifact `service-sheet-pdf-<sha>` of its
+commit, so the release downloads the artifact of every commit of the PR, oldest first (a later correction overwrites
+an earlier PDF of the same name), runs `pnpm release --yes` with the App token, waits for the deploy and comments
+"Released in vX.Y.Z" on the PR and deletes its branch. Two PRs merged close together go out in one release. It
+releases nothing and comments why when:
+
+- `main` has other unreleased commits (an event, a Petrklíč issue: their uploads are only on your machine), or a PDF
+  artifact expired (they stay 30 days): release by hand, below;
+- `main` moved while it ran, or a step failed: the comment links the run.
+
+A commit you pushed to the branch yourself has no artifact, so its PDF is not uploaded: `deploy.yml` then stops at
+`check-uploads` with the live site untouched. Stage the PDF in `uploads/`, upload it with `scripts/deploy.sh uploads`
+(`pnpm release` would stop at "Nothing to release" first) and re-run the failed deploy run.
+
+**Releasing by hand:** download the artifact of every commit of the PR, oldest first, then release:
 
 ```sh
 git switch main && git pull
@@ -110,14 +126,17 @@ one DOCX, or a failed step. A failed step leaves the mail unseen for the next ru
 
 - **Mailbox** (cesky-hosting.cz administration): create `porad@farakurim.cz` and note its IMAP host. The script
   creates the folders `Zpracováno` and `Odmítnuto` itself.
-- **Environment** `service-sheet-publish` (repository Settings → Environments), for both jobs: variable `IMAP_HOST`
-  (the host name only, e.g. `mail.cesky-hosting.cz`), secrets `IMAP_USER`, `IMAP_PASSWORD` and
-  `SHEET_APP_PRIVATE_KEY`. It may have no required reviewers (the daily run would wait), and its deployment branches
-  must allow `main`.
+- **Environment** `service-sheet-publish` (repository Settings → Environments), for both jobs of the sheet workflow:
+  variable `IMAP_HOST` (the host name only, e.g. `mail.cesky-hosting.cz`), secrets `IMAP_USER` and `IMAP_PASSWORD`.
+  It may have no required reviewers (the daily run would wait), and its deployment branches must allow `main`.
 
 - **GitHub App** (Settings → Developer settings → GitHub Apps), installed on this repository only, repository
   permissions `contents: write` and `pull-requests: write` (the latter also covers locking the PR). Its ID is the
-  repository variable `SHEET_APP_ID`; a generated private key is the environment secret `SHEET_APP_PRIVATE_KEY`.
+  repository variable `SHEET_APP_ID`; a generated private key is the **repository** secret `SHEET_APP_PRIVATE_KEY`,
+  shared by the sheet workflow and the release (whose `release` job runs in `Production`). If `main` has a ruleset or
+  branch protection that restricts pushes, add the App as a bypass actor: the release commit and tag are pushed with
+  its token, so that the tag starts `deploy.yml`.
+- **Squash merging** allowed (Settings → General → Pull Requests): the release counts only a PR's squash commit.
 - **Claude Console** (Settings → Workload identity → Connect workload → GitHub Actions): an issuer for
   `https://token.actions.githubusercontent.com`, a service account for the pipeline and one federation rule:
   `subject_prefix` exactly `repo:oplaner4@38047115/farakurim@1403139652:environment:service-sheet-publish` (no `*`;
@@ -145,7 +164,9 @@ and check in the run:
 - LibreOffice produces the sheet's PDF page;
 - the PR is opened and locked, and a draft when the report has a blocking question;
 - a second run while the PR is open adds a commit to it, keeps the question ids of the previous report, updates the
-  title and turns the PR back into a draft when the new report has a blocking question.
+  title and turns the PR back into a draft when the new report has a blocking question;
+- after you squash merge the PR, the release run uploads its PDF, the tag's deploy run is green, and the PR gets the
+  comment "Released in vX.Y.Z" and loses its branch.
 
 ## Server
 
