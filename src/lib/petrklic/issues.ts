@@ -48,7 +48,7 @@ export const issueId = ({ year, number, note }: Pick<PetrklicRecord, "year" | "n
 /** The issue's upload folder: "2026-2", or "2026-2-r2" for a corrected PDF (the PDF keeps its name). */
 export const issueFolder = ({ id, rev }: Pick<PetrklicIssue, "id" | "rev">) => `${id}${revSuffix(rev)}`;
 
-/** The issue's folder in /uploads/: "petrklic/2026-2", or "petrklic/2026-2-r2" for a corrected PDF. */
+/** The issue's folder of uploaded files: "petrklic/2026-2", or "petrklic/2026-2-r2" for a corrected PDF. */
 export const issuePath = (issue: Pick<PetrklicIssue, "id" | "rev">) => `petrklic/${issueFolder(issue)}`;
 
 /** The files in an issue's folder: the PDF, the cover and the viewer's pages (`pnpm stage petrklic` renders them). */

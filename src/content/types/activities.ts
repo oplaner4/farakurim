@@ -61,7 +61,7 @@ export type ReligiousEducation = {
   /** "2026/2027": edit each September with the new timetable. */
   schoolYear: string;
   schools: SchoolTimetable[];
-  /** The application form and the rules, uploaded to /uploads/. */
+  /** The application form and the rules, uploaded files. */
   applicationForm: string;
   rules: string;
   contact: ContactPerson;
@@ -75,7 +75,7 @@ export type GroupVideo = {
   title: string;
   /** Length in seconds. */
   seconds: number;
-  /** The thumbnail, uploaded to /uploads/ so the page loads nothing from YouTube before a click. */
+  /** The thumbnail, an uploaded file so the page loads nothing from YouTube before a click. */
   thumbnail: string;
 };
 

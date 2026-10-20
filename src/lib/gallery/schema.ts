@@ -1,6 +1,6 @@
 import * as z from "zod";
 import type { Album, GalleryFile } from "@/content/types/gallery";
-import { albumPhoto } from "@/lib/gallery/albums";
+import { ALBUM_PHOTO, albumPhoto } from "@/lib/gallery/albums";
 import { kebabIdSchema } from "@/lib/shared/schema";
 
 // The rules of the Fotogalerie albums, in one place: src/content/gallery.ts checks src/content/gallery.json with them
@@ -8,9 +8,7 @@ import { kebabIdSchema } from "@/lib/shared/schema";
 // the site keeps (MAX_ALBUMS) is the content test's rule and the script's, not the loader's.
 
 const text = z.string().trim().min(1);
-const photoUrl = z
-  .string()
-  .regex(/^\/uploads\/fotogalerie\/[a-z0-9-]+\/foto-\d+-\d+\.webp$/, "must be an uploaded album photo");
+const photoUrl = z.string().regex(ALBUM_PHOTO, "must be an uploaded album photo");
 
 /** The album's number on Zonerama: the same for its eu. and www. URL. */
 export const albumNumber = (href: string) => href.split("/").at(-1)!;

@@ -1,6 +1,7 @@
 import type { ReligiousEducation } from "./types/activities";
+import { UPLOADS_PATH } from "@/lib/shared/uploads";
 
-const UPLOADS = "/uploads/vyuka-nabozenstvi";
+const UPLOADS = `${UPLOADS_PATH}vyuka-nabozenstvi`;
 
 /* Výuka náboženství (design/DESIGN.md §24), from the old site's /vyuka_nabozenstvi. Update each September. */
 export const religiousEducation: ReligiousEducation = {

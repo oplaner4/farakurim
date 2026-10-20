@@ -18,7 +18,7 @@ import { servicesOnDate } from "./masses";
 
 // The weekly service sheets as structured content (design/DESIGN.md §14.5–14.7).
 
-/** The sheet's PDF in /uploads/: "porady_bohosluzeb/2026-10-04-porad-bohosluzeb.pdf", "…-r2.pdf" for a corrected one. */
+/** The sheet's uploaded PDF: "porady_bohosluzeb/2026-10-04-porad-bohosluzeb.pdf", "…-r2.pdf" for a corrected one. */
 export const sheetPdfFile = ({ validFrom, rev }: Pick<ServiceSheet, "validFrom" | "rev">) =>
   `porady_bohosluzeb/${validFrom}-porad-bohosluzeb${revSuffix(rev)}.pdf`;
 

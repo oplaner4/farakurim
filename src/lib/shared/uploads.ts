@@ -11,7 +11,7 @@ export const IMAGE_EXTENSIONS = [".png", ".jpg", ".webp"];
 /** The file types the content links: images, PDFs and MP3 recordings. */
 export const UPLOAD_EXTENSIONS = [".pdf", ...IMAGE_EXTENSIONS, ".mp3"];
 
-/** A root-relative /uploads/ file of a linked type (isUpload(), uploadSchema in schema.ts). */
+/** A root-relative file under UPLOADS_PATH of a linked type (isUpload(), uploadSchema in schema.ts). */
 export const UPLOAD = new RegExp(`^${UPLOADS_PATH}\\S+\\.(${UPLOAD_EXTENSIONS.map((e) => e.slice(1)).join("|")})$`);
 
 /** Whether `href` links an uploaded file: "/uploads/aktuality/x-plakat.pdf". */

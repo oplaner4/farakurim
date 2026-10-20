@@ -24,7 +24,7 @@ export type CampRole = "Hlavní vedoucí" | "Zdravotnice" | "Zdravotník" | "Ved
 
 /**
  * One member of the team (§29.3). Many are minors: first name only, the age and photo optional, a photo published
- * only with consent (the parents' for under-18s). The photo is 4:5, uploaded to /uploads/tabor/vedouci/.
+ * only with consent (the parents' for under-18s). The photo is 4:5, uploaded to tabor/vedouci/.
  */
 export type CampTeamMember = {
   /** First name only: "Honza", "Kuba D." */
@@ -50,7 +50,7 @@ export type CampYear = {
   place: string;
   /** The year's album on Zonerama, once published. */
   album?: string;
-  /** A landscape photo of the year, uploaded to /uploads/tabor/rocniky/<year>.webp, shown on the year's tint. */
+  /** A landscape photo of the year, uploaded to tabor/rocniky/<year>.webp, shown on the year's tint. */
   cover?: string;
 };
 

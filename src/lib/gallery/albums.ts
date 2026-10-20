@@ -61,7 +61,8 @@ export const albumPhoto = (id: string, n: number): AlbumPhoto => ({
   large: albumPhotoPath(id, n, 1600),
 });
 
-const ALBUM_PHOTO = /^(\/uploads\/fotogalerie\/[a-z0-9-]+\/foto-\d+)-\d+\.webp$/;
+/** An uploaded album photo at any width; group 1 is its path without the width. */
+export const ALBUM_PHOTO = new RegExp(`^(${UPLOADS_PATH}fotogalerie/[a-z0-9-]+/foto-\\d+)-\\d+\\.webp$`);
 
 /** `srcset` of an uploaded album photo in its four widths; `undefined` for any other URL (the group pages' photos). */
 export function albumSrcSet(url: string): string | undefined {

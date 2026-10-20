@@ -7,6 +7,7 @@ import { PageHeading } from "@/components/ui/PageHeading";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { links } from "@/content/site";
 import { externalLinkAttrs, NEW_TAB } from "@/lib/shared/links";
+import { UPLOADS_PATH } from "@/lib/shared/uploads";
 
 const lead = "Synodální proces katolické církve „Synoda o synodalitě“ a jeho diecézní fáze v naší farnosti.";
 
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
   description: `${lead} Leták, tematické okruhy a výstupy diecézí.`,
 };
 
-const UPLOADS = "/uploads/synoda";
+const UPLOADS = `${UPLOADS_PATH}synoda`;
 
 const files = [
   { label: "Leták", href: `${UPLOADS}/synoda-letak.pdf` },

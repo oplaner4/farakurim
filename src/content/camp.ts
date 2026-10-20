@@ -1,16 +1,17 @@
 import type { CampContacts, CampQuote, CampTeam, CampTeamMember, CampYear, NextCamp } from "./types/camp";
+import { UPLOADS_PATH } from "@/lib/shared/uploads";
 
 /*
  * Tábor (design/DESIGN.md §29): the texts, the team, the contacts and the past years from the old site's pages
  * (farni_tabor/informace, vedouci, kontakt and the year pages). The team's photos are the old site's, cropped to 4:5
- * and uploaded to /uploads/tabor/vedouci/; each year's cover is a photo the parish chose, uploaded to
- * /uploads/tabor/rocniky/<year>.webp (the original resized to 800 px wide as WebP).
+ * and uploaded to tabor/vedouci/; each year's cover is a photo the parish chose, uploaded to tabor/rocniky/<year>.webp
+ * (the original resized to 800 px wide as WebP).
  */
 
 /** The wide photo of O táboru (§29.2, 1), the old page's photo. */
 export const campHero = {
-  src: "/uploads/tabor/o-taboru.webp",
-  small: "/uploads/tabor/o-taboru-nahled.webp",
+  src: `${UPLOADS_PATH}tabor/o-taboru.webp`,
+  small: `${UPLOADS_PATH}tabor/o-taboru-nahled.webp`,
   alt: "Účastníci a vedoucí farního tábora na společné fotografii na louce",
   /** Keeps the group in the wide box. */
   focusY: 62,
@@ -42,8 +43,8 @@ export const campQuotes: CampQuote[] = [
 ];
 
 const photo = (slug: string) => ({
-  small: `/uploads/tabor/vedouci/${slug}-nahled.webp`,
-  large: `/uploads/tabor/vedouci/${slug}.webp`,
+  small: `${UPLOADS_PATH}tabor/vedouci/${slug}-nahled.webp`,
+  large: `${UPLOADS_PATH}tabor/vedouci/${slug}.webp`,
 });
 
 const members: CampTeamMember[] = [
@@ -189,7 +190,7 @@ export const campContacts: CampContacts = {
 
 const zonerama = (album: number) => `https://eu.zonerama.com/FarnostKurim/Album/${album}`;
 /** The year's cover, uploaded as an 800 px wide WebP. */
-const cover = (year: number) => `/uploads/tabor/rocniky/${year}.webp`;
+const cover = (year: number) => `${UPLOADS_PATH}tabor/rocniky/${year}.webp`;
 
 /** Newest first. The themes the old pages did not name are left out. */
 export const campYears: CampYear[] = [

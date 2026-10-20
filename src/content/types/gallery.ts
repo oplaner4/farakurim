@@ -1,6 +1,6 @@
 import type { IsoDate } from "./shared";
 
-// Fotogalerie (gallery.json): the parish's Zonerama albums, their photos uploaded to /uploads/fotogalerie/<id>/.
+// Fotogalerie (gallery.json): the parish's Zonerama albums, their photos uploaded to fotogalerie/<id>/.
 
 /**
  * One uploaded photo in two sizes (design/DESIGN.md §19.2). An album's photo is uploaded in four widths

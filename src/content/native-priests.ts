@@ -1,9 +1,10 @@
 import type { NativePriest } from "@/content/types/parish";
+import { UPLOADS_PATH } from "@/lib/shared/uploads";
 
 // Kněží – rodáci kuřimské farnosti, from the old site's page /knezi_rodaci, in its order (by birth). `ordained`
 // keeps the old page's "ord. <year> Brno, <place>" wording, as it does not say what the place after the comma is.
 
-const UPLOADS = "/uploads/knezi-rodaci";
+const UPLOADS = `${UPLOADS_PATH}knezi-rodaci`;
 
 export const nativePriests: NativePriest[] = [
   { name: "P. Jan Žaloudek", born: "1842 Kuřim", ordained: "1867 Brno, Bošovice", died: "25. 4. 1879" },
@@ -32,7 +33,7 @@ export const nativePriests: NativePriest[] = [
     name: "Mons. Jiří Krpálek, O.Melit.",
     html: `
       <p>V sobotu 12. srpna 2017 v 10 hodin jsme se s ním rozloučili v kostele sv. Maří Magdalény v Kuřimi. <a href="${UPLOADS}/krpalek-rozlouceni-2017.pdf">Více informací (PDF)</a> · <a href="https://www.youtube.com/watch?v=lRdH-od2VeY">Záznam rozloučení na YouTube</a></p>
-      <p>Otci Krpálkovi je věnované číslo <a href="/uploads/petrklic/2017-3/petrklic-2017-3.pdf">Petrklíč 3/2017 (PDF)</a>.</p>
+      <p>Otci Krpálkovi je věnované číslo <a href="${UPLOADS_PATH}petrklic/2017-3/petrklic-2017-3.pdf">Petrklíč 3/2017 (PDF)</a>.</p>
       <p>V neděli 1. 10. 2017 v 9.00 v Kuřimi a ve 12.00 v Moravských Knínicích proběhlo promítání věnované otci Krpálkovi. <a href="https://www.youtube.com/watch?v=M9A90K6RWBY">Záznam promítání na YouTube</a></p>`,
   },
 ];
