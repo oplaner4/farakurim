@@ -3,20 +3,22 @@
 # `service-sheet/*` PR (opened by service-sheet.yml) is the yes to publish. It runs on the push to main rather than
 # on `pull_request: closed`: an environment's deployment branch rule is matched against GITHUB_REF, which is
 # refs/pull/N/merge for a pull request run, and Production allows only the tags v* and main.
-# - `plan` runs `pnpm sheet-release` (scripts/sheet-release.ts) on the pushed commit and the commits since the last
-#   tag. It skips a push that is not a sheet PR's squash commit (the maintainer's own pushes) and ends green when an
-#   earlier run released everything. It stops with a comment on the sheet PRs, releasing nothing, unless every
-#   unreleased commit is a merged sheet PR's squash commit (another commit's uploads live only on the maintainer's
-#   machine) or when a PDF artifact expired: then the maintainer releases by hand (docs/deployment.md).
-# - `release` (environment Production: the SSH key) downloads the PDF artifacts of every commit of those PRs into
-#   uploads/porady_bohosluzeb/: each service-sheet.yml run hands on only the PDFs it staged, and the PRs in merge
+# - `plan` runs `pnpm sheet-release` (scripts/sheet-release.ts) on the commits since the last tag. It skips when none
+#   of them is a sheet PR's squash commit (the maintainer's own pushes) and ends green when an earlier run released
+#   everything. It stops with a comment on the sheet PRs, releasing nothing, unless every unreleased commit is a
+#   merged sheet PR's squash commit (another commit's uploads live only on the maintainer's machine), when a PDF
+#   artifact expired, or when a commit of such a PR was pushed by hand and has no artifact (its PDF may exist only on
+#   that machine): then the maintainer releases by hand (docs/deployment.md). Only artifacts of runs on this repo's
+#   main count: a fork's pull request run can upload an artifact under any name.
+# - `release` (environment Production: the SSH key) plans again on the main it checked out, so a merge that landed
+#   meanwhile goes out too (or stops it with the reason). It downloads the PDF artifacts of every commit of those PRs
+#   into uploads/porady_bohosluzeb/: each service-sheet.yml run hands on only the PDFs it staged, and the PRs in merge
 #   order, their commits oldest first, let the newest PDF of a week win. Then `pnpm release --yes` uploads them,
 #   bumps the version, tags and pushes main with the App token, so the tag starts deploy.yml, which checks, builds
 #   and deploys unchanged. The job waits for that deploy and comments "Released in vX.Y.Z" on each PR and deletes its
-#   branch, or comments the failure. A PDF that has no artifact (a commit the maintainer pushed to the branch) is not
-#   uploaded: deploy.yml then stops at check-uploads with the live site untouched (upload it with
-#   `scripts/deploy.sh uploads`, re-run the deploy). A failed release is fixed in a new commit; never move a tag.
-# Two sheet PRs merged close together go out in one release: the runs queue, and the second finds nothing to release.
+#   branch, or comments the failure. A failed release is fixed in a new commit; never move a tag.
+# Two sheet PRs merged close together go out in one release: the runs queue, and a later one finds nothing to
+# release.
 # The App key is a repository secret (SHEET_APP_PRIVATE_KEY, shared with service-sheet.yml); a secret reaches only the
 # steps that name it. The runner image and the actions are pinned (actions by commit SHA).
 
@@ -46,7 +48,6 @@ jobs:
     outputs:
       action: ${{ steps.plan.outputs.action }}
       plan: ${{ steps.plan.outputs.plan }}
-      sha: ${{ steps.plan.outputs.sha }}
     steps:
       # main, not the pushed commit: a run that waited in the queue then sees every merge since.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -70,13 +71,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           plan="$RUNNER_TEMP/plan.json"
-          pnpm --silent sheet-release --pushed "$GITHUB_SHA" > "$plan"
+          pnpm --silent sheet-release > "$plan"
           action=$(jq -r .action "$plan")
-          {
-            echo "action=$action"
-            echo "plan=$(jq -c . "$plan")"
-            echo "sha=$(git rev-parse HEAD)"
-          } >> "$GITHUB_OUTPUT"
+          echo "action=$action" >> "$GITHUB_OUTPUT"
+          echo "plan=$(jq -c . "$plan")" >> "$GITHUB_OUTPUT"
           case "$action" in
             skip | none) echo "::notice::$(jq -r .reason "$plan")" ;;
             release) echo "Releasing PR(s) $(jq -r '[.pulls[] | "#\(.number)"] | join(", ")' "$plan")." ;;
@@ -114,9 +112,11 @@ jobs:
       url: https://farakurim.cz/porad_bohosluzeb/
     permissions:
       contents: read # the push and the comments use the App token
+      pull-requests: read # the PRs of the commits
       actions: read # the PDF artifacts and the deploy run
     env:
-      PLAN: ${{ needs.plan.outputs.plan }}
+      # The plan of `plan`, for the failure comment until this job's own plan exists.
+      FIRST_PLAN: ${{ needs.plan.outputs.plan }}
     steps:
       - name: Create the App token
         id: app
@@ -133,16 +133,6 @@ jobs:
           fetch-depth: 0 # the tags, for the version
           token: ${{ steps.app.outputs.token }}
 
-      # A commit pushed since the plan was not checked: release nothing (the maintainer releases by hand).
-      - name: Check out the planned main
-        env:
-          PLANNED: ${{ needs.plan.outputs.sha }}
-        run: |
-          if [ "$(git rev-parse HEAD)" != "$PLANNED" ]; then
-            echo "::error::main moved since the plan: nothing was released."
-            exit 1
-          fi
-
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -152,8 +142,30 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # main may have moved since `plan` (another merge): the plan of this checkout is the one released. A push after
+      # this makes release.sh stop (main behind origin) or its push fail, and nothing is tagged.
+      - name: Plan again
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          plan="$RUNNER_TEMP/plan.json"
+          pnpm --silent sheet-release > "$plan"
+          action=$(jq -r .action "$plan")
+          echo "action=$action" >> "$GITHUB_OUTPUT"
+          case "$action" in
+            release) echo "Releasing PR(s) $(jq -r '[.pulls[] | "#\(.number)"] | join(", ")' "$plan")." ;;
+            blocked)
+              echo "reason=$(jq -r .reason "$plan")" >> "$GITHUB_OUTPUT"
+              echo "::error::$(jq -r .reason "$plan")"
+              exit 1
+              ;;
+            *) echo "::notice::$(jq -r .reason "$plan")" ;;
+          esac
+
       # The release commit is the App's bot's; the commit-msg hook stays on (chore(release): vX.Y.Z passes it).
       - name: Set the committer
+        if: steps.plan.outputs.action == 'release'
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
           APP_SLUG: ${{ steps.app.outputs.app-slug }}
@@ -164,6 +176,7 @@ jobs:
           git config user.email "$id+$bot@users.noreply.github.com"
 
       - name: Set up SSH
+        if: steps.plan.outputs.action == 'release'
         env:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           # The host key is public, so it may be a variable; the private key must be a secret.
@@ -180,11 +193,12 @@ jobs:
 
       # In the plan's order, so a later PDF of the same name (a correction) overwrites an earlier one.
       - name: Download the PDFs
+        if: steps.plan.outputs.action == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p uploads/porady_bohosluzeb
-          jq -r '.pulls[].artifacts[] | "\(.runId) \(.name)"' <<< "$PLAN" | while read -r run name; do
+          jq -r '.pulls[].artifacts[] | "\(.runId) \(.name)"' "$RUNNER_TEMP/plan.json" | while read -r run name; do
             gh run download "$run" --repo "$GITHUB_REPOSITORY" -n "$name" -D "$RUNNER_TEMP/pdf/$name"
             cp "$RUNNER_TEMP/pdf/$name"/*.pdf uploads/porady_bohosluzeb/
           done
@@ -193,12 +207,14 @@ jobs:
       # Uploads the PDFs (and the cron scripts) first, then the version commit and the tag, pushed with main.
       - name: Release
         id: release
+        if: steps.plan.outputs.action == 'release'
         run: |
           pnpm release --yes
           echo "tag=v$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Wait for the deploy
+        if: steps.plan.outputs.action == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
           SHA: ${{ steps.release.outputs.sha }}
@@ -218,29 +234,34 @@ jobs:
           gh run watch "$id" --repo "$GITHUB_REPOSITORY" --exit-status --interval 30 > /dev/null
 
       - name: Report the release
+        if: steps.plan.outputs.action == 'release'
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
           TAG: ${{ steps.release.outputs.tag }}
         run: |
-          jq -r '.pulls[] | "\(.number) \(.branch)"' <<< "$PLAN" | while read -r pr branch; do
+          jq -r '.pulls[] | "\(.number) \(.branch)"' "$RUNNER_TEMP/plan.json" | while read -r pr branch; do
             gh pr comment "$pr" --repo "$GITHUB_REPOSITORY" --body "Released in $TAG: https://farakurim.cz/porad_bohosluzeb/"
             gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$branch" > /dev/null || true
           done
 
+      # On the PRs of this job's plan, or of `plan`'s when it failed before planning again.
       - name: Report a failure
         if: failure() && steps.app.outcome == 'success'
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
           TAG: ${{ steps.release.outputs.tag }}
+          REASON: ${{ steps.plan.outputs.reason }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          body="The release failed: $RUN_URL."
-          if [ -n "$TAG" ]; then
-            body="$body $TAG was tagged and pushed, but its deploy did not succeed. If deploy.yml stopped at check-uploads, upload the missing PDF (\`scripts/deploy.sh uploads\`) and re-run the deploy run; otherwise fix it in a new commit and release with \`pnpm release\` (never move a tag)."
+          plan=$(cat "$RUNNER_TEMP/plan.json" 2> /dev/null || printf '%s' "$FIRST_PLAN")
+          if [ -n "$REASON" ]; then
+            body="Not released: $REASON. Release with \`pnpm release\` by hand once that is sorted out (docs/deployment.md)."
+          elif [ -n "$TAG" ]; then
+            body="The release failed: $RUN_URL. $TAG was tagged and pushed, but its deploy did not succeed: fix it in a new commit and release with \`pnpm release\` (never move a tag), or re-run the deploy run once its cause is gone."
           else
-            body="$body Nothing was tagged or published. Fix it and release with \`pnpm release\` (docs/deployment.md)."
+            body="The release failed: $RUN_URL. Nothing was tagged or published. Fix it and release with \`pnpm release\` (docs/deployment.md)."
           fi
-          for pr in $(jq -r '.pulls[].number' <<< "$PLAN"); do
+          for pr in $(jq -r '.pulls[].number' <<< "$plan"); do
             gh pr comment "$pr" --repo "$GITHUB_REPOSITORY" --body "$body"
           done
 
@@ -250,10 +271,11 @@ jobs:
           TAG: ${{ steps.release.outputs.tag }}
           OUTCOME: ${{ job.status }}
         run: |
+          plan=$(cat "$RUNNER_TEMP/plan.json" 2> /dev/null || printf '%s' "$FIRST_PLAN")
           {
             echo "## Service sheet release"
             echo
-            jq -r '.pulls[] | "- PR #\(.number) (\(.branch)): \(.artifacts | length) PDF artifact(s)"' <<< "$PLAN"
+            jq -r '(.reason // empty), (.pulls[]? | "- PR #\(.number) (\(.branch)): \(.artifacts | length) PDF artifact(s)")' <<< "$plan"
             echo
             echo "Release: ${TAG:-not tagged}, $OUTCOME."
           } >> "$GITHUB_STEP_SUMMARY"
