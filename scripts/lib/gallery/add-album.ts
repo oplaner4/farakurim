@@ -2,8 +2,9 @@
 // original photos: the title without Zonerama's "YYYY_MM_DD" prefix (first letter upper-cased), the date from that
 // prefix (both from the zip's name when the page cannot be read), the id (the title's slug with the year) and up to
 // MAX_PHOTOS photos of the most common aspect ratio. Stages those photos in uploads/fotogalerie/<id>/, adds the album
-// to the gallery file, newest first, and removes the albums beyond MAX_ALBUMS. The photos never come from Zonerama:
-// it answers a script with a "Bot Detected" image. The album's rules are albumSchema's (src/lib/gallery/schema.ts).
+// to the gallery file, newest first, and removes the albums beyond MAX_ALBUMS. The photos come from the album's zip,
+// never one by one from Zonerama: it answers a script with a "Bot Detected" image. The album's rules are
+// albumSchema's (src/lib/gallery/schema.ts).
 
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -20,6 +21,7 @@ import { formatAndTest, GALLERY_FILE, writeContentFile } from "../content-files"
 import { defaultUploadsEnv, UPLOADS_DIR, type UploadsEnv } from "../uploads";
 import { assertFreeOnServer, stageAlbumPhotos } from "./album-photos";
 import { extractPhotos, type LocalPhoto } from "./zip-photos";
+import { downloadAlbumZip, zipFolder } from "./zonerama-zip";
 
 const MAX_PHOTOS = 15;
 
@@ -182,13 +184,13 @@ export function albumLines({ album, position, removed }: AddAlbumResult, check: 
 }
 
 const USAGE =
-  "Usage: pnpm add-album https://eu.zonerama.com/FarnostKurim/Album/<n> --photos <zip of the originals> " +
+  "Usage: pnpm add-album https://eu.zonerama.com/FarnostKurim/Album/<n> [--photos <zip of the originals>] " +
   '[--write | --check] [--title "<title>"] [--date YYYY-MM-DD] [--id <kebab-id>]';
 
-/** The command line: the album URL, the zip of its originals and the options. */
+/** The command line: the album URL, the zip of its originals (downloaded from Zonerama when not given) and the options. */
 export type Command = {
   url: string;
-  photos: string;
+  photos?: string;
   write: boolean;
   check: boolean;
   title?: string;
@@ -196,7 +198,7 @@ export type Command = {
   id?: string;
 };
 
-/** Reads the command line `args`; a missing URL or zip, a missing option value or an unknown option throws with the usage. */
+/** Reads the command line `args`; a missing URL, a missing option value or an unknown option throws with the usage. */
 export function parseCommand(args: string[]): Command {
   const options = {
     photos: { type: "string" },
@@ -208,9 +210,9 @@ export function parseCommand(args: string[]): Command {
   } as const;
   const parsed = parseCommandLine(args, options, USAGE);
   const [url] = parsed.positionals;
-  const { photos, write = false, check = false, ...overrides } = parsed.values;
-  if (!url || !photos) throw new Error(USAGE);
-  return { url, photos, write, check, ...overrides };
+  if (!url) throw new Error(USAGE);
+  const { write = false, check = false, ...rest } = parsed.values;
+  return { url, write, check, ...rest };
 }
 
 /** The album page at `url`, or `null` when it does not answer or has no Zonerama title (Zonerama answers 500 at times). */
@@ -224,38 +226,47 @@ async function readPage(url: string, env: UploadsEnv): Promise<string | null> {
   }
 }
 
+/** Stages `sources` as the album's photos; on a failure removes what it staged (the release would upload it). */
+async function stagePhotos(env: UploadsEnv, id: string, sources: string[]) {
+  try {
+    await stageAlbumPhotos(env.uploadsDir, id, sources);
+  } catch (error) {
+    // The folder is not on the server (checked before): what is in it is this run's.
+    rmSync(join(env.uploadsDir, "fotogalerie", id), { recursive: true, force: true });
+    throw error;
+  }
+}
+
 /**
- * Proposes the album at `url` from the zip `photos`, or (`write`, `check`) stages its photos in `env.uploadsDir` and
- * adds it to `galleryFile`. Returns the output and the files to format and test. The photos are staged before
- * `galleryFile` is written, so a failure leaves it as it was.
+ * Proposes the album at `url` from the zip `photos` (without it, the album's zip downloaded from Zonerama into
+ * `cacheDir`, kept for the next run), or (`write`, `check`) stages its photos in `env.uploadsDir` and adds it to
+ * `galleryFile`. Returns the output and the files to format and test. The photos are staged before `galleryFile` is
+ * written, so a failure leaves it as it was; a downloaded zip is removed once its album is added.
  */
 export async function runAlbum(
-  { url, photos: zip, write, check, ...overrides }: Command,
+  { url, photos: given, write, check, ...overrides }: Command,
   env: UploadsEnv,
   galleryFile: string,
+  cacheDir = tmpdir(),
 ): Promise<{ output: string; written: string[] }> {
   const number = albumNumberFromUrl(url);
+  const zip = given ?? (await downloadAlbumZip(number, cacheDir, { fetch: env.fetch }));
   const dir = mkdtempSync(join(tmpdir(), "album-"));
   try {
     const photos = await extractPhotos(zip, dir);
     const page = await readPage(url, env);
     const { proposal, album, sources } = proposeAlbum(page, zip, photos, number, overrides);
-    const note =
-      page === null ? ["The album page did not answer: the title and the date are from the zip's name."] : [];
+    const note = [
+      ...(given ? [] : [`Downloaded the album's zip from Zonerama: ${zip}`]),
+      ...(page === null ? ["The album page did not answer: the title and the date are from the zip's name."] : []),
+    ];
     if (!write && !check) return { output: [...note, JSON.stringify(proposal, null, 2)].join("\n"), written: [] };
     if (!album.date) throw new Error("the album title has no date: pass the date of the event with --date YYYY-MM-DD");
     addAlbum(galleryFile, album, { check: true });
     await assertFreeOnServer(env, `fotogalerie/${album.id}/foto-1-800.webp`, "pass another id with --id");
-    if (!check) {
-      try {
-        await stageAlbumPhotos(env.uploadsDir, album.id, sources);
-      } catch (error) {
-        // The folder is not on the server (checked above): remove what was staged, or the release would upload it.
-        rmSync(join(env.uploadsDir, "fotogalerie", album.id), { recursive: true, force: true });
-        throw error;
-      }
-    }
+    if (!check) await stagePhotos(env, album.id, sources);
     const result = check ? addAlbum(galleryFile, album, { check: true }) : addAlbum(galleryFile, album);
+    if (!check && !given) rmSync(zipFolder(cacheDir, number), { recursive: true, force: true });
     const staged = `${actionVerb(check, "stage")} ${sources.length} photos in ${UPLOADS_DIR}fotogalerie/${album.id}/`;
     return { output: [...note, ...albumLines(result, check), staged].join("\n"), written: result.written };
   } finally {

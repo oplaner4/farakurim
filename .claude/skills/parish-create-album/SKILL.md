@@ -1,28 +1,33 @@
 ---
 name: parish-create-album
-description: Add a photo album to the Fotogalerie of the new farakurim.cz site from a Zonerama album URL under eu.zonerama.com/FarnostKurim and the zip of its original photos - pick up to 15 photos of one shape from the zip, stage them, add the album, then publish. Use whenever the user wants to add a gallery, album or photos from Zonerama.
+description: Add a photo album to the Fotogalerie of the new farakurim.cz site from a Zonerama album URL under eu.zonerama.com/FarnostKurim - download the album's zip (or take the one the user gives), pick up to 15 photos of one shape from it, stage them, add the album, then publish. Use whenever the user wants to add a gallery, album or photos from Zonerama.
 ---
 
 # Create a gallery album
 
 The site serves the album's photos from `/uploads/fotogalerie/<id>/`: `pnpm add-album --write` resizes the chosen
-photos from the zip of the album's originals (four widths each) and stages them in `uploads/`, and the release uploads
-them. The photos never come from Zonerama: it answers a script with a "Bot Detected" image instead of the photo.
+photos from the album's zip (four widths each) and stages them in `uploads/`, and the release uploads them. The
+command downloads the zip itself, as the album's "Stáhnout" dialog does (without videos), and keeps it until `--write`
+adds the album. Photos are never downloaded one by one: Zonerama answers a script with a "Bot Detected" image.
 Finish with **`parish-publish-content`**.
 
-## 1. Check the URL and get the zip
+## 1. Check the URL
 
 The URL must be an album: `https://eu.zonerama.com/FarnostKurim/Album/<albumId>`. The profile or a tab
 (`…/FarnostKurim/425053`) lists albums, not photos: ask for the album link.
 
-Ask the user for the zip of the album's original photos (they download it from the album on Zonerama, usually to
-`~/Downloads/<YYYY_MM_DD> <title>.zip`), unless they already gave it.
+If the user already gave the album's zip, pass it with `--photos "<zip>"` in the commands below; otherwise leave it
+out.
 
 ## 2. Read the album
 
 ```sh
-pnpm add-album "https://eu.zonerama.com/FarnostKurim/Album/<albumId>" --photos "<zip>"
+pnpm add-album "https://eu.zonerama.com/FarnostKurim/Album/<albumId>"
 ```
+
+If the download fails ("could not download album …"), ask the user for the album's zip (they download it from the
+album on Zonerama with "Stáhnout", usually to `~/Downloads/<YYYY_MM_DD> <title>.zip`) and run it again with
+`--photos "<zip>"`. A large album takes a while to prepare and download (about 500 MB for 140 photos).
 
 It prints JSON with the proposed `id` (ASCII kebab-case from the title, ending with the year: `medovy-den-2026`, so
 next year's album never takes over this one's links), the title (sentence case, without
@@ -45,10 +50,11 @@ Wait for the user's yes or corrections to these before adding anything.
 ## 4. Add the record and stage the photos
 
 ```sh
-pnpm add-album "<album URL>" --photos "<zip>" --write --title "<title>" --date <YYYY-MM-DD> --id <id>
+pnpm add-album "<album URL>" --write --title "<title>" --date <YYYY-MM-DD> --id <id>
 ```
 
-Pass the confirmed values (each only when it differs from the JSON). It stages the photos in
+Pass the confirmed values (each only when it differs from the JSON), and `--photos "<zip>"` if step 2 used it. It
+reuses the zip step 2 downloaded and removes it once the album is added. It stages the photos in
 `uploads/fotogalerie/<id>/`, adds the album, removes the oldest albums beyond the site's limit (they stay on Zonerama,
 their files on the server) and prints each one it removed, then runs the gallery test. It refuses an id or album
 already on the site, an album older than all the kept ones, and an id whose folder is already on the server (the
@@ -62,4 +68,4 @@ Follow **`parish-publish-content`**: the release uploads the staged photos.
 
 - Using the profile or tab URL instead of the album URL (the script refuses it).
 - Writing the record or its photo paths by hand instead of `--write`.
-- Downloading the photos from Zonerama, or resizing them by hand: the zip and `--write` do it.
+- Downloading the photos one by one from Zonerama, or resizing them by hand: the zip and `--write` do it.

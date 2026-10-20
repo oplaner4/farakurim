@@ -297,6 +297,7 @@ describe("parseCommand", () => {
   const URL = "https://eu.zonerama.com/FarnostKurim/Album/16583642";
 
   it("reads the URL and the options", () => {
+    expect(parseCommand([URL])).toEqual({ url: URL, write: false, check: false });
     expect(parseCommand([URL, "--photos", "a.zip"])).toEqual({ url: URL, photos: "a.zip", write: false, check: false });
     expect(parseCommand([URL, "--photos", "a.zip", "--check"])).toMatchObject({ write: false, check: true });
     expect(
@@ -314,7 +315,6 @@ describe("parseCommand", () => {
 
   it("refuses a missing URL, a missing option value and an unknown option with the usage", () => {
     expect(() => parseCommand([])).toThrow(/^Usage: pnpm add-album/m);
-    expect(() => parseCommand([URL])).toThrow(/^Usage: pnpm add-album/m);
     expect(() => parseCommand([URL, "--write", "--title"])).toThrow(/--title[^]*\nUsage: pnpm add-album/);
     expect(() => parseCommand([URL, "--dryrun"])).toThrow(/--dryrun[^]*\nUsage: pnpm add-album/);
   });
@@ -347,11 +347,21 @@ describe("runAlbum on a temp gallery.json, uploads/ and zip", () => {
   let zip = "";
   /** The answers of the stubbed fetch: the album page and the server's HEAD. */
   const answers = { page: 200, head: 404 };
-  const fetchMock = vi.fn(async (_url: string, init?: RequestInit) =>
-    init?.method === "HEAD"
-      ? new Response(null, { status: answers.head })
-      : new Response(page("2026_09_27 pěš&#237; pouť na Vranov"), { status: answers.page }),
-  );
+  const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
+    if (init?.method === "HEAD") return new Response(null, { status: answers.head });
+    // Zonerama's zip of the album (the "Stáhnout" dialog), ready at once.
+    if (url.includes("/Zip/Album/")) return Response.json({ Id: "z1" });
+    if (url.includes("/Zip/IsReady/")) return Response.json({ IsReady: true, Url: "/Zip/Download/z1", Error: null });
+    if (url.includes("/Zip/Download/")) {
+      return new Response(readFileSync(zip), {
+        headers: {
+          "content-type": "application/zip",
+          "content-disposition": 'attachment; filename="2026_09_27 pout.zip"',
+        },
+      });
+    }
+    return new Response(page("2026_09_27 pěš&#237; pouť na Vranov"), { status: answers.page });
+  });
   const env = () => ({ uploadsDir, site: "https://example.cz", fetch: fetchMock as unknown as typeof fetch });
   const jpeg = (width: number) =>
     sharp({ create: { width, height: (width * 2) / 3, channels: 3, background: { r: 30, g: 90, b: 160 } } })
@@ -361,6 +371,7 @@ describe("runAlbum on a temp gallery.json, uploads/ and zip", () => {
     zip = join(tempDir(), "2026_09_27 pesi pout na Vranov.zip");
     writeFileSync(zip, zipSync(Object.fromEntries(Object.entries(photos).map(([n, b]) => [n, new Uint8Array(b)]))));
   };
+  const cacheDir = () => join(tempDir(), "cache");
   const staged = () =>
     existsSync(join(uploadsDir, "fotogalerie", ID)) ? readdirSync(join(uploadsDir, "fotogalerie", ID)) : [];
 
@@ -373,10 +384,8 @@ describe("runAlbum on a temp gallery.json, uploads/ and zip", () => {
     makeZip({ "a.jpg": await jpeg(1500), "b.jpg": await jpeg(1500), "c.jpg": await jpeg(1500) });
   });
   afterEach(() => {
-    // Only the album page and the server are asked, never a Zonerama photo.
-    expect(fetchMock.mock.calls.every(([url]) => url === URL || url.startsWith("https://example.cz/uploads/"))).toBe(
-      true,
-    );
+    // Never a Zonerama photo: the album page, its zip and the server only.
+    expect(fetchMock.mock.calls.some(([url]) => url.includes("/photos/"))).toBe(false);
   });
 
   it("stages the photos and adds the album", async () => {
@@ -396,9 +405,21 @@ describe("runAlbum on a temp gallery.json, uploads/ and zip", () => {
     expect(output).toContain(`Staged 3 photos in uploads/fotogalerie/${ID}/`);
   });
 
+  it("downloads the zip from Zonerama without --photos, once, and removes it after --write", async () => {
+    const proposal = await runAlbum({ url: URL, write: false, check: false }, env(), galleryFile, cacheDir());
+    expect(proposal.output).toMatch(/^Downloaded the album's zip from Zonerama/);
+    expect(JSON.parse(proposal.output.split("\n").slice(1).join("\n"))).toMatchObject({ total: 3 });
+    const starts = () => fetchMock.mock.calls.filter(([url]) => url.includes("/Zip/Album/")).length;
+    expect(starts()).toBe(1);
+    await runAlbum({ url: URL, write: true, check: false }, env(), galleryFile, cacheDir());
+    expect(starts()).toBe(1);
+    expect(staged()).toHaveLength(12);
+    expect(readdirSync(cacheDir())).toEqual([]);
+  });
+
   it("falls back to the zip's name when the page fails", async () => {
     answers.page = 500;
-    await runAlbum({ url: URL, photos: zip, write: true, check: false }, env(), galleryFile);
+    await runAlbum({ url: URL, photos: zip, write: true, check: false }, env(), galleryFile, cacheDir());
     expect(readGallery(galleryFile).albums[0]).toMatchObject({
       id: ID,
       title: "Pesi pout na Vranov",
@@ -409,9 +430,9 @@ describe("runAlbum on a temp gallery.json, uploads/ and zip", () => {
   it("refuses a folder already on the server before writing", async () => {
     answers.head = 200;
     const before = readFileSync(galleryFile, "utf8");
-    await expect(runAlbum({ url: URL, photos: zip, write: true, check: false }, env(), galleryFile)).rejects.toThrow(
-      "pass another id with --id",
-    );
+    await expect(
+      runAlbum({ url: URL, photos: zip, write: true, check: false }, env(), galleryFile, cacheDir()),
+    ).rejects.toThrow("pass another id with --id");
     expect(staged()).toEqual([]);
     expect(readFileSync(galleryFile, "utf8")).toBe(before);
   });
@@ -420,7 +441,9 @@ describe("runAlbum on a temp gallery.json, uploads/ and zip", () => {
     const broken = await jpeg(1500);
     makeZip({ "a.jpg": await jpeg(1500), "b.jpg": broken.subarray(0, broken.length / 2), "c.jpg": await jpeg(1500) });
     const before = readFileSync(galleryFile, "utf8");
-    await expect(runAlbum({ url: URL, photos: zip, write: true, check: false }, env(), galleryFile)).rejects.toThrow();
+    await expect(
+      runAlbum({ url: URL, photos: zip, write: true, check: false }, env(), galleryFile, cacheDir()),
+    ).rejects.toThrow();
     expect(readFileSync(galleryFile, "utf8")).toBe(before);
     // Nor are the photos staged before the failure left for the release to upload.
     expect(staged()).toEqual([]);
@@ -438,7 +461,12 @@ describe("runAlbum on a temp gallery.json, uploads/ and zip", () => {
   });
 
   it("writes nothing for the proposal", async () => {
-    const { output } = await runAlbum({ url: URL, photos: zip, write: false, check: false }, env(), galleryFile);
+    const { output } = await runAlbum(
+      { url: URL, photos: zip, write: false, check: false },
+      env(),
+      galleryFile,
+      cacheDir(),
+    );
     expect(JSON.parse(output)).toMatchObject({ id: ID, total: 3, photos: 3 });
     expect(fetchMock.mock.calls.some(([, init]) => init?.method === "HEAD")).toBe(false);
     expect(staged()).toEqual([]);
