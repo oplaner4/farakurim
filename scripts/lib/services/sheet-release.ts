@@ -1,7 +1,8 @@
 // Plans the release of merged service sheet PRs: from the commits since the last release tag and the GitHub API it
-// decides whether to skip (the pushed commit is not a sheet PR's squash commit), do nothing (released already), stop
-// (main holds other unreleased commits, or a PDF artifact expired) or release the PRs, each with the PDF artifacts of
-// its commits in the order to apply them, so the newest PDF of a week wins.
+// decides whether to skip (no unreleased commit is a sheet PR's squash commit), do nothing (released already), stop
+// (main holds other unreleased commits, a PDF artifact expired, or a commit pushed by hand has no artifact) or release
+// the PRs, each with the PDF artifacts of its commits in the order to apply them, so the newest PDF of a week wins.
+// Only an artifact of a run on this repo's main counts: a fork's pull request run can upload one under any name.
 
 import { execFileSync } from "node:child_process";
 import { parseCommandLine } from "../command";
@@ -18,12 +19,21 @@ export type CommitPull = {
   mergeSha: string | null;
 };
 
-export type Artifact = { name: string; runId: number; expired: boolean };
+export type Artifact = {
+  name: string;
+  runId: number;
+  expired: boolean;
+  /** Uploaded by a run on this repo's main (the service sheet workflow), not by a fork's or a branch's run. */
+  trusted: boolean;
+};
+
+/** A commit of a PR; `bot` when a GitHub App's bot authored it (the service sheet workflow), not a person. */
+export type PullCommit = { sha: string; bot: boolean };
 
 export type GitHubReader = {
   pullsOfCommit(sha: string): Promise<CommitPull[]>;
-  /** The PR's commit shas, oldest first. */
-  commitsOfPull(number: number): Promise<string[]>;
+  /** The PR's commits, oldest first. */
+  commitsOfPull(number: number): Promise<PullCommit[]>;
   artifactsNamed(name: string): Promise<Artifact[]>;
 };
 
@@ -60,22 +70,18 @@ export function sheetPullOf(sha: string, pulls: CommitPull[], repo: string): Com
 }
 
 /**
- * The release plan for the push of `pushed`, given the `commits` since the last tag (newest first): released only
- * when every one of them is a sheet PR's squash commit.
+ * The release plan for the `commits` since the last tag (newest first): released only when every one of them is a
+ * sheet PR's squash commit, skipped when none is.
  */
 export async function planRelease({
   repo,
-  pushed,
   commits,
   github,
 }: {
   repo: string;
-  pushed: string;
   commits: UnreleasedCommit[];
   github: GitHubReader;
 }): Promise<ReleasePlan> {
-  if (!sheetPullOf(pushed, await github.pullsOfCommit(pushed), repo))
-    return { action: "skip", reason: `${short(pushed)} is not a merged service sheet PR` };
   if (!commits.length) return { action: "none", reason: "Nothing to release since the last tag" };
 
   const sheetPulls: CommitPull[] = [];
@@ -85,18 +91,22 @@ export async function planRelease({
     if (pull) sheetPulls.push(pull);
     else others.push(commit);
   }
+  if (!sheetPulls.length) return { action: "skip", reason: "No unreleased commit is a merged service sheet PR" };
   sheetPulls.sort((a, b) => a.mergedAt!.localeCompare(b.mergedAt!));
 
   const pulls: SheetPull[] = [];
   const expired: string[] = [];
+  const byHand: string[] = [];
   for (const pull of sheetPulls) {
     const artifacts: SheetPull["artifacts"] = [];
-    for (const sha of await github.commitsOfPull(pull.number)) {
-      const found = await github.artifactsNamed(pdfArtifactName(sha));
-      if (!found.length) continue; // a commit the workflow did not make
+    for (const { sha, bot } of await github.commitsOfPull(pull.number)) {
+      const found = (await github.artifactsNamed(pdfArtifactName(sha))).filter((artifact) => artifact.trusted);
       const live = found.filter((artifact) => !artifact.expired).sort((a, b) => b.runId - a.runId)[0];
       if (live) artifacts.push({ name: live.name, runId: live.runId });
-      else expired.push(`${short(sha)} (PR #${pull.number})`);
+      else if (found.length) expired.push(`${short(sha)} (PR #${pull.number})`);
+      // A workflow run that staged no PDF; a commit pushed by hand may carry a PDF staged only on that machine,
+      // even under the name of a PDF an artifact holds (a correction keeps its rev until it is on the server).
+      else if (!bot) byHand.push(`${short(sha)} (PR #${pull.number})`);
     }
     pulls.push({ number: pull.number, branch: pull.branch, mergedAt: pull.mergedAt!, artifacts });
   }
@@ -109,6 +119,10 @@ export async function planRelease({
     const reason = `The PDF artifact of ${expired.join(", ")} expired: stage the PDF and release by hand`;
     return { action: "blocked", reason, pulls };
   }
+  if (byHand.length) {
+    const reason = `${byHand.join(", ")} was pushed by hand and has no PDF artifact: stage its PDF and release by hand`;
+    return { action: "blocked", reason, pulls };
+  }
   return { action: "release", pulls };
 }
 
@@ -118,7 +132,11 @@ type ApiPull = {
   merge_commit_sha: string | null;
   head: { ref: string; repo: { full_name: string } | null };
 };
-type ApiArtifact = { name: string; expired: boolean; workflow_run: { id: number } };
+type ApiArtifact = {
+  name: string;
+  expired: boolean;
+  workflow_run: { id: number; repository_id: number; head_repository_id: number; head_branch: string };
+};
 
 /** Reads the GitHub REST API of `repo` with `token`. A PR's commits and the artifacts of a name fit one page. */
 export function gitHubReader(repo: string, token: string, fetchImpl: typeof fetch = fetch): GitHubReader {
@@ -143,14 +161,17 @@ export function gitHubReader(repo: string, token: string, fetchImpl: typeof fetc
         mergeSha: pull.merge_commit_sha,
       })),
     commitsOfPull: async (number) =>
-      (await get<{ sha: string }[]>(`/pulls/${number}/commits?per_page=100`)).map((commit) => commit.sha),
+      (await get<{ sha: string; author: { type: string } | null }[]>(`/pulls/${number}/commits?per_page=100`)).map(
+        (commit) => ({ sha: commit.sha, bot: commit.author?.type === "Bot" }),
+      ),
     artifactsNamed: async (name) =>
       (
         await get<{ artifacts: ApiArtifact[] }>(`/actions/artifacts?name=${encodeURIComponent(name)}&per_page=100`)
-      ).artifacts.map((artifact) => ({
-        name: artifact.name,
-        runId: artifact.workflow_run.id,
-        expired: artifact.expired,
+      ).artifacts.map(({ name, expired, workflow_run: run }) => ({
+        name,
+        runId: run.id,
+        expired,
+        trusted: run.head_repository_id === run.repository_id && run.head_branch === "main",
       })),
   };
 }
@@ -173,13 +194,12 @@ export function unreleasedCommits(cwd = process.cwd()): UnreleasedCommit[] {
     });
 }
 
-const USAGE = "Usage: pnpm --silent sheet-release --pushed <sha>";
+const USAGE = "Usage: pnpm --silent sheet-release";
 
-export function parseCommand(args: string[]): { pushed: string } {
-  const { values, positionals } = parseCommandLine(args, { pushed: { type: "string" } }, USAGE);
+export function parseCommand(args: string[]): Record<string, never> {
+  const { positionals } = parseCommandLine(args, {}, USAGE);
   if (positionals.length) throw new Error(`unexpected argument ${positionals[0]}\n${USAGE}`);
-  if (!values.pushed) throw new Error(`--pushed is required\n${USAGE}`);
-  return { pushed: values.pushed };
+  return {};
 }
 
 function env(name: string): string {
@@ -188,8 +208,8 @@ function env(name: string): string {
   return value;
 }
 
-export async function execute({ pushed }: { pushed: string }): Promise<void> {
+export async function execute(): Promise<void> {
   const repo = env("GITHUB_REPOSITORY");
   const github = gitHubReader(repo, env("GH_TOKEN"));
-  console.log(JSON.stringify(await planRelease({ repo, pushed, commits: unreleasedCommits(), github })));
+  console.log(JSON.stringify(await planRelease({ repo, commits: unreleasedCommits(), github })));
 }

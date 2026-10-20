@@ -18,12 +18,14 @@ function sheetPull(number: number, sha: string, mergedAt: string, overrides: Par
   return { number, branch: "service-sheet/2026-10-19", headRepo: repo, mergedAt, mergeSha: sha, ...overrides };
 }
 
-const artifact = (sha: string, runId: number, expired = false): Artifact => ({
+const artifact = (sha: string, runId: number, { expired = false, trusted = true } = {}): Artifact => ({
   name: `service-sheet-pdf-${sha}`,
   runId,
   expired,
+  trusted,
 });
 
+/** The PRs' commits as shas; a sha starting with `m` is the maintainer's, the others the App's bot's. */
 function fakeGitHub(
   pulls: Record<string, CommitPull[]>,
   commits: Record<number, string[]>,
@@ -31,7 +33,7 @@ function fakeGitHub(
 ): GitHubReader {
   return {
     pullsOfCommit: async (sha) => pulls[sha] ?? [],
-    commitsOfPull: async (number) => commits[number] ?? [],
+    commitsOfPull: async (number) => (commits[number] ?? []).map((sha) => ({ sha, bot: !sha.startsWith("m") })),
     artifactsNamed: async (name) => artifacts.filter((a) => a.name === name),
   };
 }
@@ -47,7 +49,7 @@ describe("planRelease", () => {
       artifact("a2", 102),
       artifact("b1", 201),
     ]);
-    const plan = await planRelease({ repo, pushed: "b", commits: [commit("b"), commit("a")], github });
+    const plan = await planRelease({ repo, commits: [commit("b"), commit("a")], github });
     expect(plan).toMatchObject({
       action: "release",
       pulls: [
@@ -64,23 +66,23 @@ describe("planRelease", () => {
     });
   });
 
-  it("skips commits without an artifact", async () => {
-    const github = fakeGitHub(twoPulls, { 11: ["a1", "m1"] }, [artifact("a1", 101)]);
-    const plan = await planRelease({ repo, pushed: "a", commits: [commit("a")], github });
+  it("skips the bot's commits without an artifact", async () => {
+    const github = fakeGitHub(twoPulls, { 11: ["a1", "a2"] }, [artifact("a1", 101)]);
+    const plan = await planRelease({ repo, commits: [commit("a")], github });
     expect(plan).toMatchObject({ action: "release", pulls: [{ number: 11, artifacts: [{ runId: 101 }] }] });
     if (plan.action === "release") expect(plan.pulls[0].artifacts).toHaveLength(1);
   });
 
   it("takes the newest unexpired artifact of a commit", async () => {
-    const github = fakeGitHub(twoPulls, { 11: ["a1"] }, [artifact("a1", 101, true), artifact("a1", 105)]);
-    const plan = await planRelease({ repo, pushed: "a", commits: [commit("a")], github });
+    const github = fakeGitHub(twoPulls, { 11: ["a1"] }, [artifact("a1", 101, { expired: true }), artifact("a1", 105)]);
+    const plan = await planRelease({ repo, commits: [commit("a")], github });
     expect(plan).toMatchObject({ action: "release", pulls: [{ artifacts: [{ runId: 105 }] }] });
   });
 
   it("blocks on an expired artifact", async () => {
     const sha = "a1b2c3d4e5f6";
-    const github = fakeGitHub(twoPulls, { 11: [sha] }, [artifact(sha, 101, true)]);
-    const plan = await planRelease({ repo, pushed: "a", commits: [commit("a")], github });
+    const github = fakeGitHub(twoPulls, { 11: [sha] }, [artifact(sha, 101, { expired: true })]);
+    const plan = await planRelease({ repo, commits: [commit("a")], github });
     expect(plan).toMatchObject({ action: "blocked", pulls: [{ number: 11 }] });
     if (plan.action !== "blocked") return;
     expect(plan.reason).toContain(sha.slice(0, 7));
@@ -91,7 +93,7 @@ describe("planRelease", () => {
   it("blocks when main has other unreleased commits", async () => {
     const github = fakeGitHub(twoPulls, { 12: ["b1"] }, [artifact("b1", 201)]);
     const other = commit("x123456789", "feat(news): add the Hubertská mše event");
-    const plan = await planRelease({ repo, pushed: "b", commits: [commit("b"), other], github });
+    const plan = await planRelease({ repo, commits: [commit("b"), other], github });
     expect(plan).toMatchObject({ action: "blocked", pulls: [{ number: 12 }] });
     if (plan.action !== "blocked") return;
     expect(plan.pulls).toHaveLength(1);
@@ -105,16 +107,48 @@ describe("planRelease", () => {
     ["a fork", [sheetPull(12, "b", "2026-10-19T10:05:00Z", { headRepo: "someone/farakurim" })]],
     ["an unmerged PR", [sheetPull(12, "b", "2026-10-19T10:05:00Z", { mergedAt: null })]],
     ["a rebase", [sheetPull(12, "b", "2026-10-19T10:05:00Z", { mergeSha: "other" })]],
-  ])("skips a push that is not a sheet merge (%s)", async (_, pulls) => {
+  ])("skips when no unreleased commit is a sheet merge (%s)", async (_, pulls) => {
     const github = fakeGitHub({ b: pulls }, { 12: ["b1"] }, [artifact("b1", 201)]);
-    const plan = await planRelease({ repo, pushed: "b", commits: [commit("b")], github });
+    const plan = await planRelease({ repo, commits: [commit("b")], github });
     expect(plan.action).toBe("skip");
+  });
+
+  it("blocks a later push while a merged sheet PR is unreleased", async () => {
+    const github = fakeGitHub(twoPulls, { 12: ["b1"] }, [artifact("b1", 201)]);
+    const plan = await planRelease({
+      repo,
+      commits: [commit("c123456789", "feat(news): add an event"), commit("b")],
+      github,
+    });
+    expect(plan).toMatchObject({ action: "blocked", pulls: [{ number: 12 }] });
   });
 
   it("does nothing when everything is released", async () => {
     const github = fakeGitHub(twoPulls, {}, []);
-    const plan = await planRelease({ repo, pushed: "b", commits: [], github });
+    const plan = await planRelease({ repo, commits: [], github });
     expect(plan.action).toBe("none");
+  });
+
+  it("ignores an artifact that a fork's run uploaded under the same name", async () => {
+    const github = fakeGitHub(twoPulls, { 11: ["a1"] }, [artifact("a1", 101), artifact("a1", 999, { trusted: false })]);
+    const plan = await planRelease({ repo, commits: [commit("a")], github });
+    expect(plan).toMatchObject({ action: "release", pulls: [{ artifacts: [{ runId: 101 }] }] });
+  });
+
+  it("blocks on a commit pushed by hand without an artifact", async () => {
+    const github = fakeGitHub(twoPulls, { 11: ["a1", "m1b2c3d4e5"] }, [artifact("a1", 101)]);
+    const plan = await planRelease({ repo, commits: [commit("a")], github });
+    expect(plan).toMatchObject({ action: "blocked", pulls: [{ number: 11 }] });
+    if (plan.action !== "blocked") return;
+    expect(plan.reason).toContain("m1b2c3d");
+    expect(plan.reason).toContain("#11");
+  });
+
+  it("treats a bot commit with only a fork's artifact as having none", async () => {
+    const github = fakeGitHub(twoPulls, { 11: ["a1b2c3d4e5"] }, [artifact("a1b2c3d4e5", 999, { trusted: false })]);
+    const plan = await planRelease({ repo, commits: [commit("a")], github });
+    expect(plan.action).toBe("release");
+    if (plan.action === "release") expect(plan.pulls[0].artifacts).toEqual([]);
   });
 });
 
@@ -143,14 +177,31 @@ describe("gitHubReader", () => {
     expect(pulls.calls[0].url).toBe(`https://api.github.com/repos/${repo}/commits/abc/pulls`);
     expect(pulls.calls[0].headers.Authorization).toBe("Bearer t0k");
 
-    const artifacts = stubFetch({ artifacts: [{ name: "n", expired: false, workflow_run: { id: 9 } }] });
+    const run = { id: 9, repository_id: 1, head_repository_id: 1, head_branch: "main" };
+    const artifacts = stubFetch({
+      artifacts: [
+        { name: "n", expired: false, workflow_run: run },
+        { name: "n", expired: false, workflow_run: { ...run, id: 10, head_repository_id: 2 } },
+        { name: "n", expired: true, workflow_run: { ...run, id: 11, head_branch: "service-sheet/x" } },
+      ],
+    });
     expect(await gitHubReader(repo, "t0k", artifacts.fetchImpl).artifactsNamed("n")).toEqual([
-      { name: "n", runId: 9, expired: false },
+      { name: "n", runId: 9, expired: false, trusted: true },
+      { name: "n", runId: 10, expired: false, trusted: false },
+      { name: "n", runId: 11, expired: true, trusted: false },
     ]);
     expect(artifacts.calls[0].url).toBe(`https://api.github.com/repos/${repo}/actions/artifacts?name=n&per_page=100`);
 
-    const commits = stubFetch([{ sha: "c1" }, { sha: "c2" }]);
-    expect(await gitHubReader(repo, "t0k", commits.fetchImpl).commitsOfPull(7)).toEqual(["c1", "c2"]);
+    const commits = stubFetch([
+      { sha: "c1", author: { login: "farakurim-sheet[bot]", type: "Bot" } },
+      { sha: "c2", author: { login: "oplaner4", type: "User" } },
+      { sha: "c3", author: null },
+    ]);
+    expect(await gitHubReader(repo, "t0k", commits.fetchImpl).commitsOfPull(7)).toEqual([
+      { sha: "c1", bot: true },
+      { sha: "c2", bot: false },
+      { sha: "c3", bot: false },
+    ]);
     expect(commits.calls[0].url).toBe(`https://api.github.com/repos/${repo}/pulls/7/commits?per_page=100`);
   });
 
@@ -195,11 +246,8 @@ describe("unreleasedCommits", () => {
 });
 
 describe("parseCommand", () => {
-  it("reads --pushed", () => {
-    expect(parseCommand(["--pushed", "abc"])).toEqual({ pushed: "abc" });
-  });
-
-  it("needs --pushed", () => {
-    expect(() => parseCommand([])).toThrow(/--pushed/);
+  it("takes no arguments", () => {
+    expect(parseCommand([])).toEqual({});
+    expect(() => parseCommand(["abc"])).toThrow(/unexpected argument abc/);
   });
 });
