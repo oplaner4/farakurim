@@ -20,6 +20,7 @@
     "event-poster": "tsx scripts/event-poster.ts",
     "add-exception": "tsx scripts/add-exception.ts",
     "sheet-mail": "tsx scripts/sheet-mail.ts",
+    "sheet-release": "tsx scripts/sheet-release.ts",
     "event-calendar": "tsx scripts/event-calendar.ts",
     "format": "prettier --write .",
     "preview": "node scripts/preview.mjs 4173",
