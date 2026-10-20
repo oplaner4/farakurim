@@ -3,9 +3,9 @@
 # folders that live only on the server. Used by scripts/release.sh (`pnpm release`), which runs every command below
 # from this machine with the local SSH key; run them by hand only after building out/ with .env.local in place.
 #
-# Usage: scripts/deploy.sh uploads [--dry-run]        new files from uploads/ to /uploads/ (never overwrites or deletes)
-#        scripts/deploy.sh pull-uploads [--dry-run]   new files from /uploads/ to uploads/ (never overwrites or deletes)
-#        scripts/deploy.sh check-uploads              fail if out/ links a /uploads/… file that is not on the server
+# Usage: scripts/deploy.sh uploads [--dry-run]        new staged files to the server (never overwrites or deletes)
+#        scripts/deploy.sh pull-uploads [--dry-run]   new files from the server to the staging folder (never overwrites or deletes)
+#        scripts/deploy.sh check-uploads              fail if out/ links an uploaded file that is not on the server
 #        scripts/deploy.sh out [--dry-run]            sync out/ to the web root (--delete, server-only folders excluded)
 #        scripts/deploy.sh cron [--dry-run]           the PHP scripts of cron-scripts/ to the hosting's cron folder
 #        scripts/deploy.sh verify                     check that the live site answers
@@ -56,7 +56,7 @@ cmd_uploads() {
     echo "uploads/ is empty: nothing to upload."
     return
   fi
-  # --ignore-existing and no --delete: the server's /uploads/ is the only copy of earlier uploads.
+  # --ignore-existing and no --delete: the server holds the only copy of earlier uploads.
   rsync -az "${n[@]}" --itemize-changes --ignore-existing --chmod=D755,F644 \
     uploads/ "$SSH_TARGET:$WEB_ROOT/uploads/" | { grep '^<f' || true; } | sed 's|^[^ ]* |/uploads/|'
 }
@@ -65,7 +65,7 @@ cmd_pull_uploads() {
   local n
   parse_dry_run "$@"
   mkdir -p uploads
-  # --ignore-existing and no --delete: files staged in uploads/ but not released yet stay as they are.
+  # --ignore-existing and no --delete: files staged but not released yet stay as they are.
   rsync -az "${n[@]}" --itemize-changes --ignore-existing \
     "$SSH_TARGET:$WEB_ROOT/uploads/" uploads/ | { grep '^>f' || true; } | sed 's|^[^ ]* |uploads/|'
 }

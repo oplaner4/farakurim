@@ -1,4 +1,4 @@
-// Stages a service sheet PDF as uploads/porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-r<rev>].pdf, with the
+// Stages a service sheet PDF as porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-r<rev>].pdf, with the
 // week read from its heading ("od 4. 10. 2026 do 11. 10. 2026"), and adds the sheet to src/content/service-sheets.json
 // (addServiceSheet()); without a record it only checks and prints the week. The week is checked against the sheets
 // first, with or without a record: one before the current sheet or overlapping another is refused, and one already

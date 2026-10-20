@@ -8,7 +8,7 @@
 # schedule with refresh=due (cron-scripts/deploy.php; GitHub's own schedule starts runs hours late). Running the
 # workflow by hand (refresh=now, the default) does it now.
 # A refresh publishes nothing new: the tag was released, so it needs no yes. It always builds, a --local tag too.
-# Uploaded files (/uploads/) are not in git: `pnpm release` uploads them from the local uploads/ folder before it
+# Uploaded files are not in git: `pnpm release` uploads them from the local staging folder before it
 # pushes the tag, and the deploy stops if the build links a file that is not on the server yet.
 # The SSH target, web root, rsync flags, server-only folders and verify checks live in scripts/deploy.sh, which
 # `pnpm release --local` uses too. The runner image and the actions are pinned (actions by commit SHA, updated by

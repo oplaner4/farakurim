@@ -14,7 +14,7 @@
 #   main count: a fork's pull request run can upload an artifact under any name.
 # - `release` (environment Production: the SSH key) plans again on the main it checked out, so a merge that landed
 #   meanwhile goes out too (or stops it with the reason). It downloads the PDF artifacts of every commit of those PRs
-#   into uploads/porady_bohosluzeb/: each service-sheet.yml run hands on only the PDFs it staged, and the PRs in merge
+#   into the staging folder: each service-sheet.yml run hands on only the PDFs it staged, and the PRs in merge
 #   order, their commits oldest first, let the newest PDF of a week win. Then `pnpm release --yes` uploads them,
 #   bumps the version, tags and pushes main with the App token, so the tag starts deploy.yml, which checks, builds
 #   and deploys unchanged. The job waits for that deploy and comments "Released in vX.Y.Z" on each PR and deletes its

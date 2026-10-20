@@ -1,6 +1,6 @@
 // pnpm event-poster: sets or removes the poster of an event already in src/content/news/
 // (parish-correct-event skill), then formats the month file and runs the news tests. The poster is made from
-// the attachment with the label: rendered from its file in uploads/ (`pnpm pull-uploads` fetches a released one), or
+// the attachment with the label: rendered from its staged file (`pnpm pull-uploads` fetches a released one), or
 // only linked when its WebP is on the server already.
 //
 // Usage: pnpm event-poster <id> "<label>" | --none [--check]

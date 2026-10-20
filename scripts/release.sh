@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# `pnpm release`: publishes the site. Uploads the new files staged in uploads/ and the scripts in cron-scripts/,
+# `pnpm release`: publishes the site. Uploads the new staged files and the scripts in cron-scripts/,
 # bumps the version in package.json, commits and tags it vX.Y.Z and pushes main with the tag; GitHub Actions then
 # checks, builds and deploys out/
 # (.github/workflows/deploy.yml). With --local it deploys from this machine instead, e.g. when Actions is down: it

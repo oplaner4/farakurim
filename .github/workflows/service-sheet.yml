@@ -5,7 +5,7 @@
 # - `sheet` fetches the mail and lets Claude (claude-code-action, workload identity federation, no API key) run the
 #   service sheet skills unattended on the DOCX: it drafts, corrects and stages the weeks and writes a report. Claude's
 #   file tools may write only in $RUNNER_TEMP/sheet (the checkout is denied); only `pnpm stage sheet` writes
-#   src/content/ and uploads/. The job hands on the report, the change to src/content/ as a patch and the staged PDFs
+#   src/content/ and the staging folder. The job hands on the report, the change to src/content/ as a patch and the staged PDFs
 #   as a one-day artifact. The year's DOCX (intentions with names) never leaves this job: it is not uploaded, cached
 #   or logged, and it is deleted at the end.
 # - `publish` starts from a fresh checkout, applies the patch only if it touches nothing but src/content/*.json, then
@@ -323,7 +323,7 @@ jobs:
           app-id: ${{ vars.CONTENT_APP_ID }}
           private-key: ${{ secrets.CONTENT_APP_PRIVATE_KEY }}
 
-      # src/content/ only: the staged PDF is in uploads/, which git ignores. No hooks (the message is checked
+      # src/content/ only: the staged PDF is in the staging folder, which git ignores. No hooks (the message is checked
       # already), never a force-push: a branch moved since `sheet` rejects the push and the sheet is retried.
       - name: Commit and push
         id: commit

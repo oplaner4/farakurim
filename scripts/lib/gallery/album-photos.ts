@@ -1,5 +1,5 @@
 // The uploaded photos of a Fotogalerie album: each source photo resized to the album photo widths as WebP in
-// uploads/fotogalerie/<id>/, and the check that a name is not on the server yet (its files are never overwritten).
+// fotogalerie/<id>/, and the check that a name is not on the server yet (its files are never overwritten).
 
 import { join } from "node:path";
 import { ALBUM_PHOTO_WIDTHS, albumPhotoPath } from "@/lib/gallery/albums";
@@ -23,7 +23,7 @@ export async function stageAlbumPhotos(uploadsDir: string, id: string, sources: 
   return written;
 }
 
-/** Throws `<rel> is already on the server: <hint>` when uploads/`rel` is on the server. */
+/** Throws `<rel> is already on the server: <hint>` when `rel` is on the server. */
 export async function assertFreeOnServer(env: UploadsEnv, rel: string, hint: string) {
   if (await onServer(env, rel)) throw new Error(`${rel} is already on the server: ${hint}`);
 }

@@ -1,5 +1,5 @@
 // `pnpm preview`: serves the static export like the web host does (http://localhost:4173). out/ is the web root,
-// /uploads/… and /virtualni_prohlidka/ are answered as on the server (scripts/lib/server-files.mjs), a folder without
+// the uploaded files and /virtualni_prohlidka/ are answered as on the server (scripts/lib/server-files.mjs), a folder without
 // its trailing slash is redirected to it as Apache does, and misses get out/404.html like public/.htaccess does on
 // the host. out/ is read on every request, so a `pnpm build` shows without a restart.
 // Usage: node scripts/preview.mjs [port]

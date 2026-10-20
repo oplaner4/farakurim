@@ -1,4 +1,4 @@
-// Stages an event's files, each as uploads/aktuality/<id>-<label in ASCII>.<ext>, in the order given, and adds the
+// Stages an event's files, each as aktuality/<id>-<label in ASCII>.<ext>, in the order given, and adds the
 // event with them to its month file in src/content/news/ (addEvent()), moving the pin to it when it is pinned.
 // The first file is the poster when it is an image or PDF (unless noPoster), made by planPoster(). Without a record it
 // only checks: a file no record links would go to the server with the next release. Every file and the record are
@@ -57,10 +57,10 @@ export function withAttachment(attachments: EventAttachment[], attachment: Event
   return at === -1 ? [...attachments, attachment] : attachments.with(at, attachment);
 }
 
-/** A file checked for staging: its source, label, extension, size and staged path in uploads/. */
+/** A file checked for staging: its source, label, extension, size and staged path. */
 type PlannedFile = { src: string; label: string; ext: string; size: number; rel: string };
 
-/** The staged path in uploads/ of an event file: "aktuality/hody-2026-plakat-r2.pdf". */
+/** The staged path of an event file: "aktuality/hody-2026-plakat-r2.pdf". */
 const eventUploadPath = (name: string, ext: string) => `aktuality/${name}${ext}`;
 
 /**

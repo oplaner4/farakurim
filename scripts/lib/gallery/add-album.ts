@@ -1,7 +1,7 @@
 // Proposes the record of a Zonerama album of the parish (design/DESIGN.md §19.2) from its page and a zip of its
 // original photos: the title without Zonerama's "YYYY_MM_DD" prefix (first letter upper-cased), the date from that
 // prefix (both from the zip's name when the page cannot be read), the id (the title's slug with the year) and up to
-// MAX_PHOTOS photos of the most common aspect ratio. Stages those photos in uploads/fotogalerie/<id>/, adds the album
+// MAX_PHOTOS photos of the most common aspect ratio. Stages those photos in fotogalerie/<id>/, adds the album
 // to the gallery file, newest first, and removes the albums beyond MAX_ALBUMS. The photos come from the album's zip,
 // never one by one from Zonerama: it answers a script with a "Bot Detected" image. The album's rules are
 // albumSchema's (src/lib/gallery/schema.ts).
@@ -274,7 +274,7 @@ export async function runAlbum(
   }
 }
 
-/** Runs the command on the repo's gallery and uploads/, then formats and tests the gallery it wrote. */
+/** Runs the command on the repo's gallery and staging folder, then formats and tests the gallery it wrote. */
 export async function execute(command: Command) {
   const { output, written } = await runAlbum(command, defaultUploadsEnv(), GALLERY_FILE);
   console.log(output);

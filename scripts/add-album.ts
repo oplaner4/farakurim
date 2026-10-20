@@ -3,7 +3,7 @@
 // album), or the zip the parish gives with --photos when the download fails (Zonerama serves scripts a bot image
 // instead of a single photo, so photos are never downloaded one by one).
 // Without --write it prints the proposal as JSON to confirm with the user: the title, the date, the id, the chosen
-// aspect ratio and the photo counts. --write stages the chosen photos in uploads/fotogalerie/<id>/ (four widths each,
+// aspect ratio and the photo counts. --write stages the chosen photos in fotogalerie/<id>/ (four widths each,
 // refused when the folder is already on the server), adds the album to src/content/gallery.json, removes the oldest
 // beyond the albums the site keeps, formats the file and runs the gallery test; --check does the same without
 // writing and prints what --write would do. The title and the date come from the album page, or from the zip's name

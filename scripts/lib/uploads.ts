@@ -1,4 +1,4 @@
-// Uploaded files: uploads/ in the repo mirrors /uploads/ on the server, whose files are never overwritten, so a name
+// Uploaded files: the repo's staging folder mirrors the server's, whose files are never overwritten, so a name
 // is free only while the server lacks it.
 
 import { join } from "node:path";
@@ -16,10 +16,10 @@ export type UploadsEnv = {
   fetch: typeof fetch;
 };
 
-/** The repo's folder of the files to upload, as the scripts print it: uploads/<path> is /uploads/<path> on the site. */
+/** The repo's folder of the files to upload, as the scripts print it: <path> in it is UPLOADS_PATH<path> on the site. */
 export const UPLOADS_DIR = UPLOADS_PATH.slice(1);
 
-/** The URL of uploads/`rel` on the server. */
+/** The URL of `rel` on the server. */
 export const serverUrl = (env: Pick<UploadsEnv, "site">, rel: string) => `${env.site}${UPLOADS_PATH}${rel}`;
 
 export const defaultUploadsEnv = (): UploadsEnv => ({
@@ -28,7 +28,7 @@ export const defaultUploadsEnv = (): UploadsEnv => ({
   fetch,
 });
 
-/** Whether uploads/`rel` is on the server (a HEAD request); throws when the server cannot tell. */
+/** Whether `rel` is on the server (a HEAD request); throws when the server cannot tell. */
 export async function onServer(env: UploadsEnv, rel: string): Promise<boolean> {
   const url = serverUrl(env, rel);
   let status: number;

@@ -1,5 +1,5 @@
 // The poster of an event: made from one of the record's attachments (an image or PDF) as
-// <attachment name>-poster.webp beside it, rendered from the attachment's file in uploads/, or only linked when that
+// <attachment name>-poster.webp beside it, rendered from the attachment's staged file, or only linked when that
 // WebP is on the server already, since files there are never overwritten. The record is replaced
 // (replaceEvent()), keeping its `published`, its pin and the poster's alt text.
 
@@ -22,7 +22,7 @@ export type PosterRender = { from: string; to: string };
 
 /**
  * `record` with its poster made from its attachment `label`, and the WebP to render (none when the server has it
- * already). `source` is the file to render from, by default the attachment's file in uploads/. The poster keeps its
+ * already). `source` is the file to render from, by default the attachment's staged file. The poster keeps its
  * alt text, else it is "<label>: <title>". Throws for a missing attachment, one that is not an image or PDF, or a
  * file to render from that is missing.
  */

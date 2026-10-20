@@ -1,5 +1,5 @@
 // Staging a file for the server: where it is staged and its record added, finding the source file, and copying it to
-// uploads/ once the name is known to be free on the server (files there are never overwritten).
+// the staging folder once the name is known to be free on the server (files there are never overwritten).
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import { homedir } from "node:os";
@@ -51,7 +51,7 @@ async function checkFree(env: StageEnv, rel: string, takenHint: string) {
 }
 
 /**
- * The rev of a corrected PDF whose record has `current` (undefined for the first PDF), named uploads/`rel(rev)`:
+ * The rev of a corrected PDF whose record has `current` (undefined for the first PDF), named `rel(rev)`:
  * `current` while that file is not on the server yet (the staged one is replaced), else the next rev
  * (src/lib/shared/revision.ts).
  */
@@ -63,7 +63,7 @@ export async function correctedRev(env: StageEnv, current: number | undefined, r
 export const correctedHint = (what: string) => `${what} is already published; for a corrected PDF pass --corrected`;
 
 /**
- * Copies `src` to uploads/`rel` unless `check`, after making sure the name is free on the server. Staging the same
+ * Copies `src` to `rel` in the staging folder unless `check`, after making sure the name is free on the server. Staging the same
  * file again is allowed, and another file only with `replace` (a corrected PDF). Returns the staged path.
  */
 export async function stage(
@@ -86,5 +86,5 @@ export async function stage(
   return dest;
 }
 
-/** The line saying uploads/`rel` was (or, with `check`, would be) staged. */
+/** The line saying `rel` was (or, with `check`, would be) staged. */
 export const stagedLine = (check: boolean, rel: string) => `${actionVerb(check, "stage")} ${UPLOADS_DIR}${rel}`;

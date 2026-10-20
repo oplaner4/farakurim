@@ -1,4 +1,4 @@
-// Stages a Petrklíč PDF as uploads/petrklic/<folder>/petrklic-<id>.pdf, renders its cover and viewer pages and adds
+// Stages a Petrklíč PDF as petrklic/<folder>/petrklic-<id>.pdf, renders its cover and viewer pages and adds
 // the issue to src/content/petrklic.json (addPetrklic()). The folder is the id, or <id>-r<rev> for a corrected PDF,
 // which replaces the issue's record: files on the server are never overwritten, so a corrected PDF of a released
 // issue needs a new folder, while an unreleased one is replaced in its folder.
@@ -20,7 +20,7 @@ export type PetrklicOptions = {
   check?: boolean;
 };
 
-/** The issue's PDF in uploads/: the folder carries the rev, the file keeps the id. */
+/** The issue's staged PDF: the folder carries the rev, the file keeps the id. */
 const pdfPath = (id: string, rev?: number) => `${issuePath({ id, rev })}/${issueFiles.pdf(id)}`;
 
 /**

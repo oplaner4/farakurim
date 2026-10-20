@@ -123,7 +123,7 @@ export function useNewsFixture(months: Record<string, NewsEvent[]>) {
 }
 
 /**
- * A temp uploads/, news/, service-sheets.json, schedule-exceptions.json, petrklic.json and home for the `pnpm stage` tests, fresh for each test: `env`
+ * A temp staging folder, news/, service-sheets.json, schedule-exceptions.json, petrklic.json and home for the `pnpm stage` tests, fresh for each test: `env`
  * points there and asks a fetch stub that answers 404 (the name is free) until `status()` changes it.
  */
 export function useStageFixture() {
@@ -162,7 +162,7 @@ export function useStageFixture() {
     fetchMock,
     status,
     download,
-    /** A path in the temp uploads/. */
+    /** A path in the temp staging folder. */
     uploaded: (...rel: string[]) => join(env.uploadsDir, ...rel),
     /** A poster image in ~/Downloads/; returns its name. */
     poster: async (name = "Plakát akce.jpg", width = 1000) => {
