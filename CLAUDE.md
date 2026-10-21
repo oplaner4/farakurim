@@ -14,8 +14,7 @@ header and footer §20, nav groups in `navGroups`).
 
 - Check a library with context7 before you use it, and check
   `node_modules/next/dist/docs/01-app/02-guides/static-exports.md` before you use a Next feature.
-- `NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY` ends up in the exported JS: never commit `.env.local`, and keep the key
-  restricted to the farakurim.cz referrer.
+- Never commit `.env.local` or the secrets in it.
 - Keep the Matomo tracker (`MatomoTracker`) cookieless, and update the privacy page when the site starts loading a
   new third-party service.
 
