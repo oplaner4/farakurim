@@ -38,6 +38,7 @@ jobs:
   # Picks what to deploy: the pushed tag, or on a refresh the latest tag on main if it is due.
   release:
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     permissions:
       contents: read
       deployments: read # the last Production deploy
@@ -121,6 +122,8 @@ jobs:
   deploy:
     needs: [release, check]
     runs-on: ubuntu-24.04
+    # A hung SSH or rsync would otherwise hold the production group for GitHub's default 6 hours.
+    timeout-minutes: 20
     # One deploy at a time; a newer release waits for the running one instead of cancelling it mid-sync.
     concurrency:
       group: production

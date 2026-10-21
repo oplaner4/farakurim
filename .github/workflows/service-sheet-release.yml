@@ -58,6 +58,7 @@ jobs:
       github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'service-sheet/')
       && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     permissions:
       contents: read
       pull-requests: read # the PRs of the commits
@@ -104,6 +105,7 @@ jobs:
         with:
           app-id: ${{ vars.CONTENT_APP_ID }}
           private-key: ${{ secrets.CONTENT_APP_PRIVATE_KEY }}
+          permission-pull-requests: write # the comments only
 
       # The App token: the PR conversation is locked, and only collaborators can comment.
       - name: Report why nothing is released
@@ -141,6 +143,9 @@ jobs:
         with:
           app-id: ${{ vars.CONTENT_APP_ID }}
           private-key: ${{ secrets.CONTENT_APP_PRIVATE_KEY }}
+          # Not all of the App's permissions: pushing main and the tag, deleting the branches, the comments.
+          permission-contents: write
+          permission-pull-requests: write
 
       # With the App token persisted: release.sh fetches main and pushes it with the tag, and a push made with the
       # App's token (unlike github.token) starts deploy.yml.

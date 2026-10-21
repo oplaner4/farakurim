@@ -5,5 +5,8 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    # A release must be a week old before it is proposed, so a compromised one has time to be pulled.
+    cooldown:
+      default-days: 7
     commit-message:
       prefix: ci

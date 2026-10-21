@@ -45,6 +45,7 @@ env:
 jobs:
   sheet:
     runs-on: ubuntu-24.04
+    timeout-minutes: 75 # Claude's step has 45 of them
     environment: service-sheet-publish
     permissions:
       contents: read
@@ -142,9 +143,11 @@ jobs:
               n=$((n + 1))
             done
           fi
-          echo "pr=$pr" >> "$GITHUB_OUTPUT"
-          echo "branch=$branch" >> "$GITHUB_OUTPUT"
-          echo "base=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          {
+            echo "pr=$pr"
+            echo "branch=$branch"
+            echo "base=$(git rev-parse HEAD)"
+          } >> "$GITHUB_OUTPUT"
 
       # The prompt holds no sheet rules: they live in the skills. Claude can read files, write with its file tools in
       # $RUNNER_TEMP/sheet only (an `Edit(...)` rule covers Write too; the deny on the checkout wins over any allow, so
@@ -213,6 +216,7 @@ jobs:
     needs: sheet
     if: always()
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     environment: service-sheet-publish
     permissions:
       contents: read # the push and the PR use the App token
@@ -328,6 +332,9 @@ jobs:
         with:
           app-id: ${{ vars.CONTENT_APP_ID }}
           private-key: ${{ secrets.CONTENT_APP_PRIVATE_KEY }}
+          # Not all of the App's permissions: the push, and opening, editing and locking the PR.
+          permission-contents: write
+          permission-pull-requests: write
 
       # src/content/ only: the staged PDF is in the staging folder, which git ignores. No hooks (the message is checked
       # already), never a force-push: a branch moved since `sheet` rejects the push and the sheet is retried.
