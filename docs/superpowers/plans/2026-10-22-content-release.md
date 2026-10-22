@@ -175,9 +175,9 @@ describe("blocksRelease", () => {
 
 - [ ] **Step 2: Run** the test file. Expected: FAIL.
 
-- [ ] **Step 3: Implement** `applyArtifacts`: first walk every artifact (`readdirSync(…, { recursive: true,
-    withFileTypes: true })` or `lstat`), validate all files, then copy all (`mkdirSync` + `copyFileSync`), so a bad
-      file copies nothing. `execute` for `apply` reads the plan JSON (`readJsonRecord`) and prints each copied path.
+- [ ] **Step 3: Implement** `applyArtifacts`: first walk every artifact (a recursive `readdirSync` with file types,
+      or `lstat`), validate all files, then copy all (`mkdirSync` + `copyFileSync`), so a bad file copies nothing.
+      `execute` for `apply` reads the plan JSON (`readJsonRecord`) and prints each copied path.
 
 - [ ] **Step 4: Run** the scripts check. Expected: all pass.
 
