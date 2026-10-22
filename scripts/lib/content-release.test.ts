@@ -63,6 +63,8 @@ describe("blocksRelease", () => {
     "fix(news)!: x",
     'Revert "feat: x"',
     "no header",
+    "Feat(news): x (#12)",
+    "fix(Content): x",
   ])("blocks %s", (subject) => expect(blocksRelease(subject)).toBe(true));
 
   it.each([
@@ -496,6 +498,12 @@ describe("applyArtifacts", () => {
 
   it("fails when an artifact of the plan was not downloaded", () => {
     expect(() => apply(release(pull(11, "sheet", ["content-uploads-a1"])))).toThrow("content-uploads-a1");
+  });
+
+  it("applies a blocked plan's artifacts, for a release by hand", () => {
+    file("content-uploads-a1/porady_bohosluzeb/x.pdf");
+    const plan: ReleasePlan = { action: "blocked", reason: "x", pulls: [pull(11, "sheet", ["content-uploads-a1"])] };
+    expect(apply(plan)).toEqual(["porady_bohosluzeb/x.pdf"]);
   });
 
   it("copies nothing for a plan that releases nothing", () => {

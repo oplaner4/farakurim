@@ -171,27 +171,25 @@ Then release by hand, below (with your corrected files staged in `uploads/` for 
 of runs on this repository's `main` count, never one a fork's pull request run uploaded under the same name. A merge
 that lands while the release runs goes out with it.
 
-**Releasing by hand:** download the artifact of every commit of each PR, oldest first, then release. Until
-2026-11-22 a sheet commit may still have the former artifact `service-sheet-pdf-<sha>` (its PDFs flat):
+**Releasing by hand:** plan the release on your machine, download the artifacts the plan names and let `apply` check
+and stage them, then release. The plan takes only artifacts of runs on `main` (never a fork's of the same name), and
+`apply` the files each PR's kind may upload; it stages a blocked plan's artifacts too:
 
 ```sh
 git switch main && git pull
-pr=<PR number>
+export GH_TOKEN=$(gh auth token) GITHUB_REPOSITORY=oplaner4/farakurim
 tmp=$(mktemp -d)
-for sha in $(gh pr view "$pr" --json commits --jq '.commits[].oid'); do
-  if gh run download -n "content-uploads-$sha" -D "$tmp/$sha"; then
-    cp -R "$tmp/$sha"/. uploads/
-  elif gh run download -n "service-sheet-pdf-$sha" -D "$tmp/$sha"; then
-    cp "$tmp/$sha"/*.pdf uploads/porady_bohosluzeb/
-  else
-    echo "No artifact for $sha (a commit the workflow did not make)."
-  fi
+pnpm --silent content-release > "$tmp/plan.json"
+jq . "$tmp/plan.json"
+jq -r '.pulls[]?.artifacts[] | "\(.runId) \(.name)"' "$tmp/plan.json" | while read -r run name; do
+  gh run download "$run" -n "$name" -D "$tmp/$name"
 done
+pnpm content-release apply "$tmp/plan.json" "$tmp"
 pnpm release
 ```
 
-`gh run download -n <name>` without a run id searches the repository's runs; the names are unique, as each holds its
-commit. A commit you pushed yourself has no artifact: stage its files with the skill.
+An expired artifact is missing from the plan, and a commit you pushed yourself has none: stage their files with the
+skill before `pnpm release`.
 
 ## Server
 

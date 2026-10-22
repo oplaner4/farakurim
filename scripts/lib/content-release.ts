@@ -88,8 +88,9 @@ const HEADER = /^(\w+)(?:\(([\w-]+)\))?(!)?: \S/;
 export function blocksRelease(subject: string): boolean {
   const header = HEADER.exec(subject);
   if (!header) return true;
+  // A squash merge in GitHub's UI skips the commitlint hook, so the case is not guaranteed.
   const [, type, scope, breaking] = header;
-  return type === "feat" || scope === "content" || breaking === "!";
+  return type.toLowerCase() === "feat" || scope?.toLowerCase() === "content" || breaking === "!";
 }
 
 /** The merged content PR of this repo whose squash commit is `sha`, if any, with its kind. */
@@ -285,7 +286,8 @@ function artifactCopies(pull: ContentPull, name: string, from: string): { src: s
 
 /**
  * Copies the downloaded artifacts of a release plan (each in `<from>/<artifact name>/`) into `uploads`, PR by PR and
- * commit by commit in the plan's order, so a later file of the same path wins. Every file is checked first, and one
+ * commit by commit in the plan's order, so a later file of the same path wins. A blocked plan's artifacts are copied
+ * too, for a release by hand. Every file is checked first, and one
  * that its PR's kind may not write stops it before anything is copied. Returns the copied paths under `uploads`.
  */
 export function applyArtifacts({
@@ -297,7 +299,7 @@ export function applyArtifacts({
   from: string;
   uploads: string;
 }): string[] {
-  if (plan.action !== "release") return [];
+  if (plan.action !== "release" && plan.action !== "blocked") return [];
   const copies = plan.pulls.flatMap((pull) => pull.artifacts.flatMap(({ name }) => artifactCopies(pull, name, from)));
   for (const { src, rel } of copies) {
     const dest = join(uploads, rel);

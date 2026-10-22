@@ -215,6 +215,7 @@ jobs:
       # `apply` checks every file first and copies them in the plan's order, so a later file of the same path (a
       # correction) overwrites an earlier one.
       - name: Download the artifacts
+        id: apply
         if: steps.plan.outputs.action == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -223,7 +224,13 @@ jobs:
           jq -r '.pulls[].artifacts[] | "\(.runId) \(.name)"' "$RUNNER_TEMP/plan.json" | while read -r run name; do
             gh run download "$run" --repo "$GITHUB_REPOSITORY" -n "$name" -D "$RUNNER_TEMP/artifacts/$name"
           done
-          pnpm content-release apply "$RUNNER_TEMP/plan.json" "$RUNNER_TEMP/artifacts"
+          # A refused file is named in the failure comment.
+          if ! out=$(pnpm --silent content-release apply "$RUNNER_TEMP/plan.json" "$RUNNER_TEMP/artifacts" 2>&1); then
+            printf '%s\n' "$out"
+            echo "reason=$(tail -n 1 <<< "$out")" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+          printf '%s\n' "$out"
 
       # Uploads the staged files (and the cron scripts) first, then the version commit and the tag, pushed with main.
       - name: Release
@@ -271,7 +278,7 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
           TAG: ${{ steps.release.outputs.tag }}
-          REASON: ${{ steps.plan.outputs.reason }}
+          REASON: ${{ steps.plan.outputs.reason || steps.apply.outputs.reason }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           plan=$(cat "$RUNNER_TEMP/plan.json" 2> /dev/null || printf '%s' "$FIRST_PLAN")
