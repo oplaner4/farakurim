@@ -178,6 +178,7 @@ jobs:
             Run the service sheet skills unattended (their "Unattended run" section). The report file is
             ${{ runner.temp }}/sheet/report.md and the scratchpad is ${{ runner.temp }}/sheet.
             The previous report of this PR, if present: ${{ runner.temp }}/sheet/previous-report.md.
+            The skills hold all the run needs: don't read README.md, docs/ or design/.
 
       # What `publish` needs, never the DOCX: the report, the change to src/content/ against the branch head (new
       # files included) and the staged files that really are PDFs.
