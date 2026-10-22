@@ -21,6 +21,7 @@
     "add-exception": "tsx scripts/add-exception.ts",
     "sheet-mail": "tsx scripts/sheet-mail.ts",
     "content-release": "tsx scripts/content-release.ts",
+    "event-mail": "tsx scripts/event-mail.ts",
     "event-calendar": "tsx scripts/event-calendar.ts",
     "format": "prettier --write .",
     "preview": "node scripts/preview.mjs 4173",

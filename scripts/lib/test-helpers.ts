@@ -202,22 +202,38 @@ export const fakeDkimResolver = async (name: string, type: string): Promise<stri
 };
 
 /**
- * A plain MIME message from `from` with a base64 part per file (a name, whose content is "content of <name>", or a
- * name with its bytes), sent at `date`.
+ * A plain MIME message from `from` with `subject`, an optional plain `text` part and a base64 part per file (a name,
+ * whose content is "content of <name>", or a name with its bytes), sent at `date`.
  */
 export function mailMessage({
   from,
   files,
   headers = [],
   date = "Fri, 16 Oct 2026 08:00:00 +0000",
+  subject = "Pořad bohoslužeb",
+  text,
 }: {
   from: string;
   files: (string | { name: string; content: Buffer })[];
   headers?: string[];
   date?: string;
+  subject?: string;
+  text?: string;
 }): Buffer {
   const boundary = "sheet-boundary";
-  const parts = files.map((file) => {
+  const textPart =
+    text === undefined
+      ? []
+      : [
+          [
+            `--${boundary}`,
+            "Content-Type: text/plain; charset=utf-8",
+            "Content-Transfer-Encoding: base64",
+            "",
+            Buffer.from(text).toString("base64"),
+          ].join("\r\n"),
+        ];
+  const fileParts = files.map((file) => {
     const { name, content } =
       typeof file === "string" ? { name: file, content: Buffer.from(`content of ${file}`) } : file;
     return [
@@ -234,13 +250,14 @@ export function mailMessage({
       `From: ${from}`,
       ...headers,
       "To: web@farakurim.cz",
-      "Subject: Pořad bohoslužeb",
+      `Subject: ${subject}`,
       `Date: ${date}`,
       "Message-ID: <sheet@example.test>",
       "MIME-Version: 1.0",
       `Content-Type: multipart/mixed; boundary="${boundary}"`,
       "",
-      ...parts,
+      ...textPart,
+      ...fileParts,
       `--${boundary}--`,
       "",
     ].join("\r\n"),
