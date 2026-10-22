@@ -113,6 +113,10 @@ describe("command line", () => {
       processed: [1],
       rejected: [2, 4],
     });
+    expect(parseCommand(["known", "--out", "k.json"])).toEqual({ action: "known", out: "k.json" });
+    expect(parseCommand(["check-ids", "k.json"])).toEqual({ action: "check-ids", known: "k.json" });
+    expect(() => parseCommand(["known"])).toThrow("--out");
+    expect(() => parseCommand(["check-ids"])).toThrow("check-ids <known.json>");
     expect(() => parseCommand(["fetch"])).toThrow("--out");
     expect(() => parseCommand([])).toThrow("Usage");
   });

@@ -10,11 +10,14 @@ import { extname, join } from "node:path";
 import { format } from "date-fns";
 import type { DNSResolver } from "mailauth";
 import { simpleParser } from "mailparser";
-import { inPrague } from "@/lib/shared/prague";
+import { readEvents } from "@/content/news";
+import { inPrague, pragueDate } from "@/lib/shared/prague";
 import { slug } from "@/lib/shared/slug";
-import { parseCommandLine } from "../command";
+import { parseCommandLine, readJsonRecord } from "../command";
+import { NEWS_DIR } from "../content-files";
 import { fileMessages, imapEnv, imapMailbox, uidList, type Mailbox } from "../mail/imap";
 import { EVENT_SENDERS, judgeSender, type SenderVerdict } from "../mail/senders";
+import { addedIds, loadKnownEvents, takenIds, type KnownEvent } from "./known-events";
 
 /** The attachment types handed on, each with the extension it is written under. */
 const ATTACHMENT_TYPES: Readonly<Record<string, string>> = {
@@ -134,9 +137,13 @@ export async function fetchEventMail(
 }
 
 export type EventMailCommand =
-  { action: "fetch"; out: string } | { action: "file"; processed: number[]; rejected: number[] };
+  | { action: "fetch"; out: string }
+  | { action: "file"; processed: number[]; rejected: number[] }
+  | { action: "known"; out: string }
+  | { action: "check-ids"; known: string };
 
-const USAGE = "Usage: pnpm event-mail fetch --out <dir> | file --processed <uid,…> --rejected <uid,…>";
+const USAGE = `Usage: pnpm event-mail fetch --out <dir> | file --processed <uid,…> --rejected <uid,…>
+       pnpm event-mail known --out <known.json> | check-ids <known.json>`;
 
 export function parseCommand(args: string[]): EventMailCommand {
   const { values, positionals } = parseCommandLine(
@@ -145,9 +152,13 @@ export function parseCommand(args: string[]): EventMailCommand {
     USAGE,
   );
   const [action, ...rest] = positionals;
+  if (action === "check-ids") {
+    if (rest.length !== 1) throw new Error(`check-ids <known.json> takes one file\n${USAGE}`);
+    return { action, known: rest[0] };
+  }
   if (rest.length) throw new Error(`unexpected argument ${rest[0]}\n${USAGE}`);
-  if (action === "fetch") {
-    if (!values.out) throw new Error(`fetch needs --out\n${USAGE}`);
+  if (action === "fetch" || action === "known") {
+    if (!values.out) throw new Error(`${action} needs --out\n${USAGE}`);
     return { action, out: values.out };
   }
   if (action === "file") {
@@ -156,8 +167,28 @@ export function parseCommand(args: string[]): EventMailCommand {
   throw new Error(USAGE);
 }
 
-/** Runs `fetch` (the outcome as one JSON document on stdout) or `file`. */
+function env(name: string): string {
+  const value = process.env[name];
+  if (!value) throw new Error(`${name} is not set`);
+  return value;
+}
+
+/** Writes the known events (loadKnownEvents()) or refuses an added id an open events PR holds. */
+async function runKnownEvents(command: Extract<EventMailCommand, { action: "known" | "check-ids" }>): Promise<void> {
+  if (command.action === "known") {
+    const today = pragueDate(new Date());
+    const found = await loadKnownEvents({ repo: env("GITHUB_REPOSITORY"), token: env("GH_TOKEN"), today });
+    writeFileSync(command.out, JSON.stringify(found, null, 2));
+    console.error(`Wrote ${found.length} known event(s)`);
+    return;
+  }
+  const taken = takenIds(readJsonRecord(command.known) as KnownEvent[], addedIds(readEvents(NEWS_DIR)));
+  if (taken.length) throw new Error(`an open events PR already holds ${taken.join(", ")}: not added`);
+}
+
+/** Runs `fetch` (the outcome as one JSON document on stdout), `file`, `known` or `check-ids`. */
 export async function execute(command: EventMailCommand): Promise<void> {
+  if (command.action === "known" || command.action === "check-ids") return runKnownEvents(command);
   const mailbox = await imapMailbox(imapEnv());
   try {
     if (command.action === "fetch") {
