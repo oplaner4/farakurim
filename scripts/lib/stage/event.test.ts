@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { copyFileSync, existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";
 import { describe, expect, it } from "vitest";
@@ -78,11 +78,17 @@ describe("stageEvent", { timeout: 30_000 }, () => {
       (await sharp(readFileSync(uploaded("aktuality", "test-hody-2026-plakat-poster.webp"))).metadata()).width,
     ).toBe(POSTER_WIDTH);
 
-    // The same file again is fine, another one under the same name is not.
-    await stageOne({ source, id, label: "Plakát", check: true });
+    // The event is on the site now, so its id is taken.
+    await expect(stageOne({ source, id, label: "Plakát", check: true })).rejects.toThrow(`id ${id} is already taken`);
+    // A file staged without its record (an interrupted run): the same file again is fine, another one is not.
+    copyFileSync(
+      uploaded("aktuality", "test-hody-2026-plakat.jpg"),
+      uploaded("aktuality", "test-jine-2026-plakat.jpg"),
+    );
+    await stageOne({ source, id: "test-jine-2026", label: "Plakát", check: true });
     const other = await poster("jiny.jpg", 900);
-    await expect(stageOne({ source: other, id, label: "Plakát", check: true })).rejects.toThrow(
-      "uploads/aktuality/test-hody-2026-plakat.jpg is already staged with other content",
+    await expect(stageOne({ source: other, id: "test-jine-2026", label: "Plakát", check: true })).rejects.toThrow(
+      "uploads/aktuality/test-jine-2026-plakat.jpg is already staged with other content",
     );
   });
 
@@ -132,6 +138,16 @@ describe("stageEvent", { timeout: 30_000 }, () => {
     await expect(stageAs({ label: " " })).rejects.toThrow('the label "" has no letters or digits');
     await expect(stageAs({ source: download("a.txt", "x") })).rejects.toThrow(".txt is not a file an event links");
     await expect(stageAs({ source: download("a.mp4", "x") })).rejects.toThrow(".mp4 is not a file an event links");
+  });
+
+  it("refuses a taken id, also with check and no record, naming the event that holds it", async () => {
+    const source = await poster();
+    await expect(
+      stageOne({ source, id: "setkani-prvokomunikantu-2026", label: "Program", noPoster: true, check: true }),
+    ).rejects.toThrow(
+      'id setkani-prvokomunikantu-2026 is already taken by "Setkání prvokomunikantů s biskupem Pavlem" (2026-10-01): for another event of that title, use setkani-prvokomunikantu-<start YYYY-MM-DD> instead',
+    );
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("refuses a name the server has, and stops when it cannot tell", async () => {

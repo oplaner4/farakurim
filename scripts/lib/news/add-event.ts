@@ -19,6 +19,17 @@ export function insertRecord(list: NewsEvent[], record: NewsEvent): NewsEvent[] 
   return at === -1 ? [...list, record] : list.toSpliced(at, 0, record);
 }
 
+/**
+ * The error for a new record whose id `taken` already holds: it names that event, so the caller can tell the same
+ * event (to correct) from another one of the same title that year (it takes the start date instead of the year).
+ */
+export function takenIdError(taken: NewsEvent): Error {
+  const dated = `${taken.id.replace(/-\d{4}$/, "")}-<start YYYY-MM-DD>`;
+  return new Error(
+    `id ${taken.id} is already taken by "${taken.title}" (${taken.start}): for another event of that title, use ${dated} instead; to correct that event, use pnpm replace-event (or pnpm stage event --corrected for a file)`,
+  );
+}
+
 /** `input` checked as a new record, published `now` unless it says otherwise; a pinned one must be pinnable. */
 function parseRecord(input: unknown, now: Date): NewsEvent {
   const withDate = input !== null && typeof input === "object" ? { published: pragueDate(now), ...input } : input;
@@ -37,11 +48,8 @@ export function addEvent(newsDir: string, input: unknown, { check = false, now =
   const record = parseRecord(input, now);
   // Reads and checks every month file, so a broken one stops the script before it writes.
   const months = readMonths(newsDir);
-  if ([...months.values()].some((list) => list.some((e) => e.id === record.id))) {
-    throw new Error(
-      `id ${record.id} is already taken: to correct that event, use pnpm replace-event (or pnpm stage event --corrected for a file)`,
-    );
-  }
+  const taken = [...months.values()].flat().find((e) => e.id === record.id);
+  if (taken) throw takenIdError(taken);
   const target = monthFile(record.start);
   const created = !months.has(target);
   months.set(target, insertRecord(months.get(target) ?? [], record));

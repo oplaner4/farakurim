@@ -18,7 +18,7 @@ import { POSTER_SUFFIX, posterHref } from "@/lib/news/posters";
 import { newsEventSchema } from "@/lib/news/schema";
 import { UPLOAD_EXTENSIONS, UPLOADS_PATH } from "@/lib/shared/uploads";
 import { fileRev, revSuffix } from "@/lib/shared/revision";
-import { addEvent, targetLine } from "../news/add-event";
+import { addEvent, takenIdError, targetLine } from "../news/add-event";
 import { planPoster, POSTER_EXTENSIONS, type PosterRender } from "../news/event-poster";
 import { replaceEvent, replaceLines } from "../news/replace-event";
 import { unpinnedLines } from "../news/pin-event";
@@ -86,7 +86,8 @@ function posterIndex(
 
 /**
  * The record to put the files into: the given record or, with --corrected, the one on the site. Throws for options
- * that cannot stage: no record without --corrected or --check, a bad id, no file or a record of another id.
+ * that cannot stage: no record without --corrected or --check, a bad or (without --corrected) taken id, no file or a
+ * record of another id.
  */
 function eventInput(env: StageEnv, options: EventOptions): Record<string, unknown> | undefined {
   const { id, files, corrected, check } = options;
@@ -96,12 +97,15 @@ function eventInput(env: StageEnv, options: EventOptions): Record<string, unknow
   // Checked here too: the id names the staged files before the record is checked, and --check has no record.
   if (!newsEventSchema.shape.id.safeParse(id).success) throw new Error(`"${id}" is not an ASCII kebab-case id`);
   if (files.length === 0) throw new Error("no file to stage");
-  // A corrected file goes into the corrected record, else into the record on the site.
+  // A corrected file goes into the corrected record, else into the record on the site. A new event's id must be
+  // free: checked here too, as --check without a record never reaches addEvent().
   let input = options.record;
+  const existing = readEvents(env.newsDir).find((e) => e.id === id);
   if (corrected) {
-    const existing = readEvents(env.newsDir).find((e) => e.id === id);
     if (!existing) throw new Error(`there is no event ${id}: --corrected is for one already on the site`);
     input ??= { ...existing };
+  } else if (existing) {
+    throw takenIdError(existing);
   }
   if (input && input.id !== id) throw new Error(`the record's id ${JSON.stringify(input.id)} is not "${id}"`);
   return input;

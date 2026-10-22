@@ -24,27 +24,27 @@ from what they wrote, follow steps 3b and 5b instead of 3a and 5a.
 
 Write the text from the source, in Czech; do not invent facts. Leave out what the source does not say.
 
-| Field                  | How to fill it                                                                                                                                                                                                                                  |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`                   | ASCII kebab-case title with the start year (`hody-ceska-2026`); also the detail URL (`/aktuality/<id>/`) and the file name prefix. Another event of the same title that year: the start date instead (`kurz-vedoucich-ministrantu-2026-09-12`). |
-| `title`                | The headline, sentence case (not the poster's capitals). **Required.**                                                                                                                                                                          |
-| `start`, `end`         | ISO dates. `end` only for multi-day events. A date without a year is the next such date from today.                                                                                                                                             |
-| `startTime`            | `"18:00"` (H:MM). Omit for all-day events.                                                                                                                                                                                                      |
-| `endTime`              | `"20:30"`, when the source gives an end; only with `startTime`, and after it.                                                                                                                                                                   |
-| `place`                | `"Kuřim, kostel sv. Maří Magdalény"`, `"Kuřim, fara"`, `"Tišnov"`. **Required.** Add `mapQuery` when the place alone would not find it on Mapy.cz.                                                                                              |
-| `text`                 | 1–2 sentences for the cards. **Required.** No URLs.                                                                                                                                                                                             |
-| `lead`                 | Optional: one inviting sentence under the detail title (also the page description). Defaults to `text`.                                                                                                                                         |
-| `body`                 | Optional HTML for "O akci" (`<p>`, `<strong>`, `<ul><li>`) when the source says more than `text`: a few short paragraphs, no links (`links`).                                                                                                   |
-| `program`              | Rows `{ time, title, note? }` when the source has a programme.                                                                                                                                                                                  |
-| `links`                | `{ label, href }` for every web address and e-mail (`mailto:`) in the source, with a readable label.                                                                                                                                            |
-| `price`                | `"300 Kč"`, `"zdarma"`, when stated.                                                                                                                                                                                                            |
-| `registrationDeadline` | ISO date of "přihlášky do …".                                                                                                                                                                                                                   |
-| `sessions`             | Listed meeting dates of a series, in order from `start` to `end`: `["2026-10-11", …]`, or `{ date, startTime?, endTime?, end? }` with its own time or days.                                                                                     |
-| `longTerm`             | `{ weeklyAt: "18:30" }` for a weekly series (weekday of `start`), `true` for other long-running events.                                                                                                                                         |
-| `highlights`           | Only for real key facts or numbers (anniversaries); usually omit.                                                                                                                                                                               |
-| `tags`                 | Free tags when nothing above fits: `[{ label: "Pro rodiny", color? }]` (`"orange"`, `"magenta"`, `"grey"`; blue). Never "Zrušeno": `change`.                                                                                                    |
-| `pinned`               | `true` only when the user asks for "Doporučujeme". The script moves the pin: it unpins the event pinned before and names it.                                                                                                                    |
-| `published`            | Leave out: the script sets today's date in Prague (the shared link's publication date). Keep it when editing a record later.                                                                                                                    |
+| Field                  | How to fill it                                                                                                                                              |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                   | ASCII kebab-case title and start year (`hody-ceska-2026`): the URL `/aktuality/<id>/` and the files' prefix.                                                |
+| `title`                | The headline, sentence case (not the poster's capitals). **Required.**                                                                                      |
+| `start`, `end`         | ISO dates. `end` only for multi-day events. A date without a year is the next such date from today.                                                         |
+| `startTime`            | `"18:00"` (H:MM). Omit for all-day events.                                                                                                                  |
+| `endTime`              | `"20:30"`, when the source gives an end; only with `startTime`, and after it.                                                                               |
+| `place`                | `"Kuřim, kostel sv. Maří Magdalény"`, `"Kuřim, fara"`, `"Tišnov"`. **Required.** Add `mapQuery` when the place alone would not find it on Mapy.cz.          |
+| `text`                 | 1–2 sentences for the cards. **Required.** No URLs.                                                                                                         |
+| `lead`                 | Optional: one inviting sentence under the detail title (also the page description). Defaults to `text`.                                                     |
+| `body`                 | Optional HTML for "O akci" (`<p>`, `<strong>`, `<ul><li>`) when the source says more than `text`: a few short paragraphs, no links (`links`).               |
+| `program`              | Rows `{ time, title, note? }` when the source has a programme.                                                                                              |
+| `links`                | `{ label, href }` for every web address and e-mail (`mailto:`) in the source, with a readable label.                                                        |
+| `price`                | `"300 Kč"`, `"zdarma"`, when stated.                                                                                                                        |
+| `registrationDeadline` | ISO date of "přihlášky do …".                                                                                                                               |
+| `sessions`             | Listed meeting dates of a series, in order from `start` to `end`: `["2026-10-11", …]`, or `{ date, startTime?, endTime?, end? }` with its own time or days. |
+| `longTerm`             | `{ weeklyAt: "18:30" }` for a weekly series (weekday of `start`), `true` for other long-running events.                                                     |
+| `highlights`           | Only for real key facts or numbers (anniversaries); usually omit.                                                                                           |
+| `tags`                 | Free tags when nothing above fits: `[{ label: "Pro rodiny", color? }]` (`"orange"`, `"magenta"`, `"grey"`; blue). Never "Zrušeno": `change`.                |
+| `pinned`               | `true` only when the user asks for "Doporučujeme". The script moves the pin: it unpins the event pinned before and names it.                                |
+| `published`            | Leave out: the script sets today's date in Prague (the shared link's publication date). Keep it when editing a record later.                                |
 
 ## 3a. Pick the labels and the order (only with files)
 
@@ -63,7 +63,7 @@ Each file is attached under a label, shown on the page as written (with its acce
 The files are attached in the order you list them, and the first one is the one "Doporučujeme" and the archive
 show. Only the first file can be the poster: list the poster first. It becomes the poster when it is an image or
 PDF, unless you pass `--no-poster`: pass it when the first file has a "no" label or is another text-only document
-(an MP3 never becomes one; it refuses any file but a PDF, PNG, JPG, WebP or MP3). Check the names before confirming (it refuses a taken name, a bad id, a label
+(an MP3 never becomes one; it refuses any file but a PDF, PNG, JPG, WebP or MP3). Check the names before confirming (it refuses a taken name, a bad or taken id, a label
 without letters or digits and two labels giving the same file name):
 
 ```sh
@@ -156,7 +156,7 @@ a report file); a local run follows steps 1 to 6 as written. An unattended run f
   refused, the others go ahead.
 - **Refuse duplicates.** Compare each event with the known-events file (`where`: `main` or an open PR's number): the
   same event under any title (same date, time and place, or the same poster) is refused. An uncertain match is a
-  blocking question, not a refusal. A different event whose id is taken gets the date id (step 2).
+  blocking question, not a refusal. A different event whose id is taken gets the date id the check gives.
 - It never asks and never waits: every "confirm with the user" or "ask the user" step writes into the report
   instead. The scratchpad is the prompt's (`record.json`; write nothing in the repo); the files are staged in
   `uploads/` as usual (step 5a or 5b, one event after another).
