@@ -2,12 +2,13 @@
 // workflow (only that workflow runs it). It reads the commits since the last release tag and, from the GitHub API,
 // their PRs and the artifacts of the PRs' commits, and prints the plan as one JSON document on stdout: `skip` when no
 // unreleased commit is a content PR's squash commit, `none` when everything is released, `blocked` with the reason
-// (main has a feat or content commit that only a release by hand may publish, an artifact expired, or a commit pushed
-// by hand has none), or `release` with the PRs in merge order and the artifacts to apply.
+// (main has a feat or content commit that only a release by hand may publish, or an artifact expired), or `release`
+// with the PRs in merge order and the artifacts to apply.
 //
 // With `apply`, it copies the artifacts of a plan, downloaded each into `<dir>/<artifact name>/`, into uploads/ for
 // `pnpm release` to upload: every file is checked first (only under its PR's kind's folder, a type the site links, no
-// symlink), so one wrong file copies nothing.
+// symlink), so one wrong file copies nothing. Then every uploaded-file link the PRs add must be staged, or it fails
+// naming the link: a commit pushed by hand may link a file staged only on that machine.
 //
 // Usage: pnpm --silent content-release
 //        pnpm content-release apply <plan.json> <dir>

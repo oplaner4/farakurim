@@ -18,7 +18,7 @@ const artifact = (sha: string, runId: number, { expired = false, trusted = true,
   trusted,
 });
 
-/** The PRs' commits as shas; a sha starting with `m` is the maintainer's, the others the App's bot's. */
+/** The PRs' commits as shas. */
 function fakeGitHub(
   pulls: Record<string, CommitPull[]>,
   commits: Record<number, string[]>,
@@ -26,7 +26,7 @@ function fakeGitHub(
 ): GitHubReader {
   return {
     pullsOfCommit: async (sha) => pulls[sha] ?? [],
-    commitsOfPull: async (number) => (commits[number] ?? []).map((sha) => ({ sha, bot: !sha.startsWith("m") })),
+    commitsOfPull: async (number) => (commits[number] ?? []).map((sha) => ({ sha })),
     artifactsNamed: async (name) => artifacts.filter((a) => a.name === name),
   };
 }
@@ -161,13 +161,10 @@ describe("planRelease", () => {
     expect(plan).toMatchObject({ action: "release", pulls: [{ artifacts: [{ runId: 101 }] }] });
   });
 
-  it("blocks on a commit pushed by hand without an artifact", async () => {
+  it("releases a PR with a commit pushed by hand", async () => {
     const github = fakeGitHub(twoPulls, { 11: ["a1", "m1b2c3d4e5"] }, [artifact("a1", 101)]);
     const plan = await planRelease({ repo, commits: [commit("a")], github });
-    expect(plan).toMatchObject({ action: "blocked", pulls: [{ number: 11 }] });
-    if (plan.action !== "blocked") return;
-    expect(plan.reason).toContain("m1b2c3d");
-    expect(plan.reason).toContain("#11");
+    expect(plan).toMatchObject({ action: "release", pulls: [{ number: 11, sha: "a", artifacts: [{ runId: 101 }] }] });
   });
 
   it("treats a bot commit with only a fork's artifact as having none", async () => {
@@ -191,8 +188,14 @@ describe("planRelease", () => {
     expect(plan).toMatchObject({
       action: "release",
       pulls: [
-        { number: 11, kind: "sheet", page: "/porad_bohosluzeb/", artifacts: [{ name: "content-uploads-a1" }] },
-        { number: 12, kind: "events", page: "/aktuality/", artifacts: [{ name: "content-uploads-b1" }] },
+        {
+          number: 11,
+          sha: "a",
+          kind: "sheet",
+          page: "/porad_bohosluzeb/",
+          artifacts: [{ name: "content-uploads-a1" }],
+        },
+        { number: 12, sha: "b", kind: "events", page: "/aktuality/", artifacts: [{ name: "content-uploads-b1" }] },
       ],
     });
   });
@@ -248,7 +251,10 @@ describe("planRelease", () => {
     expect(byBot.action).toBe("release");
     if (byBot.action === "release") expect(byBot.pulls[0].artifacts).toEqual([]);
     const hand = fakeGitHub(pulls, { 12: ["m1"] }, [artifact("m1", 201, { legacy: true })]);
-    expect((await planRelease({ repo, commits: [commit("b")], github: hand })).action).toBe("blocked");
+    expect(await planRelease({ repo, commits: [commit("b")], github: hand })).toMatchObject({
+      action: "release",
+      pulls: [{ artifacts: [] }],
+    });
   });
 
   it("treats a PR from another prefix as an ordinary commit", async () => {

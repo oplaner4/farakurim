@@ -1,7 +1,9 @@
 import { execFileSync } from "node:child_process";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { freshTempDir } from "../test-helpers";
-import { gitHubReader, unreleasedCommits, type CommitPull } from "./sources";
+import { gitHubReader, newUploadLinks, unreleasedCommits, type CommitPull } from "./sources";
 
 const repo = "oplaner4/farakurim";
 
@@ -59,9 +61,9 @@ describe("gitHubReader", () => {
       { sha: "c3", author: null },
     ]);
     expect(await gitHubReader(repo, "t0k", commits.fetchImpl).commitsOfPull(7)).toEqual([
-      { sha: "c1", bot: true },
-      { sha: "c2", bot: false },
-      { sha: "c3", bot: false },
+      { sha: "c1" },
+      { sha: "c2" },
+      { sha: "c3" },
     ]);
     expect(commits.calls[0].url).toBe(`https://api.github.com/repos/${repo}/pulls/7/commits?per_page=100`);
   });
@@ -122,5 +124,48 @@ describe("unreleasedCommits", () => {
       ["chore: one", false],
       ["ci: two", false],
     ]);
+  });
+});
+
+describe("newUploadLinks", () => {
+  const dir = freshTempDir("content-release-links");
+  const git = (...args: string[]) =>
+    execFileSync("git", ["-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false", ...args], {
+      cwd: dir(),
+      encoding: "utf8",
+      stdio: "pipe",
+    }).trim();
+  function month(file: string, links: string[]) {
+    const path = join(dir(), "src/content/news", file);
+    mkdirSync(join(path, ".."), { recursive: true });
+    writeFileSync(
+      path,
+      JSON.stringify(
+        links.map((file) => ({ poster: { src: file } })),
+        null,
+        2,
+      ),
+    );
+  }
+  const commitAll = (subject: string) => {
+    git("add", "-A");
+    git("commit", "--allow-empty", "--no-verify", "-q", "-m", subject);
+    return git("rev-parse", "HEAD");
+  };
+
+  it("lists the links a commit adds to src/content", () => {
+    git("init", "-q");
+    month("2026/11.json", ["/uploads/aktuality/a.pdf"]);
+    commitAll("feat(content): add a");
+    rmSync(join(dir(), "src/content/news/2026/11.json"));
+    month("2026/12.json", ["/uploads/aktuality/a.pdf", "/uploads/aktuality/b-plakat.webp"]);
+    const sha = commitAll("feat(content): add b and move a");
+    expect(newUploadLinks(sha, dir())).toEqual(["/uploads/aktuality/b-plakat.webp"]);
+  });
+
+  it("lists nothing for a commit without links", () => {
+    git("init", "-q");
+    commitAll("chore: one");
+    expect(newUploadLinks(commitAll("chore: two"), dir())).toEqual([]);
   });
 });

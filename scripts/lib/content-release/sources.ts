@@ -1,7 +1,9 @@
-// What a content release is planned from: the commits since the last release tag (git) and, from the GitHub REST API,
-// the PRs of a commit, the commits of a PR and the artifacts of a name.
+// What a content release is planned from: the commits since the last release tag and the uploaded-file links a commit
+// adds to the content (git) and, from the GitHub REST API, the PRs of a commit, the commits of a PR and the artifacts
+// of a name.
 
 import { execFileSync } from "node:child_process";
+import { UPLOAD_EXTENSIONS, UPLOADS_PATH } from "@/lib/shared/uploads";
 
 /** `merge` when the commit has more than one parent. */
 export type UnreleasedCommit = { sha: string; subject: string; merge: boolean };
@@ -24,8 +26,8 @@ export type Artifact = {
   trusted: boolean;
 };
 
-/** A commit of a PR; `bot` when a GitHub App's bot authored it (a content workflow), not a person. */
-export type PullCommit = { sha: string; bot: boolean };
+/** A commit of a PR. */
+export type PullCommit = { sha: string };
 
 export type GitHubReader = {
   pullsOfCommit(sha: string): Promise<CommitPull[]>;
@@ -69,9 +71,7 @@ export function gitHubReader(repo: string, token: string, fetchImpl: typeof fetc
         mergeSha: pull.merge_commit_sha,
       })),
     commitsOfPull: async (number) =>
-      (await get<{ sha: string; author: { type: string } | null }[]>(`/pulls/${number}/commits?per_page=100`)).map(
-        (commit) => ({ sha: commit.sha, bot: commit.author?.type === "Bot" }),
-      ),
+      (await get<{ sha: string }[]>(`/pulls/${number}/commits?per_page=100`)).map((commit) => ({ sha: commit.sha })),
     artifactsNamed: async (name) =>
       (
         await get<{ artifacts: ApiArtifact[] }>(`/actions/artifacts?name=${encodeURIComponent(name)}&per_page=100`)
@@ -100,4 +100,37 @@ export function unreleasedCommits(cwd = process.cwd()): UnreleasedCommit[] {
       const [sha, parents, ...subject] = line.split("\t");
       return { sha, subject: subject.join("\t"), merge: parents.split(" ").length > 1 };
     });
+}
+
+/** A link to an uploaded file in the content, as `git grep -E` matches it: "/uploads/aktuality/x-plakat.pdf". */
+const UPLOAD_LINK = `${UPLOADS_PATH}[A-Za-z0-9._/%-]+\\.(${UPLOAD_EXTENSIONS.map((e) => e.slice(1)).join("|")})`;
+
+/** The uploaded-file links in src/content at `rev` of the repo in `cwd`. */
+export function uploadLinksAt(rev: string, cwd = process.cwd()): Set<string> {
+  let out = "";
+  try {
+    out = execFileSync("git", ["grep", "-ohE", UPLOAD_LINK, rev, "--", "src/content"], {
+      cwd,
+      encoding: "utf8",
+      stdio: "pipe",
+    });
+  } catch (error) {
+    // git grep exits 1 when nothing matches.
+    if ((error as { status?: number }).status !== 1) throw error;
+  }
+  return new Set(
+    out
+      .split("\n")
+      .filter(Boolean)
+      .map((line) => line.slice(line.indexOf(UPLOADS_PATH))),
+  );
+}
+
+/**
+ * The uploaded-file links the commit `sha` adds to src/content, sorted: in the whole content at `sha` and not at its
+ * parent, so a link moved or reused from another record is not new.
+ */
+export function newUploadLinks(sha: string, cwd = process.cwd()): string[] {
+  const before = uploadLinksAt(`${sha}^`, cwd);
+  return [...uploadLinksAt(sha, cwd)].filter((link) => !before.has(link)).sort();
 }

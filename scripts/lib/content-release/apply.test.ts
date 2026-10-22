@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readFileSync, symlinkSync, writeFileSync } from 
 import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { freshTempDir } from "../test-helpers";
-import { applyArtifacts } from "./apply";
+import { applyArtifacts, missingLinks } from "./apply";
 import type { ContentPull, ReleasePlan } from "./plan";
 
 describe("applyArtifacts", () => {
@@ -18,6 +18,7 @@ describe("applyArtifacts", () => {
 
   const pull = (number: number, kind: ContentPull["kind"], names: string[]): ContentPull => ({
     number,
+    sha: `s${number}`,
     kind,
     branch: kind === "sheet" ? "service-sheet/x" : "events/x",
     page: "/",
@@ -116,5 +117,28 @@ describe("applyArtifacts", () => {
 
   it("copies nothing for a plan that releases nothing", () => {
     expect(apply({ action: "none", reason: "x" })).toEqual([]);
+  });
+});
+
+describe("missingLinks", () => {
+  const pull = (number: number, sha: string): ContentPull => ({
+    number,
+    sha,
+    kind: "events",
+    branch: "events/x",
+    page: "/aktuality/",
+    mergedAt: "2026-10-22T10:00:00Z",
+    artifacts: [],
+  });
+
+  it("names each link no artifact holds", () => {
+    const links: Record<string, string[]> = {
+      s1: ["/uploads/aktuality/x.pdf"],
+      s2: ["/uploads/aktuality/y-r2.pdf"],
+    };
+    const staged = (rel: string) => rel === "aktuality/x.pdf";
+    expect(missingLinks([pull(11, "s1"), pull(12, "s2")], staged, (sha) => links[sha])).toEqual([
+      "PR #12 links /uploads/aktuality/y-r2.pdf, which no artifact holds: stage it and release with pnpm release by hand",
+    ]);
   });
 });

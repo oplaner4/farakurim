@@ -163,9 +163,15 @@ comments why when:
 
 - `main` has such a commit;
 - an artifact expired (they stay 30 days);
-- a commit you pushed to a PR's branch yourself has no artifact: its files may exist only on your machine, even under
-  the name of a file an artifact holds (a correction keeps its rev until it is on the server);
+- a PR links an uploaded file no artifact holds: a commit you pushed to its branch yourself links a file staged only
+  on your machine;
 - a step failed: the comment links the run.
+
+A commit you push to a PR's branch yourself (a text fix, a conflict resolved in GitHub's editor) goes out with the
+PR: the release checks the uploaded-file links the PR adds, in the whole of `src/content/` before and after its squash
+commit, against the files the artifacts staged. One limit: a file you stage again by hand under the **same** name an
+artifact holds (the same unreleased poster corrected twice) goes out in the artifact's version; fix the text, or close
+the PR and send the mail again.
 
 Then release by hand, below (with your corrected files staged in `uploads/` for a commit of your own). Only artifacts
 of runs on this repository's `main` count, never one a fork's pull request run uploaded under the same name. A merge
@@ -189,7 +195,7 @@ pnpm release
 ```
 
 An expired artifact is missing from the plan, and a commit you pushed yourself has none: stage their files with the
-skill before `pnpm release`.
+skill before `apply`, which checks that every file the PRs link is staged.
 
 ## Server
 

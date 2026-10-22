@@ -3,7 +3,7 @@
 
 import { copyFileSync, lstatSync, mkdirSync, readdirSync } from "node:fs";
 import { dirname, extname, join } from "node:path";
-import { UPLOAD_EXTENSIONS } from "@/lib/shared/uploads";
+import { UPLOAD_EXTENSIONS, UPLOADS_PATH } from "@/lib/shared/uploads";
 import { KINDS, type ContentPull, type ReleasePlan } from "./plan";
 
 /** An artifact's name as the plan gives it: one of the two names above, nothing that could be a path. */
@@ -62,4 +62,24 @@ export function applyArtifacts({
     copyFileSync(src, dest);
   }
   return copies.map((copy) => copy.rel);
+}
+
+/**
+ * One message per uploaded-file link a PR adds (`linksOf` its squash commit) whose file is not staged (`staged`, a
+ * path under the staging folder: copied from an artifact, or staged by hand for a release by hand), so nothing in the
+ * release links a file that may exist only on the machine of whoever pushed a commit by hand.
+ */
+export function missingLinks(
+  pulls: ContentPull[],
+  staged: (rel: string) => boolean,
+  linksOf: (sha: string) => string[],
+): string[] {
+  return pulls.flatMap((pull) =>
+    linksOf(pull.sha)
+      .filter((link) => !staged(link.slice(UPLOADS_PATH.length)))
+      .map(
+        (link) =>
+          `PR #${pull.number} links ${link}, which no artifact holds: stage it and release with pnpm release by hand`,
+      ),
+  );
 }
