@@ -10,15 +10,17 @@
 #   a comment on the content PRs, releasing nothing, when main holds a commit only a release by hand may publish (a
 #   feat, the content scope, a breaking change or a header that does not parse: the maintainer's own content may have
 #   staged files only on their machine, and a feature goes live when they release it; other commits and merge commits
-#   go out with the PRs) or when an artifact expired: then the maintainer releases by hand (docs/deployment.md).
+#   go out with the PRs), when an artifact expired, or when a commit of a sheet PR was pushed by hand and has no
+#   artifact (a sheet record links no file, so its PDF may exist only on that machine): then the maintainer releases
+#   by hand (docs/deployment.md).
 #   Only artifacts of runs on this repo's main count: a fork's pull request run can upload an artifact under any name.
 # - `release` (environment Production: the SSH key) plans again on the main it checked out, so a merge that landed
 #   meanwhile goes out too (or stops it with the reason). It downloads the artifacts of every commit of those PRs and
 #   `pnpm content-release apply` copies them into the staging folder, after checking that each file lies in its PR's
 #   kind's folder: each content workflow run hands on only the files it staged, and the PRs in merge order, their
 #   commits oldest first, let the newest file of a path win. It then checks that every uploaded-file link a PR adds is
-#   staged, so a commit the maintainer pushed by hand (a text fix, a resolved conflict) goes out, but one that links a
-#   file staged only on their machine stops the release before anything is uploaded or tagged. Then `pnpm release --yes` uploads them, bumps the version,
+#   staged, so a commit the maintainer pushed by hand to an events PR (a text fix, a resolved conflict) goes out, but
+#   one that links a file staged only on their machine stops the release before anything is uploaded or tagged. Then `pnpm release --yes` uploads them, bumps the version,
 #   tags and pushes main with the App token, so the tag starts deploy.yml, which checks, builds and deploys unchanged.
 #   The job waits for that deploy and comments "Released in vX.Y.Z" on each PR and deletes its branch, or comments the
 #   failure. A failed release is fixed in a new commit; never move a tag.

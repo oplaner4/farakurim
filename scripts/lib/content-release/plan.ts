@@ -1,7 +1,7 @@
 // Plans the release of merged content PRs (service sheets, events): from the commits since the last release tag and
 // the GitHub API it decides whether to skip (no unreleased commit is a content PR's squash commit), do nothing
-// (released already), stop (main holds a commit only a release by hand may publish, or an artifact expired) or
-// release the PRs, each with the artifacts of its commits in the order to apply
+// (released already), stop (main holds a commit only a release by hand may publish, an artifact expired, or a sheet
+// PR's commit pushed by hand has none) or release the PRs, each with the artifacts of its commits in the order to apply
 // them, so the newest file of a path wins.
 // Only an artifact of a run on this repo's main counts: a fork's pull request run can upload one under any name.
 
@@ -73,22 +73,28 @@ export function contentPullOf(
   return undefined;
 }
 
-/** The artifacts of a content PR's commits, oldest first, and the commits whose artifact expired. */
+/**
+ * The artifacts of a content PR's commits, oldest first, and the commits that stop the release: an expired artifact,
+ * or a sheet PR's commit pushed by hand without one.
+ */
 async function artifactsOfPull(pull: { number: number; kind: Kind }, github: GitHubReader) {
   const artifacts: ContentPull["artifacts"] = [];
   const expired: string[] = [];
-  for (const { sha } of await github.commitsOfPull(pull.number)) {
+  const byHand: string[] = [];
+  for (const { sha, bot } of await github.commitsOfPull(pull.number)) {
     const names = [uploadsArtifactName(sha), ...(pull.kind === "sheet" ? [legacySheetArtifactName(sha)] : [])];
     const found = (await Promise.all(names.map((name) => github.artifactsNamed(name))))
       .flat()
       .filter((artifact) => artifact.trusted);
     const live = found.filter((artifact) => !artifact.expired).sort((a, b) => b.runId - a.runId)[0];
     if (live) artifacts.push({ name: live.name, runId: live.runId });
-    // A commit without an artifact staged nothing, or was pushed by hand: the release checks that every file the PR
-    // links is in an artifact (missingLinks()).
     else if (found.length) expired.push(`${short(sha)} (PR #${pull.number})`);
+    // A commit without an artifact staged nothing, or was pushed by hand. An events record links its files, so the
+    // release checks them (missingLinks()); a sheet record links none (its PDF's name comes from the code), so a sheet
+    // commit pushed by hand may need a PDF staged only on that machine.
+    else if (!bot && pull.kind === "sheet") byHand.push(`${short(sha)} (PR #${pull.number})`);
   }
-  return { artifacts, expired };
+  return { artifacts, expired, byHand };
 }
 
 /**
@@ -120,9 +126,11 @@ export async function planRelease({
 
   const pulls: ContentPull[] = [];
   const expired: string[] = [];
+  const byHand: string[] = [];
   for (const pull of contentPulls) {
     const found = await artifactsOfPull(pull, github);
     expired.push(...found.expired);
+    byHand.push(...found.byHand);
     const { number, kind, branch, mergedAt, mergeSha } = pull;
     const page = KINDS[kind].page;
     pulls.push({ number, sha: mergeSha!, kind, branch, page, mergedAt: mergedAt!, artifacts: found.artifacts });
@@ -134,6 +142,10 @@ export async function planRelease({
   }
   if (expired.length) {
     const reason = `The artifact of ${expired.join(", ")} expired: stage its files and release by hand`;
+    return { action: "blocked", reason, pulls };
+  }
+  if (byHand.length) {
+    const reason = `${byHand.join(", ")} was pushed by hand and has no artifact: stage its PDF and release by hand`;
     return { action: "blocked", reason, pulls };
   }
   return { action: "release", pulls };

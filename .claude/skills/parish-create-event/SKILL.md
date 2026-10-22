@@ -176,7 +176,8 @@ commit: <message>
 and the squash commit on `main`: `feat(content): add the <title> event` for one event created,
 `feat(content): add <n> events` for several.
 
-Then, per event, in the mail's order:
+Then, per event, in the mail's order (a mail with no event in it, such as a thank-you with a logo, has no event
+section: the workflow refuses it):
 
 - `## <title>` (as published);
 - one line `Outcome: created` or `Outcome: refused: <reason>` (a correction: `refused: a correction of <id>; make it

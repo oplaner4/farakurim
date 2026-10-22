@@ -171,6 +171,10 @@ mail, a new provider: their address is named), or on a technical failure (the ma
 A PR, a draft with a question, or a PR with some events refused (listed in it) leaves the run green: the PR tells
 you. Nothing is sent to the senders.
 
+**A mail that fails every run:** the workflow always takes the oldest unread event mail, so a mail that fails for a
+reason that does not go away (an id an open PR holds, a `main` that does not build) fails each run and the mails
+after it wait. Fix the cause, or move that mail to `Odmítnuto` (or `Zpracováno`) in the mailbox by hand.
+
 **Answering the PR:** as for sheets, a squash merge publishes through the [content release](#content-release), close
 means no. Fix an event with a commit to the PR's branch (the release goes ahead when it links no new file), or with
 the local skills. Two events PRs that add events at the same place in a month conflict once one is merged: resolve
@@ -224,10 +228,12 @@ comments why when:
 - an artifact expired (they stay 30 days);
 - a PR links an uploaded file no artifact holds: a commit you pushed to its branch yourself links a file staged only
   on your machine;
+- a commit you pushed to a sheet PR's branch yourself has no artifact: a sheet record links no file (the code names
+  its PDF), so its PDF may exist only on your machine;
 - a step failed: the comment links the run.
 
-A commit you push to a PR's branch yourself (a text fix, a conflict resolved in GitHub's editor) goes out with the
-PR: the release checks the uploaded-file links the PR adds, in the whole of `src/content/` before and after its squash
+A commit you push to an events PR's branch yourself (a text fix, a conflict resolved in GitHub's editor) goes out
+with the PR: the release checks the uploaded-file links the PR adds, in the whole of `src/content/` before and after its squash
 commit, against the files the artifacts staged. One limit: a file you stage again by hand under the **same** name an
 artifact holds (the same unreleased poster corrected twice) goes out in the artifact's version; fix the text, or close
 the PR and send the mail again.

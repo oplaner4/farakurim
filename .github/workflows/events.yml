@@ -275,6 +275,11 @@ jobs:
             /^Outcome: / { n++ }
             END { done() }' <<< "$normalized")
           outcomes=$(grep '^Outcome: ' <<< "$normalized" || true)
+          # A mail Claude found no event in (a thank-you with a logo) is refused, not retried.
+          if [ -s "$report" ] && [ -z "$events" ] && [ ! -s "$patch" ] && [[ "$first" =~ ^blocking:\ (yes|no)$ ]]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           if [ ! -s "$report" ] || [ -z "$events" ] || grep -qv $'^1\t' <<< "$events" \
             || grep -qvE '^Outcome: (created$|refused: )' <<< "$outcomes"; then
             echo "::error::The report does not give each event exactly one Outcome line: the mail stays unread."
@@ -376,8 +381,10 @@ jobs:
           if [ "$DRAFT" != false ]; then draft=(--draft); fi
           url=$(gh pr create --base main --head "$BRANCH" --title "$MESSAGE" --body-file "$RUNNER_TEMP/run/pr-body.md" \
             "${draft[@]}")
-          gh api -X PUT "repos/$GITHUB_REPOSITORY/issues/${url##*/}/lock" -f lock_reason=resolved
           echo "url=$url" >> "$GITHUB_OUTPUT"
+          # The PR exists: a failed lock must not leave the mail unread (the next run would refuse it as a duplicate).
+          gh api -X PUT "repos/$GITHUB_REPOSITORY/issues/${url##*/}/lock" -f lock_reason=resolved > /dev/null \
+            || echo "::warning::The PR is open but not locked: lock its conversation by hand."
 
       # Only once the outcome is done (PR opened, or the mail refused) and only when `event` succeeded; otherwise the
       # event mail stays unseen for the next run. The rejected mail is filed whenever `event` handed on its outcome.
@@ -453,7 +460,7 @@ jobs:
               elif [ "$APPLY" != success ]; then
                 echo "The change or the report was not accepted (see the log): the mail stays unread for the next run."
               elif [ "$CHANGED" = false ]; then
-                echo "Nothing new in the mail: refused, no PR."
+                echo "Nothing new in the mail (every event refused, or no event in it): refused, no PR."
                 refused=true
               elif [ "$PR_OUTCOME" = success ]; then
                 echo "PR opened: $PR_URL"

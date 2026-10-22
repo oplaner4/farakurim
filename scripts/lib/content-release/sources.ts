@@ -26,8 +26,8 @@ export type Artifact = {
   trusted: boolean;
 };
 
-/** A commit of a PR. */
-export type PullCommit = { sha: string };
+/** A commit of a PR; `bot` when a GitHub App's bot authored it (a content workflow), not a person. */
+export type PullCommit = { sha: string; bot: boolean };
 
 export type GitHubReader = {
   pullsOfCommit(sha: string): Promise<CommitPull[]>;
@@ -71,7 +71,9 @@ export function gitHubReader(repo: string, token: string, fetchImpl: typeof fetc
         mergeSha: pull.merge_commit_sha,
       })),
     commitsOfPull: async (number) =>
-      (await get<{ sha: string }[]>(`/pulls/${number}/commits?per_page=100`)).map((commit) => ({ sha: commit.sha })),
+      (await get<{ sha: string; author: { type: string } | null }[]>(`/pulls/${number}/commits?per_page=100`)).map(
+        (commit) => ({ sha: commit.sha, bot: commit.author?.type === "Bot" }),
+      ),
     artifactsNamed: async (name) =>
       (
         await get<{ artifacts: ApiArtifact[] }>(`/actions/artifacts?name=${encodeURIComponent(name)}&per_page=100`)

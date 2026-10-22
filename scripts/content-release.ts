@@ -2,8 +2,8 @@
 // workflow (only that workflow runs it). It reads the commits since the last release tag and, from the GitHub API,
 // their PRs and the artifacts of the PRs' commits, and prints the plan as one JSON document on stdout: `skip` when no
 // unreleased commit is a content PR's squash commit, `none` when everything is released, `blocked` with the reason
-// (main has a feat or content commit that only a release by hand may publish, or an artifact expired), or `release`
-// with the PRs in merge order and the artifacts to apply.
+// (main has a feat or content commit that only a release by hand may publish, an artifact expired, or a sheet PR's
+// commit pushed by hand has none), or `release` with the PRs in merge order and the artifacts to apply.
 //
 // With `apply`, it copies the artifacts of a plan, downloaded each into `<dir>/<artifact name>/`, into uploads/ for
 // `pnpm release` to upload: every file is checked first (only under its PR's kind's folder, a type the site links, no

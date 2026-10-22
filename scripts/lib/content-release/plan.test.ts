@@ -18,7 +18,7 @@ const artifact = (sha: string, runId: number, { expired = false, trusted = true,
   trusted,
 });
 
-/** The PRs' commits as shas. */
+/** The PRs' commits as shas; a sha starting with `m` is the maintainer's, the others the App's bot's. */
 function fakeGitHub(
   pulls: Record<string, CommitPull[]>,
   commits: Record<number, string[]>,
@@ -26,7 +26,7 @@ function fakeGitHub(
 ): GitHubReader {
   return {
     pullsOfCommit: async (sha) => pulls[sha] ?? [],
-    commitsOfPull: async (number) => (commits[number] ?? []).map((sha) => ({ sha })),
+    commitsOfPull: async (number) => (commits[number] ?? []).map((sha) => ({ sha, bot: !sha.startsWith("m") })),
     artifactsNamed: async (name) => artifacts.filter((a) => a.name === name),
   };
 }
@@ -161,10 +161,21 @@ describe("planRelease", () => {
     expect(plan).toMatchObject({ action: "release", pulls: [{ artifacts: [{ runId: 101 }] }] });
   });
 
-  it("releases a PR with a commit pushed by hand", async () => {
+  it("blocks a sheet PR with a commit pushed by hand without an artifact", async () => {
+    // A sheet record links no file: its PDF's name comes from the code, so the link check cannot see it.
     const github = fakeGitHub(twoPulls, { 11: ["a1", "m1b2c3d4e5"] }, [artifact("a1", 101)]);
     const plan = await planRelease({ repo, commits: [commit("a")], github });
-    expect(plan).toMatchObject({ action: "release", pulls: [{ number: 11, sha: "a", artifacts: [{ runId: 101 }] }] });
+    expect(plan).toMatchObject({ action: "blocked", pulls: [{ number: 11 }] });
+    if (plan.action !== "blocked") return;
+    expect(plan.reason).toContain("m1b2c3d");
+    expect(plan.reason).toContain("#11");
+  });
+
+  it("releases an events PR with a commit pushed by hand", async () => {
+    const pulls = { b: [sheetPull(12, "b", "2026-10-22T10:05:00Z", { branch: "events/2026-10-22" })] };
+    const github = fakeGitHub(pulls, { 12: ["b1", "m1b2c3d4e5"] }, [artifact("b1", 201)]);
+    const plan = await planRelease({ repo, commits: [commit("b")], github });
+    expect(plan).toMatchObject({ action: "release", pulls: [{ number: 12, sha: "b", artifacts: [{ runId: 201 }] }] });
   });
 
   it("treats a bot commit with only a fork's artifact as having none", async () => {

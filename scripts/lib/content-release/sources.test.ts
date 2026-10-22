@@ -61,9 +61,9 @@ describe("gitHubReader", () => {
       { sha: "c3", author: null },
     ]);
     expect(await gitHubReader(repo, "t0k", commits.fetchImpl).commitsOfPull(7)).toEqual([
-      { sha: "c1" },
-      { sha: "c2" },
-      { sha: "c3" },
+      { sha: "c1", bot: true },
+      { sha: "c2", bot: false },
+      { sha: "c3", bot: false },
     ]);
     expect(commits.calls[0].url).toBe(`https://api.github.com/repos/${repo}/pulls/7/commits?per_page=100`);
   });
