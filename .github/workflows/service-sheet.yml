@@ -12,11 +12,11 @@
 #   tests, builds, commits as the GitHub App's bot and opens or updates the one service-sheet/* PR, its body the
 #   report, a draft while the report has a blocking question (an update turns it back into one). It has no id-token,
 #   so it cannot act as Claude.
-# The maintainer's merge releases the site (service-sheet-release.yml), with the staged PDFs from the artifacts of
-# the PR's commits. Nothing changed: no PR. The mail is filed (Zpracováno, Odmítnuto) only once its outcome is done, so
+# The maintainer's merge releases the site (content-release.yml), with the staged PDFs from the artifacts of the PR's
+# commits (`content-uploads-<sha>`, the PDFs under porady_bohosluzeb/ as in the staging folder). Nothing changed: no PR. The mail is filed (Zpracováno, Odmítnuto) only once its outcome is done, so
 # a run that breaks retries the sheet on the next run. Both jobs run in the environment `service-sheet-publish` (the
 # IMAP login; the federation rule matches it, but only `sheet` has an id-token). The App key is the repository secret
-# CONTENT_APP_PRIVATE_KEY, shared with service-sheet-release.yml; a secret reaches only the steps that name it. The
+# CONTENT_APP_PRIVATE_KEY, shared with content-release.yml; a secret reaches only the steps that name it. The
 # job summary and the failure (refused week, document error, a parish message without exactly one DOCX) tell the
 # maintainer; no e-mail is sent. The runner image and the actions are pinned (actions by
 # commit SHA).
@@ -195,9 +195,9 @@ jobs:
           if [ -f "$RUNNER_TEMP/sheet/report.md" ]; then cp "$RUNNER_TEMP/sheet/report.md" "$run/report.md"; fi
           git add --intent-to-add -- src/content
           git diff --binary HEAD -- src/content > "$run/content.patch"
-          mkdir -p "$run/pdf"
+          mkdir -p "$run/uploads/$SHEETS"
           for file in "$UPLOADS/$SHEETS"/*.pdf; do
-            if [ -f "$file" ] && [ "$(head -c 4 "$file")" = "%PDF" ]; then cp "$file" "$run/pdf/"; fi
+            if [ -f "$file" ] && [ "$(head -c 4 "$file")" = "%PDF" ]; then cp "$file" "$run/uploads/$SHEETS/"; fi
           done
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -312,7 +312,7 @@ jobs:
             echo "---"
             echo
             echo "Opened by the service sheet workflow (\`service-sheet.yml\`). Squash merge to publish: the merge releases the site."
-            echo "The staged PDFs are in the artifact \`service-sheet-pdf-<sha>\` of each commit; this run: $RUN_URL"
+            echo "The staged PDFs are in the artifact \`content-uploads-<sha>\` of each commit; this run: $RUN_URL"
           } > "$run/pr-body.md"
 
       - name: Test
@@ -358,8 +358,8 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: steps.commit.outcome == 'success'
         with:
-          name: service-sheet-pdf-${{ steps.commit.outputs.sha }}
-          path: ${{ runner.temp }}/run/pdf/*.pdf
+          name: content-uploads-${{ steps.commit.outputs.sha }}
+          path: ${{ runner.temp }}/run/uploads/
           if-no-files-found: warn
           retention-days: 30
 
