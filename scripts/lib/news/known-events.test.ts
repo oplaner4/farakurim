@@ -4,7 +4,15 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { newsEvent } from "@/test/fixtures";
 import { freshTempDir } from "../test-helpers";
-import { eventsAt, openEventPulls, pullEvents, takenIds, upcomingEvents, type KnownEvent } from "./known-events";
+import {
+  eventsAt,
+  knownJson,
+  openEventPulls,
+  pullEvents,
+  takenIds,
+  upcomingEvents,
+  type KnownEvent,
+} from "./known-events";
 
 const repo = "oplaner4/farakurim";
 
@@ -85,6 +93,19 @@ describe("openEventPulls", () => {
         ]),
       )) as unknown as typeof fetch;
     expect(await openEventPulls(repo, "t0k", fetchImpl)).toEqual([{ number: 12, branch: "events/2026-10-22" }]);
+  });
+});
+
+describe("knownJson", () => {
+  it("writes valid JSON with one event per line", () => {
+    const known: KnownEvent[] = [
+      { id: "koncert-2026", title: "Koncert", start: "2026-11-15", place: "Kuřim", where: 12 },
+      { id: "hody-v-ceske", title: "Hody v České", start: "2026-10-18", place: "Česká", where: "main" },
+    ];
+    const json = knownJson(known);
+    expect(JSON.parse(json)).toEqual(known);
+    expect(json.trim().split("\n")).toHaveLength(known.length + 2);
+    expect(JSON.parse(knownJson([]))).toEqual([]);
   });
 });
 

@@ -40,6 +40,10 @@ export function pullEvents(base: NewsEvent[], branch: NewsEvent[], number: numbe
   return branch.filter((event) => before.get(event.id) !== JSON.stringify(event)).map((event) => known(event, number));
 }
 
+/** `events` as a JSON array with one event per line: compact for the unattended run, which reads it all. */
+export const knownJson = (events: KnownEvent[]) =>
+  `[\n${events.map((event) => JSON.stringify(event)).join(",\n")}\n]\n`;
+
 /** The added `ids` that an open PR already holds. */
 export function takenIds(events: KnownEvent[], ids: string[]): string[] {
   const held = new Set(events.filter((event) => event.where !== "main").map((event) => event.id));

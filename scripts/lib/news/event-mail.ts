@@ -17,7 +17,7 @@ import { parseCommandLine, readJsonRecord } from "../command";
 import { NEWS_DIR } from "../content-files";
 import { fileMessages, imapEnv, imapMailbox, uidList, type Mailbox } from "../mail/imap";
 import { EVENT_SENDERS, judgeSender, type SenderVerdict } from "../mail/senders";
-import { addedIds, loadKnownEvents, takenIds, type KnownEvent } from "./known-events";
+import { addedIds, knownJson, loadKnownEvents, takenIds, type KnownEvent } from "./known-events";
 
 /** The attachment types handed on, each with the extension it is written under. */
 const ATTACHMENT_TYPES: Readonly<Record<string, string>> = {
@@ -178,7 +178,7 @@ async function runKnownEvents(command: Extract<EventMailCommand, { action: "know
   if (command.action === "known") {
     const today = pragueDate(new Date());
     const found = await loadKnownEvents({ repo: env("GITHUB_REPOSITORY"), token: env("GH_TOKEN"), today });
-    writeFileSync(command.out, JSON.stringify(found, null, 2));
+    writeFileSync(command.out, knownJson(found));
     console.error(`Wrote ${found.length} known event(s)`);
     return;
   }
