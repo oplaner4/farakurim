@@ -28,7 +28,8 @@ before, so take it to **`parish-correct-service-sheet`**):
 pnpm stage sheet "<source>" --draft <scratchpad>/record.json
 ```
 
-It prints the week and its days and writes `days` and `announcements` to `record.json`. The days a two-week table
+It prints the week, its days and the events an announcement can link (for `newsId`), and writes `days` and
+`announcements` to `record.json`. The days a two-week table
 leaves out become days without services, printed as "Days without services": tell the user. A table it cannot read (a
 date outside the week, a weekday that does not fit the date, times that do not pair with the services, a table that
 does not start and end on the heading's dates) stops it with the week and day: ask the user what the document should
@@ -42,7 +43,7 @@ say, as the error is in their document. The draft is a starting point: step 2a s
 
 Read the **whole** page: the announcements are the paragraphs below the table.
 
-Get the week and its dates (it refuses and names a week the same way as `--draft`):
+Get the week, its dates and the events for `newsId` (it refuses and names a week the same way as `--draft`):
 
 ```sh
 pnpm stage sheet "<source>" --check
@@ -130,14 +131,13 @@ Write `record.json` from scratch with the fields below, from the rendered page a
 | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `category` | `change` ("nebude", "přesouvá"), `confession` ("zpovídá", "svátost smíření"), `invitation` ("zveme", "pouť", "koncert"), `thanks` ("děkujeme"), `info` (anything else: "sbírka"). |
 | `html`     | `<p>…</p>`, a list as `<ul><li>`; key dates and times in `<strong>`; e-mails as `<a href="mailto:…">`, web addresses as links.                                                    |
-| `newsId`   | The `id` of the matching event in `src/content/news/`, if there is one (adds "Více v aktualitách"; finding it: below).                                                            |
+| `newsId`   | The `id` of the matching event, if there is one (adds "Více v aktualitách"; finding it: below).                                                                                   |
 
-**Finding `newsId`**: the events are in `src/content/news/<year>/<MM>.json` by the month of their `start`. For an
-announcement of an event, search the month of its date (and the month before, for a registration) for its title,
-place or date, and take the event's `id` (a pilgrimage on 19. 12. → `pout-lukov-trebic-2026` in
-`2026/12.json`). With no clear match, leave `newsId` out: never guess, and never add an event on the side
-(offer `parish-create-event` if the user wants one). The script only checks that the id exists, not that it is
-the right event, so step 3 shows each match.
+**Finding `newsId`**: take it from the `Events for newsId` list step 1 printed (the events not ended two weeks
+before the week, in start order): match an announcement of an event by its title, place or date (a pilgrimage on 19. 12. → `pout-lukov-trebic-2026`). With no clear match, leave `newsId` out: never guess, never search
+`src/content/news/` for an event the list lacks, and never add an event on the side (offer `parish-create-event` if
+the user wants one). The script only checks that the id exists, not that it is the right event, so step 3 shows each
+match.
 
 Unfinished text in the source ("vynesl …………. Kč") goes to the user: ask for the value, never publish the dots.
 
@@ -190,8 +190,9 @@ adorace" Google Calendar, which the Kalendář reads.
 Only when the prompt says the run is **unattended** (the daily workflow gives the parish's DOCX and a report file);
 a local run follows steps 1 to 5 as written. An unattended run follows them too, with these changes:
 
-- It handles the DOCX's **newest week only**. Not in `src/content/service-sheets.json`: steps 1 to 4 as written
-  (`Outcome: created`). Already there: it is a **correction**, always, without comparing with the published sheet:
+- It handles the DOCX's **newest week only**. When `--draft` does not say the week is already there: steps 1 to 4
+  as written (`Outcome: created`). When it does (never open `service-sheets.json` to check): it is a **correction**,
+  always, without comparing with the published sheet:
   draft the week, build the record from the draft as step 2a says (not from the published sheet), and stage it with
   `--corrected` when the script says the week is already published (`Outcome: corrected`). Never touch older weeks.
 - It never asks and never waits. Every "confirm with the user" or "ask the user" step (step 3, a document error, the
@@ -208,6 +209,8 @@ a local run follows steps 1 to 5 as written. An unattended run follows them too,
   the user as a question (blocking when its answer changes what is published, else a note). `blocking:` is final only
   after that. A week the script refuses (before the current sheet, overlapping another) or cannot draft (a document
   error) is not staged: its `Outcome:` line carries the script's message.
+- Skip step 3's `--check` run: step 4 validates the record first and stages nothing when it refuses, so fix
+  `record.json` and run it again.
 - Skip step 5: no `parish-publish-content`, no commit, no release. The workflow commits and opens the PR.
 - A question whose answer changes what is published (an unreadable row, placeholder dots, a doubtful cancellation) is
   **blocking**; the run still stages its best reading. For placeholder dots that is the record with the document's
@@ -233,8 +236,8 @@ Then, per week, oldest first:
 - one line `Outcome: created`, `Outcome: corrected`, `Outcome: refused: <message>` or
   `Outcome: document error: <message>` (the script's message as printed). The workflow fails the run on any
   `refused` or `document error`;
-- the summary step 3 would show: the rows day by day, the announcements with categories and each `newsId` with its
-  event's title and date;
+- the announcements with categories and each `newsId` with its event's title and date (not the rows: the Mirror
+  section lists them);
 - `### Questions`, one per line: `- **q1** (blocking|note) <where>: <question> — proposal: <proposal>`. A later run
   on the same report keeps the existing ids and marks each question `resolved` or `still open`.
 
