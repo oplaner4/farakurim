@@ -60,8 +60,11 @@ export function withAttachment(attachments: EventAttachment[], attachment: Event
 /** A file checked for staging: its source, label, extension, size and staged path. */
 type PlannedFile = { src: string; label: string; ext: string; size: number; rel: string };
 
+/** The folder under the uploads folder that holds every event's files. */
+export const EVENTS_FOLDER = "aktuality/";
+
 /** The staged path of an event file: "aktuality/hody-2026-plakat-r2.pdf". */
-const eventUploadPath = (name: string, ext: string) => `aktuality/${name}${ext}`;
+const eventUploadPath = (name: string, ext: string) => `${EVENTS_FOLDER}${name}${ext}`;
 
 /**
  * The index in `files` of the file to render the poster from, or -1. A new record takes the first file when it is an
