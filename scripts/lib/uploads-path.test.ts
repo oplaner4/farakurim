@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { SHEETS_FOLDER } from "@/lib/services/service-sheet";
 import { UPLOADS_PATH } from "@/lib/shared/uploads";
 import { ROOT } from "./content-files";
+import { EVENTS_FOLDER } from "./stage/event";
 import { UPLOADS_PATH as SERVED_UPLOADS_PATH } from "./server-files.mjs";
 import { workflowEnv } from "./test-helpers";
 
@@ -16,7 +17,7 @@ describe("the copies of UPLOADS_PATH", () => {
     expect(`/${/^UPLOADS=(\S+)$/m.exec(read("scripts/deploy.sh"))?.[1]}/`).toBe(UPLOADS_PATH);
   });
 
-  it.each(["service-sheet.yml"])("is UPLOADS in %s", (file) => {
+  it.each(["service-sheet.yml", "events.yml"])("is UPLOADS in %s", (file) => {
     expect(`/${workflowEnv(file, "UPLOADS")}/`).toBe(UPLOADS_PATH);
   });
 
@@ -32,5 +33,11 @@ describe("the copies of UPLOADS_PATH", () => {
 describe("the copies of SHEETS_FOLDER", () => {
   it.each(["service-sheet.yml"])("is SHEETS in %s", (file) => {
     expect(`${workflowEnv(file, "SHEETS")}/`).toBe(SHEETS_FOLDER);
+  });
+});
+
+describe("the copy of EVENTS_FOLDER", () => {
+  it("is EVENTS in events.yml", () => {
+    expect(`${workflowEnv("events.yml", "EVENTS")}/`).toBe(EVENTS_FOLDER);
   });
 });

@@ -1,0 +1,498 @@
+# Opens a pull request with the events of one e-mail (docs/deployment.md "Events by e-mail"). On each run it reads the
+# unseen mail of the events mailbox over IMAP (`pnpm event-mail fetch`) and handles the oldest event mail: one from
+# EVENT_SENDERS (scripts/lib/mail/senders.ts) with its provider's DKIM signature, holding an attachment or a subject
+# and a text. Strangers are filed in `Odmítnuto` silently.
+# Two jobs, so that no step holding a secret runs code from a workspace Claude has touched:
+# - `event` fetches the mail and the known events (`pnpm event-mail known`: the upcoming events on main and those the
+#   open events/ PRs add) and lets Claude (claude-code-action, workload identity federation, no API key) run
+#   parish-create-event unattended on the mail: it groups the attachments into events, refuses corrections and
+#   duplicates, stages the new events and writes a report. Claude's file tools may write only in $RUNNER_TEMP/event
+#   (the checkout is denied); only `pnpm stage event` and `pnpm add-event` write src/content/ and the staging folder.
+#   The job hands on the report, the change to src/content/news/ as a patch, the known events (read before Claude ran)
+#   and the staged files as a one-day artifact. The mail itself never leaves this job, and is deleted at the end.
+# - `publish` starts from a fresh checkout, applies the patch only if it touches nothing but the news month files,
+#   refuses an id an open events PR holds (`pnpm event-mail check-ids`), then tests, builds, commits as the GitHub
+#   App's bot and opens a new events/ PR, its body the report, a draft while the report has a blocking question. It has
+#   no id-token, so it cannot act as Claude. It uploads the staged files as `content-uploads-<sha>`.
+# The maintainer's squash merge releases the site (content-release.yml). One PR per mail: a later mail never changes
+# it. The run fails, so GitHub tells the maintainer, when an accepted sender's mail added nothing (every event refused,
+# or neither an attachment nor a subject and a text), when a known sender's DKIM check failed, or on a technical
+# failure (the mail stays unread and a later run retries it); no e-mail is sent. The mail is filed (Zpracováno,
+# Odmítnuto) only once its outcome is done. While accepted mail remains, `next` dispatches the workflow again, up to
+# 5 runs per start, so each mail's duplicate check sees the PRs of the mails before it. Both jobs run in the
+# environment `events-publish` (the IMAP login and the federation rule `ANTHROPIC_FEDERATION_RULE_ID`, which matches
+# it; only `event` has an id-token). The App key is the repository secret CONTENT_APP_PRIVATE_KEY, shared with the
+# other content workflows. The runner image and the actions are pinned (actions by commit SHA).
+
+name: Events
+
+on:
+  # The hosting's cron dispatches it on its schedule (cron-scripts/events.php): GitHub's own schedule starts runs 4 to
+  # 8 hours late. `next` dispatches it again while accepted mail remains.
+  workflow_dispatch:
+    inputs:
+      chain:
+        description: The run's place in a chain started by the cron (at most 5)
+        default: "1"
+
+# One run at a time; a run started meanwhile waits, so two runs never read the same mail.
+concurrency:
+  group: events
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+# The copies a test checks: the folder of the uploaded files (UPLOADS_PATH in src/lib/shared/uploads.ts) and of the
+# event files in it (EVENTS_FOLDER in scripts/lib/stage/event.ts), without their slashes.
+env:
+  UPLOADS: uploads
+  EVENTS: aktuality
+
+jobs:
+  event:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50 # Claude's step has 30 of them
+    environment: events-publish
+    permissions:
+      contents: read
+      pull-requests: read # the open events PRs
+      id-token: write # Claude's workload identity federation
+    # The outcome comes from the fetch step, which ran before Claude's: it is not read back from files Claude could
+    # have changed.
+    outputs:
+      fetched: ${{ steps.fetch.outputs.fetched }}
+      mail: ${{ steps.fetch.outputs.mail }}
+      rejected: ${{ steps.fetch.outputs.rejected }}
+      incomplete: ${{ steps.fetch.outputs.incomplete }}
+      known_dkim: ${{ steps.fetch.outputs.known_dkim }}
+      remaining: ${{ steps.fetch.outputs.remaining }}
+      summary: ${{ steps.fetch.outputs.summary }}
+      branch: ${{ steps.branch.outputs.branch }}
+      base: ${{ steps.branch.outputs.base }}
+      claude: ${{ steps.claude.outcome }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          fetch-depth: 0 # the events PRs' branches, their merge bases and the names taken
+          persist-credentials: false # nothing here pushes
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # The outcome is one JSON document on stdout (--silent keeps pnpm's banner out of it); it holds uids, dates, kinds
+      # and known senders, never message text. The mail lands in $RUNNER_TEMP/event/mail, mail.json in $RUNNER_TEMP/run
+      # (the artifact's folder, outside Claude's reach).
+      - name: Fetch the mail
+        id: fetch
+        env:
+          IMAP_HOST: ${{ vars.IMAP_HOST }}
+          IMAP_USER: ${{ secrets.IMAP_USER }}
+          IMAP_PASSWORD: ${{ secrets.IMAP_PASSWORD }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/event" "$RUNNER_TEMP/run"
+          mail="$RUNNER_TEMP/run/mail.json"
+          pnpm --silent event-mail fetch --out "$RUNNER_TEMP/event/mail" > "$mail"
+          jq -r '
+            "mail=\(.mailUid // "")",
+            "date=\(.date // "")",
+            "rejected=\(.rejected | map(tostring) | join(","))",
+            "incomplete=\(.incomplete | length)",
+            "known_dkim=\(.knownDkim | join(", "))",
+            "remaining=\(.remaining)",
+            "summary=\(.summary | tojson)"
+          ' "$mail" >> "$GITHUB_OUTPUT"
+          echo "fetched=true" >> "$GITHUB_OUTPUT"
+
+      # Before Claude's step, into the artifact's folder: `publish` checks the ids against this copy, and Claude reads
+      # its own copy.
+      - name: List the known events
+        if: steps.fetch.outputs.mail != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pnpm --silent event-mail known --out "$RUNNER_TEMP/run/known.json"
+          cp "$RUNNER_TEMP/run/known.json" "$RUNNER_TEMP/event/known.json"
+
+      - name: Install poppler
+        if: steps.fetch.outputs.mail != ''
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends poppler-utils
+
+      # A new branch from main for each mail, named after its date (Prague time); a branch of the same name (an open or
+      # closed PR's) gets a suffix.
+      - name: Name the branch
+        id: branch
+        if: steps.fetch.outputs.mail != ''
+        env:
+          MAIL_DATE: ${{ steps.fetch.outputs.date }}
+        run: |
+          date="$MAIL_DATE"
+          if ! [[ "$date" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then date=$(TZ=Europe/Prague date +%F); fi
+          branch="events/$date"
+          n=2
+          while git show-ref --quiet --verify "refs/remotes/origin/$branch"; do
+            branch="events/$date-$n"
+            n=$((n + 1))
+          done
+          {
+            echo "branch=$branch"
+            echo "base=$(git rev-parse HEAD)"
+          } >> "$GITHUB_OUTPUT"
+
+      # The prompt holds no event rules: they live in the skill. Claude can read files, write with its file tools in
+      # $RUNNER_TEMP/event only (an `Edit(...)` rule covers Write too; the deny on the checkout wins over any allow, so
+      # it cannot change scripts, package.json, node_modules, hooks or .git), stage events and read PDFs to stdout only
+      # (pdftotext writes the file a second argument names, which no Edit rule checks); no git, no network. A rule's
+      # `//` marks an absolute path (runner.temp starts with `/`). github.token (read-only) keeps the action from
+      # fetching its own App token; the action's output stays out of the public log.
+      - name: Run parish-create-event
+        id: claude
+        if: steps.fetch.outputs.mail != ''
+        timeout-minutes: 30
+        uses: anthropics/claude-code-action@f27be6b65a4652f08a2ba3cff79114829b588967 # v1.0.252
+        with:
+          github_token: ${{ github.token }}
+          anthropic_federation_rule_id: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
+          anthropic_organization_id: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
+          anthropic_service_account_id: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
+          anthropic_workspace_id: ${{ vars.ANTHROPIC_WORKSPACE_ID }}
+          show_full_output: false
+          display_report: false
+          claude_args: |
+            --model claude-opus-5-5
+            --add-dir ${{ runner.temp }}/event
+            --allowedTools "Read,Edit(/${{ runner.temp }}/event/**),Bash(pnpm stage event:*),Bash(pnpm add-event:*),Bash(pdftotext -layout * -),Bash(ls:*),Bash(cat:*)"
+            --disallowedTools "WebFetch,WebSearch,NotebookEdit,Edit(./**)"
+          prompt: |
+            A sender mailed an event to the events mailbox: ${{ runner.temp }}/event/mail (subject.txt, body.txt,
+            attachments/). Run parish-create-event unattended (its "Unattended run" section). The known events are
+            ${{ runner.temp }}/event/known.json, the report file is ${{ runner.temp }}/event/report.md and the
+            scratchpad is ${{ runner.temp }}/event. An event you refuse or the script refuses goes into the report.
+
+      # What `publish` needs, never the mail: the report, the change to src/content/news/ against the branch base (new
+      # files included) and the staged event files.
+      - name: Collect the outcome
+        if: always() && steps.fetch.outputs.mail != ''
+        env:
+          BRANCH: ${{ steps.branch.outputs.branch }}
+        run: |
+          run="$RUNNER_TEMP/run"
+          printf '%s\n' "$BRANCH" > "$run/branch"
+          if [ -f "$RUNNER_TEMP/event/report.md" ]; then cp "$RUNNER_TEMP/event/report.md" "$run/report.md"; fi
+          git add --intent-to-add -- src/content/news
+          git diff --binary HEAD -- src/content/news > "$run/content.patch"
+          mkdir -p "$run/uploads/$EVENTS"
+          if [ -d "$UPLOADS/$EVENTS" ]; then
+            find "$UPLOADS/$EVENTS" -maxdepth 1 -type f -exec cp {} "$run/uploads/$EVENTS/" \;
+          fi
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always() && steps.fetch.outputs.fetched == 'true'
+        with:
+          name: events-run-${{ github.run_id }}
+          path: ${{ runner.temp }}/run/
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Delete the mail
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/event"
+
+  publish:
+    needs: event
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: events-publish
+    permissions:
+      contents: read # the push and the PR use the App token
+    outputs:
+      filed: ${{ steps.file.outputs.filed }}
+    env:
+      # Reads `Outcome:` lines tolerantly: drops a list marker and bold around `Outcome:` (`- **Outcome:** created`,
+      # `**Outcome: refused: …**`), so every check sees `Outcome: <outcome>`.
+      OUTCOME_SED: >-
+        s/^[[:space:]]*[-*][[:space:]]+//; s/^\*\*(Outcome:[^*]*)\*\*/\1/; s/^\*\*Outcome\*\*:/Outcome:/;
+        s/^Outcome:[[:space:]]*/Outcome: /
+      # The report's sections that are not events.
+      NOT_EVENTS: "^(Questions|Dropped attachments|Mirror in the calendar)$"
+    steps:
+      # Missing when `event` failed before handing on: this job then only reports, and files nothing.
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        id: download
+        continue-on-error: true
+        with:
+          name: events-run-${{ github.run_id }}
+          path: ${{ runner.temp }}/run/
+
+      # A fresh checkout of the commit Claude's change is based on: nothing from `event`'s workspace runs here.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.download.outcome == 'success'
+        with:
+          ref: ${{ needs.event.outputs.base || 'main' }}
+          persist-credentials: false # only the push step gets a token
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        if: steps.download.outcome == 'success'
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        if: steps.download.outcome == 'success'
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - if: steps.download.outcome == 'success'
+        run: pnpm install --frozen-lockfile
+
+      # The report: line 1 `blocking: yes|no`, line 2 `commit: <message>`, then the PR body. Each event (a `## `
+      # section other than NOT_EVENTS) has exactly one `Outcome:` line, `created` or `refused: …`, else nothing is
+      # applied or filed. Without a change, every event must be refused: the mail is refused. With one, the patch is
+      # applied only if it touches nothing but the news month files, and no id it adds may be held by an open PR.
+      - name: Apply the change
+        id: changes
+        if: steps.download.outcome == 'success' && needs.event.result == 'success' && needs.event.outputs.mail != ''
+        env:
+          BRANCH: ${{ needs.event.outputs.branch }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          run="$RUNNER_TEMP/run"
+          report="$run/report.md"
+          patch="$run/content.patch"
+          first=$(sed -n 1p "$report" 2>/dev/null || true)
+          normalized=$(sed -E "$OUTCOME_SED" "$report" 2>/dev/null || true)
+          events=$(awk -v not="$NOT_EVENTS" '
+            function done() { if (name != "" && name !~ not) print n "\t" name }
+            /^## / { done(); name = substr($0, 4); n = 0; next }
+            /^Outcome: / { n++ }
+            END { done() }' <<< "$normalized")
+          outcomes=$(grep '^Outcome: ' <<< "$normalized" || true)
+          if [ ! -s "$report" ] || [ -z "$events" ] || grep -qv $'^1\t' <<< "$events" \
+            || grep -qvE '^Outcome: (created$|refused: )' <<< "$outcomes"; then
+            echo "::error::The report does not give each event exactly one Outcome line: the mail stays unread."
+            exit 1
+          fi
+          if [ ! -s "$patch" ]; then
+            if grep -q '^Outcome: created$' <<< "$outcomes"; then
+              echo "::error::The report says an event was created, but nothing changed: the mail stays unread."
+              exit 1
+            fi
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          bad=$(git apply --numstat "$patch" | cut -f3- | grep -vE '^src/content/news/[0-9]{4}/[0-9]{2}\.json$' || true)
+          if [ -n "$bad" ] || git apply --summary "$patch" | grep -q ' mode 120000'; then
+            echo "::error::The change touches more than the news month files: not applied."
+            exit 1
+          fi
+          git apply "$patch"
+          pnpm --silent event-mail check-ids "$run/known.json"
+          git checkout -B "$BRANCH"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          message=$(sed -n 2p "$report" 2>/dev/null | sed 's/^commit: //' || true)
+          if [ -z "$message" ] || ! printf '%s\n' "$message" | pnpm exec commitlint > /dev/null; then
+            echo "::warning::The report has no valid commit message: using the default."
+            message="feat(content): add events"
+          fi
+          # Only an exact `blocking: no` opens a ready PR, so a broken report cannot be merged by mistake.
+          echo "draft=$([ "$first" = "blocking: no" ] && echo false || echo true)" >> "$GITHUB_OUTPUT"
+          echo "message=$message" >> "$GITHUB_OUTPUT"
+          {
+            tail -n +3 "$report"
+            echo
+            echo "---"
+            echo
+            echo "Opened by the events workflow (\`events.yml\`). Squash merge to publish: the merge releases the site."
+            echo "The staged files are in the artifact \`content-uploads-<sha>\` of each commit; this run: $RUN_URL"
+          } > "$run/pr-body.md"
+
+      - name: Test
+        if: steps.changes.outputs.changed == 'true'
+        run: pnpm test
+
+      - name: Build
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY: ${{ vars.GOOGLE_CALENDAR_API_KEY }}
+        run: pnpm build
+
+      - name: Create the App token
+        id: app
+        if: steps.changes.outputs.changed == 'true'
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          app-id: ${{ vars.CONTENT_APP_ID }}
+          private-key: ${{ secrets.CONTENT_APP_PRIVATE_KEY }}
+          # Not all of the App's permissions: the push, and opening and locking the PR.
+          permission-contents: write
+          permission-pull-requests: write
+
+      # src/content/ only: the staged files are in the staging folder, which git ignores. No hooks (the message is
+      # checked already), never a force-push: a branch taken since `event` rejects the push and the mail is retried.
+      - name: Commit and push
+        id: commit
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          TOKEN: ${{ steps.app.outputs.token }}
+          APP_SLUG: ${{ steps.app.outputs.app-slug }}
+          BRANCH: ${{ needs.event.outputs.branch }}
+          MESSAGE: ${{ steps.changes.outputs.message }}
+        run: |
+          bot="${APP_SLUG}[bot]"
+          id=$(GH_TOKEN="$TOKEN" gh api "/users/$bot" --jq .id)
+          git add -- src/content/news
+          git -c core.hooksPath=/dev/null -c user.name="$bot" -c user.email="$id+$bot@users.noreply.github.com" \
+            commit -m "$MESSAGE"
+          git push "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/$BRANCH"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: steps.commit.outcome == 'success'
+        with:
+          name: content-uploads-${{ steps.commit.outputs.sha }}
+          path: ${{ runner.temp }}/run/uploads/
+          if-no-files-found: warn
+          retention-days: 30
+
+      # The conversation is locked (the repo is public): only collaborators with write access can comment.
+      - name: Open the PR
+        id: pr
+        if: steps.commit.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          BRANCH: ${{ needs.event.outputs.branch }}
+          MESSAGE: ${{ steps.changes.outputs.message }}
+          DRAFT: ${{ steps.changes.outputs.draft }}
+        run: |
+          draft=()
+          if [ "$DRAFT" != false ]; then draft=(--draft); fi
+          url=$(gh pr create --base main --head "$BRANCH" --title "$MESSAGE" --body-file "$RUNNER_TEMP/run/pr-body.md" \
+            "${draft[@]}")
+          gh api -X PUT "repos/$GITHUB_REPOSITORY/issues/${url##*/}/lock" -f lock_reason=resolved
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      # Only once the outcome is done (PR opened, or the mail refused) and only when `event` succeeded; otherwise the
+      # event mail stays unseen for the next run. The rejected mail is filed whenever `event` handed on its outcome.
+      - name: File the mail
+        id: file
+        if: always() && steps.download.outcome == 'success'
+        env:
+          IMAP_HOST: ${{ vars.IMAP_HOST }}
+          IMAP_USER: ${{ secrets.IMAP_USER }}
+          IMAP_PASSWORD: ${{ secrets.IMAP_PASSWORD }}
+          EVENT_OK: ${{ needs.event.result == 'success' && steps.changes.outcome == 'success' }}
+          CHANGED: ${{ steps.changes.outputs.changed }}
+          PR_OUTCOME: ${{ steps.pr.outcome }}
+          MAIL: ${{ needs.event.outputs.mail }}
+          REJECTED: ${{ needs.event.outputs.rejected }}
+        run: |
+          processed="" rejected="$REJECTED"
+          if [ -n "$MAIL" ] && [ "$EVENT_OK" = true ]; then
+            if [ "$CHANGED" = false ]; then
+              rejected=$(printf '%s\n' "$REJECTED" "$MAIL" | grep -v '^$' | paste -sd,)
+            elif [ "$PR_OUTCOME" = success ]; then
+              processed="$MAIL"
+            fi
+          fi
+          if [ -n "$processed$rejected" ]; then
+            pnpm --silent event-mail file --processed="$processed" --rejected="$rejected"
+          else
+            echo "No mail to file."
+          fi
+          # The event mail is done, so the next one may follow.
+          if [ -z "$MAIL" ] || [ -n "$processed" ] || [ "$rejected" != "$REJECTED" ]; then
+            echo "filed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Dates, kinds, known senders, event titles and the outcomes only, never the e-mail's text. Fails the job when
+      # something needs the maintainer without a PR: a refused mail, an incomplete mail, a known sender's failed DKIM.
+      - name: Summary
+        if: always()
+        env:
+          FETCHED: ${{ needs.event.outputs.fetched }}
+          SUMMARY: ${{ needs.event.outputs.summary }}
+          MAIL: ${{ needs.event.outputs.mail }}
+          INCOMPLETE: ${{ needs.event.outputs.incomplete }}
+          KNOWN_DKIM: ${{ needs.event.outputs.known_dkim }}
+          EVENT_RESULT: ${{ needs.event.result }}
+          CLAUDE: ${{ needs.event.outputs.claude }}
+          DOWNLOAD: ${{ steps.download.outcome }}
+          APPLY: ${{ steps.changes.outcome }}
+          CHANGED: ${{ steps.changes.outputs.changed }}
+          PR_OUTCOME: ${{ steps.pr.outcome }}
+          PR_URL: ${{ steps.pr.outputs.url }}
+        run: |
+          report="$RUNNER_TEMP/run/report.md"
+          outcomes=$(sed -E "$OUTCOME_SED" "$report" 2>/dev/null \
+            | awk '/^## / { name = substr($0, 4) } /^Outcome: / { print "- " name ": " substr($0, 10) }' || true)
+          refused=false
+          {
+            echo "## Events"
+            echo
+            if [ "$FETCHED" != true ]; then
+              echo "The mail could not be read."
+            elif [ "$(jq 'length' <<< "$SUMMARY")" = 0 ]; then
+              echo "No new mail."
+            else
+              jq -r '.[] | "- " + .' <<< "$SUMMARY"
+            fi
+            echo
+            if [ -n "$MAIL" ]; then
+              if [ "$CLAUDE" != success ]; then
+                echo "Claude's run failed: the mail stays unread and the next run retries it."
+              elif [ "$EVENT_RESULT" != success ] || [ "$DOWNLOAD" != success ]; then
+                echo "The event job failed after Claude's run (see the log): the mail stays unread for the next run."
+              elif [ "$APPLY" != success ]; then
+                echo "The change or the report was not accepted (see the log): the mail stays unread for the next run."
+              elif [ "$CHANGED" = false ]; then
+                echo "Nothing new in the mail: refused, no PR."
+                refused=true
+              elif [ "$PR_OUTCOME" = success ]; then
+                echo "PR opened: $PR_URL"
+              else
+                echo "The test, build, commit or PR failed (see the log): the mail stays unread for the next run."
+              fi
+              if [ -n "$outcomes" ]; then
+                echo
+                echo "$outcomes"
+              fi
+            fi
+            if [ "${INCOMPLETE:-0}" != 0 ]; then
+              echo
+              echo "$INCOMPLETE mail(s) from an accepted sender had neither an attachment nor a subject and a text."
+            fi
+            if [ -n "$KNOWN_DKIM" ]; then
+              echo
+              echo "Mail from $KNOWN_DKIM failed the DKIM check (forwarded, or another provider): refused."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$refused" = true ] || [ "${INCOMPLETE:-0}" != 0 ] || [ -n "$KNOWN_DKIM" ]; then
+            echo "::error::A mail added nothing, had nothing to read, or failed the DKIM check of a known sender."
+            exit 1
+          fi
+
+  # One mail per run: while accepted mail remains and the mail of this run is filed, the next run takes the next one
+  # (at most 5 runs per start of the cron). GITHUB_TOKEN may dispatch a workflow.
+  next:
+    needs: [event, publish]
+    if: >-
+      always() && needs.publish.outputs.filed == 'true' && needs.event.outputs.remaining != ''
+      && needs.event.outputs.remaining != '0' && fromJSON(inputs.chain) < 5
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      actions: write # dispatch this workflow
+    steps:
+      - name: Dispatch the next run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CHAIN: ${{ inputs.chain }}
+        run: gh workflow run events.yml --repo "$GITHUB_REPOSITORY" --ref main -f chain=$((CHAIN + 1))
