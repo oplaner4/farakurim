@@ -144,6 +144,8 @@ a report file); a local run follows steps 1 to 6 as written. An unattended run f
   Drop an attachment no event can be made from (a signature, a logo, a file without event information), but keep one
   that belongs to an event (a programme, a form, a map). An unclear grouping is a blocking question showing your best
   grouping.
+- **Reading a PDF:** run `pdftotext -layout <file> -` first and `Read` only its first page (`pages: "1"`), to see
+  the poster; read further pages only when the text is empty or garbled (a scan). Each page read is an image.
 - **Title:** with one event, the subject, corrected (sentence case, typos). With several events, each from its own
   poster; the subject may confirm or correct the one it clearly names. **Text:** from the body, corrected, formatted
   and filled in from the attachments; never invent a fact. Without attachments, the event is the subject (its title)
@@ -156,10 +158,11 @@ a report file); a local run follows steps 1 to 6 as written. An unattended run f
   refused, the others go ahead.
 - **Refuse duplicates.** Compare each event with the known-events file (`where`: `main` or an open PR's number): the
   same event under any title (same date, time and place, or the same poster) is refused. An uncertain match is a
-  blocking question, not a refusal. A different event whose id is taken gets the date id the check gives.
+  blocking question, not a refusal. A different event whose id is taken gets the date id the refusal gives.
 - It never asks and never waits: every "confirm with the user" or "ask the user" step writes into the report
   instead. The scratchpad is the prompt's (`record.json`; write nothing in the repo); the files are staged in
-  `uploads/` as usual (step 5a or 5b, one event after another).
+  `uploads/` as usual (step 5a or 5b, one event after another). Skip the `--check` runs of steps 3a and 3b: step 5a
+  or 5b checks everything first and stages nothing when it refuses, so fix `record.json` and run it again.
 - Write the report first, then stage, then fill in each event's `Outcome:` line from what the script did, and add any
   line it printed for the user (the `Události` lines, an unpinned event) to the report. A script refusal is
   `refused: <its message>`.
@@ -182,8 +185,8 @@ section: the workflow refuses it):
 - `## <title>` (as published);
 - one line `Outcome: created` or `Outcome: refused: <reason>` (a correction: `refused: a correction of <id>; make it
 with parish-correct-event`; a duplicate: `refused: already in <main or PR #n> as <id>`);
-- for a created event, what step 4 would show: the fields, the files with labels and which is the poster, where the
-  title came from (the subject, the poster), the guesses;
+- for a created event, only what the PR's diff does not show: where the title came from (the subject, the poster)
+  and the guesses (step 4), not the fields or the files;
 - `### Questions`, one per line: `- **q1** (blocking|note) <where>: <question> — proposal: <proposal>`.
 
 Then `## Dropped attachments` (each as "attachment 3, an image without event information": never its file name) and
