@@ -6,10 +6,14 @@
 // Only an artifact of a run on this repo's main counts: a fork's pull request run can upload one under any name.
 
 import { execFileSync } from "node:child_process";
+import { copyFileSync, lstatSync, mkdirSync, readdirSync } from "node:fs";
+import { dirname, extname, join } from "node:path";
 import { links } from "@/content/site";
 import { SHEETS_FOLDER } from "@/lib/services/service-sheet";
-import { parseCommandLine } from "./command";
+import { UPLOAD_EXTENSIONS } from "@/lib/shared/uploads";
+import { parseCommandLine, readJsonRecord } from "./command";
 import { EVENTS_FOLDER } from "./stage/event";
+import { UPLOADS_DIR } from "./uploads";
 
 /** The kinds of content PR: the branch prefix, the only folder under uploads/ its artifacts may write, its page. */
 export const KINDS = {
@@ -246,12 +250,74 @@ export function unreleasedCommits(cwd = process.cwd()): UnreleasedCommit[] {
     });
 }
 
-const USAGE = "Usage: pnpm --silent content-release";
+/** An artifact's name as the plan gives it: one of the two names above, nothing that could be a path. */
+const ARTIFACT_NAME = /^(content-uploads|service-sheet-pdf)-[0-9a-f]+$/;
 
-export type Command = { action: "plan" };
+/** The files under `dir` as paths relative to it; a symlink or anything but a file or folder throws. */
+function filesIn(dir: string): string[] {
+  return readdirSync(dir, { recursive: true, encoding: "utf8" }).flatMap((path) => {
+    const stat = lstatSync(join(dir, path));
+    if (stat.isDirectory()) return [];
+    if (!stat.isFile()) throw new Error(`${join(dir, path)} is not a regular file`);
+    return [path];
+  });
+}
+
+/** The files of one downloaded artifact of a PR and where each goes under uploads/; a file its kind may not write throws. */
+function artifactCopies(pull: ContentPull, name: string, from: string): { src: string; rel: string }[] {
+  if (!ARTIFACT_NAME.test(name)) throw new Error(`PR #${pull.number}: ${name} is not an artifact name`);
+  const legacy = name.startsWith("service-sheet-pdf-");
+  if (legacy && pull.kind !== "sheet") throw new Error(`PR #${pull.number}: ${name} belongs to a sheet PR only`);
+  const { folder } = KINDS[pull.kind];
+  const dir = join(from, name);
+  return filesIn(dir).map((path) => {
+    // A legacy artifact holds the sheet PDFs flat.
+    const rel = legacy ? `${folder}${path}` : path;
+    const allowed =
+      (!legacy || !path.includes("/")) &&
+      rel.startsWith(folder) &&
+      !rel.split("/").includes("..") &&
+      UPLOAD_EXTENSIONS.includes(extname(rel));
+    if (!allowed) throw new Error(`PR #${pull.number}: ${name} holds ${path}, which a ${pull.kind} PR may not upload`);
+    return { src: join(dir, path), rel };
+  });
+}
+
+/**
+ * Copies the downloaded artifacts of a release plan (each in `<from>/<artifact name>/`) into `uploads`, PR by PR and
+ * commit by commit in the plan's order, so a later file of the same path wins. Every file is checked first, and one
+ * that its PR's kind may not write stops it before anything is copied. Returns the copied paths under `uploads`.
+ */
+export function applyArtifacts({
+  plan,
+  from,
+  uploads,
+}: {
+  plan: ReleasePlan;
+  from: string;
+  uploads: string;
+}): string[] {
+  if (plan.action !== "release") return [];
+  const copies = plan.pulls.flatMap((pull) => pull.artifacts.flatMap(({ name }) => artifactCopies(pull, name, from)));
+  for (const { src, rel } of copies) {
+    const dest = join(uploads, rel);
+    mkdirSync(dirname(dest), { recursive: true });
+    copyFileSync(src, dest);
+  }
+  return copies.map((copy) => copy.rel);
+}
+
+const USAGE = `Usage: pnpm --silent content-release
+       pnpm content-release apply <plan.json> <dir>`;
+
+export type Command = { action: "plan" } | { action: "apply"; plan: string; from: string };
 
 export function parseCommand(args: string[]): Command {
   const { positionals } = parseCommandLine(args, {}, USAGE);
+  if (positionals[0] === "apply") {
+    if (positionals.length !== 3) throw new Error(`apply takes a plan and a folder\n${USAGE}`);
+    return { action: "apply", plan: positionals[1], from: positionals[2] };
+  }
   if (positionals.length) throw new Error(`unexpected argument ${positionals[0]}\n${USAGE}`);
   return { action: "plan" };
 }
@@ -262,7 +328,12 @@ function env(name: string): string {
   return value;
 }
 
-export async function execute(): Promise<void> {
+export async function execute(command: Command): Promise<void> {
+  if (command.action === "apply") {
+    const plan = readJsonRecord(command.plan) as ReleasePlan;
+    for (const rel of applyArtifacts({ plan, from: command.from, uploads: UPLOADS_DIR })) console.log(rel);
+    return;
+  }
   const repo = env("GITHUB_REPOSITORY");
   const github = gitHubReader(repo, env("GH_TOKEN"));
   console.log(JSON.stringify(await planRelease({ repo, commits: unreleasedCommits(), github })));
