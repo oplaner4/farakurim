@@ -83,42 +83,9 @@ means no, and nothing happens (the branch stays). A **draft** PR has a blocking 
 the PR ready, merge. A correction is a commit pushed to the PR's branch, or made locally with the skills
 (`parish-correct-service-sheet`); comments with `@claude` come in phase 2.
 
-The merge starts `.github/workflows/service-sheet-release.yml` (`pull_request_target: closed`, so your own pushes to
-`main` and `pnpm release` never start it; `pnpm sheet-release` plans it). Each run of the sheet workflow uploads only the PDFs it staged, as the artifact `service-sheet-pdf-<sha>` of its
-commit, so the release downloads the artifact of every commit of the PR, oldest first (a later correction overwrites
-an earlier PDF of the same name), runs `pnpm release --yes` with the App token, waits for the deploy and comments
-"Released in vX.Y.Z" on the PR and deletes its branch. Two PRs merged close together go out in one release. It
-releases nothing and comments why when:
-
-- `main` has other unreleased commits (an event, a Petrklíč issue: their uploads are only on your machine);
-- a PDF artifact expired (they stay 30 days);
-- a commit you pushed to the PR's branch yourself has no artifact: its PDF may exist only on your machine, even under
-  the name of a PDF an artifact holds (a correction keeps its rev until the week is on the server);
-- a step failed: the comment links the run.
-
-Then release by hand, below (with your corrected PDF staged in `uploads/` for a commit of your own). Only artifacts
-of runs on this repository's `main` count, never one a fork's pull request run uploaded under the same name. A merge
-that lands while the release runs goes out with it.
-
-**Releasing by hand:** download the artifact of every commit of the PR, oldest first, then release:
-
-```sh
-git switch main && git pull
-pr=<PR number>
-tmp=$(mktemp -d)
-for sha in $(gh pr view "$pr" --json commits --jq '.commits[].oid'); do
-  if gh run download -n "service-sheet-pdf-$sha" -D "$tmp/$sha"; then
-    cp "$tmp/$sha"/*.pdf uploads/porady_bohosluzeb/
-  else
-    echo "No PDF artifact for $sha (a commit the workflow did not make)."
-  fi
-done
-pnpm release
-```
-
-`gh run download -n <name>` without a run id searches the repository's runs; the names are unique, as each holds its
-commit. A PDF artifact stays 30 days. A commit you pushed yourself has no artifact: stage its PDF with the skill. An
-agent never logs in to the mailbox and never runs the dry run below.
+The merge releases the site through the [content release](#content-release). Each run of the sheet workflow uploads
+only the PDFs it staged, as the artifact `content-uploads-<sha>` of its commit (the PDFs under `porady_bohosluzeb/`).
+An agent never logs in to the mailbox and never runs the dry run below.
 
 The run goes **red** (and its summary says why) on a refused week, a document error, a parish e-mail without exactly
 one DOCX, or a failed step. A failed step leaves the mail unseen for the next run.
@@ -171,6 +138,60 @@ and check in the run:
   title and turns the PR back into a draft when the new report has a blocking question;
 - after you squash merge the PR, the release run uploads its PDF, the tag's deploy run is green, and the PR gets the
   comment "Released in vX.Y.Z" and loses its branch.
+
+## Content release
+
+`.github/workflows/content-release.yml` releases the site when you squash-merge a content PR: a `service-sheet/*` PR of
+the [service sheet workflow](#service-sheet-by-e-mail) or an `events/*` PR (the events pipeline, to come). It runs on
+`pull_request_target: closed`, so your own pushes to `main` and `pnpm release` never start it; `pnpm content-release`
+plans it. Every merged content PR since the last tag goes out in one release, in merge order: the release downloads
+the artifact `content-uploads-<sha>` of every commit of each PR, oldest first, and `pnpm content-release apply`
+copies them into `uploads/` (a later correction overwrites an earlier file of the same path). It first checks each
+file: a regular file of a type the site links, under its PR's folder (`porady_bohosluzeb/` for a sheet, `aktuality/`
+for events); one wrong file stops the release before anything is uploaded. Then it runs `pnpm release --yes` with the
+App token, waits for the deploy, comments "Released in vX.Y.Z" with the PR's page and deletes its branch.
+
+Other unreleased commits on `main` go out with the PRs, except those only a release by hand may publish:
+
+- a `feat` commit: a feature goes live when you release it;
+- a commit with the `content` scope (`feat(content)`, `fix(content)`): your own content may have staged files only
+  on your machine;
+- a breaking change (`!`) or a header that is not a Conventional Commit.
+
+A merge commit (a Dependabot PR) is not judged itself; the commits it brings in are. The release publishes nothing and
+comments why when:
+
+- `main` has such a commit;
+- an artifact expired (they stay 30 days);
+- a commit you pushed to a PR's branch yourself has no artifact: its files may exist only on your machine, even under
+  the name of a file an artifact holds (a correction keeps its rev until it is on the server);
+- a step failed: the comment links the run.
+
+Then release by hand, below (with your corrected files staged in `uploads/` for a commit of your own). Only artifacts
+of runs on this repository's `main` count, never one a fork's pull request run uploaded under the same name. A merge
+that lands while the release runs goes out with it.
+
+**Releasing by hand:** download the artifact of every commit of each PR, oldest first, then release. Until
+2026-11-22 a sheet commit may still have the former artifact `service-sheet-pdf-<sha>` (its PDFs flat):
+
+```sh
+git switch main && git pull
+pr=<PR number>
+tmp=$(mktemp -d)
+for sha in $(gh pr view "$pr" --json commits --jq '.commits[].oid'); do
+  if gh run download -n "content-uploads-$sha" -D "$tmp/$sha"; then
+    cp -R "$tmp/$sha"/. uploads/
+  elif gh run download -n "service-sheet-pdf-$sha" -D "$tmp/$sha"; then
+    cp "$tmp/$sha"/*.pdf uploads/porady_bohosluzeb/
+  else
+    echo "No artifact for $sha (a commit the workflow did not make)."
+  fi
+done
+pnpm release
+```
+
+`gh run download -n <name>` without a run id searches the repository's runs; the names are unique, as each holds its
+commit. A commit you pushed yourself has no artifact: stage its files with the skill.
 
 ## Server
 
