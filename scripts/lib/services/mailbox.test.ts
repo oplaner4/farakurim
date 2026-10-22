@@ -15,80 +15,11 @@ describe("judgeMessage", () => {
     }
   });
 
-  it("accepts the address in any case and with a display name", async () => {
-    const raw = await dkimSigned(
-      message({ from: "Fara Kuřim <Fara.Kurim@seznam.cz>", files: ["a.docx"] }),
-      "seznam.cz",
-    );
-    expect((await judgeMessage(raw, { resolver })).kind).toBe("sheet");
-  });
-
-  it("refuses another sender, a dotless variant and an unsigned or wrongly signed message", async () => {
-    for (const from of ["farakurim@seznam.cz", "fara.kurim@email.cz"]) {
-      const raw = await dkimSigned(message({ from, files: ["a.docx"] }), "seznam.cz");
-      expect(await judgeMessage(raw, { resolver })).toEqual({ kind: "rejected", reason: "sender" });
-    }
+  it("refuses a message the sender check refuses", async () => {
+    const stranger = await dkimSigned(message({ from: "x@seznam.cz", files: ["a.docx"] }), "seznam.cz");
+    expect(await judgeMessage(stranger, { resolver })).toEqual({ kind: "rejected", reason: "sender" });
     const unsigned = message({ from: parish, files: ["a.docx"] });
     expect(await judgeMessage(unsigned, { resolver })).toEqual({ kind: "rejected", reason: "dkim" });
-    const tampered = Buffer.from(
-      (await dkimSigned(message({ from: parish, files: ["a.docx"] }), "seznam.cz"))
-        .toString()
-        .replace("Subject: Pořad", "Subject: Jiný"),
-    );
-    expect(await judgeMessage(tampered, { resolver })).toEqual({ kind: "rejected", reason: "dkim" });
-  });
-
-  it("takes the author from the one From header the signature covers", async () => {
-    const attacker = "attacker@seznam.cz";
-    const forged = Buffer.concat([
-      Buffer.from(`From: ${parish}\r\n`),
-      await dkimSigned(message({ from: attacker, files: ["a.docx"] }), "seznam.cz"),
-    ]);
-    expect(await judgeMessage(forged, { resolver })).toEqual({ kind: "rejected", reason: "sender" });
-    const two = await dkimSigned(message({ from: `${parish}, ${attacker}`, files: ["a.docx"] }), "seznam.cz");
-    expect(await judgeMessage(two, { resolver })).toEqual({ kind: "rejected", reason: "sender" });
-    const sender = message({ from: attacker, files: ["a.docx"], headers: [`Sender: ${parish}`] });
-    expect(await judgeMessage(await dkimSigned(sender, "seznam.cz"), { resolver })).toEqual({
-      kind: "rejected",
-      reason: "sender",
-    });
-  });
-
-  it("accepts an encoded display name with the parish's address", async () => {
-    const from = `=?UTF-8?B?${Buffer.from("Fara Kuřim").toString("base64")}?= <${parish}>`;
-    const raw = await dkimSigned(message({ from, files: ["a.docx"] }), "seznam.cz");
-    expect((await judgeMessage(raw, { resolver })).kind).toBe("sheet");
-  });
-
-  it("refuses a signature of only the first bytes of a body that was extended", async () => {
-    const original = message({ from: parish, files: ["a.docx"] });
-    const bodyLength = original.length - original.indexOf("\r\n\r\n") - 4;
-    const raw = await dkimSigned(original, "seznam.cz", bodyLength);
-    expect((await judgeMessage(raw, { resolver })).kind).toBe("sheet");
-    const extended = Buffer.concat([raw, Buffer.from("--extra\r\nmore\r\n")]);
-    expect(await judgeMessage(extended, { resolver })).toEqual({ kind: "rejected", reason: "dkim" });
-  });
-
-  it("accepts the webmaster's gmail.com-signed message", async () => {
-    const raw = await dkimSigned(message({ from: "oplaner4@gmail.com", files: ["a.docx"] }), "gmail.com");
-    expect((await judgeMessage(raw, { resolver })).kind).toBe("sheet");
-  });
-
-  it("needs the signature of each sender's own provider", async () => {
-    const webmaster = await dkimSigned(message({ from: "oplaner4@gmail.com", files: ["a.docx"] }), "seznam.cz");
-    expect(await judgeMessage(webmaster, { resolver })).toEqual({ kind: "rejected", reason: "dkim" });
-    const fromGmail = await dkimSigned(message({ from: parish, files: ["a.docx"] }), "gmail.com");
-    expect(await judgeMessage(fromGmail, { resolver })).toEqual({ kind: "rejected", reason: "dkim" });
-  });
-
-  it("needs a passing seznam.cz signature", async () => {
-    const raw = await dkimSigned(message({ from: parish, files: ["a.docx"] }), "evil.example");
-    expect(await judgeMessage(raw, { resolver })).toEqual({ kind: "rejected", reason: "dkim" });
-    const both = await dkimSigned(
-      await dkimSigned(message({ from: parish, files: ["a.docx"] }), "evil.example"),
-      "seznam.cz",
-    );
-    expect((await judgeMessage(both, { resolver })).kind).toBe("sheet");
   });
 
   it("matches the extension in any case and counts the DOCX files", async () => {

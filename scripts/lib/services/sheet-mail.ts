@@ -1,30 +1,19 @@
-// Fetches the service sheet e-mails of the parish's mailbox over IMAP and files them afterwards. `fetchSheet` judges
-// every unseen message (judgeMessage()), writes the newest sheet's DOCX to a folder and moves nothing; `fileMessages`
-// then moves the messages to `Zpracováno` or `Odmítnuto`. Nothing here marks a message seen. The summary lines carry
+// Fetches the service sheet e-mails of the parish's mailbox over IMAP (../mail/imap.ts). `fetchSheet` judges every
+// unseen message (judgeMessage()), writes the newest sheet's DOCX to a folder and moves nothing; `fileMessages` then
+// moves the messages to `Zpracováno` or `Odmítnuto`. Nothing here marks a message seen. The summary lines carry
 // dates (Prague time) and kinds only, never a subject, a sender, text or an attachment name.
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { format } from "date-fns";
-import { ImapFlow } from "imapflow";
 import type { DNSResolver } from "mailauth";
 import { inPrague } from "@/lib/shared/prague";
 import { parseCommandLine } from "../command";
+import { fileMessages, imapEnv, imapMailbox, uidList, type Mailbox } from "../mail/imap";
 import { judgeMessage, pickNewest, type Verdict } from "./mailbox";
-
-/** The folder of the messages that are done and the folder of the ones that are not the parish's sheet. */
-export const PROCESSED_FOLDER = "Zpracováno";
-export const REJECTED_FOLDER = "Odmítnuto";
 
 /** The DOCX is written under this fixed ASCII name, whatever the attachment was called. */
 export const DOCX_FILE = "porad.docx";
-
-export type Mailbox = {
-  /** The unseen messages of the inbox with their raw source, oldest first. */
-  unseen(): Promise<{ uid: number; source: Buffer }[]>;
-  move(uids: number[], folder: string): Promise<void>;
-  close(): Promise<void>;
-};
 
 export type MailOutcome = {
   /** The DOCX written, when there is a sheet. */
@@ -78,66 +67,10 @@ export async function fetchSheet(
   return outcome;
 }
 
-/** Moves the `processed` messages to Zpracováno and the `rejected` ones to Odmítnuto; an empty list moves nothing. */
-export async function fileMessages(
-  mailbox: Mailbox,
-  { processed, rejected }: { processed: number[]; rejected: number[] },
-): Promise<void> {
-  if (processed.length) await mailbox.move(processed, PROCESSED_FOLDER);
-  if (rejected.length) await mailbox.move(rejected, REJECTED_FOLDER);
-}
-
-/**
- * The inbox over IMAP (TLS, port 993). A thin adapter, not unit-tested: it creates the two folders when missing and
- * fetches the sources with BODY.PEEK, so no message is marked seen.
- */
-export async function imapMailbox(env: { host: string; user: string; password: string }): Promise<Mailbox> {
-  const client = new ImapFlow({
-    host: env.host,
-    port: 993,
-    secure: true,
-    auth: { user: env.user, pass: env.password },
-    logger: false,
-  });
-  await client.connect();
-  const existing = new Set((await client.list()).map((box) => box.path));
-  for (const folder of [PROCESSED_FOLDER, REJECTED_FOLDER]) {
-    if (!existing.has(folder)) await client.mailboxCreate(folder);
-  }
-  const lock = await client.getMailboxLock("INBOX");
-  return {
-    async unseen() {
-      const uids = (await client.search({ seen: false }, { uid: true })) || [];
-      if (!uids.length) return [];
-      const found: { uid: number; source: Buffer }[] = [];
-      for await (const message of client.fetch(uids, { uid: true, source: true }, { uid: true })) {
-        if (message.source) found.push({ uid: message.uid, source: message.source });
-      }
-      return found.sort((a, b) => a.uid - b.uid);
-    },
-    async move(uids, folder) {
-      await client.messageMove(uids, folder, { uid: true });
-    },
-    async close() {
-      lock.release();
-      await client.logout();
-    },
-  };
-}
-
 export type SheetMailCommand =
   { action: "fetch"; out: string } | { action: "file"; processed: number[]; rejected: number[] };
 
 const USAGE = "Usage: pnpm sheet-mail fetch --out <dir> | file --processed <uid,…> --rejected <uid,…>";
-
-const uidList = (value: string | undefined): number[] =>
-  (value ?? "")
-    .split(",")
-    .filter(Boolean)
-    .map((part) => {
-      if (!/^[1-9]\d*$/.test(part)) throw new Error(`"${part}" is not a message uid\n${USAGE}`);
-      return Number(part);
-    });
 
 export function parseCommand(args: string[]): SheetMailCommand {
   const { values, positionals } = parseCommandLine(
@@ -152,23 +85,9 @@ export function parseCommand(args: string[]): SheetMailCommand {
     return { action, out: values.out };
   }
   if (action === "file") {
-    return { action, processed: uidList(values.processed), rejected: uidList(values.rejected) };
+    return { action, processed: uidList(values.processed, USAGE), rejected: uidList(values.rejected, USAGE) };
   }
   throw new Error(USAGE);
-}
-
-/**
- * The IMAP login from IMAP_HOST, IMAP_USER and IMAP_PASSWORD; missing ones throw, naming them, and so does a host
- * that is a URL or carries a port (the DNS lookup would fail on it with a bare ENOTFOUND).
- */
-export function imapEnv(env: Record<string, string | undefined> = process.env) {
-  const missing = ["IMAP_HOST", "IMAP_USER", "IMAP_PASSWORD"].filter((name) => !env[name]);
-  if (missing.length) throw new Error(`set ${missing.join(", ")}`);
-  const host = env.IMAP_HOST!.trim();
-  if (!/^[a-z0-9.-]+$/i.test(host)) {
-    throw new Error("IMAP_HOST is a host name like mail.example.cz: no http://, no path, no port (993 is used)");
-  }
-  return { host, user: env.IMAP_USER!, password: env.IMAP_PASSWORD! };
 }
 
 /** Runs `fetch` (the outcome as one JSON document on stdout) or `file`. */

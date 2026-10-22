@@ -12,6 +12,7 @@ import { afterEach, beforeEach, vi } from "vitest";
 import type { NewsEvent } from "@/content/types/news";
 import { periodDates } from "@/lib/services/service-sheet";
 import { EXCEPTIONS_FILE, NEWS_DIR, ROOT, SERVICE_SHEETS_FILE, PETRKLIC_FILE } from "./content-files";
+import type { Mailbox } from "./mail/imap";
 import type { StageEnv } from "./stage/core";
 import { UPLOADS_DIR } from "./uploads";
 
@@ -186,6 +187,13 @@ const { publicKey, privateKey } = generateKeyPairSync("rsa", {
   privateKeyEncoding: { type: "pkcs8", format: "pem" },
 });
 const publicKeyBody = publicKey.replace(/-----[A-Z ]+-----|\s/g, "");
+
+/** A mailbox holding `messages`, whose `move` records its calls. */
+export function fakeMailbox(messages: { uid: number; source: Buffer }[]) {
+  const move = vi.fn<Mailbox["move"]>(async () => {});
+  const mailbox: Mailbox = { unseen: async () => messages, move, close: async () => {} };
+  return { mailbox, move };
+}
 
 /** A fake DNS: the `test` selector of every domain holds the test key. */
 export const fakeDkimResolver = async (name: string, type: string): Promise<string[][]> => {

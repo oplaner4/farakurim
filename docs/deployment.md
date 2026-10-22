@@ -57,7 +57,8 @@ tests only) before it builds with the variables above.
 ## Service sheet by e-mail
 
 The parish (or the webmaster) e-mails the year's service sheet DOCX to the service sheet mailbox. Each sender must be
-in `SENDERS` in `scripts/lib/services/mailbox.ts` and carry its provider's DKIM signature.
+in `SHEET_SENDERS` in `scripts/lib/mail/senders.ts` (the senders every content workflow shares) and carry its
+provider's DKIM signature.
 `.github/workflows/service-sheet.yml` (on the cron's schedule,
 [started by the hosting's cron](hosting.md#starting-the-workflows-on-time), or **Run workflow** by hand) then:
 
@@ -123,7 +124,7 @@ one DOCX, or a failed step. A failed step leaves the mail unseen for the next ru
 ### First run
 
 The maintainer does this after the setup; an agent never does (it reads the mailbox). Send a test e-mail with the
-DOCX from `fara.kurim@seznam.cz` (or `oplaner4@gmail.com`) and one from another address, run the workflow by hand,
+DOCX from `fara.kurim@seznam.cz` (or `oplaner4@seznam.cz`) and one from another address, run the workflow by hand,
 and check in the run:
 
 - the IMAP login works and both folders exist;

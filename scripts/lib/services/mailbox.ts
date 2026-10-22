@@ -1,17 +1,9 @@
-// Which e-mail is accepted as the parish's service sheet: sent from one of SENDERS (the parish's own address, or the
-// webmaster's), carrying a valid DKIM signature of that sender's provider, with exactly one DOCX attached. The `From` header is forged
-// easily and an `Authentication-Results` header is written by whoever relayed the message, so neither is trusted:
-// the DKIM signatures are verified here on the raw message, and the author is the one From header that
-// verification parsed. A verdict never carries the message's text.
+// Which e-mail is accepted as the parish's service sheet: from one of SHEET_SENDERS with its provider's DKIM signature
+// (judgeSender()), with exactly one DOCX attached. A verdict never carries the message's text.
 
-import { dkimVerify, type DNSResolver } from "mailauth";
+import type { DNSResolver } from "mailauth";
 import { simpleParser } from "mailparser";
-
-/** The accepted senders, each with the domain whose DKIM signature must vouch for it. */
-export const SENDERS: Readonly<Record<string, string>> = {
-  "fara.kurim@seznam.cz": "seznam.cz",
-  "oplaner4@gmail.com": "gmail.com", // the webmaster
-};
+import { judgeSender, SHEET_SENDERS } from "../mail/senders";
 
 export type Verdict =
   | { kind: "sheet"; date: Date; docx: { name: string; content: Buffer } }
@@ -20,15 +12,8 @@ export type Verdict =
 
 /** Judges one raw message; `resolver` answers the DKIM key lookups (the real DNS by default). */
 export async function judgeMessage(raw: Buffer, { resolver }: { resolver?: DNSResolver } = {}): Promise<Verdict> {
-  const { results, fromFields, headerFrom } = await dkimVerify(raw, { resolver });
-  // Exactly one From header with one address: a second header or address could differ from the signed one.
-  const dkimDomain = fromFields === 1 && headerFrom.length === 1 ? SENDERS[headerFrom[0].toLowerCase()] : undefined;
-  if (!dkimDomain) return { kind: "rejected", reason: "sender" };
-  // A signature of the first `l=` bytes (`underSized`) says nothing about the rest of the body.
-  const signed = results.some(
-    (r) => r.status.result === "pass" && !r.status.underSized && r.signingDomain === dkimDomain,
-  );
-  if (!signed) return { kind: "rejected", reason: "dkim" };
+  const sender = await judgeSender(raw, SHEET_SENDERS, { resolver });
+  if (sender.kind === "rejected") return { kind: "rejected", reason: sender.reason };
 
   const mail = await simpleParser(raw);
   const date = mail.date ?? new Date(0);

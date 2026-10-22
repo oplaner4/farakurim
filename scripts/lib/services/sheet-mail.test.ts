@@ -1,17 +1,11 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { describe, expect, it, vi } from "vitest";
-import { dkimSigned, fakeDkimResolver as resolver, freshTempDir, mailMessage } from "../test-helpers";
-import { fetchSheet, fileMessages, imapEnv, parseCommand, type Mailbox } from "./sheet-mail";
+import { describe, expect, it } from "vitest";
+import { dkimSigned, fakeDkimResolver as resolver, fakeMailbox, freshTempDir, mailMessage } from "../test-helpers";
+import { fetchSheet, parseCommand } from "./sheet-mail";
 
 const dir = freshTempDir("sheet-mail");
 const parish = "fara.kurim@seznam.cz";
-
-function fakeMailbox(messages: { uid: number; source: Buffer }[]) {
-  const move = vi.fn<Mailbox["move"]>(async () => {});
-  const mailbox: Mailbox = { unseen: async () => messages, move, close: async () => {} };
-  return { mailbox, move };
-}
 
 const sheet = (name: string, date: string) =>
   dkimSigned(mailMessage({ from: parish, files: [{ name, content: Buffer.from(`docx ${date}`) }], date }), "seznam.cz");
@@ -64,23 +58,6 @@ describe("fetchSheet", () => {
   });
 });
 
-describe("fileMessages", () => {
-  it("moves each non-empty list to its folder", async () => {
-    const { mailbox, move } = fakeMailbox([]);
-    await fileMessages(mailbox, { processed: [1, 3], rejected: [2] });
-    expect(move.mock.calls).toEqual([
-      [[1, 3], "Zpracováno"],
-      [[2], "Odmítnuto"],
-    ]);
-  });
-
-  it("moves nothing for empty lists", async () => {
-    const { mailbox, move } = fakeMailbox([]);
-    await fileMessages(mailbox, { processed: [], rejected: [] });
-    expect(move).not.toHaveBeenCalled();
-  });
-});
-
 describe("command line", () => {
   it("reads fetch and file", () => {
     expect(parseCommand(["fetch", "--out", "x"])).toEqual({ action: "fetch", out: "x" });
@@ -96,22 +73,5 @@ describe("command line", () => {
     expect(() => parseCommand([])).toThrow("Usage");
     expect(() => parseCommand(["fetch"])).toThrow("--out");
     expect(() => parseCommand(["file", "--processed", "a"])).toThrow("not a message uid");
-  });
-
-  it("names the missing credentials", () => {
-    expect(() => imapEnv({ IMAP_HOST: "h" })).toThrow("IMAP_USER, IMAP_PASSWORD");
-    expect(imapEnv({ IMAP_HOST: "h", IMAP_USER: "u", IMAP_PASSWORD: "p" })).toEqual({
-      host: "h",
-      user: "u",
-      password: "p",
-    });
-  });
-
-  it("refuses an IMAP_HOST that is not a bare host name", () => {
-    const login = { IMAP_USER: "u", IMAP_PASSWORD: "p" };
-    for (const host of ["http://mail.cesky-hosting.cz/", "mail.cesky-hosting.cz:993", "mail.cesky-hosting.cz/"]) {
-      expect(() => imapEnv({ ...login, IMAP_HOST: host })).toThrow("IMAP_HOST is a host name");
-    }
-    expect(imapEnv({ ...login, IMAP_HOST: " mail.cesky-hosting.cz " }).host).toBe("mail.cesky-hosting.cz");
   });
 });
