@@ -13,6 +13,6 @@
 //        pnpm content-release apply <plan.json> <dir>
 // The plan reads the repository and the token from GITHUB_REPOSITORY and GH_TOKEN.
 import { runCommand } from "./lib/command";
-import { execute, parseCommand } from "./lib/content-release";
+import { execute, parseCommand } from "./lib/content-release/command";
 
 runCommand("content-release", import.meta.url, parseCommand, execute);
