@@ -140,10 +140,68 @@ and check in the run:
 - after you squash merge the PR, the release run uploads its PDF, the tag's deploy run is green, and the PR gets the
   comment "Released in vX.Y.Z" and loses its branch.
 
+## Events by e-mail
+
+An accepted sender e-mails new events to `aktuality@farakurim.cz`: the senders every content workflow shares
+(`fara.kurim@seznam.cz`, `oplaner4@seznam.cz`) and `milancisar@centrum.cz`, as `EVENT_SENDERS` in
+`scripts/lib/mail/senders.ts` lists them, each with its provider's DKIM signature. `.github/workflows/events.yml`
+(started by the hosting's cron, or **Run workflow** by hand) takes the oldest unread event mail and:
+
+1. reads it (`pnpm event-mail fetch`): the subject, the new text (without a quoted reply or the signature) and the
+   attachments a poster can be made from (PDF, PNG, JPG, WebP). A stranger's mail is filed in `Odmítnuto` silently;
+   a mail with neither such an attachment nor both a subject and a text is refused;
+2. lists the known events (`pnpm event-mail known`): the upcoming ones on `main` and those the open `events/*` PRs
+   add;
+3. lets Claude run `parish-create-event` unattended ("Unattended run"): it groups the attachments into events (one
+   attachment is one event; related ones are one event with its poster and attachments; others it drops, described
+   in the report), takes each title from the subject or its poster, fills the text from the attachments, pins only
+   when the mail asks for "Doporučujeme", and refuses a **correction** (oprava, změna, posun, přesun, zrušeno, nekoná,
+   …: make it with `parish-correct-event` or `parish-cancel-event`) and a **duplicate** of a known event;
+4. tests and builds the new events, commits them as the GitHub App's bot and opens **one PR per mail** on a branch
+   `events/<date>`, its body the report (only what is published is quoted: the PR is public), locked, a draft when
+   the report has a blocking question. It refuses an id an open events PR already holds (`pnpm event-mail
+check-ids`). The staged files go into the artifact `content-uploads-<sha>`;
+5. files the mail in `Zpracováno` once its PR exists, or in `Odmítnuto` when it added nothing.
+
+While accepted mail remains, the run starts the next one, up to 5 runs per start of the cron.
+
+**When you hear of it:** the run fails, so GitHub tells you, when an accepted sender's mail added nothing (every event
+refused, or neither an attachment nor a subject and a text), when a known sender's DKIM check failed (a forwarded
+mail, a new provider: their address is named), or on a technical failure (the mail stays unread for the next run).
+A PR, a draft with a question, or a PR with some events refused (listed in it) leaves the run green: the PR tells
+you. Nothing is sent to the senders.
+
+**Answering the PR:** as for sheets, a squash merge publishes through the [content release](#content-release), close
+means no. Fix an event with a commit to the PR's branch (the release goes ahead when it links no new file), or with
+the local skills. Two events PRs that add events at the same place in a month conflict once one is merged: resolve
+it in GitHub's editor, or close the PR and send the mail again.
+
+### Setup (once)
+
+- **Mailbox** `aktuality@farakurim.cz` (cesky-hosting.cz administration); the script creates `Zpracováno` and
+  `Odmítnuto`.
+- **Environment** `events-publish`, deployment branches allowing `main`, no required reviewers: variable `IMAP_HOST`,
+  secrets `IMAP_USER` and `IMAP_PASSWORD` of that mailbox, and the variable `ANTHROPIC_FEDERATION_RULE_ID` of the
+  rule below (it overrides the repository variable for this workflow only).
+- **Claude Console:** a second federation rule for the same service account, `subject_prefix` exactly
+  `repo:oplaner4@38047115/farakurim@1403139652:environment:events-publish`, audience `https://api.anthropic.com`,
+  the same scope and lifetime as the sheet's rule.
+- **Cron:** `cron-scripts/events.php` is synced by `pnpm release`; the cron that runs `CRON_DIR`
+  ([hosting.md](hosting.md#starting-the-workflows-on-time)) starts it.
+- The GitHub App, its key and squash merging are the sheet pipeline's.
+
+### First run
+
+The maintainer does this after the setup; an agent never does (it reads the mailbox). Send a poster from
+`fara.kurim@seznam.cz`, a mail with two unrelated posters, one with "Oprava" in the subject, and one from another
+address, run the workflow by hand, and check: the stranger is filed silently; the poster becomes a PR with the event
+and its files; the two posters become two events in one PR; the correction is refused and the run is red; the next
+run starts while mail remains; after the merge the content release publishes the event.
+
 ## Content release
 
 `.github/workflows/content-release.yml` releases the site when you squash-merge a content PR: a `service-sheet/*` PR of
-the [service sheet workflow](#service-sheet-by-e-mail) or an `events/*` PR (the events pipeline, to come). It runs on
+the [service sheet workflow](#service-sheet-by-e-mail) or an `events/*` PR of the [events workflow](#events-by-e-mail). It runs on
 `pull_request_target: closed`, so your own pushes to `main` and `pnpm release` never start it; `pnpm content-release`
 plans it. Every merged content PR since the last tag goes out in one release, in merge order: the release downloads
 the artifact `content-uploads-<sha>` of every commit of each PR, oldest first, and `pnpm content-release apply`

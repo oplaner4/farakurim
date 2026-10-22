@@ -16,12 +16,12 @@ below.
 ## Starting the workflows on time
 
 GitHub creates scheduled runs hours late (4 to 8 hours seen), while a run started through the API
-(`workflow_dispatch`) gets a runner within seconds. So a cron on the server starts both scheduled workflows:
-`service-sheet.php` the service sheet, `deploy.php` the refresh with `refresh=due`. Its schedule is set only in the
+(`workflow_dispatch`) gets a runner within seconds. So a cron on the server starts the scheduled workflows:
+`service-sheet.php` the service sheet, `events.php` the events mailbox, `deploy.php` the refresh with `refresh=due`. Its schedule is set only in the
 hosting's administration and may change; nothing in the repository depends on it. The workflows have no GitHub
 schedule: when the cron fails (see the log below), they do not run until its next run or until started by hand.
 
-The scripts are in `cron-scripts/`; the two share `github.inc.php`, which sends the dispatch, tries a network error
+The scripts are in `cron-scripts/`; they share `github.inc.php`, which sends the dispatch, tries a network error
 or a 5xx again and logs. `pnpm release` syncs them (`scripts/deploy.sh cron`, permissions 700, no `--delete`) to the
 cron's folder, `CRON_DIR` in `scripts/deploy.sh`, shown in its preview and done after the yes. A cron that runs every
 script of the folder runs `github.inc.php` too, which only defines functions. Next to the scripts live, only on the
@@ -34,7 +34,7 @@ Setup, by the maintainer (an agent never connects to the server):
 1. **Cron**: a cron that runs the scripts in `CRON_DIR` on the schedule you choose (how: the provider below).
 2. **Token**: GitHub → Settings → Developer settings → Fine-grained tokens, repository `oplaner4/farakurim` only,
    repository permission **Actions: Read and write** and nothing else. It can start and cancel workflow runs, not
-   push code or read secrets. Note its expiry date: an expired token logs `HTTP 401`, and neither workflow runs
+   push code or read secrets. Note its expiry date: an expired token logs `HTTP 401`, and no workflow runs
    until it is renewed.
 3. **Token file**: over SFTP, `github-dispatch.token` in `CRON_DIR` holding the token alone, permissions 600 (not
    executable, so a cron that runs the folder's executable files skips it).
@@ -42,7 +42,7 @@ Setup, by the maintainer (an agent never connects to the server):
 5. **Test**: move the cron a few minutes ahead and wait. `github-dispatch.log` in `CRON_DIR` gets one line per
    workflow and run, `started (HTTP 204 …)` or `FAILED, …` with the reason (a network error when PHP cannot reach
    api.github.com; 401 a wrong or expired token; 403 or 404 a token without access), and the Actions tab shows a
-   `workflow_dispatch` run of Service sheet and of Deploy (that one ends after a few seconds unless a refresh is due).
+   `workflow_dispatch` run of Service sheet, of Events and of Deploy (that one ends after a few seconds unless a refresh is due).
    Then set the cron's schedule back.
 
 ## Providers
