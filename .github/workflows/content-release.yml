@@ -1,68 +1,67 @@
-# Releases the site when a service sheet PR is merged (docs/deployment.md "Service sheet by e-mail"). The maintainer's
-# squash merge of a `service-sheet/*` PR (opened by service-sheet.yml) is the yes to publish. It runs on
-# `pull_request_target: closed`, so a push to main (the maintainer's own content, `pnpm release`) never starts it, and
-# every other closed PR only makes a skipped run. Not `pull_request`: an environment's deployment branch rule is matched
-# against GITHUB_REF, which is refs/pull/N/merge for a pull request run, while a pull_request_target run has main, which
-# Production allows. pull_request_target runs with the secrets even for a fork's PR, so the jobs check out main only,
-# never the PR's code, and the `plan` job runs only for a merged PR from a `service-sheet/` branch of this repo.
-# - `plan` runs `pnpm sheet-release` (scripts/sheet-release.ts) on the commits since the last tag. It skips when none
-#   of them is a sheet PR's squash commit and ends green when an earlier run released
-#   everything. It stops with a comment on the sheet PRs, releasing nothing, unless every unreleased commit is a
-#   merged sheet PR's squash commit (another commit's uploads live only on the maintainer's machine), when a PDF
-#   artifact expired, or when a commit of such a PR was pushed by hand and has no artifact (its PDF may exist only on
-#   that machine): then the maintainer releases by hand (docs/deployment.md). Only artifacts of runs on this repo's
-#   main count: a fork's pull request run can upload an artifact under any name.
+# Releases the site when a content PR is merged (docs/deployment.md "Content release"): the maintainer's squash merge of
+# a `service-sheet/*` PR (opened by service-sheet.yml) or an `events/*` PR (the events pipeline) is the yes to publish.
+# It runs on `pull_request_target: closed`, so a push to main (the maintainer's own content, `pnpm release`) never
+# starts it, and every other closed PR only makes a skipped run. Not `pull_request`: an environment's deployment branch
+# rule is matched against GITHUB_REF, which is refs/pull/N/merge for a pull request run, while a pull_request_target run
+# has main, which Production allows. pull_request_target runs with the secrets even for a fork's PR, so the jobs check
+# out main only, never the PR's code, and the `plan` job runs only for a merged PR from a content branch of this repo.
+# - `plan` runs `pnpm content-release` (scripts/content-release.ts) on the commits since the last tag. It skips when
+#   none of them is a content PR's squash commit and ends green when an earlier run released everything. It stops with
+#   a comment on the content PRs, releasing nothing, when main holds a commit only a release by hand may publish (a
+#   feat, the content scope, a breaking change or a header that does not parse: the maintainer's own content may have
+#   staged files only on their machine, and a feature goes live when they release it; other commits and merge commits
+#   go out with the PRs), when an artifact expired, or when a commit of such a PR was pushed by hand and has no
+#   artifact (its files may exist only on that machine): then the maintainer releases by hand (docs/deployment.md).
+#   Only artifacts of runs on this repo's main count: a fork's pull request run can upload an artifact under any name.
 # - `release` (environment Production: the SSH key) plans again on the main it checked out, so a merge that landed
-#   meanwhile goes out too (or stops it with the reason). It downloads the PDF artifacts of every commit of those PRs
-#   into the staging folder: each service-sheet.yml run hands on only the PDFs it staged, and the PRs in merge
-#   order, their commits oldest first, let the newest PDF of a week win. Then `pnpm release --yes` uploads them,
-#   bumps the version, tags and pushes main with the App token, so the tag starts deploy.yml, which checks, builds
-#   and deploys unchanged. The job waits for that deploy and comments "Released in vX.Y.Z" on each PR and deletes its
-#   branch, or comments the failure. A failed release is fixed in a new commit; never move a tag.
-# Two sheet PRs merged close together go out in one release: the runs queue, and a later one finds nothing to
+#   meanwhile goes out too (or stops it with the reason). It downloads the artifacts of every commit of those PRs and
+#   `pnpm content-release apply` copies them into the staging folder, after checking that each file lies in its PR's
+#   kind's folder: each content workflow run hands on only the files it staged, and the PRs in merge order, their
+#   commits oldest first, let the newest file of a path win. Then `pnpm release --yes` uploads them, bumps the version,
+#   tags and pushes main with the App token, so the tag starts deploy.yml, which checks, builds and deploys unchanged.
+#   The job waits for that deploy and comments "Released in vX.Y.Z" on each PR and deletes its branch, or comments the
+#   failure. A failed release is fixed in a new commit; never move a tag.
+# Two content PRs merged close together go out in one release: the runs queue, and a later one finds nothing to
 # release.
 # The App key is a repository secret (CONTENT_APP_PRIVATE_KEY, shared with service-sheet.yml); a secret reaches only
 # the steps that name it. The runner image and the actions are pinned (actions by commit SHA).
 
-name: Service sheet release
+name: Content release
 
 on:
   pull_request_target:
     types: [closed]
     branches: [main] # the PR's base
 
-# One sheet release at a time, never cancelled mid-release; a newer pending run replaces an older one, and it sees
-# every merge. Any other closed PR gets a group of its own, so its skipped run never replaces a sheet merge's.
+# One content release at a time, never cancelled mid-release; a newer pending run replaces an older one, and it sees
+# every merge. Any other closed PR gets a group of its own, so its skipped run never replaces a content merge's.
 concurrency:
   group: >-
-    ${{ github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'service-sheet/')
-    && 'service-sheet-release' || format('service-sheet-release-{0}', github.run_id) }}
+    ${{ github.event.pull_request.merged && (startsWith(github.event.pull_request.head.ref, 'service-sheet/')
+    || startsWith(github.event.pull_request.head.ref, 'events/'))
+    && 'content-release' || format('content-release-{0}', github.run_id) }}
   cancel-in-progress: false
 
 permissions:
   contents: read
 
-# The copies a test checks: the folder of the uploaded files (UPLOADS_PATH in src/lib/shared/uploads.ts) and of the
-# sheet PDFs in it (SHEETS_FOLDER in src/lib/services/service-sheet.ts), without their slashes, the site (SITE_URL in src/content/site.ts) and its
-# Pořad bohoslužeb page (links.services).
+# The copy a test checks: the site (SITE_URL in src/content/site.ts). Each PR's page comes from the plan.
 env:
-  UPLOADS: uploads
-  SHEETS: porady_bohosluzeb
   SITE: https://farakurim.cz
-  SERVICES_PAGE: /porad_bohosluzeb/
 
 jobs:
   plan:
-    # A merged sheet PR of this repo only; a fork can name its branch the same.
+    # A merged content PR of this repo only; a fork can name its branch the same.
     if: >-
-      github.event.pull_request.merged && startsWith(github.event.pull_request.head.ref, 'service-sheet/')
+      github.event.pull_request.merged && (startsWith(github.event.pull_request.head.ref, 'service-sheet/')
+      || startsWith(github.event.pull_request.head.ref, 'events/'))
       && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
       contents: read
       pull-requests: read # the PRs of the commits
-      actions: read # the PDF artifacts
+      actions: read # the artifacts
     outputs:
       action: ${{ steps.plan.outputs.action }}
       plan: ${{ steps.plan.outputs.plan }}
@@ -89,7 +88,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           plan="$RUNNER_TEMP/plan.json"
-          pnpm --silent sheet-release > "$plan"
+          pnpm --silent content-release > "$plan"
           action=$(jq -r .action "$plan")
           echo "action=$action" >> "$GITHUB_OUTPUT"
           echo "plan=$(jq -c . "$plan")" >> "$GITHUB_OUTPUT"
@@ -128,11 +127,11 @@ jobs:
     timeout-minutes: 60
     environment:
       name: Production
-      url: ${{ env.SITE }}${{ env.SERVICES_PAGE }}
+      url: ${{ env.SITE }}/
     permissions:
       contents: read # the push and the comments use the App token
       pull-requests: read # the PRs of the commits
-      actions: read # the PDF artifacts and the deploy run
+      actions: read # the artifacts and the deploy run
     env:
       # The plan of `plan`, for the failure comment until this job's own plan exists.
       FIRST_PLAN: ${{ needs.plan.outputs.plan }}
@@ -172,7 +171,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           plan="$RUNNER_TEMP/plan.json"
-          pnpm --silent sheet-release > "$plan"
+          pnpm --silent content-release > "$plan"
           action=$(jq -r .action "$plan")
           echo "action=$action" >> "$GITHUB_OUTPUT"
           case "$action" in
@@ -213,20 +212,20 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
 
-      # In the plan's order, so a later PDF of the same name (a correction) overwrites an earlier one.
-      - name: Download the PDFs
+      # `apply` checks every file first and copies them in the plan's order, so a later file of the same path (a
+      # correction) overwrites an earlier one.
+      - name: Download the artifacts
         if: steps.plan.outputs.action == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          mkdir -p "$UPLOADS/$SHEETS"
+          mkdir -p "$RUNNER_TEMP/artifacts"
           jq -r '.pulls[].artifacts[] | "\(.runId) \(.name)"' "$RUNNER_TEMP/plan.json" | while read -r run name; do
-            gh run download "$run" --repo "$GITHUB_REPOSITORY" -n "$name" -D "$RUNNER_TEMP/pdf/$name"
-            cp "$RUNNER_TEMP/pdf/$name"/*.pdf "$UPLOADS/$SHEETS/"
+            gh run download "$run" --repo "$GITHUB_REPOSITORY" -n "$name" -D "$RUNNER_TEMP/artifacts/$name"
           done
-          ls -l "$UPLOADS/$SHEETS"
+          pnpm content-release apply "$RUNNER_TEMP/plan.json" "$RUNNER_TEMP/artifacts"
 
-      # Uploads the PDFs (and the cron scripts) first, then the version commit and the tag, pushed with main.
+      # Uploads the staged files (and the cron scripts) first, then the version commit and the tag, pushed with main.
       - name: Release
         id: release
         if: steps.plan.outputs.action == 'release'
@@ -261,8 +260,8 @@ jobs:
           GH_TOKEN: ${{ steps.app.outputs.token }}
           TAG: ${{ steps.release.outputs.tag }}
         run: |
-          jq -r '.pulls[] | "\(.number) \(.branch)"' "$RUNNER_TEMP/plan.json" | while read -r pr branch; do
-            gh pr comment "$pr" --repo "$GITHUB_REPOSITORY" --body "Released in $TAG: $SITE$SERVICES_PAGE"
+          jq -r '.pulls[] | "\(.number) \(.branch) \(.page)"' "$RUNNER_TEMP/plan.json" | while read -r pr branch page; do
+            gh pr comment "$pr" --repo "$GITHUB_REPOSITORY" --body "Released in $TAG: $SITE$page"
             gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$branch" > /dev/null || true
           done
 
@@ -295,9 +294,9 @@ jobs:
         run: |
           plan=$(cat "$RUNNER_TEMP/plan.json" 2> /dev/null || printf '%s' "$FIRST_PLAN")
           {
-            echo "## Service sheet release"
+            echo "## Content release"
             echo
-            jq -r '(.reason // empty), (.pulls[]? | "- PR #\(.number) (\(.branch)): \(.artifacts | length) PDF artifact(s)")' <<< "$plan"
+            jq -r '(.reason // empty), (.pulls[]? | "- PR #\(.number) (\(.kind), \(.branch)): \(.artifacts | length) artifact(s)")' <<< "$plan"
             echo
             echo "Release: ${TAG:-not tagged}, $OUTCOME."
           } >> "$GITHUB_STEP_SUMMARY"

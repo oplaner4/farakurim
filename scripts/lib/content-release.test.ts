@@ -1,12 +1,14 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, symlinkSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { ROOT } from "./content-files";
 import { describe, expect, it } from "vitest";
 import { freshTempDir } from "./test-helpers";
 import {
   applyArtifacts,
   blocksRelease,
   gitHubReader,
+  KINDS,
   parseCommand,
   planRelease,
   unreleasedCommits,
@@ -498,5 +500,17 @@ describe("applyArtifacts", () => {
 
   it("copies nothing for a plan that releases nothing", () => {
     expect(apply({ action: "none", reason: "x" })).toEqual([]);
+  });
+});
+
+describe("content-release.yml", () => {
+  const workflow = readFileSync(join(ROOT, ".github/workflows/content-release.yml"), "utf8");
+  const BRANCH_TEST = "startsWith(github.event.pull_request.head.ref, ";
+
+  it("names every kind's prefix in the job's if and the concurrency group", () => {
+    for (const { prefix } of Object.values(KINDS)) {
+      expect(workflow.split(`${BRANCH_TEST}'${prefix}')`)).toHaveLength(3);
+    }
+    expect(workflow.split(BRANCH_TEST)).toHaveLength(Object.keys(KINDS).length * 2 + 1);
   });
 });
