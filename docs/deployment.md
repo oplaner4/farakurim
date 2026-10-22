@@ -96,8 +96,8 @@ one DOCX, or a failed step. A failed step leaves the mail unseen for the next ru
 - **Mailbox** (cesky-hosting.cz administration): create a mailbox for the service sheets and note its IMAP host (its
   address is the secret `IMAP_USER` below). The script creates the folders `Zpracováno` and `Odmítnuto` itself.
 - **Environment** `service-sheet-publish` (repository Settings → Environments), for both jobs of the sheet workflow:
-  variable `IMAP_HOST` (the host name only, e.g. `mail.cesky-hosting.cz`), secrets `IMAP_USER` and `IMAP_PASSWORD`.
-  It may have no required reviewers (the scheduled run would wait), and its deployment branches must allow `main`.
+  variable `IMAP_HOST` (the host name only, e.g. `mail.cesky-hosting.cz`), secrets `IMAP_USER` and `IMAP_PASSWORD`,
+  and the variable `ANTHROPIC_FEDERATION_RULE_ID` (Claude Console, below). It may have no required reviewers (the scheduled run would wait), and its deployment branches must allow `main`.
 
 - **GitHub App** (Settings → Developer settings → GitHub Apps), e.g. "Farakurim content": one App for every workflow
   that commits content and opens PRs (a later one for events reuses it), installed on this repository only,
@@ -115,8 +115,10 @@ one DOCX, or a failed step. A failed step leaves the mail unseen for the next ru
   GitHub's subject carries the account and repository IDs after the names, so a recreated repo of the same name does
   not match; the Console's workload identity History shows the subject a run sent), audience
   `https://api.anthropic.com`, the narrowest scope that runs Claude Code (`workspace:inference` if it suffices), token
-  lifetime 3600 s. Then the repository variables `ANTHROPIC_FEDERATION_RULE_ID`, `ANTHROPIC_ORGANIZATION_ID`,
-  `ANTHROPIC_SERVICE_ACCOUNT_ID` and `ANTHROPIC_WORKSPACE_ID`. Never set `ANTHROPIC_API_KEY`: a leftover one, even
+  lifetime 3600 s. Then the rule's ID as the variable `ANTHROPIC_FEDERATION_RULE_ID` of the environment
+  `service-sheet-publish` (each mail workflow's environment holds its own rule, with no repository-wide fallback), and
+  the repository variables `ANTHROPIC_ORGANIZATION_ID`, `ANTHROPIC_SERVICE_ACCOUNT_ID` and `ANTHROPIC_WORKSPACE_ID`,
+  shared by both mail workflows. Never set `ANTHROPIC_API_KEY`: a leftover one, even
   empty, wins over federation. A denial is a bare 401; the reason is in the Console's workload identity history.
 - **Repository variable** `GOOGLE_CALENDAR_API_KEY` (already set, [GitHub setup](#github-setup)) for the build in
   `publish`.
@@ -186,7 +188,7 @@ it in GitHub's editor, or close the PR and send the mail again.
   `Odmítnuto`.
 - **Environment** `events-publish`, deployment branches allowing `main`, no required reviewers: variable `IMAP_HOST`,
   secrets `IMAP_USER` and `IMAP_PASSWORD` of that mailbox, and the variable `ANTHROPIC_FEDERATION_RULE_ID` of the
-  rule below (it overrides the repository variable for this workflow only).
+  rule below (the sheet's rule is the same variable of `service-sheet-publish`).
 - **Claude Console:** a second federation rule for the same service account, `subject_prefix` exactly
   `repo:oplaner4@38047115/farakurim@1403139652:environment:events-publish`, audience `https://api.anthropic.com`,
   the same scope and lifetime as the sheet's rule.
