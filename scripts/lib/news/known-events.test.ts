@@ -17,12 +17,12 @@ import {
 const repo = "oplaner4/farakurim";
 
 describe("upcomingEvents", () => {
-  it("keeps what has not ended, long-term events without an end too", () => {
+  it("keeps what has not ended, long-term events until their end", () => {
     const events = [
       newsEvent({ id: "vcera", start: "2026-10-21" }),
       newsEvent({ id: "dnes", start: "2026-10-22", startTime: "18:00" }),
       newsEvent({ id: "tyden", start: "2026-10-20", end: "2026-10-25" }),
-      newsEvent({ id: "trvale", start: "2025-09-01", longTerm: { weeklyAt: "18:30" } }),
+      newsEvent({ id: "trvale", start: "2025-09-01", end: "2026-12-31", longTerm: { weeklyAt: "18:30" } }),
     ];
     expect(upcomingEvents(events, "2026-10-22")).toEqual([
       {
@@ -41,7 +41,14 @@ describe("upcomingEvents", () => {
         place: "Česká, náves",
         where: "main",
       },
-      { id: "trvale", title: "Hody v České", start: "2025-09-01", place: "Česká, náves", where: "main" },
+      {
+        id: "trvale",
+        title: "Hody v České",
+        start: "2025-09-01",
+        end: "2026-12-31",
+        place: "Česká, náves",
+        where: "main",
+      },
     ]);
   });
 });

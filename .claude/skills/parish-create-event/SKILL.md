@@ -40,7 +40,7 @@ Write the text from the source, in Czech; do not invent facts. Leave out what th
 | `price`                | `"300 Kč"`, `"zdarma"`, when stated.                                                                                                                        |
 | `registrationDeadline` | ISO date of "přihlášky do …".                                                                                                                               |
 | `sessions`             | Listed meeting dates of a series, in order from `start` to `end`: `["2026-10-11", …]`, or `{ date, startTime?, endTime?, end? }` with its own time or days. |
-| `longTerm`             | `{ weeklyAt: "18:30" }` for a weekly series (weekday of `start`), `true` for other long-running events.                                                     |
+| `longTerm`             | `{ weeklyAt: "18:30" }` for a weekly series (weekday of `start`), `true` for other long-running events; needs `end`.                                        |
 | `highlights`           | Only for real key facts or numbers (anniversaries); usually omit.                                                                                           |
 | `tags`                 | Free tags when nothing above fits: `[{ label: "Pro rodiny", color? }]` (`"orange"`, `"magenta"`, `"grey"`; blue). Never "Zrušeno": `change`.                |
 | `pinned`               | `true` only when the user asks for "Doporučujeme". The script moves the pin: it unpins the event pinned before and names it.                                |

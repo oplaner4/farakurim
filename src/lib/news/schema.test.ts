@@ -117,7 +117,15 @@ describe("newsEventSchema", () => {
         change: { status: "moved", previousStart: "2026-09-25", previousStartTime: "17:00", previousEndTime: "9:00" },
       }),
     ).toEqual(["change.previousEndTime: must be after previousStartTime"]);
-    expect(problems({ longTerm: { weeklyAt: "18.30" } })).toEqual(["longTerm.weeklyAt: must be H:MM"]);
+    expect(problems({ end: "2026-12-01", longTerm: { weeklyAt: "18.30" } })).toEqual([
+      "longTerm.weeklyAt: must be H:MM",
+    ]);
+  });
+
+  it("needs the last day of a long-term event", () => {
+    expect(problems({ longTerm: true })).toEqual(["end: a long-term event needs its last day"]);
+    expect(problems({ longTerm: { weeklyAt: "18:30" } })).toEqual(["end: a long-term event needs its last day"]);
+    expect(problems({ end: "2026-12-01", longTerm: true })).toEqual([]);
   });
 
   it("links uploads root-relative and other sites over https", () => {

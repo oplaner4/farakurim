@@ -3,12 +3,12 @@ import { newsEvent } from "@/test/fixtures";
 import { eventLine, notEndedBy } from "./upcoming-events";
 
 describe("notEndedBy", () => {
-  it("keeps what has not ended by the date, long-term events without an end too", () => {
+  it("keeps what has not ended by the date", () => {
     const events = [
       newsEvent({ id: "vcera", start: "2026-10-21" }),
       newsEvent({ id: "dnes", start: "2026-10-22" }),
       newsEvent({ id: "tyden", start: "2026-10-20", end: "2026-10-25" }),
-      newsEvent({ id: "trvale", start: "2025-09-01", longTerm: true }),
+      newsEvent({ id: "trvale", start: "2025-09-01", end: "2026-12-31", longTerm: true }),
     ];
     expect(notEndedBy(events, "2026-10-22").map((event) => event.id)).toEqual(["dnes", "tyden", "trvale"]);
   });

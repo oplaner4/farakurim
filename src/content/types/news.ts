@@ -117,8 +117,8 @@ export type NewsEvent = {
   /** A series' meetings that do not take place. */
   cancelledMeetings?: CancelledMeetings;
   /**
-   * Long-term series, listed under "Dlouhodobé akce". `weeklyAt` means it meets every week
-   * on the weekday of `start` at that time.
+   * Long-term series, listed under "Dlouhodobé akce" until `end`, which it needs. `weeklyAt` means it meets every
+   * week on the weekday of `start` at that time.
    */
   longTerm?: true | { weeklyAt: ClockTime };
   /**

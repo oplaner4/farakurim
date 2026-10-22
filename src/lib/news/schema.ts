@@ -167,6 +167,10 @@ export const newsEventSchema = z
         message: `must contain the start year (${event.start.slice(0, 4)})`,
       });
     }
+    // Without an end, a series would be finished after its first day on the site (eventEnd()).
+    if (event.longTerm && event.end === undefined) {
+      ctx.addIssue({ code: "custom", path: ["end"], message: "a long-term event needs its last day" });
+    }
     if (event.end !== undefined && event.end <= event.start) {
       ctx.addIssue({ code: "custom", path: ["end"], message: "must be after start (omit it for one day)" });
     }
