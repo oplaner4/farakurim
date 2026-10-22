@@ -176,7 +176,7 @@ jobs:
             A sender mailed an event to the events mailbox: ${{ runner.temp }}/event/mail (subject.txt, body.txt,
             attachments/). Run parish-create-event unattended (its "Unattended run" section). The known events are
             ${{ runner.temp }}/event/known.json, the report file is ${{ runner.temp }}/event/report.md and the
-            scratchpad is ${{ runner.temp }}/event. An event you refuse or the script refuses goes into the report.
+            scratchpad is ${{ runner.temp }}/event.
 
       # What `publish` needs, never the mail: the report, the change to src/content/news/ against the branch base (new
       # files included) and the staged event files.
