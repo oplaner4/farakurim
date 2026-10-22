@@ -4,6 +4,7 @@
 
 import { execFileSync } from "node:child_process";
 import type { NewsEvent } from "@/content/types/news";
+import { notEndedBy } from "./upcoming-events";
 
 /** An event as the duplicate check needs it; `where` is main or the number of the open PR that adds it. */
 export type KnownEvent = {
@@ -29,9 +30,7 @@ const known = (event: NewsEvent, where: KnownEvent["where"]): KnownEvent => {
 
 /** The events of `events` that have not ended by `today` (a long-term event without an end never has). */
 export function upcomingEvents(events: NewsEvent[], today: string): KnownEvent[] {
-  return events
-    .filter((event) => (event.end ?? (event.longTerm ? today : event.start)) >= today)
-    .map((event) => known(event, "main"));
+  return notEndedBy(events, today).map((event) => known(event, "main"));
 }
 
 /** The records `branch` adds to `base` or changes in it, as the PR `number`'s. */

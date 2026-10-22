@@ -5,13 +5,16 @@
 // there is named. The sheet stores the rev, so a rerun keeps it and a corrected PDF gets the next one. The source can
 // also be the parish's DOCX of the whole year: then the week is its newest one (or the one --from names), its PDF that
 // week's page of the converted document, and its draft record is read from the week's table and announcements.
+// Without a record it also lists the events an announcement can link, so the newsIds need no search of the news.
 
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { extname, join } from "node:path";
+import { addDays } from "date-fns";
+import { readEvents } from "@/content/news";
 import type { IsoDate } from "@/content/types/shared";
 import { WEEKDAY_SHORT } from "@/lib/shared/czech";
-import { pragueWeekday } from "@/lib/shared/prague";
+import { inPrague, pragueDate, pragueDateTime, pragueWeekday } from "@/lib/shared/prague";
 import { period, periodDates, periodLength, sheetPdfFile } from "@/lib/services/service-sheet";
 import {
   addServiceSheet,
@@ -23,6 +26,7 @@ import {
 import { docxToPdf } from "../services/docx-to-pdf";
 import { docxWeeks, type DocxWeek } from "../services/sheet-docx";
 import { parseWeek, weekPages } from "../services/sheet-week";
+import { eventLine, notEndedBy } from "../news/upcoming-events";
 import { correctedHint, correctedRev, MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
 import { extractPdfPages, pdfFirstPageText, pdfPageTexts } from "../images";
 
@@ -104,6 +108,19 @@ const weekLines = ({ validFrom, validTo, rev }: { validFrom: string; validTo: st
   `days: ${weekDays(validFrom, validTo).join(", ")}`,
 ];
 
+/** How long before the week an event may have ended and still be announced (a thanks for it). */
+const NEWS_DAYS_BEFORE = 14;
+
+/** The lines listing the events an announcement of the week can link (`newsId`): those not ended 14 days before it. */
+function newsLines(newsDir: string, validFrom: IsoDate): string[] {
+  const from = pragueDate(addDays(pragueDateTime(validFrom, "12:00"), -NEWS_DAYS_BEFORE, { in: inPrague }));
+  const events = notEndedBy(readEvents(newsDir), from).toSorted((a, b) => a.start.localeCompare(b.start));
+  return [
+    `Events for newsId (not ended by ${from}):`,
+    ...(events.length ? events.map((e) => `  ${eventLine(e)}`) : ["  none"]),
+  ];
+}
+
 /**
  * The PDF to stage and its week: the PDF `src` itself, or the week's page of the DOCX `src` converted in `dir` (and,
  * with `draft`, the week's draft record written there). Returns the lines to print too.
@@ -183,7 +200,7 @@ export async function stageSheet(env: StageEnv, options: SheetOptions) {
               `The sheet ${period(week)} is already in src/content/service-sheets.json, not released yet: --record replaces it, so start the record from that sheet to keep its fixes`,
             ]
           : [];
-      return { lines: [...lines, ...weekLines(sheet), ...note], written: [] };
+      return { lines: [...lines, ...weekLines(sheet), ...newsLines(env.newsDir, validFrom), ...note], written: [] };
     }
     if (check) return { lines, written: [] };
     const result = addServiceSheet(env, options.record, sheet);

@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { stageSheet, weekDays } from "./sheet";
+import { addEvent } from "../news/add-event";
 import { extractPdfPages, pdfPageTexts } from "../images";
 import { docxToPdf } from "../services/docx-to-pdf";
 import { docxWithBody, emptyWeek, hasPoppler, hasSoffice, pdfWithText, useStageFixture, wordml } from "../test-helpers";
@@ -31,13 +32,28 @@ describe("stageSheet", { timeout: 30_000 }, () => {
   it("lists the week's days with check and refuses to stage without a record", async () => {
     const source = download("porad.pdf", "%PDF");
     const week = { source, validFrom: "2099-10-04", validTo: "2099-10-11" };
-    expect((await stageSheet(env, { ...week, check: true })).lines).toEqual([
+    // The real news copied into the temp folder add the events after the header: assert up to it.
+    expect((await stageSheet(env, { ...week, check: true })).lines.slice(0, 4)).toEqual([
       "Would stage uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf",
       '  validFrom: "2099-10-04",\n  validTo: "2099-10-11",',
       `days: ${weekDays("2099-10-04", "2099-10-11").join(", ")}`,
+      "Events for newsId (not ended by 2099-09-20):",
     ]);
     await expect(stageSheet(env, week)).rejects.toThrow("--record is required to stage the PDF");
     expect(existsSync(uploaded("porady_bohosluzeb"))).toBe(false);
+  });
+
+  it("lists the events an announcement can link, from 14 days before the week", async () => {
+    const event = { place: "Lukov", text: "Zveme na pouť." };
+    addEvent(env.newsDir, { ...event, id: "pout-2099", title: "Pouť do Lukova", start: "2099-10-10" });
+    addEvent(env.newsDir, { ...event, id: "hody-2099", title: "Hody", start: "2099-09-20", end: "2099-09-21" });
+    addEvent(env.newsDir, { ...event, id: "dozinky-2099", title: "Dožínky", start: "2099-09-19" });
+    const week = { source: download("porad.pdf", "%PDF"), validFrom: "2099-10-04", validTo: "2099-10-11" };
+    // In start order, after the real long-term events without an end; Dožínky ended before 2099-09-20.
+    expect((await stageSheet(env, { ...week, check: true })).lines.slice(-2)).toEqual([
+      "  hody-2099: Hody, 2099-09-20–2099-09-21, Lukov",
+      "  pout-2099: Pouť do Lukova, 2099-10-10, Lukov",
+    ]);
   });
 
   it("hints at --corrected when the week is published", async () => {
@@ -142,12 +158,12 @@ describe("stageSheet", { timeout: 30_000 }, () => {
 
   it("says a week already there is replaced by its record, unless --corrected", async () => {
     const week = { source: download("porad.pdf", "%PDF"), validFrom: "2099-10-04", validTo: "2099-10-11" };
-    expect((await stageSheet(env, { ...week, check: true })).lines).toHaveLength(3);
+    expect((await stageSheet(env, { ...week, check: true })).lines).toHaveLength(5);
     await stageSheet(env, { ...week, record: record() });
     expect((await stageSheet(env, { ...week, check: true })).lines.at(-1)).toBe(
       "The sheet 2099-10-04 – 2099-10-11 is already in src/content/service-sheets.json, not released yet: --record replaces it, so start the record from that sheet to keep its fixes",
     );
-    expect((await stageSheet(env, { ...week, corrected: true, check: true })).lines).toHaveLength(3);
+    expect((await stageSheet(env, { ...week, corrected: true, check: true })).lines).toHaveLength(5);
   });
 
   it("refuses --corrected for a week not in service-sheets.json", async () => {
@@ -290,12 +306,13 @@ describe("stageSheet", { timeout: 30_000 }, () => {
       const source = yearDocx();
       const draft = join(env.home, "draft.json");
       const { lines } = await stageSheet(env, { source, draft });
-      expect(lines).toEqual([
+      expect(lines.slice(0, 6)).toEqual([
         `Wrote the draft record of 2099-10-04 – 2099-10-11 to ${draft}`,
         "Days without services (tell the user): 2099-10-05, 2099-10-06, 2099-10-07, 2099-10-08, 2099-10-09, 2099-10-10",
         "Would stage uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf",
         '  validFrom: "2099-10-04",\n  validTo: "2099-10-11",',
         `days: ${weekDays("2099-10-04", "2099-10-11").join(", ")}`,
+        "Events for newsId (not ended by 2099-09-20):",
       ]);
       expect(JSON.parse(readFileSync(draft, "utf8")).days[0].rows).toEqual([
         { time: "8:00", place: "kurim", title: "Mše sv.", detail: "za farníky", mass: true },
