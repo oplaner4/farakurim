@@ -1,4 +1,4 @@
-import { mkdirSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";
 import { describe, expect, it, vi } from "vitest";
@@ -16,8 +16,9 @@ const jpeg = (width: number, height: number) =>
 const uploadsDir = () => join(tempDir(), "uploads");
 const staged = (id: string, n: number, width: number) =>
   join(uploadsDir(), "fotogalerie", id, `foto-${n}-${width}.webp`);
+// Read from a buffer: sharp keeps a file it opened by path open on Windows, and the temp folder cannot be deleted.
 const sizeOf = async (file: string) => {
-  const { width, height } = await sharp(file).metadata();
+  const { width, height } = await sharp(readFileSync(file)).metadata();
   return [width, height];
 };
 
@@ -42,7 +43,7 @@ describe("stageAlbumPhotos", () => {
       .jpeg()
       .toBuffer();
     await stageAlbumPhotos(uploadsDir(), "otocena", [rotated]);
-    const meta = await sharp(staged("otocena", 1, 1200)).metadata();
+    const meta = await sharp(readFileSync(staged("otocena", 1, 1200))).metadata();
     expect([meta.width, meta.height]).toEqual([1200, 1600]);
     expect(meta.exif).toBeUndefined();
   });

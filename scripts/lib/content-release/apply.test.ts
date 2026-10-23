@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, symlinkSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { freshTempDir } from "../test-helpers";
+import { canSymlink, freshTempDir } from "../test-helpers";
 import { applyArtifacts, missingLinks } from "./apply";
 import type { ContentPull, ReleasePlan } from "./plan";
 
@@ -87,16 +87,20 @@ describe("applyArtifacts", () => {
       () => (file("x/porady_bohosluzeb/x.pdf"), release(pull(11, "sheet", ["content-uploads-a1/../x"]))),
       "content-uploads-a1/../x",
     ],
-    [
-      "a symlink",
-      () => {
-        file("outside.pdf");
-        mkdirSync(join(from(), "content-uploads-a1/porady_bohosluzeb"), { recursive: true });
-        symlinkSync(join(from(), "outside.pdf"), join(from(), "content-uploads-a1/porady_bohosluzeb/x.pdf"));
-        return release(pull(11, "sheet", ["content-uploads-a1"]));
-      },
-      "x.pdf",
-    ],
+    ...(canSymlink
+      ? ([
+          [
+            "a symlink",
+            () => {
+              file("outside.pdf");
+              mkdirSync(join(from(), "content-uploads-a1/porady_bohosluzeb"), { recursive: true });
+              symlinkSync(join(from(), "outside.pdf"), join(from(), "content-uploads-a1/porady_bohosluzeb/x.pdf"));
+              return release(pull(11, "sheet", ["content-uploads-a1"]));
+            },
+            "x.pdf",
+          ],
+        ] satisfies [string, () => ReleasePlan, string][])
+      : []),
   ])("refuses %s and copies nothing", (_, setup, named) => {
     file("content-uploads-0ff/porady_bohosluzeb/ok.pdf");
     const plan = setup();

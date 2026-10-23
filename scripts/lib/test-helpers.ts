@@ -2,7 +2,7 @@
 
 import { spawnSync } from "node:child_process";
 import { generateKeyPairSync } from "node:crypto";
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { strToU8, zipSync } from "fflate";
@@ -48,6 +48,19 @@ export function pdfWithText(pages: string[]): Buffer {
 
 /** Whether LibreOffice is installed; the DOCX conversion tests skip without it. */
 export const hasSoffice = !spawnSync("soffice", ["--version"]).error;
+
+/** Whether this user may create a symlink (Windows allows it only in Developer Mode or as an administrator). */
+export const canSymlink = (() => {
+  const dir = mkdtempSync(join(tmpdir(), "symlink-"));
+  try {
+    symlinkSync(join(dir, "target"), join(dir, "link"));
+    return true;
+  } catch {
+    return false;
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+})();
 
 const escapeXml = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
