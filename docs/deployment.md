@@ -69,7 +69,8 @@ provider's DKIM signature.
 3. tests and builds the change to `src/content/`, commits it as the GitHub App's bot and opens (or adds a commit to)
    the one `service-sheet/*` pull request, its body the report (a later run gets the previous report, keeps its weeks
    and question ids, so the body and title describe every week in the PR, and turns it back into a draft on a new
-   blocking question). The conversation is locked: only
+   blocking question), followed by the mirror list (`pnpm sheet-mirror`: each day's services of the weeks the PR
+   adds or changes, to check against the "Bohoslužby" calendar). The conversation is locked: only
    collaborators with write access can comment. Every e-mail is about the DOCX's newest week: a new week is created,
    a week already on the site is replaced from the new draft (a correction, never compared with the published sheet),
    so a resend opens a PR you close when nothing changed;

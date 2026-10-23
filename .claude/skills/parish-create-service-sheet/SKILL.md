@@ -236,13 +236,13 @@ Then, per week, oldest first:
 - one line `Outcome: created`, `Outcome: corrected`, `Outcome: refused: <message>` or
   `Outcome: document error: <message>` (the script's message as printed). The workflow fails the run on any
   `refused` or `document error`;
-- the announcements with categories and each `newsId` with its event's title and date (not the rows: the Mirror
-  section lists them);
+- the announcements with categories and each `newsId` with its event's title and date (not the rows: the workflow
+  appends them to the PR as `## Mirror in the calendar`);
 - `### Questions`, one per line: `- **q1** (blocking|note) <where>: <question> — proposal: <proposal>`. A later run
   on the same report keeps the existing ids and marks each question `resolved` or `still open`.
 
-Finally `## Mirror in the calendar`: a list (Czech rows) of the services of every week in the report, to check against
-the "Bohoslužby" calendar.
+Write no `## Mirror in the calendar` section, and leave out the one a previous report has: the workflow builds it
+from the sheets (`pnpm sheet-mirror`) and appends it to the PR.
 
 ## Common mistakes
 

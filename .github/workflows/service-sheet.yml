@@ -303,8 +303,17 @@ jobs:
           # Only an exact `blocking: no` opens a ready PR, so a broken report cannot be merged by mistake.
           echo "draft=$([ "$first" = "blocking: no" ] && echo false || echo true)" >> "$GITHUB_OUTPUT"
           echo "message=$message" >> "$GITHUB_OUTPUT"
+          # The mirror list is built here from the sheets the PR adds or changes against main (the repo is public, so
+          # the fetch needs no token), not written by Claude: a mirror section in the report is dropped.
+          git fetch --quiet --depth=1 origin main
+          git show FETCH_HEAD:src/content/service-sheets.json > "$run/main-sheets.json"
+          mirror=$(pnpm --silent sheet-mirror "$run/main-sheets.json")
           {
-            tail -n +3 "$report"
+            tail -n +3 "$report" | awk '/^## / { skip = ($0 == "## Mirror in the calendar") } !skip'
+            if [ -n "$mirror" ]; then
+              echo
+              printf '%s\n' "$mirror"
+            fi
             echo
             echo "---"
             echo
