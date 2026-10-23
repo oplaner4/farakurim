@@ -75,20 +75,43 @@ Only a release applies it, after the site is deployed (so every URL it writes is
   repository variable `CALENDAR_SYNC` set to `true`, it runs `pnpm calendar-sync --apply`; otherwise (a refresh, or the
   variable not yet `true`) it only writes the preview into the run summary. A failure ends as a warning and does not
   mark the release failed: the next release catches up. It skips a `--local` release, which applies the sync itself.
-- **`pnpm release --local`** applies it after its deploy and verify, with the key in `.env.local`.
+- **`pnpm release --local`** applies it after its deploy and verify, with the credentials in `.env.local`.
 
 The job runs in its own environment `calendar-sync`, never `Production`: the refresh counts the Production deployments
-to find the last deploy, and the service account key stays out of the job that builds the site.
+to find the last deploy. It acts as the service account through **workload identity federation**, so no key is stored
+anywhere: `google-github-actions/auth` writes a credentials file from the job's GitHub OIDC token, which Google trusts
+only from this repository's `calendar-sync` environment, and `pnpm calendar-sync --apply` exchanges it for a
+short-lived token of the account. Only this job may ask for the OIDC token (`id-token: write`), so the job that builds
+the site cannot act as the account.
 
 ### Setup (once)
 
+- **Service account**, by the maintainer: create it in the Google Cloud project that holds the browser key, with no
+  roles in the project and no key. Share Události (owned by the parish's personal Gmail account) with the service
+  account's e-mail address with the permission "Make changes to events". Enable the **IAM Service Account Credentials
+  API** and the **Security Token Service API** in the project.
+- **Workload identity pool**, in the same project (IAM → Workload Identity Federation): a pool (e.g. `github`) with an
+  OIDC provider for the issuer `https://token.actions.githubusercontent.com`, the attribute mapping
+  `google.subject = assertion.sub`, `attribute.repository = assertion.repository`, and the attribute condition
+
+  ```text
+  assertion.repository_id == '1403139652' && assertion.repository_owner_id == '38047115' &&
+    assertion.environment == 'calendar-sync'
+  ```
+
+  (the numeric IDs of [the repository](#github-setup): a repository renamed or recreated under the same name does not
+  match). On the service account, grant **Workload Identity User** (`roles/iam.workloadIdentityUser`) to
+  `principalSet://iam.googleapis.com/projects/<project number>/locations/global/workloadIdentityPools/github/attribute.repository/oplaner4/farakurim`.
+
 - **Environment** `calendar-sync`, deployment branches and tags allowing the tags `v*` (a refresh runs on `main` and
-  only previews, so it needs `main` too), with the secret `GOOGLE_CALENDAR_SERVICE_ACCOUNT` (the service account's JSON
-  key). No required reviewers.
-- **Service account**, by the maintainer: create it in the Google Cloud project that holds the browser key, and a JSON
-  key for it. Share Události (owned by the parish's personal Gmail account) with the service account's e-mail address
-  with the permission "Make changes to events". Put the JSON (or a path to it) in `.env.local` as
-  `GOOGLE_CALENDAR_SERVICE_ACCOUNT` and its text in the environment's secret. Never commit it or print it.
+  only previews, so it needs `main` too), with the variables `GOOGLE_WORKLOAD_IDENTITY_PROVIDER` (the provider's full
+  name, `projects/<project number>/locations/global/workloadIdentityPools/github/providers/<provider>`) and
+  `GOOGLE_CALENDAR_SERVICE_ACCOUNT_EMAIL` (the account's address). Neither is a secret. No required reviewers.
+- **Locally**, for the first apply and `pnpm release --local`: impersonate the account with your own login, which
+  needs the **Service Account Token Creator** role (`roles/iam.serviceAccountTokenCreator`) on the account, and set
+  `GOOGLE_CALENDAR_SERVICE_ACCOUNT` in `.env.local` to the file it writes
+  ([README § Keys](../README.md#keys-in-envlocal-optional)). The account's JSON key works there too, if the
+  organisation allows keys; never commit it or print it.
 - **First apply by hand**, before the workflow applies anything: every event that already links a calendar event is
   brought in line on the first apply (titles, times, places and descriptions written by hand change to the records').
   Read the whole list with `pnpm calendar-sync`, then run `pnpm calendar-sync --apply` (or `pnpm release --local`), and

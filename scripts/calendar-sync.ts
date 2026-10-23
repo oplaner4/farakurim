@@ -10,7 +10,8 @@
 //
 // Usage: pnpm calendar-sync [--apply]
 // Environment (.env.local): NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY (preview), GOOGLE_CALENDAR_SERVICE_ACCOUNT (--apply:
-// the service account's JSON key, or the path of its file; a secret, never printed).
+// the credentials that act as the service account, as JSON or the path of the file: a login impersonating it, the
+// workload identity federation of the deploy workflow, or its JSON key; never printed).
 import { execute, parseCommand } from "./lib/calendar/calendar-sync";
 import { runCommand } from "./lib/command";
 

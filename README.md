@@ -47,10 +47,22 @@ cp .env.local.example .env.local
   public Google Calendars. Without the key they show entries generated from the regular mass schedule and the
   event records. The key ends up in the published JavaScript, so restrict it in Google Cloud to the
   `farakurim.cz` referrer and the Google Calendar API.
-- **`GOOGLE_CALENDAR_SERVICE_ACCOUNT`**: the JSON key of the Google service account (or the path of its file) that
-  `pnpm calendar-sync --apply` writes to the Události calendar with; the maintainer shares the calendar with its address
-  ("Make changes to events"). A secret: never `NEXT_PUBLIC_`, never committed, never printed. The preview needs only
-  the API key above.
+- **`GOOGLE_CALENDAR_SERVICE_ACCOUNT`**: the credentials (a JSON text or the path of its file) that act as the Google
+  service account `pnpm calendar-sync --apply` writes to the Události calendar as; the maintainer shares the calendar
+  with its address ("Make changes to events"). Locally, rather than a key, impersonate the account with your own login
+  (it needs the "Service Account Token Creator" role on the account), into a folder of its own so it leaves your other
+  Google credentials alone:
+
+  ```sh
+  CLOUDSDK_CONFIG=~/.config/farakurim/gcloud gcloud auth application-default login \
+    --impersonate-service-account=<the account's address>
+  ```
+
+  and set the variable to `~/.config/farakurim/gcloud/application_default_credentials.json` (written out in full). The
+  account's JSON key works too, and the deploy workflow uses workload identity federation
+  ([deployment](docs/deployment.md#setup-once)). A secret: never `NEXT_PUBLIC_`, never committed, never printed. The
+  preview needs only the API key above.
+
 - **`NEXT_PUBLIC_MATOMO_URL`** and **`NEXT_PUBLIC_MATOMO_SITE_ID`**: anonymous statistics (see below). Leave them
   empty locally so development visits are not counted.
 
