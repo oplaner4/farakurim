@@ -128,7 +128,7 @@
     "id": "novy-web-farnosti-2026",
     "title": "Nový web farnosti",
     "start": "2026-10-05",
-    "end": "2026-10-31",
+    "end": "2026-10-22",
     "text": "Farní web dostal novou podobu. Některé méně navštěvované stránky ještě připravujeme.",
     "lead": "Vítejte na novém webu farnosti Kuřim.",
     "body": "<p>Farní web prošel úplnou proměnou: nový vzhled, přehlednější aktuality, pořad bohoslužeb, kalendář a fotogalerie a pohodlné čtení na mobilu.</p><p>Některé vedlejší stránky ještě připravujeme a budeme je postupně doplňovat. Do té doby najdete jejich obsah na původním webu.</p>",
@@ -367,6 +367,7 @@
     "startTime": "9:30",
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Společnost Lesy města Brna, a. s., srdečně zve na Hubertskou mši.",
+    "pinned": true,
     "poster": {
       "src": "/uploads/aktuality/hubertska-mse-2026-pozvanka.webp",
       "alt": "Pozvánka: Hubertská mše 25. 10. 2026"
@@ -377,7 +378,6 @@
         "file": "/uploads/aktuality/hubertska-mse-2026-pozvanka.pdf",
         "size": 2594721
       }
-    ],
-    "pinned": true
+    ]
   }
 ]
