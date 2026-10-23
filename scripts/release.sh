@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # `pnpm release`: publishes the site. Uploads the new staged files and the scripts in cron-scripts/,
 # bumps the version in package.json, commits and tags it vX.Y.Z and pushes main with the tag; GitHub Actions then
-# checks, builds and deploys out/
-# (.github/workflows/deploy.yml). With --local it deploys from this machine instead, e.g. when Actions is down: it
-# runs the full check and a production build (with the keys in .env.local), shows what the sync will change, deploys
-# out/ and verifies the live site before it tags; the release commit then carries the trailer Release-Deploy: local,
-# so the workflow does not deploy the tag again. Server details live in scripts/deploy.sh.
+# checks, builds and deploys out/ (.github/workflows/deploy.yml) and applies the Události calendar sync
+# (pnpm calendar-sync). The preview lists the calendar changes with the commits, so the yes covers them. With --local
+# it deploys from this machine instead, e.g. when Actions is down: it runs the full check and a production build (with
+# the keys in .env.local), shows what the sync will change, deploys out/ and verifies the live site, applies the
+# calendar sync and then tags; the release commit then carries the trailer Release-Deploy: local, so the workflow does
+# not deploy the tag again. Server details live in scripts/deploy.sh.
 #
 # Usage: pnpm release            preview, then ask y/N (without a terminal it only previews)
 #        pnpm release --local    check, build and deploy from this machine instead of GitHub Actions
@@ -26,7 +27,7 @@ for arg in "$@"; do
     --yes) yes=true ;;
     --major) major=true ;;
     --local) deploy_here=true ;;
-    *) sed -n '10,13p' "$0" | sed 's/^# \{0,1\}//' >&2 && exit 2 ;;
+    *) sed -n '11,14p' "$0" | sed 's/^# \{0,1\}//' >&2 && exit 2 ;;
   esac
 done
 
@@ -60,6 +61,10 @@ echo
 echo "New or changed cron scripts (cron-scripts/):"
 cron=$(scripts/deploy.sh cron --dry-run)
 sed 's/^/  /' <<< "${cron:-(none)}"
+echo
+# The preview exits 1 without the browser key or when Google fails; the release goes on, the sync says why.
+echo "Události calendar (applied after the deploy):"
+pnpm --silent calendar-sync 2>&1 | sed 's/^/  /' || true
 echo
 
 # 3–5 only with --local; without it GitHub Actions checks and builds the tagged commit.
@@ -119,6 +124,12 @@ if $deploy_here; then
   scripts/deploy.sh check-uploads
   scripts/deploy.sh out > /dev/null
   scripts/deploy.sh verify
+  # The yes covered the calendar preview. A failed sync never fails the release: the next one catches up.
+  if grep -q '^GOOGLE_CALENDAR_SERVICE_ACCOUNT=' .env.local 2>/dev/null; then
+    pnpm --silent calendar-sync --apply || echo "warning: the calendar sync failed; the next release catches up." >&2
+  else
+    echo "The Události calendar was not synced: no GOOGLE_CALENDAR_SERVICE_ACCOUNT in .env.local."
+  fi
 fi
 
 # 8. The version: package.json, the commit chore(release): vX.Y.Z and the annotated tag, pushed with main. The tag

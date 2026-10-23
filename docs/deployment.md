@@ -12,11 +12,13 @@ The site is deployed to the host's web root with rsync over SSH; the host and it
 `pnpm release` (`scripts/release.sh`, from a clean `main` that is not behind `origin`):
 
 1. shows the commits since the last tag, the next version (minor when a `feat` outside the `content` scope is among
-   them, patch otherwise, `--major` on request) and the new files in `uploads/`, and asks;
+   them, patch otherwise, `--major` on request), the new files in `uploads/` and the changes the
+   [calendar sync](#události-calendar-sync) will make, and asks (the yes covers them);
 2. uploads those files into `/uploads/` (they are not in git, so this runs from the machine that staged them);
 3. bumps the version (commit `chore(release): vX.Y.Z` and the tag `vX.Y.Z`) and pushes `main` with the tag.
 
-The tag starts `.github/workflows/deploy.yml`, which checks and builds the tagged commit and deploys `out/`. The tag
+The tag starts `.github/workflows/deploy.yml`, which checks and builds the tagged commit, deploys `out/` and then
+applies the calendar sync. The tag
 must match `version` in `package.json` and point to a commit on `main`. A failed release is fixed in a new commit and
 released again; a pushed tag is never moved.
 
@@ -25,7 +27,8 @@ with all three keys ([README § Keys](../README.md#keys-in-envlocal-optional)). 
 tests only: the content tooling's tests in `scripts/` guard nothing in `out/`) and a release build, shows what the sync
 will add, change and delete, and after the yes uploads the new files, checks that every linked `/uploads/…` file is on
 the server, syncs `out/` and verifies the live site before it tags. Its release commit carries the trailer
-`Release-Deploy: local`, so the workflow does not deploy that tag again.
+`Release-Deploy: local`, so the workflow does not deploy that tag again. After the verify it applies the calendar sync
+when `.env.local` has `GOOGLE_CALENDAR_SERVICE_ACCOUNT` (a failure only warns), and otherwise says it did not.
 
 ## Weekly refresh
 
@@ -59,6 +62,37 @@ To refresh now, run the workflow by hand: Actions tab → Deploy → **Run workf
 `.github/workflows/check.yml` checks and builds pushes to `main` and pull requests with no secrets, skipping docs-only
 changes and release commits. The deploy workflow calls it for the tag, so a release runs the same check (with the site's
 tests only) before it builds with the variables above.
+
+## Události calendar sync
+
+`pnpm calendar-sync` keeps the "Události" Google Calendar in line with the event records
+(`scripts/calendar-sync.ts`); its preview needs only the browser key, `--apply` writes and needs the service account.
+Only a release applies it, after the site is deployed (so every URL it writes is a live page):
+
+- **`pnpm release`** prints the preview with the commits, so the yes covers it. Without the key, or when Google does
+  not answer, it says the calendar was not checked and goes on.
+- **The `calendar` job of `deploy.yml`** runs after `deploy` (and its verify). On a release tag push, with the
+  repository variable `CALENDAR_SYNC` set to `true`, it runs `pnpm calendar-sync --apply`; otherwise (a refresh, or the
+  variable not yet `true`) it only writes the preview into the run summary. A failure ends as a warning and does not
+  mark the release failed: the next release catches up. It skips a `--local` release, which applies the sync itself.
+- **`pnpm release --local`** applies it after its deploy and verify, with the key in `.env.local`.
+
+The job runs in its own environment `calendar-sync`, never `Production`: the refresh counts the Production deployments
+to find the last deploy, and the service account key stays out of the job that builds the site.
+
+### Setup (once)
+
+- **Environment** `calendar-sync`, deployment branches and tags allowing the tags `v*` (a refresh runs on `main` and
+  only previews, so it needs `main` too), with the secret `GOOGLE_CALENDAR_SERVICE_ACCOUNT` (the service account's JSON
+  key). No required reviewers.
+- **Service account**, by the maintainer: create it in the Google Cloud project that holds the browser key, and a JSON
+  key for it. Share Události (owned by the parish's personal Gmail account) with the service account's e-mail address
+  with the permission "Make changes to events". Put the JSON (or a path to it) in `.env.local` as
+  `GOOGLE_CALENDAR_SERVICE_ACCOUNT` and its text in the environment's secret. Never commit it or print it.
+- **First apply by hand**, before the workflow applies anything: every event that already links a calendar event is
+  brought in line on the first apply (titles, times, places and descriptions written by hand change to the records').
+  Read the whole list with `pnpm calendar-sync`, then run `pnpm calendar-sync --apply` (or `pnpm release --local`), and
+  only then set the repository variable `CALENDAR_SYNC` to `true`. A merged content PR never makes the first apply.
 
 ## Service sheet by e-mail
 

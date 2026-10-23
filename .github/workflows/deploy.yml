@@ -10,6 +10,11 @@
 # A refresh publishes nothing new: the tag was released, so it needs no yes. It always builds, a --local tag too.
 # Uploaded files are not in git: `pnpm release` uploads them from the local staging folder before it
 # pushes the tag, and the deploy stops if the build links a file that is not on the server yet.
+# The Události calendar sync (pnpm calendar-sync) runs in its own job after the deploy and its verify: on a release tag
+# it applies the changes, on a refresh it only previews them in the run summary. It has its own environment
+# (calendar-sync), never Production (the refresh counts Production deployments), and a failure only warns: the deploy
+# is not affected and the next release catches up. It applies only once the repository variable CALENDAR_SYNC is
+# true, which the maintainer sets after the first apply by hand (docs/deployment.md).
 # The SSH target, web root, rsync flags, server-only folders and verify checks live in scripts/deploy.sh, which
 # `pnpm release --local` uses too. The runner image and the actions are pinned (actions by commit SHA, updated by
 # Dependabot), so a release only changes when this file does.
@@ -175,3 +180,38 @@ jobs:
 
       - name: Verify
         run: scripts/deploy.sh verify
+
+  # Keeps the Události calendar in line with the events once the site is live (every URL it writes is a live page). The
+  # service account key lives only in this environment, away from the build and from Production.
+  calendar:
+    needs: [release, deploy]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    continue-on-error: true # a failed sync must not mark the release failed
+    environment: calendar-sync
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.release.outputs.ref }}
+          persist-credentials: false # no later step pushes or fetches
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Apply the calendar sync
+        if: github.event_name == 'push' && vars.CALENDAR_SYNC == 'true'
+        env:
+          GOOGLE_CALENDAR_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_CALENDAR_SERVICE_ACCOUNT }}
+        run: pnpm calendar-sync --apply || echo "::warning::The calendar sync failed; the next release catches up."
+
+      - name: Preview the calendar sync
+        if: github.event_name != 'push' || vars.CALENDAR_SYNC != 'true'
+        env:
+          NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY: ${{ vars.GOOGLE_CALENDAR_API_KEY }}
+        run: pnpm calendar-sync >> "$GITHUB_STEP_SUMMARY" || echo "::warning::The calendar preview failed."
