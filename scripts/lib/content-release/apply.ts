@@ -2,20 +2,23 @@
 // is one its PR's kind may upload.
 
 import { copyFileSync, lstatSync, mkdirSync, readdirSync } from "node:fs";
-import { dirname, extname, join } from "node:path";
+import { dirname, extname, join, sep } from "node:path";
 import { UPLOAD_EXTENSIONS, UPLOADS_PATH } from "@/lib/shared/uploads";
 import { KINDS, type ContentPull, type ReleasePlan } from "./plan";
 
 /** An artifact's name as the plan gives it: one of the two names above, nothing that could be a path. */
 const ARTIFACT_NAME = /^(content-uploads|service-sheet-pdf)-[0-9a-f]+$/;
 
-/** The files under `dir` as paths relative to it; a symlink or anything but a file or folder throws. */
+/**
+ * The files under `dir` as paths relative to it, separated by `/` on Windows too; a symlink or anything but a file or
+ * folder throws.
+ */
 function filesIn(dir: string): string[] {
   return readdirSync(dir, { recursive: true, encoding: "utf8" }).flatMap((path) => {
     const stat = lstatSync(join(dir, path));
     if (stat.isDirectory()) return [];
     if (!stat.isFile()) throw new Error(`${join(dir, path)} is not a regular file`);
-    return [path];
+    return [path.split(sep).join("/")];
   });
 }
 
