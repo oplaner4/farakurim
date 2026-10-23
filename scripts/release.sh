@@ -63,7 +63,7 @@ cron=$(scripts/deploy.sh cron --dry-run)
 sed 's/^/  /' <<< "${cron:-(none)}"
 echo
 # The preview exits 1 without the browser key or when Google fails; the release goes on, the sync says why.
-echo "Události calendar (applied after the deploy):"
+echo "Události calendar (applied after the deploy when CALENDAR_SYNC is on, or by --local):"
 pnpm --silent calendar-sync 2>&1 | sed 's/^/  /' || true
 echo
 
@@ -125,10 +125,12 @@ if $deploy_here; then
   scripts/deploy.sh out > /dev/null
   scripts/deploy.sh verify
   # The yes covered the calendar preview. A failed sync never fails the release: the next one catches up.
-  if grep -q '^GOOGLE_CALENDAR_SERVICE_ACCOUNT=' .env.local 2>/dev/null; then
+  # The key set in the environment or not empty in .env.local.
+  if [ -n "${GOOGLE_CALENDAR_SERVICE_ACCOUNT:-}" ] ||
+    grep -q '^GOOGLE_CALENDAR_SERVICE_ACCOUNT=.' .env.local 2>/dev/null; then
     pnpm --silent calendar-sync --apply || echo "warning: the calendar sync failed; the next release catches up." >&2
   else
-    echo "The Události calendar was not synced: no GOOGLE_CALENDAR_SERVICE_ACCOUNT in .env.local."
+    echo "The Události calendar was not synced: no GOOGLE_CALENDAR_SERVICE_ACCOUNT in the environment or .env.local."
   fi
 fi
 
