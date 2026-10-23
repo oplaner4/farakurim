@@ -10,6 +10,8 @@ below.
 - **SSH with rsync**, for `scripts/deploy.sh` (releases, uploads, the cron scripts).
 - **A web server serving static files** from the web root, honouring `.htaccess` (the 404 page, caching, redirects).
 - **PHP 8 with the curl extension**: `public/biblicky-citat.php` on the web, and the cron scripts.
+- **IMAP mailboxes** for the content workflows that read e-mail ([deployment.md](deployment.md#service-sheet-by-e-mail)):
+  the service sheet mailbox and the events mailbox.
 - **A cron that runs the scripts of one folder on a schedule**, outside the web root, with outbound HTTPS to
   api.github.com.
 
@@ -59,5 +61,7 @@ Setup, by the maintainer (an agent never connects to the server):
   execute permission for the owner (500 at least, usually 700), from the root of the hosting space as the working
   directory; scripts cannot write there, only next to themselves. Shared hosting allows 5 directory crons, at most
   every 15 minutes. Its help documents no log of directory cron.
+- **Mailboxes**: created in the administration; their IMAP host (e.g. `mail.cesky-hosting.cz`) is the variable
+  `IMAP_HOST` of each mail workflow's environment.
 - **Help**: [CRON](https://www.cesky-hosting.cz/napoveda/skripty-na-serveru/cron/); support at
   podpora@cesky-hosting.cz.

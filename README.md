@@ -154,8 +154,8 @@ The weekly service sheet can also arrive by e-mail: the parish sends its DOCX to
 workflow opens a pull request with the week, which the maintainer reviews and merges; the merge releases the site.
 Setup and use: [docs/deployment.md](docs/deployment.md#service-sheet-by-e-mail).
 
-New events can arrive by e-mail too: an accepted sender mails a poster (or a subject and a text) to
-`aktuality@farakurim.cz`, and a workflow opens one pull request per mail with its new events, which the maintainer
+New events can arrive by e-mail too: an accepted sender mails a poster (or a subject and a text) to the
+events mailbox, and a workflow opens one pull request per mail with its new events, which the maintainer
 reviews and merges. Corrections are refused there and made with the skills. Setup and use:
 [docs/deployment.md](docs/deployment.md#events-by-e-mail).
 

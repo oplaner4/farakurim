@@ -4,8 +4,8 @@ How the site gets to https://farakurim.cz/: releases, the weekly refresh, the Gi
 e-mail and the server. An agent releases with the `parish-release` skill; the rules it must never break are in
 `CLAUDE.md` § Deployment.
 
-The site is deployed to the web root `/farakurim.cz/` with rsync over SSH. The old PHP site is backed up in
-`/stary.farakurim.cz/` on the server.
+The site is deployed to the host's web root with rsync over SSH; the host and its provider-specific setup are in
+[hosting.md](hosting.md).
 
 ## Release
 
@@ -94,10 +94,10 @@ one DOCX, or a failed step. A failed step leaves the mail unseen for the next ru
 
 ### Setup (once)
 
-- **Mailbox** (cesky-hosting.cz administration): create a mailbox for the service sheets and note its IMAP host (its
-  address is the secret `IMAP_USER` below). The script creates the folders `Zpracováno` and `Odmítnuto` itself.
+- **Mailbox** (at the host, [hosting.md](hosting.md#providers)): create a mailbox for the service sheets and note its
+  IMAP host (its address is the secret `IMAP_USER` below). The script creates the folders `Zpracováno` and `Odmítnuto` itself.
 - **Environment** `service-sheet-publish` (repository Settings → Environments), for both jobs of the sheet workflow:
-  variable `IMAP_HOST` (the host name only, e.g. `mail.cesky-hosting.cz`), secrets `IMAP_USER` and `IMAP_PASSWORD`,
+  variable `IMAP_HOST` (the host name only, as the provider gives it), secrets `IMAP_USER` and `IMAP_PASSWORD`,
   and the variable `ANTHROPIC_FEDERATION_RULE_ID` (Claude Console, below). It may have no required reviewers (the scheduled run would wait), and its deployment branches must allow `main`.
 
 - **GitHub App** (Settings → Developer settings → GitHub Apps), e.g. "Farakurim content": one App for every workflow
@@ -127,7 +127,7 @@ one DOCX, or a failed step. A failed step leaves the mail unseen for the next ru
 ### First run
 
 The maintainer does this after the setup; an agent never does (it reads the mailbox). Send a test e-mail with the
-DOCX from `fara.kurim@seznam.cz` (or `oplaner4@seznam.cz`) and one from another address, run the workflow by hand,
+DOCX from an address in `SHEET_SENDERS` and one from another address, run the workflow by hand,
 and check in the run:
 
 - the IMAP login works and both folders exist;
@@ -145,9 +145,9 @@ and check in the run:
 
 ## Events by e-mail
 
-An accepted sender e-mails new events to `aktuality@farakurim.cz`: the senders every content workflow shares
-(`fara.kurim@seznam.cz`, `oplaner4@seznam.cz`) and `milancisar@centrum.cz`, as `EVENT_SENDERS` in
-`scripts/lib/mail/senders.ts` lists them, each with its provider's DKIM signature. `.github/workflows/events.yml`
+An accepted sender e-mails new events to the events mailbox: one of `EVENT_SENDERS` in
+`scripts/lib/mail/senders.ts` (the senders every content workflow shares, and more), each with its provider's DKIM
+signature. `.github/workflows/events.yml`
 (started by the hosting's cron, or **Run workflow** by hand) takes the oldest unread event mail and:
 
 1. reads it (`pnpm event-mail fetch`): the subject, the new text (without a quoted reply or the signature) and the
@@ -185,8 +185,8 @@ it in GitHub's editor, or close the PR and send the mail again.
 
 ### Setup (once)
 
-- **Mailbox** `aktuality@farakurim.cz` (cesky-hosting.cz administration); the script creates `Zpracováno` and
-  `Odmítnuto`.
+- **Mailbox** (at the host, [hosting.md](hosting.md#providers)): create a mailbox for the events (its address is the
+  secret `IMAP_USER` below); the script creates `Zpracováno` and `Odmítnuto`.
 - **Environment** `events-publish`, deployment branches allowing `main`, no required reviewers: variable `IMAP_HOST`,
   secrets `IMAP_USER` and `IMAP_PASSWORD` of that mailbox, and the variable `ANTHROPIC_FEDERATION_RULE_ID` of the
   rule below (the sheet's rule is the same variable of `service-sheet-publish`).
@@ -199,8 +199,8 @@ it in GitHub's editor, or close the PR and send the mail again.
 
 ### First run
 
-The maintainer does this after the setup; an agent never does (it reads the mailbox). Send a poster from
-`fara.kurim@seznam.cz`, a mail with two unrelated posters, one with "Oprava" in the subject, and one from another
+The maintainer does this after the setup; an agent never does (it reads the mailbox). Send a poster from an
+address in `EVENT_SENDERS`, a mail with two unrelated posters, one with "Oprava" in the subject, and one from another
 address, run the workflow by hand, and check: the stranger is filed silently; the poster becomes a PR with the event
 and its files; the two posters become two events in one PR; the correction is refused and the run is red; the next
 run starts while mail remains; after the merge the content release publishes the event.
