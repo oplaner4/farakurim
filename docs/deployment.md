@@ -41,6 +41,12 @@ To refresh now, run the workflow by hand: Actions tab → Deploy → **Run workf
 
 ## GitHub setup
 
+- **Repository**: the workflows and scripts read the repository from GitHub (`GITHUB_REPOSITORY`), so the setup
+  works in any repository. Two places name it and must match the repository the site runs from: `GITHUB_REPOSITORY`
+  in `cron-scripts/github.inc.php` ([hosting.md](hosting.md#starting-the-workflows-on-time)) and the Claude Console
+  federation rules ([below](#setup-once)), which also need the owner's and the repository's numeric IDs
+  (`gh api repos/<owner>/<repo> --jq '"\(.owner.id) \(.id)"'`). This site's: `oplaner4/farakurim`, owner ID
+  `38047115`, repository ID `1403139652`.
 - **`Production` environment**: the secret `DEPLOY_SSH_KEY`, `DEPLOY_KNOWN_HOSTS` (secret or variable) and optionally
   the variable `CHECK_UPLOADS=false`, which skips the check that every `/uploads/…` file the build links is on the
   server.
@@ -112,9 +118,10 @@ one DOCX, or a failed step. A failed step leaves the mail unseen for the next ru
 - **Squash merging** allowed (Settings → General → Pull Requests): the release counts only a PR's squash commit.
 - **Claude Console** (Settings → Workload identity → Connect workload → GitHub Actions): an issuer for
   `https://token.actions.githubusercontent.com`, a service account for the pipeline and one federation rule:
-  `subject_prefix` exactly `repo:oplaner4@38047115/farakurim@1403139652:environment:service-sheet-publish` (no `*`;
-  GitHub's subject carries the account and repository IDs after the names, so a recreated repo of the same name does
-  not match; the Console's workload identity History shows the subject a run sent), audience
+  `subject_prefix` exactly `repo:<owner>@<owner-id>/<repo>@<repo-id>:environment:service-sheet-publish` ([the
+  IDs](#github-setup); for this site `repo:oplaner4@38047115/farakurim@1403139652:environment:service-sheet-publish`;
+  no `*`; GitHub's subject carries the account and repository IDs after the names, so a recreated repo of the same
+  name does not match; the Console's workload identity History shows the subject a run sent), audience
   `https://api.anthropic.com`, the narrowest scope that runs Claude Code (`workspace:inference` if it suffices), token
   lifetime 3600 s. Then the rule's ID as the variable `ANTHROPIC_FEDERATION_RULE_ID` of the environment
   `service-sheet-publish` (each mail workflow's environment holds its own rule, with no repository-wide fallback), and
@@ -191,7 +198,8 @@ it in GitHub's editor, or close the PR and send the mail again.
   secrets `IMAP_USER` and `IMAP_PASSWORD` of that mailbox, and the variable `ANTHROPIC_FEDERATION_RULE_ID` of the
   rule below (the sheet's rule is the same variable of `service-sheet-publish`).
 - **Claude Console:** a second federation rule for the same service account, `subject_prefix` exactly
-  `repo:oplaner4@38047115/farakurim@1403139652:environment:events-publish`, audience `https://api.anthropic.com`,
+  `repo:<owner>@<owner-id>/<repo>@<repo-id>:environment:events-publish` (for this site
+  `repo:oplaner4@38047115/farakurim@1403139652:environment:events-publish`), audience `https://api.anthropic.com`,
   the same scope and lifetime as the sheet's rule.
 - **Cron:** `cron-scripts/events.php` is synced by `pnpm release`; the cron that runs `CRON_DIR`
   ([hosting.md](hosting.md#starting-the-workflows-on-time)) starts it.
@@ -251,7 +259,7 @@ and stage them, then release. The plan takes only artifacts of runs on `main` (n
 
 ```sh
 git switch main && git pull
-export GH_TOKEN=$(gh auth token) GITHUB_REPOSITORY=oplaner4/farakurim
+export GH_TOKEN=$(gh auth token) GITHUB_REPOSITORY=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
 tmp=$(mktemp -d)
 pnpm --silent content-release > "$tmp/plan.json"
 jq . "$tmp/plan.json"

@@ -34,7 +34,8 @@ not depend on what the host logs; a PHP error that stops a script before it logs
 Setup, by the maintainer (an agent never connects to the server):
 
 1. **Cron**: a cron that runs the scripts in `CRON_DIR` on the schedule you choose (how: the provider below).
-2. **Token**: GitHub → Settings → Developer settings → Fine-grained tokens, repository `oplaner4/farakurim` only,
+2. **Token**: GitHub → Settings → Developer settings → Fine-grained tokens, only the repository named by
+   `GITHUB_REPOSITORY` in `cron-scripts/github.inc.php` (for this site `oplaner4/farakurim`),
    repository permission **Actions: Read and write** and nothing else. It can start and cancel workflow runs, not
    push code or read secrets. Note its expiry date: an expired token logs `HTTP 401`, and no workflow runs
    until it is renewed.
