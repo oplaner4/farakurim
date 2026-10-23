@@ -378,6 +378,21 @@ describe("planSync", () => {
     ]);
   });
 
+  it("still adds a series' meetings when the event of a date it no longer has was deleted", () => {
+    const deleted: GoogleEvent = {
+      id: calendarEventId("adoracni-den-2026", "2026-10-26"),
+      status: "cancelled",
+      start: {},
+      end: {},
+    };
+    const { changes, reports } = planSync([series], snapshot([deleted]), "2026-10-10");
+    expect(reports).toEqual([]);
+    expect(changes).toEqual([
+      expect.objectContaining({ kind: "add", desired: expect.objectContaining({ key: "2026-10-12" }) }),
+      expect.objectContaining({ kind: "add", desired: expect.objectContaining({ key: "2026-10-19" }) }),
+    ]);
+  });
+
   it("reports a second owned repeating event as an orphan although it started before today", () => {
     const url = "Obnova.\n\nhttps://farakurim.cz/aktuality/obnova/";
     const old = {

@@ -168,8 +168,9 @@ The preview and the apply both list, without acting:
 - a series whose URL-holding calendar events cannot be paired with its meetings;
 - a calendar event the sync added that someone deleted by hand (Google keeps it with `status: cancelled` under its
   id, read with `showDeleted`): the deletion is respected and reported, never undone or re-added (my call). This
-  holds for its event of an earlier date of the record too (an id of the record that is no meeting's, as after a
-  move): a meeting with no calendar event is then reported as deleted instead of added.
+  holds for its event of the date before a move too (`change.previousStart`): the moved meeting is then reported as
+  deleted instead of added. Any other deleted event of the record (a date it no longer has) stops nothing: its
+  other meetings are still added.
 
 ### Running it
 

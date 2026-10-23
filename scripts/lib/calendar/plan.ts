@@ -3,14 +3,7 @@ import type { IsoDate } from "@/content/types/shared";
 import { eventDays, eventPaths, type GoogleEvent } from "@/lib/calendar/google-calendar";
 import { eventHref } from "@/lib/news/events";
 import { meetingsOf } from "@/lib/news/timing";
-import {
-  calendarEventId,
-  calendarIdPrefix,
-  desiredEvents,
-  eventBody,
-  type DesiredEvent,
-  type GoogleEventBody,
-} from "./desired";
+import { calendarEventId, desiredEvents, eventBody, type DesiredEvent, type GoogleEventBody } from "./desired";
 import { bodyOf, differingFields, type BodyField } from "./in-line";
 import type { CalendarSnapshot } from "./read";
 import { matchingTitles } from "./titles";
@@ -100,20 +93,16 @@ function planRecord(event: NewsEvent, snapshot: CalendarSnapshot, today: IsoDate
   });
   const { pairs, unowned } = pairOwned(event, active, owned, today, run);
   for (const [item, target] of pairs) update(item, target, false, run);
-  // The sync's own event of an earlier date of the record (before a move), deleted by hand, counts as deleted too.
-  const ownIds = new Set([
-    ...items.map((item) => item.googleId),
-    ...meetingsOf(event).map((meeting) => calendarEventId(event.id, meeting.start)),
-  ]);
-  const deletedEarlier = source.some(
-    (other) => !isLive(other) && other.id.startsWith(calendarIdPrefix(event.id)) && !ownIds.has(other.id),
-  );
+  // The sync's own event of the date before a move, deleted by hand, counts as the moved meeting's deleted event.
+  const movedFrom =
+    event.change?.status === "moved" ? calendarEventId(event.id, event.change.previousStart) : undefined;
+  const deletedBeforeMove = movedFrom !== undefined && source.some((other) => other.id === movedFrom && !isLive(other));
   const free = pool.filter(
     (candidate) =>
       eventPaths(candidate.description).length === 0 && matchingTitles(candidate.summary ?? "", event.title),
   );
   return unowned.flatMap((item) => {
-    if (!deletedEarlier) return [{ event, item, free }];
+    if (!deletedBeforeMove || item.meeting.start !== event.start) return [{ event, item, free }];
     run.reports.push({ kind: "deleted", desired: item });
     return [];
   });
