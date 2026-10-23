@@ -24,6 +24,38 @@ export const parishCouncil: ParishCouncil = {
 /** The meeting reports, newest first. */
 export const councilMeetings: CouncilMeeting[] = [
   {
+    date: "2026-10-22",
+    html: `
+      <p>Zápis ze zasedání PRF kuřimské farnosti 22. října 2026 v 18.45 na faře</p>
+      <p>Přítomno 7 členů, omluveni 4 členové</p>
+      <p>1. Zhodnocení realizovaných aktivit ve farnosti</p>
+      <ul>
+      <li>oceněna mše s žehnáním náměstí – účast mnoha hostí, stánek na Medovém dni, skvělá komunikace s lidmi</li>
+      <li>oceněna formace k obnově farnosti se Zuzkou Palátovou, vznikla pracovní přípravná skupina (aktuálně hledání cesty pro společenství mladých)</li>
+      </ul>
+      <p>2. Informace k jubileu 250 roků brněnské diecéze (v roce 2027)</p>
+      <ul>
+      <li>důraz na vytváření malých společenství ve farnostech</li>
+      <li>rozvíjet pohostinnost ve farnosti (všímat si příchozích, zformovat vítací tým)</li>
+      <li>činnosti podporovat podle talentů konkrétních lidí</li>
+      </ul>
+      <p>3. Postřehy členů rady</p>
+      <ul>
+      <li>hodně lidí nerozumí trendu obnovy farnosti (nutno stále vysvětlovat)</li>
+      <li>dotazník je jen vodítko, potřebujeme delší setkání PRF (výjezdové?)</li>
+      <li>do sdílení při farní kavárně dát svědectví z evangelizace (ze stánku na Medových dnech atd. – hledat nástroje k vysvětlení)</li>
+      <li>přednáška o vědomí a smrti (Dr. Vašek), pozvat na 8. 11. (dušičkové období)</li>
+      </ul>
+      <p>4. Farní aktivity v roce 2027</p>
+      <ul>
+      <li>ekumenické setkání (leden), udělat též modlitbu se zpěvy z Taizé</li>
+      <li>postní duchovní obnova (začít připravovat, oslovit vhodné lidi)</li>
+      <li>příprava na biřmování (pro zájemce otevřít v listopadu)</li>
+      <li>farní pouť do Říma? (návrh o podzimních prázdninách 2027)</li>
+      <li>ostatní dle obvyklých akcí ve farnosti</li>
+      </ul>`,
+  },
+  {
     date: "2026-02-02",
     html: `
       <p>Zpráva ze zasedání PRF a ERF kuřimské farnosti 2. února 2026 v 19.00 na faře</p>
