@@ -70,4 +70,22 @@ describe("readSnapshot", () => {
     expect(new URL(url).searchParams.get("key")).toBe("KEY");
     expect(init.headers).toMatchObject({ Referer: "https://farakurim.cz/" });
   });
+
+  it("keeps a deleted event that carries only its id", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => googlePage([{ id: "gone", status: "cancelled" }])),
+    );
+    const snapshot = await readSnapshot({ token: "T" }, range);
+    expect(snapshot.instances).toMatchObject([{ id: "gone", status: "cancelled" }]);
+    expect(snapshot.masters).toEqual([]);
+  });
+
+  it("throws on an HTTP error", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => googlePage([], 403)),
+    );
+    await expect(readSnapshot({ token: "T" }, range)).rejects.toThrow("HTTP 403");
+  });
 });

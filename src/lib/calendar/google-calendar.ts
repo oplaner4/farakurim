@@ -20,8 +20,7 @@ const googleTime = z.object({
   dateTime: z.optional(z.iso.datetime({ offset: true })),
 });
 
-/** The fields of an `events.list` item the calendars use; Google's other fields are dropped. */
-const googleEvent = z.object({
+const googleFields = {
   id: z.string(),
   recurringEventId: z.optional(z.string()),
   status: z.optional(z.string()),
@@ -29,8 +28,17 @@ const googleEvent = z.object({
   location: z.optional(z.string()),
   description: z.optional(z.string()),
   recurrence: z.optional(z.array(z.string())),
-  start: googleTime,
-  end: googleTime,
+};
+
+/** The fields of an `events.list` item the calendars use; Google's other fields are dropped. */
+const googleEvent = z.object({ ...googleFields, start: googleTime, end: googleTime });
+
+/** A deleted event: Google guarantees only its `id`, so a missing `start` or `end` becomes an empty time. */
+const cancelledEvent = z.object({
+  ...googleFields,
+  status: z.literal("cancelled"),
+  start: z._default(googleTime, {}),
+  end: z._default(googleTime, {}),
 });
 
 export type GoogleEvent = z.infer<typeof googleEvent>;
@@ -46,7 +54,9 @@ export function parseEventsPage(json: unknown): { events: GoogleEvent[]; nextPag
   const page = googleEventsPage.parse(json);
   const events = (page.items ?? []).flatMap((item) => {
     const event = googleEvent.safeParse(item);
-    return event.success ? [event.data] : [];
+    if (event.success) return [event.data];
+    const cancelled = cancelledEvent.safeParse(item);
+    return cancelled.success ? [cancelled.data] : [];
   });
   return { events, nextPageToken: page.nextPageToken };
 }

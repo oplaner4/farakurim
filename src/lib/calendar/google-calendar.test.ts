@@ -36,6 +36,17 @@ describe("eventsUrl options", () => {
 });
 
 describe("parseEventsPage", () => {
+  it("keeps a deleted event with only an id, and the site still ignores it", () => {
+    const { events } = parseEventsPage({ items: [{ id: "gone", status: "cancelled", recurringEventId: "r" }] });
+    expect(events).toHaveLength(1);
+    expect(events[0]?.id).toBe("gone");
+    expect(toEntries(events, "events", [])).toEqual([]);
+  });
+
+  it("still drops an active event without a start", () => {
+    expect(parseEventsPage({ items: [{ id: "x" }] }).events).toEqual([]);
+  });
+
   it("keeps the recurrence of a repeating event", () => {
     const { events } = parseEventsPage({
       items: [

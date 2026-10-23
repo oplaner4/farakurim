@@ -14,11 +14,11 @@ export type CalendarAccess = { apiKey: string } | { token: string };
 
 /** From 1 January of today's year to 31 December of the year of the latest meeting still to come. */
 export function snapshotRange(events: NewsEvent[], today: IsoDate): DateRange {
-  const year = today.slice(0, 4);
+  const year = Number(today.slice(0, 4));
   const lastYears = events.flatMap((event) =>
-    desiredEvents(event, today).map(({ meeting, weeklyUntil }) => (weeklyUntil ?? meeting.end).slice(0, 4)),
+    desiredEvents(event, today).map(({ meeting, weeklyUntil }) => Number((weeklyUntil ?? meeting.end).slice(0, 4))),
   );
-  const last = [year, ...lastYears].sort().at(-1)!;
+  const last = Math.max(year, ...lastYears);
   return { from: `${year}-01-01`, to: `${last}-12-31` };
 }
 
