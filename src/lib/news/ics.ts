@@ -11,8 +11,8 @@ import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
 // Times are Prague wall-clock and written in UTC, so no VTIMEZONE block is needed.
 
 const dateArray = (date: IsoDate) => date.split("-").map(Number) as DateArray;
-const nextDay = (date: IsoDate) => pragueDate(addDays(pragueDateTime(date, "12:00"), 1, { in: inPrague }));
-const utcStamp = (instant: Date) => format(instant, "yyyyMMdd'T'HHmmss'Z'", { in: tz("UTC") });
+export const nextDay = (date: IsoDate) => pragueDate(addDays(pragueDateTime(date, "12:00"), 1, { in: inPrague }));
+export const utcStamp = (instant: Date) => format(instant, "yyyyMMdd'T'HHmmss'Z'", { in: tz("UTC") });
 
 type Timing = Pick<EventAttributes, "start" | "startInputType" | "recurrenceRule"> & { end?: DateTime };
 
