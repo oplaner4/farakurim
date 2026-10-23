@@ -188,6 +188,10 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     continue-on-error: true # a failed sync must not mark the release failed
+    # One sync at a time: two releases close together would otherwise both add the same events.
+    concurrency:
+      group: calendar-sync
+      cancel-in-progress: false
     environment: calendar-sync
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -208,10 +212,28 @@ jobs:
         if: github.event_name == 'push' && vars.CALENDAR_SYNC == 'true'
         env:
           GOOGLE_CALENDAR_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_CALENDAR_SERVICE_ACCOUNT }}
-        run: pnpm calendar-sync --apply || echo "::warning::The calendar sync failed; the next release catches up."
+        # The warning carries the reason: the last line the sync wrote to stderr.
+        run: |
+          err="$RUNNER_TEMP/calendar-sync.err"
+          if ! pnpm --silent calendar-sync --apply 2> "$err"; then
+            cat "$err" >&2
+            echo "::warning::The calendar sync failed ($(tail -n 1 "$err")); the next release catches up."
+          fi
 
       - name: Preview the calendar sync
         if: github.event_name != 'push' || vars.CALENDAR_SYNC != 'true'
         env:
           NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY: ${{ vars.GOOGLE_CALENDAR_API_KEY }}
-        run: pnpm calendar-sync >> "$GITHUB_STEP_SUMMARY" || echo "::warning::The calendar preview failed."
+        # The preview goes to the run summary as text; a failure warns with the last line of stderr.
+        run: |
+          err="$RUNNER_TEMP/calendar-sync.err"
+          status=0
+          {
+            echo '```text'
+            pnpm --silent calendar-sync 2> "$err" || status=$?
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$status" -ne 0 ]; then
+            cat "$err" >&2
+            echo "::warning::The calendar preview failed ($(tail -n 1 "$err"))."
+          fi
