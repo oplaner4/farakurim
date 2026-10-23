@@ -110,7 +110,7 @@ function planRecord(event: NewsEvent, snapshot: CalendarSnapshot, today: IsoDate
 
 /**
  * Pairs the owned calendar events with the items by start date, then the leftovers in date order when both sides
- * have the same number. A past leftover owned event (not a repeating one) is left alone, unless the record was moved:
+ * have the same number, or the one leftover owned event with the first unpaired item. A past leftover owned event (not a repeating one) is left alone, unless the record was moved:
  * then it may be the event of its old date. Leftover owned events without items are orphans; any other mismatch is
  * reported, and its items change nothing. The items without an owned event are returned.
  */
@@ -138,6 +138,11 @@ function pairOwned(
       if (!isPast(orphan)) run.reports.push({ kind: "orphan", path: eventHref(event), event: orphan });
     }
     return { pairs, unowned: unpaired };
+  }
+  // One leftover owned event (a plan on the wrong day, its URL pasted by hand) is the first unpaired meeting's.
+  if (left.length === 1) {
+    const [first, ...rest] = unpaired;
+    return { pairs: [...pairs, [first, left[0]]], unowned: rest };
   }
   if (left.length !== unpaired.length) {
     run.reports.push({

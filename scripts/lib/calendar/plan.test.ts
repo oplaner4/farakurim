@@ -274,6 +274,23 @@ describe("planSync", () => {
     ]);
   });
 
+  it("moves a series' only owned event on a wrong day to its first meeting and adds the others", () => {
+    const pasted = linked("plan", "2026-10-04");
+    const { changes, reports } = planSync([series], snapshot([pasted]), TODAY);
+    expect(reports).toEqual([]);
+    expect(changes).toEqual([
+      expect.objectContaining({
+        kind: "update",
+        target: pasted,
+        claim: false,
+        fields: ["start", "end"],
+        desired: expect.objectContaining({ key: "2026-10-05" }),
+      }),
+      expect.objectContaining({ kind: "add", desired: expect.objectContaining({ key: "2026-10-12" }) }),
+      expect.objectContaining({ kind: "add", desired: expect.objectContaining({ key: "2026-10-19" }) }),
+    ]);
+  });
+
   it("pairs one leftover owned event with one leftover meeting", () => {
     const owned = [linked("a", "2026-10-05"), linked("b", "2026-10-12"), linked("c", "2026-10-20")];
     const { changes, reports } = planSync([series], snapshot(owned), TODAY);

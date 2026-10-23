@@ -102,7 +102,8 @@ For each meeting (or the weekly event as a whole):
 
 1. **Linked:** a calendar event holds the page URL. A series pairs its URL-holding calendar events with its meetings
    by date first; what is left over pairs only when it is unambiguous (the same number left on both sides, paired in
-   date order), else it is reported. A leftover calendar event already over pairs only for a moved record (it may be
+   date order, or a single calendar event left over, which goes to the first meeting without one: a plan on a wrong
+   day whose URL was pasted by hand; the other meetings are added), else it is reported. A leftover calendar event already over pairs only for a moved record (it may be
    the event of the old date); otherwise it is left alone, unreported. Then the calendar event is brought in line
    (below).
 2. **Claimable:** none holds the URL, and exactly one calendar event on the meeting's day without any page URL has a
