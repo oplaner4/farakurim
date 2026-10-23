@@ -119,8 +119,9 @@ cmd_cron() {
   local n
   parse_dry_run "$@"
   # The PHP files alone, so the cron folder's own permissions stay; no --delete, so the token and the log next to
-  # them stay. 700: the hosting runs only executable scripts.
-  rsync -tz --perms "${n[@]}" --itemize-changes --chmod=F700 cron-scripts/*.php "$SSH_TARGET:$CRON_DIR/" |
+  # them stay. 700: the hosting runs only executable scripts. Checksums, as a checkout's mtimes differ from the
+  # machine that uploaded last: only a changed content is listed (<f), a mere mtime update is not (.f..t).
+  rsync -tzc --perms "${n[@]}" --itemize-changes --chmod=F700 cron-scripts/*.php "$SSH_TARGET:$CRON_DIR/" |
     { grep '^<f' || true; } | sed "s|^[^ ]* |$CRON_DIR/|"
 }
 
