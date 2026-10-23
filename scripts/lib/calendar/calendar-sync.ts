@@ -31,16 +31,19 @@ async function planFor(events: NewsEvent[], access: CalendarAccess): Promise<Syn
   return planSync(events, await readSnapshot(access, snapshotRange(events, today)), today);
 }
 
-/** Prints the plan of all records; with --apply, rereads the calendar with the service account and writes it. */
+/**
+ * Prints the plan of all records, or that the calendar was not checked and why (then it throws, with the reason);
+ * with --apply, rereads the calendar with the service account and writes it.
+ */
 export async function execute({ apply }: { apply: boolean }): Promise<void> {
   loadEnvLocal();
   const serviceAccount = process.env.GOOGLE_CALENDAR_SERVICE_ACCOUNT;
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY;
   if (apply && !serviceAccount) throw new Error("no GOOGLE_CALENDAR_SERVICE_ACCOUNT");
-  if (!apply && !apiKey) throw new Error("no NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY in .env.local");
   const events = readEvents(NEWS_DIR);
   if (!apply) {
-    console.log(planLines(await planFor(events, { apiKey: apiKey! }), false).join("\n"));
+    const { lines, failure } = await preview(events);
+    console.log(lines.join("\n"));
+    if (failure !== undefined) throw new Error(failure);
     return;
   }
   const token = await accessToken(serviceAccount!);
@@ -61,25 +64,29 @@ export async function execute({ apply }: { apply: boolean }): Promise<void> {
 const reportIsOf = (report: SyncPlan["reports"][number], id: string) =>
   report.kind === "unpaired" ? report.newsId === id : report.kind !== "orphan" && report.desired.newsId === id;
 
+/** The lines of `previewLines()`, and why the calendar was not checked when it was not. */
+async function preview(events: NewsEvent[], onlyId?: string): Promise<{ lines: string[]; failure?: string }> {
+  const unchecked = (failure: string) => ({ lines: [`Události: not checked (${failure}).`], failure });
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY;
+  if (!apiKey) return unchecked("no NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY in .env.local");
+  let plan: SyncPlan;
+  try {
+    plan = await planFor(events, { apiKey });
+  } catch (error) {
+    return unchecked(errorMessage(error));
+  }
+  if (onlyId === undefined) return { lines: planLines(plan, false) };
+  const only = {
+    changes: plan.changes.filter((change) => change.desired.newsId === onlyId),
+    reports: plan.reports.filter((report) => reportIsOf(report, onlyId)),
+  };
+  return { lines: planLines(only, false) };
+}
+
 /**
  * The preview lines for `events`, planned together (a record may claim what another leaves): all of them, or with
  * `onlyId` only that record's changes and reports. Reads with NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY; never throws.
  */
 export async function previewLines(events: NewsEvent[], onlyId?: string): Promise<string[]> {
-  const unchecked = (reason: string) => [`Události: not checked (${reason}).`];
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY;
-  if (!apiKey) return unchecked("no NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY in .env.local");
-  try {
-    const plan = await planFor(events, { apiKey });
-    if (onlyId === undefined) return planLines(plan, false);
-    return planLines(
-      {
-        changes: plan.changes.filter((change) => change.desired.newsId === onlyId),
-        reports: plan.reports.filter((report) => reportIsOf(report, onlyId)),
-      },
-      false,
-    );
-  } catch (error) {
-    return unchecked(errorMessage(error));
-  }
+  return (await preview(events, onlyId)).lines;
 }
