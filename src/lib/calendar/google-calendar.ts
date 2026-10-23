@@ -28,6 +28,7 @@ const googleEvent = z.object({
   summary: z.optional(z.string()),
   location: z.optional(z.string()),
   description: z.optional(z.string()),
+  recurrence: z.optional(z.array(z.string())),
   start: googleTime,
   end: googleTime,
 });
@@ -50,17 +51,28 @@ export function parseEventsPage(json: unknown): { events: GoogleEvent[]; nextPag
   return { events, nextPageToken: page.nextPageToken };
 }
 
-/** `events.list` URL for the days of `range` (Prague time). */
-export function eventsUrl(calendarId: string, apiKey: string, { from, to }: DateRange, pageToken?: string): string {
+/**
+ * `events.list` URL for the days of `range` (Prague time). By default Google expands recurring events
+ * (`singleEvents`) and leaves out deleted ones; without `apiKey` the request is meant to carry a token instead.
+ */
+export function eventsUrl(
+  calendarId: string,
+  apiKey: string | undefined,
+  { from, to }: DateRange,
+  pageToken?: string,
+  { singleEvents = true, showDeleted = false }: { singleEvents?: boolean; showDeleted?: boolean } = {},
+): string {
   const params = new URLSearchParams({
-    key: apiKey,
-    singleEvents: "true",
-    orderBy: "startTime",
+    singleEvents: String(singleEvents),
     timeZone: "Europe/Prague",
     maxResults: "2500",
     timeMin: pragueDateTime(from, "0:00").toISOString(),
     timeMax: addDays(pragueDateTime(to, "0:00"), 1, { in: inPrague }).toISOString(),
   });
+  if (apiKey) params.set("key", apiKey);
+  // Google accepts `orderBy=startTime` only for expanded events.
+  if (singleEvents) params.set("orderBy", "startTime");
+  if (showDeleted) params.set("showDeleted", "true");
   if (pageToken) params.set("pageToken", pageToken);
   return `${API}/${encodeURIComponent(calendarId)}/events?${params}`;
 }

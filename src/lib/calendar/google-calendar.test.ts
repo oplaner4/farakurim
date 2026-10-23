@@ -13,7 +13,38 @@ describe("eventsUrl", () => {
   });
 });
 
+describe("eventsUrl options", () => {
+  const range = { from: "2026-10-01", to: "2026-10-31" } as const;
+
+  it("can ask for the recurring events themselves, without orderBy", () => {
+    const url = new URL(eventsUrl("abc", "KEY", range, undefined, { singleEvents: false }));
+    expect(url.searchParams.get("singleEvents")).toBe("false");
+    expect(url.searchParams.has("orderBy")).toBe(false);
+  });
+
+  it("can ask for deleted events and leave out the key", () => {
+    const url = new URL(eventsUrl("abc", undefined, range, undefined, { showDeleted: true }));
+    expect(url.searchParams.has("key")).toBe(false);
+    expect(url.searchParams.get("showDeleted")).toBe("true");
+    expect(url.searchParams.get("singleEvents")).toBe("true");
+    expect(url.searchParams.get("orderBy")).toBe("startTime");
+  });
+
+  it("does not ask for deleted events by default", () => {
+    expect(new URL(eventsUrl("abc", "KEY", range)).searchParams.has("showDeleted")).toBe(false);
+  });
+});
+
 describe("parseEventsPage", () => {
+  it("keeps the recurrence of a repeating event", () => {
+    const { events } = parseEventsPage({
+      items: [
+        { id: "a", start: { date: "2026-10-01" }, end: { date: "2026-10-02" }, recurrence: ["RRULE:FREQ=WEEKLY"] },
+      ],
+    });
+    expect(events[0]?.recurrence).toEqual(["RRULE:FREQ=WEEKLY"]);
+  });
+
   const event = {
     id: "m1",
     summary: "Mše svatá",
