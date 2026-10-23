@@ -175,6 +175,13 @@ describe("planSync", () => {
     expect(reports).toEqual([expect.objectContaining({ kind: "ask", candidates: [elsewhere] })]);
   });
 
+  it("leaves out a past free event with a matching title in the meeting's year", () => {
+    const past = google("b", "2026-09-05", "Adorační den");
+    const { changes, reports } = planSync([testEvent()], snapshot([past]), TODAY);
+    expect(reports).toEqual([]);
+    expect(changes).toEqual([expect.objectContaining({ kind: "add" })]);
+  });
+
   it("claims a free event on the day before the move of a moved record", () => {
     const record = testEvent({ start: "2026-10-19", change: { status: "moved", previousStart: "2026-10-12" } });
     const old = google("b", "2026-10-12", "Adorační den");
@@ -322,13 +329,52 @@ describe("planSync", () => {
     expect(changes).toEqual([expect.objectContaining({ kind: "add" })]);
   });
 
-  it("pairs a leftover owned event from before today with a leftover meeting", () => {
-    const record = testEvent({ start: "2026-10-19" });
+  it("pairs a leftover owned event from before today with a leftover meeting of a moved record", () => {
+    const record = testEvent({ start: "2026-10-19", change: { status: "moved", previousStart: "2026-10-05" } });
     const past = linked("a", "2026-10-05");
     const { changes, reports } = planSync([record], snapshot([past]), "2026-10-10");
     expect(reports).toEqual([]);
     expect(changes).toEqual([
       expect.objectContaining({ kind: "update", claim: false, target: past, fields: ["start", "end"] }),
+    ]);
+  });
+
+  it("leaves a leftover owned event from before today alone when the record was not moved", () => {
+    const record = testEvent({ start: "2026-10-19" });
+    const { changes, reports } = planSync([record], snapshot([linked("a", "2026-10-05")]), "2026-10-10");
+    expect(reports).toEqual([]);
+    expect(changes).toEqual([
+      expect.objectContaining({ kind: "add", desired: expect.objectContaining({ key: "2026-10-19" }) }),
+    ]);
+  });
+
+  it("reports the sync's own event of a moved record deleted by hand and does not add it again", () => {
+    const record = testEvent({ start: "2026-10-19", change: { status: "moved", previousStart: "2026-10-12" } });
+    const deleted: GoogleEvent = {
+      id: calendarEventId("adoracni-den-2026", "2026-10-12"),
+      status: "cancelled",
+      start: {},
+      end: {},
+    };
+    const { changes, reports } = planSync([record], snapshot([deleted]), TODAY);
+    expect(changes).toEqual([]);
+    expect(reports).toEqual([
+      expect.objectContaining({ kind: "deleted", desired: expect.objectContaining({ key: "2026-10-19" }) }),
+    ]);
+  });
+
+  it("does not take the deleted event of a past meeting of a series for another meeting's", () => {
+    const deleted: GoogleEvent = {
+      id: calendarEventId("adoracni-den-2026", "2026-10-05"),
+      status: "cancelled",
+      start: {},
+      end: {},
+    };
+    const { changes, reports } = planSync([series], snapshot([deleted]), "2026-10-10");
+    expect(reports).toEqual([]);
+    expect(changes).toEqual([
+      expect.objectContaining({ kind: "add", desired: expect.objectContaining({ key: "2026-10-12" }) }),
+      expect.objectContaining({ kind: "add", desired: expect.objectContaining({ key: "2026-10-19" }) }),
     ]);
   });
 

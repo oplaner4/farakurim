@@ -40,9 +40,12 @@ export type DesiredEvent = {
 const TIME_ZONE = "Europe/Prague";
 const CANCELLED_PREFIX = "Zrušeno: ";
 
+/** The start every Google event id of the record `newsId` shares: lowercase hex of `<id>/`. */
+export const calendarIdPrefix = (newsId: string): string => Buffer.from(`${newsId}/`, "utf8").toString("hex");
+
 /** A deterministic Google event id: lowercase hex of `<id>/<key>`, valid in Google's base32hex alphabet. */
 export const calendarEventId = (newsId: string, key: IsoDate | "weekly"): string =>
-  Buffer.from(`${newsId}/${key}`, "utf8").toString("hex");
+  calendarIdPrefix(newsId) + Buffer.from(key, "utf8").toString("hex");
 
 /** The Google events an event record should have: the meetings that are not over, the weekly one, or none. */
 export function desiredEvents(event: NewsEvent, today: IsoDate): DesiredEvent[] {

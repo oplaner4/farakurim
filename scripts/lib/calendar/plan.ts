@@ -3,7 +3,14 @@ import type { IsoDate } from "@/content/types/shared";
 import { eventDays, eventPaths, type GoogleEvent } from "@/lib/calendar/google-calendar";
 import { eventHref } from "@/lib/news/events";
 import { meetingsOf } from "@/lib/news/timing";
-import { desiredEvents, eventBody, type DesiredEvent, type GoogleEventBody } from "./desired";
+import {
+  calendarEventId,
+  calendarIdPrefix,
+  desiredEvents,
+  eventBody,
+  type DesiredEvent,
+  type GoogleEventBody,
+} from "./desired";
 import { bodyOf, differingFields, type BodyField } from "./in-line";
 import type { CalendarSnapshot } from "./read";
 import { matchingTitles } from "./titles";
@@ -65,7 +72,7 @@ export function planSync(events: NewsEvent[], snapshot: CalendarSnapshot, today:
   // candidate elsewhere, whatever the order of the records.
   const unowned = events.flatMap((event) => planRecord(event, snapshot, today, run));
   const unclaimed = unowned.filter((meeting) => !claimOnDay(meeting, run));
-  for (const meeting of unclaimed) planElsewhere(meeting, run);
+  for (const meeting of unclaimed) planElsewhere(meeting, today, run);
   run.reports.push(...orphans(events, snapshot.instances, today));
   return { changes: run.changes, reports: run.reports };
 }
@@ -93,18 +100,30 @@ function planRecord(event: NewsEvent, snapshot: CalendarSnapshot, today: IsoDate
   });
   const { pairs, unowned } = pairOwned(event, active, owned, today, run);
   for (const [item, target] of pairs) update(item, target, false, run);
+  // The sync's own event of an earlier date of the record (before a move), deleted by hand, counts as deleted too.
+  const ownIds = new Set([
+    ...items.map((item) => item.googleId),
+    ...meetingsOf(event).map((meeting) => calendarEventId(event.id, meeting.start)),
+  ]);
+  const deletedEarlier = source.some(
+    (other) => !isLive(other) && other.id.startsWith(calendarIdPrefix(event.id)) && !ownIds.has(other.id),
+  );
   const free = pool.filter(
     (candidate) =>
       eventPaths(candidate.description).length === 0 && matchingTitles(candidate.summary ?? "", event.title),
   );
-  return unowned.map((item) => ({ event, item, free }));
+  return unowned.flatMap((item) => {
+    if (!deletedEarlier) return [{ event, item, free }];
+    run.reports.push({ kind: "deleted", desired: item });
+    return [];
+  });
 }
 
 /**
  * Pairs the owned calendar events with the items by start date, then the leftovers in date order when both sides
- * have the same number. Leftover owned events without items are orphans (a past one is left alone, unless it is a
- * repeating event); any other mismatch is reported, and its items change nothing. The items without an owned event
- * are returned.
+ * have the same number. A past leftover owned event (not a repeating one) is left alone, unless the record was moved:
+ * then it may be the event of its old date. Leftover owned events without items are orphans; any other mismatch is
+ * reported, and its items change nothing. The items without an owned event are returned.
  */
 function pairOwned(
   event: NewsEvent,
@@ -115,17 +134,19 @@ function pairOwned(
 ): { pairs: [DesiredEvent, GoogleEvent][]; unowned: DesiredEvent[] } {
   const pairs: [DesiredEvent, GoogleEvent][] = [];
   const left = [...owned];
+  const isPast = (candidate: GoogleEvent) => !candidate.recurrence && (lastDay(candidate) ?? "") < today;
   const unpaired: DesiredEvent[] = [];
   for (const item of items) {
     const index = left.findIndex((candidate) => firstDay(candidate) === item.meeting.start);
     if (index === -1) unpaired.push(item);
     else pairs.push([item, left.splice(index, 1)[0]]);
   }
+  if (event.change?.status !== "moved") {
+    for (const past of left.filter(isPast)) left.splice(left.indexOf(past), 1);
+  }
   if (left.length === 0 || unpaired.length === 0) {
     for (const orphan of left) {
-      if (orphan.recurrence || (lastDay(orphan) ?? "") >= today) {
-        run.reports.push({ kind: "orphan", path: eventHref(event), event: orphan });
-      }
+      if (!isPast(orphan)) run.reports.push({ kind: "orphan", path: eventHref(event), event: orphan });
     }
     return { pairs, unowned: unpaired };
   }
@@ -168,11 +189,17 @@ function claimOnDay({ event, item, free }: Unowned, run: Run): boolean {
   return true;
 }
 
-/** Asks when an unclaimed calendar event with a matching title is on another day of the meeting's year, else adds. */
-function planElsewhere({ item, free }: Unowned, run: Run): void {
+/**
+ * Asks when an unclaimed calendar event with a matching title, not over yet, is on another day of the meeting's year;
+ * else adds.
+ */
+function planElsewhere({ item, free }: Unowned, today: IsoDate, run: Run): void {
   const year = item.meeting.start.slice(0, 4);
   const candidates = free.filter(
-    (candidate) => !run.claimed.has(candidate.id) && firstDay(candidate)?.slice(0, 4) === year,
+    (candidate) =>
+      !run.claimed.has(candidate.id) &&
+      firstDay(candidate)?.slice(0, 4) === year &&
+      (lastDay(candidate) ?? "") >= today,
   );
   if (candidates.length > 0) run.reports.push({ kind: "ask", desired: item, candidates });
   else if (!item.meeting.cancelled) run.changes.push({ kind: "add", desired: item, body: eventBody(item) });
