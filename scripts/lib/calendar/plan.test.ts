@@ -275,6 +275,61 @@ describe("planSync", () => {
     expect(planSync([series], snapshot(owned), "2026-10-10")).toEqual({ changes: [], reports: [] });
   });
 
+  it("adds a meeting of a series whose only matches are claimed by its other meetings", () => {
+    const free = [google("b", "2026-10-12", "Adorační den"), google("c", "2026-10-19", "Adorační den")];
+    const { changes, reports } = planSync([series], snapshot(free), TODAY);
+    expect(reports).toEqual([]);
+    expect(changes).toEqual([
+      expect.objectContaining({ kind: "update", claim: true, target: free[0] }),
+      expect.objectContaining({ kind: "update", claim: true, target: free[1] }),
+      expect.objectContaining({ kind: "add", desired: expect.objectContaining({ key: "2026-10-05" }) }),
+    ]);
+  });
+
+  it("adds a record whose only match elsewhere a later record claims on its own day", () => {
+    const youth = testEvent({ id: "adoracni-den-mladeze", title: "Adorační den mládeže", start: "2026-10-19" });
+    const free = google("b", "2026-10-19", "Adorační den");
+    const { changes, reports } = planSync([testEvent(), youth], snapshot([free]), TODAY);
+    expect(reports).toEqual([]);
+    expect(changes).toEqual([
+      expect.objectContaining({
+        kind: "update",
+        claim: true,
+        desired: expect.objectContaining({ newsId: "adoracni-den-mladeze" }),
+      }),
+      expect.objectContaining({ kind: "add", desired: expect.objectContaining({ newsId: "adoracni-den-2026" }) }),
+    ]);
+  });
+
+  it("looks for a matching event elsewhere only in the meeting's year", () => {
+    const nextYear = google("b", "2027-01-10", "Adorační den");
+    const { changes, reports } = planSync([testEvent()], snapshot([nextYear]), TODAY);
+    expect(reports).toEqual([]);
+    expect(changes).toEqual([expect.objectContaining({ kind: "add" })]);
+  });
+
+  it("pairs a leftover owned event from before today with a leftover meeting", () => {
+    const record = testEvent({ start: "2026-10-19" });
+    const past = linked("a", "2026-10-05");
+    const { changes, reports } = planSync([record], snapshot([past]), "2026-10-10");
+    expect(reports).toEqual([]);
+    expect(changes).toEqual([
+      expect.objectContaining({ kind: "update", claim: false, target: past, fields: ["start", "end"] }),
+    ]);
+  });
+
+  it("reports a second owned repeating event as an orphan although it started before today", () => {
+    const url = "Obnova.\n\nhttps://farakurim.cz/aktuality/obnova/";
+    const old = {
+      ...master("old", url),
+      start: { dateTime: "2026-09-03T18:30:00+02:00" },
+      end: { dateTime: "2026-09-03T20:00:00+02:00" },
+    };
+    const { changes, reports } = planSync([weekly], snapshot([], [master("m", url), old]), TODAY);
+    expect(changes).toEqual([]);
+    expect(reports).toEqual([{ kind: "orphan", path: "/aktuality/obnova/", event: old }]);
+  });
+
   it("claims a free repeating event starting on a weekly record's start", () => {
     const free = master("m");
     const { changes, reports } = planSync([weekly], snapshot([], [free]), TODAY);

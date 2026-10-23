@@ -39,6 +39,9 @@ export type SyncPlan = { changes: Change[]; reports: Report[] };
 /** What one run has decided so far: the plan and the calendar events claimed by an earlier meeting. */
 type Run = SyncPlan & { claimed: Set<string> };
 
+/** A meeting no calendar event owns, with the calendar events without a page URL whose title matches its record's. */
+type Unowned = { event: NewsEvent; item: DesiredEvent; free: GoogleEvent[] };
+
 const isLive = (event: GoogleEvent) => event.status !== "cancelled";
 
 const firstDay = (event: GoogleEvent): IsoDate | undefined => eventDays(event)?.date;
@@ -58,14 +61,19 @@ const overlaps = (event: GoogleEvent, from: IsoDate, to: IsoDate): boolean => {
 /** The changes and reports that bring the Události calendar in line with `events`. */
 export function planSync(events: NewsEvent[], snapshot: CalendarSnapshot, today: IsoDate): SyncPlan {
   const run: Run = { changes: [], reports: [], claimed: new Set() };
-  for (const event of events) planRecord(event, snapshot, today, run);
+  // Every claim on a meeting's own day comes first, so a calendar event another meeting claims is never a
+  // candidate elsewhere, whatever the order of the records.
+  const unowned = events.flatMap((event) => planRecord(event, snapshot, today, run));
+  const unclaimed = unowned.filter((meeting) => !claimOnDay(meeting, run));
+  for (const meeting of unclaimed) planElsewhere(meeting, run);
   run.reports.push(...orphans(events, snapshot.instances, today));
   return { changes: run.changes, reports: run.reports };
 }
 
-function planRecord(event: NewsEvent, snapshot: CalendarSnapshot, today: IsoDate, run: Run): void {
+/** Brings the owned calendar events of a record in line; returns its meetings without one. */
+function planRecord(event: NewsEvent, snapshot: CalendarSnapshot, today: IsoDate, run: Run): Unowned[] {
   const items = desiredEvents(event, today);
-  if (items.length === 0) return;
+  if (items.length === 0) return [];
   const weekly = items[0].key === "weekly";
   const pool = (weekly ? snapshot.masters : snapshot.instances).filter(isLive);
   const active = items.filter((item) => {
@@ -84,13 +92,18 @@ function planRecord(event: NewsEvent, snapshot: CalendarSnapshot, today: IsoDate
   });
   const { pairs, unowned } = pairOwned(event, active, owned, today, run);
   for (const [item, target] of pairs) update(item, target, false, run);
-  for (const item of unowned) planUnowned(event, item, pool, run);
+  const free = pool.filter(
+    (candidate) =>
+      eventPaths(candidate.description).length === 0 && matchingTitles(candidate.summary ?? "", event.title),
+  );
+  return unowned.map((item) => ({ event, item, free }));
 }
 
 /**
  * Pairs the owned calendar events with the items by start date, then the leftovers in date order when both sides
- * have the same number. Leftover owned events without items are orphans (past ones are left alone); any other
- * mismatch is reported, and its items change nothing. The items without an owned event are returned.
+ * have the same number. Leftover owned events without items are orphans (a past one is left alone, unless it is a
+ * repeating event); any other mismatch is reported, and its items change nothing. The items without an owned event
+ * are returned.
  */
 function pairOwned(
   event: NewsEvent,
@@ -109,7 +122,9 @@ function pairOwned(
   }
   if (left.length === 0 || unpaired.length === 0) {
     for (const orphan of left) {
-      if ((lastDay(orphan) ?? "") >= today) run.reports.push({ kind: "orphan", path: eventHref(event), event: orphan });
+      if (orphan.recurrence || (lastDay(orphan) ?? "") >= today) {
+        run.reports.push({ kind: "orphan", path: eventHref(event), event: orphan });
+      }
     }
     return { pairs, unowned: unpaired };
   }
@@ -129,36 +144,37 @@ function pairOwned(
   };
 }
 
-/** A meeting no calendar event owns: claim, ask or add (steps 4–7 of the spec's "Matching"). */
-function planUnowned(event: NewsEvent, item: DesiredEvent, pool: GoogleEvent[], run: Run): void {
-  // Calendar events without any page URL whose title matches the record's. One claimed by an earlier meeting of
-  // this run still makes the meeting ask on its day, but is not a candidate elsewhere.
-  const free = pool.filter(
-    (candidate) =>
-      eventPaths(candidate.description).length === 0 && matchingTitles(candidate.summary ?? "", event.title),
-  );
+/**
+ * Claims the only free calendar event with a matching title on the meeting's days, or on the day before the move of
+ * a moved record, and asks when there are several or that one is claimed already. False when there is none.
+ */
+function claimOnDay({ event, item, free }: Unowned, run: Run): boolean {
   const { start, end } = item.meeting;
   const previousStart = event.change?.status === "moved" && start === event.start ? event.change.previousStart : null;
   const onDay = free.filter((candidate) => overlaps(candidate, start, end));
   const onPreviousDay = previousStart
     ? free.filter((candidate) => overlaps(candidate, previousStart, previousStart))
     : [];
-  const year = start.slice(0, 4);
-  const elsewhere = free.filter(
-    (candidate) => !run.claimed.has(candidate.id) && firstDay(candidate)?.slice(0, 4) === year,
-  );
-  const candidates = [onDay, onPreviousDay, elsewhere].find((found) => found.length > 0);
-  if (!candidates) {
-    if (!item.meeting.cancelled) run.changes.push({ kind: "add", desired: item, body: eventBody(item) });
-    return;
-  }
+  const candidates = onDay.length > 0 ? onDay : onPreviousDay;
+  if (candidates.length === 0) return false;
   const [only] = candidates;
-  if (candidates !== elsewhere && candidates.length === 1 && !run.claimed.has(only.id)) {
+  if (candidates.length === 1 && !run.claimed.has(only.id)) {
     run.claimed.add(only.id);
     update(item, only, true, run);
   } else {
     run.reports.push({ kind: "ask", desired: item, candidates });
   }
+  return true;
+}
+
+/** Asks when an unclaimed calendar event with a matching title is on another day of the meeting's year, else adds. */
+function planElsewhere({ item, free }: Unowned, run: Run): void {
+  const year = item.meeting.start.slice(0, 4);
+  const candidates = free.filter(
+    (candidate) => !run.claimed.has(candidate.id) && firstDay(candidate)?.slice(0, 4) === year,
+  );
+  if (candidates.length > 0) run.reports.push({ kind: "ask", desired: item, candidates });
+  else if (!item.meeting.cancelled) run.changes.push({ kind: "add", desired: item, body: eventBody(item) });
 }
 
 /** Brings `target` in line with `item`; a claim always writes the description, which adds the page URL. */
