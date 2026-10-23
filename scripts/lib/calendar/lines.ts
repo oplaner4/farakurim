@@ -32,7 +32,7 @@ function changeLine(change: Change, apply: boolean): string {
   const target = `"${change.target.summary ?? ""}"`;
   if (change.claim) {
     const link = actionVerb(!apply, "link");
-    return `${prefix}${link} ${target} to ${pagePath(change.desired.newsId)} and update its ${fieldNames(change.fields)}`;
+    return `${prefix}${link} ${target} to ${pagePath(change.desired.newsId)} and ${apply ? "updated" : "update"} its ${fieldNames(change.fields)}`;
   }
   return `${prefix}${actionVerb(!apply, "update")} ${target}: ${fieldNames(change.fields)}`;
 }

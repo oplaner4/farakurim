@@ -76,7 +76,7 @@ describe("planLines", () => {
       `${PREFIX}Would link "Adorace" to /aktuality/adoracni-den-2026/ and update its title, time, description`,
     ]);
     expect(planLines(plan([update(true, [...FIELDS])]), true)).toEqual([
-      `${PREFIX}Linked "Adorace" to /aktuality/adoracni-den-2026/ and update its title, time, description`,
+      `${PREFIX}Linked "Adorace" to /aktuality/adoracni-den-2026/ and updated its title, time, description`,
     ]);
   });
 

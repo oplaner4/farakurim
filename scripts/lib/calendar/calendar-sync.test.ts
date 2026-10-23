@@ -2,10 +2,22 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { NewsEvent } from "@/content/types/news";
 import { googlePage } from "@/test/fetch";
 import { execute, parseCommand, previewLines } from "./calendar-sync";
+import { accessToken, applyChange } from "./write";
+
+vi.mock("./write", () => ({ accessToken: vi.fn(), applyChange: vi.fn() }));
+vi.mock("@/content/news", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/content/news")>()),
+  readEvents: () => [
+    { id: "a", title: "Alfa", start: "2099-01-05", text: "Text." },
+    { id: "b", title: "Beta", start: "2099-01-06", text: "Text." },
+  ],
+}));
 
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
+  vi.clearAllMocks();
+  vi.restoreAllMocks();
 });
 
 const record = (id: string, title: string, start: string): NewsEvent => ({ id, title, start, text: "Text." });
@@ -29,6 +41,28 @@ describe("execute", () => {
     vi.stubGlobal("fetch", fetchMock);
     await expect(execute({ apply: true })).rejects.toThrow("no GOOGLE_CALENDAR_SERVICE_ACCOUNT");
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("with --apply rereads with the token, goes on after a failed change, and throws when any failed", async () => {
+    vi.stubEnv("GOOGLE_CALENDAR_SERVICE_ACCOUNT", "KEY-JSON");
+    vi.mocked(accessToken).mockResolvedValue("TOKEN");
+    vi.mocked(applyChange).mockRejectedValueOnce(new Error("quota exceeded")).mockResolvedValueOnce(undefined);
+    const fetchMock = vi.fn<typeof globalThis.fetch>(async () => googlePage([]));
+    vi.stubGlobal("fetch", fetchMock);
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+
+    await expect(execute({ apply: true })).rejects.toThrow("1 calendar changes failed");
+
+    expect(accessToken).toHaveBeenCalledWith("KEY-JSON");
+    expect(fetchMock).toHaveBeenCalled();
+    for (const [, init] of fetchMock.mock.calls) {
+      expect(init?.headers).toEqual({ Authorization: "Bearer TOKEN" });
+    }
+    expect(applyChange).toHaveBeenCalledTimes(2);
+    expect(vi.mocked(applyChange).mock.calls.every(([, token]) => token === "TOKEN")).toBe(true);
+    expect(log).toHaveBeenCalledWith(
+      ['Události, 2099-01-05: Added "Alfa" — failed: quota exceeded', 'Události, 2099-01-06: Added "Beta"'].join("\n"),
+    );
   });
 });
 
