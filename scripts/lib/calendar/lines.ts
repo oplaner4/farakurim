@@ -42,7 +42,12 @@ function reportLine(report: Report): string {
     case "ask": {
       const candidates = report.candidates.map(titled).join(", ");
       const url = `https://farakurim.cz${pagePath(report.desired.newsId)}`;
-      return `Události, ${dateOf(report.desired)}: ask: ${candidates}: paste ${url} into its description if it is this event; until then nothing changes`;
+      const when = report.desired.key === "weekly" ? dateOf(report.desired) : `on ${report.desired.meeting.start}`;
+      return (
+        `Události, ${dateOf(report.desired)}: ask: ${candidates}: paste ${url} into its description if it is this ` +
+        `event; if none of them is, add it in Události ${when} with that URL in its description; until then nothing ` +
+        "changes"
+      );
     }
     case "unpaired": {
       const events = report.events.map(titled).join(", ");
