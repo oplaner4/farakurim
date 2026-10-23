@@ -61,8 +61,10 @@ Run the step 3 command without `--check`. It then prints the Události lines: th
 take the cancelled status only from a "Zrušeno: " title prefix (§16.4), never from the record, a linked event
 included, so the release adds the prefix to the title (or removes it when the cancellation is withdrawn), moves a
 moved event to its new date and time, and renames only the occurrence of a dropped meeting. Show the user the lines as
-printed. Only an `ask:` line needs the user: paste the page URL into the description of the right Události event, or
-leave it. There is nothing to rename or move by hand and no `pnpm event-calendar` to re-run.
+printed. Only an `ask:` line needs the user, with two ways out: paste the page URL into the description of the
+Události event that is this one, or, when none of them is, add the event in Události by hand with the page URL in its
+description (the page's "Přidat do kalendáře" file can be imported once the release is out). Until then nothing
+changes. There is nothing else to rename or move by hand and no `pnpm event-calendar` to re-run.
 
 ## 6. Publish
 

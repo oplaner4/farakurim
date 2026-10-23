@@ -102,7 +102,9 @@ For each meeting (or the weekly event as a whole):
 
 1. **Linked:** a calendar event holds the page URL. A series pairs its URL-holding calendar events with its meetings
    by date first; what is left over pairs only when it is unambiguous (the same number left on both sides, paired in
-   date order), else it is reported. Then the calendar event is brought in line (below).
+   date order), else it is reported. A leftover calendar event already over pairs only for a moved record (it may be
+   the event of the old date); otherwise it is left alone, unreported. Then the calendar event is brought in line
+   (below).
 2. **Claimable:** none holds the URL, and exactly one calendar event on the meeting's day without any page URL has a
    matching title. The sync adds the URL to it and brings it in line. **Matching titles** (replaces the
    `event-calendar` rule "one title contains the other"): both titles without a "Zrušeno: " prefix, case, diacritics
@@ -121,14 +123,17 @@ For each meeting (or the weekly event as a whole):
    - A weekly long-term event claims a Google repeating event whose first occurrence is on `start` and whose title
      matches, and then owns the whole repeating event.
 3. **New:** nothing holds the URL, no calendar event without a page URL that day has a matching title, and none with
-   a matching title is anywhere else in the event's year (a plan made in January can sit on another day than the page
-   says, without a `change`; such a hit is case 4, my call). Other calendar events that day with other titles do not
-   stop it: several things happen on one day, and the maintainer decided that an unmatched title is a new event, even
-   if it turns out to be a January event under another name (that duplicate is fixed by hand). The sync adds the
-   calendar event (or the repeating event) with its deterministic id.
-4. **Ask:** several calendar events that day match the title, or a matching one is on another day. The sync changes
-   nothing for that meeting and reports the candidates. A person settles it by pasting the page URL into the right
-   calendar event, which turns it into case 1 on the next run.
+   a matching title that is not over yet is anywhere else in the event's year (a plan made in January can sit on
+   another day than the page says, without a `change`; such a hit is case 4, my call). A past one is not asked about:
+   it is another, earlier event. Other calendar events that day with other titles do not stop it: several things
+   happen on one day, and the maintainer decided that an unmatched title is a new event, even if it turns out to be a
+   January event under another name (that duplicate is fixed by hand). The sync adds the calendar event (or the
+   repeating event) with its deterministic id.
+4. **Ask:** several calendar events that day match the title, or a matching one not over yet is on another day. The
+   sync changes nothing for that meeting and reports the candidates. A person settles it either way: by pasting the
+   page URL into the right calendar event, which turns it into case 1 on the next run, or, when none of them is the
+   event, by adding it in Události by hand with the page URL in its description (the page's "Přidat do kalendáře"
+   file can be imported after the release), which is case 1 as well.
 5. **A moved event:** the calendar event is found by its URL wherever it is (case 1), so a move needs no rule of its
    own; without a URL, the day before the move (`change.previousStart`) is searched for a claimable one, as the check
    does today.
@@ -162,7 +167,9 @@ The preview and the apply both list, without acting:
 - a calendar event holding the URL of a record that no longer exists, or of a meeting no longer in the record;
 - a series whose URL-holding calendar events cannot be paired with its meetings;
 - a calendar event the sync added that someone deleted by hand (Google keeps it with `status: cancelled` under its
-  id, read with `showDeleted`): the deletion is respected and reported, never undone or re-added (my call).
+  id, read with `showDeleted`): the deletion is respected and reported, never undone or re-added (my call). This
+  holds for its event of an earlier date of the record too (an id of the record that is no meeting's, as after a
+  move): a meeting with no calendar event is then reported as deleted instead of added.
 
 ### Running it
 

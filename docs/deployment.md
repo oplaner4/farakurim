@@ -18,9 +18,8 @@ The site is deployed to the host's web root with rsync over SSH; the host and it
 3. bumps the version (commit `chore(release): vX.Y.Z` and the tag `vX.Y.Z`) and pushes `main` with the tag.
 
 The tag starts `.github/workflows/deploy.yml`, which checks and builds the tagged commit, deploys `out/` and then
-applies the calendar sync. The tag
-must match `version` in `package.json` and point to a commit on `main`. A failed release is fixed in a new commit and
-released again; a pushed tag is never moved.
+applies the calendar sync. The tag must match `version` in `package.json` and point to a commit on `main`. A failed
+release is fixed in a new commit and released again; a pushed tag is never moved.
 
 **`pnpm release --local`** deploys from this machine instead, e.g. when GitHub Actions is down. It needs `.env.local`
 with all three keys ([README § Keys](../README.md#keys-in-envlocal-optional)). It runs the full check (with the site's
@@ -28,7 +27,8 @@ tests only: the content tooling's tests in `scripts/` guard nothing in `out/`) a
 will add, change and delete, and after the yes uploads the new files, checks that every linked `/uploads/…` file is on
 the server, syncs `out/` and verifies the live site before it tags. Its release commit carries the trailer
 `Release-Deploy: local`, so the workflow does not deploy that tag again. After the verify it applies the calendar sync
-when `.env.local` has `GOOGLE_CALENDAR_SERVICE_ACCOUNT` (a failure only warns), and otherwise says it did not.
+when `GOOGLE_CALENDAR_SERVICE_ACCOUNT` is set in the environment or in `.env.local` (a failure only warns), and
+otherwise says it did not.
 
 ## Weekly refresh
 

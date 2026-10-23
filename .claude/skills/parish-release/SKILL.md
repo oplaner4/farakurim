@@ -15,14 +15,16 @@ scripts' business (`docs/deployment.md`), not this skill's.
    not behind `origin/main`, lists the commits since the last tag, picks the version (minor for a `feat` outside the
    `content` scope, patch otherwise), lists the new files for `/uploads/` and the new or changed cron scripts
    (`cron-scripts/`), and prints the `Události` lines: the changes the release makes in the Události calendar (add,
-   link, update; an `ask:` line changes nothing). If it stops on a dirty tree (often `AGENTS.md` re-added by `next dev`), ask the user to commit or
-   discard it.
-2. **Ask** the user, with the version, the commits, the uploads, the `Události` changes and any cron scripts from the preview, for example:
+   link, update; an `ask:` line changes nothing). If it stops on a dirty tree (often `AGENTS.md` re-added by
+   `next dev`), ask the user to commit or discard it.
+2. **Ask** the user, with the version, the commits, the uploads, the `Události` changes and any cron scripts from the
+   preview, for example:
 
    > Release v1.1.0? (2 commits, 3 new files in /uploads/)
 
    Wait for a clear yes; it publishes the site, and it covers the `Události` changes, which the deploy workflow applies
-   after the deploy. Never run `pnpm calendar-sync --apply` yourself. Without the yes, stop: the commits stay as they are.
+   after the deploy. Never run `pnpm calendar-sync --apply` yourself. Without the yes, stop: the commits stay as they
+   are.
 
 3. **Release:** `pnpm release --yes` (add `--major` only when the user asks). It uploads the new files and the cron
    scripts, makes the commit `chore(release): vX.Y.Z` and the tag, and pushes `main` with the tag.

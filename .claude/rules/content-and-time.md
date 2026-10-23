@@ -64,7 +64,7 @@ build-time next mass.
   homepage: the build's week, the one before and the next four; "Tento týden" always runs Monday to Sunday). `useCalendarEntries()` re-reads every shown range in the browser (TanStack Query, one query per range) and merges it over the
   build's entries (`mergeEntries()`); a range outside the prerendered one is dimmed with a loading or error message
   until Google answers. Without `NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY` the entries are a fallback generated from
-  `regularServices` and the event records, nothing is fetched, and paging stops at the prerendered months; a release build (`RELEASE_BUILD=1`) fails without the key instead (`src/lib/shared/build-env.ts`). An Události event links to its event record when its description holds the detail page's URL (`eventPaths()`; only pages the build has, `linkablePages` in `server/calendar.ts`); `pnpm event-calendar <id>` checks it and writes the `.ics` to import. The weekly table and the
+  `regularServices` and the event records, nothing is fetched, and paging stops at the prerendered months; a release build (`RELEASE_BUILD=1`) fails without the key instead (`src/lib/shared/build-env.ts`). An Události event links to its event record when its description holds the detail page's URL (`eventPaths()`; only pages the build has, `linkablePages` in `server/calendar.ts`); `pnpm event-calendar <id>` previews the calendar sync for one event (no `.ics`). The weekly table and the
   next-mass countdown still use `regularServices` / `scheduleExceptions()`.
 - Fotogalerie (`content/gallery.json`, loaded and checked by `content/gallery.ts` with `galleryFileSchema` from
   `src/lib/gallery/schema.ts`): Zonerama albums, newest first, at most `MAX_ALBUMS` (`pnpm add-album` removes the

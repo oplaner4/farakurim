@@ -125,8 +125,10 @@ The output of step 5a or 5b means (5b stages nothing):
   `record.json` and run the same command again.
 - The `Události …` lines (the event in the Google Calendar the Kalendář reads): show them to the user as printed;
   they say what the release will do (add the event, link an existing one by its page URL, update it). Only an `ask:`
-  line needs the user: paste the page URL into the description of the right Události event, or leave it, and until
-  then nothing changes. There is no `.ics` to import and nothing to rename or move by hand.
+  line needs the user, with two ways out: paste the page URL into the description of the Události event that is this
+  one, or, when none of them is, add the event in Události by hand with the page URL in its description (the page's
+  "Přidat do kalendáře" file can be imported once the release is out). Until then nothing changes. Otherwise there is
+  no `.ics` to import and nothing to rename or move by hand.
 
 ## 6. Publish
 
@@ -167,7 +169,8 @@ a report file); a local run follows steps 1 to 6 as written. An unattended run f
   or 5b checks everything first and stages nothing when it refuses, so fix `record.json` and run it again.
 - Write the report first, then stage, then fill in each event's `Outcome:` line from what the script did, and add any
   line it printed for the user (the `Události` lines, an unpinned event) to the report. An `ask:` line is a blocking
-  question (its answer decides which Události event is linked). A script refusal is
+  question offering both answers: which candidate is this event (its description gets the page URL), or none of them
+  (the event is then added in Události by hand with the page URL in its description). A script refusal is
   `refused: <its message>`.
 - Skip step 6: no `parish-publish-content`, no commit, no release. The workflow commits and opens the PR.
 
@@ -193,8 +196,9 @@ with parish-correct-event`; a duplicate: `refused: already in <main or PR #n> as
 - `### Questions`, one per line: `- **q1** (blocking|note) <where>: <question> — proposal: <proposal>`.
 
 Then `## Dropped attachments` (each as "attachment 3, an image without event information": never its file name) and
-`## Mirror in the calendar` (the `Události` lines as printed, none left out or reworded). The PR is public: quote only what is published (the
-fields, the staged files' names and labels); describe the rest of the mail without quoting it.
+`## Mirror in the calendar` (the `Události` lines as printed, none left out or reworded). The PR is public: quote
+only what is published (the fields, the staged files' names and labels); describe the rest of the mail without
+quoting it.
 
 ## Common mistakes
 
