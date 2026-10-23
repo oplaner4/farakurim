@@ -234,6 +234,20 @@ describe("planSync", () => {
     ]);
   });
 
+  it("reports a weekly event the sync added and someone deleted, and does not add it again", () => {
+    const deleted: GoogleEvent = {
+      id: calendarEventId(weekly.id, "weekly"),
+      status: "cancelled",
+      start: {},
+      end: {},
+    };
+    const { changes, reports } = planSync([weekly], snapshot([], [deleted]), TODAY);
+    expect(changes).toEqual([]);
+    expect(reports).toEqual([
+      expect.objectContaining({ kind: "deleted", desired: expect.objectContaining({ key: "weekly" }) }),
+    ]);
+  });
+
   it("pairs a series' owned events by date and adds the meeting without one", () => {
     const owned = [linked("a", "2026-10-05"), linked("b", "2026-10-12")];
     const { changes, reports } = planSync([series], snapshot(owned), TODAY);

@@ -75,9 +75,10 @@ function planRecord(event: NewsEvent, snapshot: CalendarSnapshot, today: IsoDate
   const items = desiredEvents(event, today);
   if (items.length === 0) return [];
   const weekly = items[0].key === "weekly";
-  const pool = (weekly ? snapshot.masters : snapshot.instances).filter(isLive);
+  const source = weekly ? snapshot.masters : snapshot.instances;
+  const pool = source.filter(isLive);
   const active = items.filter((item) => {
-    const deleted = snapshot.instances.some((other) => other.id === item.googleId && !isLive(other));
+    const deleted = source.some((other) => other.id === item.googleId && !isLive(other));
     if (deleted) run.reports.push({ kind: "deleted", desired: item });
     return !deleted;
   });

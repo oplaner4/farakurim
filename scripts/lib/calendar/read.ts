@@ -5,8 +5,8 @@ import type { DateRange } from "@/lib/calendar/agenda";
 import { eventsUrl, parseEventsPage, refererInit, type GoogleEvent } from "@/lib/calendar/google-calendar";
 import { desiredEvents } from "./desired";
 
-// Reads the Události calendar as the sync sees it: the expanded events (deleted ones too, to know what is gone)
-// and the repeating events themselves.
+// Reads the Události calendar as the sync sees it: the expanded events and the repeating events themselves, both
+// with the deleted ones, to know what is gone.
 
 export type CalendarSnapshot = { instances: GoogleEvent[]; masters: GoogleEvent[] };
 
@@ -43,9 +43,9 @@ async function readAll(
   return events;
 }
 
-/** The calendar's events in `range`: the expanded ones with the deleted, and the repeating ones. */
+/** The calendar's events in `range`: the expanded ones, and the repeating ones, both with the deleted. */
 export async function readSnapshot(access: CalendarAccess, range: DateRange): Promise<CalendarSnapshot> {
   const instances = await readAll(access, range, { showDeleted: true });
-  const all = await readAll(access, range, { singleEvents: false });
-  return { instances, masters: all.filter((event) => event.recurrence) };
+  const all = await readAll(access, range, { singleEvents: false, showDeleted: true });
+  return { instances, masters: all.filter((event) => event.recurrence || event.status === "cancelled") };
 }

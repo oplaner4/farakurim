@@ -78,7 +78,24 @@ describe("readSnapshot", () => {
     );
     const snapshot = await readSnapshot({ token: "T" }, range);
     expect(snapshot.instances).toMatchObject([{ id: "gone", status: "cancelled" }]);
-    expect(snapshot.masters).toEqual([]);
+    expect(snapshot.masters).toMatchObject([{ id: "gone", status: "cancelled" }]);
+  });
+
+  it("reads the repeating events with the deleted ones, and keeps only those and the repeating", async () => {
+    const fetchMock = vi.fn(async (url: string) =>
+      new URL(url).searchParams.get("singleEvents") === "false"
+        ? googlePage([
+            item("m", { recurrence: ["RRULE:FREQ=WEEKLY"] }),
+            { id: "gone", status: "cancelled" },
+            item("plain"),
+          ])
+        : googlePage([]),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const snapshot = await readSnapshot({ token: "T" }, range);
+    const mastersUrl = new URL(fetchMock.mock.calls[1]![0]);
+    expect(mastersUrl.searchParams.get("showDeleted")).toBe("true");
+    expect(snapshot.masters.map((e) => e.id)).toEqual(["m", "gone"]);
   });
 
   it("throws on an HTTP error", async () => {
