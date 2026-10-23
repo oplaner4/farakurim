@@ -2,7 +2,7 @@
 // its usual install folder. Each converter lays the document out by itself, so their PDFs differ a little.
 
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdtempSync, rmSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, extname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -80,15 +80,19 @@ function withLibreOffice(src: string, outDir: string, platform: NodeJS.Platform)
 
 /** Converts the Word document `file` to a PDF in `dir` and returns its path; throws without Word or LibreOffice. */
 export function docxToPdf(file: string, dir: string, platform: NodeJS.Platform = process.platform): string {
-  // Word resolves a relative path from its own folder.
-  const [src, outDir] = [resolve(file), resolve(dir)];
-  const pdf = join(outDir, `${basename(src, extname(src))}.pdf`);
+  // Word resolves a relative path from its own folder, and does not create the folder it exports to (LibreOffice
+  // does). The copy has an ASCII name, as poppler on Windows cannot open a PDF whose name has accents.
+  const outDir = resolve(dir);
+  mkdirSync(outDir, { recursive: true });
+  const src = join(outDir, `document${extname(file)}`);
+  copyFileSync(file, src);
+  const pdf = join(outDir, "document.pdf");
   if (platform === "win32" && withWord(src, pdf)) return pdf;
   if (!withLibreOffice(src, outDir, platform)) {
     throw new Error(
-      `no converter for ${basename(src)}: install LibreOffice (or Word on Windows), or export the week's page as a PDF`,
+      `no converter for ${basename(file)}: install LibreOffice (or Word on Windows), or export the week's page as a PDF`,
     );
   }
-  if (!existsSync(pdf)) throw new Error(`LibreOffice wrote no PDF for ${basename(src)}`);
+  if (!existsSync(pdf)) throw new Error(`LibreOffice wrote no PDF for ${basename(file)}`);
   return pdf;
 }
