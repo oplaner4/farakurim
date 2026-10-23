@@ -44,6 +44,7 @@ const DONE = {
   replace: "Replaced",
   stage: "Staged",
   unpin: "Unpinned",
+  update: "Updated",
 } as const;
 
 /** The verb that starts a printed line: "Would add" with --check (nothing is written), else "Added". */
