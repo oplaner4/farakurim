@@ -123,13 +123,15 @@ The output of step 5a or 5b means (5b stages nothing):
 
 - An error (a bad field, a taken `id`, a pin on an event that has already ended): nothing was staged. Fix
   `record.json` and run the same command again.
-- The `Události …` lines (the event in the Google Calendar the Kalendář reads): unless they say `linked`, show
-  them to the user as printed; they say what to do.
+- The `Události …` lines (the event in the Google Calendar the Kalendář reads): show them to the user as printed;
+  they say what the release will do (add the event, link an existing one by its page URL, update it). Only an `ask:`
+  line needs the user: paste the page URL into the description of the right Události event, or leave it, and until
+  then nothing changes. There is no `.ics` to import and nothing to rename or move by hand.
 
 ## 6. Publish
 
-Follow **`parish-publish-content`** (commit, upload and push). Until the calendar check in step 5 says
-"linked", remind the user of what it asked for, so the event shows in the Kalendář with its link.
+Follow **`parish-publish-content`** (commit, upload and push). The release applies the `Události` lines; if an
+`ask:` line is still open, remind the user of it, so the event shows in the Kalendář with its link.
 
 ## Unattended run
 
@@ -164,7 +166,8 @@ a report file); a local run follows steps 1 to 6 as written. An unattended run f
   `uploads/` as usual (step 5a or 5b, one event after another). Skip the `--check` runs of steps 3a and 3b: step 5a
   or 5b checks everything first and stages nothing when it refuses, so fix `record.json` and run it again.
 - Write the report first, then stage, then fill in each event's `Outcome:` line from what the script did, and add any
-  line it printed for the user (the `Události` lines, an unpinned event) to the report. A script refusal is
+  line it printed for the user (the `Události` lines, an unpinned event) to the report. An `ask:` line is a blocking
+  question (its answer decides which Události event is linked). A script refusal is
   `refused: <its message>`.
 - Skip step 6: no `parish-publish-content`, no commit, no release. The workflow commits and opens the PR.
 
@@ -190,7 +193,7 @@ with parish-correct-event`; a duplicate: `refused: already in <main or PR #n> as
 - `### Questions`, one per line: `- **q1** (blocking|note) <where>: <question> — proposal: <proposal>`.
 
 Then `## Dropped attachments` (each as "attachment 3, an image without event information": never its file name) and
-`## Mirror in the calendar` (the `Události` lines as printed). The PR is public: quote only what is published (the
+`## Mirror in the calendar` (the `Události` lines as printed, none left out or reworded). The PR is public: quote only what is published (the
 fields, the staged files' names and labels); describe the rest of the mail without quoting it.
 
 ## Common mistakes

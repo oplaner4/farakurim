@@ -912,7 +912,8 @@ the Bohoslužby page and other in-page links. Section colour: **blue**, with
   - **First Friday:** the 18:15 (Kuřim) and 17:00 (Moravské Knínice) masses are assumed to **replace** the usual Friday times.
   - **Manželské večery:** the 7 meetings are drawn on the Sundays 11. 10. – 22. 11.; in production they come from the event's list of meeting dates (11.7), each shown as its own calendar entry.
   - **Jubilee and Hubertská masses:** both are drawn as events that replace the regular 9:30 Sunday mass.
-- An event of the Události calendar links to its detail page (section 13) when its description holds the page's URL (as the "Přidat do kalendáře" file writes it).
+- An event of the Události calendar links to its detail page (section 13) when its description holds the page's URL.
+- The release keeps Události in line with the event records: it adds a missing event, links an existing one by pasting the page URL into its description, prefixes a cancelled one with "Zrušeno: " (and removes it again), and moves a moved one. It never deletes an event. Events without a page stay the parish's.
 - **Cancelled events** (11.9): a Google event with `status: cancelled` (a deleted single instance of a recurring event) is left out. An event whose title starts with "Zrušeno: " is shown struck through with the "zrušeno" label; the prefix is not repeated in the title.
 
 ### 16.5 Dark theme

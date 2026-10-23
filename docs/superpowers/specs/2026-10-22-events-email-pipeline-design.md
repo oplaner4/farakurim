@@ -35,7 +35,7 @@ The pipeline turns that into a short review that can be done anywhere.
 - **No rebuilding** of an events PR that conflicts with a merged one: the maintainer resolves it on GitHub (the
   maintainer accepted this) or closes it and the sender resends.
 - No e-mail is ever sent, to the senders or anyone else.
-- No changes to the Google Calendars: the PR lists what to mirror (the `Události` lines of `pnpm stage event`).
+- No changes to the Google Calendars by the pipeline: the PR lists the `Události` lines of `pnpm stage event`, and the release applies those calendar changes (the Události calendar sync).
 - No schedule exceptions, albums or Petrklíč through this pipeline.
 
 ## Anti-goals (a failure even if it works)

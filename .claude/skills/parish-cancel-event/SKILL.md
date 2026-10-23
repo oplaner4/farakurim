@@ -57,18 +57,12 @@ Wait for the user's yes or corrections to these before replacing anything.
 
 ## 5. Replace
 
-Run the step 3 command without `--check`. It then checks the Události calendar, whose Kalendář and "Tento týden"
-entries take the cancelled status only from a "Zrušeno: " title prefix (§16.4), never from the record, a linked
-event included. Show the user the Události lines it prints unless they end in `nothing to do`, and ask them to change
-the event in the Události calendar:
-
-- cancelled, or the cancellation withdrawn: rename the event as the lines say (`rename "…" to "Zrušeno: …"`, or back
-  without the prefix), and never delete it; a dropped meeting is renamed on that occurrence only. Run
-  `pnpm event-calendar <id>` after the user's edit: it says `nothing to do` once the titles match;
-- moved: move the existing event to the new date and time, as the line `"…" is still on <old date>: move it to …`
-  says, and never import an `.ics` for it, which would add a second event. The check writes one only when the event
-  is on neither date. Run `pnpm event-calendar <id>` after the user's edit: it says `nothing to do` once the
-  event is on the new date.
+Run the step 3 command without `--check`. It then prints the Události lines: the Kalendář and "Tento týden" entries
+take the cancelled status only from a "Zrušeno: " title prefix (§16.4), never from the record, a linked event
+included, so the release adds the prefix to the title (or removes it when the cancellation is withdrawn), moves a
+moved event to its new date and time, and renames only the occurrence of a dropped meeting. Show the user the lines as
+printed. Only an `ask:` line needs the user: paste the page URL into the description of the right Události event, or
+leave it. There is nothing to rename or move by hand and no `pnpm event-calendar` to re-run.
 
 ## 6. Publish
 
@@ -81,5 +75,5 @@ Follow **`parish-publish-content`**.
 - Moving an event without `previousStart`: the card cannot say where it moved from.
 - Cancelling a whole series when only one meeting is dropped: use `cancelledMeetings`.
 - Writing `record.json` from scratch or editing `src/content/news/` by hand instead of `pnpm replace-event`.
-- Deleting a cancelled event from the Události calendar instead of adding "Zrušeno: " to its title, or importing the
-  `.ics` after a move instead of moving the Události event.
+- Deleting a cancelled event from the Události calendar, or renaming or moving it by hand, instead of letting the
+  release add "Zrušeno: " or move it.

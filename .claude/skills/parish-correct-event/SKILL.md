@@ -67,10 +67,10 @@ Wait for the user's yes or corrections to these before replacing or staging anyt
 
 ## 5. Replace
 
-Run the step 3 command without `--check`. Show the Události calendar lines it prints unless they say `linked`.
-After a change of date, time, title or place, ask the user to change the event in the Události calendar too: after
-a new date the check reports it `missing` and writes an `.ics`, but importing it would add a second event, so the
-existing one is moved instead.
+Run the step 3 command without `--check`. Show the user the Události lines it prints as printed: they say what the
+release will do to the Události calendar (update the linked event's title, time or place, move it to a new date).
+Only an `ask:` line needs the user: paste the page URL into the description of the right Události event, or leave it.
+There is nothing to change in the calendar by hand and no `pnpm event-calendar` to re-run.
 
 ## 6. Publish
 
@@ -86,6 +86,6 @@ Follow **`parish-publish-content`**.
 - Changing `poster` in `record.json` by hand instead of `pnpm event-poster`: its WebP would not exist.
 - Removing or reordering attachments with the stage command: change `attachments` in `record.json` and run
   `pnpm replace-event`.
-- Importing the `.ics` after a date change instead of moving the Události event.
+- Changing, moving or deleting the Události event by hand after a date change: the release moves it.
 - Moving a postponed event to its new date as a plain correction: a postponement needs its `change`, with
   **`parish-cancel-event`**.
