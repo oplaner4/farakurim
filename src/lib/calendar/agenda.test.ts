@@ -115,6 +115,20 @@ describe("labels", () => {
     expect(dayCellLabel("2026-10-19", [])).toBe("19. října, nic v kalendáři");
   });
 
+  it("leaves a cancelled service out of the day cell and the summary", () => {
+    const cancelled = {
+      key: "x",
+      calendar: "services" as const,
+      title: "Zrušeno: Mše svatá",
+      cancelled: true as const,
+    };
+    const items = [{ key: "1", calendar: "services" as const, title: "Mše svatá" }, cancelled];
+    expect(dayCellLabel("2026-10-18", items)).toBe("18. října, 1 bohoslužba");
+    expect(dayCellLabel("2026-10-18", [cancelled])).toBe("18. října, nic v kalendáři");
+    expect(daySummary(items)).toBe("1× mše");
+    expect(daySummary([cancelled])).toBe("—");
+  });
+
   it("titles the day detail relative to today", () => {
     expect(dayHeading("2026-10-03", "2026-10-03")).toBe("Dnes · Sobota 3. října");
     expect(dayHeading("2026-10-04", "2026-10-03")).toBe("Zítra · Neděle 4. října");

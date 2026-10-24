@@ -145,10 +145,13 @@ export function calendarStatus({
   return failed ? "error" : "loading";
 }
 
+/** A service that takes place: a cancelled one is no service of the day's count or times. */
+export const isServiceTakingPlace = (item: AgendaItem) => item.calendar === "services" && !item.cancelled;
+
 /** "18. října, 2 bohoslužby, 1 akce", "19. října, nic v kalendáři" */
 export function dayCellLabel(date: IsoDate, items: AgendaItem[]): string {
-  const services = items.filter((i) => i.calendar === "services").length;
-  const events = items.length - services;
+  const services = items.filter(isServiceTakingPlace).length;
+  const events = items.filter((i) => i.calendar === "events").length;
   const parts = [
     services && `${services} ${plural(services, ["bohoslužba", "bohoslužby", "bohoslužeb"])}`,
     events && `${events} ${plural(events, ["akce", "akce", "akcí"])}`,
@@ -216,8 +219,8 @@ export const weekRangeLabel = ({ from, to }: DateRange) => `po ${fmt(from, "d. M
 
 /** Summary of a past day's collapsed card: "2× mše · 1 akce", "3 akce", "—". */
 export function daySummary(items: AgendaItem[]): string {
-  const services = items.filter((i) => i.calendar === "services").length;
-  const events = items.length - services;
+  const services = items.filter(isServiceTakingPlace).length;
+  const events = items.filter((i) => i.calendar === "events").length;
   const parts = [services && `${services}× mše`, events && `${events} ${plural(events, ["akce", "akce", "akcí"])}`];
   return parts.filter(Boolean).join(" · ") || "—";
 }

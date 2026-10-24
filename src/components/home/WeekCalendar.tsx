@@ -11,6 +11,7 @@ import {
   containsRange,
   type DateRange,
   daySummary,
+  isServiceTakingPlace,
   itemTime,
   moreEventsLabel,
   shortWeekday,
@@ -142,7 +143,7 @@ function DayCard({
   const collapsed = past && date >= weekRange(today, 0).from;
   const { label, date: shortDate } = weekCardLabels(date, today);
   const { shown, hidden } = splitEvents(items.filter((i) => i.calendar === "events"));
-  const services = items.filter((i) => i.calendar === "services");
+  const services = items.filter(isServiceTakingPlace);
   return (
     <li
       data-today={isToday || undefined}
@@ -192,7 +193,9 @@ function DayCard({
             </span>
           </span>
         )}
-        {items.length === 0 && ready && <span className="text-14 text-muted">Bez programu</span>}
+        {shown.length === 0 && hidden === 0 && services.length === 0 && ready && (
+          <span className="text-14 text-muted">Bez programu</span>
+        )}
       </span>
     </li>
   );
