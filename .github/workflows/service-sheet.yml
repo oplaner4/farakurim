@@ -252,10 +252,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       # The report: line 1 `blocking: yes|no`, line 2 `commit: <message>`, then the PR body. On every path each week
-      # (a `## ` section) has exactly one `Outcome:` line, else nothing is applied
-      # or filed. With a change, the patch is applied only if it touches nothing but src/content/*.json. Without one,
-      # the report must explain it: a valid first line and the week corrected (a correction of a week not released
-      # yet can change nothing), refused or a document error (the last two fail the summary).
+      # (a `## ` section) has exactly one `Outcome:` line, else nothing is applied or filed. With a change, the patch is
+      # applied only if it touches nothing but src/content/*.json. Without one, the report must
+      # explain it: a valid first line and the week corrected (a correction of a week not released yet can change
+      # nothing), refused or a document error (the last two fail the summary).
       - name: Apply the change
         id: changes
         if: steps.download.outcome == 'success' && needs.sheet.result == 'success' && needs.sheet.outputs.docx != ''

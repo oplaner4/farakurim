@@ -3,11 +3,10 @@
 # bumps the version in package.json, commits and tags it vX.Y.Z and pushes main with the tag; GitHub Actions then
 # checks, builds and deploys out/ (.github/workflows/deploy.yml) and applies the Události and the Bohoslužby calendar
 # syncs (pnpm calendar-sync, pnpm services-calendar-sync). The preview lists the calendar changes with the commits, so
-# the yes covers them. With --local
-# it deploys from this machine instead, e.g. when Actions is down: it runs the full check and a production build (with
-# the keys in .env.local), shows what the syncs will change, deploys out/ and verifies the live site, applies the
-# calendar syncs and then tags; the release commit then carries the trailer Release-Deploy: local, so the workflow does
-# not deploy the tag again. Server details live in scripts/deploy.sh.
+# the yes covers them. With --local it deploys from this machine instead, e.g. when Actions is down: it runs the full
+# check and a production build (with the keys in .env.local), shows what the syncs will change, deploys out/ and
+# verifies the live site, applies the calendar syncs and then tags; the release commit then carries the trailer
+# Release-Deploy: local, so the workflow does not deploy the tag again. Server details live in scripts/deploy.sh.
 #
 # Usage: pnpm release            preview, then ask y/N (without a terminal it only previews)
 #        pnpm release --local    check, build and deploy from this machine instead of GitHub Actions

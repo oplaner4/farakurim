@@ -12,10 +12,10 @@
 # pushes the tag, and the deploy stops if the build links a file that is not on the server yet.
 # The Události calendar sync (pnpm calendar-sync) and the Bohoslužby one (pnpm services-calendar-sync) run in their own
 # job after the deploy and its verify: on a release tag they apply the changes, on a refresh they only preview them in
-# the run summary. It has its own environment
-# (calendar-sync), never Production (the refresh counts Production deployments), signs in to Google with workload
-# identity federation (no key), and a failure only warns: the deploy is not affected and the next release catches up. Each applies only once its repository variable (CALENDAR_SYNC, SERVICES_CALENDAR_SYNC) is
-# true, which the maintainer sets after the first apply by hand (docs/deployment.md).
+# the run summary. It has its own environment (calendar-sync), never Production (the refresh counts Production
+# deployments), signs in to Google with workload identity federation (no key), and a failure only warns: the deploy is
+# not affected and the next release catches up. Each sync applies only once its repository variable (CALENDAR_SYNC,
+# SERVICES_CALENDAR_SYNC) is true, which the maintainer sets after the first apply by hand (docs/deployment.md).
 # The SSH target, web root, rsync flags, server-only folders and verify checks live in scripts/deploy.sh, which
 # `pnpm release --local` uses too. The runner image and the actions are pinned (actions by commit SHA, updated by
 # Dependabot), so a release only changes when this file does.
@@ -229,7 +229,7 @@ jobs:
         run: echo "::warning::The calendar sync could not sign in to Google (see the step above); the next release catches up."
 
       - name: Apply the calendar sync
-        if: steps.google.outcome == 'success'
+        if: steps.google.outcome == 'success' && vars.CALENDAR_SYNC == 'true'
         env:
           GOOGLE_CALENDAR_SERVICE_ACCOUNT: ${{ steps.google.outputs.credentials_file_path }}
         # The lines go to the log and the run summary; a failure warns with the last line of stderr.
@@ -302,9 +302,9 @@ jobs:
           NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY: ${{ vars.GOOGLE_CALENDAR_API_KEY }}
         run: pnpm --silent calendar-sync --problems 2> /dev/null | sed 's/^/::warning::/' || true
 
-      # A Bohoslužby line that needs a person (an `ask:`, or a hand-made event that doubles a service, which the sync
-      # never touches) warns, after the apply or the preview.
+      # A hand-made event that doubles a service, which the sync never touches, needs a person: its line warns, after
+      # the apply or the preview.
       - name: Warn about what needs a person in the Bohoslužby calendar
         if: ${{ !cancelled() }}
         run: |
-          grep -E ': ask:| doubles .*: remove (it|them) by hand$' "$RUNNER_TEMP/services-calendar-sync.out" 2> /dev/null | sed 's/^/::warning::/' || true
+          grep -E ' doubles .*: remove (it|them) by hand$' "$RUNNER_TEMP/services-calendar-sync.out" 2> /dev/null | sed 's/^/::warning::/' || true
