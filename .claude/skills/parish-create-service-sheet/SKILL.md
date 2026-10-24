@@ -20,22 +20,28 @@ The user gives at least a file name; without a folder, look in `~/Downloads/`. T
   The DOCX holds a year of intentions with names: it never goes to `uploads/` or the repo, only the week's page does.
 - **A PDF of the week** (page 1 exported by the user), when there is no DOCX or no converter.
 
-**From the DOCX**, draft the record (it also refuses a week already released, before the current sheet or
-overlapping another, and says when the week's sheet is already in `service-sheets.json`: then the week was staged
-before, so take it to **`parish-correct-service-sheet`**):
+Follow 1a or 1b.
+
+### 1a. From the DOCX
+
+Draft the record (it also refuses a week already released, before the current sheet or overlapping another, and says
+when the week's sheet is already in `service-sheets.json`: then the week was staged before, so take it to
+**`parish-correct-service-sheet`**):
 
 ```sh
 pnpm stage sheet "<source>" --draft <scratchpad>/record.json
 ```
 
 It prints the week, its days and the events an announcement can link (for `newsId`), and writes `days` and
-`announcements` to `record.json`. The days a two-week table
-leaves out become days without services, printed as "Days without services": tell the user. A table it cannot read (a
-date outside the week, a weekday that does not fit the date, times that do not pair with the services, a table that
-does not start and end on the heading's dates) stops it with the week and day: ask the user what the document should
-say, as the error is in their document. The draft is a starting point: step 2a says what to check in it.
+`announcements` to `record.json`. The days a two-week table leaves out become days without services, printed as "Days
+without services": tell the user. A table it cannot read (a date outside the week, a weekday that does not fit the
+date, times that do not pair with the services, a table that does not start and end on the heading's dates) stops it
+with the week and day: ask the user what the document should say, as the error is in their document. The draft
+is a starting point: step 2a says what to check in it.
 
-**From a PDF**, read it with both:
+### 1b. From a PDF
+
+Read it with both:
 
 - the `Read` tool, to see the table (which rows belong to which day and place), and
 - `pdftotext -layout <file> -`, for exact wording. In the layout text a day's date and feast sit in the middle of
@@ -160,25 +166,6 @@ pnpm stage sheet "<source>" --record <scratchpad>/record.json
 
 It validates the record first (the error names each field), stages the PDF, adds the sheet, removes the outdated
 sheets and runs the service sheet tests. A line it prints that asks the user something goes to the user as printed.
-
-```json
-{
-  "days": [
-    {
-      "date": "2026-10-04",
-      "feast": "27. neděle v mezidobí",
-      "solemnity": true,
-      "rows": [
-        { "time": "8:00", "place": "kurim", "title": "Mše sv.", "detail": "za Jana Nováka", "mass": true },
-        { "time": "11:00", "place": "kurim", "title": "Hodová mše sv.", "detail": "za obec Česká", "mass": true }
-      ]
-    }
-  ],
-  "announcements": [
-    { "category": "confession", "html": "<p>V Kuřimi se zpovídá ve čtvrtek od <strong>17.30</strong>.</p>" }
-  ]
-}
-```
 
 ## 5. Publish
 
