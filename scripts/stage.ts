@@ -25,6 +25,8 @@
 //       week already there, in the next -r<rev> once the week is on the server, else under its name. Every run refuses
 //       a week before the current sheet or overlapping another, and --check without a record says when the week's sheet
 //       is already there (--record replaces it).
+//       Without a source, --record replaces the record of the sheet --from and --to name (a correction of the record
+//       alone): the sheet keeps its PDF and rev, and nothing is staged.
 //       The parish's DOCX of the whole year gives its newest week (--from and --to pick another): the PDF staged is
 //       that week's page of the document converted with Word (Windows) or LibreOffice, and --draft <file> writes the
 //       week's draft record, read from its table and announcements, to check before --record (stages nothing; it

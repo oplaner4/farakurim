@@ -6,8 +6,7 @@ description: Correct a week's service sheet (the "pořad bohoslužeb" or "ohlá�
 # Correct a service sheet
 
 Never edit a sheet in `src/content/service-sheets.json` by hand: a correction reruns `pnpm stage sheet` with a corrected
-record, which replaces the sheet of the same week. A released file is never replaced, so once the week is
-released its PDF's name is taken and the rerun takes `--corrected`.
+record, which replaces the sheet of the same week.
 
 ## 1. Find the week
 
@@ -32,27 +31,25 @@ A cancelled or moved service changes the week's `rows` only.
 
 ## 3. Confirm with the user
 
+With a corrected PDF or DOCX (with a DOCX, also `--from` and `--to` when the week is not its newest):
+
 ```sh
-pnpm stage sheet "<source>" --record <scratchpad>/record.json [--corrected] --check
+pnpm stage sheet "<source>" --record <scratchpad>/record.json --corrected --check
 ```
 
-`<source>` is the corrected PDF or DOCX, which always takes `--corrected` (with a DOCX, also `--from` and `--to`
-when the week is not its newest). When only the record changes, it is the week's
-staged PDF in `uploads/porady_bohosluzeb/` (`pnpm pull-uploads` fetches the released files): `--corrected` only once
-the week is released, as the check refuses the taken name otherwise. Show the user what changes
-(day by day, the rows and announcements that differ).
+When only the record changes, without a source:
+
+```sh
+pnpm stage sheet --from <validFrom> --to <validTo> --record <scratchpad>/record.json --check
+```
+
+Show the user what changes (day by day, the rows and announcements that differ).
 
 Wait for the user's yes or corrections to these before staging anything.
 
 ## 4. Stage
 
-```sh
-pnpm stage sheet "<source>" --record <scratchpad>/record.json [--corrected]
-```
-
-It replaces the sheet of the same week, formats the file and runs the service sheet test. Before the release it
-replaces the staged PDF; once the week is released, `--corrected` stages `…-porad-bohosluzeb-r2.pdf` (then `-r3`, …) and
-stores the sheet's `rev`.
+Run the same command without `--check`. It replaces the sheet of the same week and runs the service sheet test.
 
 ## 5. Publish
 
@@ -75,6 +72,6 @@ change:
 - Editing a sheet in `service-sheets.json` by hand instead of rerunning the command with a corrected record.
 - Rewriting the whole record from the PDF and losing earlier fixes (a category, a `newsId`): start
   from the sheet.
-- Leaving out `--corrected` after the release: the PDF's name is taken.
+- Leaving out `--corrected` with a corrected PDF or DOCX.
 - Putting `validFrom`, `validTo` or `rev` into `record.json`: the script reads the dates from the heading and sets
   `rev`.

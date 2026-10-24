@@ -13,6 +13,7 @@ import { stageSheet } from "./sheet";
 
 const USAGE = `Usage: pnpm stage event <id> <source> <label> [<source> <label> …] [--no-poster] [--corrected] [--record <json>] [--check]
        pnpm stage sheet <pdf|docx> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected] [--record <json> | --draft <json>] [--check]
+       pnpm stage sheet --from YYYY-MM-DD --to YYYY-MM-DD --record <json> [--check]
        pnpm stage petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--corrected] [--check]
 Largest source file: ${Object.entries(MAX_MB)
   .map(([command, mb]) => `${command} ${mb} MB`)
@@ -32,7 +33,8 @@ const sheetWeekSchema = z
 const COMMANDS: Record<string, { positionals: (count: number) => boolean; options: string[] }> = {
   // The id, then source and label pairs.
   event: { positionals: (n) => n >= 3 && n % 2 === 1, options: ["poster", "corrected", "record", "check"] },
-  sheet: { positionals: (n) => n === 1, options: ["from", "to", "corrected", "record", "draft", "check"] },
+  // The source, or none to correct a sheet's record alone.
+  sheet: { positionals: (n) => n <= 1, options: ["from", "to", "corrected", "record", "draft", "check"] },
   petrklic: { positionals: (n) => n === 1, options: ["year", "number", "note", "corrected", "check"] },
 };
 

@@ -32,6 +32,18 @@ describe("runStage", { timeout: 30_000 }, () => {
       sheetFile,
     ]);
     expect(sheet.format).toEqual({ files: [env.serviceSheetsFile], tests: SERVICE_SHEETS_TESTS });
+    // Without a source, the record of that sheet alone.
+    const corrected = await runStage(env, [
+      "sheet",
+      "--from",
+      "2099-10-04",
+      "--to",
+      "2099-10-11",
+      "--record",
+      sheetFile,
+    ]);
+    expect(corrected.lines).toEqual(["Replaced the sheet 2099-10-04 – 2099-10-11 in src/content/service-sheets.json"]);
+    expect(corrected.format).toEqual({ files: [env.serviceSheetsFile], tests: SERVICE_SHEETS_TESTS });
 
     const recordFile = join(env.home, "record.json");
     writeFileSync(recordFile, JSON.stringify({ id: "x-2026", title: "T", start: "2026-10-20", place: "P", text: "T" }));

@@ -6,6 +6,7 @@
 // also be the parish's DOCX of the whole year: then the week is its newest one (or the one --from names), its PDF that
 // week's page of the converted document, and its draft record is read from the week's table and announcements.
 // Without a record it also lists the events an announcement can link, so the newsIds need no search of the news.
+// Without a source, the record replaces the one of the sheet --from and --to name, which keeps its PDF and rev.
 
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -35,7 +36,8 @@ export const weekDays = (validFrom: IsoDate, validTo: IsoDate) =>
   periodDates(validFrom, validTo).map((date) => `${WEEKDAY_SHORT[pragueWeekday(date)].toLowerCase()} ${date}`);
 
 export type SheetOptions = {
-  source: string;
+  /** The PDF or DOCX; without it, the record replaces the one of the week's sheet. */
+  source?: string;
   validFrom?: string;
   validTo?: string;
   /** A corrected PDF of a week already in service-sheets.json. */
@@ -151,7 +153,7 @@ async function sourceWeek(
 }
 
 /** Throws for a run that would stage without a record, or that both drafts and adds a record. */
-function checkRecordOptions(options: SheetOptions, check: boolean) {
+function checkRecordOptions(options: SheetOptions & { source: string }, check: boolean) {
   // A PDF staged without its sheet would go to the server with nothing linking it, and take the week's name there.
   if (!options.record && !check) {
     throw new Error(
@@ -166,14 +168,35 @@ function checkRecordOptions(options: SheetOptions, check: boolean) {
 }
 
 /**
+ * Replaces the record of the sheet of `validFrom` to `validTo`, keeping its PDF and rev: a correction of the record
+ * alone, which stages nothing.
+ */
+function replaceRecord(env: StageEnv, options: SheetOptions) {
+  const { validFrom, validTo, record, check = false } = options;
+  if (options.corrected || options.draft !== undefined) {
+    throw new Error("--corrected and --draft read a PDF or a DOCX: pass the source");
+  }
+  if (!validFrom || !validTo) throw new Error("without a source, --from and --to name the sheet to correct");
+  if (!record) throw new Error("without a source, --record is the sheet's corrected record");
+  const current = readServiceSheets(env.serviceSheetsFile).sheets.find(
+    (sheet) => sheet.validFrom === validFrom && sheet.validTo === validTo,
+  );
+  if (!current) throw new Error(`no sheet of ${period({ validFrom, validTo })} in service-sheets.json`);
+  const sheet = { validFrom, validTo, ...(current.rev !== undefined && { rev: current.rev }) };
+  const result = addServiceSheet(env, record, sheet, { check });
+  return { lines: serviceSheetLines(result, check), written: result.written };
+}
+
+/**
  * Stages the weekly PDF (or the week's page of the DOCX) and adds its sheet (the record); without a record, `check`
- * only prints the week and its days, and `draft` writes the DOCX week's draft record. Returns the lines to print and
- * the files written.
+ * only prints the week and its days, and `draft` writes the DOCX week's draft record. Without a source, the record
+ * replaces the week's sheet's (`replaceRecord`). Returns the lines to print and the files written.
  */
 export async function stageSheet(env: StageEnv, options: SheetOptions) {
+  if (options.source === undefined) return replaceRecord(env, options);
   const { corrected = false } = options;
   const check = options.check || options.draft !== undefined;
-  checkRecordOptions(options, check);
+  checkRecordOptions({ ...options, source: options.source }, check);
   const src = sourceFile(options.source, MAX_MB.sheet, env.home);
   const dir = mkdtempSync(join(tmpdir(), "sheet-"));
   try {

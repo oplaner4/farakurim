@@ -173,6 +173,43 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     ).rejects.toThrow("no sheet of 2099-10-04 in service-sheets.json");
   });
 
+  it("replaces the record of a sheet without a source, keeping its PDF and rev", async () => {
+    const week = { validFrom: "2099-10-04", validTo: "2099-10-11" };
+    await stageSheet(env, { ...week, source: download("porad.pdf", "%PDF first"), record: record() });
+    // Only the first PDF is on the server.
+    fetchMock.mockImplementation(async (url: string) => {
+      return new Response(null, { status: url.endsWith("/2099-10-04-porad-bohosluzeb.pdf") ? 200 : 404 });
+    });
+    const source = download("porad oprava.pdf", "%PDF fixed");
+    await stageSheet(env, { ...week, source, corrected: true, record: record() });
+    const fixed = { ...record(), announcements: [{ category: "info", html: "<p>Sbírka na opravy.</p>" }] };
+    const lastSheet = () => JSON.parse(readFileSync(env.serviceSheetsFile, "utf8")).sheets.at(-1);
+
+    expect((await stageSheet(env, { ...week, record: fixed, check: true })).lines).toEqual([
+      "Would replace the sheet 2099-10-04 – 2099-10-11 with rev 2 in src/content/service-sheets.json",
+    ]);
+    expect(lastSheet().announcements[0].html).toBe("<p>Sbírka.</p>");
+    const { lines, written } = await stageSheet(env, { ...week, record: fixed });
+    expect(lines).toEqual(["Replaced the sheet 2099-10-04 – 2099-10-11 with rev 2 in src/content/service-sheets.json"]);
+    expect(written).toEqual([env.serviceSheetsFile]);
+    expect(lastSheet()).toMatchObject({ rev: 2, announcements: [{ html: "<p>Sbírka na opravy.</p>" }] });
+    expect(readFileSync(uploaded("porady_bohosluzeb", "2099-10-04-porad-bohosluzeb-r2.pdf"), "utf8")).toBe(
+      "%PDF fixed",
+    );
+  });
+
+  it("refuses a run without a source that is not a record of a sheet already there", async () => {
+    const week = { validFrom: "2099-10-04", validTo: "2099-10-11" };
+    await expect(stageSheet(env, { ...week, record: record() })).rejects.toThrow(
+      "no sheet of 2099-10-04 – 2099-10-11 in service-sheets.json",
+    );
+    await stageSheet(env, { ...week, source: download("porad.pdf", "%PDF"), record: record() });
+    await expect(stageSheet(env, { record: record() })).rejects.toThrow("--from and --to");
+    await expect(stageSheet(env, { ...week, check: true })).rejects.toThrow("--record");
+    await expect(stageSheet(env, { ...week, record: record(), corrected: true })).rejects.toThrow("--corrected");
+    await expect(stageSheet(env, { ...week, draft: "draft.json" })).rejects.toThrow("--draft");
+  });
+
   it("stages nothing for a record it refuses, and only validates with check", async () => {
     const source = download("porad.pdf", "%PDF");
     const week = { source, validFrom: "2099-10-04", validTo: "2099-10-11" };
