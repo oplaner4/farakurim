@@ -14,8 +14,9 @@
 # job after the deploy and its verify: on a release tag it applies the changes, on a refresh it only previews them in
 # the run summary. It has its own environment (calendar-sync), never Production (the refresh counts Production
 # deployments), signs in to Google with workload identity federation (no key), and a failure only warns: the deploy is
-# not affected and the next release catches up. Each calendar applies only once its repository variable (CALENDAR_SYNC,
-# SERVICES_CALENDAR_SYNC) is true, which the maintainer sets after the first apply by hand (docs/deployment.md).
+# not affected and the next release catches up. Each calendar applies only once its repository variable
+# (EVENTS_CALENDAR_SYNC, SERVICES_CALENDAR_SYNC) is true, which the maintainer sets after the first apply by hand
+# (docs/deployment.md).
 # The SSH target, web root, rsync flags, server-only folders and verify checks live in scripts/deploy.sh, which
 # `pnpm release --local` uses too. The runner image and the actions are pinned (actions by commit SHA, updated by
 # Dependabot), so a release only changes when this file does.
@@ -216,7 +217,7 @@ jobs:
       # Writes the federated credentials file for the sync; the environment variables stay unset, so nothing else uses it.
       - name: Authenticate to Google Cloud
         id: google
-        if: github.event_name == 'push' && (vars.CALENDAR_SYNC == 'true' || vars.SERVICES_CALENDAR_SYNC == 'true')
+        if: github.event_name == 'push' && (vars.EVENTS_CALENDAR_SYNC == 'true' || vars.SERVICES_CALENDAR_SYNC == 'true')
         uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           workload_identity_provider: ${{ vars.GOOGLE_WORKLOAD_IDENTITY_PROVIDER }}
@@ -229,7 +230,7 @@ jobs:
         run: echo "::warning::The calendar sync could not sign in to Google (see the step above); the next release catches up."
 
       - name: Apply the Události calendar sync
-        if: steps.google.outcome == 'success' && vars.CALENDAR_SYNC == 'true'
+        if: steps.google.outcome == 'success' && vars.EVENTS_CALENDAR_SYNC == 'true'
         env:
           GOOGLE_CALENDAR_SERVICE_ACCOUNT: ${{ steps.google.outputs.credentials_file_path }}
         # The lines go to the log and the run summary; a failure warns with the last line of stderr.
@@ -263,7 +264,7 @@ jobs:
           fi
 
       - name: Preview the Události calendar sync
-        if: github.event_name != 'push' || vars.CALENDAR_SYNC != 'true'
+        if: github.event_name != 'push' || vars.EVENTS_CALENDAR_SYNC != 'true'
         env:
           NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY: ${{ vars.GOOGLE_CALENDAR_API_KEY }}
         # As the apply above: the lines go to the run summary, a failure warns.

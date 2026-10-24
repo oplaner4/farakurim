@@ -82,7 +82,7 @@ Only a release applies them, after the site is deployed (so every URL it writes 
 - **`pnpm release`** prints the preview of both calendars with the commits, so the yes covers both. Without the key, or when Google does
   not answer, it says the calendar was not checked and goes on.
 - **The `calendar` job of `deploy.yml`** runs after `deploy` (and its verify). On a release tag push, with the
-  repository variable `CALENDAR_SYNC` set to `true`, it runs `pnpm calendar-sync --calendar events --apply`, and with
+  repository variable `EVENTS_CALENDAR_SYNC` set to `true`, it runs `pnpm calendar-sync --calendar events --apply`, and with
   `SERVICES_CALENDAR_SYNC` set to `true`, `pnpm calendar-sync --calendar services --apply`; otherwise (a refresh, or the variable not yet `true`) that
   calendar is only previewed. Either way its lines go into the run summary, and each line that needs a
   person warns (`--problems`): a hand-made Bohoslužby event doubling a service, an `ask:` (the sync cannot tell which Události event is the record's: paste the page URL into the
@@ -136,7 +136,7 @@ the site cannot act as the account.
 - **First apply by hand**, before the workflow applies anything: every event that already links a calendar event is
   brought in line on the first apply (titles, times, places and descriptions written by hand change to the records').
   Read the whole list with `pnpm calendar-sync --calendar events`, then run `pnpm calendar-sync --calendar events
---apply`, and only then set the repository variable `CALENDAR_SYNC` to `true`. A merged content PR never makes the first apply.
+--apply`, and only then set the repository variable `EVENTS_CALENDAR_SYNC` to `true`. A merged content PR never makes the first apply.
 - **Switch-over of Bohoslužby, once, by hand.** The hand-made repeating events for the regular services must stop, or
   every service shows twice. In this order: share Bohoslužby with the service account ("Make changes to events"); run
   `pnpm release --local` by hand and check its preview, which lists the services changes (about 220 events it adds):
