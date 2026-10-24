@@ -109,16 +109,25 @@ jobs:
           private-key: ${{ secrets.CONTENT_APP_PRIVATE_KEY }}
           permission-pull-requests: write # the comments only
 
-      # The App token: the PR conversation is locked, and only collaborators can comment.
+      # The App token: the PR conversation is locked (the content workflows lock it), and even the App cannot comment
+      # on a locked conversation, so `comment` unlocks it for the comment and locks it again.
       - name: Report why nothing is released
         if: steps.plan.outputs.action == 'blocked'
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
           PLAN: ${{ steps.plan.outputs.plan }}
         run: |
+          comment() {
+            local issue="repos/$GITHUB_REPOSITORY/issues/$1" status=0
+            gh api -X DELETE "$issue/lock" > /dev/null || true
+            gh pr comment "$1" --repo "$GITHUB_REPOSITORY" --body "$2" || status=$?
+            gh api -X PUT "$issue/lock" -f lock_reason=resolved > /dev/null || true
+            return "$status"
+          }
           reason=$(jq -r .reason <<< "$PLAN")
           for pr in $(jq -r '.pulls[].number' <<< "$PLAN"); do
-            gh pr comment "$pr" --repo "$GITHUB_REPOSITORY" --body "Not released: $reason. Release with \`pnpm release\` by hand once that is sorted out (docs/deployment.md)."
+            comment "$pr" "Not released: $reason. Release with \`pnpm release\` by hand once that is sorted out (docs/deployment.md)." \
+              || echo "::warning::Could not comment on PR #$pr."
           done
           echo "::error::$reason"
           exit 1
@@ -264,14 +273,23 @@ jobs:
           echo "Deploy run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$id"
           gh run watch "$id" --repo "$GITHUB_REPOSITORY" --exit-status --interval 30 > /dev/null
 
+      # The site is live by now: a comment or a branch that fails only warns, so the run stays green. The conversation
+      # is locked, so `comment` unlocks it for the comment (as in `plan`).
       - name: Report the release
         if: steps.plan.outputs.action == 'release'
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
           TAG: ${{ steps.release.outputs.tag }}
         run: |
+          comment() {
+            local issue="repos/$GITHUB_REPOSITORY/issues/$1" status=0
+            gh api -X DELETE "$issue/lock" > /dev/null || true
+            gh pr comment "$1" --repo "$GITHUB_REPOSITORY" --body "$2" || status=$?
+            gh api -X PUT "$issue/lock" -f lock_reason=resolved > /dev/null || true
+            return "$status"
+          }
           jq -r '.pulls[] | "\(.number) \(.branch) \(.page)"' "$RUNNER_TEMP/plan.json" | while read -r pr branch page; do
-            gh pr comment "$pr" --repo "$GITHUB_REPOSITORY" --body "Released in $TAG: $SITE$page"
+            comment "$pr" "Released in $TAG: $SITE$page" || echo "::warning::Could not comment on PR #$pr."
             gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$branch" > /dev/null || true
           done
 
@@ -284,6 +302,13 @@ jobs:
           REASON: ${{ steps.plan.outputs.reason || steps.apply.outputs.reason }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
+          comment() {
+            local issue="repos/$GITHUB_REPOSITORY/issues/$1" status=0
+            gh api -X DELETE "$issue/lock" > /dev/null || true
+            gh pr comment "$1" --repo "$GITHUB_REPOSITORY" --body "$2" || status=$?
+            gh api -X PUT "$issue/lock" -f lock_reason=resolved > /dev/null || true
+            return "$status"
+          }
           plan=$(cat "$RUNNER_TEMP/plan.json" 2> /dev/null || printf '%s' "$FIRST_PLAN")
           if [ -n "$REASON" ]; then
             body="Not released: $REASON. Release with \`pnpm release\` by hand once that is sorted out (docs/deployment.md)."
@@ -293,7 +318,7 @@ jobs:
             body="The release failed: $RUN_URL. Nothing was tagged or published. Fix it and release with \`pnpm release\` (docs/deployment.md)."
           fi
           for pr in $(jq -r '.pulls[].number' <<< "$plan"); do
-            gh pr comment "$pr" --repo "$GITHUB_REPOSITORY" --body "$body"
+            comment "$pr" "$body" || echo "::warning::Could not comment on PR #$pr."
           done
 
       - name: Summary

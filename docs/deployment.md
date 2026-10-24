@@ -311,7 +311,9 @@ the artifact `content-uploads-<sha>` of every commit of each PR, oldest first, a
 copies them into `uploads/` (a later correction overwrites an earlier file of the same path). It first checks each
 file: a regular file of a type the site links, under its PR's folder (`porady_bohosluzeb/` for a sheet, `aktuality/`
 for events); one wrong file stops the release before anything is uploaded. Then it runs `pnpm release --yes` with the
-App token, waits for the deploy, comments "Released in vX.Y.Z" with the PR's page and deletes its branch.
+App token, waits for the deploy, comments "Released in vX.Y.Z" with the PR's page and deletes its branch. The PR's
+conversation is locked, and not even the App may comment on a locked one, so each comment unlocks it and locks it
+again; once the deploy is green, a comment that fails only warns.
 
 Other unreleased commits on `main` go out with the PRs, except those only a release by hand may publish:
 
