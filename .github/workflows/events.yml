@@ -152,8 +152,10 @@ jobs:
       # $RUNNER_TEMP/event only (an `Edit(...)` rule covers Write too; the deny on the checkout wins over any allow, so
       # it cannot change scripts, package.json, node_modules, hooks or .git), stage events and read PDFs to stdout only
       # (pdftotext writes the file a second argument names, which no Edit rule checks); no git, no network. A rule's
-      # `//` marks an absolute path (runner.temp starts with `/`). github.token (read-only) keeps the action from
-      # fetching its own App token; the action's output stays out of the public log.
+      # `//` marks an absolute path (runner.temp and github.workspace start with `/`). The deny names the checkout by
+      # its absolute path: `./**` follows the shell's working directory, so after a `cd` into $RUNNER_TEMP/event it
+      # denied the report itself. github.token (read-only) keeps the action from fetching its own App token; the
+      # action's output stays out of the public log.
       - name: Run parish-create-event
         id: claude
         if: steps.fetch.outputs.mail != ''
@@ -171,7 +173,7 @@ jobs:
             --model claude-opus-5-5
             --add-dir ${{ runner.temp }}/event
             --allowedTools "Read,Edit(/${{ runner.temp }}/event/**),Bash(pnpm stage event:*),Bash(pnpm add-event:*),Bash(pdftotext -layout * -),Bash(ls:*),Bash(cat:*)"
-            --disallowedTools "WebFetch,WebSearch,NotebookEdit,Edit(./**)"
+            --disallowedTools "WebFetch,WebSearch,NotebookEdit,Edit(/${{ github.workspace }}/**)"
           prompt: |
             A sender mailed an event to the events mailbox: ${{ runner.temp }}/event/mail (subject.txt, body.txt,
             attachments/). Run parish-create-event unattended (its "Unattended run" section). The known events are
