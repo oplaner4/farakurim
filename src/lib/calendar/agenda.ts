@@ -26,6 +26,8 @@ export type AgendaItem = {
   href?: string;
   /** Shown struck through with "zrušeno" (§11.9). */
   cancelled?: true;
+  /** Shown with a "změna" pill before the title. */
+  changed?: true;
 };
 
 export type DateRange = { from: IsoDate; to: IsoDate };
@@ -74,7 +76,7 @@ const minutes = (time?: ClockTime) => (time ? clockMinutes(time) : -1);
  */
 export function agendaByDate(entries: CalendarEntry[], { from, to }: DateRange): Map<IsoDate, AgendaItem[]> {
   const days = new Map<IsoDate, AgendaItem[]>(datesBetween(from, to).map((date) => [date, []]));
-  for (const { id, calendar, title, date, end = date, time, place, href, cancelled } of entries) {
+  for (const { id, calendar, title, date, end = date, time, place, href, cancelled, changed } of entries) {
     if (end < from || date > to) continue;
     for (const day of datesBetween(date < from ? from : date, end > to ? to : end)) {
       days.get(day)!.push({
@@ -85,6 +87,7 @@ export function agendaByDate(entries: CalendarEntry[], { from, to }: DateRange):
         ...(place && { place }),
         ...(href && { href }),
         ...(cancelled && { cancelled }),
+        ...(changed && { changed }),
       });
     }
   }

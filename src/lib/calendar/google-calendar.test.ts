@@ -1,6 +1,14 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { jsonResponse } from "@/test/fetch";
-import { eventPaths, eventsUrl, fetchGoogleCalendar, parseEventsPage, refererInit, toEntries } from "./google-calendar";
+import {
+  eventPaths,
+  eventsUrl,
+  fetchGoogleCalendar,
+  parseEventsPage,
+  parseTitle,
+  refererInit,
+  toEntries,
+} from "./google-calendar";
 
 describe("eventsUrl", () => {
   it("asks for expanded events of the Prague days", () => {
@@ -207,6 +215,34 @@ describe("toEntries", () => {
       ["Přednáška o Turínském plátně", true],
       ["Drakiáda", true],
       ["Přednáška (zrušeno)", undefined],
+    ]);
+  });
+
+  it('turns the title prefix "Změna: " into the changed status', () => {
+    expect(parseTitle("Změna: Mše svatá v Kuřimi")).toEqual({
+      title: "Mše svatá v Kuřimi",
+      cancelled: false,
+      changed: true,
+    });
+    expect(parseTitle("změna:Adorace v Kuřimi").changed).toBe(true);
+    expect(parseTitle("Zrušeno: Mše svatá v Kuřimi")).toEqual({
+      title: "Mše svatá v Kuřimi",
+      cancelled: true,
+      changed: false,
+    });
+    expect(parseTitle("Mše svatá (změna)").changed).toBe(false);
+    const day = { start: { date: "2026-10-16" }, end: { date: "2026-10-17" } };
+    const entries = toEntries(
+      [
+        { id: "a", summary: "Změna: Mše svatá v Kuřimi", ...day },
+        { id: "b", summary: "Mše svatá v Kuřimi", ...day },
+      ],
+      "services",
+      pages,
+    );
+    expect(entries.map((e) => [e.title, e.changed])).toEqual([
+      ["Mše svatá v Kuřimi", true],
+      ["Mše svatá v Kuřimi", undefined],
     ]);
   });
 

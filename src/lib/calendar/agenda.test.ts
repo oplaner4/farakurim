@@ -75,6 +75,11 @@ describe("agendaByDate", () => {
     expect(days.get("2026-10-04")!.map((i) => i.title)).toEqual(["c", "a", "b"]);
   });
 
+  it("passes the changed status on to the item", () => {
+    const days = agendaByDate([entry({ id: "x", date: "2026-10-02", calendar: "services", changed: true })], range);
+    expect(days.get("2026-10-02")![0].changed).toBe(true);
+  });
+
   it("shows a multi-day entry on each day, with the time on the first one only", () => {
     const days = agendaByDate([entry({ id: "x", date: "2026-10-01", end: "2026-10-03", time: "18:00" })], range);
     expect(days.get("2026-10-02")).toEqual([{ key: "events:x:2026-10-02", calendar: "events", title: "x" }]);

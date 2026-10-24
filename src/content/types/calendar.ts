@@ -27,4 +27,6 @@ export type CalendarEntry = {
    * Události event whose title starts with "Zrušeno: ".
    */
   cancelled?: true;
+  /** A Bohoslužby event whose title starts with "Změna: ": a service that differs from the regular schedule. */
+  changed?: true;
 };

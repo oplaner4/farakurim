@@ -124,14 +124,23 @@ export function eventDays({ start, end }: GoogleEvent): { date: string; end?: st
 /** "Zrušeno: " at the start of a Google event's title, in any case. */
 const CANCELLED_PREFIX = /^zrušeno\s*:\s*/i;
 
+/** "Změna: " at the start of a Google event's title, in any case. */
+const CHANGED_PREFIX = /^změna\s*:\s*/i;
+
 /**
- * A Google event's title without its "Zrušeno: " prefix, and whether it had one: the parish keeps a cancelled event
- * and prefixes its title (§16.4), so the prefix is the cancelled status.
+ * A Google event's title without its "Zrušeno: " or "Změna: " prefix, and which one it had: the parish keeps a
+ * cancelled event and prefixes its title (§16.4), and the sync prefixes a changed service, so the prefix is the status.
  */
-export function parseTitle(summary: string | undefined): { title: string; cancelled: boolean } {
+export function parseTitle(summary: string | undefined): { title: string; cancelled: boolean; changed: boolean } {
   const trimmed = summary?.trim() ?? "";
-  const prefix = CANCELLED_PREFIX.exec(trimmed);
-  return { title: prefix ? trimmed.slice(prefix[0].length) : trimmed, cancelled: prefix !== null };
+  const cancelled = CANCELLED_PREFIX.exec(trimmed);
+  const changed = cancelled ? null : CHANGED_PREFIX.exec(trimmed);
+  const prefix = cancelled ?? changed;
+  return {
+    title: prefix ? trimmed.slice(prefix[0].length) : trimmed,
+    cancelled: cancelled !== null,
+    changed: changed !== null,
+  };
 }
 
 /**
@@ -146,13 +155,14 @@ export function toEntries(events: GoogleEvent[], calendar: CalendarId, linkableP
     const days = eventDays(event);
     if (!days) return [];
     const href = calendar === "events" ? eventPaths(event.description).find((path) => pages.has(path)) : undefined;
-    const { title, cancelled } = parseTitle(event.summary);
+    const { title, cancelled, changed } = parseTitle(event.summary);
     return [
       {
         id: event.id,
         calendar,
         title: title || "Bez názvu",
         ...(cancelled && { cancelled: true as const }),
+        ...(changed && { changed: true as const }),
         ...(event.location && { place: event.location }),
         ...(href && { href }),
         ...days,
