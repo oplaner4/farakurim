@@ -10,10 +10,11 @@
 # A refresh publishes nothing new: the tag was released, so it needs no yes. It always builds, a --local tag too.
 # Uploaded files are not in git: `pnpm release` uploads them from the local staging folder before it
 # pushes the tag, and the deploy stops if the build links a file that is not on the server yet.
-# The Události calendar sync (pnpm calendar-sync) runs in its own job after the deploy and its verify: on a release tag
-# it applies the changes, on a refresh it only previews them in the run summary. It has its own environment
+# The Události calendar sync (pnpm calendar-sync) and the Bohoslužby one (pnpm services-calendar-sync) run in their own
+# job after the deploy and its verify: on a release tag they apply the changes, on a refresh they only preview them in
+# the run summary. It has its own environment
 # (calendar-sync), never Production (the refresh counts Production deployments), signs in to Google with workload
-# identity federation (no key), and a failure only warns: the deploy is not affected and the next release catches up. It applies only once the repository variable CALENDAR_SYNC is
+# identity federation (no key), and a failure only warns: the deploy is not affected and the next release catches up. Each applies only once its repository variable (CALENDAR_SYNC, SERVICES_CALENDAR_SYNC) is
 # true, which the maintainer sets after the first apply by hand (docs/deployment.md).
 # The SSH target, web root, rsync flags, server-only folders and verify checks live in scripts/deploy.sh, which
 # `pnpm release --local` uses too. The runner image and the actions are pinned (actions by commit SHA, updated by
@@ -215,7 +216,7 @@ jobs:
       # Writes the federated credentials file for the sync; the environment variables stay unset, so nothing else uses it.
       - name: Authenticate to Google Cloud
         id: google
-        if: github.event_name == 'push' && vars.CALENDAR_SYNC == 'true'
+        if: github.event_name == 'push' && (vars.CALENDAR_SYNC == 'true' || vars.SERVICES_CALENDAR_SYNC == 'true')
         uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           workload_identity_provider: ${{ vars.GOOGLE_WORKLOAD_IDENTITY_PROVIDER }}
@@ -244,6 +245,23 @@ jobs:
             echo "::warning::The calendar sync failed ($(tail -n 1 "$err")); the next release catches up."
           fi
 
+      - name: Apply the Bohoslužby calendar sync
+        if: steps.google.outcome == 'success' && vars.SERVICES_CALENDAR_SYNC == 'true'
+        env:
+          GOOGLE_CALENDAR_SERVICE_ACCOUNT: ${{ steps.google.outputs.credentials_file_path }}
+        # As the Události apply above.
+        run: |
+          out="$RUNNER_TEMP/services-calendar-sync.out"
+          err="$RUNNER_TEMP/services-calendar-sync.err"
+          status=0
+          pnpm --silent services-calendar-sync --apply > "$out" 2> "$err" || status=$?
+          cat "$out"
+          { echo '```text'; cat "$out"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$status" -ne 0 ]; then
+            cat "$err" >&2
+            echo "::warning::The Bohoslužby calendar sync failed ($(tail -n 1 "$err")); the next release catches up."
+          fi
+
       - name: Preview the calendar sync
         if: github.event_name != 'push' || vars.CALENDAR_SYNC != 'true'
         env:
@@ -260,6 +278,22 @@ jobs:
             echo "::warning::The calendar preview failed ($(tail -n 1 "$err"))."
           fi
 
+      - name: Preview the Bohoslužby calendar sync
+        if: github.event_name != 'push' || vars.SERVICES_CALENDAR_SYNC != 'true'
+        env:
+          NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY: ${{ vars.GOOGLE_CALENDAR_API_KEY }}
+        # As the Události preview above.
+        run: |
+          out="$RUNNER_TEMP/services-calendar-sync.out"
+          err="$RUNNER_TEMP/services-calendar-sync.err"
+          status=0
+          pnpm --silent services-calendar-sync > "$out" 2> "$err" || status=$?
+          { echo '```text'; cat "$out"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$status" -ne 0 ]; then
+            cat "$err" >&2
+            echo "::warning::The Bohoslužby calendar preview failed ($(tail -n 1 "$err"))."
+          fi
+
       # Each line that needs a person (an `ask:`, meetings it cannot pair: that event stays out of the calendar until
       # a person acts and the next release runs) warns, after the apply or the preview.
       - name: Warn about what needs a person in the calendar
@@ -267,3 +301,10 @@ jobs:
         env:
           NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY: ${{ vars.GOOGLE_CALENDAR_API_KEY }}
         run: pnpm --silent calendar-sync --problems 2> /dev/null | sed 's/^/::warning::/' || true
+
+      # A Bohoslužby line that needs a person (an `ask:`, or a hand-made event that doubles a service, which the sync
+      # never touches) warns, after the apply or the preview.
+      - name: Warn about what needs a person in the Bohoslužby calendar
+        if: ${{ !cancelled() }}
+        run: |
+          grep -E ': ask:| doubles .*: remove (it|them) by hand$' "$RUNNER_TEMP/services-calendar-sync.out" 2> /dev/null | sed 's/^/::warning::/' || true

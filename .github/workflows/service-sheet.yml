@@ -252,7 +252,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       # The report: line 1 `blocking: yes|no`, line 2 `commit: <message>`, then the PR body. On every path each week
-      # (a `## ` section other than `## Mirror in the calendar`) has exactly one `Outcome:` line, else nothing is applied
+      # (a `## ` section) has exactly one `Outcome:` line, else nothing is applied
       # or filed. With a change, the patch is applied only if it touches nothing but src/content/*.json. Without one,
       # the report must explain it: a valid first line and the week corrected (a correction of a week not released
       # yet can change nothing), refused or a document error (the last two fail the summary).
@@ -269,7 +269,7 @@ jobs:
           first=$(sed -n 1p "$report" 2>/dev/null || true)
           normalized=$(sed -E "$OUTCOME_SED" "$report" 2>/dev/null || true)
           weeks=$(awk '
-            function done() { if (week != "" && week != "Mirror in the calendar") print n "\t" week }
+            function done() { if (week != "") print n "\t" week }
             /^## / { done(); week = substr($0, 4); n = 0; next }
             /^Outcome: / { n++ }
             END { done() }' <<< "$normalized")
@@ -303,17 +303,8 @@ jobs:
           # Only an exact `blocking: no` opens a ready PR, so a broken report cannot be merged by mistake.
           echo "draft=$([ "$first" = "blocking: no" ] && echo false || echo true)" >> "$GITHUB_OUTPUT"
           echo "message=$message" >> "$GITHUB_OUTPUT"
-          # The mirror list is built here from the sheets the PR adds or changes against main (the repo is public, so
-          # the fetch needs no token), not written by Claude: a mirror section in the report is dropped.
-          git fetch --quiet --depth=1 origin main
-          git show FETCH_HEAD:src/content/service-sheets.json > "$run/main-sheets.json"
-          mirror=$(pnpm --silent sheet-mirror "$run/main-sheets.json")
           {
-            tail -n +3 "$report" | awk '/^## / { skip = ($0 == "## Mirror in the calendar") } !skip'
-            if [ -n "$mirror" ]; then
-              echo
-              printf '%s\n' "$mirror"
-            fi
+            tail -n +3 "$report"
             echo
             echo "---"
             echo

@@ -20,7 +20,6 @@
     "event-poster": "tsx scripts/event-poster.ts",
     "add-exception": "tsx scripts/add-exception.ts",
     "sheet-mail": "tsx scripts/sheet-mail.ts",
-    "sheet-mirror": "tsx scripts/sheet-mirror.ts",
     "content-release": "tsx scripts/content-release.ts",
     "event-mail": "tsx scripts/event-mail.ts",
     "calendar-sync": "tsx scripts/calendar-sync.ts",
