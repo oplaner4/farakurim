@@ -1,6 +1,6 @@
 ---
 name: parish-create-exception
-description: Add a schedule exception (a "výjimka", a change to the regular mass schedule for a day the service sheets on the new farakurim.cz site do not cover yet, such as a cancelled or moved mass or an extra adoration) or remove one with `pnpm add-exception`, then publish. Use whenever the user, or an announcement in the service sheet ("ohlášky"), says a mass or service changes on a date no published week covers ("v neděli 25. 10. mše svatá nebude"), or such a change is withdrawn. A change within a published week is corrected with parish-correct-service-sheet.
+description: Add a schedule exception (a "výjimka", a change to the regular mass schedule for a day the service sheets on the new farakurim.cz site do not cover yet, such as a cancelled or moved mass or an extra adoration), then publish. Use whenever the user, or an announcement in the service sheet ("ohlášky"), says a mass or service changes on a date no published week covers ("v neděli 25. 10. mše svatá nebude"). A withdrawn change is removed with parish-remove-exception, a change within a published week is corrected with parish-correct-service-sheet.
 ---
 
 # Create a schedule exception
@@ -50,8 +50,7 @@ Wait for the user's yes or corrections to these before adding anything.
 pnpm add-exception <scratchpad>/exception.json
 ```
 
-It writes the schedule exception in date order and runs the service sheet tests. A withdrawn change:
-`pnpm add-exception --remove <YYYY-MM-DD> --check`, the user's yes, then the same without `--check`.
+It writes the schedule exception in date order and runs the service sheet tests.
 
 ## 5. Publish
 

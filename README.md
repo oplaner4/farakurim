@@ -160,6 +160,7 @@ Content lives in `src/content/` and is added with the Claude Code project skills
 | `parish-create-service-sheet`  | The weekly service sheet (the parish's DOCX or PDF), into `service-sheets.json`                 |
 | `parish-correct-service-sheet` | A corrected service sheet (record, DOCX or PDF)                                                 |
 | `parish-create-exception`      | A change to the mass schedule on a day no service sheet covers, into `schedule-exceptions.json` |
+| `parish-remove-exception`      | A withdrawn change to the mass schedule, out of `schedule-exceptions.json`                      |
 | `parish-create-album`          | A Zonerama album (its zip downloaded or given), into `gallery.json`                             |
 | `parish-create-petrklic`       | A Petrklíč newsletter PDF, into `petrklic.json`                                                 |
 | `parish-correct-petrklic`      | A corrected Petrklíč PDF or issue record                                                        |

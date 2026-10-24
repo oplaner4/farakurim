@@ -1,6 +1,6 @@
 ---
 name: parish-create-service-sheet
-description: Publish the weekly service sheet (the "pořad bohoslužeb" or "ohlášky") on the new farakurim.cz site from the parish's DOCX of the year or its weekly PDF - extract the week's days, services and announcements into a sheet record, confirm with the user, stage the week's PDF for upload, then publish. Use whenever the user brings a new service sheet ("pořad bohoslužeb", "rozpis bohoslužeb", "ohlášky") DOCX or PDF.
+description: Publish the weekly service sheet (the "pořad bohoslužeb" or "ohlášky") on the new farakurim.cz site from the parish's DOCX of the year or its weekly PDF. Use whenever the user brings a new service sheet ("pořad bohoslužeb", "rozpis bohoslužeb", "ohlášky") DOCX or PDF. A week already on the site is corrected with parish-correct-service-sheet.
 ---
 
 # Create a service sheet

@@ -1,6 +1,6 @@
 ---
 name: parish-release
-description: Release the new farakurim.cz site with `pnpm release` - preview the commits, version and staged uploads, ask the user for an explicit yes, then upload uploads/, tag vX.Y.Z and push, which checks, builds and publishes the site (or, with --local when GitHub Actions is down, does it from this machine). Use at the end of parish-publish-content, or whenever the user asks to deploy, release, upload, publish to the server or sync the site.
+description: Release the new farakurim.cz site, which publishes it, also from this machine when GitHub Actions is down. Use at the end of parish-publish-content, or whenever the user asks to deploy, release, upload, publish to the server or sync the site.
 ---
 
 # Release the site

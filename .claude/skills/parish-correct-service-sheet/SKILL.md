@@ -1,6 +1,6 @@
 ---
 name: parish-correct-service-sheet
-description: Correct a week's service sheet (the "pořad bohoslužeb" or "ohlášky") already on the new farakurim.cz site - fix its sheet through a corrected record, or stage a corrected PDF (or the corrected week of the parish's DOCX) with --corrected, then publish. Use whenever the user brings a corrected or replaced service sheet ("pořad bohoslužeb", "ohlášky") DOCX or PDF, or says a service, intention or announcement of a published week is wrong. A new week is added with parish-create-service-sheet.
+description: Correct a week's service sheet (the "pořad bohoslužeb" or "ohlášky") already on the new farakurim.cz site - fix its services, intentions or announcements, or replace its PDF, then publish. Use whenever the user brings a corrected or replaced service sheet ("pořad bohoslužeb", "ohlášky") DOCX or PDF, or says a service, intention or announcement of a published week is wrong. A new week is added with parish-create-service-sheet.
 ---
 
 # Correct a service sheet
