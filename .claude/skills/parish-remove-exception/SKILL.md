@@ -1,6 +1,6 @@
 ---
 name: parish-remove-exception
-description: Remove a schedule exception (a "výjimka", a change to the regular mass schedule for a day the service sheets on the new farakurim.cz site do not cover yet), then publish. Use whenever the user, or an announcement in the service sheet ("ohlášky"), withdraws such a change ("mše svatá bude, jak je obvyklé", "změna se ruší"). A new or changed schedule exception is added with parish-create-exception.
+description: Remove a schedule exception (a "výjimka", a change to the regular mass schedule for a day the service sheets do not cover yet), then publish. Use whenever the user, or an announcement in the service sheet ("ohlášky"), withdraws such a change ("mše svatá bude, jak je obvyklé", "změna se ruší"). A new or changed schedule exception is added with parish-create-exception.
 ---
 
 # Remove a schedule exception

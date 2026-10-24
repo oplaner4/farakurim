@@ -1,6 +1,6 @@
 ---
 name: parish-cancel-event
-description: Cancel or postpone an event (an "aktualita") already on the new farakurim.cz site, or drop one meeting of a series, then publish. Use whenever the user says an event ("aktualita") is cancelled ("ruší se", "nekoná se", "zrušeno"), postponed or moved to another date ("přesouvá se", "odkládá se"), or a meeting of a series is dropped ("odpadá"), or such a change is withdrawn. Other corrections (text, time, place, files, poster) are made with parish-correct-event, a new event is added with parish-create-event.
+description: Cancel or postpone an event (an "aktualita") already on the site, or drop one meeting of a series, then publish. Use whenever the user says an event ("aktualita") is cancelled ("ruší se", "nekoná se", "zrušeno"), postponed or moved to another date ("přesouvá se", "odkládá se"), or a meeting of a series is dropped ("odpadá"), or such a change is withdrawn. Other corrections (text, time, place, files, poster) are made with parish-correct-event, a new event is added with parish-create-event.
 ---
 
 # Cancel or postpone an event

@@ -1,6 +1,6 @@
 ---
 name: parish-correct-event
-description: Correct an event (an "aktualita") already on the new farakurim.cz site - fix its text, date, time, place, programme or links, replace or add its poster or an attachment, or make another attachment its poster (or remove the poster), then publish. Use whenever the user says an event ("aktualita") is wrong or has changed (new time or place), brings a corrected poster or invitation ("plakát", "pozvánka"), wants to add a file to an event already there, or says its poster is the wrong file or should go. A cancelled or postponed event, or a dropped meeting of a series, is handled by parish-cancel-event, a new event is added with parish-create-event, the pin is moved with parish-pin-event.
+description: Correct an event (an "aktualita") already on the site - fix its text, date, time, place, programme or links, replace or add its poster or an attachment, or make another attachment its poster (or remove the poster), then publish. Use whenever the user says an event ("aktualita") is wrong or has changed (new time or place), brings a corrected poster or invitation ("plakát", "pozvánka"), wants to add a file to an event already there, or says its poster is the wrong file or should go. A cancelled or postponed event, or a dropped meeting of a series, is handled by parish-cancel-event, a new event is added with parish-create-event, the pin is moved with parish-pin-event.
 ---
 
 # Correct an event

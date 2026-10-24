@@ -1,6 +1,6 @@
 ---
 name: parish-pin-event
-description: Change the "Doporučujeme" (recommended, pinned) event on the Aktuality page of the new farakurim.cz site - pin an existing event (an "aktualita") or unpin it, then publish. Use whenever the user wants to pin, unpin, feature, recommend or change the Doporučujeme event, for an event already on the site. A new event is pinned with parish-create-event.
+description: Change the "Doporučujeme" (recommended, pinned) event on the Aktuality page - pin an existing event (an "aktualita") or unpin it, then publish. Use whenever the user wants to pin, unpin, feature, recommend or change the Doporučujeme event, for an event already on the site. A new event is pinned with parish-create-event.
 ---
 
 # Pin an event

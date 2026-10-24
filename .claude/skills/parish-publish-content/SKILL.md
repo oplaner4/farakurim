@@ -1,6 +1,6 @@
 ---
 name: parish-publish-content
-description: Finish a content change on the new farakurim.cz site - commit, and release after the user confirms. Use at the end of parish-create-event, parish-correct-event, parish-cancel-event, parish-pin-event, parish-create-service-sheet, parish-correct-service-sheet, parish-create-exception, parish-remove-exception, parish-create-album, parish-create-petrklic and parish-correct-petrklic, or whenever src/content/ was edited to publish events, service sheets ("ohlášky"), albums or Petrklíč issues.
+description: Finish a content change - commit, and release after the user confirms. Use at the end of parish-create-event, parish-correct-event, parish-cancel-event, parish-pin-event, parish-create-service-sheet, parish-correct-service-sheet, parish-create-exception, parish-remove-exception, parish-create-album, parish-create-petrklic and parish-correct-petrklic, or whenever src/content/ was edited to publish events, service sheets ("ohlášky"), albums or Petrklíč issues.
 ---
 
 # Publish a content change

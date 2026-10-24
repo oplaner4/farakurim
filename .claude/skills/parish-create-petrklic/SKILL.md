@@ -1,6 +1,6 @@
 ---
 name: parish-create-petrklic
-description: Add a new issue of the Petrklíč parish newsletter to the new farakurim.cz site from its PDF, then publish. Use whenever the user brings a new Petrklíč, zpravodaj or newsletter PDF. An issue already on the site is corrected with parish-correct-petrklic.
+description: Add a new issue of the Petrklíč parish newsletter from its PDF, then publish. Use whenever the user brings a new Petrklíč, zpravodaj or newsletter PDF. An issue already on the site is corrected with parish-correct-petrklic.
 ---
 
 # Create a Petrklíč issue

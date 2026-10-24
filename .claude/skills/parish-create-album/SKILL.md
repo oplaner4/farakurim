@@ -1,6 +1,6 @@
 ---
 name: parish-create-album
-description: Add a photo album to the Fotogalerie of the new farakurim.cz site from a Zonerama album URL under eu.zonerama.com/FarnostKurim (or the album's zip), then publish. Use whenever the user wants to add a gallery, album or photos from Zonerama.
+description: Add a photo album to the Fotogalerie from a Zonerama album URL under eu.zonerama.com/FarnostKurim (or the album's zip), then publish. Use whenever the user wants to add a gallery, album or photos from Zonerama.
 ---
 
 # Create a gallery album

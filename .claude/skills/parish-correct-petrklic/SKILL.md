@@ -1,6 +1,6 @@
 ---
 name: parish-correct-petrklic
-description: Correct a Petrklíč issue already on the new farakurim.cz site - replace its PDF, or fix a wrong year, number, note or page count, then publish. Use whenever the user brings a corrected, fixed or replaced Petrklíč PDF, or says an issue's year, number, note or pages are wrong. A new issue is added with parish-create-petrklic.
+description: Correct a Petrklíč issue already on the site - replace its PDF, or fix a wrong year, number, note or page count, then publish. Use whenever the user brings a corrected, fixed or replaced Petrklíč PDF, or says an issue's year, number, note or pages are wrong. A new issue is added with parish-create-petrklic.
 ---
 
 # Correct a Petrklíč issue

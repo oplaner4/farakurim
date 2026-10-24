@@ -1,6 +1,6 @@
 ---
 name: parish-create-event
-description: Add a new event (an "aktualita") to the new farakurim.cz site from a poster, invitation or announcement given as a PDF, PNG or JPG, or from the details alone, then publish. Use whenever the user wants to add, post or publish an event ("aktualita", "plakát", "pozvánka"). An event already on the site is corrected with parish-correct-event.
+description: Add a new event (an "aktualita") from a poster, invitation or announcement given as a PDF, PNG or JPG, or from the details alone, then publish. Use whenever the user wants to add, post or publish an event ("aktualita", "plakát", "pozvánka"). An event already on the site is corrected with parish-correct-event.
 ---
 
 # Create an event
