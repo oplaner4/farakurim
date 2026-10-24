@@ -14,7 +14,7 @@ const FIELD_NAMES: Record<BodyField, string> = {
   recurrence: "repeat",
 };
 
-const fieldNames = (fields: BodyField[]) => [...new Set(fields.map((field) => FIELD_NAMES[field]))].join(", ");
+export const fieldNames = (fields: BodyField[]) => [...new Set(fields.map((field) => FIELD_NAMES[field]))].join(", ");
 
 const pagePath = (newsId: string) => `/aktuality/${newsId}/`;
 

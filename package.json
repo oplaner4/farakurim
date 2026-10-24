@@ -24,6 +24,7 @@
     "content-release": "tsx scripts/content-release.ts",
     "event-mail": "tsx scripts/event-mail.ts",
     "calendar-sync": "tsx scripts/calendar-sync.ts",
+    "services-calendar-sync": "tsx scripts/services-calendar-sync.ts",
     "format": "prettier --write .",
     "preview": "node scripts/preview.mjs 4173",
     "release": "scripts/release.sh",

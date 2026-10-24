@@ -2,12 +2,15 @@ import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { BaseExternalAccountClient, Impersonated, JWT } from "google-auth-library";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { places } from "@/content/masses";
 import { parishCalendars } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import { freshTempDir } from "../test-helpers";
 import { desiredEvents, eventBody } from "./desired";
 import type { Change } from "./plan";
-import { accessToken, applyChange, calendarClient } from "./write";
+import { desiredServices } from "./services-desired";
+import type { ServicesChange } from "./services-plan";
+import { accessToken, applyChange, applyServicesChange, calendarClient } from "./write";
 
 const event: NewsEvent = {
   id: "adoracni-den-2026",
@@ -22,7 +25,7 @@ const CALENDAR = encodeURIComponent(parishCalendars.events.googleId);
 afterEach(() => vi.unstubAllGlobals());
 
 const stubFetch = (status = 200) => {
-  const fetchMock = vi.fn(async () => new Response("{}", { status }));
+  const fetchMock = vi.fn(async () => new Response(status === 204 ? null : "{}", { status }));
   vi.stubGlobal("fetch", fetchMock);
   return fetchMock;
 };
@@ -59,6 +62,68 @@ describe("applyChange", () => {
   it("throws with Google's status", async () => {
     stubFetch(409);
     await expect(applyChange({ kind: "add", desired: item, body: eventBody(item) }, "T")).rejects.toThrow("HTTP 409");
+  });
+});
+
+describe("applyServicesChange", () => {
+  const SERVICES = encodeURIComponent(parishCalendars.services.googleId);
+  const [desired] = desiredServices(
+    {
+      regular: [{ weekday: 0, time: "8:00", place: "kurim" }],
+      sheets: [],
+      later: [],
+      places,
+    },
+    { from: "2026-10-25", to: "2026-10-25" },
+  );
+  const target = { id: "t1", start: {}, end: {} };
+  const sent = async (change: ServicesChange, status = 200) => {
+    const fetchMock = stubFetch(status);
+    await applyServicesChange(change, "TOKEN");
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    return { url, init, body: init.body ? JSON.parse(init.body as string) : undefined };
+  };
+
+  it("POSTs an add with the body and the deterministic id to the services calendar", async () => {
+    const { url, init, body } = await sent({ kind: "add", desired });
+    expect(url).toBe(`https://www.googleapis.com/calendar/v3/calendars/${SERVICES}/events`);
+    expect(init.method).toBe("POST");
+    expect(init.headers).toMatchObject({ Authorization: "Bearer TOKEN" });
+    expect(body).toEqual({ ...desired.body, id: desired.googleId });
+  });
+
+  it("PATCHes an update with only the changed fields", async () => {
+    const { url, init, body } = await sent({
+      kind: "update",
+      desired,
+      target,
+      claim: false,
+      fields: ["summary"],
+      body: { summary: "Nový název" },
+    });
+    expect(url).toBe(`https://www.googleapis.com/calendar/v3/calendars/${SERVICES}/events/t1`);
+    expect(init.method).toBe("PATCH");
+    expect(body).toEqual({ summary: "Nový název" });
+  });
+
+  it("PATCHes a restore with the whole body, confirmed", async () => {
+    const { url, init, body } = await sent({ kind: "restore", desired, target });
+    expect(url).toBe(`https://www.googleapis.com/calendar/v3/calendars/${SERVICES}/events/t1`);
+    expect(init.method).toBe("PATCH");
+    expect(body).toEqual({ ...desired.body, status: "confirmed" });
+  });
+
+  it("DELETEs, and takes an event already gone (410) as done", async () => {
+    const { url, init, body } = await sent({ kind: "delete", target }, 204);
+    expect(url).toBe(`https://www.googleapis.com/calendar/v3/calendars/${SERVICES}/events/t1`);
+    expect(init.method).toBe("DELETE");
+    expect(body).toBeUndefined();
+    await sent({ kind: "delete", target }, 410);
+  });
+
+  it("throws with Google's status for another failure", async () => {
+    stubFetch(403);
+    await expect(applyServicesChange({ kind: "delete", target }, "T")).rejects.toThrow("HTTP 403");
   });
 });
 

@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { NewsEvent } from "@/content/types/news";
 import { googlePage } from "@/test/fetch";
-import { readSnapshot, snapshotRange } from "./read";
+import { parishCalendars } from "@/content/site";
+import { readInstances, readSnapshot, snapshotRange } from "./read";
 
 const weekly: NewsEvent = {
   id: "obnova",
@@ -35,6 +36,8 @@ describe("snapshotRange", () => {
   });
 });
 
+const CALENDAR = parishCalendars.events.googleId;
+
 describe("readSnapshot", () => {
   const range = { from: "2026-01-01", to: "2026-12-31" } as const;
 
@@ -49,7 +52,7 @@ describe("readSnapshot", () => {
     });
     vi.stubGlobal("fetch", fetchMock);
 
-    const snapshot = await readSnapshot({ token: "TOKEN" }, range);
+    const snapshot = await readSnapshot({ token: "TOKEN" }, CALENDAR, range);
 
     expect(snapshot.instances.map((e) => e.id)).toEqual(["i1", "i2"]);
     expect(snapshot.masters.map((e) => e.id)).toEqual(["m"]);
@@ -65,7 +68,7 @@ describe("readSnapshot", () => {
   it("sends the key and the site's Referer for an API key", async () => {
     const fetchMock = vi.fn(async () => googlePage([]));
     vi.stubGlobal("fetch", fetchMock);
-    await readSnapshot({ apiKey: "KEY" }, range);
+    await readSnapshot({ apiKey: "KEY" }, CALENDAR, range);
     const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
     expect(new URL(url).searchParams.get("key")).toBe("KEY");
     expect(init.headers).toMatchObject({ Referer: "https://farakurim.cz/" });
@@ -76,7 +79,7 @@ describe("readSnapshot", () => {
       "fetch",
       vi.fn(async () => googlePage([{ id: "gone", status: "cancelled" }])),
     );
-    const snapshot = await readSnapshot({ token: "T" }, range);
+    const snapshot = await readSnapshot({ token: "T" }, CALENDAR, range);
     expect(snapshot.instances).toMatchObject([{ id: "gone", status: "cancelled" }]);
     expect(snapshot.masters).toMatchObject([{ id: "gone", status: "cancelled" }]);
   });
@@ -92,7 +95,7 @@ describe("readSnapshot", () => {
         : googlePage([]),
     );
     vi.stubGlobal("fetch", fetchMock);
-    const snapshot = await readSnapshot({ token: "T" }, range);
+    const snapshot = await readSnapshot({ token: "T" }, CALENDAR, range);
     const mastersUrl = new URL(fetchMock.mock.calls[1]![0]);
     expect(mastersUrl.searchParams.get("showDeleted")).toBe("true");
     expect(snapshot.masters.map((e) => e.id)).toEqual(["m", "gone"]);
@@ -103,6 +106,22 @@ describe("readSnapshot", () => {
       "fetch",
       vi.fn(async () => googlePage([], 403)),
     );
-    await expect(readSnapshot({ token: "T" }, range)).rejects.toThrow("HTTP 403");
+    await expect(readSnapshot({ token: "T" }, CALENDAR, range)).rejects.toThrow("HTTP 403");
+  });
+});
+
+describe("readInstances", () => {
+  it("reads the expanded events, with the deleted, of the calendar it is given", async () => {
+    const fetchMock = vi.fn(async () => googlePage([item("a")]));
+    vi.stubGlobal("fetch", fetchMock);
+    const events = await readInstances({ apiKey: "KEY" }, "services@group.calendar.google.com", {
+      from: "2026-10-24",
+      to: "2027-04-24",
+    });
+    expect(events.map((e) => e.id)).toEqual(["a"]);
+    const url = new URL((fetchMock.mock.calls[0] as unknown as [string])[0]);
+    expect(url.pathname).toContain(encodeURIComponent("services@group.calendar.google.com"));
+    expect(url.searchParams.get("singleEvents")).toBe("true");
+    expect(url.searchParams.get("showDeleted")).toBe("true");
   });
 });

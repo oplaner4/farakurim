@@ -1,11 +1,11 @@
-import { SITE_URL, parishCalendars } from "@/content/site";
+import { SITE_URL } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import type { IsoDate } from "@/content/types/shared";
 import type { DateRange } from "@/lib/calendar/agenda";
 import { eventsUrl, parseEventsPage, refererInit, type GoogleEvent } from "@/lib/calendar/google-calendar";
 import { desiredEvents } from "./desired";
 
-// Reads the Události calendar as the sync sees it: the expanded events and the repeating events themselves, both
+// Reads a parish calendar as the sync sees it (the Události one with its repeating events): the expanded events and the repeating events themselves, both
 // with the deleted ones, to know what is gone.
 
 export type CalendarSnapshot = { instances: GoogleEvent[]; masters: GoogleEvent[] };
@@ -24,10 +24,10 @@ export function snapshotRange(events: NewsEvent[], today: IsoDate): DateRange {
 
 async function readAll(
   access: CalendarAccess,
+  calendarId: string,
   range: DateRange,
   options: { singleEvents?: boolean; showDeleted?: boolean },
 ): Promise<GoogleEvent[]> {
-  const calendarId = parishCalendars.events.googleId;
   const apiKey = "apiKey" in access ? access.apiKey : undefined;
   const init: RequestInit =
     "token" in access ? { headers: { Authorization: `Bearer ${access.token}` } } : refererInit(SITE_URL);
@@ -43,9 +43,17 @@ async function readAll(
   return events;
 }
 
+/** The events of calendar `calendarId` in `range`, expanded, with the deleted ones. */
+export const readInstances = (access: CalendarAccess, calendarId: string, range: DateRange): Promise<GoogleEvent[]> =>
+  readAll(access, calendarId, range, { showDeleted: true });
+
 /** The calendar's events in `range`: the expanded ones, and the repeating ones, both with the deleted. */
-export async function readSnapshot(access: CalendarAccess, range: DateRange): Promise<CalendarSnapshot> {
-  const instances = await readAll(access, range, { showDeleted: true });
-  const all = await readAll(access, range, { singleEvents: false, showDeleted: true });
+export async function readSnapshot(
+  access: CalendarAccess,
+  calendarId: string,
+  range: DateRange,
+): Promise<CalendarSnapshot> {
+  const instances = await readInstances(access, calendarId, range);
+  const all = await readAll(access, calendarId, range, { singleEvents: false, showDeleted: true });
   return { instances, masters: all.filter((event) => event.recurrence || event.status === "cancelled") };
 }

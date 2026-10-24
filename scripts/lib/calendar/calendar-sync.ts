@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { parishCalendars } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import { readEvents } from "@/content/news";
 import { pragueDate } from "@/lib/shared/prague";
@@ -34,7 +35,11 @@ function loadEnvLocal() {
 /** The plan for `events` read through `access`, as of today in Prague. */
 async function planFor(events: NewsEvent[], access: CalendarAccess): Promise<SyncPlan> {
   const today = pragueDate(Date.now());
-  return planSync(events, await readSnapshot(access, snapshotRange(events, today)), today);
+  return planSync(
+    events,
+    await readSnapshot(access, parishCalendars.events.googleId, snapshotRange(events, today)),
+    today,
+  );
 }
 
 /**

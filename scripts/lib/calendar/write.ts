@@ -10,10 +10,13 @@ import {
 } from "google-auth-library";
 import { parishCalendars } from "@/content/site";
 import type { Change } from "./plan";
+import type { ServicesChange } from "./services-plan";
 
-// Writes the changes of a plan to the Události calendar as the service account it is shared with.
+// Writes the changes of a plan to the Události or the Bohoslužby calendar as the service account they are shared with.
 
-const EVENTS_URL = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(parishCalendars.events.googleId)}/events`;
+/** The events URL of a parish calendar. */
+const eventsUrlOf = (calendar: keyof typeof parishCalendars) =>
+  `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(parishCalendars[calendar].googleId)}/events`;
 const SCOPES = ["https://www.googleapis.com/auth/calendar.events"];
 const NAME = "GOOGLE_CALENDAR_SERVICE_ACCOUNT";
 const IMPERSONATION_URL =
@@ -101,28 +104,55 @@ export function calendarClient(credentials: string): AuthClient {
   }
 }
 
-/** An access token of the service account for the Události calendar, from `credentials` (`calendarClient()`). */
+/** An access token of the service account for the parish calendars, from `credentials` (`calendarClient()`). */
 export async function accessToken(credentials: string): Promise<string> {
   const { token } = await calendarClient(credentials).getAccessToken();
   if (!token) throw new Error("Google gave no access token");
   return token;
 }
 
+/** Sends the request; throws with Google's status and reason unless the status is OK or one of `accepted`. */
+async function send(method: string, url: string, token: string, body?: Json, accepted: number[] = []): Promise<void> {
+  const response = await fetch(url, {
+    method,
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    ...(body && { body: JSON.stringify(body) }),
+  });
+  if (response.ok || accepted.includes(response.status)) return;
+  const reason = await response
+    .json()
+    .then((json: { error?: { message?: string } }) => json.error?.message)
+    .catch(() => undefined);
+  throw new Error(`HTTP ${response.status}${reason ? ` ${reason}` : ""}`);
+}
+
 /** Adds the event, or patches the changed fields of the calendar event; throws with Google's status. */
 export async function applyChange(change: Change, token: string): Promise<void> {
-  const add = change.kind === "add";
-  const url = add ? EVENTS_URL : `${EVENTS_URL}/${encodeURIComponent(change.target.id)}`;
-  const body = add ? { ...change.body, id: change.desired.googleId } : change.body;
-  const response = await fetch(url, {
-    method: add ? "POST" : "PATCH",
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  if (!response.ok) {
-    const reason = await response
-      .json()
-      .then((json: { error?: { message?: string } }) => json.error?.message)
-      .catch(() => undefined);
-    throw new Error(`HTTP ${response.status}${reason ? ` ${reason}` : ""}`);
+  const eventsUrl = eventsUrlOf("events");
+  if (change.kind === "add") {
+    return send("POST", eventsUrl, token, { ...change.body, id: change.desired.googleId });
+  }
+  return send("PATCH", `${eventsUrl}/${encodeURIComponent(change.target.id)}`, token, change.body);
+}
+
+/**
+ * Writes one change to the Bohoslužby calendar: an add (with its deterministic id), the changed fields of an update,
+ * the whole body of a restored event (confirmed again), or the deletion of an event, which is done when Google says
+ * it is already gone (410); throws with Google's status.
+ */
+export async function applyServicesChange(change: ServicesChange, token: string): Promise<void> {
+  const eventsUrl = eventsUrlOf("services");
+  switch (change.kind) {
+    case "add":
+      return send("POST", eventsUrl, token, { ...change.desired.body, id: change.desired.googleId });
+    case "update":
+      return send("PATCH", `${eventsUrl}/${encodeURIComponent(change.target.id)}`, token, change.body);
+    case "restore":
+      return send("PATCH", `${eventsUrl}/${encodeURIComponent(change.target.id)}`, token, {
+        ...change.desired.body,
+        status: "confirmed",
+      });
+    case "delete":
+      return send("DELETE", `${eventsUrl}/${encodeURIComponent(change.target.id)}`, token, undefined, [410]);
   }
 }
