@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { parishCalendars } from "@/content/site";
 import { googlePage } from "@/test/fetch";
 import { execute, parseCommand } from "./services-sync";
 import { accessToken, applyServicesChange } from "./write";
@@ -86,12 +87,13 @@ describe("execute", () => {
     vi.stubEnv("GOOGLE_CALENDAR_SERVICE_ACCOUNT", "{}");
     vi.mocked(accessToken).mockResolvedValue("TOKEN");
     vi.mocked(applyServicesChange).mockRejectedValueOnce(new Error("quota exceeded")).mockResolvedValue(undefined);
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => googlePage([])),
-    );
+    const fetchMock = vi.fn(async () => googlePage([]));
+    vi.stubGlobal("fetch", fetchMock);
     const log = vi.spyOn(console, "log").mockImplementation(() => {});
     await expect(execute({ apply: true })).rejects.toThrow(/^1 calendar changes failed$/);
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(new URL(url).pathname).toContain(encodeURIComponent(parishCalendars.services.googleId));
+    expect(init.headers).toMatchObject({ Authorization: "Bearer TOKEN" });
     const calls = vi.mocked(applyServicesChange).mock.calls;
     expect(calls.length).toBeGreaterThan(20);
     expect(calls.every(([, token]) => token === "TOKEN")).toBe(true);

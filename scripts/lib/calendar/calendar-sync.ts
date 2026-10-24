@@ -1,13 +1,12 @@
-import { existsSync } from "node:fs";
-import { join } from "node:path";
 import { parishCalendars } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import { readEvents } from "@/content/news";
 import { pragueDate } from "@/lib/shared/prague";
 import { errorMessage, parseCommandLine } from "../command";
-import { NEWS_DIR, ROOT } from "../content-files";
+import { NEWS_DIR } from "../content-files";
+import { applyAll, loadEnvLocal } from "./apply";
 import { planLines, problemLines } from "./lines";
-import { planSync, type Change, type SyncPlan } from "./plan";
+import { planSync, type SyncPlan } from "./plan";
 import { readSnapshot, snapshotRange, type CalendarAccess } from "./read";
 import { accessToken, applyChange } from "./write";
 
@@ -24,12 +23,6 @@ export function parseCommand(args: string[]): Options {
   const { values, positionals } = parseCommandLine(args, options, USAGE);
   if (positionals.length > 0 || (values.apply && values.problems)) throw new Error(USAGE);
   return { apply: values.apply ?? false, problems: values.problems ?? false };
-}
-
-/** Loads .env.local into the environment when it exists; a variable already set stays. */
-function loadEnvLocal() {
-  const env = join(ROOT, ".env.local");
-  if (existsSync(env)) process.loadEnvFile(env);
 }
 
 /** The plan for `events` read through `access`, as of today in Prague. */
@@ -60,14 +53,7 @@ export async function execute({ apply, problems }: Options): Promise<void> {
   }
   const token = await accessToken(serviceAccount!);
   const plan = await planFor(events, { token });
-  const failures = new Map<Change, string>();
-  for (const change of plan.changes) {
-    try {
-      await applyChange(change, token);
-    } catch (error) {
-      failures.set(change, errorMessage(error));
-    }
-  }
+  const failures = await applyAll(plan.changes, (change) => applyChange(change, token));
   console.log(planLines(plan, true, failures).join("\n"));
   if (failures.size > 0) throw new Error(`${failures.size} calendar changes failed`);
 }

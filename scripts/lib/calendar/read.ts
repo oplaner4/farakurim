@@ -5,8 +5,8 @@ import type { DateRange } from "@/lib/calendar/agenda";
 import { eventsUrl, parseEventsPage, refererInit, type GoogleEvent } from "@/lib/calendar/google-calendar";
 import { desiredEvents } from "./desired";
 
-// Reads a parish calendar as the sync sees it (the Události one with its repeating events): the expanded events and the repeating events themselves, both
-// with the deleted ones, to know what is gone.
+// Reads a parish calendar as the sync sees it (the Události one with its repeating
+// events): the expanded events and the repeating events themselves, both with the deleted ones, to know what is gone.
 
 export type CalendarSnapshot = { instances: GoogleEvent[]; masters: GoogleEvent[] };
 

@@ -1,15 +1,14 @@
-import { existsSync } from "node:fs";
-import { join } from "node:path";
 import { places, regularServices } from "@/content/masses";
 import { parishCalendars } from "@/content/site";
 import { pragueDate } from "@/lib/shared/prague";
 import { errorMessage, parseCommandLine } from "../command";
-import { EXCEPTIONS_FILE, ROOT, SERVICE_SHEETS_FILE } from "../content-files";
+import { EXCEPTIONS_FILE, SERVICE_SHEETS_FILE } from "../content-files";
 import { readScheduleExceptions, readServiceSheets } from "../services/add-service-sheet";
+import { applyAll, loadEnvLocal } from "./apply";
 import { readInstances, type CalendarAccess } from "./read";
 import { desiredServices, servicesWindow, type ServicesContent } from "./services-desired";
 import { servicesLines } from "./services-lines";
-import { planServices, type ServicesChange, type ServicesPlan } from "./services-plan";
+import { planServices, type ServicesPlan } from "./services-plan";
 import { accessToken, applyServicesChange } from "./write";
 
 const USAGE = "Usage: pnpm services-calendar-sync [--apply]";
@@ -21,12 +20,6 @@ export function parseCommand(args: string[]): Options {
   const { values, positionals } = parseCommandLine(args, { apply: { type: "boolean" } } as const, USAGE);
   if (positionals.length > 0) throw new Error(USAGE);
   return { apply: values.apply ?? false };
-}
-
-/** Loads .env.local into the environment when it exists; a variable already set stays. */
-function loadEnvLocal() {
-  const env = join(ROOT, ".env.local");
-  if (existsSync(env)) process.loadEnvFile(env);
 }
 
 /** What the Pořad bohoslužeb page is built from: the regular schedule, the service sheets and the later changes. */
@@ -71,14 +64,7 @@ export async function execute({ apply }: Options): Promise<void> {
   }
   const token = await accessToken(serviceAccount!);
   const plan = await planFor({ token });
-  const failures = new Map<ServicesChange, string>();
-  for (const change of plan.changes) {
-    try {
-      await applyServicesChange(change, token);
-    } catch (error) {
-      failures.set(change, errorMessage(error));
-    }
-  }
+  const failures = await applyAll(plan.changes, (change) => applyServicesChange(change, token));
   console.log(servicesLines(plan, true, failures).join("\n"));
   if (failures.size > 0) throw new Error(`${failures.size} calendar changes failed`);
 }
