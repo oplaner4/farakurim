@@ -1,6 +1,6 @@
 ---
 name: commit
-description: Create a git commit in this repo with a commitlint-valid Conventional Commits message (type(scope): subject). Use whenever the user asks to commit, save work to git, or write a commit message.
+description: "Create a git commit in this repo with a commitlint-valid Conventional Commits message (type(scope): subject). Use whenever the user asks to commit, save work to git, or write a commit message."
 ---
 
 # Commit with commitlint
