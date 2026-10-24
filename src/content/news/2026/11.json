@@ -48,6 +48,39 @@
     ]
   },
   {
+    "id": "duchovni-obnova-vranov-2026",
+    "title": "Duchovní obnova Vranov",
+    "start": "2026-11-06",
+    "end": "2026-11-07",
+    "startTime": "16:30",
+    "place": "Vranov u Brna",
+    "text": "Duchovní obnova Ad fontem – k prameni! Po stopách Medjugorje: čas modlitby, ticha a setkání ve Vranově u Brna.",
+    "lead": "Pojďte na chvíli odložit každodenní starosti, ztišit se a znovu objevit pokoj, který nepramení z okolností, ale z Boží blízkosti.",
+    "body": "<p><strong>Ad fontem – k prameni! Po stopách Medjugorje.</strong> Čas modlitby, ticha a setkání doprovází schola Kecharitomene. Součástí sobotního programu bude i <strong>Modlitba za mír – medjugorský duchovní večer</strong>.</p><ul><li>Provází: o. Petr Káňa</li><li>Svědectví: Milona von Habsburg</li></ul><p>Registrace přes QR kód na plakátu. Kontakt: Kristína Třešková, +420 724 943 366.</p><p>Pořádá Mary’s Meals Česká republika z.s.</p>",
+    "published": "2026-10-24",
+    "poster": {
+      "src": "/uploads/aktuality/duchovni-obnova-vranov-2026-plakat-poster.webp",
+      "alt": "Plakát: Duchovní obnova Vranov"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/duchovni-obnova-vranov-2026-plakat.pdf",
+        "size": 2699654
+      }
+    ],
+    "links": [
+      {
+        "label": "E-mail: kristina.treskova@marysmeals.org",
+        "href": "mailto:kristina.treskova@marysmeals.org"
+      },
+      {
+        "label": "Mary’s Meals Česká republika",
+        "href": "https://www.marysmeals.cz"
+      }
+    ]
+  },
+  {
     "id": "konference-o-evangelizaci-2026",
     "title": "Konference o evangelizaci – Riskujme lásce",
     "start": "2026-11-13",
