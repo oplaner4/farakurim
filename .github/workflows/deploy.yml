@@ -231,10 +231,17 @@ jobs:
         if: steps.google.outcome == 'success'
         env:
           GOOGLE_CALENDAR_SERVICE_ACCOUNT: ${{ steps.google.outputs.credentials_file_path }}
-        # The warning carries the reason: the last line the sync wrote to stderr.
+        # The lines go to the log and the run summary, and each that needs a person (an `ask:`, meetings it cannot
+        # pair: that event stays out of the calendar) warns; a failure warns with the last line of stderr.
         run: |
+          out="$RUNNER_TEMP/calendar-sync.out"
           err="$RUNNER_TEMP/calendar-sync.err"
-          if ! pnpm --silent calendar-sync --apply 2> "$err"; then
+          status=0
+          pnpm --silent calendar-sync --apply > "$out" 2> "$err" || status=$?
+          cat "$out"
+          { echo '```text'; cat "$out"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          sed -nE 's/^(Události, [^:]*: (ask: |cannot pair ).*)$/::warning::\1/p' "$out"
+          if [ "$status" -ne 0 ]; then
             cat "$err" >&2
             echo "::warning::The calendar sync failed ($(tail -n 1 "$err")); the next release catches up."
           fi
@@ -243,15 +250,14 @@ jobs:
         if: github.event_name != 'push' || vars.CALENDAR_SYNC != 'true'
         env:
           NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY: ${{ vars.GOOGLE_CALENDAR_API_KEY }}
-        # The preview goes to the run summary as text; a failure warns with the last line of stderr.
+        # As the apply above: the summary, a warning for each line that needs a person, and one for a failure.
         run: |
+          out="$RUNNER_TEMP/calendar-sync.out"
           err="$RUNNER_TEMP/calendar-sync.err"
           status=0
-          {
-            echo '```text'
-            pnpm --silent calendar-sync 2> "$err" || status=$?
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
+          pnpm --silent calendar-sync > "$out" 2> "$err" || status=$?
+          { echo '```text'; cat "$out"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          sed -nE 's/^(Události, [^:]*: (ask: |cannot pair ).*)$/::warning::\1/p' "$out"
           if [ "$status" -ne 0 ]; then
             cat "$err" >&2
             echo "::warning::The calendar preview failed ($(tail -n 1 "$err"))."

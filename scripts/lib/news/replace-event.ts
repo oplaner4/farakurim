@@ -11,7 +11,6 @@ import { newsEventSchema } from "@/lib/news/schema";
 import { parseOrThrow } from "@/lib/shared/json-file";
 import { pragueDate } from "@/lib/shared/prague";
 import { insertRecord } from "./add-event";
-import { reportCalendar } from "./event-calendar";
 import { actionVerb, parseCommandLine, readJsonRecord } from "../command";
 import { formatAndTestNews, NEWS_DIR, writeMonth } from "../content-files";
 import { assertPinnable, withoutPin } from "./pin-event";
@@ -135,13 +134,10 @@ export function parseCommand(args: string[]): { file: string; check: boolean } {
   return { file: positionals[0], check: values.check ?? false };
 }
 
-/** Replaces the record in `file` and prints what changed; then formats and tests the news files and checks the event. */
+/** Replaces the record in `file` and prints what changed; then formats and tests the news files. */
 export async function execute({ file, check }: { file: string; check: boolean }) {
   const input = readJsonRecord(file);
   const result = replaceEvent(NEWS_DIR, input, { check });
   console.log(replaceLines(result, check).join("\n"));
-  if (!check) {
-    await formatAndTestNews(result.written);
-    await reportCalendar(result.record);
-  }
+  if (!check) await formatAndTestNews(result.written);
 }

@@ -225,7 +225,7 @@ jobs:
         s/^[[:space:]]*[-*][[:space:]]+//; s/^\*\*(Outcome:[^*]*)\*\*/\1/; s/^\*\*Outcome\*\*:/Outcome:/;
         s/^Outcome:[[:space:]]*/Outcome: /
       # The report's sections that are not events.
-      NOT_EVENTS: "^(Questions|Dropped attachments|Mirror in the calendar)$"
+      NOT_EVENTS: "^(Questions|Dropped attachments)$"
     steps:
       # Missing when `event` failed before handing on: this job then only reports, and files nothing.
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2

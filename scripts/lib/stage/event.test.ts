@@ -262,10 +262,9 @@ describe("stageEvent", { timeout: 30_000 }, () => {
         "Changed: attachments",
         "Would stage uploads/aktuality/test-hody-2026-plakat.jpg and its -poster.webp",
       ]);
-      const { lines, written, event } = await stageOne(options);
+      const { lines, written } = await stageOne(options);
       expect(lines.slice(1)).toEqual(["Replaced the record in src/content/news/2026/10.json", "Changed: attachments"]);
       expect(written).toEqual(["2026/10.json"]);
-      expect(event?.id).toBe("test-hody-2026");
       expect(readFileSync(uploaded("aktuality", "test-hody-2026-plakat.jpg"))).toEqual(
         readFileSync(join(env.home, "Downloads", other)),
       );

@@ -119,21 +119,12 @@ Update `record.json` from step 3b with the confirmed event, then add it:
 pnpm add-event <scratchpad>/record.json
 ```
 
-The output of step 5a or 5b means (5b stages nothing):
-
-- An error (a bad field, a taken `id`, a pin on an event that has already ended): nothing was staged. Fix
-  `record.json` and run the same command again.
-- The `Události …` lines (the event in the Google Calendar the Kalendář reads): the release applies them, and its
-  preview shows them to the user. Only an `ask:` line needs the user now: give it to them with its two ways out:
-  paste the page URL into the description of the Události event that is this one, or, when none of them is, add the
-  event in Události by hand with the page URL in its description (the page's "Přidat do kalendáře" file can be
-  imported once the release is out). Until then nothing changes. Otherwise there is nothing to do in the calendar by
-  hand.
+An error from step 5a or 5b (a bad field, a taken `id`, a pin on an event that has already ended) means nothing was
+staged (5b stages nothing anyway): fix `record.json` and run the same command again.
 
 ## 6. Publish
 
-Follow **`parish-publish-content`** (commit, upload and push). The release applies the `Události` lines; if an
-`ask:` line is still open, remind the user of it, so the event shows in the Kalendář with its link.
+Follow **`parish-publish-content`** (commit, upload and push). The release brings the Události calendar in line.
 
 ## Unattended run
 
@@ -168,10 +159,7 @@ a report file); a local run follows steps 1 to 6 as written. An unattended run f
   `uploads/` as usual (step 5a or 5b, one event after another). Skip the `--check` runs of steps 3a and 3b: step 5a
   or 5b checks everything first and stages nothing when it refuses, so fix `record.json` and run it again.
 - Write the report first, then stage, then fill in each event's `Outcome:` line from what the script did, and add any
-  line it printed for the user (the `Události` lines, an unpinned event) to the report. An `ask:` line is a blocking
-  question offering both answers: which candidate is this event (its description gets the page URL), or none of them
-  (the event is then added in Události by hand with the page URL in its description). A script refusal is
-  `refused: <its message>`.
+  line it printed for the user (an unpinned event) to the report. A script refusal is `refused: <its message>`.
 - Skip step 6: no `parish-publish-content`, no commit, no release. The workflow commits and opens the PR.
 
 **The report** is English, with site content quoted in Czech, and starts with exactly these two lines:
@@ -195,10 +183,9 @@ with parish-correct-event`; a duplicate: `refused: already in <main or PR #n> as
   and the guesses (step 4), not the fields or the files;
 - `### Questions`, one per line: `- **q1** (blocking|note) <where>: <question> — proposal: <proposal>`.
 
-Then `## Dropped attachments` (each as "attachment 3, an image without event information": never its file name) and
-`## Mirror in the calendar` (the `Události` lines as printed, none left out or reworded). The PR is public: quote
-only what is published (the fields, the staged files' names and labels); describe the rest of the mail without
-quoting it.
+Then `## Dropped attachments` (each as "attachment 3, an image without event information": never its file name). The
+PR is public: quote only what is published (the fields, the staged files' names and labels); describe the rest of the
+mail without quoting it.
 
 ## Common mistakes
 

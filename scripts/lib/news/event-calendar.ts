@@ -14,7 +14,7 @@ function withRecord(event: NewsEvent): NewsEvent[] {
   return index === -1 ? [...events, event] : events.with(index, event);
 }
 
-/** Loads .env.local and prints the sync preview for `event`; never throws, so it cannot fail the command that added the record. */
+/** Loads .env.local and prints the sync preview for `event`; never throws (a failure is printed instead). */
 export async function reportCalendar(event: NewsEvent) {
   try {
     loadEnvLocal();

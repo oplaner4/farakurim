@@ -15,12 +15,18 @@ scripts' business (`docs/deployment.md`), not this skill's.
    not behind `origin/main`, lists the commits since the last tag, picks the version (minor for a `feat` outside the
    `content` scope, patch otherwise), lists the new files for `/uploads/` and the new or changed cron scripts
    (`cron-scripts/`), and prints the `Události` lines: the changes the release makes in the Události calendar (add,
-   link, update; an `ask:` line changes nothing). If it stops on a dirty tree (often `AGENTS.md` re-added by
-   `next dev`), ask the user to commit or discard it.
+   link, update). If it stops on a dirty tree (often `AGENTS.md` re-added by `next dev`), ask the user to commit or
+   discard it.
 2. **Ask** the user, with the version, the commits, the uploads, the `Události` changes and any cron scripts from the
    preview, for example:
 
    > Release v1.1.0? (2 commits, 3 new files in /uploads/)
+
+   Call out each `ask:` line on its own: that event stays out of the calendar until the user pastes its page URL into
+   the description of the Události event that is this one or, when none of them is, adds the event in Události by
+   hand with the page URL in its description (the page's "Přidat do kalendáře" file can be imported once the release
+   is out). Done before the yes, run the preview again; done after it, the next release links it. Call out a
+   `cannot pair` line too, as printed: that event's calendar entries stay as they are.
 
    Wait for a clear yes; it publishes the site, and it covers the `Události` changes, which the deploy workflow applies
    after the deploy. Never run `pnpm calendar-sync --apply` yourself. Without the yes, stop: the commits stay as they

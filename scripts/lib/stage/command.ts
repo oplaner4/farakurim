@@ -4,9 +4,7 @@
 import { join } from "node:path";
 import { parseArgs } from "node:util";
 import * as z from "zod";
-import type { NewsEvent } from "@/content/types/news";
 import { readJsonRecord } from "../command";
-import { reportCalendar } from "../news/event-calendar";
 import { formatAndTest, SERVICE_SHEETS_TESTS } from "../content-files";
 import { stageEvent } from "./event";
 import { defaultEnv, MAX_MB, type StageEnv } from "./core";
@@ -38,11 +36,11 @@ const COMMANDS: Record<string, { positionals: (count: number) => boolean; option
   petrklic: { positionals: (n) => n === 1, options: ["year", "number", "note", "corrected", "check"] },
 };
 
-/** Runs a command line (without the program); returns the lines to print, the files to format and the added event. */
+/** Runs a command line (without the program); returns the lines to print and the files to format. */
 export async function runStage(
   env: StageEnv,
   argv: string[],
-): Promise<{ lines: string[]; format?: { files: string[]; tests: string | string[] }; event?: NewsEvent }> {
+): Promise<{ lines: string[]; format?: { files: string[]; tests: string | string[] } }> {
   const { values, positionals } = parseArgs({
     args: argv,
     allowPositionals: true,
@@ -112,10 +110,9 @@ export async function runStage(
   return { lines, format: written.length > 0 ? { files: written, tests: "src/content/petrklic.test.ts" } : undefined };
 }
 
-/** Stages from the command line `args` and prints the lines; then formats and tests the files and checks the event. */
+/** Stages from the command line `args` and prints the lines; then formats and tests the files. */
 export async function execute(args: string[]) {
-  const { lines, format, event } = await runStage(defaultEnv(), args);
+  const { lines, format } = await runStage(defaultEnv(), args);
   console.log(lines.join("\n"));
   if (format) await formatAndTest(format.files, format.tests);
-  if (event) await reportCalendar(event);
 }

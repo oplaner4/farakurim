@@ -195,28 +195,24 @@ async function stageFiles(
   return lines;
 }
 
-/** Adds the record (with `corrected`, replaces it) and returns the lines, the news files written and the event. */
+/** Adds the record (with `corrected`, replaces it) and returns the lines and the news files written. */
 function writeRecord(env: StageEnv, record: Record<string, unknown>, corrected: boolean) {
   if (corrected) {
     const result = replaceEvent(env.newsDir, record);
-    return { lines: replaceLines(result, false), written: result.written, event: result.record };
+    return { lines: replaceLines(result, false), written: result.written };
   }
   const result = addEvent(env.newsDir, record);
-  return {
-    lines: [targetLine(result, false), ...unpinnedLines(result.unpinned, false)],
-    written: result.written,
-    event: result.record,
-  };
+  return { lines: [targetLine(result, false), ...unpinnedLines(result.unpinned, false)], written: result.written };
 }
 
 /**
  * Stages an event's files (and the poster WebP) and, with a record, adds the record with the files. Returns the
- * lines to print, the news files written (for formatAndTest) and the added event.
+ * lines to print and the news files written (for formatAndTest).
  */
 export async function stageEvent(
   env: StageEnv,
   options: EventOptions,
-): Promise<{ lines: string[]; written: string[]; event?: NewsEvent }> {
+): Promise<{ lines: string[]; written: string[] }> {
   const { id, files: given, noPoster = false, corrected = false, check = false } = options;
   const input = eventInput(env, options);
   const current = (input?.attachments as EventAttachment[] | undefined) ?? [];

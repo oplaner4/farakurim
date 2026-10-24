@@ -1,5 +1,5 @@
 // pnpm replace-event: corrects an event already in src/content/news/ (parish-correct-event skill),
-// formats the month files, runs the news tests and checks the event in the Události calendar.
+// formats the month files and runs the news tests.
 //
 // Usage: pnpm replace-event <record.json | -> [--check]
 // The record is the whole corrected NewsEvent as JSON (`-` reads stdin); its id names the event, which keeps its

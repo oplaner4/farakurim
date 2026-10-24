@@ -1,5 +1,5 @@
 // pnpm add-event: adds a confirmed event to src/content/news/ (parish-create-event skill), formats its
-// month file, runs the news tests and checks the event in the Události calendar (as pnpm event-calendar).
+// month file and runs the news tests.
 //
 // Usage: pnpm add-event <record.json | -> [--check]
 // The record is a NewsEvent as JSON (`-` reads stdin), upload paths root-relative ("/uploads/aktuality/x.webp").

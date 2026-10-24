@@ -74,8 +74,11 @@ Only a release applies it, after the site is deployed (so every URL it writes is
   not answer, it says the calendar was not checked and goes on.
 - **The `calendar` job of `deploy.yml`** runs after `deploy` (and its verify). On a release tag push, with the
   repository variable `CALENDAR_SYNC` set to `true`, it runs `pnpm calendar-sync --apply`; otherwise (a refresh, or the
-  variable not yet `true`) it only writes the preview into the run summary. A failure ends as a warning and does not
-  mark the release failed: the next release catches up. It skips a `--local` release, which applies the sync itself.
+  variable not yet `true`) it only previews. Either way its lines go into the run summary, and each line that needs a
+  person warns: an `ask:` (the sync cannot tell which Události event is the record's: paste the page URL into the
+  right one's description, or add the event with it) or a `cannot pair` line, as either leaves that event out of
+  line until a person acts and the next release runs. A failure ends as a warning too and does not mark the release
+  failed: the next release catches up. It skips a `--local` release, which applies the sync itself.
 - **`pnpm release --local`** applies it after its deploy and verify, with the credentials in `.env.local`.
 
 The job runs in its own environment `calendar-sync`, never `Production`: the refresh counts the Production deployments

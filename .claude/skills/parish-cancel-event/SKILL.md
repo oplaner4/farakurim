@@ -57,11 +57,7 @@ Wait for the user's yes or corrections to these before replacing anything.
 
 ## 5. Replace
 
-Run the step 3 command without `--check`. The Události lines it prints are applied by the release, whose preview
-shows them to the user. Only an `ask:` line needs the user now: give it to them with its two ways out: paste the page
-URL into the description of the Události event that is this one, or, when none of them is, add the event in Události
-by hand with the page URL in its description (the page's "Přidat do kalendáře" file can be imported once the release
-is out). Until then nothing changes. Otherwise there is nothing to do in the calendar by hand.
+Run the step 3 command without `--check`. The release brings the Události calendar in line.
 
 ## 6. Publish
 
