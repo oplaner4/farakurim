@@ -12,6 +12,8 @@ export const places: Record<PlaceId, Place> = {
     church: "Chrám Páně sv. Maří Magdaleny",
     churchShort: "kostel sv. Maří Magdalény",
     color: "blue",
+    locative: "v Kuřimi",
+    address: "Kostel sv. Maří Magdalény, Křížkovského, 664 34 Kuřim, Česko",
     mapQuery: "kostel sv. Maří Magdalény Kuřim",
   },
   "moravske-kninice": {
@@ -19,9 +21,18 @@ export const places: Record<PlaceId, Place> = {
     church: "Chrám Páně sv. Markéty",
     churchShort: "kostel sv. Markéty",
     color: "green",
+    locative: "v Moravských Knínicích",
+    address: "Kostel svaté Markéty, 386, 664 34 Moravské Knínice, Česko",
     mapQuery: "kostel sv. Markéty Moravské Knínice",
   },
-  jinacovice: { name: "Jinačovice", color: "orange", mapQuery: "Jinačovice", byAgreement: true },
+  jinacovice: {
+    name: "Jinačovice",
+    locative: "v Jinačovicích",
+    address: "Jinačovice, 664 34 Jinačovice-Kuřim, Česko",
+    color: "orange",
+    mapQuery: "Jinačovice",
+    byAgreement: true,
+  },
 };
 
 /** The other chapels of the villages with a church, listed under it on Kontakty. */

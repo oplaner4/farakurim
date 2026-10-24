@@ -29,9 +29,15 @@ import {
 } from "./agenda";
 
 const places = {
-  kurim: { name: "Kuřim", color: "blue", mapQuery: "" },
-  "moravske-kninice": { name: "Moravské Knínice", color: "green", mapQuery: "" },
-  jinacovice: { name: "Jinačovice", color: "orange", mapQuery: "" },
+  kurim: { name: "Kuřim", locative: "v Kuřimi", address: "", color: "blue", mapQuery: "" },
+  "moravske-kninice": {
+    name: "Moravské Knínice",
+    locative: "v Moravských Knínicích",
+    address: "",
+    color: "green",
+    mapQuery: "",
+  },
+  jinacovice: { name: "Jinačovice", locative: "v Jinačovicích", address: "", color: "orange", mapQuery: "" },
 } satisfies Record<PlaceId, Place>;
 
 const entry = (e: Partial<CalendarEntry> & Pick<CalendarEntry, "id" | "date">): CalendarEntry => ({

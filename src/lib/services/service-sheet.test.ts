@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
+import { regularServices } from "@/content/masses";
 import type { Announcement, RegularService, SheetDay } from "@/content/types/services";
 import {
   currentSheet,
+  isChangedMass,
   isOneWeek,
   markChanges,
   periodDates,
@@ -305,5 +307,14 @@ describe("isOneWeek", () => {
   it("does not count a two-week sheet, across the DST change too", () => {
     expect(isOneWeek({ validFrom: "2026-10-04", validTo: "2026-10-12" })).toBe(false);
     expect(isOneWeek({ validFrom: "2026-10-18", validTo: "2026-11-01" })).toBe(false);
+  });
+});
+
+describe("isChangedMass", () => {
+  it("is true when the weekday has a regular mass and none is at that time and place", () => {
+    expect(isChangedMass("2026-10-18", "8:00", "kurim", regularServices)).toBe(false);
+    expect(isChangedMass("2026-10-18", "10:00", "kurim", regularServices)).toBe(true);
+    expect(isChangedMass("2026-10-20", "8:00", "kurim", regularServices)).toBe(false); // Tuesday: no regular mass
+    expect(isChangedMass("2026-07-05", "9:30", "kurim", regularServices)).toBe(true); // 9:30 on its break
   });
 });

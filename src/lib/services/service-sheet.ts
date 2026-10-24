@@ -9,7 +9,7 @@ import {
   type ServiceSheetRecord,
   type SheetDay,
 } from "@/content/types/services";
-import type { IsoDate } from "@/content/types/shared";
+import type { ClockTime, IsoDate } from "@/content/types/shared";
 import { plural } from "@/lib/shared/czech";
 import { inPrague, pragueDate, pragueDateTime, pragueWeekday } from "@/lib/shared/prague";
 import { revSuffix } from "@/lib/shared/revision";
@@ -110,27 +110,34 @@ export function sheetOrderProblems(sheets: Pick<ServiceSheet, "validFrom" | "val
 }
 
 /**
- * Tags a mass "změna" (`changed`) when its time and place are not a regular mass of that date (`rule` included).
- * A weekday without any regular mass has nothing to change, so its masses stay untagged, and so do the masses outside
- * the parish ("Tišnov"); a `changed: true` entered by hand (the PDF marks a change) is kept.
+ * Whether a mass at `time` in `place` on `date` is a "změna": the weekday has a regular mass, and none of that date
+ * (`rule` and `closed` break applied) is at that time and place. A weekday without any regular mass has nothing to
+ * change.
+ */
+export function isChangedMass(date: IsoDate, time: ClockTime, place: PlaceId, regular: RegularService[]): boolean {
+  if (!regular.some((s) => !s.title && s.weekday === pragueWeekday(date))) return false;
+  return !servicesOnDate(date, { regular, exceptions: [] }).some(
+    (s) => !s.title && s.time === time && s.place === place,
+  );
+}
+
+/**
+ * Tags a mass "změna" (`changed`) when its time and place are not a regular mass of that date (`isChangedMass`).
+ * The masses outside the parish ("Tišnov") stay untagged; a `changed: true` entered by hand (the PDF marks a change)
+ * is kept.
  */
 export function markChanges(days: SheetDay[], regular: RegularService[]): SheetDay[] {
-  const massWeekdays = new Set(regular.filter((s) => !s.title).map((s) => s.weekday));
-  return days.map((day) => {
-    if (!massWeekdays.has(pragueWeekday(day.date))) return day;
-    const masses = servicesOnDate(day.date, { regular, exceptions: [] }).filter((s) => !s.title);
-    return {
-      ...day,
-      rows: day.rows.map((row) =>
-        row.mass &&
-        !row.changed &&
-        isPlaceId(row.place, PLACE_IDS) &&
-        !masses.some((m) => m.time === row.time && m.place === row.place)
-          ? { ...row, changed: true }
-          : row,
-      ),
-    };
-  });
+  return days.map((day) => ({
+    ...day,
+    rows: day.rows.map((row) =>
+      row.mass &&
+      !row.changed &&
+      isPlaceId(row.place, PLACE_IDS) &&
+      isChangedMass(day.date, row.time, row.place, regular)
+        ? { ...row, changed: true }
+        : row,
+    ),
+  }));
 }
 
 /** Changes first, the rest in the editor's order (§14.5). */

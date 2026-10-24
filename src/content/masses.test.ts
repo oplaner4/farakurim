@@ -14,6 +14,13 @@ describe("Pravidelné bohoslužby (masses.ts)", () => {
     }
   });
 
+  it("gives every place a locative and an address", () => {
+    for (const [id, p] of Object.entries(places)) {
+      expect(p.locative, id).toMatch(/^ve? \S/);
+      expect(p.address.length, id).toBeGreaterThan(0);
+    }
+  });
+
   it("only lets a not-first-in-month service give way to a first-in-month variant", () => {
     const firstInMonth = (weekday: number, place: string) =>
       regularServices.some((s) => s.rule === "first-in-month" && s.weekday === weekday && s.place === place);

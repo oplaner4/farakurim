@@ -17,6 +17,10 @@ export type Place = {
   /** Short form after the place on the homepage: "kostel sv. Maří Magdalény". */
   churchShort?: string;
   color: ChurchColor;
+  /** After "Mše svatá": "v Kuřimi". */
+  locative: string;
+  /** The postal address of the church, as the calendar events carry it. */
+  address: string;
   /** Mapy.cz search. */
   mapQuery: string;
   /** No regular services: "Bohoslužby dle domluvy na faře." */
