@@ -257,13 +257,15 @@ jobs:
       # The report: line 1 `blocking: yes|no`, line 2 `commit: <message>`, then the PR body. Each event (a `## `
       # section other than NOT_EVENTS) has exactly one `Outcome:` line, `created` or `refused: …`, else nothing is
       # applied or filed. Without a change, every event must be refused: the mail is refused. With one, the patch is
-      # applied only if it touches nothing but the news month files, and no id it adds may be held by an open PR.
+      # applied only if it touches nothing but the news month files, and no id it adds may be held by an open PR. The
+      # PR body ends with the Události lines that need a person (as deploy.yml warns on them), since the merge releases.
       - name: Apply the change
         id: changes
         if: steps.download.outcome == 'success' && needs.event.result == 'success' && needs.event.outputs.mail != ''
         env:
           BRANCH: ${{ needs.event.outputs.branch }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY: ${{ vars.GOOGLE_CALENDAR_API_KEY }}
         run: |
           run="$RUNNER_TEMP/run"
           report="$run/report.md"
@@ -311,9 +313,21 @@ jobs:
           # Only an exact `blocking: no` opens a ready PR, so a broken report cannot be merged by mistake.
           echo "draft=$([ "$first" = "blocking: no" ] && echo false || echo true)" >> "$GITHUB_OUTPUT"
           echo "message=$message" >> "$GITHUB_OUTPUT"
+          calendar=$(pnpm --silent calendar-sync 2> /dev/null \
+            | grep -E '^Události(: not checked|, [^:]*: (ask: |cannot pair ))' || true)
           {
             tail -n +3 "$report"
             echo
+            if [ -n "$calendar" ]; then
+              echo "## Události"
+              echo
+              echo "Needs a person in Události before the merge (an \`ask:\` event stays out of the calendar until then):"
+              echo
+              echo '```text'
+              echo "$calendar"
+              echo '```'
+              echo
+            fi
             echo "---"
             echo
             echo "Opened by the events workflow (\`events.yml\`). Squash merge to publish: the merge releases the site."

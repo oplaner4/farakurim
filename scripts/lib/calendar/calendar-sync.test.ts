@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { NewsEvent } from "@/content/types/news";
 import { googlePage } from "@/test/fetch";
-import { execute, parseCommand, previewLines } from "./calendar-sync";
+import { execute, parseCommand } from "./calendar-sync";
 import { accessToken, applyChange } from "./write";
 
 vi.mock("./write", () => ({ accessToken: vi.fn(), applyChange: vi.fn() }));
@@ -19,8 +18,6 @@ afterEach(() => {
   vi.clearAllMocks();
   vi.restoreAllMocks();
 });
-
-const record = (id: string, title: string, start: string): NewsEvent => ({ id, title, start, text: "Text." });
 
 describe("parseCommand", () => {
   it("reads --apply, and no flag means a preview", () => {
@@ -94,39 +91,5 @@ describe("execute", () => {
     expect(log).toHaveBeenCalledWith(
       ['Události, 2099-01-05: Added "Alfa" — failed: quota exceeded', 'Události, 2099-01-06: Added "Beta"'].join("\n"),
     );
-  });
-});
-
-describe("previewLines", () => {
-  it("says the calendar was not checked without the key", async () => {
-    vi.stubEnv("NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY", "");
-    expect(await previewLines([record("a", "A", "2099-01-05")])).toEqual([
-      "Události: not checked (no NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY in .env.local).",
-    ]);
-  });
-
-  it("says the calendar was not checked when Google does not answer", async () => {
-    vi.stubEnv("NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY", "KEY");
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => googlePage([], 403)),
-    );
-    expect(await previewLines([record("a", "A", "2099-01-05")])).toEqual([
-      expect.stringMatching(/^Události: not checked \(.*HTTP 403.*\)\.$/),
-    ]);
-  });
-
-  it("plans all records but keeps only the one asked for", async () => {
-    vi.stubEnv("NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY", "KEY");
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => googlePage([])),
-    );
-    const events = [record("a", "Alfa", "2099-01-05"), record("b", "Beta", "2099-01-06")];
-    expect(await previewLines(events)).toEqual([
-      'Události, 2099-01-05: Would add "Alfa"',
-      'Události, 2099-01-06: Would add "Beta"',
-    ]);
-    expect(await previewLines(events, "b")).toEqual(['Události, 2099-01-06: Would add "Beta"']);
   });
 });

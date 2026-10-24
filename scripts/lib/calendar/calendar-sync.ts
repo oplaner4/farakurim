@@ -20,7 +20,7 @@ export function parseCommand(args: string[]): { apply: boolean } {
 }
 
 /** Loads .env.local into the environment when it exists; a variable already set stays. */
-export function loadEnvLocal() {
+function loadEnvLocal() {
   const env = join(ROOT, ".env.local");
   if (existsSync(env)) process.loadEnvFile(env);
 }
@@ -60,33 +60,14 @@ export async function execute({ apply }: { apply: boolean }): Promise<void> {
   if (failures.size > 0) throw new Error(`${failures.size} calendar changes failed`);
 }
 
-/** Whether `report` is about the record `id`; an orphan is about no record. */
-const reportIsOf = (report: SyncPlan["reports"][number], id: string) =>
-  report.kind === "unpaired" ? report.newsId === id : report.kind !== "orphan" && report.desired.newsId === id;
-
-/** The lines of `previewLines()`, and why the calendar was not checked when it was not. */
-async function preview(events: NewsEvent[], onlyId?: string): Promise<{ lines: string[]; failure?: string }> {
+/** The preview lines of the plan for `events`, or that the calendar was not checked and why. */
+async function preview(events: NewsEvent[]): Promise<{ lines: string[]; failure?: string }> {
   const unchecked = (failure: string) => ({ lines: [`Události: not checked (${failure}).`], failure });
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY;
   if (!apiKey) return unchecked("no NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY in .env.local");
-  let plan: SyncPlan;
   try {
-    plan = await planFor(events, { apiKey });
+    return { lines: planLines(await planFor(events, { apiKey }), false) };
   } catch (error) {
     return unchecked(errorMessage(error));
   }
-  if (onlyId === undefined) return { lines: planLines(plan, false) };
-  const only = {
-    changes: plan.changes.filter((change) => change.desired.newsId === onlyId),
-    reports: plan.reports.filter((report) => reportIsOf(report, onlyId)),
-  };
-  return { lines: planLines(only, false) };
-}
-
-/**
- * The preview lines for `events`, planned together (a record may claim what another leaves): all of them, or with
- * `onlyId` only that record's changes and reports. Reads with NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY; never throws.
- */
-export async function previewLines(events: NewsEvent[], onlyId?: string): Promise<string[]> {
-  return (await preview(events, onlyId)).lines;
 }
