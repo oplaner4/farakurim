@@ -177,11 +177,10 @@ adorace" Google Calendar, which the Kalendář reads.
 Only when the prompt says the run is **unattended**; a local run follows steps 1 to 5 as written. An unattended run
 follows them too, with these changes:
 
-- It handles the DOCX's **newest week only**. When `--draft` does not say the week is already there: steps 1 to 4
-  as written (`Outcome: created`). When it does (never open `service-sheets.json` to check): it is a **correction**,
-  always, without comparing with the published sheet:
-  draft the week, build the record from the draft as step 2a says (not from the published sheet), and stage it with
-  `--corrected` when the script says the week is already published (`Outcome: corrected`). Never touch older weeks.
+- It handles the DOCX's **newest week only**; never touch older weeks. When `--draft` does not say the week is
+  already there: steps 1 to 4 as written (`Outcome: created`). When it does (never open `service-sheets.json` to
+  check): it is a correction, made as **`parish-correct-service-sheet`** "Unattended run" says, with the rules of this
+  section and its report.
 - It never asks and never waits. Every "confirm with the user" or "ask the user" step (step 3, a document error, the
   placeholder dots, the "Days without services" note) writes into the report instead; the report file is the one the
   prompt gives. The scratchpad is the one the prompt gives (`record.json`, `draft.json`; write nothing in the

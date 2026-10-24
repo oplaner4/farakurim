@@ -44,8 +44,6 @@ the week is released, as the check refuses the taken name otherwise. Show the us
 
 Wait for the user's yes or corrections to these before staging anything.
 
-Unattended: write this into the report instead, see "Unattended run" below.
-
 ## 4. Stage
 
 ```sh
@@ -63,14 +61,14 @@ the user to mirror changed or cancelled services in the "Bohoslužby" Google Cal
 
 ## Unattended run
 
-Only when the prompt says the run is **unattended**; a local run follows steps 1 to 5 as written. The parish's
-e-mailed DOCX never comes here: `parish-create-service-sheet` handles its newest week, corrections included. This
-section is for a correction the prompt gives in words: step 2's "a correction the user describes" applies. Follow the
-rules of **`parish-create-service-sheet`** "Unattended run" except its newest-week bullet (never asks, blocking
-questions and notes, report first, then stage, no `parish-publish-content`, no commit, no release), with the
-scratchpad, the previous report and the report file the prompt gives, in the same format. Here the commit line is a
-`fix(content): correct the service sheet for …` message, the week's outcome is `corrected`, and the summary is what
-differs from the published sheet.
+Only when the prompt says the run is **unattended**: the DOCX's newest week is already in `service-sheets.json`
+(**`parish-create-service-sheet`** "Unattended run" sends it here). Its rules and its report apply; steps 1 to 4 here
+change:
+
+- It is a correction, always, even when nothing seems to differ: build the record from the draft as
+  `parish-create-service-sheet` step 2a says (not from the sheet), and stage it, with `--corrected` when the script
+  says the week is already published.
+- The week's outcome is `corrected`, and its summary is what differs from the published sheet.
 
 ## Common mistakes
 
