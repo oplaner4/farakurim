@@ -45,9 +45,10 @@ To refresh now, run the workflow by hand: Actions tab → Deploy → **Run workf
 ## GitHub setup
 
 - **Repository**: the workflows and scripts read the repository from GitHub (`GITHUB_REPOSITORY`), so the setup
-  works in any repository. Two places name it and must match the repository the site runs from: `GITHUB_REPOSITORY`
-  in `cron-scripts/github.inc.php` ([hosting.md](hosting.md#starting-the-workflows-on-time)) and the Claude Console
-  federation rules ([below](#setup-once)), which also need the owner's and the repository's numeric IDs
+  works in any repository. Three places name it and must match the repository the site runs from: `GITHUB_REPOSITORY`
+  in `cron-scripts/github.inc.php` ([hosting.md](hosting.md#starting-the-workflows-on-time)), the Google workload
+  identity binding ([below](#setup-once)) and the Claude Console federation rules, which also need the owner's and the
+  repository's numeric IDs
   (`gh api repos/<owner>/<repo> --jq '"\(.owner.id) \(.id)"'`). This site's: `oplaner4/farakurim`, owner ID
   `38047115`, repository ID `1403139652`.
 - **`Production` environment**: the secret `DEPLOY_SSH_KEY`, `DEPLOY_KNOWN_HOSTS` (secret or variable) and optionally
@@ -90,22 +91,29 @@ the site cannot act as the account.
   roles in the project and no key. Share Události (owned by the parish's personal Gmail account) with the service
   account's e-mail address with the permission "Make changes to events". Enable the **IAM Service Account Credentials
   API** and the **Security Token Service API** in the project.
-- **Workload identity pool**, in the same project (IAM → Workload Identity Federation): a pool (e.g. `github`) with an
-  OIDC provider for the issuer `https://token.actions.githubusercontent.com`, the attribute mapping
-  `google.subject = assertion.sub`, `attribute.repository = assertion.repository`, and the attribute condition
-
-  ```text
-  assertion.repository_id == '1403139652' && assertion.repository_owner_id == '38047115' &&
-    assertion.environment == 'calendar-sync'
-  ```
-
-  (the numeric IDs of [the repository](#github-setup): a repository renamed or recreated under the same name does not
-  match). On the service account, grant **Workload Identity User** (`roles/iam.workloadIdentityUser`) to
-  `principalSet://iam.googleapis.com/projects/<project number>/locations/global/workloadIdentityPools/github/attribute.repository/oplaner4/farakurim`.
+- **Workload identity pool**, in the same project (IAM → Workload Identity Federation), shared by every repository of
+  the owner: the pool and its provider trust the owner, the service account's binding picks the repository and its
+  environment, so another repository needs only its own binding.
+  - **Pool**: name `GitHub Actions`, ID `github`.
+  - **Provider**: OIDC, name `GitHub`, ID `github`, issuer `https://token.actions.githubusercontent.com`, the default
+    audience, the attribute mapping `google.subject = assertion.sub`,
+    `attribute.repository = assertion.repository`, `attribute.repository_owner_id = assertion.repository_owner_id`, and
+    the attribute condition `assertion.repository_owner_id == '<owner-id>'` (the owner's numeric ID, [GitHub
+    setup](#github-setup); for this site `'38047115'`; more owners:
+    `assertion.repository_owner_id in ['<owner-id>', '<other-owner-id>']`). The issuer is shared by every repository
+    on GitHub, so the condition keeps the others out.
+  - **Binding**: on the pool's page, **Grant access** → **Grant access using service account impersonation**: the
+    service account, **Only identities matching the filter**, attribute name `subject` and the value
+    `repo:<owner>@<owner-id>/<repo>@<repo-id>:environment:calendar-sync` ([the IDs](#github-setup); for this site
+    `repo:oplaner4@38047115/farakurim@1403139652:environment:calendar-sync`). Dismiss the configuration file it offers
+    afterwards: the workflow does not need it. This grants the account's **Workload Identity User**
+    (`roles/iam.workloadIdentityUser`) to the job's subject alone. GitHub's subject carries the owner's and the
+    repository's IDs after the names, so a repository renamed or recreated under the same name does not match, and
+    only a job in the `calendar-sync` environment does.
 
 - **Environment** `calendar-sync`, deployment branches and tags allowing the tags `v*` (a refresh runs on `main` and
   only previews, so it needs `main` too), with the variables `GOOGLE_WORKLOAD_IDENTITY_PROVIDER` (the provider's full
-  name, `projects/<project number>/locations/global/workloadIdentityPools/github/providers/<provider>`) and
+  name, `projects/<project number>/locations/global/workloadIdentityPools/github/providers/github`) and
   `GOOGLE_CALENDAR_SERVICE_ACCOUNT_EMAIL` (the account's address). Neither is a secret. No required reviewers.
 - **Locally**, for the first apply and `pnpm release --local`: impersonate the account with your own login, which
   needs the **Service Account Token Creator** role (`roles/iam.serviceAccountTokenCreator`) on the account, and set
