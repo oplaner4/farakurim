@@ -1,6 +1,71 @@
 {
   "albums": [
     {
+      "id": "misijni-kavarna-2026",
+      "title": "Misijní kavárna",
+      "date": "2026-10-18",
+      "href": "https://www.zonerama.com/FarnostKurim/Album/17124035",
+      "photoCount": 14,
+      "photos": [
+        {
+          "small": "/uploads/fotogalerie/misijni-kavarna-2026/foto-1-800.webp",
+          "large": "/uploads/fotogalerie/misijni-kavarna-2026/foto-1-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/misijni-kavarna-2026/foto-2-800.webp",
+          "large": "/uploads/fotogalerie/misijni-kavarna-2026/foto-2-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/misijni-kavarna-2026/foto-3-800.webp",
+          "large": "/uploads/fotogalerie/misijni-kavarna-2026/foto-3-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/misijni-kavarna-2026/foto-4-800.webp",
+          "large": "/uploads/fotogalerie/misijni-kavarna-2026/foto-4-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/misijni-kavarna-2026/foto-5-800.webp",
+          "large": "/uploads/fotogalerie/misijni-kavarna-2026/foto-5-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/misijni-kavarna-2026/foto-6-800.webp",
+          "large": "/uploads/fotogalerie/misijni-kavarna-2026/foto-6-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/misijni-kavarna-2026/foto-7-800.webp",
+          "large": "/uploads/fotogalerie/misijni-kavarna-2026/foto-7-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/misijni-kavarna-2026/foto-8-800.webp",
+          "large": "/uploads/fotogalerie/misijni-kavarna-2026/foto-8-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/misijni-kavarna-2026/foto-9-800.webp",
+          "large": "/uploads/fotogalerie/misijni-kavarna-2026/foto-9-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/misijni-kavarna-2026/foto-10-800.webp",
+          "large": "/uploads/fotogalerie/misijni-kavarna-2026/foto-10-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/misijni-kavarna-2026/foto-11-800.webp",
+          "large": "/uploads/fotogalerie/misijni-kavarna-2026/foto-11-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/misijni-kavarna-2026/foto-12-800.webp",
+          "large": "/uploads/fotogalerie/misijni-kavarna-2026/foto-12-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/misijni-kavarna-2026/foto-13-800.webp",
+          "large": "/uploads/fotogalerie/misijni-kavarna-2026/foto-13-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/misijni-kavarna-2026/foto-14-800.webp",
+          "large": "/uploads/fotogalerie/misijni-kavarna-2026/foto-14-1600.webp"
+        }
+      ]
+    },
+    {
       "id": "adoracni-den-2026",
       "title": "Adorační den",
       "date": "2026-10-12",
