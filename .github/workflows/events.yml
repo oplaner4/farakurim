@@ -348,7 +348,7 @@ jobs:
         if: steps.changes.outputs.changed == 'true'
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
-          app-id: ${{ vars.CONTENT_APP_ID }}
+          client-id: ${{ vars.CONTENT_APP_CLIENT_ID }}
           private-key: ${{ secrets.CONTENT_APP_PRIVATE_KEY }}
           # Not all of the App's permissions: the push, and opening and locking the PR.
           permission-contents: write

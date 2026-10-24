@@ -194,8 +194,9 @@ one DOCX, or a failed step. A failed step leaves the mail unseen for the next ru
 
 - **GitHub App** (Settings → Developer settings → GitHub Apps), e.g. "Farakurim content": one App for every workflow
   that commits content and opens PRs (a later one for events reuses it), installed on this repository only,
-  repository permissions `contents: write` and `pull-requests: write` (the latter also covers locking the PR). Its ID
-  is the repository variable `CONTENT_APP_ID`; a generated private key is the **repository** secret
+  repository permissions `contents: write` and `pull-requests: write` (the latter also covers locking the PR). Its
+  Client ID (the App's page, `Iv23…`, not the numeric App ID) is the repository variable `CONTENT_APP_CLIENT_ID`; a
+  generated private key is the **repository** secret
   `CONTENT_APP_PRIVATE_KEY`, shared by the sheet workflow and the release (whose `release` job runs in `Production`).
   GitHub never shows a secret again: to replace a lost key, generate a new one in the App (**Private keys**), store it
   in the secret and delete the old key. If `main` has a ruleset or
