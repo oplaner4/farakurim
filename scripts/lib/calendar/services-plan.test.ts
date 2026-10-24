@@ -94,6 +94,15 @@ describe("planServices", () => {
     expect(changes).toEqual([{ kind: "delete", target: later }]);
   });
 
+  it("leaves a service that starts at or before now alone", () => {
+    const early = service("2026-10-24", 8); // 8:00 Prague is 07:00Z, before NOW
+    const stale = written(early, { summary: "Old" });
+    expect(planServices([early], [], NOW)).toEqual({ changes: [], reports: [] });
+    expect(planServices([early], [stale], NOW).changes).toEqual([]);
+    const gone: GoogleEvent = { id: early.googleId, status: "cancelled", start: {}, end: {} };
+    expect(planServices([early], [gone], NOW).changes).toEqual([]);
+  });
+
   it("matches an owned event with another id by date, start and church", () => {
     const e = written(sunday, { id: "claimedbefore", summary: "Mše svatá" });
     const { changes } = planServices([sunday], [e], NOW);

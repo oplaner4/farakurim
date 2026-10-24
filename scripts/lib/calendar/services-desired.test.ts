@@ -125,6 +125,14 @@ describe("desiredServices on a sheet day", () => {
     expect(cancelled.body.end.dateTime).toBe("2026-11-01T10:00:00+01:00");
   });
 
+  it("gives two identical sheet rows one event", () => {
+    const twice = sheet("2026-10-26", "2026-11-01", [
+      { date: "2026-11-01", rows: [mass("8:00"), mass("10:00"), mass("10:00")] },
+    ]);
+    const ids = day("2026-11-01", content({ sheets: [twice] })).map((e) => e.googleId);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
   it("gives a weekday mass and an extra adoration of a sheet no prefix", () => {
     const week = sheet("2026-10-26", "2026-11-01", [
       { date: "2026-10-27", rows: [mass("8:00")] },

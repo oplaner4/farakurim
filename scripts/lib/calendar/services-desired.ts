@@ -72,7 +72,7 @@ const sameSlot = (a: ServiceEntry, b: ServiceEntry) => a.time === b.time && a.pl
 export function desiredServices(content: ServicesContent, range: DateRange): DesiredService[] {
   const { regular, sheets, later, places } = content;
   const exceptions = scheduleExceptions(sheets, later, PLACE_IDS);
-  return periodDates(range.from, range.to).flatMap((date) => {
+  const events = periodDates(range.from, range.to).flatMap((date) => {
     // The newer sheet wins a day two sheets share, as in `scheduleExceptions`.
     const sheetDay = sheets
       .findLast((s) => s.validFrom <= date && date <= s.validTo)
@@ -116,4 +116,6 @@ export function desiredServices(content: ServicesContent, range: DateRange): Des
       } satisfies DesiredService;
     });
   });
+  // Two identical sheet rows would write one Google id twice (a 409).
+  return events.filter((event, index) => events.findIndex((o) => o.googleId === event.googleId) === index);
 }

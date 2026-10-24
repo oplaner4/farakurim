@@ -80,7 +80,7 @@ describe("servicesLines", () => {
     expect(servicesLines(full, false)).toEqual([
       'Bohoslužby, 2026-10-12: claim 17:30 "Modlitba růžence a požehnání" and update its title, description',
       'Bohoslužby, 2026-10-13: delete 18:00 "Mše svatá v Kuřimi"',
-      'Bohoslužby, 2026-10-14: restore 8:00 "Mše svatá v Kuřimi" (deleted by hand)',
+      'Bohoslužby, 2026-10-14: restore 8:00 "Mše svatá v Kuřimi" (it was deleted)',
       'Bohoslužby, 2026-10-18: add 8:00 "Mše svatá v Kuřimi", 9:30 "Mše svatá v Kuřimi"',
       'Bohoslužby, 2026-10-20: update 8:00 "Mše svatá v Kuřimi": time',
       'Bohoslužby, 2026-10-25: 9:00 "Mše svatá v Kuřimi" doubles "Mše svatá v Kuřimi" (repeating): remove it by hand',
@@ -92,7 +92,7 @@ describe("servicesLines", () => {
     expect(servicesLines(full, true, failures)).toEqual([
       'Bohoslužby, 2026-10-12: claimed 17:30 "Modlitba růžence a požehnání" and updated its title, description',
       'Bohoslužby, 2026-10-13: deleted 18:00 "Mše svatá v Kuřimi" — failed: HTTP 403',
-      'Bohoslužby, 2026-10-14: restored 8:00 "Mše svatá v Kuřimi" (deleted by hand)',
+      'Bohoslužby, 2026-10-14: restored 8:00 "Mše svatá v Kuřimi" (it was deleted)',
       'Bohoslužby, 2026-10-18: added 8:00 "Mše svatá v Kuřimi", 9:30 "Mše svatá v Kuřimi"',
       'Bohoslužby, 2026-10-20: updated 8:00 "Mše svatá v Kuřimi": time',
       'Bohoslužby, 2026-10-25: 9:00 "Mše svatá v Kuřimi" doubles "Mše svatá v Kuřimi" (repeating): remove it by hand',

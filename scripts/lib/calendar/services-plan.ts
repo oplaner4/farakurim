@@ -35,7 +35,7 @@ export const isOwned = (event: GoogleEvent): boolean => event.description?.inclu
 
 const isLive = (event: GoogleEvent) => event.status !== "cancelled";
 
-const startOf = (event: GoogleEvent): number => Date.parse(event.start.dateTime ?? "");
+const startOf = (event: { start: { dateTime?: string } }): number => Date.parse(event.start.dateTime ?? "");
 
 /** The place's name and its locative without the preposition: "Kuřim", "Kuřimi". */
 const placeWords = (place: PlaceId): string[] =>
@@ -65,7 +65,9 @@ export function planServices(desired: DesiredService[], instances: GoogleEvent[]
   // An owned event another service owns by its id is never matched by slot.
   const ownedBySlot = live.filter((event) => isOwned(event) && !ids.has(event.id));
   const unmarked = live.filter((event) => !isOwned(event));
-  for (const service of desired) {
+  // A service that has started is not rewritten.
+  const upcoming = desired.filter((service) => startOf(service.body) > now.getTime());
+  for (const service of upcoming) {
     const byId = instances.find((event) => event.id === service.googleId);
     if (byId && !isLive(byId)) {
       used.add(byId.id);
@@ -99,7 +101,7 @@ export function planServices(desired: DesiredService[], instances: GoogleEvent[]
     plan.changes.push({ kind: "add", desired: service });
   }
   // What no service used and still sits at a service's time and church doubles it.
-  for (const service of desired) {
+  for (const service of upcoming) {
     const left = unmarked.filter(
       (event) => !used.has(event.id) && atTime(event, service) && namesPlace(event, service.place),
     );

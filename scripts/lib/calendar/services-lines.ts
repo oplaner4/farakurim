@@ -37,7 +37,7 @@ function changeEntry(change: Exclude<ServicesChange, { kind: "add" }>, apply: bo
     case "restore":
       return {
         date: change.desired.date,
-        text: `${did("restore", "restored")} ${slot(change.desired)} (deleted by hand)`,
+        text: `${did("restore", "restored")} ${slot(change.desired)} (it was deleted)`,
       };
     case "delete": {
       const { date, slot: target } = eventSlot(change.target);
