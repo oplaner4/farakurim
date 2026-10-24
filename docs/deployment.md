@@ -94,7 +94,7 @@ Only a release applies them, after the site is deployed (so every URL it writes 
 The job runs in its own environment `calendar-sync`, never `Production`: the refresh counts the Production deployments
 to find the last deploy. It acts as the service account through **workload identity federation**, so no key is stored
 anywhere: `google-github-actions/auth` writes a credentials file from the job's GitHub OIDC token, which Google trusts
-only from this repository's `calendar-sync` environment, and `pnpm calendar-sync --apply` exchanges it for a
+only from this repository's `calendar-sync` environment, and `pnpm calendar-sync --apply` and `pnpm services-calendar-sync --apply` exchange it for a
 short-lived token of the account. Only this job may ask for the OIDC token (`id-token: write`), so the job that builds
 the site cannot act as the account.
 
@@ -138,12 +138,14 @@ the site cannot act as the account.
   Read the whole list with `pnpm calendar-sync`, then run `pnpm calendar-sync --apply` (or `pnpm release --local`), and
   only then set the repository variable `CALENDAR_SYNC` to `true`. A merged content PR never makes the first apply.
 - **Switch-over of Bohoslužby, once, by hand.** The hand-made repeating events for the regular services must stop, or
-  every service shows twice. In this order: set the repository variable `SERVICES_CALENDAR_SYNC` to `true`; run
-  `pnpm release` by hand and check the preview (about 350 events it adds); release; then in Google Calendar **end**
-  (do not delete) each hand-made repeating event of the masses in Kuřim and Moravské Knínice, "Adorace v Kuřimi" and
-  "Modlitební večer s Komunitou Emmanuel v Kuřimi" on the day before the release, so its past occurrences stay in the
-  Kalendář and in the subscribers' history. Keep "Modlitba chval" and the Křížová cesta. The next preview's duplicate
-  lines show what is left.
+  every service shows twice. In this order: share Bohoslužby with the service account ("Make changes to events"); run
+  `pnpm release --local` by hand and check its preview, which lists the services changes (about 220 events it adds):
+  the yes covers them, and `--local` applies both syncs whatever `SERVICES_CALENDAR_SYNC` says; right after, in Google
+  Calendar **end** (do not delete) each hand-made repeating event of the masses in Kuřim and Moravské Knínice,
+  "Adorace v Kuřimi" and "Modlitební večer s Komunitou Emmanuel v Kuřimi" on the day before the release, so its past
+  occurrences stay in the Kalendář and in the subscribers' history; only then set the repository variable
+  `SERVICES_CALENDAR_SYNC` to `true`. Keep "Modlitba chval" and the Křížová cesta. The next preview's duplicate lines
+  show what is left. A merged content PR never makes the first apply.
 
 ## Service sheet by e-mail
 
