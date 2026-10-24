@@ -156,4 +156,42 @@ describe("planServices", () => {
     const { changes } = planServices([sunday, twin], [e], NOW);
     expect(changes.map((c) => c.kind)).toEqual(["update", "add"]);
   });
+
+  it("reports an unmarked repeating occurrence beside an owned event", () => {
+    const owned = written(sunday);
+    const occurrence = hand("occurrence", 9, { location: "Kuřim", recurringEventId: "series" });
+    expect(planServices([sunday], [owned, occurrence], NOW)).toEqual({
+      changes: [],
+      reports: [{ kind: "duplicate", desired: sunday, events: [occurrence] }],
+    });
+  });
+
+  it("reports an unmarked single event beside a restored one", () => {
+    const gone: GoogleEvent = { id: sunday.googleId, status: "cancelled", start: {}, end: {} };
+    const single = hand("single", 9, { location: "Kuřim" });
+    const plan = planServices([sunday], [gone, single], NOW);
+    expect(plan.changes).toEqual([{ kind: "restore", desired: sunday, target: gone }]);
+    expect(plan.reports).toEqual([{ kind: "duplicate", desired: sunday, events: [single] }]);
+  });
+
+  it("does not take the villages' postal address for Kuřim", () => {
+    const knin = service("2026-10-25", 9, "moravske-kninice");
+    for (const location of [
+      "Kostel svaté Markéty, 386, 664 34 Moravské Knínice-Kuřim, Česko",
+      places.jinacovice.address,
+    ]) {
+      const e = hand("village", 9, { location });
+      expect(planServices([sunday], [e], NOW)).toEqual({ changes: [{ kind: "add", desired: sunday }], reports: [] });
+    }
+    const e = hand("village", 9, { location: "Kostel svaté Markéty, 386, 664 34 Moravské Knínice-Kuřim, Česko" });
+    expect(planServices([knin], [e], NOW).changes[0]).toMatchObject({ kind: "update", claim: true, target: e });
+  });
+
+  it("claims an unmarked event holding the desired id", () => {
+    const e = written(sunday, { description: "Ručně", summary: "Mše" });
+    const { changes } = planServices([sunday], [e], NOW);
+    expect(changes).toHaveLength(1);
+    expect(changes[0]).toMatchObject({ kind: "update", claim: true, target: e });
+    expect(changes[0].kind === "update" && changes[0].fields).toEqual(["summary", "description"]);
+  });
 });

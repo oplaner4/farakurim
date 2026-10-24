@@ -41,10 +41,14 @@ const startOf = (event: GoogleEvent): number => Date.parse(event.start.dateTime 
 const placeWords = (place: PlaceId): string[] =>
   [places[place].name, places[place].locative.replace(/^ve? /, "")].map((word) => word.toLowerCase());
 
-/** Whether the event's location or title names the church. */
+/**
+ * Whether the event's location or title names the church and no other one. The postal suffix "-Kuřim" of the
+ * villages' addresses ("Moravské Knínice-Kuřim") does not name Kuřim.
+ */
 const namesPlace = (event: GoogleEvent, place: PlaceId): boolean => {
-  const text = `${event.location ?? ""} ${event.summary ?? ""}`.toLowerCase();
-  return placeWords(place).some((word) => text.includes(word));
+  const text = `${event.location ?? ""} ${event.summary ?? ""}`.toLowerCase().replaceAll("-kuřim", "");
+  const names = (id: PlaceId) => placeWords(id).some((word) => text.includes(word));
+  return names(place) && (Object.keys(places) as PlaceId[]).every((id) => id === place || !names(id));
 };
 
 const atTime = (event: GoogleEvent, desired: DesiredService): boolean =>
@@ -68,9 +72,10 @@ export function planServices(desired: DesiredService[], instances: GoogleEvent[]
       plan.changes.push({ kind: "restore", desired: service, target: byId });
       continue;
     }
-    if (byId && isOwned(byId)) {
+    // An event with the desired id but no marker is ours too: it is claimed.
+    if (byId) {
       used.add(byId.id);
-      bringInLine(service, byId, false, plan);
+      bringInLine(service, byId, !isOwned(byId), plan);
       continue;
     }
     const sameSlot = ownedBySlot.find(
@@ -92,14 +97,9 @@ export function planServices(desired: DesiredService[], instances: GoogleEvent[]
       continue;
     }
     plan.changes.push({ kind: "add", desired: service });
-    if (nearby.length > 0) plan.reports.push({ kind: "duplicate", desired: service, events: nearby });
   }
-  // A claimed event can double a later service too (a repeating occurrence at its time).
+  // What no service used and still sits at a service's time and church doubles it.
   for (const service of desired) {
-    const claimed = plan.changes.some(
-      (change) => change.kind === "update" && change.claim && change.desired === service,
-    );
-    if (!claimed) continue;
     const left = unmarked.filter(
       (event) => !used.has(event.id) && atTime(event, service) && namesPlace(event, service.place),
     );
