@@ -203,6 +203,9 @@ one DOCX, or a failed step. A failed step leaves the mail unseen for the next ru
   branch protection that restricts pushes, add the App as a bypass actor: the release commit and tag are pushed with
   its token, so that the tag starts `deploy.yml`.
 - **Squash merging** allowed (Settings → General → Pull Requests): the release counts only a PR's squash commit.
+- **Actions policy** allowing `pull_request_target` (Settings → Actions → Policies → Restrict events), scoped to
+  `.github/workflows/content-release.yml`: from 2 December 2026 GitHub blocks the event in public repositories without
+  one, and a merge would no longer release the site.
 - **Claude Console** (Settings → Workload identity → Connect workload → GitHub Actions): an issuer for
   `https://token.actions.githubusercontent.com`, a service account for the pipeline and one federation rule:
   `subject_prefix` exactly `repo:<owner>@<owner-id>/<repo>@<repo-id>:environment:service-sheet-publish` ([the
