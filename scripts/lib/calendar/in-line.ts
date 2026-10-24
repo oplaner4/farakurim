@@ -1,5 +1,5 @@
 import type { GoogleEvent } from "@/lib/calendar/google-calendar";
-import type { GoogleEventBody } from "./desired";
+import type { GoogleEventBody } from "./google-body";
 
 // What "in line" means: the fields of a Google event that differ from what the sync would write. Times compare as
 // instants (Google may answer in another offset than the sync wrote) or as dates for all-day events.

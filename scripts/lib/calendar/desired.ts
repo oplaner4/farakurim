@@ -1,4 +1,4 @@
-import { addMilliseconds, format } from "date-fns";
+import { addMilliseconds } from "date-fns";
 import { SITE_URL } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import type { IsoDate } from "@/content/types/shared";
@@ -6,22 +6,11 @@ import type { GoogleEvent } from "@/lib/calendar/google-calendar";
 import { eventHref } from "@/lib/news/events";
 import { nextDay, utcStamp } from "@/lib/news/ics";
 import { eventEnd, meetingsOf, type Meeting } from "@/lib/news/timing";
-import { inPrague, pragueDateTime } from "@/lib/shared/prague";
+import { pragueDateTime } from "@/lib/shared/prague";
+import { pragueTime, type GoogleEventBody } from "./google-body";
 
 // What the Události calendar should hold for an event record: one Google event per meeting, or one repeating event
 // for a weekly long-term event. The fields mirror the `.ics` of `src/lib/news/ics.ts`.
-
-type GoogleTime = { date?: string; dateTime?: string; timeZone?: string };
-
-/** The fields the sync writes to a Google event. */
-export type GoogleEventBody = {
-  summary: string;
-  location?: string;
-  description: string;
-  start: GoogleTime;
-  end: GoogleTime;
-  recurrence?: string[];
-};
 
 export type DesiredEvent = {
   newsId: string;
@@ -37,7 +26,6 @@ export type DesiredEvent = {
   description: string;
 };
 
-const TIME_ZONE = "Europe/Prague";
 const CANCELLED_PREFIX = "Zrušeno: ";
 
 /** A deterministic Google event id: lowercase hex of `<id>/<key>`, valid in Google's base32hex alphabet. */
@@ -65,11 +53,6 @@ export function desiredEvents(event: NewsEvent, today: IsoDate): DesiredEvent[] 
       };
     });
 }
-
-const pragueTime = (instant: Date): GoogleTime => ({
-  dateTime: format(instant, "yyyy-MM-dd'T'HH:mm:ssxxx", { in: inPrague }),
-  timeZone: TIME_ZONE,
-});
 
 /** The Google event of a desired one; `current` (the event as Google has it) gives the duration to keep. */
 export function eventBody(desired: DesiredEvent, current?: GoogleEvent): GoogleEventBody {
