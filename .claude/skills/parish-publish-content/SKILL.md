@@ -30,7 +30,7 @@ Never stage `uploads/` or `out/`.
 
 Run the `parish-release` skill: `pnpm release` previews the commits, the version and the staged uploads, and after the
 user's yes (which covers the Události and Bohoslužby calendar changes the preview lists, applied by the deploy workflow; never
-run `pnpm calendar-sync --apply` or `pnpm services-calendar-sync --apply` yourself) `pnpm release --yes` uploads them, bumps the version, tags the release and
+run `pnpm calendar-sync --apply` yourself) `pnpm release --yes` uploads them, bumps the version, tags the release and
 pushes `main` with the tag, which is then checked, built, published and verified. If the release fails (a check, or a
 linked upload missing), fix it in a new commit and release again. Do not upload, deploy, tag or push without the
 user's explicit yes. When the user only wants a backup, push `main` without a release.

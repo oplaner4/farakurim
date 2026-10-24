@@ -313,7 +313,7 @@ jobs:
           # Only an exact `blocking: no` opens a ready PR, so a broken report cannot be merged by mistake.
           echo "draft=$([ "$first" = "blocking: no" ] && echo false || echo true)" >> "$GITHUB_OUTPUT"
           echo "message=$message" >> "$GITHUB_OUTPUT"
-          calendar=$(pnpm --silent calendar-sync --problems 2> /dev/null || true)
+          calendar=$(pnpm --silent calendar-sync --calendar events --problems 2> /dev/null || true)
           {
             tail -n +3 "$report"
             echo

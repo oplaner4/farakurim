@@ -2,7 +2,7 @@
 # `pnpm release`: publishes the site. Uploads the new staged files and the scripts in cron-scripts/,
 # bumps the version in package.json, commits and tags it vX.Y.Z and pushes main with the tag; GitHub Actions then
 # checks, builds and deploys out/ (.github/workflows/deploy.yml) and applies the Události and the Bohoslužby calendar
-# syncs (pnpm calendar-sync, pnpm services-calendar-sync). The preview lists the calendar changes with the commits, so
+# syncs (pnpm calendar-sync). The preview lists the calendar changes with the commits, so
 # the yes covers them. With --local it deploys from this machine instead, e.g. when Actions is down: it runs the full
 # check and a production build (with the keys in .env.local), shows what the syncs will change, deploys out/ and
 # verifies the live site, applies the calendar syncs and then tags; the release commit then carries the trailer
@@ -63,11 +63,9 @@ cron=$(scripts/deploy.sh cron --dry-run)
 sed 's/^/  /' <<< "${cron:-(none)}"
 echo
 # The preview exits 1 without the browser key or when Google fails; the release goes on, the sync says why.
-echo "Události calendar (applied after the deploy when CALENDAR_SYNC is on, or by --local):"
+echo "Calendars (Události applied after the deploy when CALENDAR_SYNC is on, Bohoslužby when SERVICES_CALENDAR_SYNC is"
+echo "on, both by --local):"
 pnpm --silent calendar-sync 2>&1 | sed 's/^/  /' || true
-echo
-echo "Bohoslužby calendar (applied after the deploy when SERVICES_CALENDAR_SYNC is on, or by --local):"
-pnpm --silent services-calendar-sync 2>&1 | sed 's/^/  /' || true
 echo
 
 # 3–5 only with --local; without it GitHub Actions checks and builds the tagged commit.
@@ -132,7 +130,6 @@ if $deploy_here; then
   if [ -n "${GOOGLE_CALENDAR_SERVICE_ACCOUNT:-}" ] ||
     grep -q '^GOOGLE_CALENDAR_SERVICE_ACCOUNT=.' .env.local 2>/dev/null; then
     pnpm --silent calendar-sync --apply || echo "warning: the calendar sync failed; the next release catches up." >&2
-    pnpm --silent services-calendar-sync --apply || echo "warning: the Bohoslužby calendar sync failed; the next release catches up." >&2
   else
     echo "The Události and Bohoslužby calendars were not synced: no GOOGLE_CALENDAR_SERVICE_ACCOUNT in the environment or .env.local."
   fi

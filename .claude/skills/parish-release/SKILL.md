@@ -30,8 +30,8 @@ scripts' business (`docs/deployment.md`), not this skill's.
    `cannot pair` line too, as printed: that event's calendar entries stay as they are.
 
    Wait for a clear yes; it publishes the site, and it covers the changes to both calendars (Události and Bohoslužby), which
-   the deploy workflow applies after the deploy. Never run `pnpm calendar-sync --apply` or
-   `pnpm services-calendar-sync --apply` yourself. Without the yes, stop: the commits stay as they
+   the deploy workflow applies after the deploy. Never run `pnpm calendar-sync --apply`
+   yourself. Without the yes, stop: the commits stay as they
    are.
 
 3. **Release:** `pnpm release --yes` (add `--major` only when the user asks). It uploads the new files and the cron

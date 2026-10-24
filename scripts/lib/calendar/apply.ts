@@ -5,6 +5,9 @@ import { ROOT } from "../content-files";
 
 // What the two calendar syncs share to run: the environment file and the write loop.
 
+/** What one run of a calendar sync does: write (`apply`), or preview all its lines or only the `problems`. */
+export type SyncOptions = { apply: boolean; problems: boolean };
+
 /** Loads .env.local into the environment when it exists; a variable already set stays. */
 export function loadEnvLocal() {
   const env = join(ROOT, ".env.local");

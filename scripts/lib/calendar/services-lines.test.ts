@@ -3,7 +3,7 @@ import { places } from "@/content/masses";
 import type { PlaceId } from "@/content/types/services";
 import type { GoogleEvent } from "@/lib/calendar/google-calendar";
 import { SERVICES_URL, serviceEventId, type DesiredService } from "./services-desired";
-import { servicesLines } from "./services-lines";
+import { servicesLines, servicesProblemLines } from "./services-lines";
 import type { ServicesChange, ServicesPlan } from "./services-plan";
 
 const service = (date: string, time: string, summary = "Mše svatá v Kuřimi", place: PlaceId = "kurim") => {
@@ -129,5 +129,12 @@ describe("servicesLines", () => {
 
   it("says there is nothing to do", () => {
     expect(servicesLines(plan([]), false)).toEqual(["Bohoslužby: nothing to do."]);
+  });
+
+  it("gives only the reports as the lines that need a person, and none when there is none", () => {
+    expect(servicesProblemLines(full)).toEqual([
+      'Bohoslužby, 2026-10-25: 9:00 "Mše svatá v Kuřimi" doubles "Mše svatá v Kuřimi" (repeating): remove it by hand',
+    ]);
+    expect(servicesProblemLines(plan([add("2026-10-18", "8:00")]))).toEqual([]);
   });
 });

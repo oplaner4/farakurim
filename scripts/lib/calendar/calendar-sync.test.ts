@@ -1,128 +1,65 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { googlePage } from "@/test/fetch";
 import { execute, parseCommand } from "./calendar-sync";
-import { accessToken, applyChange } from "./write";
+import { syncEvents } from "./events-sync";
+import { syncServices } from "./services-sync";
 
-vi.mock("./write", () => ({ accessToken: vi.fn(), applyChange: vi.fn() }));
-vi.mock("@/content/news", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("@/content/news")>()),
-  readEvents: () => [
-    { id: "a", title: "Alfa", start: "2099-01-05", text: "Text." },
-    { id: "b", title: "Beta", start: "2099-01-06", text: "Text." },
-  ],
-}));
+vi.mock("./events-sync", () => ({ syncEvents: vi.fn() }));
+vi.mock("./services-sync", () => ({ syncServices: vi.fn() }));
 
 afterEach(() => {
-  vi.unstubAllGlobals();
-  vi.unstubAllEnvs();
   vi.clearAllMocks();
-  vi.restoreAllMocks();
+  vi.resetAllMocks();
 });
 
 describe("parseCommand", () => {
-  it("reads --apply, and no flag means a preview", () => {
-    expect(parseCommand(["--apply"])).toEqual({ apply: true, problems: false });
-    expect(parseCommand([])).toEqual({ apply: false, problems: false });
-    expect(parseCommand(["--problems"])).toEqual({ apply: false, problems: true });
+  it("reads both calendars without --calendar, and no flag means a preview", () => {
+    expect(parseCommand([])).toEqual({ calendars: ["events", "services"], apply: false, problems: false });
+    expect(parseCommand(["--apply"])).toEqual({ calendars: ["events", "services"], apply: true, problems: false });
+    expect(parseCommand(["--problems"])).toEqual({ calendars: ["events", "services"], apply: false, problems: true });
   });
 
-  it("throws with the usage for an unknown option, a positional, or --apply with --problems", () => {
-    const usage = "Usage: pnpm calendar-sync [--apply | --problems]";
+  it("reads one calendar with --calendar", () => {
+    expect(parseCommand(["--calendar", "events", "--apply"])).toEqual({
+      calendars: ["events"],
+      apply: true,
+      problems: false,
+    });
+    expect(parseCommand(["--calendar", "services"])).toEqual({
+      calendars: ["services"],
+      apply: false,
+      problems: false,
+    });
+  });
+
+  it("throws with the usage for an unknown option or calendar, a positional, or --apply with --problems", () => {
+    const usage = "Usage: pnpm calendar-sync [--calendar events|services] [--apply | --problems]";
     expect(() => parseCommand(["--aply"])).toThrow(usage);
     expect(() => parseCommand(["x"])).toThrow(usage);
     expect(() => parseCommand(["--apply", "--problems"])).toThrow(usage);
+    expect(() => parseCommand(["--calendar", "bohosluzby"])).toThrow(usage);
+    expect(() => parseCommand(["--calendar"])).toThrow(usage);
   });
 });
 
 describe("execute", () => {
-  it("fails --apply without the service account, before reading anything", async () => {
-    vi.stubEnv("GOOGLE_CALENDAR_SERVICE_ACCOUNT", "");
-    const fetchMock = vi.fn();
-    vi.stubGlobal("fetch", fetchMock);
-    await expect(execute({ apply: true, problems: false })).rejects.toThrow("no GOOGLE_CALENDAR_SERVICE_ACCOUNT");
-    expect(fetchMock).not.toHaveBeenCalled();
+  it("runs the sync of each calendar with the options", async () => {
+    await execute({ calendars: ["events", "services"], apply: true, problems: false });
+    expect(syncEvents).toHaveBeenCalledExactlyOnceWith({ apply: true, problems: false });
+    expect(syncServices).toHaveBeenCalledExactlyOnceWith({ apply: true, problems: false });
   });
 
-  it("previews: says the calendar was not checked without the key, and fails", async () => {
-    vi.stubEnv("NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY", "");
-    const log = vi.spyOn(console, "log").mockImplementation(() => {});
-    await expect(execute({ apply: false, problems: false })).rejects.toThrow(
-      "no NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY in .env.local",
-    );
-    expect(log).toHaveBeenCalledWith("Události: not checked (no NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY in .env.local).");
+  it("runs only the calendar asked for", async () => {
+    await execute({ calendars: ["services"], apply: false, problems: true });
+    expect(syncEvents).not.toHaveBeenCalled();
+    expect(syncServices).toHaveBeenCalledExactlyOnceWith({ apply: false, problems: true });
   });
 
-  it("previews: says the calendar was not checked when Google does not answer, and fails", async () => {
-    vi.stubEnv("NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY", "KEY");
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => googlePage([], 403)),
+  it("goes on to the next calendar after a failed one, then fails with each reason", async () => {
+    vi.mocked(syncEvents).mockRejectedValue(new Error("HTTP 403"));
+    vi.mocked(syncServices).mockRejectedValue(new Error("2 calendar changes failed"));
+    await expect(execute({ calendars: ["events", "services"], apply: true, problems: false })).rejects.toThrow(
+      "HTTP 403; 2 calendar changes failed",
     );
-    const log = vi.spyOn(console, "log").mockImplementation(() => {});
-    await expect(execute({ apply: false, problems: false })).rejects.toThrow("HTTP 403");
-    expect(log).toHaveBeenCalledWith(expect.stringMatching(/^Události: not checked \(.*HTTP 403.*\)\.$/));
-  });
-
-  it("previews the plan of all records", async () => {
-    vi.stubEnv("NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY", "KEY");
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => googlePage([])),
-    );
-    const log = vi.spyOn(console, "log").mockImplementation(() => {});
-    await execute({ apply: false, problems: false });
-    expect(log).toHaveBeenCalledWith(
-      ['Události, 2099-01-05: Would add "Alfa"', 'Události, 2099-01-06: Would add "Beta"'].join("\n"),
-    );
-  });
-
-  it("with --problems prints only what needs a person, and nothing when nothing does", async () => {
-    vi.stubEnv("NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY", "KEY");
-    const log = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => googlePage([])),
-    );
-    await execute({ apply: false, problems: true });
-    expect(log).not.toHaveBeenCalled();
-
-    const alfa = (id: string) => ({ id, summary: "Alfa", start: { date: "2099-01-05" }, end: { date: "2099-01-06" } });
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => googlePage([alfa("x"), alfa("y")])),
-    );
-    await execute({ apply: false, problems: true });
-    expect(log).toHaveBeenCalledExactlyOnceWith(
-      expect.stringMatching(/^Události, 2099-01-05: ask: "Alfa" on 2099-01-05/),
-    );
-  });
-
-  it("with --problems still says the calendar was not checked, and fails", async () => {
-    vi.stubEnv("NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY", "");
-    const log = vi.spyOn(console, "log").mockImplementation(() => {});
-    await expect(execute({ apply: false, problems: true })).rejects.toThrow("no NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY");
-    expect(log).toHaveBeenCalledWith("Události: not checked (no NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY in .env.local).");
-  });
-
-  it("with --apply rereads with the token, goes on after a failed change, and throws when any failed", async () => {
-    vi.stubEnv("GOOGLE_CALENDAR_SERVICE_ACCOUNT", "KEY-JSON");
-    vi.mocked(accessToken).mockResolvedValue("TOKEN");
-    vi.mocked(applyChange).mockRejectedValueOnce(new Error("quota exceeded")).mockResolvedValueOnce(undefined);
-    const fetchMock = vi.fn<typeof globalThis.fetch>(async () => googlePage([]));
-    vi.stubGlobal("fetch", fetchMock);
-    const log = vi.spyOn(console, "log").mockImplementation(() => {});
-
-    await expect(execute({ apply: true, problems: false })).rejects.toThrow("1 calendar changes failed");
-
-    expect(accessToken).toHaveBeenCalledWith("KEY-JSON");
-    expect(fetchMock).toHaveBeenCalled();
-    for (const [, init] of fetchMock.mock.calls) {
-      expect(init?.headers).toEqual({ Authorization: "Bearer TOKEN" });
-    }
-    expect(applyChange).toHaveBeenCalledTimes(2);
-    expect(vi.mocked(applyChange).mock.calls.every(([, token]) => token === "TOKEN")).toBe(true);
-    expect(log).toHaveBeenCalledWith(
-      ['Události, 2099-01-05: Added "Alfa" — failed: quota exceeded', 'Události, 2099-01-06: Added "Beta"'].join("\n"),
-    );
+    expect(syncServices).toHaveBeenCalledOnce();
   });
 });

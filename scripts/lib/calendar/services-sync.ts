@@ -1,26 +1,17 @@
 import { places, regularServices } from "@/content/masses";
 import { parishCalendars } from "@/content/site";
 import { pragueDate } from "@/lib/shared/prague";
-import { errorMessage, parseCommandLine } from "../command";
+import { errorMessage } from "../command";
 import { EXCEPTIONS_FILE, SERVICE_SHEETS_FILE } from "../content-files";
 import { readScheduleExceptions, readServiceSheets } from "../services/add-service-sheet";
-import { applyAll, loadEnvLocal } from "./apply";
+import { applyAll, loadEnvLocal, type SyncOptions } from "./apply";
 import { readInstances, type CalendarAccess } from "./read";
 import { desiredServices, servicesWindow, type ServicesContent } from "./services-desired";
-import { servicesLines } from "./services-lines";
+import { servicesLines, servicesProblemLines } from "./services-lines";
 import { planServices, type ServicesPlan } from "./services-plan";
 import { accessToken, applyServicesChange } from "./write";
 
-const USAGE = "Usage: pnpm services-calendar-sync [--apply]";
-
-type Options = { apply: boolean };
-
-/** Reads the command line `args`: --apply writes to the calendar, else it is a preview; throws with the usage. */
-export function parseCommand(args: string[]): Options {
-  const { values, positionals } = parseCommandLine(args, { apply: { type: "boolean" } } as const, USAGE);
-  if (positionals.length > 0) throw new Error(USAGE);
-  return { apply: values.apply ?? false };
-}
+// The Bohoslužby sync: the services of the Pořad bohoslužeb page against the Bohoslužby calendar.
 
 /** What the Pořad bohoslužeb page is built from: the regular schedule, the service sheets and the later changes. */
 function readContent(): ServicesContent {
@@ -39,10 +30,11 @@ async function planFor(access: CalendarAccess): Promise<ServicesPlan> {
 }
 
 /**
- * Prints the plan, or that the calendar was not checked and why (then it throws, with the reason); with --apply,
- * rereads the calendar with the service account, writes the changes and prints what it did.
+ * Prints the plan (with `problems`, only the lines that need a person, if any), or that the calendar was not checked
+ * and why (then it throws, with the reason); with `apply`, rereads the calendar with the service account, writes the
+ * changes and prints what it did.
  */
-export async function execute({ apply }: Options): Promise<void> {
+export async function syncServices({ apply, problems }: SyncOptions): Promise<void> {
   loadEnvLocal();
   const serviceAccount = process.env.GOOGLE_CALENDAR_SERVICE_ACCOUNT;
   if (apply && !serviceAccount) throw new Error("no GOOGLE_CALENDAR_SERVICE_ACCOUNT");
@@ -59,7 +51,8 @@ export async function execute({ apply }: Options): Promise<void> {
     } catch (error) {
       return unchecked(errorMessage(error));
     }
-    console.log(servicesLines(plan, false).join("\n"));
+    const lines = problems ? servicesProblemLines(plan) : servicesLines(plan, false);
+    if (lines.length > 0) console.log(lines.join("\n"));
     return;
   }
   const token = await accessToken(serviceAccount!);

@@ -66,35 +66,35 @@ tests only) before it builds with the variables above.
 
 ## Calendar sync
 
-Two commands keep the parish's Google Calendars in line with the content; each preview needs only the browser key,
-`--apply` writes and needs the service account:
+`pnpm calendar-sync` (`scripts/calendar-sync.ts`) keeps the parish's Google Calendars in line with the content, both
+or the one `--calendar events|services` names; its preview needs only the browser key, `--apply` writes and needs the
+service account:
 
-- `pnpm calendar-sync` keeps "Události" in line with the event records (`scripts/calendar-sync.ts`);
-- `pnpm services-calendar-sync` keeps "Bohoslužby" in line with the services of the next six months, as the Pořad
-  bohoslužeb page shows them: the regular schedule, the service sheets and the schedule exceptions
-  (`scripts/services-calendar-sync.ts`). It marks its events with the Pořad bohoslužeb URL in the description and
+- `--calendar events` keeps "Události" in line with the event records;
+- `--calendar services` keeps "Bohoslužby" in line with the services of the next six months, as the Pořad
+  bohoslužeb page shows them: the regular schedule, the service sheets and the schedule exceptions. It marks its events with the Pořad bohoslužeb URL in the description and
   touches no event without it, except that it claims a single hand-made event at the same time and church; it
   deletes its own events that no service wants any more. A line that reports a hand-made event doubling a service
   (a possible duplicate) is a warning for a person to remove it.
 
 Only a release applies them, after the site is deployed (so every URL it writes is a live page):
 
-- **`pnpm release`** prints both previews with the commits, so the yes covers both. Without the key, or when Google does
+- **`pnpm release`** prints the preview of both calendars with the commits, so the yes covers both. Without the key, or when Google does
   not answer, it says the calendar was not checked and goes on.
 - **The `calendar` job of `deploy.yml`** runs after `deploy` (and its verify). On a release tag push, with the
-  repository variable `CALENDAR_SYNC` set to `true`, it runs `pnpm calendar-sync --apply`, and with `SERVICES_CALENDAR_SYNC`
-  set to `true`, `pnpm services-calendar-sync --apply`; otherwise (a refresh, or the variable not yet `true`) that
+  repository variable `CALENDAR_SYNC` set to `true`, it runs `pnpm calendar-sync --calendar events --apply`, and with
+  `SERVICES_CALENDAR_SYNC` set to `true`, `pnpm calendar-sync --calendar services --apply`; otherwise (a refresh, or the variable not yet `true`) that
   calendar is only previewed. Either way its lines go into the run summary, and each line that needs a
-  person warns: an `ask:` (the sync cannot tell which Události event is the record's: paste the page URL into the
+  person warns (`--problems`): a hand-made Bohoslužby event doubling a service, an `ask:` (the sync cannot tell which Události event is the record's: paste the page URL into the
   right one's description, or add the event with it) or a `cannot pair` line, as either leaves that event out of
   line until a person acts and the next release runs. A failure ends as a warning too and does not mark the release
   failed: the next release catches up. It skips a `--local` release, which applies the sync itself.
-- **`pnpm release --local`** applies both after its deploy and verify, with the credentials in `.env.local`.
+- **`pnpm release --local`** applies both calendars after its deploy and verify, with the credentials in `.env.local`.
 
 The job runs in its own environment `calendar-sync`, never `Production`: the refresh counts the Production deployments
 to find the last deploy. It acts as the service account through **workload identity federation**, so no key is stored
 anywhere: `google-github-actions/auth` writes a credentials file from the job's GitHub OIDC token, which Google trusts
-only from this repository's `calendar-sync` environment, and `pnpm calendar-sync --apply` and `pnpm services-calendar-sync --apply` exchange it for a
+only from this repository's `calendar-sync` environment, and `pnpm calendar-sync --apply` exchanges it for a
 short-lived token of the account. Only this job may ask for the OIDC token (`id-token: write`), so the job that builds
 the site cannot act as the account.
 
@@ -135,12 +135,12 @@ the site cannot act as the account.
   organisation allows keys; never commit it or print it.
 - **First apply by hand**, before the workflow applies anything: every event that already links a calendar event is
   brought in line on the first apply (titles, times, places and descriptions written by hand change to the records').
-  Read the whole list with `pnpm calendar-sync`, then run `pnpm calendar-sync --apply` (or `pnpm release --local`), and
-  only then set the repository variable `CALENDAR_SYNC` to `true`. A merged content PR never makes the first apply.
+  Read the whole list with `pnpm calendar-sync --calendar events`, then run `pnpm calendar-sync --calendar events
+--apply`, and only then set the repository variable `CALENDAR_SYNC` to `true`. A merged content PR never makes the first apply.
 - **Switch-over of Bohoslužby, once, by hand.** The hand-made repeating events for the regular services must stop, or
   every service shows twice. In this order: share Bohoslužby with the service account ("Make changes to events"); run
   `pnpm release --local` by hand and check its preview, which lists the services changes (about 220 events it adds):
-  the yes covers them, and `--local` applies both syncs whatever `SERVICES_CALENDAR_SYNC` says; right after, in Google
+  the yes covers them, and `--local` applies both calendars whatever `SERVICES_CALENDAR_SYNC` says; right after, in Google
   Calendar **end** (do not delete) each hand-made repeating event of the masses in Kuřim and Moravské Knínice,
   "Adorace v Kuřimi" and "Modlitební večer s Komunitou Emmanuel v Kuřimi" on the day before the release, so its past
   occurrences stay in the Kalendář and in the subscribers' history; only then set the repository variable

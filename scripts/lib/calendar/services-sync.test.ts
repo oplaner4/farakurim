@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { parishCalendars } from "@/content/site";
 import { googlePage } from "@/test/fetch";
-import { execute, parseCommand } from "./services-sync";
+import { syncServices } from "./services-sync";
 import { accessToken, applyServicesChange } from "./write";
 
 vi.mock("./write", () => ({ accessToken: vi.fn(), applyServicesChange: vi.fn() }));
@@ -25,32 +25,21 @@ afterEach(() => {
 // A Saturday: the first Sunday of the window is the next day.
 const freezeAt = (iso: string) => vi.useFakeTimers({ toFake: ["Date"], now: new Date(iso) });
 
-describe("parseCommand", () => {
-  it("reads --apply, and no flag means a preview", () => {
-    expect(parseCommand(["--apply"])).toEqual({ apply: true });
-    expect(parseCommand([])).toEqual({ apply: false });
-  });
-
-  it("throws with the usage for an unknown option or a positional", () => {
-    const usage = "Usage: pnpm services-calendar-sync [--apply]";
-    expect(() => parseCommand(["--aply"])).toThrow(usage);
-    expect(() => parseCommand(["x"])).toThrow(usage);
-  });
-});
-
-describe("execute", () => {
+describe("syncServices", () => {
   it("fails --apply without the service account, before reading anything", async () => {
     vi.stubEnv("GOOGLE_CALENDAR_SERVICE_ACCOUNT", "");
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
-    await expect(execute({ apply: true })).rejects.toThrow("no GOOGLE_CALENDAR_SERVICE_ACCOUNT");
+    await expect(syncServices({ apply: true, problems: false })).rejects.toThrow("no GOOGLE_CALENDAR_SERVICE_ACCOUNT");
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("previews: says the calendar was not checked without the key, and fails", async () => {
     vi.stubEnv("NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY", "");
     const log = vi.spyOn(console, "log").mockImplementation(() => {});
-    await expect(execute({ apply: false })).rejects.toThrow("no NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY in .env.local");
+    await expect(syncServices({ apply: false, problems: false })).rejects.toThrow(
+      "no NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY in .env.local",
+    );
     expect(log).toHaveBeenCalledWith("Bohoslužby: not checked (no NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY in .env.local).");
   });
 
@@ -61,7 +50,7 @@ describe("execute", () => {
       vi.fn(async () => googlePage([], 403)),
     );
     const log = vi.spyOn(console, "log").mockImplementation(() => {});
-    await expect(execute({ apply: false })).rejects.toThrow("HTTP 403");
+    await expect(syncServices({ apply: false, problems: false })).rejects.toThrow("HTTP 403");
     expect(log).toHaveBeenCalledWith(expect.stringMatching(/^Bohoslužby: not checked \(.*HTTP 403.*\)\.$/));
   });
 
@@ -71,7 +60,7 @@ describe("execute", () => {
     const fetchMock = vi.fn(async () => googlePage([]));
     vi.stubGlobal("fetch", fetchMock);
     const log = vi.spyOn(console, "log").mockImplementation(() => {});
-    await execute({ apply: false });
+    await syncServices({ apply: false, problems: false });
     const [printed] = log.mock.calls[0] as [string];
     const lines = printed.split("\n");
     expect(lines[0]).toBe('Bohoslužby, 2026-10-25: add 8:00 "Mše svatá v Kuřimi"');
@@ -82,6 +71,18 @@ describe("execute", () => {
     expect(url.pathname).toContain(encodeURIComponent("hho1ik2s8pu7742kv6eojt0tno@group.calendar.google.com"));
   });
 
+  it("with problems prints nothing when no hand-made event doubles a service", async () => {
+    freezeAt("2026-10-24T10:00:00Z");
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY", "KEY");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => googlePage([])),
+    );
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    await syncServices({ apply: false, problems: true });
+    expect(log).not.toHaveBeenCalled();
+  });
+
   it("applies with the service account's token, reports a failed write and carries on, then fails", async () => {
     freezeAt("2026-10-24T10:00:00Z");
     vi.stubEnv("GOOGLE_CALENDAR_SERVICE_ACCOUNT", "{}");
@@ -90,7 +91,7 @@ describe("execute", () => {
     const fetchMock = vi.fn(async () => googlePage([]));
     vi.stubGlobal("fetch", fetchMock);
     const log = vi.spyOn(console, "log").mockImplementation(() => {});
-    await expect(execute({ apply: true })).rejects.toThrow(/^1 calendar changes failed$/);
+    await expect(syncServices({ apply: true, problems: false })).rejects.toThrow(/^1 calendar changes failed$/);
     const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
     expect(new URL(url).pathname).toContain(encodeURIComponent(parishCalendars.services.googleId));
     expect(init.headers).toMatchObject({ Authorization: "Bearer TOKEN" });

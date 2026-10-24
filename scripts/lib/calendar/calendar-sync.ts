@@ -1,74 +1,53 @@
-import { parishCalendars } from "@/content/site";
-import type { NewsEvent } from "@/content/types/news";
-import { readEvents } from "@/content/news";
-import { pragueDate } from "@/lib/shared/prague";
+import type { CalendarId } from "@/content/types/calendar";
 import { errorMessage, parseCommandLine } from "../command";
-import { NEWS_DIR } from "../content-files";
-import { applyAll, loadEnvLocal } from "./apply";
-import { planLines, problemLines } from "./lines";
-import { planSync, type SyncPlan } from "./plan";
-import { readSnapshot, snapshotRange, type CalendarAccess } from "./read";
-import { accessToken, applyChange } from "./write";
+import type { SyncOptions } from "./apply";
+import { syncEvents } from "./events-sync";
+import { syncServices } from "./services-sync";
 
-const USAGE = "Usage: pnpm calendar-sync [--apply | --problems]";
+// Runs the sync of one parish calendar or of both: Události from the event records, Bohoslužby from the services.
 
-type Options = { apply: boolean; problems: boolean };
+const USAGE = "Usage: pnpm calendar-sync [--calendar events|services] [--apply | --problems]";
+
+const CALENDARS: CalendarId[] = ["events", "services"];
+
+type Options = SyncOptions & { calendars: CalendarId[] };
+
+const SYNCS: Record<CalendarId, (options: SyncOptions) => Promise<void>> = {
+  events: syncEvents,
+  services: syncServices,
+};
 
 /**
- * Reads the command line `args`: --apply writes to the calendar, else it is a preview, of only the lines that need
- * a person with --problems; throws with the usage.
+ * Reads the command line `args`: --calendar picks one calendar (both without it), --apply writes, else it is a
+ * preview, of only the lines that need a person with --problems; throws with the usage.
  */
 export function parseCommand(args: string[]): Options {
-  const options = { apply: { type: "boolean" }, problems: { type: "boolean" } } as const;
+  const options = {
+    calendar: { type: "string" },
+    apply: { type: "boolean" },
+    problems: { type: "boolean" },
+  } as const;
   const { values, positionals } = parseCommandLine(args, options, USAGE);
-  if (positionals.length > 0 || (values.apply && values.problems)) throw new Error(USAGE);
-  return { apply: values.apply ?? false, problems: values.problems ?? false };
-}
-
-/** The plan for `events` read through `access`, as of today in Prague. */
-async function planFor(events: NewsEvent[], access: CalendarAccess): Promise<SyncPlan> {
-  const today = pragueDate(Date.now());
-  return planSync(
-    events,
-    await readSnapshot(access, parishCalendars.events.googleId, snapshotRange(events, today)),
-    today,
-  );
-}
-
-/**
- * Prints the plan of all records (with `problems`, only the lines that need a person, if any), or that the calendar
- * was not checked and why (then it throws, with the reason); with --apply, rereads the calendar with the service
- * account and writes it.
- */
-export async function execute({ apply, problems }: Options): Promise<void> {
-  loadEnvLocal();
-  const serviceAccount = process.env.GOOGLE_CALENDAR_SERVICE_ACCOUNT;
-  if (apply && !serviceAccount) throw new Error("no GOOGLE_CALENDAR_SERVICE_ACCOUNT");
-  const events = readEvents(NEWS_DIR);
-  if (!apply) {
-    const { lines, failure } = await preview(events, problems ? problemLines : (plan) => planLines(plan, false));
-    if (lines.length > 0) console.log(lines.join("\n"));
-    if (failure !== undefined) throw new Error(failure);
-    return;
+  const calendar = values.calendar as CalendarId | undefined;
+  if (positionals.length > 0 || (values.apply && values.problems) || (calendar && !CALENDARS.includes(calendar))) {
+    throw new Error(USAGE);
   }
-  const token = await accessToken(serviceAccount!);
-  const plan = await planFor(events, { token });
-  const failures = await applyAll(plan.changes, (change) => applyChange(change, token));
-  console.log(planLines(plan, true, failures).join("\n"));
-  if (failures.size > 0) throw new Error(`${failures.size} calendar changes failed`);
+  return {
+    calendars: calendar ? [calendar] : CALENDARS,
+    apply: values.apply ?? false,
+    problems: values.problems ?? false,
+  };
 }
 
-/** The lines `toLines` gives for the plan of `events`, or that the calendar was not checked and why. */
-async function preview(
-  events: NewsEvent[],
-  toLines: (plan: SyncPlan) => string[],
-): Promise<{ lines: string[]; failure?: string }> {
-  const unchecked = (failure: string) => ({ lines: [`Události: not checked (${failure}).`], failure });
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY;
-  if (!apiKey) return unchecked("no NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY in .env.local");
-  try {
-    return { lines: toLines(await planFor(events, { apiKey })) };
-  } catch (error) {
-    return unchecked(errorMessage(error));
+/** Runs the sync of each calendar in turn; a failed one does not stop the next, and the run then fails with each reason. */
+export async function execute({ calendars, ...options }: Options): Promise<void> {
+  const failures: string[] = [];
+  for (const calendar of calendars) {
+    try {
+      await SYNCS[calendar](options);
+    } catch (error) {
+      failures.push(errorMessage(error));
+    }
   }
+  if (failures.length > 0) throw new Error(failures.join("; "));
 }

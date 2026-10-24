@@ -99,3 +99,7 @@ export function servicesLines(
   const all = [...lines, ...reports];
   return all.length > 0 ? all : ["Bohoslužby: nothing to do."];
 }
+
+/** The lines of the reports in `plan`, which need a person (a hand-made event doubling a service); none when none. */
+export const servicesProblemLines = (plan: ServicesPlan): string[] =>
+  plan.reports.map(reportEntry).sort(byDate).map(line);
