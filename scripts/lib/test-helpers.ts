@@ -1,6 +1,6 @@
 // Fixtures for the script tests.
 
-import { spawnSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { generateKeyPairSync } from "node:crypto";
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -126,6 +126,25 @@ export function freshTempDir(prefix: string): () => string {
   afterEach(() => rmSync(dir, { recursive: true, force: true }));
   return () => dir;
 }
+
+const TEST_GIT_CONFIG = [
+  "user.name=t",
+  "user.email=t@t",
+  "commit.gpgsign=false",
+  "maintenance.auto=false",
+  "gc.auto=0",
+];
+
+/**
+ * Runs git in `cwd` as a test user and returns its trimmed output. No signing, and no auto maintenance: a commit starts
+ * it detached, and it could still write in .git while freshTempDir() removes the folder (ENOTEMPTY).
+ */
+export const testGit = (cwd: string, ...args: string[]) =>
+  execFileSync("git", [...TEST_GIT_CONFIG.flatMap((setting) => ["-c", setting]), ...args], {
+    cwd,
+    encoding: "utf8",
+    stdio: "pipe",
+  }).trim();
 
 /**
  * A temp news folder holding only `months` (`"<year>/<MM>.json"` → records), fresh for each test; `dir()` is its

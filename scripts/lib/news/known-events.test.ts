@@ -1,9 +1,8 @@
-import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { newsEvent } from "@/test/fixtures";
-import { freshTempDir } from "../test-helpers";
+import { freshTempDir, testGit } from "../test-helpers";
 import {
   eventsAt,
   knownJson,
@@ -66,11 +65,7 @@ describe("pullEvents", () => {
 
 describe("eventsAt", () => {
   const dir = freshTempDir("known-events");
-  const git = (...args: string[]) =>
-    execFileSync("git", ["-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false", ...args], {
-      cwd: dir(),
-      stdio: "pipe",
-    });
+  const git = (...args: string[]) => testGit(dir(), ...args);
 
   it("reads every month file at a ref", () => {
     git("init", "-q");

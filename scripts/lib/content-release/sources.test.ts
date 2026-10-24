@@ -1,8 +1,7 @@
-import { execFileSync } from "node:child_process";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { freshTempDir } from "../test-helpers";
+import { freshTempDir, testGit } from "../test-helpers";
 import { gitHubReader, newUploadLinks, unreleasedCommits, type CommitPull } from "./sources";
 
 const repo = "oplaner4/farakurim";
@@ -83,11 +82,7 @@ describe("gitHubReader", () => {
 
 describe("unreleasedCommits", () => {
   const dir = freshTempDir("content-release");
-  const git = (...args: string[]) =>
-    execFileSync("git", ["-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false", ...args], {
-      cwd: dir(),
-      stdio: "pipe",
-    });
+  const git = (...args: string[]) => testGit(dir(), ...args);
   const commitEmpty = (subject: string) => git("commit", "--allow-empty", "--no-verify", "-q", "-m", subject);
 
   it("lists the commits since the last tag, newest first", () => {
@@ -129,12 +124,7 @@ describe("unreleasedCommits", () => {
 
 describe("newUploadLinks", () => {
   const dir = freshTempDir("content-release-links");
-  const git = (...args: string[]) =>
-    execFileSync("git", ["-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false", ...args], {
-      cwd: dir(),
-      encoding: "utf8",
-      stdio: "pipe",
-    }).trim();
+  const git = (...args: string[]) => testGit(dir(), ...args);
   function month(file: string, links: string[]) {
     const path = join(dir(), "src/content/news", file);
     mkdirSync(join(path, ".."), { recursive: true });
