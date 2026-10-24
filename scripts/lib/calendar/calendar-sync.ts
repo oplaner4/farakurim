@@ -5,18 +5,24 @@ import { readEvents } from "@/content/news";
 import { pragueDate } from "@/lib/shared/prague";
 import { errorMessage, parseCommandLine } from "../command";
 import { NEWS_DIR, ROOT } from "../content-files";
-import { planLines } from "./lines";
+import { planLines, problemLines } from "./lines";
 import { planSync, type Change, type SyncPlan } from "./plan";
 import { readSnapshot, snapshotRange, type CalendarAccess } from "./read";
 import { accessToken, applyChange } from "./write";
 
-const USAGE = "Usage: pnpm calendar-sync [--apply]";
+const USAGE = "Usage: pnpm calendar-sync [--apply | --problems]";
 
-/** Reads the command line `args`: --apply writes to the calendar, else it is a preview; throws with the usage. */
-export function parseCommand(args: string[]): { apply: boolean } {
-  const { values, positionals } = parseCommandLine(args, { apply: { type: "boolean" } }, USAGE);
-  if (positionals.length > 0) throw new Error(USAGE);
-  return { apply: values.apply ?? false };
+type Options = { apply: boolean; problems: boolean };
+
+/**
+ * Reads the command line `args`: --apply writes to the calendar, else it is a preview, of only the lines that need
+ * a person with --problems; throws with the usage.
+ */
+export function parseCommand(args: string[]): Options {
+  const options = { apply: { type: "boolean" }, problems: { type: "boolean" } } as const;
+  const { values, positionals } = parseCommandLine(args, options, USAGE);
+  if (positionals.length > 0 || (values.apply && values.problems)) throw new Error(USAGE);
+  return { apply: values.apply ?? false, problems: values.problems ?? false };
 }
 
 /** Loads .env.local into the environment when it exists; a variable already set stays. */
@@ -32,17 +38,18 @@ async function planFor(events: NewsEvent[], access: CalendarAccess): Promise<Syn
 }
 
 /**
- * Prints the plan of all records, or that the calendar was not checked and why (then it throws, with the reason);
- * with --apply, rereads the calendar with the service account and writes it.
+ * Prints the plan of all records (with `problems`, only the lines that need a person, if any), or that the calendar
+ * was not checked and why (then it throws, with the reason); with --apply, rereads the calendar with the service
+ * account and writes it.
  */
-export async function execute({ apply }: { apply: boolean }): Promise<void> {
+export async function execute({ apply, problems }: Options): Promise<void> {
   loadEnvLocal();
   const serviceAccount = process.env.GOOGLE_CALENDAR_SERVICE_ACCOUNT;
   if (apply && !serviceAccount) throw new Error("no GOOGLE_CALENDAR_SERVICE_ACCOUNT");
   const events = readEvents(NEWS_DIR);
   if (!apply) {
-    const { lines, failure } = await preview(events);
-    console.log(lines.join("\n"));
+    const { lines, failure } = await preview(events, problems ? problemLines : (plan) => planLines(plan, false));
+    if (lines.length > 0) console.log(lines.join("\n"));
     if (failure !== undefined) throw new Error(failure);
     return;
   }
@@ -60,13 +67,16 @@ export async function execute({ apply }: { apply: boolean }): Promise<void> {
   if (failures.size > 0) throw new Error(`${failures.size} calendar changes failed`);
 }
 
-/** The preview lines of the plan for `events`, or that the calendar was not checked and why. */
-async function preview(events: NewsEvent[]): Promise<{ lines: string[]; failure?: string }> {
+/** The lines `toLines` gives for the plan of `events`, or that the calendar was not checked and why. */
+async function preview(
+  events: NewsEvent[],
+  toLines: (plan: SyncPlan) => string[],
+): Promise<{ lines: string[]; failure?: string }> {
   const unchecked = (failure: string) => ({ lines: [`Události: not checked (${failure}).`], failure });
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY;
   if (!apiKey) return unchecked("no NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY in .env.local");
   try {
-    return { lines: planLines(await planFor(events, { apiKey }), false) };
+    return { lines: toLines(await planFor(events, { apiKey })) };
   } catch (error) {
     return unchecked(errorMessage(error));
   }

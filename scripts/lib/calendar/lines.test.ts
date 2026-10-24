@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { NewsEvent } from "@/content/types/news";
 import type { GoogleEvent } from "@/lib/calendar/google-calendar";
 import { desiredEvents, eventBody } from "./desired";
-import { planLines } from "./lines";
+import { planLines, problemLines } from "./lines";
 import type { Change, Report, SyncPlan } from "./plan";
 
 const TODAY = "2026-10-01";
@@ -118,5 +118,23 @@ describe("planLines", () => {
       `${PREFIX}Added "Adorační den kuřimské farnosti" — failed: HTTP 403`,
       `${PREFIX}Updated "Adorace": title, time, description`,
     ]);
+  });
+});
+
+describe("problemLines", () => {
+  it("keeps only the reports that need a person, and is empty without them", () => {
+    const a = google("a", "2026-10-12", "Adorace");
+    const unpaired: Report = { kind: "unpaired", newsId: "adoracni-den-2026", meetings: ["2026-10-19"], events: [a] };
+    const reports: Report[] = [
+      { kind: "ask", desired: item, candidates: [a] },
+      unpaired,
+      { kind: "orphan", path: "/aktuality/x/", event: a },
+      { kind: "deleted", desired: item },
+    ];
+    expect(problemLines(plan([add], reports))).toEqual([
+      expect.stringMatching(/^Události, 2026-10-12: ask: /),
+      expect.stringMatching(/^Události, 2026-10-19: cannot pair /),
+    ]);
+    expect(problemLines(plan([add]))).toEqual([]);
   });
 });

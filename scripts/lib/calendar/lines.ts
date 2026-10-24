@@ -71,3 +71,11 @@ export function planLines(plan: SyncPlan, apply: boolean, failures: Map<Change, 
   ];
   return lines.length > 0 ? lines : ["Události: nothing to do."];
 }
+
+/** The reports that leave a record out of line in the calendar until a person acts. */
+const NEEDS_PERSON = new Set<Report["kind"]>(["ask", "unpaired"]);
+
+/** The lines of the reports in `plan` that need a person; none when nothing does. */
+export function problemLines(plan: SyncPlan): string[] {
+  return plan.reports.filter((report) => NEEDS_PERSON.has(report.kind)).map(reportLine);
+}
