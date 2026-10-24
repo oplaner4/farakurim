@@ -169,8 +169,7 @@ sheets and runs the service sheet tests. A line it prints that asks the user som
 
 ## 5. Publish
 
-Follow **`parish-publish-content`**. Remind the user to mirror changed or cancelled services in the "Mše,
-adorace" Google Calendar, which the Kalendář reads.
+Follow **`parish-publish-content`**. The release brings the "Bohoslužby" calendar in line: its preview lists the changes.
 
 ## Unattended run
 
@@ -224,7 +223,7 @@ Then, per week, oldest first:
 - `### Questions`, one per line: `- **q1** (blocking|note) <where>: <question> — proposal: <proposal>`. A later run
   on the same report keeps the existing ids and marks each question `resolved` or `still open`.
 
-Write no `## Mirror in the calendar` section, and leave out the one a previous report has.
+Write no `## Mirror in the calendar` section (the release keeps the calendar in line), and leave out the one a previous report has (an open PR created before this change can still carry one).
 
 ## Common mistakes
 

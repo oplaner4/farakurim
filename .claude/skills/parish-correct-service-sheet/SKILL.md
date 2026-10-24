@@ -53,8 +53,7 @@ Run the same command without `--check`. It replaces the sheet of the same week a
 
 ## 5. Publish
 
-Follow **`parish-publish-content`**. Remind
-the user to mirror changed or cancelled services in the "Bohoslužby" Google Calendar, which the Kalendář reads.
+Follow **`parish-publish-content`**. The release brings the "Bohoslužby" calendar in line: its preview lists the changes.
 
 ## Unattended run
 

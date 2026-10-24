@@ -37,8 +37,9 @@ site added, or one linked to an event's page, follows its record automatically.
 
 ## Non-goals
 
-- **The "Bohoslužby" calendar.** It stays managed by hand (the regular schedule as repeating events); a sync from the
-  service sheets and schedule exceptions is a later project, built on this one.
+- **The "Bohoslužby" calendar.** It stays managed by hand here; a sync from the regular schedule, the service sheets
+  and schedule exceptions is built on this one in
+  `docs/superpowers/specs/2026-10-24-bohosluzby-calendar-sync-design.md`.
 - **Calendar events without a news page** are never touched: the January events that never get a page, and anything
   else added by hand.
 - **Nothing is deleted** from the calendar: a cancelled event keeps its calendar event with "Zrušeno: " (§16.4); a

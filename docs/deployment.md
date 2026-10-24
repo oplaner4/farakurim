@@ -13,7 +13,7 @@ The site is deployed to the host's web root with rsync over SSH; the host and it
 
 1. shows the commits since the last tag, the next version (minor when a `feat` outside the `content` scope is among
    them, patch otherwise, `--major` on request), the new files in `uploads/` and the changes the
-   [calendar sync](#události-calendar-sync) will make, and asks (the yes covers them);
+   [calendar sync](#calendar-sync) will make, and asks (the yes covers them);
 2. uploads those files into `/uploads/` (they are not in git, so this runs from the machine that staged them);
 3. bumps the version (commit `chore(release): vX.Y.Z` and the tag `vX.Y.Z`) and pushes `main` with the tag.
 
@@ -64,22 +64,32 @@ To refresh now, run the workflow by hand: Actions tab → Deploy → **Run workf
 changes and release commits. The deploy workflow calls it for the tag, so a release runs the same check (with the site's
 tests only) before it builds with the variables above.
 
-## Události calendar sync
+## Calendar sync
 
-`pnpm calendar-sync` keeps the "Události" Google Calendar in line with the event records
-(`scripts/calendar-sync.ts`); its preview needs only the browser key, `--apply` writes and needs the service account.
-Only a release applies it, after the site is deployed (so every URL it writes is a live page):
+Two commands keep the parish's Google Calendars in line with the content; each preview needs only the browser key,
+`--apply` writes and needs the service account:
 
-- **`pnpm release`** prints the preview with the commits, so the yes covers it. Without the key, or when Google does
+- `pnpm calendar-sync` keeps "Události" in line with the event records (`scripts/calendar-sync.ts`);
+- `pnpm services-calendar-sync` keeps "Bohoslužby" in line with the services of the next six months, as the Pořad
+  bohoslužeb page shows them: the regular schedule, the service sheets and the schedule exceptions
+  (`scripts/services-calendar-sync.ts`). It marks its events with the Pořad bohoslužeb URL in the description and
+  touches no event without it, except that it claims a single hand-made event at the same time and church; it
+  deletes its own events that no service wants any more. A line that reports a hand-made event doubling a service
+  (a possible duplicate) is a warning for a person to remove it.
+
+Only a release applies them, after the site is deployed (so every URL it writes is a live page):
+
+- **`pnpm release`** prints both previews with the commits, so the yes covers both. Without the key, or when Google does
   not answer, it says the calendar was not checked and goes on.
 - **The `calendar` job of `deploy.yml`** runs after `deploy` (and its verify). On a release tag push, with the
-  repository variable `CALENDAR_SYNC` set to `true`, it runs `pnpm calendar-sync --apply`; otherwise (a refresh, or the
-  variable not yet `true`) it only previews. Either way its lines go into the run summary, and each line that needs a
+  repository variable `CALENDAR_SYNC` set to `true`, it runs `pnpm calendar-sync --apply`, and with `SERVICES_CALENDAR_SYNC`
+  set to `true`, `pnpm services-calendar-sync --apply`; otherwise (a refresh, or the variable not yet `true`) that
+  calendar is only previewed. Either way its lines go into the run summary, and each line that needs a
   person warns: an `ask:` (the sync cannot tell which Události event is the record's: paste the page URL into the
   right one's description, or add the event with it) or a `cannot pair` line, as either leaves that event out of
   line until a person acts and the next release runs. A failure ends as a warning too and does not mark the release
   failed: the next release catches up. It skips a `--local` release, which applies the sync itself.
-- **`pnpm release --local`** applies it after its deploy and verify, with the credentials in `.env.local`.
+- **`pnpm release --local`** applies both after its deploy and verify, with the credentials in `.env.local`.
 
 The job runs in its own environment `calendar-sync`, never `Production`: the refresh counts the Production deployments
 to find the last deploy. It acts as the service account through **workload identity federation**, so no key is stored
@@ -91,8 +101,8 @@ the site cannot act as the account.
 ### Setup (once)
 
 - **Service account**, by the maintainer: create it in the Google Cloud project that holds the browser key, with no
-  roles in the project and no key. Share Události (owned by the parish's personal Gmail account) with the service
-  account's e-mail address with the permission "Make changes to events". Enable the **IAM Service Account Credentials
+  roles in the project and no key. Share Události and Bohoslužby (owned by the parish's personal Gmail account) with
+  the service account's e-mail address with the permission "Make changes to events". Enable the **IAM Service Account Credentials
   API** and the **Security Token Service API** in the project.
 - **Workload identity pool**, in the same project (IAM → Workload Identity Federation), shared by every repository of
   the owner: the pool and its provider trust the owner, the service account's binding picks the repository and its
@@ -127,6 +137,13 @@ the site cannot act as the account.
   brought in line on the first apply (titles, times, places and descriptions written by hand change to the records').
   Read the whole list with `pnpm calendar-sync`, then run `pnpm calendar-sync --apply` (or `pnpm release --local`), and
   only then set the repository variable `CALENDAR_SYNC` to `true`. A merged content PR never makes the first apply.
+- **Switch-over of Bohoslužby, once, by hand.** The hand-made repeating events for the regular services must stop, or
+  every service shows twice. In this order: set the repository variable `SERVICES_CALENDAR_SYNC` to `true`; run
+  `pnpm release` by hand and check the preview (about 350 events it adds); release; then in Google Calendar **end**
+  (do not delete) each hand-made repeating event of the masses in Kuřim and Moravské Knínice, "Adorace v Kuřimi" and
+  "Modlitební večer s Komunitou Emmanuel v Kuřimi" on the day before the release, so its past occurrences stay in the
+  Kalendář and in the subscribers' history. Keep "Modlitba chval" and the Křížová cesta. The next preview's duplicate
+  lines show what is left.
 
 ## Service sheet by e-mail
 
@@ -236,7 +253,7 @@ signature. `.github/workflows/events.yml`
    …: make it with `parish-correct-event` or `parish-cancel-event`) and a **duplicate** of a known event;
 4. tests and builds the new events, commits them as the GitHub App's bot and opens **one PR per mail** on a branch
    `events/<date>`, its body the report (only what is published is quoted: the PR is public), locked, a draft when
-   the report has a blocking question. Its body ends with the [calendar sync](#události-calendar-sync) preview's lines
+   the report has a blocking question. Its body ends with the [calendar sync](#calendar-sync) preview's lines
    that need a person (an `ask:` or `cannot pair` line, or that the calendar was not checked), so the reviewer can fix
    Události before the merge releases the site. It refuses an id an open events PR already holds (`pnpm event-mail
 check-ids`). The staged files go into the artifact `content-uploads-<sha>`;

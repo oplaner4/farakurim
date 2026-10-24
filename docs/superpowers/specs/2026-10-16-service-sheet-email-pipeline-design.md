@@ -33,7 +33,8 @@ the gain is that the work becomes a short review that can be done anywhere.
   maintainer gets every outcome through GitHub and talks to the parish themselves, as today.
 - No corrections from e-mail text without a document ("v pátek mše nebude"): the parish sends the updated DOCX, or the
   maintainer makes the change.
-- No changes to the Google Calendars: the PR lists what to mirror, the maintainer does it.
+- No changes to the Google Calendars: the PR lists what to mirror, the maintainer does it. (Superseded: the release
+  now keeps the Bohoslužby calendar in line, see `docs/superpowers/specs/2026-10-24-bohosluzby-calendar-sync-design.md`.)
 - No schedule exceptions (`parish-create-exception`), events or other content through this pipeline.
 - No PDF sources: the pipeline reads the DOCX only (the PDF path stays local).
 

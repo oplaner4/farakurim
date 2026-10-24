@@ -48,8 +48,8 @@ cp .env.local.example .env.local
   event records. The key ends up in the published JavaScript, so restrict it in Google Cloud to the
   `farakurim.cz` referrer and the Google Calendar API.
 - **`GOOGLE_CALENDAR_SERVICE_ACCOUNT`**: the credentials (a JSON text or the path of its file) that act as the Google
-  service account `pnpm calendar-sync --apply` writes to the Události calendar as; the maintainer shares the calendar
-  with its address ("Make changes to events"). Locally, rather than a key, impersonate the account with your own login
+  service account `pnpm calendar-sync --apply` and `pnpm services-calendar-sync --apply` write to the Události and
+  Bohoslužby calendars as; the maintainer shares both calendars with its address ("Make changes to events"). Locally, rather than a key, impersonate the account with your own login
   (it needs the "Service Account Token Creator" role on the account), into a folder of its own so it leaves your other
   Google credentials alone:
 
@@ -114,6 +114,7 @@ Content tooling, used by the content skills (see [Content](#content)):
 | `pnpm pin-event <id> \| --none [--check]`                            | Pin an event for "Doporučujeme" and unpin every other one (`--none`: unpin all); a pinned new record moves the pin itself                                                                                                  |
 | `pnpm event-poster <id> "<label>" \| --none [--check]`               | Make an attachment of the event its poster (rendering `<file>-poster.webp`), or remove the poster                                                                                                                          |
 | `pnpm calendar-sync [--apply \| --problems]`                         | Preview (no flag) or apply the changes that bring the Události calendar in line with the event records; never deletes an event. `--problems` previews only what needs a person                                             |
+| `pnpm services-calendar-sync [--apply]`                              | Preview (no flag) or apply the changes that bring the Bohoslužby calendar in line with the services of the next six months (the regular schedule, the service sheets, the exceptions); deletes only its own events         |
 | `pnpm add-exception <record.json> \| --remove <date> [--check]`      | Add a change announced for a day no service sheet covers to `schedule-exceptions.json` (`--remove`: take it out)                                                                                                           |
 | `pnpm add-album <album-url> [--photos <zip>] [--write \| --check …]` | Propose a Zonerama album with photos from its zip (downloaded, or `--photos`) as JSON; `--write` stages the photos, adds it to `gallery.json` and removes the oldest beyond 6, `--check` only says what `--write` would do |
 
