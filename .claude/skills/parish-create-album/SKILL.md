@@ -5,11 +5,8 @@ description: Add a photo album to the Fotogalerie of the new farakurim.cz site f
 
 # Create a gallery album
 
-The site serves the album's photos from `/uploads/fotogalerie/<id>/`: `pnpm add-album --write` resizes the chosen
-photos from the album's zip (four widths each) and stages them in `uploads/`, and the release uploads them. The
-command downloads the zip itself, as the album's "Stáhnout" dialog does (without videos), and keeps it until `--write`
-adds the album. Photos are never downloaded one by one: Zonerama answers a script with a "Bot Detected" image.
-Finish with **`parish-publish-content`**.
+`pnpm add-album` reads the album and, with `--write`, adds it and stages its photos for the release. Finish with
+**`parish-publish-content`**.
 
 ## 1. Check the URL
 
@@ -31,10 +28,8 @@ album on Zonerama with "Stáhnout", usually to `~/Downloads/<YYYY_MM_DD> <title>
 
 It prints JSON with the proposed `id` (ASCII kebab-case from the title with the year, usually at the end: `medovy-den-2026`,
 so next year's album never takes over this one's links and photo folder; the site refuses an id without it), the title (sentence case, without
-Zonerama's `YYYY_MM_DD` prefix), the date from that prefix, and the photo counts. It picks up to 15 photos of the
-zip's most common landscape aspect ratio, in file-name order, because the strips crop every photo to 4:3: one shape
-keeps the crops consistent, and portraits would lose most of the picture. `total` / `inRatio` / `photos` say how many
-photos the zip has, how many fit and how many it takes.
+Zonerama's `YYYY_MM_DD` prefix), the date from that prefix, and the photo counts: `total` / `inRatio` / `photos` say
+how many photos the zip has, how many fit the album's ratio and how many it takes (up to 15).
 
 The title and the date come from the album page. When Zonerama does not answer, the command says so and takes them
 from the zip's name, which has no diacritics: fix the title with the user. If there is no date prefix, `date` is
@@ -54,10 +49,8 @@ pnpm add-album "<album URL>" --write --title "<title>" --date <YYYY-MM-DD> --id 
 ```
 
 Pass the confirmed values (each only when it differs from the JSON), and `--photos "<zip>"` if step 2 used it. It
-reuses the zip step 2 downloaded and removes it once the album is added. It stages the photos in
-`uploads/fotogalerie/<id>/`, adds the album, removes the oldest albums beyond the site's limit (they stay on Zonerama,
-their files on the server) and prints each one it removed, then runs the gallery test. It refuses an id or album
-already on the site, an id without the album's year (`--id` must keep it, e.g. `vranov-2026`), an album older than
+prints each older album it removed to stay within the site's limit (they stay on Zonerama): tell the user. It refuses
+an id or album already on the site, an id without the album's year (`--id` must keep it, e.g. `vranov-2026`), an album older than
 all the kept ones, and an id whose folder is already on the server (the server's files are never overwritten): pass
 another `--id`.
 
