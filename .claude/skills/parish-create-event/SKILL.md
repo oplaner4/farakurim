@@ -123,12 +123,12 @@ The output of step 5a or 5b means (5b stages nothing):
 
 - An error (a bad field, a taken `id`, a pin on an event that has already ended): nothing was staged. Fix
   `record.json` and run the same command again.
-- The `Události …` lines (the event in the Google Calendar the Kalendář reads): show them to the user as printed;
-  they say what the release will do (add the event, link an existing one by its page URL, update it). Only an `ask:`
-  line needs the user, with two ways out: paste the page URL into the description of the Události event that is this
-  one, or, when none of them is, add the event in Události by hand with the page URL in its description (the page's
-  "Přidat do kalendáře" file can be imported once the release is out). Until then nothing changes. Otherwise there is
-  no `.ics` to import and nothing to rename or move by hand.
+- The `Události …` lines (the event in the Google Calendar the Kalendář reads): the release applies them, and its
+  preview shows them to the user. Only an `ask:` line needs the user now: give it to them with its two ways out:
+  paste the page URL into the description of the Události event that is this one, or, when none of them is, add the
+  event in Události by hand with the page URL in its description (the page's "Přidat do kalendáře" file can be
+  imported once the release is out). Until then nothing changes. Otherwise there is nothing to do in the calendar by
+  hand.
 
 ## 6. Publish
 

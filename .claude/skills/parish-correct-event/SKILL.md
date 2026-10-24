@@ -67,12 +67,11 @@ Wait for the user's yes or corrections to these before replacing or staging anyt
 
 ## 5. Replace
 
-Run the step 3 command without `--check`. Show the user the Události lines it prints as printed: they say what the
-release will do to the Události calendar (update the linked event's title, time or place, move it to a new date).
-Only an `ask:` line needs the user, with two ways out: paste the page URL into the description of the Události event
-that is this one, or, when none of them is, add the event in Události by hand with the page URL in its description
-(the page's "Přidat do kalendáře" file can be imported once the release is out). Until then nothing changes. There is
-nothing else to change in the calendar by hand and no `pnpm event-calendar` to re-run.
+Run the step 3 command without `--check`. The Události lines it prints are applied by the release, whose preview
+shows them to the user. Only an `ask:` line needs the user now: give it to them with its two ways out: paste the page
+URL into the description of the Události event that is this one, or, when none of them is, add the event in Události
+by hand with the page URL in its description (the page's "Přidat do kalendáře" file can be imported once the release
+is out). Until then nothing changes. Otherwise there is nothing to do in the calendar by hand.
 
 ## 6. Publish
 
