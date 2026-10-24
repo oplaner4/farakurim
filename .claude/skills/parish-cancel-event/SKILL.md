@@ -5,7 +5,7 @@ description: Cancel or postpone an event (an "aktualita") already on the new far
 
 # Cancel or postpone an event
 
-The record stays, as people may have saved, shared or imported it (design/DESIGN.md §11.9): its `change` (or
+The record stays, as people may have saved, shared or imported it: its `change` (or
 `cancelledMeetings`) makes the site show the status itself, on the cards, the detail page, the calendars and in the
 `.ics`. It goes in with `pnpm replace-event`, like every corrected record.
 

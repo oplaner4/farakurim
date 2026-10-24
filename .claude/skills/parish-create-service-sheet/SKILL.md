@@ -187,8 +187,8 @@ adorace" Google Calendar, which the Kalendář reads.
 
 ## Unattended run
 
-Only when the prompt says the run is **unattended** (the daily workflow gives the parish's DOCX and a report file);
-a local run follows steps 1 to 5 as written. An unattended run follows them too, with these changes:
+Only when the prompt says the run is **unattended**; a local run follows steps 1 to 5 as written. An unattended run
+follows them too, with these changes:
 
 - It handles the DOCX's **newest week only**. When `--draft` does not say the week is already there: steps 1 to 4
   as written (`Outcome: created`). When it does (never open `service-sheets.json` to check): it is a **correction**,
@@ -211,7 +211,7 @@ a local run follows steps 1 to 5 as written. An unattended run follows them too,
   error) is not staged: its `Outcome:` line carries the script's message.
 - Skip step 3's `--check` run: step 4 validates the record first and stages nothing when it refuses, so fix
   `record.json` and run it again.
-- Skip step 5: no `parish-publish-content`, no commit, no release. The workflow commits and opens the PR.
+- Skip step 5: no `parish-publish-content`, no commit, no release.
 - A question whose answer changes what is published (an unreadable row, placeholder dots, a doubtful cancellation) is
   **blocking**; the run still stages its best reading. For placeholder dots that is the record with the document's
   text, without the dots: never publish them. Any other question is a note.
@@ -223,10 +223,9 @@ blocking: yes|no
 commit: <message>
 ```
 
-`blocking: yes` when any open question of the report is blocking. `commit:` covers every week in the PR (it is also
-the PR's title, and the squash commit on `main`). One week: the message `parish-publish-content` prescribes,
-`feat(content): publish the service sheet for 19.–25. 10. 2026` for a new week, or
-`fix(content): correct the service sheet for …` for a correction. Several weeks:
+`blocking: yes` when any open question of the report is blocking. `commit:` covers every week in the PR. One week:
+the message `parish-publish-content` prescribes, `feat(content): publish the service sheet for 19.–25. 10. 2026`
+for a new week, or `fix(content): correct the service sheet for …` for a correction. Several weeks:
 `<type>(content): publish the service sheets for 19.–25. 10. and 26. 10.–1. 11. 2026` (with only corrections:
 `correct the service sheets for …`); the type is `feat` if any week was created, else `fix`.
 
@@ -234,15 +233,12 @@ Then, per week, oldest first:
 
 - `## <week>` (e.g. `## 19.–25. 10. 2026`);
 - one line `Outcome: created`, `Outcome: corrected`, `Outcome: refused: <message>` or
-  `Outcome: document error: <message>` (the script's message as printed). The workflow fails the run on any
-  `refused` or `document error`;
-- the announcements with categories and each `newsId` with its event's title and date (not the rows: the workflow
-  appends them to the PR as `## Mirror in the calendar`);
+  `Outcome: document error: <message>` (the script's message as printed);
+- the announcements with categories and each `newsId` with its event's title and date (not the rows);
 - `### Questions`, one per line: `- **q1** (blocking|note) <where>: <question> — proposal: <proposal>`. A later run
   on the same report keeps the existing ids and marks each question `resolved` or `still open`.
 
-Write no `## Mirror in the calendar` section, and leave out the one a previous report has: the workflow builds it
-from the sheets (`pnpm sheet-mirror`) and appends it to the PR.
+Write no `## Mirror in the calendar` section, and leave out the one a previous report has.
 
 ## Common mistakes
 

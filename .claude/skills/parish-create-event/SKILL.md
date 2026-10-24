@@ -7,7 +7,6 @@ description: Add a new event (an "aktualita") to the new farakurim.cz site from 
 
 Read the source, extract one event, confirm it with the user, add it (with its files, if it has any, staged by
 `pnpm stage event`), then finish with **`parish-publish-content`**.
-The fields and how they are shown are specified in `design/DESIGN.md` §11.7 and §13.4.
 
 ## 1. Read the source
 
@@ -128,8 +127,8 @@ Follow **`parish-publish-content`** (commit, upload and push). The release bring
 
 ## Unattended run
 
-Only when the prompt says the run is **unattended** (the events workflow gives a mailed event, a known-events file and
-a report file); a local run follows steps 1 to 6 as written. An unattended run follows them too, with these changes:
+Only when the prompt says the run is **unattended**; a local run follows steps 1 to 6 as written. An unattended run
+follows them too, with these changes:
 
 - **The source** is the prompt's mail folder: `subject.txt`, `body.txt` (the mail's new text) and `attachments/`. One
   mail may hold several events. Group the attachments into events, each attachment in exactly one group or dropped:
@@ -160,7 +159,7 @@ a report file); a local run follows steps 1 to 6 as written. An unattended run f
   or 5b checks everything first and stages nothing when it refuses, so fix `record.json` and run it again.
 - Write the report first, then stage, then fill in each event's `Outcome:` line from what the script did, and add any
   line it printed for the user (an unpinned event) to the report. A script refusal is `refused: <its message>`.
-- Skip step 6: no `parish-publish-content`, no commit, no release. The workflow commits and opens the PR.
+- Skip step 6: no `parish-publish-content`, no commit, no release.
 
 **The report** is English, with site content quoted in Czech, and starts with exactly these two lines:
 
@@ -169,12 +168,11 @@ blocking: yes|no
 commit: <message>
 ```
 
-`blocking: yes` when any question is blocking (its answer changes what is published). `commit:` is the PR's title
-and the squash commit on `main`: `feat(content): add the <title> event` for one event created,
-`feat(content): add <n> events` for several.
+`blocking: yes` when any question is blocking (its answer changes what is published). `commit:` is
+`feat(content): add the <title> event` for one event created, `feat(content): add <n> events` for several.
 
 Then, per event, in the mail's order (a mail with no event in it, such as a thank-you with a logo, has no event
-section: the workflow refuses it):
+section):
 
 - `## <title>` (as published);
 - one line `Outcome: created` or `Outcome: refused: <reason>` (a correction: `refused: a correction of <id>; make it

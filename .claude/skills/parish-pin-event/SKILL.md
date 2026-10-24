@@ -5,7 +5,7 @@ description: Change the "Doporučujeme" (recommended, pinned) event on the Aktua
 
 # Pin an event
 
-"Doporučujeme" is the panel at the top of the Aktuality page (`design/DESIGN.md` §11): it shows the one pinned event
+"Doporučujeme" is the panel at the top of the Aktuality page: it shows the one pinned event
 until it ends, and none when nothing is pinned. At most one record is pinned (`src/content/news/news.test.ts`),
 so `pnpm pin-event` is the only way to change it: it unpins every other record itself. Never edit `pinned` in a
 month file by hand.
