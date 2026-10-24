@@ -1,4 +1,4 @@
-import { addMinutes, addMonths, eachDayOfInterval } from "date-fns";
+import { addMinutes, addMonths } from "date-fns";
 import { SITE_URL, links } from "@/content/site";
 import { PLACE_IDS } from "@/content/types/services";
 import type {
@@ -12,7 +12,7 @@ import type {
 import type { ClockTime, IsoDate } from "@/content/types/shared";
 import type { DateRange } from "@/lib/calendar/agenda";
 import { servicesOnDate } from "@/lib/services/masses";
-import { isChangedMass, scheduleExceptions } from "@/lib/services/service-sheet";
+import { isChangedMass, periodDates, scheduleExceptions } from "@/lib/services/service-sheet";
 import { clockMinutes } from "@/lib/shared/clock";
 import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
 import { pragueTime, type GoogleEventBody } from "./google-body";
@@ -62,29 +62,24 @@ export const serviceEventId = (date: IsoDate, time: ClockTime, place: PlaceId, t
 /** From today to six months ahead, in Prague. */
 export const servicesWindow = (today: IsoDate): DateRange => ({
   from: today,
-  to: pragueDate(addMonths(pragueDateTime(today, "12:00"), WINDOW_MONTHS)),
+  to: pragueDate(addMonths(pragueDateTime(today, "12:00"), WINDOW_MONTHS, { in: inPrague })),
 });
 
-const sameService = (a: ServiceEntry, b: ServiceEntry) =>
-  a.time === b.time && a.place === b.place && a.title === b.title;
+/** A regular service is kept when the day has a service at its time and place, whatever its title. */
+const sameSlot = (a: ServiceEntry, b: ServiceEntry) => a.time === b.time && a.place === b.place;
 
 /** The desired services of every date of `range`, by date and time, with the cancelled regular ones among them. */
 export function desiredServices(content: ServicesContent, range: DateRange): DesiredService[] {
   const { regular, sheets, later, places } = content;
   const exceptions = scheduleExceptions(sheets, later, PLACE_IDS);
-  const dates = eachDayOfInterval(
-    { start: pragueDateTime(range.from, "12:00"), end: pragueDateTime(range.to, "12:00") },
-    { in: inPrague },
-  ).map((day) => pragueDate(day));
-  return dates.flatMap((date) => {
+  return periodDates(range.from, range.to).flatMap((date) => {
     // The newer sheet wins a day two sheets share, as in `scheduleExceptions`.
     const sheetDay = sheets
       .findLast((s) => s.validFrom <= date && date <= s.validTo)
       ?.days.find((d) => d.date === date);
     const planned = servicesOnDate(date, { regular, exceptions });
-    const dropped = servicesOnDate(date, { regular, exceptions: [] }).filter(
-      (s) => !planned.some((p) => sameService(p, s)),
-    );
+    const regularDay = servicesOnDate(date, { regular, exceptions: [] });
+    const dropped = regularDay.filter((s) => !planned.some((p) => sameSlot(p, s)));
     const all = [
       ...planned.map((service) => ({ service, cancelled: false })),
       ...dropped.map((service) => ({ service, cancelled: true })),
@@ -102,7 +97,9 @@ export function desiredServices(content: ServicesContent, range: DateRange): Des
       const nextAt = next && pragueDateTime(date, next.service.time);
       const defaultEnd = addMinutes(startAt, DEFAULT_MINUTES);
       const church = places[place];
-      const lines = [sheetDay?.feast, service.note, STATUS_LINES[status]].filter((line): line is string => !!line);
+      // A sheet's services carry no note, so a kept one takes the note of the regular service in its slot.
+      const note = service.note ?? regularDay.find((r) => sameSlot(r, service))?.note;
+      const lines = [sheetDay?.feast, note, STATUS_LINES[status]].filter((line): line is string => !!line);
       return {
         googleId: serviceEventId(date, time, place, title),
         date,

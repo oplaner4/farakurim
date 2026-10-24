@@ -183,11 +183,52 @@ describe("desiredServices on a sheet day", () => {
         rows: [mass("8:00"), mass("15:00", "tisnov"), { time: "14:00", place: "kurim", title: "Pohřeb" }],
       },
     ]);
-    expect(day("2026-11-01", content({ sheets: [week] })).map((e) => e.time)).toEqual(["8:00", "9:30", "11:00"]);
+    const events = day("2026-11-01", content({ sheets: [week] }));
+    expect(events.map((e) => e.body.summary)).toEqual([
+      "Mše svatá v Kuřimi",
+      "Zrušeno: Mše svatá v Kuřimi",
+      "Zrušeno: Mše svatá v Moravských Knínicích",
+    ]);
+    expect(events.map((e) => e.status)).toEqual(["regular", "cancelled", "cancelled"]);
+  });
+});
+
+describe("desiredServices on a sheet day with a titled service", () => {
+  it("does not cancel a regular service whose slot a differently titled service takes", () => {
+    const week = sheet("2026-10-26", "2026-11-01", [
+      {
+        date: "2026-10-29",
+        rows: [
+          { time: "17:30", place: "kurim", title: "Adorace (adorační den farnosti)", service: true },
+          mass("18:00"),
+        ],
+      },
+    ]);
+    const events = day("2026-10-29", content({ sheets: [week] }));
+    expect(events.map((e) => e.body.summary)).toEqual([
+      "Adorace (adorační den farnosti) v Kuřimi",
+      "Mše svatá v Kuřimi",
+    ]);
+    expect(events.map((e) => e.status)).toEqual(["regular", "regular"]);
+  });
+
+  it("gives a kept service the note of the regular one in its slot", () => {
+    const week = sheet("2026-11-01", "2026-11-01", [
+      { date: "2026-11-01", rows: [mass("8:00"), mass("9:30"), mass("11:00", "moravske-kninice")] },
+    ]);
+    const events = day("2026-11-01", content({ sheets: [week] }));
+    expect(events[1].body.description).toContain("s katechezí pro děti (ve školním roce)");
+    expect(events[0].body.description).not.toContain("katechezí");
   });
 });
 
 describe("desiredServices on a day of a schedule exception", () => {
+  it("marks a mass of an exception at a non-regular time as a change", () => {
+    const later: ScheduleException[] = [{ date: "2026-11-08", services: [{ time: "10:00", place: "kurim" }] }];
+    const events = day("2026-11-08", content({ later }));
+    expect(events.find((e) => e.time === "10:00")?.body.summary).toBe("Změna: Mše svatá v Kuřimi");
+  });
+
   it("cancels the regular services a hand exception drops", () => {
     const later: ScheduleException[] = [{ date: "2026-11-08", services: [{ time: "8:00", place: "kurim" }] }];
     const events = day("2026-11-08", content({ later }));
