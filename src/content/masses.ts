@@ -1,5 +1,6 @@
 import type { ParishChapel, ParishChurch } from "@/content/types/contacts";
 import type { Intentions, Place, PlaceId, RegularService } from "@/content/types/services";
+import type { YearlyBreak } from "@/content/types/shared";
 
 // The parish's churches and its regular weekly schedule. Edit here when the schedule changes; the current service sheets
 // (`content/service-sheets.json`) override it day by day.
@@ -70,6 +71,8 @@ export const parishChurches: ParishChurch[] = [
   },
 ];
 
+const summerBreak: YearlyBreak = { from: "07-01", to: "08-31" };
+
 /**
  * Regular weekly schedule (source: /porad_bohosluzeb/). First-Friday and first-Saturday variants use `rule`;
  * the days of the service sheets (`content/service-sheets.json`) and the changes announced for later
@@ -81,12 +84,20 @@ export const regularServices: RegularService[] = [
   { weekday: 4, time: "18:00", place: "kurim" },
   { weekday: 5, time: "16:45", place: "kurim", rule: "not-first-in-month" },
   { weekday: 5, time: "18:15", place: "kurim", rule: "first-in-month" },
-  { weekday: 5, time: "19:00", place: "kurim", title: "Modlitební večer", rule: "first-in-month" },
+  {
+    weekday: 5,
+    time: "19:00",
+    place: "kurim",
+    title: "Modlitební večer",
+    rule: "first-in-month",
+    note: "mimo letní prázdniny",
+    closed: summerBreak,
+  },
   { weekday: 5, time: "17:00", place: "moravske-kninice", rule: "first-in-month" },
   { weekday: 5, time: "18:00", place: "moravske-kninice", rule: "not-first-in-month" },
   { weekday: 6, time: "8:00", place: "kurim", rule: "first-in-month" },
   { weekday: 0, time: "8:00", place: "kurim" },
-  { weekday: 0, time: "9:30", place: "kurim", note: "s katechezí pro děti (ve školním roce)" },
+  { weekday: 0, time: "9:30", place: "kurim", note: "s katechezí pro děti (ve školním roce)", closed: summerBreak },
   { weekday: 0, time: "11:00", place: "moravske-kninice" },
 ];
 

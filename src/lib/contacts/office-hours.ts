@@ -1,16 +1,14 @@
 import { addDays } from "date-fns";
 import type { OfficeHours } from "@/content/types/contacts";
 import type { IsoDate } from "@/content/types/shared";
+import { inYearlyBreak } from "@/lib/shared/yearly-break";
 import { inPrague, pragueDate, pragueDateTime, pragueWeekday } from "@/lib/shared/prague";
 
 /** Whether a slot applies on a date: its weekday, outside its yearly break (which may wrap over New Year). */
 export function officeHoursApply(slot: OfficeHours, date: IsoDate): boolean {
   if (pragueWeekday(date) !== slot.weekday) return false;
   if (!slot.closed) return true;
-  const day = date.slice(5);
-  const { from, to } = slot.closed;
-  const inBreak = from <= to ? day >= from && day <= to : day >= from || day <= to;
-  return !inBreak;
+  return !inYearlyBreak(date, slot.closed);
 }
 
 const shiftDate = (date: IsoDate, days: number) =>

@@ -1,5 +1,5 @@
 import type { ChurchColor } from "./services";
-import type { ClockTime, MonthDay, Weekday } from "./shared";
+import type { ClockTime, Weekday, YearlyBreak } from "./shared";
 
 // Kontakty (masses.ts, site.ts): the churches and chapels and the office hours.
 
@@ -35,5 +35,5 @@ export type OfficeHours = {
   to: ClockTime;
   note?: string;
   /** Yearly break, e.g. the summer holidays: the slot does not apply from `from` to `to` (inclusive). */
-  closed?: { from: MonthDay; to: MonthDay };
+  closed?: YearlyBreak;
 };

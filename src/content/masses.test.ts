@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { parishChurches, places, regularServices } from "./masses";
 import { parish } from "./site";
-import { isClock } from "@/test/content-checks";
+import { isClock, isMonthDay } from "@/test/content-checks";
 
 describe("Pravidelné bohoslužby (masses.ts)", () => {
   it("has a valid regular schedule", () => {
@@ -10,6 +10,7 @@ describe("Pravidelné bohoslužby (masses.ts)", () => {
       expect(s.weekday).toBeLessThanOrEqual(6);
       expect(isClock(s.time), s.time).toBe(true);
       expect(Object.hasOwn(places, s.place), s.place).toBe(true);
+      if (s.closed) expect(isMonthDay(s.closed.from) && isMonthDay(s.closed.to), s.time).toBe(true);
     }
   });
 

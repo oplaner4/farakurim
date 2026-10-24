@@ -1,4 +1,4 @@
-import type { ClockTime, IsoDate, Weekday } from "./shared";
+import type { ClockTime, IsoDate, Weekday, YearlyBreak } from "./shared";
 
 // Services (masses.ts, service-sheets.json, schedule-exceptions.json): the parish churches, the weekly schedule,
 // the service sheets and the changes announced for later.
@@ -43,6 +43,8 @@ export type RegularService = ServiceEntry & {
   weekday: Weekday;
   /** Defaults to `every`. */
   rule?: ServiceRule;
+  /** Yearly break, e.g. the summer holidays: the service does not take place from `from` to `to` (inclusive). */
+  closed?: YearlyBreak;
 };
 
 /**

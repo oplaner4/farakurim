@@ -4,6 +4,7 @@ import type { ClockTime, IsoDate, Weekday } from "@/content/types/shared";
 import { capitalize, formatShortDate, plural, relativeDayName, WEEKDAY_NAMES, weekdayName } from "@/lib/shared/czech";
 import { clockMinutes } from "@/lib/shared/clock";
 import { inPrague, pragueDate, pragueDateTime, pragueWeekday } from "@/lib/shared/prague";
+import { inYearlyBreak } from "@/lib/shared/yearly-break";
 
 export type UpcomingService = {
   date: IsoDate;
@@ -40,7 +41,9 @@ export function servicesOnDate(date: IsoDate, source: ScheduleSource): ServiceEn
   const weekday = pragueWeekday(date);
   const firstInMonth = Number(date.slice(8, 10)) <= 7;
   return source.regular
-    .filter((s) => s.weekday === weekday && ruleApplies(s.rule, firstInMonth))
+    .filter(
+      (s) => s.weekday === weekday && ruleApplies(s.rule, firstInMonth) && !(s.closed && inYearlyBreak(date, s.closed)),
+    )
     .map(({ time, place, title, note }) => ({ time, place, ...(title && { title }), ...(note && { note }) }))
     .sort((a, b) => clockMinutes(a.time) - clockMinutes(b.time));
 }

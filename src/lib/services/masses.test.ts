@@ -62,6 +62,14 @@ describe("servicesOnDate", () => {
   it("cancels the day when the exception has no services", () => {
     expect(servicesOnDate("2026-10-12", source)).toEqual([]);
   });
+
+  it("leaves out a regular service in the days of its yearly break", () => {
+    const regular = [{ weekday: 0, time: "9:30", place: "kurim", closed: { from: "07-01", to: "08-31" } } as const];
+    expect(servicesOnDate("2026-07-05", { regular: [...regular], exceptions: [] })).toEqual([]);
+    expect(servicesOnDate("2026-09-06", { regular: [...regular], exceptions: [] })).toEqual([
+      { time: "9:30", place: "kurim" },
+    ]);
+  });
 });
 
 describe("upcomingServices", () => {
