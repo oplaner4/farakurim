@@ -3,7 +3,7 @@ import { dkimSigned, fakeDkimResolver as resolver, mailMessage as message } from
 import { EVENT_SENDERS, judgeSender, SHEET_SENDERS } from "./senders";
 
 const parish = "fara.kurim@seznam.cz";
-const webmaster = "oplaner4@seznam.cz";
+const webmaster = "oplaner4@gmail.com";
 const milan = "milancisar@centrum.cz";
 const signed = (from: string, domain: string, headers: string[] = []) =>
   dkimSigned(message({ from, files: ["a.pdf"], headers }), domain);
@@ -11,8 +11,11 @@ const signed = (from: string, domain: string, headers: string[] = []) =>
 describe("judgeSender", () => {
   it("accepts the shared senders for both workflows", async () => {
     for (const senders of [SHEET_SENDERS, EVENT_SENDERS]) {
-      for (const from of [parish, webmaster]) {
-        expect(await judgeSender(await signed(from, "seznam.cz"), senders, { resolver })).toEqual({
+      for (const [from, domain] of [
+        [parish, "seznam.cz"],
+        [webmaster, "gmail.com"],
+      ]) {
+        expect(await judgeSender(await signed(from, domain), senders, { resolver })).toEqual({
           kind: "accepted",
           author: from,
         });
@@ -26,8 +29,8 @@ describe("judgeSender", () => {
     expect(await judgeSender(raw, SHEET_SENDERS, { resolver })).toEqual({ kind: "rejected", reason: "sender" });
   });
 
-  it("refuses the webmaster's former gmail.com address", async () => {
-    const raw = await signed("oplaner4@gmail.com", "gmail.com");
+  it("refuses the webmaster's seznam.cz address", async () => {
+    const raw = await signed("oplaner4@seznam.cz", "seznam.cz");
     expect(await judgeSender(raw, SHEET_SENDERS, { resolver })).toEqual({ kind: "rejected", reason: "sender" });
   });
 

@@ -11,7 +11,7 @@ export type Senders = Readonly<Record<string, string>>;
 /** The senders of every content workflow: the parish's own address and the webmaster's. */
 export const SHARED_SENDERS: Senders = {
   "fara.kurim@seznam.cz": "seznam.cz",
-  "oplaner4@seznam.cz": "seznam.cz",
+  "oplaner4@gmail.com": "gmail.com",
 };
 
 export const SHEET_SENDERS: Senders = SHARED_SENDERS;
