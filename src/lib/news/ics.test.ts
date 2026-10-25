@@ -15,7 +15,8 @@ describe("eventCalendar", () => {
   it("writes a timed event in UTC from Prague wall-clock time", () => {
     const out = lines(eventCalendar(newsEvent({ startTime: "9:30" }), URL));
     expect(out).toContain("DTSTART:20261018T073000Z");
-    expect(out.some((l) => l.startsWith("DTEND"))).toBe(false);
+    // Without an end time: one hour.
+    expect(out).toContain("DTEND:20261018T083000Z");
     expect(out).toContain("SUMMARY:Hody v České");
     expect(out).toContain("LOCATION:Česká\\, náves");
     expect(out).toContain(`URL:${URL}`);
@@ -28,7 +29,6 @@ describe("eventCalendar", () => {
     expect(out).toContain("DTSTART:20261101T170000Z");
     expect(out).toContain("DTEND:20261101T193000Z");
   });
-
   it("makes multi-day events and events without a start time all-day, ending the day after", () => {
     const out = lines(eventCalendar(newsEvent({ start: "2026-10-02", end: "2026-10-04", startTime: "9:30" }), URL));
     expect(out).toContain("DTSTART;VALUE=DATE:20261002");

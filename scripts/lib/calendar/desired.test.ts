@@ -104,9 +104,15 @@ describe("eventBody", () => {
     expect(body.start).toEqual({ dateTime: "2026-10-01T18:30:00+02:00", timeZone: "Europe/Prague" });
   });
 
-  it("ends a meeting without an end time at its start, or keeps the duration of the current event", () => {
+  it("gives a meeting without an end time one hour, or keeps the duration of the current event", () => {
     const meeting = timed("2026-06-13", "14:00");
-    expect(eventBody(meeting).end.dateTime).toBe("2026-06-13T14:00:00+02:00");
+    expect(eventBody(meeting).end.dateTime).toBe("2026-06-13T15:00:00+02:00");
+    const zero: GoogleEvent = {
+      id: "x",
+      start: { dateTime: "2026-06-13T14:00:00+02:00" },
+      end: { dateTime: "2026-06-13T14:00:00+02:00" },
+    };
+    expect(eventBody(meeting, zero).end.dateTime).toBe("2026-06-13T15:00:00+02:00");
     const current: GoogleEvent = {
       id: "x",
       start: { dateTime: "2026-06-13T13:00:00+02:00" },
@@ -114,6 +120,6 @@ describe("eventBody", () => {
     };
     expect(eventBody(meeting, current).end.dateTime).toBe("2026-06-13T16:00:00+02:00");
     const allDay: GoogleEvent = { id: "x", start: { date: "2026-06-13" }, end: { date: "2026-06-14" } };
-    expect(eventBody(meeting, allDay).end.dateTime).toBe("2026-06-13T14:00:00+02:00");
+    expect(eventBody(meeting, allDay).end.dateTime).toBe("2026-06-13T15:00:00+02:00");
   });
 });

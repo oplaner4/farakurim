@@ -4,7 +4,7 @@ import type { NewsEvent } from "@/content/types/news";
 import type { IsoDate } from "@/content/types/shared";
 import type { GoogleEvent } from "@/lib/calendar/google-calendar";
 import { eventHref } from "@/lib/news/events";
-import { nextDay, utcStamp } from "@/lib/news/ics";
+import { DEFAULT_DURATION, nextDay, utcStamp } from "@/lib/news/ics";
 import { eventEnd, meetingsOf, type Meeting } from "@/lib/news/timing";
 import { pragueDateTime } from "@/lib/shared/prague";
 import { pragueTime, type GoogleEventBody } from "./google-body";
@@ -67,7 +67,8 @@ export function eventBody(desired: DesiredEvent, current?: GoogleEvent): GoogleE
   const currentStart = current?.start.dateTime;
   const currentEnd = current?.end.dateTime;
   const kept = currentStart && currentEnd ? new Date(currentEnd).getTime() - new Date(currentStart).getTime() : 0;
-  const endAt = endTime ? pragueDateTime(start, endTime) : addMilliseconds(startAt, kept);
+  // Without an end time: the length set in Google, or the default for an event that has none (new, all-day, 0 min).
+  const endAt = endTime ? pragueDateTime(start, endTime) : addMilliseconds(startAt, kept || DEFAULT_DURATION);
   return {
     ...body,
     start: pragueTime(startAt),

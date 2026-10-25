@@ -10,6 +10,9 @@ import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
 // "Přidat do kalendáře" (design/DESIGN.md §13.2): one .ics file per event, generated at build time.
 // Times are Prague wall-clock and written in UTC, so no VTIMEZONE block is needed.
 
+/** The length a calendar gives a start time without an end time (as Google gives a new event); the site shows none. */
+export const DEFAULT_DURATION = 60 * 60 * 1000;
+
 const dateArray = (date: IsoDate) => date.split("-").map(Number) as DateArray;
 export const nextDay = (date: IsoDate) => pragueDate(addDays(pragueDateTime(date, "12:00"), 1, { in: inPrague }));
 export const utcStamp = (instant: Date) => format(instant, "yyyyMMdd'T'HHmmss'Z'", { in: tz("UTC") });
@@ -19,10 +22,11 @@ type Timing = Pick<EventAttributes, "start" | "startInputType" | "recurrenceRule
 /** A single day with a start time is timed; anything longer, or without one, is all-day. */
 function timing({ start, end, startTime, endTime }: Meeting): Timing {
   if (startTime && end === start) {
+    const startAt = pragueDateTime(start, startTime).getTime();
     return {
-      start: pragueDateTime(start, startTime).getTime(),
+      start: startAt,
       startInputType: "utc",
-      end: endTime ? pragueDateTime(start, endTime).getTime() : undefined,
+      end: endTime ? pragueDateTime(start, endTime).getTime() : startAt + DEFAULT_DURATION,
     };
   }
   return { start: dateArray(start), end: dateArray(nextDay(end)) };
