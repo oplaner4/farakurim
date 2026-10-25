@@ -5,16 +5,18 @@ e-mail and the server. An agent releases with the `parish-release` skill; the ru
 `CLAUDE.md` § Deployment.
 
 The site is deployed to the host's web root with rsync over SSH; the host and its provider-specific setup are in
-[hosting.md](hosting.md).
+[hosting.md](hosting.md). Uploaded files are served under `UPLOADS_PATH` (`src/lib/shared/uploads.ts`, e.g.
+`/uploads/`) and staged in the repo's folder of the same name; `scripts/deploy.sh` takes its server folder from it.
 
 ## Release
 
 `pnpm release` (`scripts/release.sh`, from a clean `main` that is not behind `origin`):
 
 1. shows the commits since the last tag, the next version (minor when a `feat` outside the `content` scope is among
-   them, patch otherwise, `--major` on request), the new files in `uploads/` and the changes the
+   them, patch otherwise, `--major` on request), the new files staged in `UPLOADS_PATH` and the changes the
    [calendar sync](#calendar-sync) will make, and asks (the yes covers them);
-2. uploads those files into `/uploads/` (they are not in git, so this runs from the machine that staged them);
+2. uploads those files into `UPLOADS_PATH` on the server (they are not in git, so this runs from the machine that
+   staged them);
 3. bumps the version (commit `chore(release): vX.Y.Z` and the tag `vX.Y.Z`) and pushes `main` with the tag.
 
 The tag starts `.github/workflows/deploy.yml`, which checks and builds the tagged commit, deploys `out/` and then
@@ -24,7 +26,7 @@ release is fixed in a new commit and released again; a pushed tag is never moved
 **`pnpm release --local`** deploys from this machine instead, e.g. when GitHub Actions is down. It needs `.env.local`
 with all three keys ([README § Keys](../README.md#keys-in-envlocal-optional)). It runs the full check (with the site's
 tests only: the content tooling's tests in `scripts/` guard nothing in `out/`) and a release build, shows what the sync
-will add, change and delete, and after the yes uploads the new files, checks that every linked `/uploads/…` file is on
+will add, change and delete, and after the yes uploads the new files, checks that every linked `UPLOADS_PATH` file is on
 the server, syncs `out/` and verifies the live site before it tags. Its release commit carries the trailer
 `Release-Deploy: local`, so the workflow does not deploy that tag again. After the verify it applies the calendar sync
 when `GOOGLE_CALENDAR_SERVICE_ACCOUNT` is set in the environment or in `.env.local` (a failure only warns), and
@@ -52,7 +54,7 @@ To refresh now, run the workflow by hand: Actions tab → Deploy → **Run workf
   (`gh api repos/<owner>/<repo> --jq '"\(.owner.id) \(.id)"'`). This site's: `oplaner4/farakurim`, owner ID
   `38047115`, repository ID `1403139652`.
 - **`Production` environment**: the secret `DEPLOY_SSH_KEY`, `DEPLOY_KNOWN_HOSTS` (secret or variable) and optionally
-  the variable `CHECK_UPLOADS=false`, which skips the check that every `/uploads/…` file the build links is on the
+  the variable `CHECK_UPLOADS=false`, which skips the check that every `UPLOADS_PATH` file the build links is on the
   server.
 - **Its deployment branches and tags** must allow the tags `v*` (releases) **and the branch `main`**: the scheduled and
   manual refreshes run on `main`, and without it GitHub rejects their `deploy` job ("Branch "main" is not allowed to
@@ -308,16 +310,16 @@ run starts while mail remains; after the merge the content release publishes the
 ## Content release
 
 `.github/workflows/content-release.yml` releases the site when you squash-merge a content PR: a `service-sheet/*` PR of
-the [service sheet workflow](#service-sheet-by-e-mail) or an `events/*` PR of the [events workflow](#events-by-e-mail). It runs on
-`pull_request_target: closed`, so your own pushes to `main` and `pnpm release` never start it; `pnpm content-release`
-plans it. Every merged content PR since the last tag goes out in one release, in merge order: the release downloads
-the artifact `content-uploads-<sha>` of every commit of each PR, oldest first, and `pnpm content-release apply`
-copies them into `uploads/` (a later correction overwrites an earlier file of the same path). It first checks each
-file: a regular file of a type the site links, under its PR's folder (`porady_bohosluzeb/` for a sheet, `aktuality/`
-for events); one wrong file stops the release before anything is uploaded. Then it runs `pnpm release --yes` with the
-App token, waits for the deploy, comments "Released in vX.Y.Z" with the PR's page and deletes its branch. The PR's
-conversation is locked, and not even the App may comment on a locked one, so each comment unlocks it and locks it
-again; once the deploy is green, a comment that fails only warns.
+the [service sheet workflow](#service-sheet-by-e-mail) or an `events/*` PR of the [events workflow](#events-by-e-mail).
+It runs on `pull_request_target: closed`, so your own pushes to `main` and `pnpm release` never start it; `pnpm
+content-release` plans it. Every merged content PR since the last tag goes out in one release, in merge order: the
+release downloads the artifact `content-uploads-<sha>` of every commit of each PR, oldest first, and `pnpm
+content-release apply` copies them into the staged `UPLOADS_PATH` (a later correction overwrites an earlier file of the
+same path). It first checks each file: a regular file of a type the site links, under its PR's folder
+(`porady_bohosluzeb/` for a sheet, `aktuality/` for events); one wrong file stops the release before anything is
+uploaded. Then it runs `pnpm release --yes` with the App token, waits for the deploy, comments "Released in vX.Y.Z" with
+the PR's page and deletes its branch. The PR's conversation is locked, and not even the App may comment on a locked one,
+so each comment unlocks it and locks it again; once the deploy is green, a comment that fails only warns.
 
 Other unreleased commits on `main` go out with the PRs, except those only a release by hand may publish:
 
@@ -343,9 +345,9 @@ commit, against the files the artifacts staged. One limit: a file you stage agai
 artifact holds (the same unreleased poster corrected twice) goes out in the artifact's version; fix the text, or close
 the PR and send the mail again.
 
-Then release by hand, below (with your corrected files staged in `uploads/` for a commit of your own). Only artifacts
-of runs on this repository's `main` count, never one a fork's pull request run uploaded under the same name. A merge
-that lands while the release runs goes out with it.
+Then release by hand, below (with your corrected files staged in `UPLOADS_PATH` for a commit of your own). Only
+artifacts of runs on this repository's `main` count, never one a fork's pull request run uploaded under the same name. A
+merge that lands while the release runs goes out with it.
 
 **Releasing by hand:** plan the release on your machine, download the artifacts the plan names and let `apply` check
 and stage them, then release. The plan takes only artifacts of runs on `main` (never a fork's of the same name), and
@@ -389,7 +391,7 @@ key (`DEPLOY_SSH_KEY`, `DEPLOY_KNOWN_HOSTS`, [GitHub setup](#github-setup)), not
 
 ### What the sync keeps
 
-- The sync deletes files that are no longer in `out/`, except four folders that live only on the server: `/uploads/`,
+- The sync deletes files that are no longer in `out/`, except four folders that live only on the server: `UPLOADS_PATH`,
   `/nahrane/` (the old site's uploads), `/virtualni_prohlidka/` (the old site's virtual tour) and `/cache/` (the last
   vira.cz verse).
 - Old `_next/static/` chunks stay 30 days, so a page opened before a release still loads the chunks it asks for later.

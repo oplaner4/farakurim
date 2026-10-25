@@ -140,7 +140,7 @@ fonts-source/        Original Oxygen TTFs and their OFL licence (input for `pnpm
 .claude/             Claude Code project skills (content, release, commit, design) and rules by topic
 .agents/skills/      Third-party agent skills (see License), pinned in skills-lock.json
 docs/                Conventions, deployment, and design specs and plans of larger features
-uploads/             Uploaded files (posters, PDFs, Petrklíč, group and camp photos) staged for the server; git-ignored
+uploads/             Uploaded files staged for the server: the folder UPLOADS_PATH names (here /uploads/); git-ignored
 ```
 
 Where code goes and the conventions per topic (styling tokens, accessibility, dates and "now" in a static build,
@@ -175,10 +175,10 @@ events mailbox, and a workflow opens one pull request per mail with its new even
 reviews and merges. Corrections are refused there and made with the skills. Setup and use:
 [docs/deployment.md](docs/deployment.md#events-by-e-mail).
 
-Uploaded files (posters, PDFs, photos) are not in git: they are staged in a configurable git-ignored folder that
-mirrors the one on the server and linked root-relative; `pnpm pull-uploads` downloads the server's files you lack.
-The old site's uploads in `/nahrane/` stay on the server so old links keep working, but new content never links or
-adds to them.
+Uploaded files (posters, PDFs, photos) are not in git: they are staged in the git-ignored folder `UPLOADS_PATH` names
+(`src/lib/shared/uploads.ts`, e.g. `/uploads/`), which mirrors the one on the server, and linked root-relative;
+`pnpm pull-uploads` downloads the server's files you lack. The old site's uploads in `/nahrane/` stay on the server so
+old links keep working, but new content never links or adds to them.
 
 ## Deployment
 
