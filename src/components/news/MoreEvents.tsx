@@ -4,17 +4,19 @@ import type { NewsEvent } from "@/content/types/news";
 import { links } from "@/content/site";
 import type { DateBlock } from "@/lib/shared/czech";
 import { otherEvents } from "@/lib/news/events";
+import type { EventTiming } from "@/lib/news/timing";
 import { useToday } from "@/hooks/use-now";
 import { ChevronLeftIcon } from "@/components/ui/icons/navigation-icons";
 import { ArrowLink } from "@/components/ui/ArrowLink";
 
 /** What a card needs; the page passes only these fields to the client. */
-export type MoreEventItem = Pick<NewsEvent, "id" | "title" | "start" | "end" | "place" | "longTerm"> & {
-  /** "18:00–20:30" (`formatTimes()`). */
-  time?: string;
-  href: string;
-  date: DateBlock;
-};
+export type MoreEventItem = Pick<NewsEvent, "id" | "title" | "place"> &
+  EventTiming & {
+    /** "18:00–20:30" (`formatTimes()`). */
+    time?: string;
+    href: string;
+    date: DateBlock;
+  };
 
 const LIMIT = 3;
 

@@ -23,6 +23,22 @@ describe("currentNews", () => {
   it("keeps a single-day item on its own day", () => {
     expect(ids(currentNews(events, "2026-10-07", 5))).toEqual(["soon", "pinned", "later"]);
   });
+
+  it("sorts a series by its next meeting and events of one day by their start time", () => {
+    const list = [
+      event("series", "2026-10-11", "2026-11-22", {
+        startTime: "18:00",
+        sessions: ["2026-10-11", "2026-10-25", "2026-11-08", "2026-11-22"],
+      }),
+      event("morning", "2026-10-25", undefined, { startTime: "9:30" }),
+      event("between", "2026-11-01"),
+      event("dropped", "2026-10-11", "2026-11-22", {
+        sessions: ["2026-10-11", "2026-10-25", "2026-11-22"],
+        cancelledMeetings: { dates: ["2026-10-25"] },
+      }),
+    ];
+    expect(ids(currentNews(list, "2026-10-25", 5))).toEqual(["morning", "series", "between", "dropped"]);
+  });
 });
 
 describe("featuredEvent", () => {

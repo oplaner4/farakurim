@@ -34,6 +34,10 @@ const moreItems: MoreEventItem[] = events
     time: formatTimes(e),
     place: e.place,
     longTerm: e.longTerm,
+    // The next meeting orders the list.
+    startTime: e.startTime,
+    sessions: e.sessions,
+    cancelledMeetings: e.cancelledMeetings,
     href: eventHref(e),
     date: eventDateBlock(e),
   }));

@@ -4,7 +4,16 @@ import type { NewsEvent, TagColor } from "@/content/types/news";
 import type { IsoDate } from "@/content/types/shared";
 import { formatShortDate } from "@/lib/shared/czech";
 import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
-import { EVENT_STATUS_LABEL, eventEnd, eventProgress, isCancelled, isPast, progressLabel } from "./timing";
+import {
+  EVENT_STATUS_LABEL,
+  eventEnd,
+  eventProgress,
+  type EventTiming,
+  isCancelled,
+  isPast,
+  meetingsOf,
+  progressLabel,
+} from "./timing";
 
 // The Aktuality list: its filters, groups and card badges, and the links to an event's pages (design/DESIGN.md §11).
 // ISO dates (`YYYY-MM-DD`) compare correctly as strings, so the date maths here stays on strings.
@@ -63,16 +72,23 @@ export function eventTags(event: NewsEvent, now: number): { kind: EventTagKind; 
 
 const byStart = (a: Pick<NewsEvent, "start">, b: Pick<NewsEvent, "start">) => a.start.localeCompare(b.start);
 
-/** Homepage: the nearest upcoming or ongoing events, without long-term series. */
-export function currentNews<T extends Pick<NewsEvent, "start" | "end" | "longTerm">>(
-  events: T[],
-  today: IsoDate,
-  limit: number,
-): T[] {
+/**
+ * When an unfinished event comes next, as a key that sorts as text: the date and start time of its first meeting not
+ * over by `today` (a series' next meeting, not its first one), else of its start.
+ */
+function nextMeetingKey(event: EventTiming, today: IsoDate): string {
+  const next = meetingsOf(event).find((m) => !m.cancelled && m.end >= today) ?? event;
+  return `${next.start} ${next.startTime?.padStart(5, "0") ?? ""}`;
+}
+
+/** Homepage: the nearest upcoming or ongoing events, without long-term series, by their next meeting. */
+export function currentNews<T extends EventTiming>(events: T[], today: IsoDate, limit: number): T[] {
   return events
     .filter((e) => !e.longTerm && eventEnd(e) >= today)
-    .sort(byStart)
-    .slice(0, limit);
+    .map((e) => ({ event: e, key: nextMeetingKey(e, today) }))
+    .sort((a, b) => a.key.localeCompare(b.key))
+    .slice(0, limit)
+    .map(({ event }) => event);
 }
 
 /** The pinned event for "Doporučujeme" while it is not finished, unless it is cancelled. */
@@ -153,7 +169,7 @@ export function eventPageTitle(event: NewsEvent, events: NewsEvent[]): string {
 export const findEventById = (events: NewsEvent[], id: string) => events.find((e) => e.id === id);
 
 /** "Další akce" on a detail page: the nearest unfinished events other than this one. */
-export const otherEvents = <T extends Pick<NewsEvent, "id" | "start" | "end" | "longTerm">>(
+export const otherEvents = <T extends EventTiming & Pick<NewsEvent, "id">>(
   events: T[],
   current: Pick<NewsEvent, "id">,
   today: IsoDate,
