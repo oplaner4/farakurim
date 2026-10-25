@@ -5,15 +5,8 @@ description: Finish a content change - commit, and release after the user confir
 
 # Publish a content change
 
-The site is a static export: content lives in `src/content/*.ts`, and a change goes live with the next release
-(`parish-release`), which runs the checks (format, tests, lint, types), builds and publishes the site, and
-publishes nothing when a check fails. So this skill does not run them, and a content change needs no
-browser check: the content tests check the data, and the pages are built from components already checked.
-
-Uploaded files (posters, attachments, the weekly PDF, Petrklíč issues, album photos) are **not** in git or `out/`: they are
-uploaded to `/uploads/…` and the content links them root-relative, as `/uploads/…`.
-The create skills stage them in `uploads/` (git-ignored) with `pnpm stage` (album photos with
-`pnpm add-album --write`), and the release uploads them.
+Don't run the checks or a browser check: the release runs the checks (format, tests, lint, types) and publishes
+nothing when one fails, and the content tests check the data.
 
 ## 1. Commit
 
@@ -23,8 +16,6 @@ Use the `commit` skill with the `content` scope, `feat` for new content and `fix
 - `feat(content): publish the service sheet for 4.–11. 10. 2026`
 - `feat(content): cancel the mass on 25. 10. 2026`
 - `fix(content): correct the Petrklíč 2/2026 PDF`
-
-Never stage `uploads/` or `out/`.
 
 ## 2. Release
 
