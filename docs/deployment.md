@@ -96,10 +96,16 @@ the site cannot act as the account.
 
 ### Setup (once)
 
+- **Calendars**, in Google Calendar of the parish's account: create two new calendars (**Settings → Add calendar →
+  Create new calendar**), "Události" and "Bohoslužby", time zone Europe/Prague, and make each public (**Access
+  permissions for events → Make available to public**, "See all event details"). Put each one's **Calendar ID**
+  (**Integrate calendar**) into `googleId` of `parishCalendars` in `src/content/site.ts`, and its subscribe link
+  (`https://calendar.google.com/calendar/u/0?cid=` and the ID in base64, without the `=` padding) into `subscribeUrl`.
+  Add no events by hand: the sync writes them all.
 - **Service account**, by the maintainer: create it in the Google Cloud project that holds the browser key, with no
-  roles in the project and no key. Share Události and Bohoslužby (owned by the parish's personal Gmail account) with
-  the service account's e-mail address with the permission "Make changes to events". Enable the **IAM Service Account Credentials
-  API** and the **Security Token Service API** in the project.
+  roles in the project and no key. Share Události and Bohoslužby with the service account's e-mail address with the
+  permission "Make changes to events". Enable the **IAM Service Account Credentials API** and the **Security Token
+  Service API** in the project.
 - **Workload identity pool**, in the same project (IAM → Workload Identity Federation), shared by every repository of
   the owner: the pool and its provider trust the owner, the service account's binding picks the repository and its
   environment, so another repository needs only its own binding.
@@ -129,19 +135,9 @@ the site cannot act as the account.
   `GOOGLE_CALENDAR_SERVICE_ACCOUNT` in `.env.local` to the file it writes
   ([README § Keys](../README.md#keys-in-envlocal-optional)). The account's JSON key works there too, if the
   organisation allows keys; never commit it or print it.
-- **First apply by hand**, before the workflow applies anything: every event that already links a calendar event is
-  brought in line on the first apply (titles, times, places and descriptions written by hand change to the records').
-  Read the whole list with `pnpm calendar-sync --calendar events`, then run `pnpm calendar-sync --calendar events
---apply`, and only then set the repository variable `EVENTS_CALENDAR_SYNC` to `true`. A merged content PR never makes the first apply.
-- **Switch-over of Bohoslužby, once, by hand.** The hand-made repeating events for the regular services must stop, or
-  every service shows twice. In this order: share Bohoslužby with the service account ("Make changes to events"); run
-  `pnpm release --local` by hand and check its preview, which lists the services changes (about 220 events it adds):
-  the yes covers them, and `--local` applies both calendars whatever `SERVICES_CALENDAR_SYNC` says; right after, in Google
-  Calendar **end** (do not delete) each hand-made repeating event of the masses in Kuřim and Moravské Knínice,
-  "Adorace v Kuřimi" and "Modlitební večer s Komunitou Emmanuel v Kuřimi" on the day before the release, so its past
-  occurrences stay in the Kalendář and in the subscribers' history; only then set the repository variable
-  `SERVICES_CALENDAR_SYNC` to `true`. Keep "Modlitba chval" and the Křížová cesta. The next preview's duplicate lines
-  show what is left. A merged content PR never makes the first apply.
+- **Turn the sync on**: set the repository variables `EVENTS_CALENDAR_SYNC` and `SERVICES_CALENDAR_SYNC` to `true`.
+  The calendars are empty, so the next release only adds: every event record to Události and the services of the
+  next six months to Bohoslužby, all listed in its preview.
 
 ## Service sheet by e-mail
 
