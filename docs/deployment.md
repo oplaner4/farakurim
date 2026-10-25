@@ -68,29 +68,23 @@ tests only) before it builds with the variables above.
 
 ## Calendar sync
 
-`pnpm calendar-sync` (`scripts/calendar-sync.ts`) keeps the parish's Google Calendars in line with the content, both
-or the one `--calendar events|services` names; its preview needs only the browser key, `--apply` writes and needs the
-service account:
-
-- `--calendar events` keeps "Události" in line with the event records;
-- `--calendar services` keeps "Bohoslužby" in line with the services of the next six months, as the Pořad
-  bohoslužeb page shows them: the regular schedule, the service sheets and the schedule exceptions. It marks its events with the Pořad bohoslužeb URL in the description and
-  touches no event without it, except that it claims a single hand-made event at the same time and church; it
-  deletes its own events that no service wants any more. A line that reports a hand-made event doubling a service
-  (a possible duplicate) is a warning for a person to remove it.
+`pnpm calendar-sync` brings the parish's Google Calendars, Události and Bohoslužby, in line with the content; what it
+changes in each is in the header of `scripts/calendar-sync.ts`. Its preview needs only the browser key, `--apply` writes
+and needs the service account.
 
 Only a release applies them, after the site is deployed (so every URL it writes is a live page):
 
-- **`pnpm release`** prints the preview of both calendars with the commits, so the yes covers both. Without the key, or when Google does
-  not answer, it says the calendar was not checked and goes on.
+- **`pnpm release`** prints the preview of both calendars with the commits, so the yes covers both. Without the key,
+  or when Google does not answer, it says the calendar was not checked and goes on.
 - **The `calendar` job of `deploy.yml`** runs after `deploy` (and its verify). On a release tag push, with the
-  repository variable `EVENTS_CALENDAR_SYNC` set to `true`, it runs `pnpm calendar-sync --calendar events --apply`, and with
-  `SERVICES_CALENDAR_SYNC` set to `true`, `pnpm calendar-sync --calendar services --apply`; otherwise (a refresh, or the variable not yet `true`) that
-  calendar is only previewed. Either way its lines go into the run summary, and each line that needs a
-  person warns (`--problems`): a hand-made Bohoslužby event doubling a service, an `ask:` (the sync cannot tell which Události event is the record's: paste the page URL into the
-  right one's description, or add the event with it) or a `cannot pair` line, as either leaves that event out of
-  line until a person acts and the next release runs. A failure ends as a warning too and does not mark the release
-  failed: the next release catches up. It skips a `--local` release, which applies the sync itself.
+  repository variable `EVENTS_CALENDAR_SYNC` set to `true`, it runs `pnpm calendar-sync --calendar events --apply`,
+  and with `SERVICES_CALENDAR_SYNC` set to `true`, `pnpm calendar-sync --calendar services --apply`; otherwise (a
+  refresh, or the variable not yet `true`) that calendar is only previewed. Either way its lines go into the run
+  summary, and each line that needs a person warns (`--problems`): a hand-made Bohoslužby event doubling a service, an
+  `ask:` (the sync cannot tell which Události event is the record's: paste the page URL into the right one's
+  description, or add the event with it) or a `cannot pair` line, as either leaves that event out of line until a
+  person acts and the next release runs. A failure ends as a warning too and does not mark the release failed: the
+  next release catches up. It skips a `--local` release, which applies the sync itself.
 - **`pnpm release --local`** applies both calendars after its deploy and verify, with the credentials in `.env.local`.
 
 The job runs in its own environment `calendar-sync`, never `Production`: the refresh counts the Production deployments
