@@ -71,7 +71,7 @@
     "jsdom": "^30.1.2",
     "linkify-html": "^4.3.3",
     "linkifyjs": "^4.3.3",
-    "mailauth": "^7.3.0",
+    "mailauth": "^8.0.4",
     "mailparser": "^3.9.40",
     "mammoth": "^1.13.0",
     "postcss": "^8.5.30",
