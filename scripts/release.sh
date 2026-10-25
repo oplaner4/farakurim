@@ -63,8 +63,7 @@ cron=$(scripts/deploy.sh cron --dry-run)
 sed 's/^/  /' <<< "${cron:-(none)}"
 echo
 # The preview exits 1 without the browser key or when Google fails; the release goes on, the sync says why.
-echo "Calendars (Události applied after the deploy when EVENTS_CALENDAR_SYNC is on, Bohoslužby when"
-echo "SERVICES_CALENDAR_SYNC is on, both by --local):"
+echo "Calendars:"
 pnpm --silent calendar-sync 2>&1 | sed 's/^/  /' || true
 echo
 
