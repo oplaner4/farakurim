@@ -13,9 +13,11 @@ month file by hand.
 ## 1. Find the event
 
 The records are in `src/content/news/<year>/<MM>.json`, in the file of their **start** month. Look for the event
-the user names (title, date, place) and take its `id`. Only an event that has not ended (`end`, else `start`, is
-today or later in Prague) can be pinned; the script refuses the others. When the user's description fits several
-events or none, list the candidates (id, title, dates) and ask.
+the user names (title, date, place) and take its `id`. When the description fits several events or none, list the
+candidates (id, title, dates) and ask.
+
+Only an event that has not ended (`end`, else `start`, is today or later in Prague) can be pinned; the script
+refuses the others.
 
 ## 2. Check and confirm
 

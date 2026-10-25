@@ -10,8 +10,9 @@ A corrected record goes in with `pnpm replace-event`, a corrected or added file 
 
 ## 1. Find the event
 
-Look for the event the user names (title, date, place) in `src/content/news/` and take its `id`. When the
-description fits several events or none, list the candidates (id, title, dates) and ask.
+The records are in `src/content/news/<year>/<MM>.json`, in the file of their **start** month. Look for the event
+the user names (title, date, place) and take its `id`. When the description fits several events or none, list the
+candidates (id, title, dates) and ask.
 
 The `id` never changes: it is the detail page's URL, in shared links and in the Události calendar. It holds the
 start year, so a start in another year cannot be corrected: tell the user so and stop.
