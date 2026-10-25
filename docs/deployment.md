@@ -76,14 +76,13 @@ Only a release applies them, after the site is deployed (so every URL it writes 
 
 - **`pnpm release`** prints the preview of both calendars with the commits, so the yes covers both. Without the key,
   or when Google does not answer, it says the calendar was not checked and goes on.
-- **The `calendar` job of `deploy.yml`** runs after `deploy` (and its verify). On a release tag push, with the
-  repository variable `EVENTS_CALENDAR_SYNC` set to `true`, it runs `pnpm calendar-sync --calendar events --apply`,
-  and with `SERVICES_CALENDAR_SYNC` set to `true`, `pnpm calendar-sync --calendar services --apply`; otherwise (a
-  refresh, or the variable not yet `true`) that calendar is only previewed. Either way its lines go into the run
-  summary, and each line that needs a person warns (`--problems`): a hand-made Bohoslužby event doubling a service, an
-  `ask:` (the sync cannot tell which Události event is the record's: paste the page URL into the right one's
-  description, or add the event with it) or a `cannot pair` line, as either leaves that event out of line until a
-  person acts and the next release runs. A failure ends as a warning too and does not mark the release failed: the
+- **The `calendar` job of `deploy.yml`** runs after `deploy` (and its verify). On a release tag push it runs
+  `pnpm calendar-sync --calendar events --apply` and `pnpm calendar-sync --calendar services --apply`; on a refresh,
+  or before the `calendar-sync` environment has `GOOGLE_WORKLOAD_IDENTITY_PROVIDER` (the setup below), both are only
+  previewed. Either way its lines go into the run summary, and each line that needs a person warns (`--problems`): a
+  hand-made Bohoslužby event doubling a service, an `ask:` (the sync cannot tell which Události event is the record's:
+  paste the page URL into the right one's description, or add the event with it) or a `cannot pair` line, as either
+  leaves that event out of line until a person acts and the next release runs. A failure ends as a warning too and does not mark the release failed: the
   next release catches up. It skips a `--local` release, which applies the sync itself.
 - **`pnpm release --local`** applies both calendars after its deploy and verify, with the credentials in `.env.local`.
 
@@ -129,15 +128,16 @@ the site cannot act as the account.
 - **Environment** `calendar-sync`, deployment branches and tags allowing the tags `v*` (a refresh runs on `main` and
   only previews, so it needs `main` too), with the variables `GOOGLE_WORKLOAD_IDENTITY_PROVIDER` (the provider's full
   name, `projects/<project number>/locations/global/workloadIdentityPools/github/providers/github`) and
-  `GOOGLE_CALENDAR_SERVICE_ACCOUNT_EMAIL` (the account's address). Neither is a secret. No required reviewers.
-- **Locally**, for the first apply and `pnpm release --local`: impersonate the account with your own login, which
-  needs the **Service Account Token Creator** role (`roles/iam.serviceAccountTokenCreator`) on the account, and set
+  `GOOGLE_CALENDAR_SERVICE_ACCOUNT_EMAIL` (the account's address). Neither is a secret. No required reviewers. The
+  provider variable turns the apply on, so set it once the steps above are done.
+- **Locally**, for `pnpm release --local`: impersonate the account with your own login, which needs the **Service
+  Account Token Creator** role (`roles/iam.serviceAccountTokenCreator`) on the account, and set
   `GOOGLE_CALENDAR_SERVICE_ACCOUNT` in `.env.local` to the file it writes
   ([README § Keys](../README.md#keys-in-envlocal-optional)). The account's JSON key works there too, if the
   organisation allows keys; never commit it or print it.
-- **Turn the sync on**: set the repository variables `EVENTS_CALENDAR_SYNC` and `SERVICES_CALENDAR_SYNC` to `true`.
-  The calendars are empty, so the next release only adds: every event record to Události and the services of the
-  next six months to Bohoslužby, all listed in its preview.
+
+The calendars start empty, so the first release after the setup only adds: every event record to Události and the
+services of the next six months to Bohoslužby, all listed in its preview.
 
 ## Service sheet by e-mail
 
