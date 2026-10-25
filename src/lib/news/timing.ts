@@ -70,8 +70,8 @@ export function meetingsOf(event: EventTiming): Meeting[] {
 export type EventProgress = { kind: "now" } | { kind: "today"; time: ClockTime } | { kind: "next"; date: IsoDate };
 
 /**
- * A meeting on one day with a start time runs from its start time to its end time (or to midnight without one);
- * otherwise it runs all of its days. Dropped meetings are skipped.
+ * A meeting on one day with a start time runs from its start time to its end time; without an end time it stays
+ * `today` all day, as when it ends is not known. Otherwise it runs all of its days. Dropped meetings are skipped.
  */
 export function eventProgress(event: EventTiming, now: number): EventProgress | undefined {
   if (event.longTerm || isCancelled(event)) return undefined;
@@ -81,8 +81,8 @@ export function eventProgress(event: EventTiming, now: number): EventProgress | 
     if (meeting.start > today) return event.start <= today ? { kind: "next", date: meeting.start } : undefined;
     const { startTime, endTime } = meeting;
     if (meeting.start !== meeting.end || !startTime) return { kind: "now" };
-    if (now < pragueDateTime(today, startTime).getTime()) return { kind: "today", time: startTime };
-    if (!endTime || now < pragueDateTime(today, endTime).getTime()) return { kind: "now" };
+    if (!endTime || now < pragueDateTime(today, startTime).getTime()) return { kind: "today", time: startTime };
+    if (now < pragueDateTime(today, endTime).getTime()) return { kind: "now" };
     // Today's meeting is over: the next one, if any.
   }
   return undefined;

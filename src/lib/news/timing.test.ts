@@ -21,10 +21,12 @@ describe("eventProgress", () => {
     expect(eventProgress(evening, at("2026-10-18", "20:30"))).toBeUndefined();
   });
 
-  it("is now for the rest of the day after a start time without an end", () => {
+  it("stays today all day after a start time without an end, as when it ends is not known", () => {
     const mass = event("x", "2026-10-18", undefined, { startTime: "9:30" });
     expect(eventProgress(mass, at("2026-10-18", "9:00"))).toEqual({ kind: "today", time: "9:30" });
-    expect(eventProgress(mass, at("2026-10-18", "23:59"))).toEqual({ kind: "now" });
+    expect(eventProgress(mass, at("2026-10-18", "9:30"))).toEqual({ kind: "today", time: "9:30" });
+    expect(eventProgress(mass, at("2026-10-18", "23:59"))).toEqual({ kind: "today", time: "9:30" });
+    expect(eventProgress(mass, at("2026-10-19", "0:00"))).toBeUndefined();
   });
 
   it("is now all day for an event without a start time and every day of a multi-day event", () => {
@@ -122,6 +124,8 @@ describe("relativeEventLabel", () => {
     expect(relativeEventLabel(evening, at("2026-10-03", "10:00"))).toBe("Dnes");
     expect(relativeEventLabel(evening, at("2026-10-03", "19:00"))).toBe("Právě probíhá");
     expect(relativeEventLabel(evening, at("2026-10-03", "21:00"))).toBe("Dnes");
+    const noEnd = span("2026-10-03", undefined, { startTime: "18:00" });
+    expect(relativeEventLabel(noEnd, at("2026-10-03", "19:00"))).toBe("Dnes");
     expect(relativeEventLabel(span("2026-10-02", "2026-10-04"), at("2026-10-04"))).toBe("Právě probíhá");
     const series = span("2026-10-11", "2026-10-25", { sessions: ["2026-10-11", "2026-10-25"] });
     expect(relativeEventLabel(series, at("2026-10-13"))).toBe("Další setkání 25. 10.");
