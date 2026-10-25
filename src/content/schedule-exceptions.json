@@ -1,3 +1,66 @@
 {
-  "exceptions": []
+  "exceptions": [
+    {
+      "date": "2026-12-24",
+      "services": [
+        {
+          "time": "15:00",
+          "place": "kurim",
+          "title": "Vánoční příběh se zpěvy scholy"
+        },
+        {
+          "time": "22:00",
+          "place": "kurim",
+          "note": "se sborem"
+        }
+      ],
+      "reason": "Štědrý den"
+    },
+    {
+      "date": "2026-12-25",
+      "services": [
+        {
+          "time": "8:00",
+          "place": "kurim"
+        },
+        {
+          "time": "9:30",
+          "place": "kurim"
+        },
+        {
+          "time": "11:00",
+          "place": "moravske-kninice"
+        }
+      ],
+      "reason": "Narození Páně"
+    },
+    {
+      "date": "2026-12-31",
+      "services": [
+        {
+          "time": "16:00",
+          "place": "kurim"
+        }
+      ],
+      "reason": "poslední den roku"
+    },
+    {
+      "date": "2027-01-01",
+      "services": [
+        {
+          "time": "8:00",
+          "place": "kurim"
+        },
+        {
+          "time": "9:30",
+          "place": "kurim"
+        },
+        {
+          "time": "11:00",
+          "place": "moravske-kninice"
+        }
+      ],
+      "reason": "Slavnost Matky Boží, Panny Marie"
+    }
+  ]
 }
