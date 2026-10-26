@@ -66,6 +66,44 @@ change:
   says the week is already published.
 - The week's outcome is `corrected`, and its summary is what differs from the published sheet.
 
+## Comment run
+
+Only when the prompt says the run is a **comment run** on a service sheets PR; steps 1 to 4 apply with these changes:
+
+- **Input:** the prompt's folder holds `comment.md` (the maintainer's instruction, the only request), `report.md` (the
+  PR's report, with its two header lines) and maybe `check.md` (a failed check). The scratchpad and the report file
+  are the prompt's; write nothing in the repo besides what the scripts stage. It never asks and never waits.
+- **Facts:** the comment is the maintainer's instruction, so a fact in it is made as asked; when no document has the
+  fact, the reply says the site will then differ from the parish's document.
+- **Allowed:** correct a week the PR holds (services, intentions, announcements) in its record only, as there is no
+  DOCX: write `record.json` from the sheet as step 2 says, then run
+  `pnpm stage sheet --from <validFrom> --to <validTo> --record <scratchpad>/record.json` without the confirmation. A
+  question in the comment is answered in the reply.
+- **Fix a check:** when `check.md` shows a failure the PR's content causes, fix it the same way; a failure outside the
+  content (a script, the build) is not fixed, and the reply says so.
+- **Out of bounds**, answered without a change (`Outcome: unchanged`): a replaced sheet PDF or DOCX (a comment cannot
+  add a file), a week the PR does not hold, anything else. The reply says what to do instead: push a commit, run
+  `parish-correct-service-sheet` locally with the file, or correct it after the merge.
+- **Skip the publish step:** no `parish-publish-content`, no commit, no release.
+
+**The report** is the input report updated, English with site content quoted in Czech, and starts with exactly these
+three lines:
+
+```
+blocking: yes|no
+commit: <message>
+fix: fix(content): <what this comment changed>
+```
+
+`commit:` is the PR title as the input has it, describing everything the PR holds (change it only when the comment
+changes what the PR holds). `fix:` is this commit alone, for example `fix(content): correct the Sunday intention`.
+Keep the week sections the comment did not touch as they are and every question id (`q1`, `q2`, …); mark an answered
+question with its answer; set `blocking:` from the questions still open. Quote only what is published, never the
+comment itself.
+
+Then `## Reply`, the report's last section, led by one line `Outcome: changed` or `Outcome: unchanged`, then a few
+lines for the maintainer: what changed, or why nothing did.
+
 ## Common mistakes
 
 - Editing a sheet in `service-sheets.json` by hand instead of rerunning the command with a corrected record.
