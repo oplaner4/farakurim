@@ -66,7 +66,9 @@ To refresh now, run the workflow by hand: Actions tab → Deploy → **Run workf
   commit and tag still push. The admin role keeps `pnpm release` and your own pushes to `main` working: a required
   check rejects a direct push whose commit has no passing `check`, and `check.yml` skips release commits and
   docs-only changes. Without the ruleset nothing stops a red merge: the content release does not look at checks, and
-  it would push a release tag whose `deploy.yml` check then fails.
+  it would push a release tag whose `deploy.yml` check then fails. A bypass actor skips every rule of its ruleset, so
+  keep this ruleset to the required check alone: put any other rule (block force pushes, restrict deletions) in a
+  separate ruleset on `main` with no bypass actors. No push of the release or yours needs a force push or a deletion.
 
 `.github/workflows/check.yml` checks and builds pushes to `main` and pull requests with no secrets, skipping docs-only
 changes and release commits. The deploy workflow calls it for the tag, so a release runs the same check (with the site's
@@ -209,8 +211,9 @@ one DOCX, or a failed step. A failed step leaves the mail unseen for the next ru
   `CONTENT_APP_PRIVATE_KEY`, shared by the sheet workflow and the release (whose `release` job runs in `Production`).
   GitHub never shows a secret again: to replace a lost key, generate a new one in the App (**Private keys**), store it
   in the secret and delete the old key. If `main` has a ruleset or
-  branch protection that restricts pushes, add the App as a bypass actor: the release commit and tag are pushed with
-  its token, so that the tag starts `deploy.yml`.
+  branch protection that restricts who may push (or requires a check, as above), add the App as a bypass actor of that
+  ruleset alone: the release commit and tag are pushed with its token, so that the tag starts `deploy.yml`. A ruleset
+  that only blocks force pushes or deletions needs no bypass.
 - **Squash merging** allowed (Settings → General → Pull Requests): the release counts only a PR's squash commit.
 - **Actions policy** allowing `pull_request_target` (Settings → Actions → Policies → Restrict events), scoped to
   `.github/workflows/content-release.yml`: from 2 December 2026 GitHub blocks the event in public repositories without

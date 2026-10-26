@@ -172,7 +172,9 @@ fixed with "@claude fix the failing check" or a pushed commit. The tests and the
 - **A red PR cannot be merged:** `Check` becomes a required status check on `main` in a ruleset (setup, by the
   maintainer), with the content App and the repository admin role as bypass actors so the content release's commit
   and tag, `pnpm release` and the maintainer's direct pushes still push (a required check rejects a direct push
-  whose commit has no passing `Check`, and `check.yml` skips release and docs-only commits). Today nothing stops a
+  whose commit has no passing `Check`, and `check.yml` skips release and docs-only commits). The ruleset holds only the
+  required check, since a bypass actor skips every rule of its ruleset; blocking force pushes and deletions stays in a
+  separate ruleset without bypass actors. Today nothing stops a
   red merge: the content release does not look at checks, and a red merge would push a release tag whose `deploy.yml`
   check then fails.
 - **The cheap guards stay** in `publish`: the patch's allowed files, `check-ids`, commitlint, the report format.
