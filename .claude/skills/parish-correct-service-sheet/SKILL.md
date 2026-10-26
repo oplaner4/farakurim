@@ -96,7 +96,7 @@ fix: fix(content): <what this comment changed>
 ```
 
 `commit:` is the PR title as the input has it, describing everything the PR holds (change it only when the comment
-changes what the PR holds). `fix:` is this commit alone, for example `fix(content): correct the Sunday intention`.
+changes what the PR holds). `fix:` is this commit alone, for example `fix(content): correct the Sunday intention`. With `Outcome: unchanged`, still write the line, as `fix: fix(content): no change`.
 Keep the week sections the comment did not touch as they are and every question id (`q1`, `q2`, …); mark an answered
 question with its answer; set `blocking:` from the questions still open. Quote only what is published, never the
 comment itself.
