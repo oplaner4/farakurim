@@ -1,7 +1,7 @@
 // Reads a content-fix command line and runs it: the steps of the comment fix workflow that need the GitHub API, the
 // PR's artifacts or Claude's report.
 
-import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { parseCommandLine } from "../command";
 import { applyArtifacts } from "../content-release/apply";
@@ -22,7 +22,7 @@ const USAGE = `Usage: pnpm content-fix next --pr <n> --out <dir>
 export type Command =
   | { action: "next"; pr: number; out: string }
   | { action: "artifacts"; pr: number; kind: Kind }
-  | { action: "apply"; pr: number; kind: Kind; from: string }
+  | { action: "apply"; pr: number; kind: Kind; order: string; from: string }
   | { action: "check-log"; sha: string; out: string }
   | { action: "report"; file: string; out: string };
 
@@ -34,6 +34,7 @@ export function parseCommand(args: string[]): Command {
       out: { type: "string" },
       kind: { type: "string" },
       sha: { type: "string" },
+      order: { type: "string" },
     },
     USAGE,
   );
@@ -64,7 +65,7 @@ export function parseCommand(args: string[]): Command {
       return { action, pr: pr(), kind: kind() };
     case "apply":
       if (rest.length !== 1) throw new Error(`apply takes a folder\n${USAGE}`);
-      return { action, pr: pr(), kind: kind(), from: rest[0] };
+      return { action, pr: pr(), kind: kind(), order: need(values.order, "order"), from: rest[0] };
     case "check-log":
       noArguments();
       return { action, sha: need(values.sha, "sha"), out: need(values.out, "out") };
@@ -136,7 +137,7 @@ function failedStepsMarkdown(steps: { step: string; log: string }[]): string {
   return steps.map(({ step, log }) => `## ${step}\n\n\`\`\`text\n${log}\n\`\`\`\n`).join("\n");
 }
 
-export async function execute(command: Command, fetchImpl: typeof fetch = fetch): Promise<void> {
+export async function execute(command: Command, fetchImpl: typeof fetch = fetch, uploads = UPLOADS_DIR): Promise<void> {
   switch (command.action) {
     case "next":
       console.log(JSON.stringify(await next(command, fetchImpl)));
@@ -147,9 +148,18 @@ export async function execute(command: Command, fetchImpl: typeof fetch = fetch)
       }
       return;
     case "apply": {
-      // The API is not read here: the downloaded folders are the artifacts, in name order. Two commits of the PR that
-      // stage the same path would then apply in no commit order (`artifacts` prints that order).
-      const artifacts = readdirSync(command.from).map((name) => ({ name, runId: 0 }));
+      // The API is not read here: `--order` is the saved output of `artifacts`, oldest first, so a later artifact's
+      // file wins as it does in a release. Folders it does not list are ignored.
+      const artifacts = readFileSync(command.order, "utf8")
+        .split("\n")
+        .filter((line) => line.trim())
+        .map((line) => {
+          const [runId, name] = line.trim().split(/\s+/);
+          if (!name || !/^\d+$/.test(runId))
+            throw new Error(`${command.order} has a line that is not "<run id> <name>"`);
+          if (!existsSync(join(command.from, name))) throw new Error(`${name} is listed but not under ${command.from}`);
+          return { name, runId: Number(runId) };
+        });
       // A one-PR plan: `applyArtifacts` uses only the number, kind and artifacts; the rest holds neutral values.
       const pull: ContentPull = {
         number: command.pr,
@@ -163,7 +173,7 @@ export async function execute(command: Command, fetchImpl: typeof fetch = fetch)
       for (const rel of applyArtifacts({
         plan: { action: "release", pulls: [pull] },
         from: command.from,
-        uploads: UPLOADS_DIR,
+        uploads,
       })) {
         console.log(rel);
       }

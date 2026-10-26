@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { REPORT_END } from "./body";
 import { execute, parseCommand } from "./command";
@@ -177,11 +177,41 @@ describe("report", () => {
 });
 
 describe("apply", () => {
+  const stage = (dir: string, name: string, file: string, content: string) => {
+    mkdirSync(join(dir, name, dirname(file)), { recursive: true });
+    writeFileSync(join(dir, name, file), content);
+  };
+  const apply = (dir: string, order: string, uploads: string) => {
+    const orderFile = join(out, "order.txt");
+    writeFileSync(orderFile, order);
+    return execute(
+      parseCommand(["apply", "--pr", "7", "--kind", "events", "--order", orderFile, dir]),
+      fakeFetch({}),
+      uploads,
+    );
+  };
+
+  it("applies the artifacts in the listed order, the later file winning", async () => {
+    const dir = join(out, "downloaded");
+    const uploads = join(out, "uploads");
+    stage(dir, "content-uploads-bbb", "aktuality/x.pdf", "older");
+    stage(dir, "content-uploads-aaa", "aktuality/x.pdf", "newer");
+    stage(dir, "content-uploads-ccc", "aktuality/y.pdf", "unlisted");
+    await apply(dir, "1 content-uploads-bbb\n2 content-uploads-aaa\n", uploads);
+    expect(readFileSync(join(uploads, "aktuality/x.pdf"), "utf8")).toBe("newer");
+    expect(existsSync(join(uploads, "aktuality/y.pdf"))).toBe(false);
+  });
+
+  it("refuses a listed artifact that was not downloaded", async () => {
+    await expect(apply(out, "1 content-uploads-abc\n", join(out, "uploads"))).rejects.toThrow(
+      /content-uploads-abc is listed but not under/,
+    );
+  });
+
   it("refuses a file the kind may not upload", async () => {
     const dir = join(out, "downloaded");
-    mkdirSync(join(dir, "content-uploads-abc", "other"), { recursive: true });
-    writeFileSync(join(dir, "content-uploads-abc", "other", "x.pdf"), "x");
-    await expect(run(["apply", "--pr", "7", "--kind", "events", dir])).rejects.toThrow(/may not upload/);
+    stage(dir, "content-uploads-abc", "other/x.pdf", "x");
+    await expect(apply(dir, "1 content-uploads-abc\n", join(out, "uploads"))).rejects.toThrow(/may not upload/);
   });
 });
 
