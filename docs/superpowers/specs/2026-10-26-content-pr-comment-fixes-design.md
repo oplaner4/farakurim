@@ -116,7 +116,7 @@ on the PR yet".
 
 | Kind   | Allowed                                                                                                                                    | Skill (its new "Comment run" section) |
 | ------ | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------- |
-| sheets | correct a week the PR holds (services, intentions, announcements, its PDF); answer a question                                              | `parish-correct-service-sheet`        |
+| sheets | correct a week the PR holds (services, intentions, announcements; the record only, as the run has no DOCX); answer a question              | `parish-correct-service-sheet`        |
 | events | correct an event the PR adds (text, date, time, place, programme, links, its staged files' labels, which is the poster); answer a question | `parish-correct-event`                |
 | both   | fix a failing `Check` caused by the PR's content (below, § Checks), from `check.md`                                                        | the kind's correct skill              |
 
