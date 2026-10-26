@@ -1,0 +1,500 @@
+# Fixes a content PR (a `service-sheet/*` or `events/*` PR of this repo) from the `@claude` comments in its
+# conversation (docs/deployment.md "Fixing content PRs with comments"). content-fix.yml dispatches it on main for each
+# picked-up comment; one run per PR at a time (a newer pending run replaces an older one), and each run answers the
+# PR's oldest unanswered comment: one from a commenter with write access that no bot reply names by its marker
+# (`<!-- content-fix: <comment id> -->`). So no comment is lost when a pending run is cancelled, and a comment is
+# answered once, success, refusal and failure alike (a failed comment is written again, never retried).
+# Two jobs per comment, so that no step holding a secret runs code from a workspace Claude has touched:
+# - `fix` reads the PR (`pnpm content-fix next`: open, kind, head and the comment, from main's code before anything
+#   else) and, for a request, downloads the PR's staged files (the `content-uploads-<sha>` artifacts of its commits,
+#   applied in commit order into the staging folder), the failed `check` run's log and, for events, the known events.
+#   It then checks out the PR's head and lets Claude (claude-code-action, workload identity federation, no API key) run
+#   the kind's correction skill as a comment run: the comment, the PR's report and the check's log are its only input,
+#   the rest of the thread never reaches it. Claude's file tools may write only in $RUNNER_TEMP/fix (the checkout is
+#   denied); only the stage and replace scripts write src/content/ and the staging folder. The job hands on the report,
+#   the change to src/content/ as a patch, the staged files that are new or changed, and the known events as a one-day
+#   artifact. Its token is read-only and it has no App key.
+# - `publish` starts from a fresh checkout of the head `fix` read before Claude ran, so the code it runs is the PR's
+#   own, never Claude's workspace. It checks the report (`pnpm content-fix report`), applies the patch only if it
+#   touches nothing but the kind's files and the report says it changed something, refuses an id an open events PR
+#   holds, commits as the GitHub App's bot and pushes without force (a branch moved meanwhile rejects it), uploads the
+#   changed staged files as `content-uploads-<sha>` (so the content release finds them), updates the PR's body and
+#   title from the report and turns it back into a draft on a blocking question. It neither tests nor builds: check.yml
+#   does that on the pushed commit. It has no id-token, so it cannot act as Claude. It always replies to the comment
+#   (the report's reply, or the failure with the run's link, never the comment's or a file's content), with the
+#   marker.
+# While unanswered comments remain, `next` dispatches the workflow again, up to 10 runs per start. Both jobs run in the
+# environment `content-fix` (the federation rule `ANTHROPIC_FEDERATION_RULE_ID`, which matches it; only `fix` has an
+# id-token). The App key is the repository secret CONTENT_APP_PRIVATE_KEY, shared with the other content workflows. The
+# runner image and the actions are pinned (actions by commit SHA).
+
+name: Content fix
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: The content PR's number
+        required: true
+      chain:
+        description: The run's place in a chain started by a comment (at most 10)
+        default: "1"
+
+# One run per PR at a time, never cancelled mid-run, so each comment starts from the head the previous one pushed.
+concurrency:
+  group: content-fix-${{ inputs.pr }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+# The copy a test checks: the folder of the uploaded files (UPLOADS_PATH in src/lib/shared/uploads.ts), without its
+# slashes.
+env:
+  UPLOADS: uploads
+
+jobs:
+  fix:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50 # Claude's step has 30 of them
+    environment: content-fix
+    permissions:
+      contents: read
+      pull-requests: read # the PR, its comments, the open events PRs
+      actions: read # the PR's artifacts and the check's log
+      checks: read # the head commit's check run
+      id-token: write # Claude's workload identity federation
+    # Read by the `next` step, before Claude's: never read back from files Claude could have changed. `comment` is set
+    # only for an open content PR with a request, and `publish` runs only then.
+    outputs:
+      comment: ${{ steps.next.outputs.comment }}
+      kind: ${{ steps.next.outputs.kind }}
+      head: ${{ steps.next.outputs.head }}
+      branch: ${{ steps.next.outputs.branch }}
+      title: ${{ steps.next.outputs.title }}
+      remaining: ${{ steps.next.outputs.remaining }}
+      artifacts: ${{ steps.artifacts.outcome }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          fetch-depth: 0 # the PR's head, the events PRs' branches and their merge bases
+          persist-credentials: false # nothing here pushes
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # One JSON document on stdout: the PR's state, kind, head, branch, the comment's id and the requests after it,
+      # never the comment's text, which goes to $RUNNER_TEMP/fix/comment.md with the PR's report (report.md, whose
+      # second line is the PR's title). The kind picks the skill and the scripts Claude may run.
+      - name: Read the PR
+        id: next
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ inputs.pr }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/fix" "$RUNNER_TEMP/run"
+          next=$(pnpm --silent content-fix next --pr "$PR" --out "$RUNNER_TEMP/fix")
+          if [ "$(jq -r '.open and .kind != null and .comment != null' <<< "$next")" != true ]; then
+            echo "Nothing to answer: the PR is closed, not a content PR of this repo, or has no unanswered comment."
+            exit 0
+          fi
+          head=$(jq -r .head <<< "$next")
+          if ! [[ "$head" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::The PR's head is not a commit id."
+            exit 1
+          fi
+          kind=$(jq -r .kind <<< "$next")
+          case "$kind" in
+            events)
+              skill=parish-correct-event label=events
+              tools="Bash(pnpm replace-event:*),Bash(pnpm event-poster:*),Bash(pnpm stage event:*)"
+              ;;
+            sheet)
+              skill=parish-correct-service-sheet label="service sheets"
+              tools="Bash(pnpm stage sheet:*)"
+              ;;
+          esac
+          {
+            jq -r '"comment=\(.comment)", "branch=\(.branch)", "remaining=\(.remaining)"' <<< "$next"
+            echo "kind=$kind"
+            echo "head=$head"
+            echo "title=$(sed -n 2p "$RUNNER_TEMP/fix/report.md" | sed 's/^commit: //')"
+            echo "skill=$skill"
+            echo "label=$label"
+            echo "tools=$tools"
+          } >> "$GITHUB_OUTPUT"
+
+      # From main's code, before the head is checked out: the staged files land in the staging folder, which git
+      # ignores, so the checkout keeps them. `apply` checks each file lies in the kind's folder, as the release does;
+      # an expired artifact fails the step, and the reply says so.
+      - name: Download the staged files
+        id: artifacts
+        if: steps.next.outputs.comment != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ inputs.pr }}
+          KIND: ${{ steps.next.outputs.kind }}
+        run: |
+          artifacts="$RUNNER_TEMP/artifacts"
+          mkdir -p "$artifacts"
+          pnpm --silent content-fix artifacts --pr "$PR" --kind "$KIND" > "$RUNNER_TEMP/artifacts.txt"
+          while read -r id name; do
+            gh run download "$id" --repo "$GITHUB_REPOSITORY" -n "$name" -D "$artifacts/$name"
+          done < "$RUNNER_TEMP/artifacts.txt"
+          pnpm --silent content-fix apply --pr "$PR" --kind "$KIND" --order "$RUNNER_TEMP/artifacts.txt" "$artifacts"
+          rm -rf "$artifacts"
+
+      # The failed steps of the head's `check` run (repo and published content only), so "fix the failing check"
+      # works; none when it passed.
+      - name: Read the check
+        if: steps.next.outputs.comment != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ steps.next.outputs.head }}
+        run: pnpm --silent content-fix check-log --sha "$HEAD_SHA" --out "$RUNNER_TEMP/fix/check.md"
+
+      # Before Claude's step, into the artifact's folder: `publish` checks new ids against it.
+      - name: List the known events
+        if: steps.next.outputs.comment != '' && steps.next.outputs.kind == 'events'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: pnpm --silent event-mail known --out "$RUNNER_TEMP/run/known.json"
+
+      # The PR's head as `next` read it: a push since then fails `publish`'s push. The staging folder's sums tell the
+      # files Claude's run stages from those it found.
+      - name: Check out the PR
+        if: steps.next.outputs.comment != ''
+        env:
+          HEAD_SHA: ${{ steps.next.outputs.head }}
+        run: |
+          git fetch --quiet origin "$HEAD_SHA"
+          git checkout --quiet --detach "$HEAD_SHA"
+          pnpm install --frozen-lockfile
+          mkdir -p "$UPLOADS"
+          find "$UPLOADS" -type f -exec sha256sum {} + > "$RUNNER_TEMP/run/uploads.sum"
+
+      - name: Install poppler
+        if: steps.next.outputs.comment != ''
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends poppler-utils
+
+      # The prompt holds no content rules and never the comment: they live in the skill's "Comment run" section and in
+      # comment.md. Claude can read files, write with its file tools in $RUNNER_TEMP/fix only (an `Edit(...)` rule
+      # covers Write too; the deny on the checkout wins over any allow, so it cannot change scripts, package.json,
+      # node_modules, hooks or .git), run the kind's stage and replace scripts and read PDFs to stdout only (pdftotext
+      # writes the file a second argument names, which no Edit rule checks); no git, no network. A rule's `//` marks an
+      # absolute path (runner.temp and github.workspace start with `/`). github.token (read-only) keeps the action from
+      # fetching its own App token; the action's output stays out of the public log.
+      - name: Run the correction skill
+        id: claude
+        if: steps.next.outputs.comment != ''
+        timeout-minutes: 30
+        uses: anthropics/claude-code-action@f27be6b65a4652f08a2ba3cff79114829b588967 # v1.0.252
+        with:
+          github_token: ${{ github.token }}
+          anthropic_federation_rule_id: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
+          anthropic_organization_id: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
+          anthropic_service_account_id: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
+          anthropic_workspace_id: ${{ vars.ANTHROPIC_WORKSPACE_ID }}
+          show_full_output: false
+          display_report: false
+          claude_args: |
+            --model claude-opus-5-5
+            --add-dir ${{ runner.temp }}/fix
+            --allowedTools "Read,Edit(/${{ runner.temp }}/fix/**),${{ steps.next.outputs.tools }},Bash(pdftotext -layout * -),Bash(ls:*),Bash(cat:*)"
+            --disallowedTools "WebFetch,WebSearch,NotebookEdit,Edit(/${{ github.workspace }}/**)"
+          prompt: |
+            A maintainer commented on this ${{ steps.next.outputs.label }} PR. Run ${{ steps.next.outputs.skill }} as a
+            comment run (its "Comment run" section). The input is ${{ runner.temp }}/fix (comment.md, report.md,
+            check.md when present), the report file is ${{ runner.temp }}/fix/fix-report.md and the scratchpad is
+            ${{ runner.temp }}/fix. Don't read README.md, docs/ or design/.
+
+      # What `publish` needs, never the comment: the report, the change to src/content/ against the head (new files
+      # included) and the staged files that are new or whose content changed (a renamed, relabelled or re-rendered
+      # file), at their paths under the staging folder.
+      - name: Collect the outcome
+        if: always() && steps.next.outputs.comment != ''
+        run: |
+          run="$RUNNER_TEMP/run"
+          if [ -f "$RUNNER_TEMP/fix/fix-report.md" ]; then cp "$RUNNER_TEMP/fix/fix-report.md" "$run/fix-report.md"; fi
+          git add --intent-to-add -- src/content
+          git diff --binary HEAD -- src/content > "$run/content.patch"
+          mkdir -p "$UPLOADS"
+          find "$UPLOADS" -type f -exec sha256sum {} + | sort | comm -13 <(sort "$run/uploads.sum") - | cut -c67- \
+            | while IFS= read -r file; do cp --parents -- "$file" "$run/"; done
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always() && steps.next.outputs.comment != ''
+        with:
+          name: content-fix-${{ github.run_id }}
+          path: ${{ runner.temp }}/run/
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Delete the input
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/fix"
+
+  publish:
+    needs: fix
+    if: always() && needs.fix.outputs.comment != ''
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: content-fix
+    permissions:
+      contents: read # the push, the PR and the reply use the App token
+    steps:
+      # Missing when `fix` failed before handing on: this job then only replies.
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        id: download
+        continue-on-error: true
+        with:
+          name: content-fix-${{ github.run_id }}
+          path: ${{ runner.temp }}/run/
+
+      # A fresh checkout of the head `fix` read before Claude ran: nothing from `fix`'s workspace runs here.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.download.outcome == 'success'
+        with:
+          ref: ${{ needs.fix.outputs.head }}
+          persist-credentials: false # only the push step gets a token
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        if: steps.download.outcome == 'success'
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        if: steps.download.outcome == 'success'
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - if: steps.download.outcome == 'success'
+        run: pnpm install --frozen-lockfile
+
+      # The report (`pnpm content-fix report`, which fails on a report without its three header lines or its reply)
+      # gives `{ blocking, commit, fix, changed }`, the PR body's report and the reply. `changed` must agree with the
+      # patch. A patch is applied only if it touches nothing but the kind's files (sheets: src/content/*.json; events:
+      # the news month files), and no id it adds may be held by an open events PR (this PR's own events are on its
+      # head already). Both messages are checked by commitlint, with a default otherwise. The PR body ends with the
+      # Události lines that need a person for events (as events.yml builds them), and the footer.
+      - name: Apply the change
+        id: apply
+        if: steps.download.outcome == 'success' && needs.fix.result == 'success'
+        env:
+          KIND: ${{ needs.fix.outputs.kind }}
+          TITLE: ${{ needs.fix.outputs.title }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY: ${{ vars.GOOGLE_CALENDAR_API_KEY }}
+        run: |
+          run="$RUNNER_TEMP/run"
+          out="$RUNNER_TEMP/publish"
+          patch="$run/content.patch"
+          result=$(pnpm --silent content-fix report "$run/fix-report.md" --out "$out")
+          changed=$(jq -r .changed <<< "$result")
+          if [ "$changed" = true ] && [ ! -s "$patch" ]; then
+            echo "::error::The report says the PR changed, but nothing changed."
+            exit 1
+          fi
+          if [ "$changed" != true ] && [ -s "$patch" ]; then
+            echo "::error::The report says nothing changed, but the change is not empty: not applied."
+            exit 1
+          fi
+          if [ "$changed" = true ]; then
+            if [ "$KIND" = events ]; then
+              allowed='^src/content/news/[0-9]{4}/[0-9]{2}\.json$'
+            else
+              allowed='^src/content/[^/]+\.json$'
+            fi
+            bad=$(git apply --numstat "$patch" | cut -f3- | grep -vE "$allowed" || true)
+            if [ -n "$bad" ] || git apply --summary "$patch" | grep -q ' mode 120000'; then
+              echo "::error::The change touches more than the $KIND files: not applied."
+              exit 1
+            fi
+            git apply "$patch"
+            if [ "$KIND" = events ]; then pnpm --silent event-mail check-ids "$run/known.json"; fi
+          fi
+          fix=$(jq -r .fix <<< "$result")
+          if ! printf '%s\n' "$fix" | pnpm exec commitlint > /dev/null; then
+            echo "::warning::The report has no valid fix message: using the default."
+            fix="fix(content): apply a comment correction"
+          fi
+          title=$(jq -r .commit <<< "$result")
+          if ! printf '%s\n' "$title" | pnpm exec commitlint > /dev/null; then
+            echo "::warning::The report has no valid commit message: keeping the title."
+            title="$TITLE"
+          fi
+          uploads=false
+          if [ "$changed" = true ] && [ -n "$(find "$run/$UPLOADS" -type f 2> /dev/null)" ]; then uploads=true; fi
+          {
+            echo "changed=$changed"
+            echo "blocking=$(jq -r .blocking <<< "$result")"
+            echo "fix=$fix"
+            echo "title=$title"
+            echo "uploads=$uploads"
+          } >> "$GITHUB_OUTPUT"
+          calendar=""
+          if [ "$KIND" = events ]; then
+            calendar=$(pnpm --silent calendar-sync --calendar events --problems 2> /dev/null || true)
+            workflow="the events workflow (\`events.yml\`)"
+            files="staged files"
+          else
+            workflow="the service sheet workflow (\`service-sheet.yml\`)"
+            files="staged PDFs"
+          fi
+          {
+            cat "$out/body.md"
+            echo
+            if [ -n "$calendar" ]; then
+              echo "## Události"
+              echo
+              echo "Needs a person in Události before the merge (an \`ask:\` event stays out of the calendar until then):"
+              echo
+              echo '```text'
+              echo "$calendar"
+              echo '```'
+              echo
+            fi
+            echo "---"
+            echo
+            echo "Opened by $workflow. Squash merge to publish: the merge releases the site."
+            echo "Comment \`@claude …\` in this conversation to correct it (\`content-fix-run.yml\`)."
+            echo "The $files are in the artifact \`content-uploads-<sha>\` of each commit; last correction: $RUN_URL"
+          } > "$out/pr-body.md"
+
+      # Also for the reply when anything before failed.
+      - name: Create the App token
+        id: app
+        if: always()
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ vars.CONTENT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.CONTENT_APP_PRIVATE_KEY }}
+          # Not all of the App's permissions: the push, editing the PR, the reply and locking.
+          permission-contents: write
+          permission-pull-requests: write
+
+      # src/content/ only: the staged files are in the staging folder, which git ignores. No hooks (the message is
+      # checked already), never a force-push: a branch moved since `fix` read it rejects the push, and the reply asks
+      # for the comment again.
+      - name: Commit and push
+        id: commit
+        if: steps.apply.outputs.changed == 'true'
+        env:
+          TOKEN: ${{ steps.app.outputs.token }}
+          APP_SLUG: ${{ steps.app.outputs.app-slug }}
+          BRANCH: ${{ needs.fix.outputs.branch }}
+          HEAD_SHA: ${{ needs.fix.outputs.head }}
+          MESSAGE: ${{ steps.apply.outputs.fix }}
+        run: |
+          bot="${APP_SLUG}[bot]"
+          id=$(GH_TOKEN="$TOKEN" gh api "/users/$bot" --jq .id)
+          git add -- src/content
+          git -c core.hooksPath=/dev/null -c user.name="$bot" -c user.email="$id+$bot@users.noreply.github.com" \
+            commit -m "$MESSAGE"
+          remote="https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if ! git push "$remote" "HEAD:refs/heads/$BRANCH"; then
+            now=$(git ls-remote "$remote" "refs/heads/$BRANCH" | cut -f1)
+            if [ "$now" != "$HEAD_SHA" ]; then echo "moved=true" >> "$GITHUB_OUTPUT"; fi
+            echo "::error::The push was rejected."
+            exit 1
+          fi
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: steps.commit.outcome == 'success' && steps.apply.outputs.uploads == 'true'
+        with:
+          name: content-uploads-${{ steps.commit.outputs.sha }}
+          path: ${{ runner.temp }}/run/${{ env.UPLOADS }}/
+          if-no-files-found: error
+          retention-days: 30
+
+      # Also without a change (an answer, a refusal): the report may have changed. The title follows the report's
+      # `commit:` line; `blocking: yes` turns a ready PR back into a draft, `blocking: no` leaves the draft state as it
+      # is (the maintainer marks it ready).
+      - name: Update the PR
+        id: pr
+        if: >-
+          steps.apply.outcome == 'success'
+          && (steps.apply.outputs.changed != 'true' || steps.commit.outcome == 'success')
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          PR: ${{ inputs.pr }}
+          TITLE: ${{ steps.apply.outputs.title }}
+          BLOCKING: ${{ steps.apply.outputs.blocking }}
+        run: |
+          body="$RUNNER_TEMP/publish/pr-body.md"
+          pull=$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json title,body,isDraft)
+          if [ "$(jq -r .body <<< "$pull")" != "$(cat "$body")" ] || [ "$(jq -r .title <<< "$pull")" != "$TITLE" ]; then
+            gh pr edit "$PR" --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body-file "$body"
+          fi
+          if [ "$BLOCKING" = true ] && [ "$(jq -r .isDraft <<< "$pull")" != true ]; then
+            gh pr ready --undo "$PR" --repo "$GITHUB_REPOSITORY"
+          fi
+
+      # Always, so the comment is answered once: the report's reply, or why it failed, never the comment's or a file's
+      # content. The marker names the comment, so no later run answers it again. The conversation is locked and even
+      # the App cannot comment on it, so it is unlocked for the reply and locked again (as content-release.yml does).
+      - name: Reply
+        if: always()
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          PR: ${{ inputs.pr }}
+          COMMENT: ${{ needs.fix.outputs.comment }}
+          ARTIFACTS: ${{ needs.fix.outputs.artifacts }}
+          MOVED: ${{ steps.commit.outputs.moved }}
+          PR_OUTCOME: ${{ steps.pr.outcome }}
+          CHANGED: ${{ steps.apply.outputs.changed }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          reply="$RUNNER_TEMP/reply.md"
+          if [ "$PR_OUTCOME" = success ]; then
+            outcome="answered ($([ "$CHANGED" = true ] && echo changed || echo unchanged))"
+            { cat "$RUNNER_TEMP/publish/reply.md"; echo; echo "Run: $RUN_URL"; } > "$reply"
+          elif [ "$MOVED" = true ]; then
+            outcome="the PR changed meanwhile"
+            echo "The PR changed meanwhile: write the comment again. Run: $RUN_URL" > "$reply"
+          elif [ "$ARTIFACTS" = failure ]; then
+            outcome="the staged files could not be downloaded"
+            echo "The fix failed: the PR's staged files could not be downloaded (an expired artifact means the PR" \
+              "has to be recreated): $RUN_URL" > "$reply"
+          else
+            outcome="failed"
+            echo "The fix failed: $RUN_URL" > "$reply"
+          fi
+          { echo; echo "<!-- content-fix: $COMMENT -->"; } >> "$reply"
+          echo "Comment $COMMENT on PR #$PR: $outcome." >> "$GITHUB_STEP_SUMMARY"
+          issue="repos/$GITHUB_REPOSITORY/issues/$PR"
+          gh api -X DELETE "$issue/lock" > /dev/null || true
+          status=0
+          gh api "$issue/comments" -F body=@"$reply" > /dev/null || status=$?
+          gh api -X PUT "$issue/lock" -f lock_reason=resolved > /dev/null || true
+          exit "$status"
+
+  # One comment per run: while unanswered comments remain, the next run takes the next one (at most 10 runs per
+  # start). GITHUB_TOKEN may dispatch a workflow.
+  next:
+    needs: [fix, publish]
+    if: >-
+      always() && needs.fix.outputs.remaining != '' && needs.fix.outputs.remaining != '0'
+      && fromJSON(inputs.chain) < 10
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      actions: write # dispatch this workflow
+    steps:
+      - name: Dispatch the next run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ inputs.pr }}
+          CHAIN: ${{ inputs.chain }}
+        run: |
+          gh workflow run content-fix-run.yml --repo "$GITHUB_REPOSITORY" --ref main -f pr="$PR" \
+            -f chain=$((CHAIN + 1))

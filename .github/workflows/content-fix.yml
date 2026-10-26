@@ -1,0 +1,67 @@
+# Picks up an `@claude` comment on a content PR (docs/deployment.md "Fixing content PRs with comments"). It runs on
+# every new comment in a PR conversation; review and inline comments are other events and never start it. The `gate`
+# job only filters: an open PR of this repo from a `service-sheet/` or `events/` branch, a comment containing
+# `@claude` from a commenter with write access (the association and the repo permission), never a bot (the App's own
+# replies). It adds an eyes reaction, so the maintainer sees the comment was picked up, and dispatches
+# content-fix-run.yml on main, which does the work: one run per PR at a time, each answering the PR's unanswered
+# comments, so a comment whose dispatch was cancelled while pending is still answered.
+# The gate is in no concurrency group (every matching comment gets its reaction), checks out nothing and runs no code
+# from the repo; the comment's text never reaches a shell. Its token (GITHUB_TOKEN) reads the PR, reacts, and may
+# dispatch a workflow. The runner image and the actions are pinned.
+
+name: Content fix comment
+
+on:
+  issue_comment:
+    types: [created] # an edited comment does not run again
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    # The cheap filters of the event; the PR's branch, its repo and the commenter's permission are read below.
+    if: >-
+      github.event.issue.pull_request && github.event.issue.state == 'open'
+      && contains(github.event.comment.body, '@claude')
+      && contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
+      && github.event.comment.user.type != 'Bot'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      actions: write # dispatch content-fix-run.yml
+      issues: write # the reaction (and unlocking for it)
+      pull-requests: read # the PR's branch and repo
+    steps:
+      # The conversation of a content PR is locked; if the reaction is refused there, it is unlocked for the reaction
+      # and locked again, as content-release.yml does for its comments. A failed reaction only warns.
+      - name: Dispatch the fix
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.issue.number }}
+          COMMENT: ${{ github.event.comment.id }}
+          AUTHOR: ${{ github.event.comment.user.login }}
+        run: |
+          pull=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR")
+          branch=$(jq -r .head.ref <<< "$pull")
+          head_repo=$(jq -r '.head.repo.full_name // ""' <<< "$pull")
+          if [ "$head_repo" != "$GITHUB_REPOSITORY" ] \
+            || ! [[ "$branch" == service-sheet/* || "$branch" == events/* ]]; then
+            echo "Not a content PR of this repo: nothing to do."
+            exit 0
+          fi
+          permission=$(gh api "repos/$GITHUB_REPOSITORY/collaborators/$AUTHOR/permission" --jq .permission)
+          if ! [[ "$permission" =~ ^(admin|maintain|write)$ ]]; then
+            echo "The commenter has no write access: nothing to do."
+            exit 0
+          fi
+          react() {
+            gh api -X POST "repos/$GITHUB_REPOSITORY/issues/comments/$COMMENT/reactions" -f content=eyes > /dev/null
+          }
+          if ! react 2> /dev/null; then
+            issue="repos/$GITHUB_REPOSITORY/issues/$PR"
+            gh api -X DELETE "$issue/lock" > /dev/null || true
+            react || echo "::warning::Could not react to the comment."
+            gh api -X PUT "$issue/lock" -f lock_reason=resolved > /dev/null || true
+          fi
+          gh workflow run content-fix-run.yml --repo "$GITHUB_REPOSITORY" --ref main -f pr="$PR"

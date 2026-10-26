@@ -17,7 +17,7 @@ describe("the copies of UPLOADS_PATH", () => {
     expect(`/${/^UPLOADS=(\S+)$/m.exec(read("scripts/deploy.sh"))?.[1]}/`).toBe(UPLOADS_PATH);
   });
 
-  it.each(["service-sheet.yml", "events.yml"])("is UPLOADS in %s", (file) => {
+  it.each(["service-sheet.yml", "events.yml", "content-fix-run.yml"])("is UPLOADS in %s", (file) => {
     expect(`/${workflowEnv(file, "UPLOADS")}/`).toBe(UPLOADS_PATH);
   });
 

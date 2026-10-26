@@ -76,8 +76,8 @@ The content workflows (`service-sheet.yml`, `events.yml`) do not test or build b
 on every commit the App pushes to a content PR. What stays in them are the cheap guards (the patch's allowed files, the
 ids an open events PR holds, the commit message, the report's format, and a report that creates or corrects nothing
 carries no change). A mail whose change fails the check is no longer left unread for the next run: it is filed and its
-PR opens red. Fix a red check with an `@claude` comment (`content-fix-run.yml`) or a commit to the PR's branch; a red
-check notifies nobody, so look at the PR before merging.
+PR opens red. Fix a red check with an [`@claude` comment](#fixing-content-prs-with-comments) or a commit to the PR's
+branch; a red check notifies nobody, so look at the PR before merging.
 
 ## Calendar sync
 
@@ -180,9 +180,9 @@ key from a fresh checkout and has no id-token, so it cannot act as Claude.
 
 **Answering the PR:** a **squash merge** means yes (the PR title becomes the commit) and releases the site; close
 means no, and nothing happens (the branch stays). A **draft** PR has a blocking question in its body: answer it, mark
-the PR ready, merge. A correction is a commit pushed to the PR's branch, or made locally with the skills
-(`parish-correct-service-sheet`). A failed check is fixed the same way, or with an `@claude` comment
-(`content-fix-run.yml`).
+the PR ready, merge. A correction or a failed check is an [`@claude` comment](#fixing-content-prs-with-comments) in the
+PR's conversation, a commit pushed to the PR's branch, or made locally with the skills
+(`parish-correct-service-sheet`).
 
 The merge releases the site through the [content release](#content-release). Each run of the sheet workflow uploads
 only the PDFs it staged, as the artifact `content-uploads-<sha>` of its commit (the PDFs under `porady_bohosluzeb/`).
@@ -286,9 +286,10 @@ reason that does not go away (an id an open PR holds) fails each run and the mai
 after it wait. Fix the cause, or move that mail to `Odmítnuto` (or `Zpracováno`) in the mailbox by hand.
 
 **Answering the PR:** as for sheets, a squash merge publishes through the [content release](#content-release), close
-means no. Fix an event with a commit to the PR's branch (the release goes ahead when it links no new file), or with
-the local skills. Two events PRs that add events at the same place in a month conflict once one is merged: resolve
-it in GitHub's editor, or close the PR and send the mail again.
+means no. Fix an event or a failed check with an [`@claude` comment](#fixing-content-prs-with-comments) in the PR's
+conversation, a commit to the PR's branch (the release goes ahead when it links no new file), or the local skills.
+Two events PRs that add events at the same place in a month conflict once one is merged: resolve it in GitHub's
+editor, or close the PR and send the mail again.
 
 ### Setup (once)
 
@@ -312,6 +313,64 @@ address in `EVENT_SENDERS`, a mail with two unrelated posters, one with "Oprava"
 address, run the workflow by hand, and check: the stranger is filed silently; the poster becomes a PR with the event
 and its files; the two posters become two events in one PR; the correction is refused and the run is red; the next
 run starts while mail remains; after the merge the content release publishes the event.
+
+## Fixing content PRs with comments
+
+A comment containing `@claude` in the **conversation** of an open content PR (a `service-sheet/*` or `events/*` PR of
+this repo) makes Claude correct the PR on its branch. Review comments and inline comments on the diff do nothing: only
+conversation comments count (a review comment's run would not be on `main`, so the release would not trust its
+files). Comments are **text only**: a file attached to a comment is not read.
+
+| PR     | A comment may                                                                                                                              |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| sheets | correct a week the PR holds (services, intentions, announcements; the record only, as the run has no DOCX); answer a question              |
+| events | correct an event the PR adds (text, date, time, place, programme, links, its staged files' labels, which is the poster); answer a question |
+| both   | fix a [failing check](#checks-on-content-prs) the PR's content causes                                                                      |
+
+Anything else (a new, dropped, pinned or split event, a new or replaced file, a week or event the PR does not hold)
+changes nothing, and the reply says what to do instead (close the PR, push a commit, run a skill locally, or
+`parish-pin-event` after the merge). A fact no document has is made as asked, and the reply says the site will then
+differ from the parish's document. An answer to a question ("@claude q2: correct as is") is recorded in the report.
+
+`.github/workflows/content-fix.yml` runs on every new comment (an edited one does not run again): only one from a
+commenter with write access (`OWNER`, `MEMBER` or `COLLABORATOR`, and the repo permission `write`, `maintain` or
+`admin`), never from a bot. It reacts with 👀, so you see the comment was picked up, and starts
+`.github/workflows/content-fix-run.yml`, which runs one comment at a time per PR, the oldest unanswered first:
+
+1. `fix` reads the PR (closed or merged meanwhile: nothing happens), downloads its staged files from the
+   `content-uploads-<sha>` artifacts of its commits, the failed `check` run's log and, for events, the known events,
+   then lets Claude run `parish-correct-service-sheet` or `parish-correct-event` as a comment run ("Comment run") on
+   the PR's head, with the comment and the PR's report as its only input (never the rest of the thread). Its file
+   tools write only in the job's scratch folder, as in the mail workflows.
+2. `publish` (a fresh checkout, the App key, no id-token) checks the report, applies the change only if it touches
+   nothing but the kind's files, commits it as the App's bot with the report's `fix:` message and pushes without
+   force, uploads the files it staged as `content-uploads-<sha>`, and updates the PR's body (and for events its
+   Události lines) and title; a new blocking question turns the PR back into a draft. No test or build:
+   [`check.yml`](#checks-on-content-prs) checks the pushed commit.
+3. It **replies** on the PR with what changed or why nothing did, and the run's link. Every reply carries a hidden
+   marker naming the comment it answers (`<!-- content-fix: <comment id> -->`), so a comment is answered once and a
+   later run takes the next unanswered one (up to 10 runs per start).
+
+**Failures:** on a technical failure (Claude's step, a report without its header lines, a change outside the allowed
+files) the run is red (GitHub tells you) and the reply says "The fix failed" with the run's link, never the comment's
+or a file's content. A failed comment is not retried: write it again. A push rejected because the branch moved
+meanwhile (a new sheet mail, your own push) replies "The PR changed meanwhile: write the comment again". An expired
+artifact (after 30 days) means the PR has to be recreated. A refusal is a reply and a green run.
+
+The run uses the PR head's own scripts and skills, so a PR whose branch was made before this workflow existed gets
+only a failure reply: correct it with a commit or locally.
+
+### Setup (once)
+
+- **Environment** `content-fix` (repository Settings → Environments), for both jobs of `content-fix-run.yml`:
+  deployment branches allowing `main`, no required reviewers, and the variable `ANTHROPIC_FEDERATION_RULE_ID` of the
+  rule below. It holds no IMAP login; the App key stays the repository secret `CONTENT_APP_PRIVATE_KEY`.
+- **Claude Console:** a third federation rule for the pipelines' service account, `subject_prefix` exactly
+  `repo:<owner>@<owner-id>/<repo>@<repo-id>:environment:content-fix` (for this site
+  `repo:oplaner4@38047115/farakurim@1403139652:environment:content-fix`), audience `https://api.anthropic.com`, the
+  same scope and lifetime as the sheet's rule.
+- **The `check` ruleset** on `main` ([GitHub setup](#github-setup)), so a red PR cannot be merged.
+- The GitHub App, its key and the repository variables `ANTHROPIC_*` are the sheet pipeline's.
 
 ## Content release
 
