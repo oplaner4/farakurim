@@ -11,9 +11,11 @@
 #   The job hands on the report, the change to src/content/news/ as a patch, the known events (read before Claude ran)
 #   and the staged files as a one-day artifact. The mail itself never leaves this job, and is deleted at the end.
 # - `publish` starts from a fresh checkout, applies the patch only if it touches nothing but the news month files,
-#   refuses an id an open events PR holds (`pnpm event-mail check-ids`), then tests, builds, commits as the GitHub
-#   App's bot and opens a new events/ PR, its body the report, a draft while the report has a blocking question. It has
-#   no id-token, so it cannot act as Claude. It uploads the staged files as `content-uploads-<sha>`.
+#   refuses an id an open events PR holds (`pnpm event-mail check-ids`), then commits as the GitHub App's bot and opens
+#   a new events/ PR, its body the report (ended by a `<!-- report-end -->` line, so a comment fix can replace the
+#   report), a draft while the report has a blocking question. It neither tests nor builds: check.yml does that on
+#   every commit the App pushes, and a red check is fixed with an `@claude` comment (content-fix-run.yml) or a commit.
+#   It has no id-token, so it cannot act as Claude. It uploads the staged files as `content-uploads-<sha>`.
 # The maintainer's squash merge releases the site (content-release.yml). One PR per mail: a later mail never changes
 # it. The run fails, so GitHub tells the maintainer, when an accepted sender's mail added nothing (every event refused,
 # or neither an attachment nor a subject and a text), when a known sender's DKIM check failed, or on a technical
@@ -298,6 +300,12 @@ jobs:
             echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+          # A patch needs an event created: the scripts restore their files when a test fails, but a report that
+          # refuses every event must not carry a change.
+          if ! grep -q '^Outcome: created$' <<< "$outcomes"; then
+            echo "::error::The report creates nothing, but the change is not empty: not applied."
+            exit 1
+          fi
           bad=$(git apply --numstat "$patch" | cut -f3- | grep -vE '^src/content/news/[0-9]{4}/[0-9]{2}\.json$' || true)
           if [ -n "$bad" ] || git apply --summary "$patch" | grep -q ' mode 120000'; then
             echo "::error::The change touches more than the news month files: not applied."
@@ -319,6 +327,8 @@ jobs:
           {
             tail -n +3 "$report"
             echo
+            echo "<!-- report-end -->"
+            echo
             if [ -n "$calendar" ]; then
               echo "## Události"
               echo
@@ -332,18 +342,9 @@ jobs:
             echo "---"
             echo
             echo "Opened by the events workflow (\`events.yml\`). Squash merge to publish: the merge releases the site."
+            echo "Comment \`@claude …\` in this conversation to correct it (\`content-fix-run.yml\`)."
             echo "The staged files are in the artifact \`content-uploads-<sha>\` of each commit; this run: $RUN_URL"
           } > "$run/pr-body.md"
-
-      - name: Test
-        if: steps.changes.outputs.changed == 'true'
-        run: pnpm test
-
-      - name: Build
-        if: steps.changes.outputs.changed == 'true'
-        env:
-          NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY: ${{ vars.GOOGLE_CALENDAR_API_KEY }}
-        run: pnpm build
 
       - name: Create the App token
         id: app
@@ -481,7 +482,7 @@ jobs:
               elif [ "$PR_OUTCOME" = success ]; then
                 echo "PR opened: $PR_URL"
               else
-                echo "The test, build, commit or PR failed (see the log): the mail stays unread for the next run."
+                echo "The commit or PR failed (see the log): the mail stays unread for the next run."
               fi
               if [ -n "$outcomes" ]; then
                 echo

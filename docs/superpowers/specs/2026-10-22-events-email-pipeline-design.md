@@ -30,7 +30,8 @@ The pipeline turns that into a short review that can be done anywhere.
 - **No corrections, cancellations or postponements by mail** (the maintainer's decision: routing a change to the
   right event and PR is too complex). They are refused; the maintainer makes them with `parish-correct-event` and
   `parish-cancel-event`.
-- **No `@claude` comments** on the PR yet (later, for both pipelines). A correction before merging is a commit pushed
+- **No `@claude` comments** on the PR yet (later, for both pipelines; superseded by
+  2026-10-26-content-pr-comment-fixes-design.md). A correction before merging is a commit pushed
   to the PR's branch or a local skill run.
 - **No rebuilding** of an events PR that conflicts with a merged one: the maintainer resolves it on GitHub (the
   maintainer accepted this) or closes it and the sender resends.
@@ -140,7 +141,7 @@ Fails (GitHub notifies the maintainer):
 
 1. A mail from an accepted sender that produced nothing (above).
 2. A known sender whose DKIM check fails.
-3. A technical failure: Claude's step, a report that does not follow the format, the tests, the build, the commit, the
+3. A technical failure: Claude's step, a report that does not follow the format, the commit, the
    PR. The mail stays unread, so a later run retries it.
 
 Stays green: a stranger's mail; a mail that produced a PR (a draft with a question, a mixed mail); no new mail.

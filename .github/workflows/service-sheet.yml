@@ -9,9 +9,11 @@
 #   as a one-day artifact. The year's DOCX (intentions with names) never leaves this job: it is not uploaded, cached
 #   or logged, and it is deleted at the end.
 # - `publish` starts from a fresh checkout, applies the patch only if it touches nothing but src/content/*.json, then
-#   tests, builds, commits as the GitHub App's bot and opens or updates the one service-sheet/* PR, its body the
-#   report, a draft while the report has a blocking question (an update turns it back into one). It has no id-token,
-#   so it cannot act as Claude.
+#   commits as the GitHub App's bot and opens or updates the one service-sheet/* PR, its body the report (ended by a
+#   `<!-- report-end -->` line, so a comment fix can replace the report), a draft while the report has a blocking
+#   question (an update turns it back into one). It neither tests nor builds: check.yml does that on every commit the
+#   App pushes, and a red check is fixed with an `@claude` comment (content-fix-run.yml) or a commit. It has no
+#   id-token, so it cannot act as Claude.
 # The maintainer's merge releases the site (content-release.yml), with the staged PDFs from the artifacts of the PR's
 # commits (`content-uploads-<sha>`, the PDFs under porady_bohosluzeb/ as in the staging folder). Nothing changed: no PR. The mail is filed (Zpracováno, Odmítnuto) only once its outcome is done, so
 # a run that breaks retries the sheet on the next run. Both jobs run in the environment `service-sheet-publish` (the
@@ -289,6 +291,12 @@ jobs:
             fi
             exit 0
           fi
+          # A patch needs a week created or corrected: the scripts restore their files when a test fails, but a report
+          # that refuses every week must not carry a change.
+          if ! grep -qE '^Outcome: (created|corrected)$' <<< "$outcomes"; then
+            echo "::error::The report creates nothing, but the change is not empty: not applied."
+            exit 1
+          fi
           bad=$(git apply --numstat "$patch" | cut -f3- | grep -vE '^src/content/[^/]+\.json$' || true)
           if [ -n "$bad" ] || git apply --summary "$patch" | grep -q ' mode 120000'; then
             echo "::error::The change touches more than src/content/*.json: not applied."
@@ -308,21 +316,14 @@ jobs:
           {
             tail -n +3 "$report"
             echo
+            echo "<!-- report-end -->"
+            echo
             echo "---"
             echo
             echo "Opened by the service sheet workflow (\`service-sheet.yml\`). Squash merge to publish: the merge releases the site."
+            echo "Comment \`@claude …\` in this conversation to correct it (\`content-fix-run.yml\`)."
             echo "The staged PDFs are in the artifact \`content-uploads-<sha>\` of each commit; this run: $RUN_URL"
           } > "$run/pr-body.md"
-
-      - name: Test
-        if: steps.changes.outputs.changed == 'true'
-        run: pnpm test
-
-      - name: Build
-        if: steps.changes.outputs.changed == 'true'
-        env:
-          NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY: ${{ vars.GOOGLE_CALENDAR_API_KEY }}
-        run: pnpm build
 
       - name: Create the App token
         id: app
@@ -438,7 +439,7 @@ jobs:
               elif [ "$PR_OUTCOME" = success ]; then
                 echo "PR $PR_ACTION: $PR_URL"
               else
-                echo "The test, build, commit or PR failed (see the log): the sheet stays unread for the next run."
+                echo "The commit or PR failed (see the log): the sheet stays unread for the next run."
               fi
             fi
             if [ -n "$failed" ]; then

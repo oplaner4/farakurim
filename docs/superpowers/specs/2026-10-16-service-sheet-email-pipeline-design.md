@@ -183,7 +183,8 @@ The maintainer answers the PR as they answer the skill locally:
   weeks already in the PR, so the body and the title (the `commit:` line, the squash commit on `main`) always describe
   every week the PR holds. Message as `parish-publish-content` says:
   `feat(content): publish the service sheet for 19.–25. 10. 2026`, or `fix(content): correct the service sheet for …`.
-- Before the PR: `pnpm test` and `pnpm build` with the calendar key. The staged PDFs are uploaded as an artifact named
+- Before the PR: `pnpm test` and `pnpm build` with the calendar key (Superseded by 2026-10-26-content-pr-comment-fixes-design.md § Checks; the pipeline no longer tests or builds,
+  `check.yml` does). The staged PDFs are uploaded as an artifact named
   after the PR head commit, retention 30 days (longer than any PR stays open), outside git.
 - The body: the report (§2), with "Mirror in the calendar": the week's services, to check against the
   "Bohoslužby" calendar, and a link to the run's PDF artifact. No images (the maintainer's call): the report is what
@@ -223,6 +224,8 @@ Everything goes to the maintainer through GitHub (my call on the channel; the ma
   sender's other content.
 
 ### 6. Comments (`service-sheet-fix.yml`)
+
+Superseded by 2026-10-26-content-pr-comment-fixes-design.md (`content-fix-run.yml`, for both pipelines).
 
 - Triggers: `issue_comment`, `pull_request_review_comment`, `pull_request_review` on PRs whose branch starts with
   `service-sheet/` **and whose head repository is this repo** (a fork can name its branch the same).

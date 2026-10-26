@@ -61,10 +61,23 @@ To refresh now, run the workflow by hand: Actions tab → Deploy → **Run workf
   deploy to Production").
 - **Repository variables** `GOOGLE_CALENDAR_API_KEY`, `MATOMO_URL` and `MATOMO_SITE_ID` for the build (the build job
   has no environment).
+- **A ruleset on `main`** requiring the status check `check` (the job of `check.yml`), with the content GitHub App as a
+  bypass actor, so a red content PR cannot be merged while the release commit and tag still push. Without it nothing
+  stops a red merge: the content release does not look at checks, and it would push a release tag whose `deploy.yml`
+  check then fails.
 
 `.github/workflows/check.yml` checks and builds pushes to `main` and pull requests with no secrets, skipping docs-only
 changes and release commits. The deploy workflow calls it for the tag, so a release runs the same check (with the site's
 tests only) before it builds with the variables above.
+
+### Checks on content PRs
+
+The content workflows (`service-sheet.yml`, `events.yml`) do not test or build before they open a PR: `check.yml` runs
+on every commit the App pushes to a content PR. What stays in them are the cheap guards (the patch's allowed files, the
+ids an open events PR holds, the commit message, the report's format, and a report that creates or corrects nothing
+carries no change). A mail whose change fails the check is no longer left unread for the next run: it is filed and its
+PR opens red. Fix a red check with an `@claude` comment (`content-fix-run.yml`) or a commit to the PR's branch; a red
+check notifies nobody, so look at the PR before merging.
 
 ## Calendar sync
 
@@ -151,7 +164,8 @@ provider's DKIM signature.
    one DOCX is a sheet, any other mail is filed in `Odmítnuto`;
 2. lets Claude run the service sheet skills unattended on the DOCX (workload identity federation, no API key): it
    drafts, corrects and stages the weeks and writes a report;
-3. tests and builds the change to `src/content/`, commits it as the GitHub App's bot and opens (or adds a commit to)
+3. commits the change to `src/content/` as the GitHub App's bot (no test or build: [`check.yml`](#checks-on-content-prs)
+   checks the PR) and opens (or adds a commit to)
    the one `service-sheet/*` pull request, its body the report (a later run gets the previous report, keeps its weeks
    and question ids, so the body and title describe every week in the PR, and turns it back into a draft on a new
    blocking question). The conversation is locked: only
@@ -167,7 +181,8 @@ key from a fresh checkout and has no id-token, so it cannot act as Claude.
 **Answering the PR:** a **squash merge** means yes (the PR title becomes the commit) and releases the site; close
 means no, and nothing happens (the branch stays). A **draft** PR has a blocking question in its body: answer it, mark
 the PR ready, merge. A correction is a commit pushed to the PR's branch, or made locally with the skills
-(`parish-correct-service-sheet`); comments with `@claude` come in phase 2.
+(`parish-correct-service-sheet`). A failed check is fixed the same way, or with an `@claude` comment
+(`content-fix-run.yml`).
 
 The merge releases the site through the [content release](#content-release). Each run of the sheet workflow uploads
 only the PDFs it staged, as the artifact `content-uploads-<sha>` of its commit (the PDFs under `porady_bohosluzeb/`).
@@ -249,7 +264,8 @@ signature. `.github/workflows/events.yml`
    in the report), takes each title from the subject or its poster, fills the text from the attachments, pins only
    when the mail asks for "Doporučujeme", and refuses a **correction** (oprava, změna, posun, přesun, zrušeno, nekoná,
    …: make it with `parish-correct-event` or `parish-cancel-event`) and a **duplicate** of a known event;
-4. tests and builds the new events, commits them as the GitHub App's bot and opens **one PR per mail** on a branch
+4. commits the new events as the GitHub App's bot (no test or build: [`check.yml`](#checks-on-content-prs) checks the
+   PR) and opens **one PR per mail** on a branch
    `events/<date>`, its body the report (only what is published is quoted: the PR is public), locked, a draft when
    the report has a blocking question. Its body ends with the [calendar sync](#calendar-sync) preview's lines
    that need a person (an `ask:` or `cannot pair` line, or that the calendar was not checked), so the reviewer can fix
@@ -266,7 +282,7 @@ A PR, a draft with a question, or a PR with some events refused (listed in it) l
 you. Nothing is sent to the senders.
 
 **A mail that fails every run:** the workflow always takes the oldest unread event mail, so a mail that fails for a
-reason that does not go away (an id an open PR holds, a `main` that does not build) fails each run and the mails
+reason that does not go away (an id an open PR holds) fails each run and the mails
 after it wait. Fix the cause, or move that mail to `Odmítnuto` (or `Zpracováno`) in the mailbox by hand.
 
 **Answering the PR:** as for sheets, a squash merge publishes through the [content release](#content-release), close
