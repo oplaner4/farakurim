@@ -2,12 +2,13 @@
 // src/lib/shared/json-file.ts), the event IDs and month files, and formatting and testing the files written.
 
 import { execFileSync } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as prettier from "prettier";
 import { readEvents } from "@/content/news";
 import type { NewsEvent } from "@/content/types/news";
+import { UPLOADS_DIR } from "./uploads";
 
 export const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 export const NEWS_DIR = join(ROOT, "src/content/news");
@@ -57,4 +58,51 @@ export async function formatAndTest(files: string[], tests: string | string[]) {
   await formatFiles(files);
   const vitest = join(ROOT, "node_modules/vitest/vitest.mjs");
   execFileSync(process.execPath, [vitest, "run", ...[tests].flat()], { cwd: ROOT, stdio: "inherit" });
+}
+
+/** The paths under `dir` (relative, folders included); none when the folder is missing. */
+const listDir = (dir: string) => (existsSync(dir) ? readdirSync(dir, { recursive: true, encoding: "utf8" }) : []);
+
+/**
+ * Takes a restore point of the content under `contentDir` (every file's content) and of the files under `uploadsDir`
+ * (their list); the function it returns rewrites the content files changed or deleted since, and deletes the files
+ * added since in either folder. The uploads that were there before stay as they are.
+ */
+export function contentRestorePoint(contentDir: string, uploadsDir: string) {
+  const contents = new Map<string, Buffer>();
+  const contentPaths = new Set(listDir(contentDir));
+  for (const rel of contentPaths) {
+    const path = join(contentDir, rel);
+    if (statSync(path).isFile()) contents.set(path, readFileSync(path));
+  }
+  const uploadPaths = new Set(listDir(uploadsDir));
+  return () => {
+    for (const rel of listDir(contentDir))
+      if (!contentPaths.has(rel)) rmSync(join(contentDir, rel), { recursive: true, force: true });
+    for (const rel of listDir(uploadsDir))
+      if (!uploadPaths.has(rel)) rmSync(join(uploadsDir, rel), { recursive: true, force: true });
+    for (const [path, content] of contents) {
+      mkdirSync(dirname(path), { recursive: true });
+      writeFileSync(path, content);
+    }
+  };
+}
+
+/**
+ * Wraps a command's `run` so that a failure (typically the tests after the files were written) puts the content and
+ * the staged uploads back as they were, then rethrows.
+ */
+export function withContentRestore<T>(
+  run: (command: T) => unknown,
+  dirs = { content: join(ROOT, "src/content"), uploads: join(ROOT, UPLOADS_DIR) },
+) {
+  return async (command: T) => {
+    const restore = contentRestorePoint(dirs.content, dirs.uploads);
+    try {
+      await run(command);
+    } catch (error) {
+      restore();
+      throw error;
+    }
+  };
 }

@@ -3,11 +3,13 @@
 // sheet tests. The record is one ScheduleException: every service of that date at the parish churches (`services: []`
 // cancels the day); a record for a date already there replaces it. A date a sheet covers is refused (correct that
 // sheet instead), and so is a past one.
+// A failure restores src/content/ and removes the files it staged.
 //
 // Usage: pnpm add-exception <record.json | -> | --remove <YYYY-MM-DD> [--check]
 // --remove takes the change on that date out (an announcement withdrawn). --check only validates and prints what
 // would change, without writing.
 import { runCommand } from "./lib/command";
+import { withContentRestore } from "./lib/content-files";
 import { execute, parseCommand } from "./lib/services/add-exception";
 
-runCommand("add-exception", import.meta.url, parseCommand, execute);
+runCommand("add-exception", import.meta.url, parseCommand, withContentRestore(execute));

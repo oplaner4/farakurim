@@ -4,6 +4,7 @@
 // server are never overwritten), copies the file under its ASCII name, renders the images and adds the record, then
 // formats the files and runs their tests. --check only validates and prints, without copying or rendering: use it
 // before the user confirms, so nothing unconfirmed is left staged for the next release.
+// A failure restores src/content/ and removes the files it staged.
 //
 // Usage: pnpm stage <command> ... [--check]
 //   event <id> <source> <label> [<source> <label> …] [--no-poster] [--corrected] [--record <record.json>]
@@ -40,6 +41,7 @@
 // Requires pdftoppm, pdfinfo, pdftotext, pdfseparate and pdfunite (poppler-utils) for PDFs, and LibreOffice (or Word on
 // Windows) for a DOCX.
 import { runCommand } from "./lib/command";
+import { withContentRestore } from "./lib/content-files";
 import { execute } from "./lib/stage/command";
 
-runCommand("stage", import.meta.url, (args) => args, execute);
+runCommand("stage", import.meta.url, (args) => args, withContentRestore(execute));

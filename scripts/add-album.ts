@@ -8,10 +8,12 @@
 // beyond the albums the site keeps, formats the file and runs the gallery test; --check does the same without
 // writing and prints what --write would do. The title and the date come from the album page, or from the zip's name
 // when the page does not answer. --title, --date and --id override the proposal (an empty value counts as not given).
+// A failure restores src/content/ and removes the files it staged.
 //
 // Usage: pnpm add-album https://eu.zonerama.com/FarnostKurim/Album/<n> [--photos <zip of the originals>]
 //          [--write | --check] [--title "<title>"] [--date YYYY-MM-DD] [--id <kebab-id>]
 import { runCommand } from "./lib/command";
+import { withContentRestore } from "./lib/content-files";
 import { execute, parseCommand } from "./lib/gallery/add-album";
 
-runCommand("add-album", import.meta.url, parseCommand, execute);
+runCommand("add-album", import.meta.url, parseCommand, withContentRestore(execute));

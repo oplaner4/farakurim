@@ -1,5 +1,6 @@
 // pnpm add-event: adds a confirmed event to src/content/news/ (parish-create-event skill), formats its
 // month file and runs the news tests.
+// A failure restores src/content/ and removes the files it staged.
 //
 // Usage: pnpm add-event <record.json | -> [--check]
 // The record is a NewsEvent as JSON (`-` reads stdin), upload paths root-relative ("/uploads/aktuality/x.webp").
@@ -7,6 +8,7 @@
 // `"pinned": true` takes the pin from the record pinned before, named in the output. An event with files to
 // upload is added by `pnpm stage event … --record`, one already there is corrected with `pnpm replace-event`.
 import { runCommand } from "./lib/command";
+import { withContentRestore } from "./lib/content-files";
 import { execute, parseCommand } from "./lib/news/add-event";
 
-runCommand("add-event", import.meta.url, parseCommand, execute);
+runCommand("add-event", import.meta.url, parseCommand, withContentRestore(execute));
