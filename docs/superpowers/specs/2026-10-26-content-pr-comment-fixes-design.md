@@ -83,8 +83,9 @@ on the PR yet".
   - So a run cancelled while pending loses nothing: the next run, or the one in progress when it finishes its
     current comment and looks again, picks the comment up.
   - Sheet PRs do not share `service-sheet.yml`'s group: a new mail adding a commit to the open sheet PR while a fix
-    runs makes one of the pushes fail (never a force-push). A rejected fix push replies "the PR changed meanwhile,
-    write the comment again" (my call).
+    runs makes one of the pushes fail (never a force-push). A rejected fix push, or a PR that `publish` finds
+    merged, closed or moved before it commits, pushes nothing and replies "the PR changed or was merged meanwhile,
+    write the comment again if it still applies" (my call).
 - The PR's state, head and kind are read before each comment, not from the event: a PR merged or closed meanwhile is
   left alone, and each comment starts from the head the previous one pushed.
 - Two jobs per comment as in `events.yml`: **`fix`** (id-token for Claude, read-only token, no App key) and
@@ -149,8 +150,8 @@ As the pipelines' `publish`, on a fresh checkout of the PR's head:
   `blocking: yes|no`, `commit: <message>` (the PR title: the squash commit on `main`, describing every week or event
   the PR holds, as in the pipelines) and `fix: <message>` (this commit, what the comment changed, for example
   `fix(content): correct the Sunday intention`). Both are checked by commitlint, with a default otherwise.
-- Upload the changed and added staged files as `content-uploads-<sha>` of the new commit (30 days); none when the
-  commit staged no file.
+- Upload the changed and added staged files as `content-uploads-<sha>` of the new commit (30 days) before pushing
+  it, so no pushed commit lacks its files; none when the commit staged no file.
 - Update the PR body from the report (plus the footer the pipelines add, and for events the `Události` lines), and
   the title from its `commit:` line.
 - `check-ids` leaves out the events of this PR itself (they are on its branch already).
@@ -169,7 +170,9 @@ fixed with "@claude fix the failing check" or a pushed commit. The tests and the
 (`uploads/` is not in git), so `check.yml` sees what the dropped steps saw.
 
 - **A red PR cannot be merged:** `Check` becomes a required status check on `main` in a ruleset (setup, by the
-  maintainer), with the content App as a bypass actor so the release commit and tag still push. Today nothing stops a
+  maintainer), with the content App and the repository admin role as bypass actors so the content release's commit
+  and tag, `pnpm release` and the maintainer's direct pushes still push (a required check rejects a direct push
+  whose commit has no passing `Check`, and `check.yml` skips release and docs-only commits). Today nothing stops a
   red merge: the content release does not look at checks, and a red merge would push a release tag whose `deploy.yml`
   check then fails.
 - **The cheap guards stay** in `publish`: the patch's allowed files, `check-ids`, commitlint, the report format.

@@ -61,10 +61,12 @@ To refresh now, run the workflow by hand: Actions tab → Deploy → **Run workf
   deploy to Production").
 - **Repository variables** `GOOGLE_CALENDAR_API_KEY`, `MATOMO_URL` and `MATOMO_SITE_ID` for the build (the build job
   has no environment).
-- **A ruleset on `main`** requiring the status check `check` (the job of `check.yml`), with the content GitHub App as a
-  bypass actor, so a red content PR cannot be merged while the release commit and tag still push. Without it nothing
-  stops a red merge: the content release does not look at checks, and it would push a release tag whose `deploy.yml`
-  check then fails.
+- **A ruleset on `main`** requiring the status check `check` (the job of `check.yml`), with the content GitHub App and
+  the **Repository admin** role as bypass actors, so a red content PR cannot be merged while the content release's
+  commit and tag still push. The admin role keeps `pnpm release` and your own pushes to `main` working: a required
+  check rejects a direct push whose commit has no passing `check`, and `check.yml` skips release commits and
+  docs-only changes. Without the ruleset nothing stops a red merge: the content release does not look at checks, and
+  it would push a release tag whose `deploy.yml` check then fails.
 
 `.github/workflows/check.yml` checks and builds pushes to `main` and pull requests with no secrets, skipping docs-only
 changes and release commits. The deploy workflow calls it for the tag, so a release runs the same check (with the site's
@@ -343,18 +345,22 @@ commenter with write access (`OWNER`, `MEMBER` or `COLLABORATOR`, and the repo p
    the PR's head, with the comment and the PR's report as its only input (never the rest of the thread). Its file
    tools write only in the job's scratch folder, as in the mail workflows.
 2. `publish` (a fresh checkout, the App key, no id-token) checks the report, applies the change only if it touches
-   nothing but the kind's files, commits it as the App's bot with the report's `fix:` message and pushes without
-   force, uploads the files it staged as `content-uploads-<sha>`, and updates the PR's body (and for events its
-   Události lines) and title; a new blocking question turns the PR back into a draft. No test or build:
-   [`check.yml`](#checks-on-content-prs) checks the pushed commit.
+   nothing but the kind's files, commits it as the App's bot with the report's `fix:` message, uploads the files it
+   staged as `content-uploads-<sha>` and only then pushes without force (so no pushed commit lacks its files), and
+   updates the PR's body (and for events its Události lines) and title; a new blocking question turns the PR back
+   into a draft. Before committing it reads the PR again: merged, closed or moved since `fix` read it, nothing is
+   pushed. No test or build: [`check.yml`](#checks-on-content-prs) checks the pushed commit.
 3. It **replies** on the PR with what changed or why nothing did, and the run's link. Every reply carries a hidden
    marker naming the comment it answers (`<!-- content-fix: <comment id> -->`), so a comment is answered once and a
    later run takes the next unanswered one (up to 10 runs per start).
 
 **Failures:** on a technical failure (Claude's step, a report without its header lines, a change outside the allowed
 files) the run is red (GitHub tells you) and the reply says "The fix failed" with the run's link, never the comment's
-or a file's content. A failed comment is not retried: write it again. A push rejected because the branch moved
-meanwhile (a new sheet mail, your own push) replies "The PR changed meanwhile: write the comment again". An expired
+or a file's content. A failed comment is not retried: write it again. A PR merged, closed or moved meanwhile (a new
+sheet mail, your own push), seen before the push or as a rejected push, gets nothing pushed and the reply "The PR
+changed or was merged meanwhile: write the comment again if it still applies". A failed upload of the staged files
+pushes nothing either. A reply that could not be posted stops the chain, so the comment is not applied again run
+after run (the next `@claude` comment starts from the oldest unanswered one, which may be that comment). An expired
 artifact (after 30 days) means the PR has to be recreated. A refusal is a reply and a green run.
 
 The run uses the PR head's own scripts and skills, so a PR whose branch was made before this workflow existed gets
@@ -369,7 +375,8 @@ only a failure reply: correct it with a commit or locally.
   `repo:<owner>@<owner-id>/<repo>@<repo-id>:environment:content-fix` (for this site
   `repo:oplaner4@38047115/farakurim@1403139652:environment:content-fix`), audience `https://api.anthropic.com`, the
   same scope and lifetime as the sheet's rule.
-- **The `check` ruleset** on `main` ([GitHub setup](#github-setup)), so a red PR cannot be merged.
+- **The `check` ruleset** on `main` ([GitHub setup](#github-setup)), so a red PR cannot be merged (the App and the
+  repository admin role bypass it).
 - The GitHub App, its key and the repository variables `ANTHROPIC_*` are the sheet pipeline's.
 
 ## Content release

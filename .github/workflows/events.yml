@@ -15,7 +15,8 @@
 #   a new events/ PR, its body the report (ended by a `<!-- report-end -->` line, so a comment fix can replace the
 #   report), a draft while the report has a blocking question. It neither tests nor builds: check.yml does that on
 #   every commit the App pushes, and a red check is fixed with an `@claude` comment (content-fix-run.yml) or a commit.
-#   It has no id-token, so it cannot act as Claude. It uploads the staged files as `content-uploads-<sha>`.
+#   It has no id-token, so it cannot act as Claude. It uploads the staged files as `content-uploads-<sha>` before it
+#   pushes the commit, so no pushed commit lacks them.
 # The maintainer's squash merge releases the site (content-release.yml). One PR per mail: a later mail never changes
 # it. The run fails, so GitHub tells the maintainer, when an accepted sender's mail added nothing (every event refused,
 # or neither an attachment nor a subject and a text), when a known sender's DKIM check failed, or on a technical
@@ -358,14 +359,13 @@ jobs:
           permission-pull-requests: write
 
       # src/content/ only: the staged files are in the staging folder, which git ignores. No hooks (the message is
-      # checked already), never a force-push: a branch taken since `event` rejects the push and the mail is retried.
-      - name: Commit and push
+      # checked already).
+      - name: Commit
         id: commit
         if: steps.changes.outputs.changed == 'true'
         env:
           TOKEN: ${{ steps.app.outputs.token }}
           APP_SLUG: ${{ steps.app.outputs.app-slug }}
-          BRANCH: ${{ needs.event.outputs.branch }}
           MESSAGE: ${{ steps.changes.outputs.message }}
         run: |
           bot="${APP_SLUG}[bot]"
@@ -373,9 +373,9 @@ jobs:
           git add -- src/content/news
           git -c core.hooksPath=/dev/null -c user.name="$bot" -c user.email="$id+$bot@users.noreply.github.com" \
             commit -m "$MESSAGE"
-          git push "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/$BRANCH"
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
+      # Before the push, so no pushed commit lacks its staged files: a failed upload pushes nothing.
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: steps.commit.outcome == 'success'
         with:
@@ -384,10 +384,19 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
+      # Never a force-push: a branch taken since `event` rejects the push and the mail is retried.
+      - name: Push
+        id: push
+        if: steps.commit.outcome == 'success'
+        env:
+          TOKEN: ${{ steps.app.outputs.token }}
+          BRANCH: ${{ needs.event.outputs.branch }}
+        run: git push "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/$BRANCH"
+
       # The conversation is locked (the repo is public): only collaborators with write access can comment.
       - name: Open the PR
         id: pr
-        if: steps.commit.outcome == 'success'
+        if: steps.push.outcome == 'success'
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
           BRANCH: ${{ needs.event.outputs.branch }}

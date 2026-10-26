@@ -13,7 +13,8 @@
 #   `<!-- report-end -->` line, so a comment fix can replace the report), a draft while the report has a blocking
 #   question (an update turns it back into one). It neither tests nor builds: check.yml does that on every commit the
 #   App pushes, and a red check is fixed with an `@claude` comment (content-fix-run.yml) or a commit. It has no
-#   id-token, so it cannot act as Claude.
+#   id-token, so it cannot act as Claude. It uploads the staged PDFs as `content-uploads-<sha>` before it pushes the
+#   commit, so no pushed commit lacks them.
 # The maintainer's merge releases the site (content-release.yml), with the staged PDFs from the artifacts of the PR's
 # commits (`content-uploads-<sha>`, the PDFs under porady_bohosluzeb/ as in the staging folder). Nothing changed: no PR. The mail is filed (Zpracováno, Odmítnuto) only once its outcome is done, so
 # a run that breaks retries the sheet on the next run. Both jobs run in the environment `service-sheet-publish` (the
@@ -336,15 +337,14 @@ jobs:
           permission-contents: write
           permission-pull-requests: write
 
-      # src/content/ only: the staged PDF is in the staging folder, which git ignores. No hooks (the message is checked
-      # already), never a force-push: a branch moved since `sheet` rejects the push and the sheet is retried.
-      - name: Commit and push
+      # src/content/ only: the staged PDF is in the staging folder, which git ignores. No hooks (the message is
+      # checked already).
+      - name: Commit
         id: commit
         if: steps.changes.outputs.changed == 'true'
         env:
           TOKEN: ${{ steps.app.outputs.token }}
           APP_SLUG: ${{ steps.app.outputs.app-slug }}
-          BRANCH: ${{ needs.sheet.outputs.branch }}
           MESSAGE: ${{ steps.changes.outputs.message }}
         run: |
           bot="${APP_SLUG}[bot]"
@@ -352,9 +352,9 @@ jobs:
           git add -- src/content
           git -c core.hooksPath=/dev/null -c user.name="$bot" -c user.email="$id+$bot@users.noreply.github.com" \
             commit -m "$MESSAGE"
-          git push "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/$BRANCH"
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
+      # Before the push, so no pushed commit lacks its staged files: a failed upload pushes nothing.
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: steps.commit.outcome == 'success'
         with:
@@ -363,12 +363,21 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
+      # Never a force-push: a branch moved since `sheet` rejects the push and the sheet is retried.
+      - name: Push
+        id: push
+        if: steps.commit.outcome == 'success'
+        env:
+          TOKEN: ${{ steps.app.outputs.token }}
+          BRANCH: ${{ needs.sheet.outputs.branch }}
+        run: git push "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/$BRANCH"
+
       # The conversation is locked (the repo is public): only collaborators with write access can comment. An update
       # also refreshes the title, and a report that is not exactly `blocking: no` turns the PR back into a draft, so a
       # new blocking question cannot be merged; otherwise the draft state stays (the maintainer marks it ready).
       - name: Open or update the PR
         id: pr
-        if: steps.commit.outcome == 'success'
+        if: steps.push.outcome == 'success'
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
           PR: ${{ needs.sheet.outputs.pr }}

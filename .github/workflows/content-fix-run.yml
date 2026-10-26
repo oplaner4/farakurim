@@ -17,16 +17,18 @@
 # - `publish` starts from a fresh checkout of the head `fix` read before Claude ran, so the code it runs is the PR's
 #   own, never Claude's workspace. It checks the report (`pnpm content-fix report`), applies the patch only if it
 #   touches nothing but the kind's files and the report says it changed something, refuses an id an open events PR
-#   holds, commits as the GitHub App's bot and pushes without force (a branch moved meanwhile rejects it), uploads the
-#   changed staged files as `content-uploads-<sha>` (so the content release finds them), updates the PR's body and
-#   title from the report and turns it back into a draft on a blocking question. It neither tests nor builds: check.yml
-#   does that on the pushed commit. It has no id-token, so it cannot act as Claude. It always replies to the comment
-#   (the report's reply, or the failure with the run's link, never the comment's or a file's content), with the
-#   marker.
-# While unanswered comments remain, `next` dispatches the workflow again, up to 10 runs per start. Both jobs run in the
-# environment `content-fix` (the federation rule `ANTHROPIC_FEDERATION_RULE_ID`, which matches it; only `fix` has an
-# id-token). The App key is the repository secret CONTENT_APP_PRIVATE_KEY, shared with the other content workflows. The
-# runner image and the actions are pinned (actions by commit SHA).
+#   holds, reads the PR again (merged, closed or moved since `fix` read it: nothing is pushed), commits as the GitHub
+#   App's bot, uploads the changed staged files as `content-uploads-<sha>` (so the content release finds them) and only
+#   then pushes without force (a branch moved meanwhile rejects it), so no pushed commit lacks its files. It updates
+#   the PR's body and title from the report and turns it back into a draft on a blocking question. It neither tests
+#   nor builds: check.yml does that on the pushed commit. It has no id-token, so it cannot act as Claude. It always
+#   replies to the comment (the report's reply, or the failure with the run's link, never the comment's or a file's
+#   content), with the marker.
+# While unanswered comments remain and the reply was posted, `next` dispatches the workflow again, up to 10 runs per
+# start (a reply that failed would leave its comment unanswered, to be applied again by every next run). Both jobs run
+# in the environment `content-fix` (the federation rule `ANTHROPIC_FEDERATION_RULE_ID`, which matches it; only `fix`
+# has an id-token). The App key is the repository secret CONTENT_APP_PRIVATE_KEY, shared with the other content
+# workflows. The runner image and the actions are pinned (actions by commit SHA).
 
 name: Content fix
 
@@ -251,6 +253,8 @@ jobs:
     environment: content-fix
     permissions:
       contents: read # the push, the PR and the reply use the App token
+    outputs:
+      posted: ${{ steps.reply.outputs.posted }}
     steps:
       # Missing when `fix` failed before handing on: this job then only replies.
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
@@ -382,23 +386,51 @@ jobs:
           permission-pull-requests: write
 
       # src/content/ only: the staged files are in the staging folder, which git ignores. No hooks (the message is
-      # checked already), never a force-push: a branch moved since `fix` read it rejects the push, and the reply asks
-      # for the comment again.
-      - name: Commit and push
+      # checked already). The PR is read again first: one merged, closed or moved since `fix` read it gets no commit,
+      # and the reply asks for the comment again.
+      - name: Commit
         id: commit
         if: steps.apply.outputs.changed == 'true'
         env:
           TOKEN: ${{ steps.app.outputs.token }}
           APP_SLUG: ${{ steps.app.outputs.app-slug }}
-          BRANCH: ${{ needs.fix.outputs.branch }}
+          PR: ${{ inputs.pr }}
           HEAD_SHA: ${{ needs.fix.outputs.head }}
           MESSAGE: ${{ steps.apply.outputs.fix }}
         run: |
+          pull=$(GH_TOKEN="$TOKEN" gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json state,headRefOid)
+          if [ "$(jq -r .state <<< "$pull")" != OPEN ] || [ "$(jq -r .headRefOid <<< "$pull")" != "$HEAD_SHA" ]; then
+            echo "moved=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::The PR was merged, closed or moved since the fix read it: nothing pushed."
+            exit 0
+          fi
           bot="${APP_SLUG}[bot]"
           id=$(GH_TOKEN="$TOKEN" gh api "/users/$bot" --jq .id)
           git add -- src/content
           git -c core.hooksPath=/dev/null -c user.name="$bot" -c user.email="$id+$bot@users.noreply.github.com" \
             commit -m "$MESSAGE"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      # Before the push, so no pushed commit lacks its staged files: a failed upload pushes nothing.
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        id: uploads
+        if: steps.commit.outputs.sha != '' && steps.apply.outputs.uploads == 'true'
+        with:
+          name: content-uploads-${{ steps.commit.outputs.sha }}
+          path: ${{ runner.temp }}/run/${{ env.UPLOADS }}/
+          if-no-files-found: error
+          retention-days: 30
+
+      # Never a force-push: a branch moved since `Commit` read it rejects the push, and the reply asks for the comment
+      # again. (A rejected push leaves an artifact no commit names: the release never reads it.)
+      - name: Push
+        id: push
+        if: steps.commit.outputs.sha != ''
+        env:
+          TOKEN: ${{ steps.app.outputs.token }}
+          BRANCH: ${{ needs.fix.outputs.branch }}
+          HEAD_SHA: ${{ needs.fix.outputs.head }}
+        run: |
           remote="https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           if ! git push "$remote" "HEAD:refs/heads/$BRANCH"; then
             now=$(git ls-remote "$remote" "refs/heads/$BRANCH" | cut -f1)
@@ -406,15 +438,6 @@ jobs:
             echo "::error::The push was rejected."
             exit 1
           fi
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        if: steps.commit.outcome == 'success' && steps.apply.outputs.uploads == 'true'
-        with:
-          name: content-uploads-${{ steps.commit.outputs.sha }}
-          path: ${{ runner.temp }}/run/${{ env.UPLOADS }}/
-          if-no-files-found: error
-          retention-days: 30
 
       # Also without a change (an answer, a refusal): the report may have changed. The title follows the report's
       # `commit:` line; `blocking: yes` turns a ready PR back into a draft, `blocking: no` leaves the draft state as it
@@ -423,7 +446,7 @@ jobs:
         id: pr
         if: >-
           steps.apply.outcome == 'success'
-          && (steps.apply.outputs.changed != 'true' || steps.commit.outcome == 'success')
+          && (steps.apply.outputs.changed != 'true' || steps.push.outcome == 'success')
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
           PR: ${{ inputs.pr }}
@@ -442,14 +465,18 @@ jobs:
       # Always, so the comment is answered once: the report's reply, or why it failed, never the comment's or a file's
       # content. The marker names the comment, so no later run answers it again. The conversation is locked and even
       # the App cannot comment on it, so it is unlocked for the reply and locked again (as content-release.yml does).
+      # `posted` lets `next` go on: a comment left unanswered would be taken, and applied, again by every next run.
       - name: Reply
+        id: reply
         if: always()
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
           PR: ${{ inputs.pr }}
           COMMENT: ${{ needs.fix.outputs.comment }}
           ARTIFACTS: ${{ needs.fix.outputs.artifacts }}
-          MOVED: ${{ steps.commit.outputs.moved }}
+          MOVED: ${{ steps.commit.outputs.moved || steps.push.outputs.moved }}
+          UPLOADS_OUTCOME: ${{ steps.uploads.outcome }}
+          PUSH_OUTCOME: ${{ steps.push.outcome }}
           PR_OUTCOME: ${{ steps.pr.outcome }}
           CHANGED: ${{ steps.apply.outputs.changed }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -459,8 +486,15 @@ jobs:
             outcome="answered ($([ "$CHANGED" = true ] && echo changed || echo unchanged))"
             { cat "$RUNNER_TEMP/publish/reply.md"; echo; echo "Run: $RUN_URL"; } > "$reply"
           elif [ "$MOVED" = true ]; then
-            outcome="the PR changed meanwhile"
-            echo "The PR changed meanwhile: write the comment again. Run: $RUN_URL" > "$reply"
+            outcome="the PR changed or was merged meanwhile"
+            echo "The PR changed or was merged meanwhile: write the comment again if it still applies." \
+              "Run: $RUN_URL" > "$reply"
+          elif [ "$PUSH_OUTCOME" = success ]; then
+            outcome="changed, but the PR was not updated"
+            echo "The fix was pushed, but the PR's body or title could not be updated: $RUN_URL" > "$reply"
+          elif [ "$UPLOADS_OUTCOME" = failure ]; then
+            outcome="the staged files could not be uploaded"
+            echo "The fix failed: its staged files could not be uploaded, so nothing was pushed: $RUN_URL" > "$reply"
           elif [ "$ARTIFACTS" = failure ]; then
             outcome="the staged files could not be downloaded"
             echo "The fix failed: the PR's staged files could not be downloaded (an expired artifact means the PR" \
@@ -476,15 +510,16 @@ jobs:
           status=0
           gh api "$issue/comments" -F body=@"$reply" > /dev/null || status=$?
           gh api -X PUT "$issue/lock" -f lock_reason=resolved > /dev/null || true
+          if [ "$status" = 0 ]; then echo "posted=true" >> "$GITHUB_OUTPUT"; fi
           exit "$status"
 
   # One comment per run: while unanswered comments remain, the next run takes the next one (at most 10 runs per
-  # start). GITHUB_TOKEN may dispatch a workflow.
+  # start), only once this run's reply is posted. GITHUB_TOKEN may dispatch a workflow.
   next:
     needs: [fix, publish]
     if: >-
       always() && needs.fix.outputs.remaining != '' && needs.fix.outputs.remaining != '0'
-      && fromJSON(inputs.chain) < 10
+      && needs.publish.outputs.posted == 'true' && fromJSON(inputs.chain) < 10
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
