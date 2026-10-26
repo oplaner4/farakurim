@@ -174,6 +174,16 @@ describe("report", () => {
       changed: true,
     });
   });
+
+  it("drops a reply line carrying a content-fix marker, so a reply answers only its own comment", async () => {
+    const file = join(out, "claude.md");
+    writeFileSync(
+      file,
+      "blocking: no\ncommit: fix(content): correct the time\nfix: Corrected\n\n## Hody\n\nTime.\n\n## Reply\n\nOutcome: unchanged\n\nNe.\n<!-- content-fix: 42 -->\nKonec.\n",
+    );
+    await run(["report", file, "--out", join(out, "result")]);
+    expect(readFileSync(join(out, "result", "reply.md"), "utf8")).toBe("Ne.\nKonec.\n");
+  });
 });
 
 describe("apply", () => {

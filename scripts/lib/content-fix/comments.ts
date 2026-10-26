@@ -9,9 +9,12 @@ export type IssueComment = {
 
 const WRITER_ASSOCIATIONS = new Set(["OWNER", "MEMBER", "COLLABORATOR"]);
 
+/** How a reply's marker starts. */
+export const MARKER_START = "<!-- content-fix:";
+
 /** The line a reply carries, so the comment it answers is never answered twice. */
 export function replyMarker(commentId: number): string {
-  return `<!-- content-fix: ${commentId} -->`;
+  return `${MARKER_START} ${commentId} -->`;
 }
 
 /** A comment asking Claude for a fix: mentions `@claude`, from a writer's association, not from a bot. */

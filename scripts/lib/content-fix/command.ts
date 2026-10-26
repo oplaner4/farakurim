@@ -9,13 +9,13 @@ import { artifactsOfPull, KINDS, type ContentPull, type Kind } from "../content-
 import { gitHubReader } from "../content-release/sources";
 import { UPLOADS_DIR } from "../uploads";
 import { fixInput, REPORT_END } from "./body";
-import { unansweredRequests } from "./comments";
+import { MARKER_START, unansweredRequests } from "./comments";
 import { fixReader } from "./github";
 import { parseFixReport } from "./report";
 
 const USAGE = `Usage: pnpm content-fix next --pr <n> --out <dir>
        pnpm content-fix artifacts --pr <n> --kind <sheet|events>
-       pnpm content-fix apply --pr <n> --kind <sheet|events> <dir>
+       pnpm content-fix apply --pr <n> --kind <sheet|events> --order <file> <dir>
        pnpm content-fix check-log --sha <sha> --out <file>
        pnpm content-fix report <report.md> --out <dir>`;
 
@@ -188,7 +188,12 @@ export async function execute(command: Command, fetchImpl: typeof fetch = fetch,
     case "report": {
       const { blocking, commit, fix, changed, report, reply } = parseFixReport(readFileSync(command.file, "utf8"));
       writeFileIn(join(command.out, "body.md"), `${report}\n\n${REPORT_END}\n`);
-      writeFileIn(join(command.out, "reply.md"), `${reply}\n`);
+      // A line with a marker would mark another comment answered: the workflow appends the one real marker.
+      const own = reply
+        .split("\n")
+        .filter((line) => !line.includes(MARKER_START))
+        .join("\n");
+      writeFileIn(join(command.out, "reply.md"), `${own}\n`);
       console.log(JSON.stringify({ blocking, commit, fix, changed }));
     }
   }
