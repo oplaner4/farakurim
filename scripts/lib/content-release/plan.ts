@@ -77,7 +77,7 @@ export function contentPullOf(
  * The artifacts of a content PR's commits, oldest first, and the commits that stop the release: an expired artifact,
  * or a sheet PR's commit pushed by hand without one.
  */
-async function artifactsOfPull(pull: { number: number; kind: Kind }, github: GitHubReader) {
+export async function artifactsOfPull(pull: { number: number; kind: Kind }, github: GitHubReader) {
   const artifacts: ContentPull["artifacts"] = [];
   const expired: string[] = [];
   const byHand: string[] = [];

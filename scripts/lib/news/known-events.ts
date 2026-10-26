@@ -4,6 +4,7 @@
 
 import { execFileSync } from "node:child_process";
 import type { NewsEvent } from "@/content/types/news";
+import { gitHubGet } from "../github";
 import { notEndedBy } from "./upcoming-events";
 
 /** An event as the duplicate check needs it; `where` is main or the number of the open PR that adds it. */
@@ -65,18 +66,16 @@ export async function openEventPulls(
   token: string,
   fetchImpl: typeof fetch = fetch,
 ): Promise<{ number: number; branch: string }[]> {
-  const response = await fetchImpl(`https://api.github.com/repos/${repo}/pulls?state=open&per_page=100`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28",
-    },
-  });
-  if (!response.ok) throw new Error(`GitHub /pulls: ${response.status}`);
-  const pulls = (await response.json()) as {
-    number: number;
-    head: { ref: string; repo: { full_name: string } | null };
-  }[];
+  const pulls = await gitHubGet(
+    repo,
+    token,
+    fetchImpl,
+  )<
+    {
+      number: number;
+      head: { ref: string; repo: { full_name: string } | null };
+    }[]
+  >("/pulls?state=open&per_page=100");
   return pulls
     .filter((pull) => pull.head.ref.startsWith(EVENTS_BRANCH) && pull.head.repo?.full_name === repo)
     .map((pull) => ({ number: pull.number, branch: pull.head.ref }));

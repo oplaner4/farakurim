@@ -4,6 +4,7 @@
 
 import { execFileSync } from "node:child_process";
 import { UPLOAD_EXTENSIONS, UPLOADS_PATH } from "@/lib/shared/uploads";
+import { gitHubGet } from "../github";
 
 /** `merge` when the commit has more than one parent. */
 export type UnreleasedCommit = { sha: string; subject: string; merge: boolean };
@@ -50,17 +51,7 @@ type ApiArtifact = {
 
 /** Reads the GitHub REST API of `repo` with `token`. A PR's commits and the artifacts of a name fit one page. */
 export function gitHubReader(repo: string, token: string, fetchImpl: typeof fetch = fetch): GitHubReader {
-  async function get<T>(path: string): Promise<T> {
-    const response = await fetchImpl(`https://api.github.com/repos/${repo}${path}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
-      },
-    });
-    if (!response.ok) throw new Error(`GitHub ${path}: ${response.status}`);
-    return (await response.json()) as T;
-  }
+  const get = gitHubGet(repo, token, fetchImpl);
   return {
     pullsOfCommit: async (sha) =>
       (await get<ApiPull[]>(`/commits/${sha}/pulls`)).map((pull) => ({
