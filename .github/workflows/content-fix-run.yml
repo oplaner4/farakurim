@@ -1,5 +1,5 @@
 # Fixes a content PR (a `service-sheet/*` or `events/*` PR of this repo) from the `@claude` comments in its
-# conversation (docs/deployment.md "Fixing content PRs with comments"). content-fix.yml dispatches it on main for each
+# conversation (docs/content-pipelines.md "Fixing content PRs with comments"). content-fix.yml dispatches it on main for each
 # picked-up comment; one run per PR at a time (a newer pending run replaces an older one), and each run answers the
 # PR's oldest unanswered comment: one from a commenter with write access that no bot reply names by its marker
 # (`<!-- content-fix: <comment id> -->`). So no comment is lost when a pending run is cancelled, and a comment is

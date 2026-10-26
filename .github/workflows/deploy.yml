@@ -15,7 +15,7 @@
 # the run summary. It has its own environment (calendar-sync), never Production (the refresh counts Production
 # deployments), signs in to Google with workload identity federation (no key), and a failure only warns: the deploy is
 # not affected and the next release catches up. Until the environment has GOOGLE_WORKLOAD_IDENTITY_PROVIDER (the
-# setup in docs/deployment.md), a release only previews them too.
+# setup in docs/calendar-sync.md), a release only previews them too.
 # The SSH target, web root, rsync flags, server-only folders and verify checks live in scripts/deploy.sh, which
 # `pnpm release --local` uses too. The runner image and the actions are pinned (actions by commit SHA, updated by
 # Dependabot), so a release only changes when this file does.

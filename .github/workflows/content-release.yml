@@ -1,4 +1,4 @@
-# Releases the site when a content PR is merged (docs/deployment.md "Content release"): the maintainer's squash merge of
+# Releases the site when a content PR is merged (docs/content-pipelines.md "Content release"): the maintainer's squash merge of
 # a `service-sheet/*` PR (opened by service-sheet.yml) or an `events/*` PR (the events pipeline) is the yes to publish.
 # It runs on `pull_request_target: closed`, so a push to main (the maintainer's own content, `pnpm release`) never
 # starts it, and every other closed PR only makes a skipped run. Not `pull_request`: an environment's deployment branch
@@ -12,7 +12,7 @@
 #   staged files only on their machine, and a feature goes live when they release it; other commits and merge commits
 #   go out with the PRs), when an artifact expired, or when a commit of a sheet PR was pushed by hand and has no
 #   artifact (a sheet record links no file, so its PDF may exist only on that machine): then the maintainer releases
-#   by hand (docs/deployment.md).
+#   by hand (docs/content-pipelines.md "Content release").
 #   Only artifacts of runs on this repo's main count: a fork's pull request run can upload an artifact under any name.
 # - `release` (environment Production: the SSH key) plans again on the main it checked out, so a merge that landed
 #   meanwhile goes out too (or stops it with the reason). It downloads the artifacts of every commit of those PRs and
@@ -126,7 +126,7 @@ jobs:
           }
           reason=$(jq -r .reason <<< "$PLAN")
           for pr in $(jq -r '.pulls[].number' <<< "$PLAN"); do
-            comment "$pr" "Not released: $reason. Release with \`pnpm release\` by hand once that is sorted out (docs/deployment.md)." \
+            comment "$pr" "Not released: $reason. Release with \`pnpm release\` by hand once that is sorted out (docs/content-pipelines.md)." \
               || echo "::warning::Could not comment on PR #$pr."
           done
           echo "::error::$reason"
@@ -311,7 +311,7 @@ jobs:
           }
           plan=$(cat "$RUNNER_TEMP/plan.json" 2> /dev/null || printf '%s' "$FIRST_PLAN")
           if [ -n "$REASON" ]; then
-            body="Not released: $REASON. Release with \`pnpm release\` by hand once that is sorted out (docs/deployment.md)."
+            body="Not released: $REASON. Release with \`pnpm release\` by hand once that is sorted out (docs/content-pipelines.md)."
           elif [ -n "$TAG" ]; then
             body="The release failed: $RUN_URL. $TAG was tagged and pushed, but its deploy did not succeed: fix it in a new commit and release with \`pnpm release\` (never move a tag), or re-run the deploy run once its cause is gone."
           else

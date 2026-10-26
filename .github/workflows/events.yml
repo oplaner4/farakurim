@@ -1,4 +1,4 @@
-# Opens a pull request with the events of one e-mail (docs/deployment.md "Events by e-mail"). On each run it reads the
+# Opens a pull request with the events of one e-mail (docs/content-pipelines.md "Events by e-mail"). On each run it reads the
 # unseen mail of the events mailbox over IMAP (`pnpm event-mail fetch`) and handles the oldest event mail: one from
 # EVENT_SENDERS (scripts/lib/mail/senders.ts) with its provider's DKIM signature, holding an attachment or a subject
 # and a text. Strangers are filed in `Odmítnuto` silently.

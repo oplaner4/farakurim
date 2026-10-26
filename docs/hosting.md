@@ -10,7 +10,7 @@ below.
 - **SSH with rsync**, for `scripts/deploy.sh` (releases, uploads, the cron scripts).
 - **A web server serving static files** from the web root, honouring `.htaccess` (the 404 page, caching, redirects).
 - **PHP 8 with the curl extension**: `public/biblicky-citat.php` on the web, and the cron scripts.
-- **IMAP mailboxes** for the content workflows that read e-mail ([deployment.md](deployment.md#service-sheet-by-e-mail)):
+- **IMAP mailboxes** for the content workflows that read e-mail ([content-pipelines.md](content-pipelines.md#service-sheet-by-e-mail)):
   the service sheet mailbox and the events mailbox.
 - **A cron that runs the scripts of one folder on a schedule**, outside the web root, with outbound HTTPS to
   api.github.com.

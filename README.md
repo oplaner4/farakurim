@@ -59,7 +59,7 @@ cp .env.local.example .env.local
 
   and set the variable to `~/.config/farakurim/gcloud/application_default_credentials.json` (written out in full). The
   account's JSON key works too, and the deploy workflow uses workload identity federation
-  ([deployment](docs/deployment.md#setup-once)). A secret: never `NEXT_PUBLIC_`, never committed, never printed. The
+  ([calendar sync](docs/calendar-sync.md#setup-once)). A secret: never `NEXT_PUBLIC_`, never committed, never printed. The
   preview needs only the API key above.
 
 - **`NEXT_PUBLIC_MATOMO_URL`** and **`NEXT_PUBLIC_MATOMO_SITE_ID`**: anonymous statistics (see below). Leave them
@@ -168,12 +168,12 @@ Each finishes with `parish-publish-content`, which commits and releases with `pa
 
 The weekly service sheet can also arrive by e-mail: the parish sends its DOCX to the service sheet mailbox and a daily
 workflow opens a pull request with the week, which the maintainer reviews and merges; the merge releases the site.
-Setup and use: [docs/deployment.md](docs/deployment.md#service-sheet-by-e-mail).
+Setup and use: [docs/content-pipelines.md](docs/content-pipelines.md#service-sheet-by-e-mail).
 
 New events can arrive by e-mail too: an accepted sender mails a poster (or a subject and a text) to the
 events mailbox, and a workflow opens one pull request per mail with its new events, which the maintainer
 reviews and merges. Corrections are refused there and made with the skills. Setup and use:
-[docs/deployment.md](docs/deployment.md#events-by-e-mail).
+[docs/content-pipelines.md](docs/content-pipelines.md#events-by-e-mail).
 
 Uploaded files (posters, PDFs, photos) are not in git: they are staged in the git-ignored folder `UPLOADS_PATH` names
 (`src/lib/shared/uploads.ts`, e.g. `/uploads/`), which mirrors the one on the server, and linked root-relative;
@@ -185,7 +185,8 @@ old links keep working, but new content never links or adds to them.
 `pnpm release` publishes the site: it uploads the newly staged files, tags `vX.Y.Z` and pushes, and GitHub
 Actions checks, builds and deploys the tag to https://farakurim.cz/ over SSH. The workflow also rebuilds the latest
 release weekly, so date-dependent content stays current. The old PHP site is backed up in `/stary.farakurim.cz/` on
-the server. Releases, the refresh, the GitHub setup and the server: [docs/deployment.md](docs/deployment.md).
+the server. Releases, the refresh and the server: [docs/deployment.md](docs/deployment.md), which links the guides to
+the GitHub setup, the calendar sync and the content pipelines.
 
 ## License
 

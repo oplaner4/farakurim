@@ -1,4 +1,4 @@
-# Opens a pull request with the week's service sheet from the parish's e-mail (docs/deployment.md "Service sheet by
+# Opens a pull request with the week's service sheet from the parish's e-mail (docs/content-pipelines.md "Service sheet by
 # e-mail"). On each run of the hosting's cron it reads the unseen mail of the service sheet mailbox over IMAP
 # (`pnpm sheet-mail`): only the parish's DKIM-signed message with one DOCX is a sheet.
 # Two jobs, so that no step holding a secret runs code from a workspace Claude has touched:

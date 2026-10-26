@@ -1,4 +1,4 @@
-# Picks up an `@claude` comment on a content PR (docs/deployment.md "Fixing content PRs with comments"). It runs on
+# Picks up an `@claude` comment on a content PR (docs/content-pipelines.md "Fixing content PRs with comments"). It runs on
 # every new comment in a PR conversation; review and inline comments are other events and never start it. The `gate`
 # job only filters: an open PR of this repo from a `service-sheet/` or `events/` branch, a comment containing
 # `@claude` from a commenter with write access (the association and the repo permission), never a bot (the App's own
