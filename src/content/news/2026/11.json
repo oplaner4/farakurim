@@ -81,6 +81,26 @@
     ]
   },
   {
+    "id": "vedomi-a-smrt-2026",
+    "title": "Vědomí a smrt z pohledu současné vědy a medicíny",
+    "start": "2026-11-08",
+    "startTime": "11:00",
+    "place": "Kuřim, fara",
+    "text": "Zveme vás na přednášku MUDr. Pavla Vaška o vědomí a smrti z pohledu současné vědy a medicíny.",
+    "published": "2026-10-27",
+    "poster": {
+      "src": "/uploads/aktuality/vedomi-a-smrt-2026-plakat-poster.webp",
+      "alt": "Plakát: Vědomí a smrt z pohledu současné vědy a medicíny"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/vedomi-a-smrt-2026-plakat.png",
+        "size": 2126792
+      }
+    ]
+  },
+  {
     "id": "konference-o-evangelizaci-2026",
     "title": "Konference o evangelizaci – Riskujme lásce",
     "start": "2026-11-13",
