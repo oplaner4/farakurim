@@ -40,15 +40,14 @@ build-time next mass.
 - Content is added and changed with the content skills (CLAUDE.md "Managing content"); its uploaded files are linked root-relative (under `UPLOADS_PATH` in `src/lib/shared/uploads.ts`, absolute only where a URL leaves the page, e.g.
   JSON-LD), never committed.
 
-## Routes and placeholder pages
+## Routes
 
-- The site's routes sit in `content/site.ts` (`links` and the "Více" menu / footer groups `navGroups`); a page not
-  rebuilt yet is linked to its placeholder (`planned-pages.ts`), never to the old site. The footer ©
-  follows `BUILD_YEAR`; the menu has no "Tábor <year>" link until that year's page is designed (§20.1, §29).
-- Pages not rebuilt yet (`content/planned-pages.ts`, which also says which old pages are redirected instead): each
-  gets its breadcrumb and "Stránku připravujeme" (noindex, not in the sitemap), built by `src/app/[...path]/` (never
-  under `/aktivity/`, where `src/app/aktivity/[group]/` builds only the group pages). Remove a page from the list when
-  it is rebuilt.
+- The site's routes sit in `content/site.ts` (`links` and the "Více" menu / footer groups `navGroups`), and every
+  link of the menu leads to a page of the site. The footer © follows `BUILD_YEAR`; the menu has no "Tábor <year>"
+  link until that year's page is designed (§20.1, §29).
+- Every page of the old site is rebuilt or redirected: `public/.htaccess` leads moved URLs to their new page and the
+  pages that stay on the old site (Mimořádné katecheze, the Betlémy contests of 2024 and 2025) to
+  stary.farakurim.cz.
 
 ## Events
 

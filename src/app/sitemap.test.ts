@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import { ARCHIVE_YEARS } from "@/components/news/ArchivePage";
 import { groupPages } from "@/content/groups";
 import { events } from "@/content/news";
-import { plannedPages } from "@/content/planned-pages";
 import { links, SITE_URL } from "@/content/site";
 import { archiveYearHref, archiveYears } from "@/lib/news/archive";
 import { eventHref } from "@/lib/news/events";
@@ -32,8 +31,7 @@ describe("sitemap", () => {
     );
   });
 
-  it("leaves out the noindex pages: the placeholders and the Archiv Petrklíče", () => {
-    for (const page of plannedPages) expect(paths).not.toContain(page.path);
+  it("leaves out the noindex Archiv Petrklíče", () => {
     expect(paths.filter((path) => path.startsWith(links.petrklicArchive))).toEqual([]);
   });
 });
