@@ -1,15 +1,20 @@
 import { clsx } from "clsx";
+import type { ReactNode } from "react";
 import { serviceSheets } from "@/server/service-sheets";
 import { CurrentSheet } from "@/components/services/CurrentSheet";
 import { BUILD_TIME } from "@/lib/shared/build-time";
 import { links, mainNav } from "@/content/site";
+import { seasonalNavItems, seasonalNavPeriods } from "@/server/seasonal-nav";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ColorStripe } from "@/components/ui/ColorStripe";
+import { TentIcon } from "@/components/ui/icons/camp-icons";
 import { FileDownloadIcon } from "@/components/ui/icons/media-icons";
+import { NativityStarIcon } from "@/components/ui/icons/nativity-icons";
 import { HeaderMenu } from "./HeaderMenu";
 import { MenuButton } from "./MenuButton";
 import { NavGroupAccordions } from "./NavGroupAccordions";
 import { NavGroupColumns } from "./NavGroupColumns";
+import { SeasonalNavItem } from "./SeasonalNavItem";
 import type { SectionColor } from "@/components/ui/SectionHeading";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -37,6 +42,69 @@ const currentStyles: Record<SectionColor, { desktop: string; menu: string }> = {
   },
 };
 
+type NavItem = { label: string; href: string; color: SectionColor };
+type NavPlace = "desktop" | "menu";
+
+const navLinkStyles: Record<NavPlace, string> = {
+  desktop:
+    "flex min-h-11 items-center gap-1.5 rounded-12 px-3 text-ink no-underline hover:bg-surface hover:text-ink aria-[current=page]:font-bold",
+  menu: "flex items-center gap-2 px-1 py-3 text-18 text-ink no-underline hover:text-blue-ink aria-[current=page]:font-bold md:min-h-12 md:rounded-12 md:bg-surface md:px-4 md:py-0 md:text-17 md:hover:bg-blue-tint",
+};
+
+/** The seasonal items' icons: only the icon carries the section colour (design/DESIGN.md §4.1a). */
+const seasonalIcons = {
+  nativity: <NativityStarIcon size={16} className="flex-none text-orange-ink" />,
+  camp: <TentIcon size={16} className="flex-none text-magenta-ink" />,
+};
+
+function NavLink({
+  item,
+  place,
+  currentHref,
+  icon,
+}: {
+  item: NavItem;
+  place: NavPlace;
+  currentHref: string;
+  icon?: ReactNode;
+}) {
+  return (
+    <a
+      href={item.href}
+      aria-current={item.href === currentHref ? "page" : undefined}
+      className={clsx(navLinkStyles[place], currentStyles[item.color][place])}
+    >
+      {icon}
+      {item.label}
+    </a>
+  );
+}
+
+/** A main-menu item; Petrklíč's place shows the seasonal item of the visitor's date. */
+function MainNavItem({ item, place, currentHref }: { item: NavItem; place: NavPlace; currentHref: string }) {
+  if (item.href !== links.petrklic) return <NavLink item={item} place={place} currentHref={currentHref} />;
+  return (
+    <SeasonalNavItem
+      periods={seasonalNavPeriods}
+      renderedAt={BUILD_TIME}
+      items={{
+        petrklic: <NavLink item={item} place={place} currentHref={currentHref} />,
+        nativity: (
+          <NavLink
+            item={seasonalNavItems.nativity}
+            place={place}
+            currentHref={currentHref}
+            icon={seasonalIcons.nativity}
+          />
+        ),
+        camp: (
+          <NavLink item={seasonalNavItems.camp} place={place} currentHref={currentHref} icon={seasonalIcons.camp} />
+        ),
+      }}
+    />
+  );
+}
+
 /**
  * `currentHref` marks the main menu item of the page's section; `pageHref` the page itself among the "Více" groups
  * (an archive page is under "Aktuality" or "Petrklíč" but is its own link there).
@@ -48,8 +116,6 @@ export function SiteHeader({
   currentHref?: string;
   pageHref?: string;
 }) {
-  const navItems = mainNav.map((item) => ({ ...item, current: item.href === currentHref }));
-
   return (
     <HeaderMenu className="group/header relative flex flex-col bg-bg">
       <div className="container-page flex items-center justify-between gap-3 py-3 md:gap-4 md:py-4 lg:flex-wrap lg:gap-x-8 lg:py-4.5">
@@ -70,18 +136,9 @@ export function SiteHeader({
         <div className="flex items-center gap-2 md:gap-3 lg:gap-2">
           <nav aria-label="Hlavní menu" className="hidden lg:mr-2 lg:block">
             <ul className="flex flex-wrap items-center gap-1">
-              {navItems.map((item) => (
+              {mainNav.map((item) => (
                 <li key={item.label}>
-                  <a
-                    href={item.href}
-                    aria-current={item.current ? "page" : undefined}
-                    className={clsx(
-                      "flex min-h-11 items-center rounded-12 px-3 text-ink no-underline hover:bg-surface hover:text-ink aria-[current=page]:font-bold",
-                      currentStyles[item.color].desktop,
-                    )}
-                  >
-                    {item.label}
-                  </a>
+                  <MainNavItem item={item} place="desktop" currentHref={currentHref} />
                 </li>
               ))}
               <li>
@@ -120,18 +177,9 @@ export function SiteHeader({
         <div className="container-page pt-2 pb-4 md:py-4 lg:pt-7 lg:pb-9">
           <nav aria-label="Hlavní menu" className="lg:hidden">
             <ul className="flex flex-col md:grid md:grid-cols-3 md:gap-2">
-              {navItems.map((item) => (
+              {mainNav.map((item) => (
                 <li key={item.label} className="border-line-soft max-md:not-first:border-t">
-                  <a
-                    href={item.href}
-                    aria-current={item.current ? "page" : undefined}
-                    className={clsx(
-                      "block px-1 py-3 text-18 text-ink no-underline hover:text-blue-ink aria-[current=page]:font-bold md:flex md:min-h-12 md:items-center md:rounded-12 md:bg-surface md:px-4 md:py-0 md:text-17 md:hover:bg-blue-tint",
-                      currentStyles[item.color].menu,
-                    )}
-                  >
-                    {item.label}
-                  </a>
+                  <MainNavItem item={item} place="menu" currentHref={currentHref} />
                 </li>
               ))}
             </ul>

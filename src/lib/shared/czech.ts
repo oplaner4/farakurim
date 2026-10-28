@@ -120,6 +120,12 @@ const weekdayIndex = (date: IsoDate) => getDay(asDate(date), { in: inPrague });
 /** A weekday after "z" or "ze" (index = `Date.getDay()`). */
 const FROM_WEEKDAY = ["z neděle", "z pondělí", "z úterý", "ze středy", "ze čtvrtka", "z pátku", "ze soboty"];
 
+/** A weekday after "v" or "ve" (index = `Date.getDay()`). */
+const ON_WEEKDAY = ["v neděli", "v pondělí", "v úterý", "ve středu", "ve čtvrtek", "v pátek", "v sobotu"];
+
+/** "v sobotu", "ve středu": the day something happens on. */
+export const onWeekday = (date: IsoDate) => ON_WEEKDAY[weekdayIndex(date)];
+
 /** "ze soboty 17. 10.": where a postponed event moved from. */
 export const formatFromWeekdayDate = (date: IsoDate) => `${FROM_WEEKDAY[weekdayIndex(date)]} ${formatShortDate(date)}`;
 

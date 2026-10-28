@@ -30,7 +30,6 @@ RedirectMatch 301 ^/pastoracni_rada/?$ /pastoracni_rada/clenove/
 RedirectMatch 301 ^/financni_podpora/?$ /financni_podpora/aktualne/
 RedirectMatch 301 ^/petrklic/?$ /petrklic/aktualni/
 RedirectMatch 301 ^/farni_tabor/?$ /farni_tabor/informace/
-RedirectMatch 301 ^/betlemy/?$ /betlemy/rozcestnik/
 
 # Group pages moved under Seznam aktivit (/aktivity/<group>/); the old site and its links use /schola.
 RedirectMatch 301 ^/schola/?$ /aktivity/schola/
@@ -44,6 +43,9 @@ RedirectMatch 301 ^/katecheze_pro_deti(/pravidelne)?(\.php)?/?$ /aktivity/katech
 RedirectMatch 301 ^/(?:aktivity/)?katecheze_pro_deti/mimoradne(?:/index)?(?:\.php)?/?$ https://stary.farakurim.cz/katecheze_pro_deti/mimoradne/rozcestnik
 RedirectMatch 301 ^/(?:aktivity/)?katecheze_pro_deti/mimoradne/(adventni_doba|postni_doba|vanocni_doba)(?:/index)?(?:\.php)?/?$ https://stary.farakurim.cz/katecheze_pro_deti/mimoradne/$1/rozcestnik
 RedirectMatch 301 ^/(?:aktivity/)?katecheze_pro_deti/mimoradne/(.+?)(?:\.php)?/?$ https://stary.farakurim.cz/katecheze_pro_deti/mimoradne/$1
+
+# Betlémy is one page now (design/DESIGN.md §30): the old Rozcestník, Výstava and Putování lead to it.
+RedirectMatch 301 ^/betlemy/(rozcestnik|vystava|putovani)(?:\.php)?/?$ /betlemy/
 
 # Neither are Betlémy 2024 and 2025: their URLs, which earlier releases served as placeholders, lead to the same page
 # on the old site.

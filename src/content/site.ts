@@ -23,6 +23,8 @@ export const links = {
   religiousEducation: "/vyuka_nabozenstvi/",
   activities: "/aktivity/",
   chronicle: "/kronika_prehled_udalosti/",
+  /** Betlémy (design/DESIGN.md §30): one page for the exhibition, its contest and the walk through Kuřim. */
+  nativity: "/betlemy/",
   /** Tábor (design/DESIGN.md §29): the old site's routes. O táboru is "Tábor" in the breadcrumb. */
   campAbout: "/farni_tabor/informace/",
   campTeam: "/farni_tabor/vedouci/",
@@ -46,7 +48,10 @@ export const links = {
   viraCz: "https://www.vira.cz/",
 };
 
-/** `color` is the section colour of the page, used for the current page's nav item. */
+/**
+ * `color` is the section colour of the page, used for the current page's nav item. Petrklíč's place is the seasonal
+ * item (design/DESIGN.md §4.1a): Betlémy or Tábor in their season (`seasonalNav`), Petrklíč the rest of the year.
+ */
 export const mainNav = [
   { label: "Úvod", href: links.home, color: "blue" },
   { label: "Aktuality", href: links.news, color: "magenta" },
@@ -55,6 +60,12 @@ export const mainNav = [
   { label: "Petrklíč", href: links.petrklic, color: "orange" },
   { label: "Kontakty", href: links.contacts, color: "blue" },
 ] as const;
+
+/** The seasonal items in Petrklíč's place, with the icon in their section's ink; Tábor's href is the next camp's page. */
+export const seasonalNav = {
+  nativity: { label: "Betlémy", href: links.nativity, color: "orange" },
+  camp: { label: "Tábor", href: links.campAbout, color: "magenta" },
+} as const;
 
 /**
  * Secondary pages, grouped for the "Více" menu and the sitemap footer (design/DESIGN.md §20.1). `color` is the
@@ -83,6 +94,7 @@ export const navGroups = [
       { label: "Katecheze pro děti", href: links.catechesis },
       { label: "Výuka náboženství", href: links.religiousEducation },
       { label: "Společenství mladých", href: links.youth },
+      { label: "Betlémy", href: links.nativity },
       { label: "Seznam aktivit", href: links.activities },
     ],
   },

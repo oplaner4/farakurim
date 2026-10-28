@@ -130,7 +130,7 @@ src/hooks/           Every React hook, one use-<name>.ts each
 src/lib/<group>/     Pure logic with unit tests, by the same groups plus shared/ (Prague time, Czech grammar, links)
 src/content/         Content, one file per domain (hand-edited data only); news/ holds the events (one JSON file per month)
 src/content/types/   The content types, one file per domain
-src/server/          Server-only build-time code: Google Calendar, the vira.cz verse, the schedule exceptions
+src/server/          Server-only build-time code: Google Calendar, the vira.cz verse, the schedule exceptions, the seasons
 public/              Static assets, plus .htaccess (404 page, caching, redirects of moved URLs) and biblicky-citat.php
 scripts/             One entry point per pnpm command: dev and preview servers, release and deploy, icon, font, mockup and content tooling
 scripts/lib/         The scripts' logic with its tests, by the same groups (news/, gallery/, …) plus stage/ and the shared helpers

@@ -40,6 +40,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     links.campTeam,
     links.campContact,
     links.campYears,
+    links.nativity,
   ];
   return paths.map((path) => ({ url: `${SITE_URL}${path}` }));
 }

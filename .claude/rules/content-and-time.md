@@ -103,7 +103,7 @@ build-time next mass.
   carousel; alt texts are computed (`photoAlt()` in `src/lib/gallery/albums.ts`). A photo opens the
   lightbox (DESIGN.md §21) at `#album-<id>-foto-N`.
 
-## Activities and Tábor
+## Activities, Tábor and Betlémy
 
 - Seznam aktivit (`content/activities.ts`, §25): groups of activities with names-only contacts (GDPR); "hledáme" in
   `contacts` marks an activity looking for help (`seeksHelp()`), `href` links its own page. Výuka náboženství
@@ -124,6 +124,16 @@ build-time next mass.
   minors) is grouped by `role` (`teamGroups()` in `src/lib/camp/team.ts`); a photo is published only with consent;
   the photos share one lightbox at `#foto-N`, in page order. Each year of `campYears` (newest first) links its
   Zonerama album, with a cover photo the parish chose; a year without an album yet shows a tent on its tint.
+- Betlémy (`content/nativity.ts`, types in `types/nativity.ts`, design §30): one page at `/betlemy/` (the old
+  Rozcestník, Výstava and Putování redirect to it). `nativitySeasons` (newest first) holds one record per exhibition;
+  a season takes over on 1. 11. of its year (`currentSeason()`) and its opening days decide the state, before, during
+  or after the exhibition (`exhibitionState()`), which orders the blocks, and the status panel (`statusPanel()` in
+  `src/lib/nativity/`), all chosen in the browser by `NativityPage` from the build time's choice. `nativityAlbums` are
+  the years' Zonerama albums, also the season's own album after it. The photos and the route poster are designed
+  placeholders until the parish chooses some. Add the next season before 1. 11.
+- The seasonal main-menu item (design §4.1a): Petrklíč's place shows Betlémy from 1. 11. to the exhibition's last day
+  and Tábor from 1. 3. to `nextCamp.end` (none while the end is unset), computed from the content by
+  `server/seasonal-nav.ts` (`seasonalPeriods()`) and picked in the browser by `SeasonalNavItem`.
 
 ## Parish pages
 
@@ -154,4 +164,5 @@ Most uploaded files are staged by the content scripts. These are placed by hand 
 - `vyuka-nabozenstvi/`: the Výuka náboženství form and rules;
 - `skupiny/<group>/`: the group pages' photos and video thumbnails (WebP, `small` 480 px square, `large` ≤ 1600 px);
 - `tabor/vedouci/`: the Tábor team photos (WebP 4:5, `small` 320 px, `large` 720 px);
-- `tabor/rocniky/<year>.webp`: the Ročníky cover photos (800 px wide).
+- `tabor/rocniky/<year>.webp`: the Ročníky cover photos (800 px wide);
+- `betlemy/`: the exhibition's plan (`orientacni-planek.pdf`).

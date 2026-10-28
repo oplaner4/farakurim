@@ -12,6 +12,7 @@ import {
   formatEventWhen,
   formatFileSize,
   formatFromWeekdayDate,
+  onWeekday,
   formatLongDate,
   formatMonthYear,
   formatPercent,
@@ -170,6 +171,15 @@ describe("status texts", () => {
     expect(formatFromWeekdayDate("2026-10-17")).toBe("ze soboty 17. 10.");
     expect(formatFromWeekdayDate("2026-10-18")).toBe("z neděle 18. 10.");
     expect(formatFromWeekdayDate("2026-10-15")).toBe("ze čtvrtka 15. 10.");
+  });
+
+  it("puts v or ve before a weekday", () => {
+    expect(["2026-12-19", "2026-12-23", "2026-12-24", "2027-01-03"].map(onWeekday)).toEqual([
+      "v sobotu",
+      "ve středu",
+      "ve čtvrtek",
+      "v neděli",
+    ]);
   });
 
   it("puts v or ve before a time", () => {

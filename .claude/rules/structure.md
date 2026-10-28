@@ -12,7 +12,7 @@ paths:
 podpora and Starší projekty), `links` (Odkazy; content in `web-links.ts`, as `links` in `site.ts` are the site's own
 routes), `chronicle` (Kronika farnosti), `activities` (Seznam aktivit, Výuka náboženství and the group pages; content in
 `activities.ts`, `religious-education.ts` and `groups.ts`, types in `types/activities.ts`), `camp` (Tábor; content in
-`camp.ts`), `parish` (Pastorační
+`camp.ts`), `nativity` (Betlémy; content in `nativity.ts`), `parish` (Pastorační
 rada and Kněží – rodáci; content in `parish-council.ts` and `native-priests.ts`), `home`, `layout`
 (header, footer and their parts) and `shared` (`ui` in components) for what several domains use.
 
@@ -39,7 +39,7 @@ rada and Kněží – rodáci; content in `parish-council.ts` and `native-priest
   `news/posters.ts` and `news/archive.ts`) rather than letting it pass ~300 lines.
 - **`src/server`** files start with `import "server-only"` and are named after their domain: `server/calendar.ts`
   (`loadCalendarEntries()`, `linkablePages`), `server/services.ts` (`currentExceptions`), `server/bible-quote.ts`
-  (`loadBibleQuote()`). They may import content and `lib`; pages and Server Components import them, client components
+  (`loadBibleQuote()`), `server/seasonal-nav.ts` (the seasonal menu item). They may import content and `lib`; pages and Server Components import them, client components
   and hooks never do. **Why:** `content` stays the data alone and `lib` stays free of it, so a value computed from
   content (or read at build time) has one home instead of being recomputed in every page.
 - **Types:** import each type from its domain file (`import type { NewsEvent } from "@/content/types/news"`).

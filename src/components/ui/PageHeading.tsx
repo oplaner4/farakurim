@@ -34,6 +34,8 @@ type Props = {
   media?: ReactNode;
   /** A small uppercase line above the title in the section's ink ("Farní tábor"). */
   eyebrow?: string;
+  /** An icon before the eyebrow (the Betlémy star). */
+  eyebrowIcon?: ReactNode;
   /** Under the intro (the Tábor pages' sub-navigation). */
   children?: ReactNode;
 };
@@ -55,6 +57,7 @@ export function PageHeading({
   size = "large",
   media,
   eyebrow,
+  eyebrowIcon,
   children,
 }: Props) {
   const heading = (
@@ -76,7 +79,15 @@ export function PageHeading({
       {media}
       {eyebrow ? (
         <div className="flex flex-col gap-1.5">
-          <p className={clsx("text-13 font-bold tracking-eyebrow uppercase", eyebrowInks[color])}>{eyebrow}</p>
+          <p
+            className={clsx(
+              "flex items-center gap-1.5 text-13 font-bold tracking-eyebrow uppercase",
+              eyebrowInks[color],
+            )}
+          >
+            {eyebrowIcon}
+            {eyebrow}
+          </p>
           {heading}
         </div>
       ) : (
