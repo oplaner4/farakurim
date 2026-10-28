@@ -36,6 +36,8 @@ Every page has a **light and a dark theme**.
 | `mockups/komponenty/tooltip.dc.html` | Tooltip on icon-only buttons (section 5, Tooltips) |
 | `mockups/komponenty/fotogalerie-1-fotka/{light,dark}/` | Homepage Fotogalerie when the newest album has one photo (section 5, Carousel) |
 | `mockups/tabor-o-taboru/`, `mockups/tabor-vedouci/`, `mockups/tabor-kontakt/`, `mockups/tabor-rocniky/`, `mockups/lightbox-tym/` (each `{light,dark}`) | Tábor (section 29), and a leader's photo in the lightbox (29.3) |
+| `mockups/betlemy/`, `mockups/betlemy-pred-zahajenim/`, `mockups/betlemy-po-skonceni/` (each `{light,dark}`) | Betlémy `/betlemy` during, before and after the exhibition (section 30) |
+| `mockups/komponenty/sezonni-menu.dc.html` (+ `-dark`) | The seasonal main-menu item (4.1a) |
 | `assets/logo-farnost-kurim.svg` | Cleaned logo (also the future favicon) |
 
 Desktop mockups are fluid with content max-width 1200 px; mobile and tablet are
@@ -155,6 +157,21 @@ Order is the same at every breakpoint. Differences per breakpoint are noted.
 - **Mobile:** a hamburger button (48×48, blue tint) opens a vertical menu under the stripe.
 - **Tablet:** a blue **"Ohlášky"** button (downloads this week's PDF) plus the hamburger; the menu opens as a 3-column grid of pills.
 - **Desktop:** an inline nav (Úvod · Aktuality · Bohoslužby · Fotogalerie · Petrklíč · Kontakty), the current page as a blue-tint pill with `aria-current="page"`, and a blue **"Ohlášky"** button with a file-download icon (it downloads this week's ohlášky PDF). Nav items use `padding: 0 12px`. Kalendář is **not** a menu item: it is reached from the homepage week calendar, the Bohoslužby page and in-page links.
+
+### 4.1a Seasonal main-menu item (Petrklíč / Betlémy / Tábor)
+
+Mockup: `mockups/komponenty/sezonni-menu.dc.html`. The fifth main-menu item (between Fotogalerie and Kontakty) changes with the season:
+
+| Period | Label | Link | Icon |
+|---|---|---|---|
+| 1. 11. – the last day of the nativity exhibition (around 6. 1.) | **Betlémy** | `/betlemy` (section 30) | 16 px star in orange-ink |
+| 1. 3. – the last day of the summer camp | **Tábor** | `/farni_tabor/informace` (later the current year's camp page) | 16 px tent in magenta-ink |
+| the rest of the year | **Petrklíč** | `/petrklic/aktualni` | none (as now) |
+
+- The text stays in the normal menu style; only the icon carries the colour. On its own page the item is the usual current pill in its section colour (Betlémy: orange tint `#FFF3E0` / `#A85800`; Tábor: magenta tint / magenta-ink), with `aria-current="page"`.
+- Same in the tablet grid and the mobile drawer (icon before the label).
+- The switch dates come from the admin (the exhibition's last opening day, the camp's end date), never hard-coded. Compute the item server-side for the current Prague date; pages are cached, so purge the cache when the period changes.
+- Petrklíč, Betlémy and the Tábor pages stay reachable all year from the "Více" menu and the footer (20.1), so nothing disappears when the item rotates.
 
 ### 4.2 Hero carousel
 - 7 photos, **different file per breakpoint**: `/assets/img/pozadi/{sm|md|lg}/{1-7}.webp`.
@@ -1015,12 +1032,13 @@ and Historie, Pastorační rada and Společenství mladých each held only 1–2
 | Group (shard colour) | Links |
 |---|---|
 | **Farnost** (blue) | Kalendář `/kalendar` · Finanční podpora `/financni_podpora/aktualne` · Pastorační rada – členové `/pastoracni_rada/clenove` · Zápisy pastorační rady `/pastoracni_rada/zapisy` · Kronika farnosti `/kronika_prehled_udalosti` · Kněží – rodáci `/knezi_rodaci` · Odkazy `/odkazy` |
-| **Život ve farnosti** (green) | Schola `/schola` · Chrámový sbor `/chramovy_sbor` · Katecheze pro děti `/katecheze_pro_deti/pravidelne` · Výuka náboženství `/vyuka_nabozenstvi` · Společenství mladých `/spolecenstvi_mladych/setkavani` · Seznam aktivit `/aktivity` |
+| **Život ve farnosti** (green) | Schola `/schola` · Chrámový sbor `/chramovy_sbor` · Katecheze pro děti `/katecheze_pro_deti/pravidelne` · Výuka náboženství `/vyuka_nabozenstvi` · Společenství mladých `/spolecenstvi_mladych/setkavani` · Betlémy `/betlemy` (section 30) · Seznam aktivit `/aktivity` |
 | **Tábor** (magenta) | O táboru `/farni_tabor/informace` · Vedoucí `/farni_tabor/vedouci` · Kontakt `/farni_tabor/kontakt` · Ročníky `/farni_tabor/rocniky` (section 29). "Tábor 2027" is added as the first link once its page exists; there is no link to past years' pages. |
 | **Petrklíč a archivy** (orange) | Petrklíč – aktuální číslo `/petrklic/aktualni` · Archiv Petrklíče `/petrklic/archiv` · Archiv aktualit `/aktuality/archiv` |
 
-The main menu items (Úvod, Aktuality, Bohoslužby, Fotogalerie, Petrklíč, Kontakty)
-are not repeated in the groups. Keep the groups in **one data structure** (config or CMS)
+The main menu items (Úvod, Aktuality, Bohoslužby, Fotogalerie, Kontakty)
+are not repeated in the groups. The seasonal item (4.1a) is the exception: Petrklíč,
+Betlémy and the Tábor pages always keep their group links, whatever the main menu shows. Keep the groups in **one data structure** (config or CMS)
 that both the menu and the footer render from.
 Group headings: a 12×16 shard in the group colour plus the bold name. Links use body
 text colour, 40 px rows in the menu and 36 px in the footer.
@@ -1306,4 +1324,64 @@ Each of the four pages keeps its old route and starts with the same header:
 ### 29.6 Dark theme
 
 The usual mapping (section 10). White boxes and chips on tints (Termín/Přihlášky, avatars, the year chip) map to `--raised`.
+
+## 30. Betlémy (`/betlemy`)
+
+Mockups: `mockups/betlemy/` (during the exhibition), `mockups/betlemy-pred-zahajenim/`,
+`mockups/betlemy-po-skonceni/`. Colour: **orange** (the seasonal menu slot keeps
+Petrklíč's colour), with a five-point **star** as the season's motif. One page replaces the old
+"Rozcestník" and "Výstava" (`/betlemy/rozcestnik`, `/betlemy/vystava`; redirect both
+to `/betlemy`). The yearly contest pages and older photo albums stay on the old site
+and are only linked.
+
+The mockup texts are **2025 content with the dates moved to 2026/27** (7th year; opening
+19. 12. 2026 – 3. 1. 2027; mass for the intentions 10. 1. 2027). Everything must be
+confirmed for the real season; `[upřesníme]` marks what was not on the old pages.
+
+### 30.1 Page states
+
+The page is one template whose order and content follow the date (Europe/Prague) and
+the opening days entered in the admin:
+
+| State | When | Order of blocks |
+|---|---|---|
+| **Před zahájením** | from 1. 11. to the first opening day | header, "Na této stránce", status, Společný betlém, Otevírací doba, Kde, Putování, Co uvidíte, Soutěž, Modlitba, Z minulých ročníků, Proč betlémy |
+| **Během výstavy** | first – last opening day | header, "Na této stránce", status, Otevírací doba, Kde, Co uvidíte, Soutěž, Společný betlém, Putování, Modlitba, Z minulých ročníků, Proč betlémy |
+| **Po skončení** | from the day after the last opening day (also out of season, reached from the footer) | header, "Na této stránce", status, Výsledky soutěže, Fotografie, Modlitba (only the mass date), Proč betlémy |
+
+### 30.2 Blocks
+
+- **Header:** breadcrumb `Úvod › Betlémy`; eyebrow with a star "Advent a Vánoce 2026 · 7. ročník" (orange-ink); H1 "Betlémy v Kuřimi" with the orange shard; one-sentence lead.
+- **"Na této stránce"** (instead of a sub-navigation; the page has no subpages): anchor pills (40 px, surface with `--line` border) to the blocks of the current state; mobile: one horizontal scrolling row. Sections have `scroll-margin-top` so the sticky header doesn't cover their heading.
+- **Status panel** (orange tint, orange and blue corner shards, photo on the right on tablet/desktop and below on mobile):
+  - before: white pill "Výstava začne za 21 dní", H2 "Zahájení v sobotu 19. prosince ve 14:00", the places and the last day; buttons **"Přinést figurku do betlému"** (orange fill, dark text) and "Otevírací doba";
+  - during, on an opening day: green pill "Právě otevřeno" (`role="status"`) while open, H2 "Dnes otevřeno 14:00–17:00", and "Příště …"; on other days "Příště otevřeno v pátek 1. ledna 14:00–17:00". Buttons **"Plánek výstavy (PDF)"** and "Kde co najdete";
+  - after: "Výstava 2026 skončila", H2 "Děkujeme za návštěvu!", buttons "Výsledky soutěže" and "Fotografie z výstavy".
+- **Otevírací doba:** a list box (radius 18), one row per opening day: weekday + date, hours (bold, `#8A4B00`), and an optional note (zahájení, komentovaná prohlídka, vánoční příběh se scholou, poslední den). Today: green tint row with a "dnes" pill; past days at 55 % opacity. Under it the 24. 12. note.
+- **Kde výstavu najdete:** two cards with a corner shard: **Kostel sv. Maří Magdaleny** (blue tint: pod kůrem, venku u věže, dvě oratoře v 1. patře s vlastními vchody) and **Fara – sbírka Zdeňka Jílka** (green tint: sál v přízemí, vstup bočním vchodem dřevěnou brankou, white pill "Bezbariérový vstup"). Buttons "Orientační plánek (PDF)" and "Navigovat".
+- **Co uvidíte:** a featured panel (orange tint) for the year's guest collection – "Novinka na faře" pill, H3, short text, material chips, the guided tour (date, time, place) in a white row, and "Vystavují také" (name · place, what) as a list; then three small surface cards: Betlémy dětí z MŠ a ZŠ, Rodinné betlémy, Venkovní betlém ZŠ DiviZna.
+- **Soutěž o nej betlém** (blue): before/during a blue-tint card explaining the contest of the 3rd classes and that visitors vote at the exhibition, with number tiles (tříd, obcí). After: **results** – a one-line summary (classes, ballots, invalid ballots) and a podium of 3 cards (place in a coloured circle, class, school, photo of the nativity, teacher, votes); 1 / 3 / 3 columns.
+- **Společný kuřimský betlém** (green tint): what to bring, three white facts (Výška: nejvýše 20 cm · Kdy: 6.–24. 12. · Kam: do kostela v Kuřimi) and a "Dotazy" box with the phone as a `tel:` link. Shown first in the "before" state, because that's when people need it.
+- **Betlémské putování Kuřimí** (magenta): text with the number of nativities, two cards (Pro děti: collecting letters from the stars; Pro dospělé), the date and start of the route (`[upřesníme]` in the mockup) and the poster with the route (opens in the poster lightbox, section 21).
+- **Místo pro modlitbu:** surface card with a candle icon: candles under the choir, the box for intentions, and the mass date for these intentions. After the exhibition: only the mass date.
+- **Z minulých ročníků / Fotografie:** during and before, year pills 2025 … 2020 linking to the Zonerama albums (new window), and a line linking the contest results 2025 and 2024 on the old site. After: a thumbnail grid of this year's album (opens the photo lightbox) + "Celé album výstavy 2026 na Zonerama", then the year pills.
+- **Proč stavíme betlémy:** a blue-tint fact card (St Francis of Assisi, Greccio 1223; "letos je to 803 let" is computed).
+
+### 30.3 Data
+
+| Field | Notes |
+|---|---|
+| season / year, ročník | "Advent a Vánoce 2026 · 7. ročník" |
+| opening days[] | date, from–to, note; drive the states (30.1), the status panel and the seasonal menu item (4.1a) |
+| places[] | name, address, notes (list), accessibility flag, map query; plan PDF |
+| guest collection | title, text, materials (chips), guided tour (date, time, place), exhibitors[] (name, place, what) |
+| contest | text; after the exhibition: classes count, ballots, invalid, results[] (place, class, school, teacher, votes, photo) |
+| shared nativity | text, max height, from–to, where, phone |
+| walk (putování) | text, number of nativities, date and start, poster image |
+| prayer | text, mass date and time |
+| albums[] | year, Zonerama URL; this year's album for the "after" state |
+
+### 30.4 Dark theme
+
+The usual mapping (section 10). The orange buttons keep dark text (`#111923`); white chips and boxes on tints map to `--raised`.
 
