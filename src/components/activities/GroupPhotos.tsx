@@ -6,7 +6,7 @@ import { photoAlt, photoCountLabel } from "@/lib/gallery/albums";
 import { plural } from "@/lib/shared/czech";
 import { AlbumPhotoTile } from "@/components/gallery/AlbumPhotoTile";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { loadGroupLightbox, openGroupPhoto } from "./GroupLightbox";
+import { loadPageLightbox, openPagePhoto } from "@/components/gallery/PageLightbox";
 import { ArrowLink } from "@/components/ui/ArrowLink";
 
 /** Thumbnails shown: 6 on mobile (3 columns) and desktop, 4 on tablet. */
@@ -23,7 +23,7 @@ type Props = {
 
 /**
  * "Fotografie" of a group page (design/DESIGN.md §27, 4): square thumbnails and "Zobrazit všech N fotografií",
- * each opening the page's photo lightbox (§21, `GroupLightbox`). Without JS a thumbnail links to the large photo.
+ * each opening the page's photo lightbox (§21, `PageLightbox`). Without JS a thumbnail links to the large photo.
  */
 export function GroupPhotos({ name, photos, before, total }: Props) {
   // "Zobrazit všechny 3 fotografie", "Zobrazit všech 18 fotografií"
@@ -45,9 +45,9 @@ export function GroupPhotos({ name, photos, before, total }: Props) {
               href={photo.large}
               aria-label={`${photoAlt({ title: name }, before + i + 1)} – zobrazit zvětšenou`}
               className="group block aspect-square overflow-hidden rounded-14"
-              onPointerEnter={loadGroupLightbox}
-              onFocus={loadGroupLightbox}
-              onClick={openGroupPhoto(before + i + 1)}
+              onPointerEnter={loadPageLightbox}
+              onFocus={loadPageLightbox}
+              onClick={openPagePhoto(before + i + 1)}
             >
               <AlbumPhotoTile
                 photo={photo}
@@ -68,9 +68,9 @@ export function GroupPhotos({ name, photos, before, total }: Props) {
         href={photos[0].large}
         tone="green"
         className="self-start"
-        onPointerEnter={loadGroupLightbox}
-        onFocus={loadGroupLightbox}
-        onClick={openGroupPhoto(1)}
+        onPointerEnter={loadPageLightbox}
+        onFocus={loadPageLightbox}
+        onClick={openPagePhoto(1)}
       >
         {showAll}
       </ArrowLink>

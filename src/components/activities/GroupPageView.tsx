@@ -12,7 +12,7 @@ import { PageHeading } from "@/components/ui/PageHeading";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { GroupHero } from "./GroupHero";
 import { GroupInfoBox } from "./GroupInfoBox";
-import { GroupLightbox } from "./GroupLightbox";
+import { PageLightbox } from "@/components/gallery/PageLightbox";
 import { GroupPhotos } from "./GroupPhotos";
 import { VideoCard } from "./VideoCard";
 import { ArrowLink } from "@/components/ui/ArrowLink";
@@ -105,7 +105,7 @@ export function GroupPageView({ group, groups, nextMeeting }: Props) {
           total={lightboxPhotos.length}
         />
       )}
-      {lightboxPhotos.length > 0 && <GroupLightbox name={group.name} photos={lightboxPhotos} />}
+      {lightboxPhotos.length > 0 && <PageLightbox name={group.name} photos={lightboxPhotos} />}
 
       {group.videos && group.videos.length > 0 && (
         <section aria-labelledby="videa" className="flex flex-col gap-3">

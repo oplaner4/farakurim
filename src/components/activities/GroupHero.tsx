@@ -2,7 +2,7 @@
 
 import { clsx } from "clsx";
 import type { GroupPage } from "@/content/types/activities";
-import { loadGroupLightbox, openGroupPhoto } from "./GroupLightbox";
+import { loadPageLightbox, openPagePhoto } from "@/components/gallery/PageLightbox";
 
 /**
  * The wide photo of a group page (design/DESIGN.md §27, 2) with the green corner shard; a poster (Společenství
@@ -18,9 +18,9 @@ export function GroupHero({ hero }: { hero: NonNullable<GroupPage["hero"]> }) {
         "group relative block h-55 overflow-hidden rounded-24 md:h-80 md:rounded-26 lg:h-95 lg:rounded-28",
         hero.poster ? "bg-blue-tint-alt" : "bg-green-tint",
       )}
-      onPointerEnter={loadGroupLightbox}
-      onFocus={loadGroupLightbox}
-      onClick={openGroupPhoto(1)}
+      onPointerEnter={loadPageLightbox}
+      onFocus={loadPageLightbox}
+      onClick={openPagePhoto(1)}
     >
       <img
         src={hero.src}
