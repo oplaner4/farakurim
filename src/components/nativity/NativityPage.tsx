@@ -6,6 +6,7 @@ import { currentSeason, type ExhibitionState } from "@/lib/nativity/season";
 import { statusPanel } from "@/lib/nativity/status";
 import { pragueDate } from "@/lib/shared/prague";
 import { useNow } from "@/hooks/use-now";
+import { PageLightbox } from "@/components/gallery/PageLightbox";
 import { NativityStarIcon } from "@/components/ui/icons/nativity-icons";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { Contest } from "./Contest";
@@ -63,6 +64,8 @@ export function NativityPage({ seasons, albums, oldSiteResults, renderedAt }: Pr
   const status = statusPanel(season, now);
   const { state } = status;
   const after = state === "after";
+  const photosTitle = `Výstava betlémů ${season.year}`;
+  const album = albums.find((a) => a.year === season.year);
 
   const blocks: Record<Block, ReactNode> = {
     doba: <OpeningHours season={season} today={today} />,
@@ -76,7 +79,9 @@ export function NativityPage({ seasons, albums, oldSiteResults, renderedAt }: Pr
       <Photos
         year={season.year}
         after={after}
-        album={albums.find((a) => a.year === season.year)}
+        photos={season.photos}
+        title={photosTitle}
+        album={album}
         pastAlbums={albums.filter((a) => a.year < season.year)}
         oldSiteResults={oldSiteResults}
       />
@@ -99,11 +104,17 @@ export function NativityPage({ seasons, albums, oldSiteResults, renderedAt }: Pr
         intro="Výstava betlémů v kostele sv. Maří Magdalény a na faře, soutěž školních tříd, společný kuřimský betlém a betlémské putování městem."
       />
       <PageAnchors anchors={anchors} />
-      <StatusPanel status={status} planUrl={season.planUrl} hasResults={!!season.contest.results} />
+      <StatusPanel
+        status={status}
+        planUrl={season.planUrl}
+        hasResults={!!season.contest.results}
+        photo={season.photo}
+      />
       {order.map((id) => (
         <Fragment key={id}>{blocks[id]}</Fragment>
       ))}
       <WhyNativity year={Number(today.slice(0, 4))} />
+      {after && season.photos && <PageLightbox name={photosTitle} href={album?.url} photos={season.photos} />}
     </>
   );
 }

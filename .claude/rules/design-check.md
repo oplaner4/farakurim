@@ -30,6 +30,7 @@ screenshots plus block positions (`getBoundingClientRect()` of each `section[ari
   mockups' shortened ones, real Petrklíč covers and pages instead of
   `[obálka]` / `[strana]`, the service sheet intentions left out (or shown) instead of `[úmysl]` / `[jméno]`, the Tábor pages' real photos,
   quotes, team (every member with a photo) and years (a theme only where known) instead of the placeholders, Betlémy's
-  designed photo and poster placeholders instead of `[foto betlému]` / `[plakát s trasou]` and white digits on the
+  2025 photos (designed placeholders for a season without them) and poster placeholder instead of `[foto betlému]` /
+  `[plakát s trasou]` and white digits on the
   blue 2nd-place circle, and calendar entries: the build
   links every event and keeps a mass in the services calendar when an event shares its time.

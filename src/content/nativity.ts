@@ -4,7 +4,7 @@ import { UPLOADS_PATH } from "@/lib/shared/uploads";
 /*
  * Betlémy (design/DESIGN.md §30): the exhibition seasons, newest first. A season's page takes over on 1. 11. of its
  * year and shows the finished season until the next one starts. 2025 comes from the old site's pages (Výstava,
- * Putování, the 2025 results). 2026 is the design's draft (the 2025 texts with the dates moved): confirm the dates,
+ * Putování, the 2025 results and their photos, its photos from the year's album). 2026 is the design's draft (the 2025 texts with the dates moved): confirm the dates,
  * the guest collection and the contest with the parish before 1. 11. 2026.
  */
 
@@ -27,6 +27,12 @@ const places: NativityPlace[] = [
     accessible: true,
   },
 ];
+
+/** A photo of the season uploaded to betlemy/<year>/ in two widths: "foto-3" → its 800 and 1600 px files. */
+const photo = (year: number, name: string) => ({
+  small: `${UPLOADS_PATH}betlemy/${year}/${name}-800.webp`,
+  large: `${UPLOADS_PATH}betlemy/${year}/${name}-1600.webp`,
+});
 
 const planUrl = `${UPLOADS_PATH}betlemy/orientacni-planek.pdf`;
 const mapQuery = "Kostel sv. Maří Magdalény Kuřim";
@@ -127,19 +133,38 @@ export const nativitySeasons: NativitySeason[] = [
       summary:
         "Soutěžilo 7 třetích tříd: 4 z Kuřimi, 2 z Lelekovic a 1 z Moravských Knínic. Odevzdáno bylo 574 hlasovacích lístků (15 neplatných). Vítězům gratulujeme a všem třídám děkujeme!",
       results: [
-        { className: "3.A", school: "ZŠ Tyršova Kuřim", teacher: "Mgr. Jana Humpolíčková", votes: 119 },
-        { className: "3.B", school: "ZŠ Lelekovice", teacher: "Mgr. Markéta Nečasová", votes: 95 },
+        {
+          className: "3.A",
+          school: "ZŠ Tyršova Kuřim",
+          teacher: "Mgr. Jana Humpolíčková",
+          votes: 119,
+          photo: photo(2025, "soutez-1"),
+        },
+        {
+          className: "3.B",
+          school: "ZŠ Lelekovice",
+          teacher: "Mgr. Markéta Nečasová",
+          votes: 95,
+          photo: photo(2025, "soutez-2"),
+        },
         {
           className: "3.C + 4.C",
           school: "školní družina Jungmannova Kuřim",
           teacher: "Monika Obůrková",
           votes: 90,
+          photo: photo(2025, "soutez-3"),
         },
       ],
     },
     sharedScene: { ...sharedScene, from: "2025-12-06", to: "2025-12-24" },
     walk,
     intentionsMass: { date: "2026-01-11", time: "9:30" },
+    // From the album "Nafocené betlémy z výstavy" (nativityAlbums, 2025).
+    photo: {
+      ...photo(2025, "vystava"),
+      alt: "Betlém s Pannou Marií, svatým Josefem, pastýři a ovečkami pod vánočním stromkem",
+    },
+    photos: Array.from({ length: 12 }, (_, i) => photo(2025, `foto-${i + 1}`)),
   },
 ];
 

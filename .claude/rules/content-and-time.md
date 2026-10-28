@@ -128,8 +128,10 @@ build-time next mass.
   a season takes over on 1. 11. of its year (`currentSeason()`) and its opening days decide the state, before, during
   or after the exhibition (`exhibitionState()`), which orders the blocks, and the status panel (`statusPanel()` in
   `src/lib/nativity/`), all chosen in the browser by `NativityPage` from the build time's choice. `nativityAlbums` are
-  the years' Zonerama albums, also the season's own album after it. The photos and the route poster are designed
-  placeholders until the parish chooses some. Add the next season before 1. 11.
+  the years' Zonerama albums, also the season's own album after it. A season's photos (the status panel's
+  `photo`, the `photos` shown after the exhibition, which open the page's lightbox at `#foto-N`, and the podium's) are
+  uploaded to `betlemy/<year>/`, chosen from the year's album; without them, and for the route poster, designed
+  placeholders stand in. Add the next season before 1. 11.
 - The seasonal main-menu item (design §4.1a): Petrklíč's place shows Betlémy from 1. 11. to the exhibition's last day
   and Tábor from 1. 3. to `nextCamp.end` (none while the end is unset), computed from the content by
   `server/seasonal-nav.ts` (`seasonalPeriods()`) and picked in the browser by `SeasonalNavItem`.
@@ -164,4 +166,5 @@ Most uploaded files are staged by the content scripts. These are placed by hand 
 - `skupiny/<group>/`: the group pages' photos and video thumbnails (WebP, `small` 480 px square, `large` ≤ 1600 px);
 - `tabor/vedouci/`: the Tábor team photos (WebP 4:5, `small` 320 px, `large` 720 px);
 - `tabor/rocniky/<year>.webp`: the Ročníky cover photos (800 px wide);
-- `betlemy/`: the exhibition's plan (`orientacni-planek.pdf`).
+- `betlemy/`: the exhibition's plan (`orientacni-planek.pdf`), and `betlemy/<year>/` the season's photos (WebP, 800 and
+  1600 px wide: `vystava`, `foto-N` and `soutez-N`, chosen from the year's Zonerama album and the contest results).

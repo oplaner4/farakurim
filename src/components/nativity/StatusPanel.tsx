@@ -1,5 +1,6 @@
 import { clsx } from "clsx";
 import { Fragment } from "react";
+import type { AlbumPhoto } from "@/content/types/gallery";
 import type { StatusPanel as Status } from "@/lib/nativity/status";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { CalendarIcon, PinIcon } from "@/components/ui/icons/contact-icons";
@@ -10,7 +11,14 @@ import { NativityStarIcon } from "@/components/ui/icons/nativity-icons";
  * The status panel (design/DESIGN.md §30.2): the countdown before the exhibition, today's hours or the next opening
  * day during it, the thanks after it, with the state's two buttons, and the photo on the right (below on mobile).
  */
-export function StatusPanel({ status, planUrl, hasResults }: { status: Status; planUrl: string; hasResults: boolean }) {
+type Props = {
+  status: Status;
+  planUrl: string;
+  hasResults: boolean;
+  photo?: AlbumPhoto & { alt: string };
+};
+
+export function StatusPanel({ status, planUrl, hasResults, photo }: Props) {
   const { state, pill, title, text } = status;
   return (
     <section
@@ -83,7 +91,17 @@ export function StatusPanel({ status, planUrl, hasResults }: { status: Status; p
           )}
         </div>
       </div>
-      <PhotoPlaceholder className="min-h-50 md:min-h-65 lg:min-h-75" />
+      {photo ? (
+        <img
+          src={photo.large}
+          srcSet={`${photo.small} 800w, ${photo.large} 1600w`}
+          sizes="(min-width: 75rem) 36rem, (min-width: 48rem) 45vw, 100vw"
+          alt={photo.alt}
+          className="relative h-50 w-full rounded-16 object-cover md:h-full md:min-h-65 lg:min-h-75 lg:rounded-20"
+        />
+      ) : (
+        <PhotoPlaceholder className="min-h-50 md:min-h-65 lg:min-h-75" />
+      )}
     </section>
   );
 }

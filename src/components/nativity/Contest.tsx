@@ -46,12 +46,23 @@ export function Contest({ contest, voting, after }: { contest: NativityContest; 
                       <span className="text-15 text-ink-2">{r.school}</span>
                     </span>
                   </div>
-                  <div
-                    aria-hidden="true"
-                    className="flex aspect-4/3 items-center justify-center rounded-14 bg-raised text-muted"
-                  >
-                    <ImageIcon size={28} />
-                  </div>
+                  {r.photo ? (
+                    <img
+                      src={r.photo.small}
+                      srcSet={`${r.photo.small} 800w, ${r.photo.large} 1600w`}
+                      sizes="(min-width: 75rem) 23rem, (min-width: 48rem) 30vw, 100vw"
+                      alt={`Betlém třídy ${r.className}, ${r.school}`}
+                      loading="lazy"
+                      className="aspect-4/3 w-full rounded-14 object-cover"
+                    />
+                  ) : (
+                    <div
+                      aria-hidden="true"
+                      className="flex aspect-4/3 items-center justify-center rounded-14 bg-raised text-muted"
+                    >
+                      <ImageIcon size={28} />
+                    </div>
+                  )}
                   <span className="flex justify-between gap-2 text-15">
                     <span className="text-ink-2">{r.teacher}</span>
                     <strong>

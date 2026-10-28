@@ -1,3 +1,4 @@
+import type { AlbumPhoto } from "./gallery";
 import type { ClockTime, IsoDate } from "./shared";
 
 // Betlémy (design/DESIGN.md §30): one record per season. The exhibition's opening days decide what the page shows
@@ -33,7 +34,14 @@ export type NativityGuestCollection = {
 };
 
 /** One of the three places on the podium of "Soutěž o nej betlém". */
-export type NativityContestPlace = { className: string; school: string; teacher: string; votes: number };
+export type NativityContestPlace = {
+  className: string;
+  school: string;
+  teacher: string;
+  votes: number;
+  /** The class's nativity scene, 4:3, uploaded to betlemy/<year>/. */
+  photo?: AlbumPhoto;
+};
 
 export type NativityContest = {
   /** The entrants, after "Betlémy vyrobené": "třetími třídami". */
@@ -89,6 +97,10 @@ export type NativitySeason = {
   walk: NativityWalk;
   /** The mass for the intentions written at the exhibition. */
   intentionsMass: { date: IsoDate; time: ClockTime };
+  /** The status panel's photo, uploaded to betlemy/<year>/; a designed placeholder until there is one. */
+  photo?: AlbumPhoto & { alt: string };
+  /** Photos from the season's album, shown after the exhibition (6, the first ones in the grid, all in the lightbox). */
+  photos?: AlbumPhoto[];
 };
 
 /** A past year's exhibition album on Zonerama. */

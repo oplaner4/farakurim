@@ -47,6 +47,19 @@ describe("Betlémy (nativity.ts)", () => {
     }
   });
 
+  it("links the photos as uploads of the season's own folder", () => {
+    for (const { year, photo, photos, contest } of nativitySeasons) {
+      const all = [photo, ...(photos ?? []), ...(contest.results ?? []).map((r) => r.photo)].flatMap((p) =>
+        p ? [p.small, p.large] : [],
+      );
+      expect(
+        all.filter((p) => !isUpload(p) || !p.startsWith(`/uploads/betlemy/${year}/`)),
+        String(year),
+      ).toEqual([]);
+      if (photo) expect(photo.alt.trim(), String(year)).not.toBe("");
+    }
+  });
+
   it("puts the contest results on a podium of three, by votes", () => {
     for (const { year, contest } of nativitySeasons) {
       if (!contest.results) continue;
