@@ -47,11 +47,11 @@ says how an agent runs it. What an agent must never get wrong:
   even to read. Only the scripts reach it (`pnpm release`, `pnpm pull-uploads`, `scripts/deploy.sh`), as they know
   which folders to leave alone and never overwrite or delete what lives only there. There is nothing to check by
   hand either: the release checks the linked uploads and verifies the live site. When something on the server needs
-  changing, change `scripts/deploy.sh` or ask the user.
-- `/stary.farakurim.cz/` on the server is the backup of the old PHP site: never deploy there or delete it.
-- Never delete `/uploads/`, `/nahrane/`, `/virtualni_prohlidka/` or `/cache/` on the server: they live only there.
-- The SSH target, web root, rsync flags, server-only folders and verify checks live only in `scripts/deploy.sh`
-  (used by `pnpm release` and the deploy workflow): change them there.
+  changing, propose a change to `scripts/deploy.sh` or ask the user.
+- **Any change to `scripts/deploy.sh` is critical: show the user the diff and get an explicit yes before you make
+  it.** It is the one place that knows the SSH target, the web root, the rsync flags, the server-only folders and the
+  verify checks (used by `pnpm release` and the deploy workflow), and the next release runs it with `--delete`
+  against the server. A wrong line there can delete what lives only on the server.
 
 ## Rules
 

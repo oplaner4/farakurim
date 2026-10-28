@@ -74,9 +74,8 @@ key (`DEPLOY_SSH_KEY`, `DEPLOY_KNOWN_HOSTS`, [GitHub setup](github-setup.md)), n
 
 ### What the sync keeps
 
-- The sync deletes files that are no longer in `out/`, except four folders that live only on the server: `UPLOADS_PATH`,
-  `/nahrane/` (the old site's uploads), `/virtualni_prohlidka/` (the old site's virtual tour) and `/cache/` (the last
-  vira.cz verse).
+- The sync deletes files that are no longer in `out/`, but leaves alone the folders that live only on the server
+  (`SERVER_ONLY` in `scripts/deploy.sh`).
 - Old `_next/static/` chunks stay 30 days, so a page opened before a release still loads the chunks it asks for later.
   Pages and their `*.txt` payloads are sent with `Cache-Control: no-cache`, so a visit after a release never gets an
   old page whose chunks are gone.

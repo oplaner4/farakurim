@@ -177,8 +177,8 @@ reviews and merges. Corrections are refused there and made with the skills. Setu
 
 Uploaded files (posters, PDFs, photos) are not in git: they are staged in the git-ignored folder `UPLOADS_PATH` names
 (`src/lib/shared/uploads.ts`, e.g. `/uploads/`), which mirrors the one on the server, and linked root-relative;
-`pnpm pull-uploads` downloads the server's files you lack. The old site's uploads in `/nahrane/` stay on the server so
-old links keep working, but new content never links or adds to them.
+`pnpm pull-uploads` downloads the server's files you lack. The old site's uploads (a server-only folder, `SERVER_ONLY` in
+`scripts/deploy.sh`) stay on the server so old links keep working, but new content never links or adds to them.
 
 ## Deployment
 

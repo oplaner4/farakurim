@@ -9,8 +9,6 @@
 #        scripts/deploy.sh out [--dry-run]            sync out/ to the web root (--delete, server-only folders excluded)
 #        scripts/deploy.sh cron [--dry-run]           the PHP scripts of cron-scripts/ to the hosting's cron folder
 #        scripts/deploy.sh verify                     check that the live site answers
-#
-# The old PHP site that lived in /farakurim.cz/ is backed up in /stary.farakurim.cz/ (outside WEB_ROOT, never synced).
 set -euo pipefail
 
 SSH_TARGET=farakurim_cz@91.239.200.63
