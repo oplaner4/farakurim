@@ -183,7 +183,7 @@ follows them too, with these changes:
 - It never asks and never waits. Every "confirm with the user" or "ask the user" step (step 3, a document error, the
   placeholder dots, the "Days without services" note) writes into the report instead; the report file is the one the
   prompt gives. The scratchpad is the one the prompt gives (`record.json`, `draft.json`; write nothing in the
-  repo); the PDF is staged in `uploads/` as usual.
+  repo).
 - The prompt may give the **previous report** of the open PR (the run then works on that PR's branch). The new report
   describes the whole PR, not only this run: copy over each previous week section whose week is in the PR
   (`created` or `corrected`) as it is, replace the section of the week this run handled, and drop previous `refused`

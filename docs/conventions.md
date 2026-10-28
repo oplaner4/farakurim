@@ -5,7 +5,7 @@ short.
 
 - **Language:** Czech is kept only where a person outside the code reads it or a public URL depends on it:
   - UI copy (all visible text, alt texts, aria-labels, metadata, JSON-LD, the `.ics`);
-  - public addresses: route folders (`/aktuality/`), `/uploads/` paths and file names, HTML ids (they are URL
+  - public addresses: route folders (`/aktuality/`), the paths and names of uploaded files, HTML ids (they are URL
     fragments: `#obsah`, `#plakat`), the redirects in `public/.htaccess`;
   - content values in `src/content/` (texts, labels, ids that become URLs) and the parish's conventions outside the
     code (the "Bohoslužby" and "Události" calendars, the `Zrušeno: ` title prefix);
