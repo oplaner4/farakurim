@@ -29,8 +29,7 @@ build-time next mass.
   meetings are `cancelledMeetings`; the cards, the detail page, the archive, the `.ics` (`STATUS:CANCELLED`) and the
   calendars show it (`isCancelled()`, `eventNote()`, `CalendarEntry.cancelled`, which a Události title starting with
   "Zrušeno: " also sets). A cancelled event is never in "Doporučujeme" or "Další akce".
-  Events, service sheets and albums are added with the `parish-create-*` skills (CLAUDE.md "Managing content");
-  their uploaded files are linked root-relative (`/uploads/…`, absolute only where a URL leaves the page, e.g.
+  Content is added and changed with the content skills (CLAUDE.md "Managing content"); its uploaded files are linked root-relative (`/uploads/…`, absolute only where a URL leaves the page, e.g.
   JSON-LD), never committed.
 - Dates are ISO `YYYY-MM-DD`, times `H:MM`, both **Europe/Prague wall-clock**. Use `pragueDateTime()` /
   `pragueDate()` from `src/lib/shared/prague.ts` and pass `{ in: inPrague }` to date-fns functions;
@@ -87,8 +86,8 @@ build-time next mass.
 - Pastorační rada (`content/parish-council.ts`, no mockup): the term, the members (names only, as the council
   publishes them) and the meeting reports, newest first, as the council's HTML (`/pastoracni_rada/clenove/` and
   `/zapisy/`, each report at `#zasedani-<date>`). Kněží – rodáci (`content/native-priests.ts`): the old page's
-  wording, in its order. Synoda and Dotazníky – GDPR are fixed texts in their pages; their files and the Krpálek
-  PDF were moved from `/nahrane/podstranky/` to `/uploads/synoda/` and `/uploads/knezi-rodaci/`.
+  wording, in its order. Synoda and Dotazníky – GDPR are fixed texts in their pages; their files are in
+  `/uploads/synoda/`, the Krpálek PDF in `/uploads/knezi-rodaci/`.
 - Seznam aktivit (`content/activities.ts`, §25): groups of activities with names-only contacts (GDPR); "hledáme" in
   `contacts` marks an activity looking for help (`seeksHelp()`), `href` links its own page. Výuka náboženství
   (`content/religious-education.ts`, §24): the school year, one timetable per school, the form and rules under
@@ -102,15 +101,10 @@ build-time next mass.
   group pages in `groupPages` order. "Příští setkání" (`nextMeeting.calendarTitle`) is the next entry of the parish
   calendars whose title contains that text (`src/lib/activities/meetings.ts`): read at build time for eight weeks
   and re-read in the browser like the other calendars; hidden when there is none.
-- Pages not rebuilt yet (`content/planned-pages.ts`): every old-site URL from farakurim.cz/sitemap has a page with
-  its breadcrumb and "Stránku připravujeme" (noindex, not in the sitemap), built by `src/app/[...path]/` (never under
-  `/aktivity/`, where `src/app/aktivity/[group]/` builds only the group pages). The groups live under `/aktivity/`;
-  `public/.htaccess` redirects their old URLs. Remove a page from the list when it is rebuilt. Mimořádné katecheze are not rebuilt: the
-  Katecheze link card and `public/.htaccess` lead to them on the old site (stary.farakurim.cz, same path). Neither are
-  Betlémy 2024 and 2025: `public/.htaccess` redirects them to the old site. Tábor 2019–2026 have no pages either:
-  `public/.htaccess` redirects each to its card on Ročníky (`/farni_tabor/rocniky/#rok-<year>`). The old site's own
-  `.htaccess` (on the server, not in git) sends `X-Robots-Tag: noindex` on every page except the Mimořádné katecheze and
-  Betlémy pages, so search engines index those there (the Tábor years are noindex there too).
+- Pages not rebuilt yet (`content/planned-pages.ts`, which also says which old pages are redirected instead): each
+  gets its breadcrumb and "Stránku připravujeme" (noindex, not in the sitemap), built by `src/app/[...path]/` (never
+  under `/aktivity/`, where `src/app/aktivity/[group]/` builds only the group pages). Remove a page from the list when
+  it is rebuilt.
 - Tábor (`content/camp.ts`, types in `types/camp.ts`, design §29): O táboru, Vedoucí, Kontakt and Ročníky under
   `/farni_tabor/`, with the shared header and sub-navigation (`CampPageHeading`). The texts, the team, the contacts
   and the years come from the old site's pages. `nextCamp` is the "Tábor <year> – připravujeme" panel: add `start`/`end`
