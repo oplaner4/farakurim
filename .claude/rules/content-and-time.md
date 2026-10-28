@@ -40,7 +40,7 @@ build-time next mass.
   the title otherwise. First-Friday/Saturday variants use `rule: "first-in-month"` (and `"not-first-in-month"` for
   what they replace). Exceptions (`scheduleExceptions()`) **replace the whole day's services**, titled ones included;
   never hard-code those variants in logic.
-- Service sheets (`content/service-sheets.json`, design §14.5–14.7): one `ServiceSheet` per week (a week, or two weeks around holidays; `isOneWeek()` switches the labels), loaded and checked by `server/service-sheets.ts` (`serviceSheetsFileSchema`); a sheet is added in advance with `pnpm stage sheet … --record`, which removes the sheets before the current one and the later changes the sheets cover or that are before the current sheet. The later changes (`content/schedule-exceptions.json`, loaded and checked by `content/schedule-exceptions.ts` as `laterExceptions`, added with `pnpm add-exception`) are the changes announced for days no sheet covers: after the last sheet, or in a week the parish published no service sheet for. A sheet has `days[].rows[]` and
+- Service sheets (`content/service-sheets.json`, design §14.5–14.7): one `ServiceSheet` per week (a week, or two weeks around holidays; `isOneWeek()` switches the labels), loaded and checked by `server/service-sheets.ts` (`serviceSheetsFileSchema`), added in advance by `pnpm stage sheet`. The later changes (`content/schedule-exceptions.json`, loaded and checked by `content/schedule-exceptions.ts` as `laterExceptions`, added with `pnpm add-exception`) are the changes announced for days no sheet covers: after the last sheet, or in a week the parish published no service sheet for. A sheet has `days[].rows[]` and
   `announcements[]`. For every day of every sheet (the newer sheet wins the Sunday two sheets share) the `mass` and `service` rows (adoration,
   "Velikonoční obřady"; never "Pohřeb" or "Křest dětí") are the day's only services (`sheetExceptions()`), never
   combined with `regularServices`; on the days no sheet covers the regular schedule applies, except on
@@ -52,24 +52,20 @@ build-time next mass.
 - Petrklíč (`content/petrklic.json`, loaded and checked by `content/petrklic.ts` with `petrklicFileSchema` from
   `src/lib/petrklic/schema.ts`): one record per issue (`year`, `number`, `note`, `rev`, `pageCount`), newest
   first, added by `pnpm stage petrklic` (`parish-create-petrklic`); the id (`issueId()`), the URLs (`toIssue()`)
-  and the volume are computed (`volumeOf()`). Each issue is one folder uploaded to `/uploads/petrklic/<id>/`
-  (`<id>-r<rev>/` for a corrected PDF, `issueFolder()`, as the server's files are never overwritten): the PDF
-  `petrklic-<id>.pdf`, `cover.webp` and the current issue's viewer `pages/<n>.webp` (rendered by
-  `pnpm stage petrklic`).
+  and the volume are computed (`volumeOf()`), as is each issue's uploaded folder with its PDF, cover and viewer pages
+  (`issueFolder()`, a new one per `rev`).
 - Calendars (Kalendář, homepage "Tento týden"): the parish's two Google Calendars ("Bohoslužby" = `services`,
   "Události" = `events`, `parishCalendars` in `content/site.ts`) are the source, because visitors subscribe to
   them. `loadCalendarEntries()` (`server/calendar.ts`) reads them at build time with `singleEvents=true` (Google
   expands recurrences and exceptions) for the prerendered range (Kalendář: the previous month and the next six;
   homepage: the build's week, the one before and the next four; "Tento týden" always runs Monday to Sunday). `useCalendarEntries()` re-reads every shown range in the browser (TanStack Query, one query per range) and merges it over the
   build's entries (`mergeEntries()`); a range outside the prerendered one is dimmed with a loading or error message
-  until Google answers. "Bohoslužby" is generated from the content: `pnpm calendar-sync --calendar services` (run by the release) writes one event per service of the next six months from `regularServices`, the sheets and the exceptions, as `servicesOnDate()` combines them, and marks each with the Pořad bohoslužeb URL in its description; it touches no other event. A title "Změna: " (the Pořad bohoslužeb page's "změna" tag, `markChanges()`) sets `CalendarEntry.changed`, as "Zrušeno: " sets `cancelled`. A regular service can pause every year with `closed: { from, to }` (summer break), on the whole site. Without `NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY` the entries are a fallback generated from
+  until Google answers. "Bohoslužby" is generated from the content by `pnpm calendar-sync` (run by the release) through `servicesOnDate()`, so a change to how services combine changes that calendar too. A title "Změna: " (the Pořad bohoslužeb page's "změna" tag, `markChanges()`) sets `CalendarEntry.changed`, as "Zrušeno: " sets `cancelled`. A regular service can pause every year with `closed: { from, to }` (summer break), on the whole site. Without `NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY` the entries are a fallback generated from
   `regularServices` and the event records, nothing is fetched, and paging stops at the prerendered months; a release build (`RELEASE_BUILD=1`) fails without the key instead (`src/lib/shared/build-env.ts`). An Události event links to its event record when its description holds the detail page's URL (`eventPaths()`; only pages the build has, `linkablePages` in `server/calendar.ts`). The weekly table and the
   next-mass countdown still use `regularServices` / `scheduleExceptions()`.
 - Fotogalerie (`content/gallery.json`, loaded and checked by `content/gallery.ts` with `galleryFileSchema` from
-  `src/lib/gallery/schema.ts`): Zonerama albums, newest first, at most `MAX_ALBUMS` (`pnpm add-album` removes the
-  older ones), with `photoCount` and optional `photos` uploaded to `/uploads/fotogalerie/<id>/` in four widths
-  (`albumPhoto()`, `albumSrcSet()`; `small`/`large` are the 800/1600 px files; taken from the parish's zip of the
-  originals, never downloaded from Zonerama). An album without `photos` shows `photoCount` designed placeholders in the strips and the homepage
+  `src/lib/gallery/schema.ts`, added by `pnpm add-album`): Zonerama albums, newest first, at most `MAX_ALBUMS`,
+  with `photoCount` and optional uploaded `photos` (`albumPhoto()`, `albumSrcSet()`). An album without `photos` shows `photoCount` designed placeholders in the strips and the homepage
   carousel; alt texts are computed (`photoAlt()` in `src/lib/gallery/albums.ts`). A photo opens the
   lightbox (DESIGN.md §21) at `#album-<id>-foto-N`; an event poster that is an image opens it at `#plakat` (detail page)
   or `#plakat-<event id>` (the Aktuality page), a PDF poster opens in the browser.
