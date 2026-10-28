@@ -37,6 +37,10 @@
 //       issue to src/content/petrklic.json (with --check it only validates). --corrected stages a corrected PDF of an
 //       issue already there and replaces its record: in the next petrklic/<id>-r<rev>/ once the issue is on
 //       the server, else in its folder.
+//   petrklic --from <id> --year <year> --number <number> [--note "<note>"]
+//       an issue whose year, number or note was wrong: stages its own PDF (staged, or downloaded from the site)
+//       under the new id and moves its record there. A released old folder stays online, an unreleased one is
+//       removed, and it names the lines of public/.htaccess that still redirect to the old PDF.
 // A source without a folder is also looked for in ~/Downloads/.
 // Requires pdftoppm, pdfinfo, pdftotext, pdfseparate and pdfunite (poppler-utils) for PDFs, and LibreOffice (or Word on
 // Windows) for a DOCX.

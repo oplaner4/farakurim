@@ -5,7 +5,7 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, statSync } from "nod
 import { homedir } from "node:os";
 import { basename, dirname, join } from "node:path";
 import { actionVerb } from "../command";
-import { EXCEPTIONS_FILE, NEWS_DIR, SERVICE_SHEETS_FILE, PETRKLIC_FILE } from "../content-files";
+import { EXCEPTIONS_FILE, NEWS_DIR, SERVICE_SHEETS_FILE, PETRKLIC_FILE, ROOT } from "../content-files";
 import { defaultUploadsEnv, onServer, serverUrl, UPLOADS_DIR, type UploadsEnv } from "../uploads";
 
 const MB = 1024 * 1024;
@@ -18,6 +18,8 @@ export type StageEnv = UploadsEnv & {
   serviceSheetsFile: string;
   exceptionsFile: string;
   petrklicFile: string;
+  /** public/.htaccess, whose redirects may lead to a file that moved. */
+  htaccessFile: string;
   /** The home folder whose Downloads/ holds sources given without a folder. */
   home: string;
 };
@@ -28,6 +30,7 @@ export const defaultEnv = (): StageEnv => ({
   serviceSheetsFile: SERVICE_SHEETS_FILE,
   exceptionsFile: EXCEPTIONS_FILE,
   petrklicFile: PETRKLIC_FILE,
+  htaccessFile: join(ROOT, "public/.htaccess"),
   home: homedir(),
 });
 

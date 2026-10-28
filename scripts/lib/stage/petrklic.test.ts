@@ -1,4 +1,4 @@
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
 import { issueId } from "@/lib/petrklic/issues";
 import { readPetrklic } from "../petrklic/add-petrklic";
@@ -100,6 +100,63 @@ describe.skipIf(!hasPoppler)("stagePetrklic", { timeout: 30_000 }, () => {
     const source = download("Petrklic.pdf", pdfWithText(["Petrklic"]));
     await expect(stagePetrklic(env, { source, year: 2099, number: 1, corrected: true })).rejects.toThrow(
       "the issue 2099-1 is not in petrklic.json",
+    );
+  });
+
+  it("moves an unreleased issue to its new id and removes its old folder", async () => {
+    await stagePetrklic(env, { source: download("Petrklic.pdf", pdfWithText(["Petrklic"])), year: 2099, number: 1 });
+    const check = await stagePetrklic(env, { from: "2099-1", year: 2099, number: 2, check: true });
+    expect(check.lines).toEqual([
+      "Would stage uploads/petrklic/2099-2/ (PDF), 1 pages",
+      "Would replace 2099-1 with 2/2099 (1 pages) at position 1 in src/content/petrklic.json (the current issue)",
+      "Would remove the unreleased old folder uploads/petrklic/2099-1/",
+    ]);
+    expect(firstId()).toBe("2099-1");
+    const result = await stagePetrklic(env, { from: "2099-1", year: 2099, number: 2 });
+    expect(result.lines[0]).toBe("Staged uploads/petrklic/2099-2/ (PDF, cover.webp, pages/), 1 pages");
+    expect(readPetrklic(env.petrklicFile).issues[0]).toEqual({ year: 2099, number: 2, pageCount: 1 });
+    expect(readPetrklic(env.petrklicFile).issues.some((issue) => issueId(issue) === "2099-1")).toBe(false);
+    expect(readdirSync(uploaded("petrklic"))).toEqual(["2099-2"]);
+    expect(readdirSync(uploaded("petrklic", "2099-2")).sort()).toEqual(["cover.webp", "pages", "petrklic-2099-2.pdf"]);
+  });
+
+  it("moves a released issue from the site's PDF, sorted again, and names the redirects to the old PDF", async () => {
+    const issues = readPetrklic(env.petrklicFile).issues;
+    const current = issues[0];
+    const id = issueId(current);
+    const old = `/uploads/petrklic/${id}/petrklic-${id}.pdf`;
+    const pdf = pdfWithText(["Petrklic", "Strana 2"]);
+    writeFileSync(env.htaccessFile, `# Redirects\nRewriteRule ^a$ ${old} [R=301,L]\nRewriteRule ^b$ /other.pdf\n`);
+    fetchMock.mockImplementation(async (url: string) =>
+      url.endsWith(old) ? new Response(new Uint8Array(pdf), { status: 200 }) : new Response(null, { status: 404 }),
+    );
+    const result = await stagePetrklic(env, { from: id, year: 2006, number: 9 });
+    const position = readPetrklic(env.petrklicFile).issues.findIndex((issue) => issueId(issue) === "2006-9") + 1;
+    expect(position).toBeGreaterThan(1);
+    expect(result.lines).toEqual([
+      "Staged uploads/petrklic/2006-9/ (PDF, cover.webp, pages/), 2 pages",
+      `Replaced ${id} with 9/2006 (2 pages) at position ${position} in src/content/petrklic.json (not the current issue: newer issues come first)`,
+      `The old folder https://example.cz/uploads/petrklic/${id}/ stays online: files on the server are never deleted`,
+      `public/.htaccess redirects to the old PDF on line 2: change ${old} to /uploads/petrklic/2006-9/petrklic-2006-9.pdf there`,
+    ]);
+    expect(readPetrklic(env.petrklicFile).issues[position - 1]).toEqual({ year: 2006, number: 9, pageCount: 2 });
+    expect(readPetrklic(env.petrklicFile).issues[0]).toEqual(issues[1]);
+    expect(readFileSync(uploaded("petrklic", "2006-9", "petrklic-2006-9.pdf")).equals(Buffer.from(pdf))).toBe(true);
+    expect(readdirSync(uploaded("petrklic"))).toEqual(["2006-9"]);
+  });
+
+  it("refuses a move that keeps the id, of an issue not there, or with a source or --corrected", async () => {
+    const { year, number, note } = readPetrklic(env.petrklicFile).issues[0];
+    const id = firstId();
+    await expect(stagePetrklic(env, { from: "2099-1", year: 2099, number: 2 })).rejects.toThrow(
+      "the issue 2099-1 is not in petrklic.json",
+    );
+    await expect(stagePetrklic(env, { from: id, year, number, note })).rejects.toThrow(/keeps its id/);
+    await expect(stagePetrklic(env, { from: id, year: 2099, number: 2, corrected: true })).rejects.toThrow(
+      "no source and no --corrected",
+    );
+    await expect(stagePetrklic(env, { from: id, year: 2099, number: 2 })).rejects.toThrow(
+      "is neither staged nor on the server",
     );
   });
 

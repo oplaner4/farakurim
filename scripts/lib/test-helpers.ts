@@ -186,6 +186,7 @@ export function useStageFixture() {
       serviceSheetsFile: join(dir, "service-sheets.json"),
       exceptionsFile: join(dir, "schedule-exceptions.json"),
       petrklicFile: join(dir, "petrklic.json"),
+      htaccessFile: join(dir, ".htaccess"),
       home: join(dir, "home"),
     });
   });

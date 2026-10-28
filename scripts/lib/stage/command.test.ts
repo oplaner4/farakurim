@@ -83,6 +83,11 @@ describe("runStage", { timeout: 30_000 }, () => {
     await expect(runStage(env, ["petrklic", "a.pdf", "--year", "0x7EA", "--number", "1"])).rejects.toThrow(
       "wrong arguments",
     );
+    // The issue's PDF or --from, never both or neither.
+    await expect(runStage(env, ["petrklic", "--year", "2026", "--number", "1"])).rejects.toThrow("wrong arguments");
+    await expect(
+      runStage(env, ["petrklic", "a.pdf", "--from", "2026-1", "--year", "2026", "--number", "2"]),
+    ).rejects.toThrow("wrong arguments");
     await expect(runStage(env, ["tisk", "a.pdf"])).rejects.toThrow("wrong arguments");
     await expect(runStage(env, ["sheet", "a.pdf", "--rev", "2"])).rejects.toThrow("Unknown option '--rev'");
     await expect(runStage(env, ["petrklic", "a.pdf", "--year", "2026", "--number", "1", "--rev", "2"])).rejects.toThrow(

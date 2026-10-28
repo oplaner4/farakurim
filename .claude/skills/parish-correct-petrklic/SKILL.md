@@ -1,6 +1,6 @@
 ---
 name: parish-correct-petrklic
-description: Correct a Petrklíč issue already on the site - replace its PDF, or fix a wrong year, number, note or page count, then publish. Use whenever the user brings a corrected, fixed or replaced Petrklíč PDF, or says an issue's year, number, note or pages are wrong. A new issue is added with parish-create-petrklic.
+description: Correct a Petrklíč issue already on the site - replace its PDF, or fix a wrong year, number or note, then publish. Use whenever the user brings a corrected, fixed or replaced Petrklíč PDF, or says an issue's year, number or note is wrong. A new issue is added with parish-create-petrklic.
 ---
 
 # Correct a Petrklíč issue
@@ -30,12 +30,19 @@ pnpm stage petrklic "<source>" --year <year> --number <number> [--note "<note>"]
 
 It renders the cover and pages again and updates the issue.
 
-## 3. A wrong year, number, note or page count
+## 3. A wrong year, number or note
 
-Edit the issue's record in `src/content/petrklic.json`, then run `pnpm test src/content/petrklic`. A new year, number
-or note changes the id, so the issue's folder in `uploads/petrklic/` must be renamed to the new id (with its
-`-r<rev>` if it has one), and the PDF in it to `petrklic-<id>.pdf`. A released issue's new folder is uploaded as a
-whole; tell the user the old folder stays online.
+A new year, number or note changes the id, and with it the issue's folder. Stage the issue again under the new id
+from its own PDF (`<old id>` is the id from step 1):
+
+```sh
+pnpm stage petrklic --from <old id> --year <year> --number <number> [--note "<note>"] --check
+```
+
+Show the user the old and new id, the folder it would stage and the page count it prints. Wait for the user's yes or
+corrections, then run it without `--check`. It moves the record, removes an unreleased old folder, and says when a
+released one stays online and when `public/.htaccess` still redirects to the old PDF: tell the user, and change those
+lines as it says.
 
 ## 4. Publish
 

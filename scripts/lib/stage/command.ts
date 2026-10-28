@@ -15,6 +15,7 @@ const USAGE = `Usage: pnpm stage event <id> <source> <label> [<source> <label> â
        pnpm stage sheet <pdf|docx> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected] [--record <json> | --draft <json>] [--check]
        pnpm stage sheet --from YYYY-MM-DD --to YYYY-MM-DD --record <json> [--check]
        pnpm stage petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--corrected] [--check]
+       pnpm stage petrklic --from <id> --year <year> --number <number> [--note "<note>"] [--check]
 Largest source file: ${Object.entries(MAX_MB)
   .map(([command, mb]) => `${command} ${mb} MB`)
   .join(", ")}`;
@@ -35,7 +36,8 @@ const COMMANDS: Record<string, { positionals: (count: number) => boolean; option
   event: { positionals: (n) => n >= 3 && n % 2 === 1, options: ["poster", "corrected", "record", "check"] },
   // The source, or none to correct a sheet's record alone.
   sheet: { positionals: (n) => n <= 1, options: ["from", "to", "corrected", "record", "draft", "check"] },
-  petrklic: { positionals: (n) => n === 1, options: ["year", "number", "note", "corrected", "check"] },
+  // The PDF, or none with --from (the issue's own PDF).
+  petrklic: { positionals: (n) => n <= 1, options: ["year", "number", "note", "corrected", "from", "check"] },
 };
 
 /** Runs a command line (without the program); returns the lines to print and the files to format. */
@@ -98,6 +100,8 @@ export async function runStage(
     });
     return { lines, format: written.length > 0 ? { files: written, tests: SERVICE_SHEETS_TESTS } : undefined };
   }
+  // --from names a sheet's first day for `stage sheet` and an issue's old id here.
+  if ((values.from === undefined) === (args.length === 0)) throw new Error(`wrong arguments\n${USAGE}`);
   const issue = petrklicArgsSchema.safeParse(values);
   if (!issue.success) throw new Error(`wrong arguments: --year and --number are whole numbers\n${USAGE}`);
   const { year, number } = issue.data;
@@ -107,6 +111,7 @@ export async function runStage(
     number,
     note: values.note,
     corrected: values.corrected,
+    from: values.from,
     check,
   });
   return { lines, format: written.length > 0 ? { files: written, tests: "src/content/petrklic.test.ts" } : undefined };
