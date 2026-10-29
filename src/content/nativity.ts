@@ -4,8 +4,9 @@ import { UPLOADS_PATH } from "@/lib/shared/uploads";
 /*
  * Betlémy (design/DESIGN.md §30): the exhibition seasons, newest first. A season's page takes over on 1. 11. of its
  * year and shows the finished season until the next one starts. 2025 comes from the old site's pages (Výstava,
- * Putování, the 2025 results and their photos, its photos from the year's album). 2026 is the design's draft (the 2025 texts with the dates moved): confirm the dates,
- * the guest collection and the contest with the parish before 1. 11. 2026.
+ * Putování, the 2025 results and their photos, its photos from the year's album). 2026 is the design's draft (the
+ * 2025 texts with the dates moved), commented out below until the parish confirms the dates, the guest collection and
+ * the contest.
  */
 
 const places: NativityPlace[] = [
@@ -77,33 +78,34 @@ const walk = { stops: 9, note: "předposlední zastávkou je venkovní betlém Z
 const sharedScene = { since: 2024, maxHeight: "nejvýše 20 cm", where: "do kostela v Kuřimi", phone: "725 867 515" };
 
 export const nativitySeasons: NativitySeason[] = [
-  {
-    year: 2026,
-    edition: 7,
-    openingDays: [
-      { date: "2026-12-19", from: "14:00", to: "17:00", note: "zahájení výstavy" },
-      { date: "2026-12-20", from: "10:30", to: "12:00", note: "komentovaná prohlídka se Zdeňkem Jílkem" },
-      { date: "2026-12-24", from: "13:00", to: "15:00", note: "v 15:00 vánoční příběh se scholou" },
-      { date: "2026-12-25", from: "10:30", to: "12:00" },
-      { date: "2026-12-26", from: "14:00", to: "17:00" },
-      { date: "2026-12-27", from: "14:00", to: "17:00" },
-      { date: "2027-01-01", from: "14:00", to: "17:00" },
-      { date: "2027-01-03", from: "14:00", to: "17:00", note: "poslední den" },
-    ],
-    hoursNote: "Ve čtvrtek 24. 12. v 15:00 následuje v kostele vánoční příběh s doprovodem dětské scholy.",
-    places,
-    planUrl,
-    mapQuery,
-    guest: {
-      ...guestCollection,
-      tour: { title: tourTitle, date: "2026-12-20", from: "10:30", to: "12:00", place: "fara" },
-    },
-    highlights,
-    contest: { entrants: "třetími třídami", classes: 7, villages: 3 },
-    sharedScene: { ...sharedScene, from: "2026-12-06", to: "2026-12-24" },
-    walk,
-    intentionsMass: { date: "2027-01-10", time: "9:30" },
-  },
+  // The 2026 draft, hidden until the parish confirms it (dates, guest collection, contest); restore and correct it.
+  // {
+  //   year: 2026,
+  //   edition: 7,
+  //   openingDays: [
+  //     { date: "2026-12-19", from: "14:00", to: "17:00", note: "zahájení výstavy" },
+  //     { date: "2026-12-20", from: "10:30", to: "12:00", note: "komentovaná prohlídka se Zdeňkem Jílkem" },
+  //     { date: "2026-12-24", from: "13:00", to: "15:00", note: "v 15:00 vánoční příběh se scholou" },
+  //     { date: "2026-12-25", from: "10:30", to: "12:00" },
+  //     { date: "2026-12-26", from: "14:00", to: "17:00" },
+  //     { date: "2026-12-27", from: "14:00", to: "17:00" },
+  //     { date: "2027-01-01", from: "14:00", to: "17:00" },
+  //     { date: "2027-01-03", from: "14:00", to: "17:00", note: "poslední den" },
+  //   ],
+  //   hoursNote: "Ve čtvrtek 24. 12. v 15:00 následuje v kostele vánoční příběh s doprovodem dětské scholy.",
+  //   places,
+  //   planUrl,
+  //   mapQuery,
+  //   guest: {
+  //     ...guestCollection,
+  //     tour: { title: tourTitle, date: "2026-12-20", from: "10:30", to: "12:00", place: "fara" },
+  //   },
+  //   highlights,
+  //   contest: { entrants: "třetími třídami", classes: 7, villages: 3 },
+  //   sharedScene: { ...sharedScene, from: "2026-12-06", to: "2026-12-24" },
+  //   walk,
+  //   intentionsMass: { date: "2027-01-10", time: "9:30" },
+  // },
   {
     year: 2025,
     edition: 6,
