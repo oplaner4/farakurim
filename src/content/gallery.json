@@ -1,6 +1,75 @@
 {
   "albums": [
     {
+      "id": "hubertska-mse-2026",
+      "title": "Hubertská mše",
+      "date": "2026-10-25",
+      "href": "https://www.zonerama.com/FarnostKurim/Album/17174169",
+      "photoCount": 15,
+      "photos": [
+        {
+          "small": "/uploads/fotogalerie/hubertska-mse-2026/foto-1-800.webp",
+          "large": "/uploads/fotogalerie/hubertska-mse-2026/foto-1-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/hubertska-mse-2026/foto-2-800.webp",
+          "large": "/uploads/fotogalerie/hubertska-mse-2026/foto-2-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/hubertska-mse-2026/foto-3-800.webp",
+          "large": "/uploads/fotogalerie/hubertska-mse-2026/foto-3-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/hubertska-mse-2026/foto-4-800.webp",
+          "large": "/uploads/fotogalerie/hubertska-mse-2026/foto-4-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/hubertska-mse-2026/foto-5-800.webp",
+          "large": "/uploads/fotogalerie/hubertska-mse-2026/foto-5-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/hubertska-mse-2026/foto-6-800.webp",
+          "large": "/uploads/fotogalerie/hubertska-mse-2026/foto-6-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/hubertska-mse-2026/foto-7-800.webp",
+          "large": "/uploads/fotogalerie/hubertska-mse-2026/foto-7-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/hubertska-mse-2026/foto-8-800.webp",
+          "large": "/uploads/fotogalerie/hubertska-mse-2026/foto-8-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/hubertska-mse-2026/foto-9-800.webp",
+          "large": "/uploads/fotogalerie/hubertska-mse-2026/foto-9-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/hubertska-mse-2026/foto-10-800.webp",
+          "large": "/uploads/fotogalerie/hubertska-mse-2026/foto-10-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/hubertska-mse-2026/foto-11-800.webp",
+          "large": "/uploads/fotogalerie/hubertska-mse-2026/foto-11-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/hubertska-mse-2026/foto-12-800.webp",
+          "large": "/uploads/fotogalerie/hubertska-mse-2026/foto-12-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/hubertska-mse-2026/foto-13-800.webp",
+          "large": "/uploads/fotogalerie/hubertska-mse-2026/foto-13-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/hubertska-mse-2026/foto-14-800.webp",
+          "large": "/uploads/fotogalerie/hubertska-mse-2026/foto-14-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/hubertska-mse-2026/foto-15-800.webp",
+          "large": "/uploads/fotogalerie/hubertska-mse-2026/foto-15-1600.webp"
+        }
+      ]
+    },
+    {
       "id": "misijni-kavarna-2026",
       "title": "Misijní kavárna",
       "date": "2026-10-18",
@@ -274,75 +343,6 @@
         {
           "small": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-15-800.webp",
           "large": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-15-1600.webp"
-        }
-      ]
-    },
-    {
-      "id": "den-mensin-2026",
-      "title": "Den národnostních menšin",
-      "date": "2026-09-13",
-      "href": "https://www.zonerama.com/FarnostKurim/Album/16351900",
-      "photoCount": 15,
-      "photos": [
-        {
-          "small": "/uploads/fotogalerie/den-mensin-2026/foto-1-800.webp",
-          "large": "/uploads/fotogalerie/den-mensin-2026/foto-1-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/den-mensin-2026/foto-2-800.webp",
-          "large": "/uploads/fotogalerie/den-mensin-2026/foto-2-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/den-mensin-2026/foto-3-800.webp",
-          "large": "/uploads/fotogalerie/den-mensin-2026/foto-3-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/den-mensin-2026/foto-4-800.webp",
-          "large": "/uploads/fotogalerie/den-mensin-2026/foto-4-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/den-mensin-2026/foto-5-800.webp",
-          "large": "/uploads/fotogalerie/den-mensin-2026/foto-5-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/den-mensin-2026/foto-6-800.webp",
-          "large": "/uploads/fotogalerie/den-mensin-2026/foto-6-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/den-mensin-2026/foto-7-800.webp",
-          "large": "/uploads/fotogalerie/den-mensin-2026/foto-7-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/den-mensin-2026/foto-8-800.webp",
-          "large": "/uploads/fotogalerie/den-mensin-2026/foto-8-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/den-mensin-2026/foto-9-800.webp",
-          "large": "/uploads/fotogalerie/den-mensin-2026/foto-9-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/den-mensin-2026/foto-10-800.webp",
-          "large": "/uploads/fotogalerie/den-mensin-2026/foto-10-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/den-mensin-2026/foto-11-800.webp",
-          "large": "/uploads/fotogalerie/den-mensin-2026/foto-11-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/den-mensin-2026/foto-12-800.webp",
-          "large": "/uploads/fotogalerie/den-mensin-2026/foto-12-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/den-mensin-2026/foto-13-800.webp",
-          "large": "/uploads/fotogalerie/den-mensin-2026/foto-13-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/den-mensin-2026/foto-14-800.webp",
-          "large": "/uploads/fotogalerie/den-mensin-2026/foto-14-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/den-mensin-2026/foto-15-800.webp",
-          "large": "/uploads/fotogalerie/den-mensin-2026/foto-15-1600.webp"
         }
       ]
     }
