@@ -87,6 +87,7 @@
     "startTime": "11:00",
     "place": "Kuřim, fara",
     "text": "Zveme vás na přednášku MUDr. Pavla Vaška o vědomí a smrti z pohledu současné vědy a medicíny.",
+    "pinned": true,
     "published": "2026-10-27",
     "poster": {
       "src": "/uploads/aktuality/vedomi-a-smrt-2026-plakat-poster.webp",
@@ -98,12 +99,11 @@
         "file": "/uploads/aktuality/vedomi-a-smrt-2026-plakat.png",
         "size": 2126792
       }
-    ],
-    "pinned": true
+    ]
   },
   {
     "id": "konference-o-evangelizaci-2026",
-    "title": "Konference o evangelizaci – Riskujme lásce",
+    "title": "Konference o evangelizaci – Riskujme v lásce",
     "start": "2026-11-13",
     "end": "2026-11-14",
     "place": "Olomouc",
@@ -111,7 +111,7 @@
     "body": "<p>Hlavním hostem je P. Patrick Gonyeau a Encounter Ministries (USA), dále mimo jiné P. Vojtěch Koukal, manželé Strežovi, P. Daniel Vícha, P. Libor Všetula, Pavel Vopalecký, sr. Dominika Konečná, Lámačské chvály a Gedeon worship.</p>",
     "poster": {
       "src": "/uploads/aktuality/konference-o-evangelizaci-2026-plakat.webp",
-      "alt": "Plakát: Konference o evangelizaci Riskujme lásce, Olomouc 13.–14. 11. 2026"
+      "alt": "Plakát: Konference o evangelizaci Riskujme v lásce, Olomouc 13.–14. 11. 2026"
     },
     "attachments": [
       {
