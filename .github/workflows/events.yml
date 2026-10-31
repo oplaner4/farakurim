@@ -30,7 +30,7 @@
 name: Events
 
 on:
-  # The hosting's cron dispatches it on its schedule (cron-scripts/events.php): GitHub's own schedule starts runs 4 to
+  # The hosting's cron dispatches it on its schedule (cron-scripts/04-50/events.php): GitHub's own schedule starts runs 4 to
   # 8 hours late. `next` dispatches it again while accepted mail remains.
   workflow_dispatch:
     inputs:

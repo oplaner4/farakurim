@@ -7,7 +7,7 @@
 #        scripts/deploy.sh pull-uploads [--dry-run]   new files from the server to the staging folder (never overwrites or deletes)
 #        scripts/deploy.sh check-uploads              fail if out/ links an uploaded file that is not on the server
 #        scripts/deploy.sh out [--dry-run]            sync out/ to the web root (--delete, server-only folders excluded)
-#        scripts/deploy.sh cron [--dry-run]           the PHP scripts of cron-scripts/ to the hosting's cron folder
+#        scripts/deploy.sh cron [--dry-run]           each folder of cron-scripts/ to its cron's folder on the hosting
 #        scripts/deploy.sh verify                     check that the live site answers
 set -euo pipefail
 
@@ -23,10 +23,11 @@ SERVER_ONLY=("/$UPLOADS/" /nahrane/ /virtualni_prohlidka/ /cache/)
 # Days an old build's _next/static/ file stays on the server, so a tab opened before a release still loads the
 # chunks it asks for later (the lightbox, the next page).
 KEEP_STATIC_DAYS=30
-# The folder whose executable scripts a cron on the server runs, named after the cron (its schedule is set only on
-# the hosting), outside WEB_ROOT: cron-scripts/ goes there. The token and the log of the workflow dispatch live next
-# to the scripts, only on the server.
-CRON_DIR=/CRON.04-50
+# Each cron on the server runs the executable scripts of its own folder, CRON_PREFIX and the cron's name (its
+# schedule is set only on the hosting), outside WEB_ROOT: cron-scripts/<name>/ goes to $CRON_PREFIX<name>/, with
+# cron-scripts/github.inc.php. The token and the log of the workflow dispatch live next to the scripts, only on the
+# server.
+CRON_PREFIX=/CRON.
 
 cd "$(dirname "$0")/.."
 # The temporary folder of check-uploads or prune_static, removed however the script ends.
@@ -114,13 +115,20 @@ prune_static() {
 }
 
 cmd_cron() {
-  local n
+  local n dir name scripts
   parse_dry_run "$@"
-  # The PHP files alone, so the cron folder's own permissions stay; no --delete, so the token and the log next to
-  # them stay. 700: the hosting runs only executable scripts. Checksums, as a checkout's mtimes differ from the
-  # machine that uploaded last: only a changed content is listed (<f), a mere mtime update is not (.f..t).
-  rsync -tzc --perms "${n[@]}" --itemize-changes --chmod=F700 cron-scripts/*.php "$SSH_TARGET:$CRON_DIR/" |
-    { grep '^<f' || true; } | sed "s|^[^ ]* |$CRON_DIR/|"
+  for dir in cron-scripts/*/; do
+    name=$(basename "$dir")
+    # The cron's name becomes a folder at the root of the hosting space: nothing that could leave it.
+    [[ "$name" =~ ^[A-Za-z0-9_-]+$ ]] || fail "cron folder cron-scripts/$name/: use letters, digits, - and _ only"
+    scripts=("$dir"*.php)
+    [ -e "${scripts[0]}" ] || fail "cron folder cron-scripts/$name/ has no PHP script"
+    # The PHP files alone, so the cron folder's own permissions stay; no --delete, so the token and the log next to
+    # them stay. 700: the hosting runs only executable scripts. Checksums, as a checkout's mtimes differ from the
+    # machine that uploaded last: only a changed content is listed (<f), a mere mtime update is not (.f..t).
+    rsync -tzc --perms "${n[@]}" --itemize-changes --chmod=F700 cron-scripts/github.inc.php "${scripts[@]}" \
+      "$SSH_TARGET:$CRON_PREFIX$name/" | { grep '^<f' || true; } | sed "s|^[^ ]* |$CRON_PREFIX$name/|"
+  done
 }
 
 cmd_verify() {

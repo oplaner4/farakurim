@@ -1,9 +1,10 @@
 <?php
-// Starts a GitHub Actions workflow through the API (workflow_dispatch), for the scripts next to it: GitHub starts
-// scheduled runs hours late, a dispatched one right away. A cron that runs every script of its folder runs this one
-// too: it only defines functions, so that does nothing. The token (fine-grained, this repository only, Actions: read
-// and write) and the log live next to it, only on the server: `pnpm release` syncs the PHP scripts alone
-// (scripts/deploy.sh cron).
+// Starts a GitHub Actions workflow through the API (workflow_dispatch), for the scripts of each cron folder
+// (cron-scripts/<name>/): `pnpm release` copies this file into every one of them on the server (scripts/deploy.sh
+// cron), as they require it from next to themselves. GitHub starts scheduled runs hours late, a dispatched one right
+// away. A cron that runs every script of its folder runs this one too: it only defines functions, so that does
+// nothing. The token (fine-grained, this repository only, Actions: read and write) and the log live next to it in each
+// cron folder, only on the server: the sync sends the PHP scripts alone.
 
 declare(strict_types=1);
 

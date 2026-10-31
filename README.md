@@ -126,7 +126,7 @@ src/server/          Server-only build-time code: Google Calendar, the vira.cz v
 public/              Static assets, plus .htaccess (404 page, caching, redirects of moved URLs) and biblicky-citat.php
 scripts/             One entry point per pnpm command: dev and preview servers, release and deploy, icon, font, mockup and content tooling
 scripts/lib/         The scripts' logic with its tests, by the same groups (news/, gallery/, …) plus stage/ and the shared helpers
-cron-scripts/        PHP scripts the hosting's cron runs daily to start the workflows on time (synced by pnpm release)
+cron-scripts/        PHP scripts the hosting's crons run to start the workflows on time, one folder per cron (synced by pnpm release)
 fonts-source/        Original Oxygen TTFs and their OFL licence (input for `pnpm fonts`)
 .github/workflows/   check.yml checks pushes and pull requests; deploy.yml deploys (see Deployment)
 .claude/             Claude Code project skills (content, release, commit, design) and rules by topic

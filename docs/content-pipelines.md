@@ -156,7 +156,7 @@ editor, or close the PR and send the mail again.
   `repo:<owner>@<owner-id>/<repo>@<repo-id>:environment:events-publish` (for this site
   `repo:oplaner4@38047115/farakurim@1403139652:environment:events-publish`), audience `https://api.anthropic.com`,
   the same scope and lifetime as the sheet's rule.
-- **Cron:** `cron-scripts/events.php` is synced by `pnpm release`; the cron that runs `CRON_DIR`
+- **Cron:** `cron-scripts/04-50/events.php` is synced by `pnpm release`; the cron of its folder
   ([hosting.md](hosting.md#starting-the-workflows-on-time)) starts it.
 - The GitHub App, its key and squash merging are the sheet pipeline's.
 

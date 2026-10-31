@@ -27,7 +27,7 @@
 name: Service sheet
 
 on:
-  # The hosting's cron dispatches it on its schedule (cron-scripts/service-sheet.php): GitHub's own schedule starts runs
+  # The hosting's cron dispatches it on its schedule (cron-scripts/04-50/service-sheet.php): GitHub's own schedule starts runs
   # 4 to 8 hours late.
   workflow_dispatch:
 
