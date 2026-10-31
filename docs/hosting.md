@@ -25,16 +25,15 @@ them. The workflows have no GitHub schedule: when a cron fails (see the log belo
 next run or until started by hand.
 
 `cron-scripts/` holds one folder per cron, named after it: `cron-scripts/<name>/` holds the scripts the cron named
-`<name>` runs (today one, `04-50`, runs all three). They share `cron-scripts/github.inc.php`, which sends the
-dispatch, tries a network error or a 5xx again and logs. `pnpm release` syncs each folder with a copy of
-`github.inc.php` (`scripts/deploy.sh cron`, permissions 700, no `--delete`) to that cron's folder on the server,
-`CRON_PREFIX<name>` (`CRON_PREFIX` in `scripts/deploy.sh`), shown in its preview and done after the yes. A cron that
-runs every script of its folder runs `github.inc.php` too, which only defines functions. Next to the scripts live,
-only on the server, `github-dispatch.token` and `github-dispatch.log`, in each cron folder: the sync never sends nor
-touches them. A script removed from a folder of `cron-scripts/`, or moved to another, stays on the server until the
-maintainer deletes it, so a moved script runs from both crons until then. The scripts write their own log, so it
-does not depend on what the host logs; a PHP error that stops a script before it logs leaves the log without that
-line.
+`<name>` runs. They share `cron-scripts/github.inc.php`, which sends the dispatch, tries a network error or a 5xx
+again and logs. `pnpm release` syncs each folder with a copy of `github.inc.php` (`scripts/deploy.sh cron`,
+permissions 700, no `--delete`) to that cron's folder on the server, `CRON_PREFIX<name>` (`CRON_PREFIX` in
+`scripts/deploy.sh`), shown in its preview and done after the yes. A cron that runs every script of its folder runs
+`github.inc.php` too, which only defines functions. Next to the scripts live, only on the server,
+`github-dispatch.token` and `github-dispatch.log`, in each cron folder: the sync never sends nor touches them. A
+script removed from a folder of `cron-scripts/`, or moved to another, stays on the server until the maintainer
+deletes it, so a moved script runs from both crons until then. The scripts write their own log, so it does not depend
+on what the host logs; a PHP error that stops a script before it logs leaves the log without that line.
 
 Setup, by the maintainer (an agent never connects to the server):
 
@@ -63,12 +62,12 @@ Setup, by the maintainer (an agent never connects to the server):
 - **Cron**: a _directory cron_ (administration → CRON) runs the PHP scripts of its own folder at the root of the
   hosting space, one after another in alphabetical order. Each cron has a name of your choice and a schedule in the
   usual cron syntax (`* * * * *`: hourly, daily, weekly, …); creating one named `04-50` creates `/CRON.04-50/`
-  (`CRON_PREFIX` is `/CRON.`), which `cron-scripts/04-50/` goes to. Changing the schedule keeps the folder; renaming
-  a cron means renaming its folder in `cron-scripts/` to match: the sync would create a missing folder, but the
-  hosting runs only its crons' folders. It runs only scripts with
-  execute permission for the owner (500 at least, usually 700), from the root of the hosting space as the working
-  directory; scripts cannot write there, only next to themselves. Shared hosting allows 5 directory crons, at most
-  every 15 minutes. Its help documents no log of directory cron.
+  (`CRON_PREFIX` is `/CRON.`), where `cron-scripts/04-50/` would go. Changing the schedule keeps the folder;
+  renaming a cron means renaming its folder in `cron-scripts/` to match: the sync would create a missing folder, but
+  the hosting runs only its crons' folders. It runs only scripts with execute permission for the owner (500 at
+  least, usually 700), from the root of the hosting space as the working directory; scripts cannot write there,
+  only next to themselves. Shared hosting allows 5 directory crons, at most every 15 minutes. Its help documents no
+  log of directory cron.
 - **Mailboxes**: created in the administration; their IMAP host (e.g. `mail.cesky-hosting.cz`) is the variable
   `IMAP_HOST` of each mail workflow's environment.
 - **Help**: [CRON](https://www.cesky-hosting.cz/napoveda/skripty-na-serveru/cron/); support at

@@ -5,8 +5,8 @@
 # The site is static, so what depends on the date (the year, the prerendered calendars, the next mass without JS)
 # ages with the build. A scheduled run rebuilds and redeploys the latest release tag when the last deploy (on the
 # Production environment, or a --local release's commit) is 7 days old: the hosting's cron dispatches it on its
-# schedule with refresh=due (cron-scripts/04-50/deploy.php; GitHub's own schedule starts runs hours late). Running the
-# workflow by hand (refresh=now, the default) does it now.
+# schedule with refresh=due (cron-scripts/<name>/deploy.php; GitHub's own schedule starts runs hours late). Running
+# the workflow by hand (refresh=now, the default) does it now.
 # A refresh publishes nothing new: the tag was released, so it needs no yes. It always builds, a --local tag too.
 # Uploaded files are not in git: `pnpm release` uploads them from the local staging folder before it
 # pushes the tag, and the deploy stops if the build links a file that is not on the server yet.
