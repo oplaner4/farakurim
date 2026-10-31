@@ -8,6 +8,7 @@
 # schedule with refresh=due (docs/hosting.md "Starting the workflows on time"; GitHub's own schedule starts runs
 # hours late). Running the workflow by hand (refresh=now, the default) does it now.
 # A refresh publishes nothing new: the tag was released, so it needs no yes. It always builds, a --local tag too.
+# The deploy also syncs cron-scripts/ to the hosting's cron folders (scripts/deploy.sh cron).
 # Uploaded files are not in git: `pnpm release` uploads them from the local staging folder before it
 # pushes the tag, and the deploy stops if the build links a file that is not on the server yet.
 # The calendar sync (pnpm calendar-sync, Události and Bohoslužby each with --calendar) runs in its own
@@ -141,7 +142,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ needs.release.outputs.ref }}
-          sparse-checkout: scripts/deploy.sh # only the deploy script; out/ comes from the check
+          # Only the deploy script and the cron scripts; out/ comes from the check.
+          sparse-checkout: |
+            scripts/deploy.sh
+            cron-scripts/
           sparse-checkout-cone-mode: false
           persist-credentials: false
 
@@ -167,6 +171,9 @@ jobs:
 
       - name: Check that every linked upload is on the server
         run: scripts/deploy.sh check-uploads
+
+      - name: Deploy the cron scripts
+        run: scripts/deploy.sh cron
 
       - name: Deploy out/
         run: scripts/deploy.sh out

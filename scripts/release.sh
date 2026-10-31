@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# `pnpm release`: publishes the site. Uploads the new staged files and the scripts in cron-scripts/,
-# bumps the version in package.json, commits and tags it vX.Y.Z and pushes main with the tag; GitHub Actions then
-# checks, builds and deploys out/ (.github/workflows/deploy.yml) and applies the Události and the Bohoslužby calendar
-# syncs (pnpm calendar-sync). The preview lists the calendar changes with the commits, so
-# the yes covers them. With --local it deploys from this machine instead, e.g. when Actions is down: it runs the full
-# check and a production build (with the keys in .env.local), shows what the syncs will change, deploys out/ and
-# verifies the live site, applies the calendar syncs and then tags; the release commit then carries the trailer
-# Release-Deploy: local, so the workflow does not deploy the tag again. Server details live in scripts/deploy.sh.
+# `pnpm release`: publishes the site. Uploads the new staged files, bumps the version in package.json, commits and tags
+# it vX.Y.Z and pushes main with the tag; GitHub Actions then checks, builds and deploys out/ and the scripts in
+# cron-scripts/ (.github/workflows/deploy.yml) and applies the Události and the Bohoslužby calendar syncs (pnpm
+# calendar-sync). The preview lists the calendar changes with the commits, so the yes covers them. With --local it
+# deploys from this machine instead, e.g. when Actions is down: it runs the full check and a production build (with the
+# keys in .env.local), shows what the syncs will change, deploys the cron scripts and out/, verifies the live site,
+# applies the calendar syncs and then tags; the release commit then carries the trailer Release-Deploy: local, so the
+# workflow does not deploy the tag again. Server details live in scripts/deploy.sh.
 #
 # Usage: pnpm release            preview, then ask y/N (without a terminal it only previews)
 #        pnpm release --local    check, build and deploy from this machine instead of GitHub Actions
@@ -116,11 +116,11 @@ if ! $yes; then
   [[ "$answer" =~ ^[yY]$ ]] || { echo "Nothing was published."; exit 0; }
 fi
 
-# 7. Uploads first, so no deployed page links a file that is not on the server yet; the cron scripts; then, with
-# --local, the site.
+# 7. Uploads first, so no deployed page links a file that is not on the server yet; then, with --local, the cron
+# scripts and the site (otherwise the workflow deploys them).
 scripts/deploy.sh uploads > /dev/null
-scripts/deploy.sh cron > /dev/null
 if $deploy_here; then
+  scripts/deploy.sh cron > /dev/null
   scripts/deploy.sh check-uploads
   scripts/deploy.sh out > /dev/null
   scripts/deploy.sh verify
