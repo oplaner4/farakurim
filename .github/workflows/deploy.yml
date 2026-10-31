@@ -166,15 +166,7 @@ jobs:
           printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
 
       - name: Check that every linked upload is on the server
-        env:
-          # On unless the Production environment sets CHECK_UPLOADS to false.
-          CHECK_UPLOADS: ${{ vars.CHECK_UPLOADS }}
-        run: |
-          if [ "$CHECK_UPLOADS" = "false" ]; then
-            echo "::warning::CHECK_UPLOADS is false: the linked uploads were not checked on the server."
-            exit 0
-          fi
-          scripts/deploy.sh check-uploads
+        run: scripts/deploy.sh check-uploads
 
       - name: Deploy out/
         run: scripts/deploy.sh out

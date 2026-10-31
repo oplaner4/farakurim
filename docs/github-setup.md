@@ -11,9 +11,7 @@ What the repository on GitHub needs for the [release](deployment.md#release) and
   repository's numeric IDs
   (`gh api repos/<owner>/<repo> --jq '"\(.owner.id) \(.id)"'`). This site's: `oplaner4/farakurim`, owner ID
   `38047115`, repository ID `1403139652`.
-- **`Production` environment**: the secret `DEPLOY_SSH_KEY`, `DEPLOY_KNOWN_HOSTS` (secret or variable) and optionally
-  the variable `CHECK_UPLOADS=false`, which skips the check that every `UPLOADS_PATH` file the build links is on the
-  server.
+- **`Production` environment**: the secret `DEPLOY_SSH_KEY` and `DEPLOY_KNOWN_HOSTS` (secret or variable).
 - **Its deployment branches and tags** must allow the tags `v*` (releases) **and the branch `main`**: the scheduled and
   manual refreshes run on `main`, and without it GitHub rejects their `deploy` job ("Branch "main" is not allowed to
   deploy to Production").
