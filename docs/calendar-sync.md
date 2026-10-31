@@ -62,11 +62,36 @@ the site cannot act as the account.
   name, `projects/<project number>/locations/global/workloadIdentityPools/github/providers/github`) and
   `GOOGLE_CALENDAR_SERVICE_ACCOUNT_EMAIL` (the account's address). Neither is a secret. No required reviewers. The
   provider variable turns the apply on, so set it once the steps above are done.
-- **Locally**, for `pnpm release --local`: impersonate the account with your own login, which needs the **Service
-  Account Token Creator** role (`roles/iam.serviceAccountTokenCreator`) on the account, and set
-  `GOOGLE_CALENDAR_SERVICE_ACCOUNT` in `.env.local` to the file it writes
-  ([README § Keys](../README.md#keys-in-envlocal-optional)). The account's JSON key works there too, if the
-  organisation allows keys; never commit it or print it.
+- **Locally**, for `pnpm release --local` or `pnpm calendar-sync --apply`: see [Local apply](#local-apply).
 
 The calendars start empty, so the first release after the setup only adds: every event record to Události and the
 services of the next six months to Bohoslužby, all listed in its preview.
+
+## Local apply
+
+`pnpm calendar-sync --apply` (also run by `pnpm release --local`) acts as the service account with the credentials in
+`GOOGLE_CALENDAR_SERVICE_ACCOUNT` in `.env.local`. Rather than a key, impersonate the account with your own login:
+
+1. A project admin grants your Google account the **Service Account Token Creator** role
+   (`roles/iam.serviceAccountTokenCreator`) on the service account. Project Owner does not include it, and without it
+   the apply fails with `PERMISSION_DENIED: unable to impersonate … iam.serviceAccounts.getAccessToken`. The grant
+   takes a minute or two to apply:
+
+   ```sh
+   gcloud iam service-accounts add-iam-policy-binding <the account's address> \
+     --project=<the project id> --member="user:<your Google account>" \
+     --role="roles/iam.serviceAccountTokenCreator"
+   ```
+
+2. Log in with that Google account into a folder of its own, so it leaves your other Google credentials alone:
+
+   ```sh
+   CLOUDSDK_CONFIG=~/.config/farakurim/gcloud gcloud auth application-default login \
+     --impersonate-service-account=<the account's address>
+   ```
+
+3. Set `GOOGLE_CALENDAR_SERVICE_ACCOUNT` in `.env.local` to
+   `~/.config/farakurim/gcloud/application_default_credentials.json`, written out in full.
+
+The account's JSON key (as JSON text or the path of its file) works there too, if the organisation allows keys. Either
+way it is a secret: never `NEXT_PUBLIC_`, never committed, never printed.

@@ -48,19 +48,11 @@ cp .env.local.example .env.local
   event records. The key ends up in the published JavaScript, so restrict it in Google Cloud to the
   `farakurim.cz` referrer and the Google Calendar API.
 - **`GOOGLE_CALENDAR_SERVICE_ACCOUNT`**: the credentials (a JSON text or the path of its file) that act as the Google
-  service account `pnpm calendar-sync --apply` writes to the Události and Bohoslužby calendars as; the maintainer shares both calendars with its address ("Make changes to events"). Locally, rather than a key, impersonate the account with your own login
-  (it needs the "Service Account Token Creator" role on the account), into a folder of its own so it leaves your other
-  Google credentials alone:
-
-  ```sh
-  CLOUDSDK_CONFIG=~/.config/farakurim/gcloud gcloud auth application-default login \
-    --impersonate-service-account=<the account's address>
-  ```
-
-  and set the variable to `~/.config/farakurim/gcloud/application_default_credentials.json` (written out in full). The
-  account's JSON key works too, and the deploy workflow uses workload identity federation
-  ([calendar sync](docs/calendar-sync.md#setup-once)). A secret: never `NEXT_PUBLIC_`, never committed, never printed. The
-  preview needs only the API key above.
+  service account `pnpm calendar-sync --apply` writes to the Události and Bohoslužby calendars as. Needed only to
+  apply the sync from this machine (`pnpm release --local`); set it up as in
+  [calendar sync § Local apply](docs/calendar-sync.md#local-apply). The deploy workflow uses workload identity
+  federation instead, and the preview needs only the API key above. A secret: never `NEXT_PUBLIC_`, never committed,
+  never printed.
 
 - **`NEXT_PUBLIC_MATOMO_URL`** and **`NEXT_PUBLIC_MATOMO_SITE_ID`**: anonymous statistics (see below). Leave them
   empty locally so development visits are not counted.
