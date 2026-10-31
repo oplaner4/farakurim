@@ -25,8 +25,8 @@ SERVER_ONLY=("/$UPLOADS/" /nahrane/ /virtualni_prohlidka/ /cache/)
 KEEP_STATIC_DAYS=30
 # Each cron on the server runs the executable scripts of its own folder, CRON_PREFIX and the cron's name (its
 # schedule is set only on the hosting), outside WEB_ROOT: cron-scripts/<name>/ goes to $CRON_PREFIX<name>/, with
-# cron-scripts/github.inc.php. The token and the log of the workflow dispatch live next to the scripts, only on the
-# server.
+# the shared PHP files directly in cron-scripts/ (github.inc.php). The token and the log of the workflow dispatch live
+# next to the scripts, only on the server.
 CRON_PREFIX=/CRON.
 
 cd "$(dirname "$0")/.."
@@ -115,8 +115,9 @@ prune_static() {
 }
 
 cmd_cron() {
-  local n dir name scripts
+  local n dir name scripts shared=(cron-scripts/*.php)
   parse_dry_run "$@"
+  [ -e "${shared[0]}" ] || shared=()
   for dir in cron-scripts/*/; do
     name=$(basename "$dir")
     # The cron's name becomes a folder at the root of the hosting space: nothing that could leave it.
@@ -124,10 +125,14 @@ cmd_cron() {
     scripts=("$dir"*.php)
     [ -e "${scripts[0]}" ] || fail "cron folder cron-scripts/$name/ has no PHP script"
     # The PHP files alone, so the cron folder's own permissions stay; no --delete, so the token and the log next to
-    # them stay. 700: the hosting runs only executable scripts. Checksums, as a checkout's mtimes differ from the
-    # machine that uploaded last: only a changed content is listed (<f), a mere mtime update is not (.f..t).
-    rsync -tzc --perms "${n[@]}" --itemize-changes --chmod=F700 cron-scripts/github.inc.php "${scripts[@]}" \
-      "$SSH_TARGET:$CRON_PREFIX$name/" | { grep '^<f' || true; } | sed "s|^[^ ]* |$CRON_PREFIX$name/|"
+    # them stay. The scripts 700: the hosting runs only executable scripts. The shared files 600: the scripts require
+    # them, the cron must not run them. Checksums, as a checkout's mtimes differ from the machine that uploaded last:
+    # a changed content (<f) or permission (.f...p) is listed, a mere mtime update is not (.f..t).
+    {
+      rsync -tzc --perms "${n[@]}" --itemize-changes --chmod=F700 "${scripts[@]}" "$SSH_TARGET:$CRON_PREFIX$name/"
+      [ ${#shared[@]} -eq 0 ] ||
+        rsync -tzc --perms "${n[@]}" --itemize-changes --chmod=F600 "${shared[@]}" "$SSH_TARGET:$CRON_PREFIX$name/"
+    } | { grep -E '^(<f|\.f...p)' || true; } | sed "s|^[^ ]* |$CRON_PREFIX$name/|"
   done
 }
 

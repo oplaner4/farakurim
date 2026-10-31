@@ -25,11 +25,11 @@ them. The workflows have no GitHub schedule: when a cron fails (see the log belo
 next run or until started by hand.
 
 `cron-scripts/` holds one folder per cron, named after it: `cron-scripts/<name>/` holds the scripts the cron named
-`<name>` runs. They share `cron-scripts/github.inc.php`, which sends the dispatch, tries a network error or a 5xx
-again and logs. `pnpm release` syncs each folder with a copy of `github.inc.php` (`scripts/deploy.sh cron`,
-permissions 700, no `--delete`) to that cron's folder on the server, `CRON_PREFIX<name>` (`CRON_PREFIX` in
-`scripts/deploy.sh`), shown in its preview and done after the yes. A cron that runs every script of its folder runs
-`github.inc.php` too, which only defines functions. Next to the scripts live, only on the server,
+`<name>` runs. They share the PHP files directly in `cron-scripts/`, such as `github.inc.php`, which sends the
+dispatch, tries a network error or a 5xx again and logs. `pnpm release` syncs each folder with a copy of the shared
+files (`scripts/deploy.sh cron`, no `--delete`) to that cron's folder on the server, `CRON_PREFIX<name>`
+(`CRON_PREFIX` in `scripts/deploy.sh`), shown in its preview and done after the yes. The scripts get permissions
+700, so the cron runs them; the shared files 600, so it does not. Next to the scripts live, only on the server,
 `github-dispatch.token` and `github-dispatch.log`, in each cron folder: the sync never sends nor touches them. A
 script removed from a folder of `cron-scripts/`, or moved to another, stays on the server until the maintainer
 deletes it, so a moved script runs from both crons until then. The scripts write their own log, so it does not depend
