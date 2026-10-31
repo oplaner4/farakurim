@@ -176,9 +176,9 @@ Uploaded files (posters, PDFs, photos) are not in git: they are staged in the gi
 
 `pnpm release` publishes the site: it uploads the newly staged files, tags `vX.Y.Z` and pushes, and GitHub
 Actions checks, builds and deploys the tag to https://farakurim.cz/ over SSH. The workflow also rebuilds the latest
-release weekly, so date-dependent content stays current. The old PHP site is backed up in `/stary.farakurim.cz/` on
-the server. Releases, the refresh and the server: [docs/deployment.md](docs/deployment.md), which links the guides to
-the GitHub setup, the calendar sync and the content pipelines.
+release weekly, so date-dependent content stays current. Releases, the refresh and the server:
+[docs/deployment.md](docs/deployment.md), which links the guides to the GitHub setup, the calendar sync and the
+content pipelines.
 
 ## License
 
