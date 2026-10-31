@@ -27,8 +27,8 @@
 name: Service sheet
 
 on:
-  # The hosting's cron dispatches it on its schedule (cron-scripts/<name>/service-sheet.php): GitHub's own schedule
-  # starts runs 4 to 8 hours late.
+  # The hosting's cron dispatches it on its schedule (docs/hosting.md "Starting the workflows on time"): GitHub's own
+  # schedule starts runs 4 to 8 hours late.
   workflow_dispatch:
 
 # One run at a time; a run started meanwhile waits, so two runs never read the same mail.
