@@ -30,6 +30,15 @@ What the repository on GitHub needs for the [release](deployment.md#release) and
   keep this ruleset to the required check alone: put any other rule (block force pushes, restrict deletions) in a
   separate ruleset on `main` with no bypass actors. No push of the release or yours needs a force push or a deletion.
 
+**Check it** with `pnpm github-check` (read-only): it compares the repository with this page and the setup sections of
+[content-pipelines.md](content-pipelines.md) and [calendar-sync.md](calendar-sync.md): squash merging, the variables
+and secrets (names only) of the repository and of each environment, the environments' deployment branches and tags and
+reviewers, and this ruleset with its bypass actors. It fails on what would break a workflow and warns of names no
+workflow reads. It needs a token that sees the settings, an admin's: `gh auth login` (it runs `gh auth token`) or
+`GH_TOKEN`. It cannot see the values, the Claude Console, Google Cloud, the mailboxes or the `pull_request_target`
+policy. Its expected setup is `scripts/lib/github-check/setup.ts`, and a test keeps it in line with the `vars.*` and
+`secrets.*` the workflows read: add a new variable there and to these docs.
+
 `.github/workflows/check.yml` checks and builds pushes to `main` and pull requests with no secrets, skipping docs-only
 changes and release commits. The deploy workflow calls it for the tag, so a release runs the same check (with the site's
 tests only) before it builds with the variables above.

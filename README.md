@@ -80,20 +80,21 @@ they show the build's verse. The "Zdroj: www.vira.cz" link is vira.cz's conditio
 
 ## Commands
 
-| Command                                    | What it does                                                                                                    |
-| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
-| `pnpm dev`                                 | Dev server at http://localhost:3000, uploaded files from the staging folder or the live site                    |
-| `pnpm build`                               | Static export to `out/`; clears Next's fetch cache first, so calendars and the verse are read anew              |
-| `pnpm preview`                             | Serve `out/` at http://localhost:4173 (run `pnpm build` first), uploads as in `pnpm dev`                        |
-| `pnpm test`                                | Vitest unit tests: `test:site` (`src/**/*.test.ts`, hooks in jsdom) and `test:scripts` (`scripts/**/*.test.ts`) |
-| `pnpm lint`                                | ESLint (Next core-web-vitals, TypeScript and React hooks rules)                                                 |
-| `pnpm exec tsc --noEmit`                   | Type check                                                                                                      |
-| `pnpm format`                              | Prettier, including Tailwind class sorting                                                                      |
-| `pnpm mockups`                             | Render the design mockups and serve them at http://localhost:4174/mockups/                                      |
-| `pnpm release [--local] [--yes] [--major]` | Publish the site (see [Deployment](#deployment)); asks unless `--yes`                                           |
-| `pnpm pull-uploads [--dry-run]`            | Download the server's uploaded files missing in the staging folder (never overwrites or deletes)                |
-| `pnpm icons`                               | Regenerate `src/app/icon.png` and `apple-icon.png` from `src/app/icon.svg`                                      |
-| `pnpm fonts`                               | Build `src/fonts/farnost-sans-*.woff2` (Oxygen with fixed `ť ď ľ Ľ`) from `fonts-source/`                       |
+| Command                                    | What it does                                                                                                         |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| `pnpm dev`                                 | Dev server at http://localhost:3000, uploaded files from the staging folder or the live site                         |
+| `pnpm build`                               | Static export to `out/`; clears Next's fetch cache first, so calendars and the verse are read anew                   |
+| `pnpm preview`                             | Serve `out/` at http://localhost:4173 (run `pnpm build` first), uploads as in `pnpm dev`                             |
+| `pnpm test`                                | Vitest unit tests: `test:site` (`src/**/*.test.ts`, hooks in jsdom) and `test:scripts` (`scripts/**/*.test.ts`)      |
+| `pnpm lint`                                | ESLint (Next core-web-vitals, TypeScript and React hooks rules)                                                      |
+| `pnpm exec tsc --noEmit`                   | Type check                                                                                                           |
+| `pnpm format`                              | Prettier, including Tailwind class sorting                                                                           |
+| `pnpm mockups`                             | Render the design mockups and serve them at http://localhost:4174/mockups/                                           |
+| `pnpm release [--local] [--yes] [--major]` | Publish the site (see [Deployment](#deployment)); asks unless `--yes`                                                |
+| `pnpm pull-uploads [--dry-run]`            | Download the server's uploaded files missing in the staging folder (never overwrites or deletes)                     |
+| `pnpm github-check`                        | Check, read-only, that the GitHub repository has the setup the workflows need ([GitHub setup](docs/github-setup.md)) |
+| `pnpm icons`                               | Regenerate `src/app/icon.png` and `apple-icon.png` from `src/app/icon.svg`                                           |
+| `pnpm fonts`                               | Build `src/fonts/farnost-sans-*.woff2` (Oxygen with fixed `ť ď ľ Ľ`) from `fonts-source/`                            |
 
 Content tooling, used by the content skills (see [Content](#content)):
 
