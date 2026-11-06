@@ -166,7 +166,6 @@ export async function execute(command: Command, fetchImpl: typeof fetch = fetch,
         sha: "",
         kind: command.kind,
         branch: "",
-        page: KINDS[command.kind].page,
         mergedAt: "",
         artifacts,
       };

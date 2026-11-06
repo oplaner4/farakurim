@@ -21,7 +21,6 @@ describe("applyArtifacts", () => {
     sha: `s${number}`,
     kind,
     branch: kind === "sheet" ? "service-sheet/x" : "events/x",
-    page: "/",
     mergedAt: "2026-10-22T10:00:00Z",
     artifacts: names.map((name, i) => ({ name, runId: number * 100 + i })),
   });
@@ -130,7 +129,6 @@ describe("missingLinks", () => {
     sha,
     kind: "events",
     branch: "events/x",
-    page: "/aktuality/",
     mergedAt: "2026-10-22T10:00:00Z",
     artifacts: [],
   });

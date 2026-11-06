@@ -98,8 +98,8 @@ and check in the run:
 - the PR is opened and locked, and a draft when the report has a blocking question;
 - a second run while the PR is open adds a commit to it, keeps the question ids of the previous report, updates the
   title and turns the PR back into a draft when the new report has a blocking question;
-- after you squash merge the PR, the release run uploads its PDF, the tag's deploy run is green, and the PR gets the
-  comment "Released in vX.Y.Z" and loses its branch.
+- after you squash merge the PR, the release run uploads its PDF, the tag's deploy run is green, and the PR loses its
+  branch, without a comment (only a release that stops or fails comments).
 
 ## Events by e-mail
 
@@ -241,9 +241,10 @@ release downloads the artifact `content-uploads-<sha>` of every commit of each P
 content-release apply` copies them into the staged `UPLOADS_PATH` (a later correction overwrites an earlier file of the
 same path). It first checks each file: a regular file of a type the site links, under its PR's folder
 (`porady_bohosluzeb/` for a sheet, `aktuality/` for events); one wrong file stops the release before anything is
-uploaded. Then it runs `pnpm release --yes` with the App token, waits for the deploy, comments "Released in vX.Y.Z" with
-the PR's page and deletes its branch. The PR's conversation is locked, and not even the App may comment on a locked one,
-so each comment unlocks it and locks it again; once the deploy is green, a comment that fails only warns.
+uploaded. Then it runs `pnpm release --yes` with the App token, waits for the deploy and deletes the PR's branch. A
+success makes no comment (a comment e-mails everyone subscribed to the PR; the green run and the tag record it), so a
+comment on a merged PR always means it was not released or the release failed. The PR's conversation is locked, and not
+even the App may comment on a locked one, so each comment unlocks it and locks it again.
 
 Other unreleased commits on `main` go out with the PRs, except those only a release by hand may publish:
 

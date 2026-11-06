@@ -22,8 +22,9 @@
 #   staged, so a commit the maintainer pushed by hand to an events PR (a text fix, a resolved conflict) goes out, but
 #   one that links a file staged only on their machine stops the release before anything is uploaded or tagged. Then `pnpm release --yes` uploads them, bumps the version,
 #   tags and pushes main with the App token, so the tag starts deploy.yml, which checks, builds and deploys unchanged.
-#   The job waits for that deploy and comments "Released in vX.Y.Z" on each PR and deletes its branch, or comments the
-#   failure. A failed release is fixed in a new commit; never move a tag.
+#   The job waits for that deploy and deletes each PR's branch, or comments the failure. A success makes no comment: a
+#   comment e-mails everyone subscribed to the PR, so only what needs the maintainer does. A failed release is fixed in
+#   a new commit; never move a tag.
 # Two content PRs merged close together go out in one release: the runs queue, and a later one finds nothing to
 # release.
 # The App key is a repository secret (CONTENT_APP_PRIVATE_KEY, shared with service-sheet.yml); a secret reaches only
@@ -48,7 +49,7 @@ concurrency:
 permissions:
   contents: read
 
-# The copy a test checks: the site (SITE_URL in src/content/site.ts). Each PR's page comes from the plan.
+# The copy a test checks: the site (SITE_URL in src/content/site.ts).
 env:
   SITE: https://farakurim.cz
 
@@ -273,24 +274,16 @@ jobs:
           echo "Deploy run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$id"
           gh run watch "$id" --repo "$GITHUB_REPOSITORY" --exit-status --interval 30 > /dev/null
 
-      # The site is live by now: a comment or a branch that fails only warns, so the run stays green. The conversation
-      # is locked, so `comment` unlocks it for the comment (as in `plan`).
-      - name: Report the release
+      # The site is live by now: a branch that fails to go only warns, so the run stays green. No comment: the green run
+      # and the tag record the release, and a comment would e-mail everyone subscribed to the PR.
+      - name: Delete the released branches
         if: steps.plan.outputs.action == 'release'
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
-          TAG: ${{ steps.release.outputs.tag }}
         run: |
-          comment() {
-            local issue="repos/$GITHUB_REPOSITORY/issues/$1" status=0
-            gh api -X DELETE "$issue/lock" > /dev/null || true
-            gh pr comment "$1" --repo "$GITHUB_REPOSITORY" --body "$2" || status=$?
-            gh api -X PUT "$issue/lock" -f lock_reason=resolved > /dev/null || true
-            return "$status"
-          }
-          jq -r '.pulls[] | "\(.number) \(.branch) \(.page)"' "$RUNNER_TEMP/plan.json" | while read -r pr branch page; do
-            comment "$pr" "Released in $TAG: $SITE$page" || echo "::warning::Could not comment on PR #$pr."
-            gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$branch" > /dev/null || true
+          jq -r '.pulls[] | "\(.number) \(.branch)"' "$RUNNER_TEMP/plan.json" | while read -r pr branch; do
+            gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$branch" > /dev/null \
+              || echo "::warning::Could not delete the branch of PR #$pr."
           done
 
       # On the PRs of this job's plan, or of `plan`'s when it failed before planning again.

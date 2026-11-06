@@ -5,16 +5,15 @@
 // them, so the newest file of a path wins.
 // Only an artifact of a run on this repo's main counts: a fork's pull request run can upload one under any name.
 
-import { links } from "@/content/site";
 import { SHEETS_FOLDER } from "@/lib/services/service-sheet";
 import { EVENTS_FOLDER } from "../stage/event";
 import type { CommitPull, GitHubReader, UnreleasedCommit } from "./sources";
 
-/** The kinds of content PR: the branch prefix, the only folder under uploads/ its artifacts may write, its page. */
+/** The kinds of content PR: the branch prefix, the only folder under uploads/ its artifacts may write. */
 export const KINDS = {
-  sheet: { prefix: "service-sheet/", folder: SHEETS_FOLDER, page: links.services },
-  events: { prefix: "events/", folder: EVENTS_FOLDER, page: links.news },
-} as const satisfies Record<string, { prefix: string; folder: string; page: string }>;
+  sheet: { prefix: "service-sheet/", folder: SHEETS_FOLDER },
+  events: { prefix: "events/", folder: EVENTS_FOLDER },
+} as const satisfies Record<string, { prefix: string; folder: string }>;
 
 export type Kind = keyof typeof KINDS;
 
@@ -24,7 +23,6 @@ export type ContentPull = {
   sha: string;
   kind: Kind;
   branch: string;
-  page: string;
   mergedAt: string;
   /** The artifacts to apply in this order. */
   artifacts: { name: string; runId: number }[];
@@ -132,8 +130,7 @@ export async function planRelease({
     expired.push(...found.expired);
     byHand.push(...found.byHand);
     const { number, kind, branch, mergedAt, mergeSha } = pull;
-    const page = KINDS[kind].page;
-    pulls.push({ number, sha: mergeSha!, kind, branch, page, mergedAt: mergedAt!, artifacts: found.artifacts });
+    pulls.push({ number, sha: mergeSha!, kind, branch, mergedAt: mergedAt!, artifacts: found.artifacts });
   }
 
   if (blocking.length) {

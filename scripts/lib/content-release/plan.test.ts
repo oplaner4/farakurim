@@ -199,14 +199,8 @@ describe("planRelease", () => {
     expect(plan).toMatchObject({
       action: "release",
       pulls: [
-        {
-          number: 11,
-          sha: "a",
-          kind: "sheet",
-          page: "/porad_bohosluzeb/",
-          artifacts: [{ name: "content-uploads-a1" }],
-        },
-        { number: 12, sha: "b", kind: "events", page: "/aktuality/", artifacts: [{ name: "content-uploads-b1" }] },
+        { number: 11, sha: "a", kind: "sheet", artifacts: [{ name: "content-uploads-a1" }] },
+        { number: 12, sha: "b", kind: "events", artifacts: [{ name: "content-uploads-b1" }] },
       ],
     });
   });
