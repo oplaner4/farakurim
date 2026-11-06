@@ -55,13 +55,19 @@ It checks:
   exists, holds its variables and secrets (or the repository does), deploys from `main` (and the tags `v*` for
   `Production` and `calendar-sync`), and has no required reviewers (all but `Production`);
 - `ANTHROPIC_FEDERATION_RULE_ID` in each environment and not in the repository, and no `ANTHROPIC_API_KEY` anywhere;
+- each variable's value, wherever it is set, against the format it must have (zod schemas in `setup.ts`): a bare host
+  name for `IMAP_HOST`, `projects/<project number>/…/providers/<provider>` for `GOOGLE_WORKLOAD_IDENTITY_PROVIDER`, a
+  `…@<project>.iam.gserviceaccount.com` address, a Google API key (`AIza…`), an https `MATOMO_URL` and a numeric site
+  ID, the App's Client ID (`Iv23…`, not the App ID), the Anthropic IDs (`fdrl_…`, `svac_…`, `wrkspc_…`, the
+  organization's UUID), `known_hosts` lines when `DEPLOY_KNOWN_HOSTS` is a variable, and the `CONTENT_REVIEWERS` logins,
+  each of which must exist and have write access;
 - the ruleset on `main` that requires `check`, with the App and the admin role as bypass actors and no other rule.
 
 It does **not** check, so these stay with the setup steps and the first runs:
 
-- **Values**: names only. An empty or mistyped variable (`IMAP_HOST`, `GOOGLE_WORKLOAD_IDENTITY_PROVIDER`, a
-  `CONTENT_REVIEWERS` login without write access), a wrong federation rule ID or an expired key all pass. Secrets
-  cannot be read at all; variables could, but are not.
+- **Whether a value is the right one**: a variable of the right format that points at the wrong provider, account,
+  workspace or rule passes. **Secrets** are checked by name only (GitHub never shows them), so a wrong IMAP password,
+  SSH key or an expired App key passes too.
 - **The GitHub App**: that the bypass actor is the content App, that it is installed on this repository with
   `contents: write` and `pull-requests: write`, and that `CONTENT_APP_CLIENT_ID` is its Client ID.
 - **The `pull_request_target` Actions policy** scoped to `content-release.yml` (no API reads it).

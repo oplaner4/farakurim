@@ -186,6 +186,46 @@ function checkRulesets(rulesets: RulesetState[]): Finding[] {
 }
 
 /** Every finding about `state`, errors first. */
+/** Write access is what a review can be requested of (GitHub reports maintain as write). */
+const CAN_REVIEW = ["admin", "write"];
+
+/** Each variable whose value is not of its format, wherever it is set, and each reviewer who cannot be asked. */
+function checkValues(state: RepositoryState): Finding[] {
+  const findings: Finding[] = [];
+  const test = (
+    where: string,
+    holder: { variables: string[]; values: Record<string, string> },
+    settings: Setting[],
+  ) => {
+    const tested = new Set<string>();
+    for (const setting of settings) {
+      if (!setting.format || tested.has(setting.name) || !holder.variables.includes(setting.name)) continue;
+      tested.add(setting.name);
+      if (!setting.format.schema.safeParse(holder.values[setting.name]).success) {
+        findings.push(error(`${where}: variable ${setting.name} is not ${setting.format.expected}`));
+      }
+    }
+  };
+  // A repository-wide value of an environment's setting reaches that environment's jobs, so it is tested too.
+  test("repository", state, [...REPOSITORY_SETTINGS, ...ENVIRONMENTS.flatMap((env) => env.settings)]);
+  for (const env of state.environments) {
+    const spec = ENVIRONMENTS.find((candidate) => candidate.name === env.name);
+    if (spec) test(`environment ${env.name}`, env, spec.settings);
+  }
+  for (const [login, permission] of Object.entries(state.reviewerAccess)) {
+    if (permission === null) {
+      findings.push(error(`repository: CONTENT_REVIEWERS names ${login}, a login GitHub does not know`));
+    } else if (!CAN_REVIEW.includes(permission)) {
+      findings.push(
+        error(
+          `repository: CONTENT_REVIEWERS names ${login}, who has ${permission} access: a review needs write access`,
+        ),
+      );
+    }
+  }
+  return findings;
+}
+
 export function checkRepository(state: RepositoryState): Finding[] {
   const findings: Finding[] = [];
   if (state.squashMerge === null)
@@ -194,7 +234,7 @@ export function checkRepository(state: RepositoryState): Finding[] {
     findings.push(
       error("repository: squash merging is not allowed, and the content release counts only squash commits"),
     );
-  findings.push(...checkRepositorySettings(state));
+  findings.push(...checkRepositorySettings(state), ...checkValues(state));
   for (const spec of ENVIRONMENTS) {
     findings.push(
       ...checkEnvironment(

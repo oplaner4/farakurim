@@ -20,11 +20,30 @@ const checkRuleset: RulesetState = {
   ],
 };
 
+/** A value of the right format for every variable (made up, in the shape the real ones have). */
+const VALID: Record<string, string> = {
+  GOOGLE_CALENDAR_API_KEY: "AIzaSyA1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q",
+  MATOMO_URL: "https://statistiky.farakurim.cz",
+  MATOMO_SITE_ID: "1",
+  CONTENT_APP_CLIENT_ID: "Iv23liAbCdEfGhIjKlMn",
+  ANTHROPIC_ORGANIZATION_ID: "0f1e2d3c-4b5a-6978-8a9b-0c1d2e3f4a5b",
+  ANTHROPIC_SERVICE_ACCOUNT_ID: "svac_01AbCdEf",
+  ANTHROPIC_WORKSPACE_ID: "wrkspc_01AbCdEf",
+  ANTHROPIC_FEDERATION_RULE_ID: "fdrl_01AbCdEf",
+  CONTENT_REVIEWERS: "oplaner4",
+  IMAP_HOST: "imap.example.cz",
+  DEPLOY_KNOWN_HOSTS: "farakurim.cz ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl",
+  GOOGLE_WORKLOAD_IDENTITY_PROVIDER:
+    "projects/123456789012/locations/global/workloadIdentityPools/github/providers/github",
+  GOOGLE_CALENDAR_SERVICE_ACCOUNT_EMAIL: "calendar-sync@farakurim-web.iam.gserviceaccount.com",
+};
+
 /** The setup the docs describe, every setting in its place. */
 function complete(): RepositoryState {
   return {
     squashMerge: true,
     variables: names("variable"),
+    values: { ...VALID },
     secrets: names("secret"),
     environments: ENVIRONMENTS.map((spec): EnvironmentState => ({
       name: spec.name,
@@ -34,9 +53,11 @@ function complete(): RepositoryState {
         { type: "tag", name: "v*" },
       ],
       variables: names("variable", spec.settings),
+      values: { ...VALID },
       secrets: names("secret", spec.settings),
     })),
     rulesets: [checkRuleset],
+    reviewerAccess: { oplaner4: "admin" },
   };
 }
 
@@ -114,6 +135,7 @@ describe("checkRepository", () => {
       requiredReviewers: false,
       deployFrom: "all",
       variables: [],
+      values: {},
       secrets: [],
     });
     expect(messages(state)).toEqual([
@@ -145,6 +167,53 @@ describe("checkRepository", () => {
     expect(messages(state).slice(1)).toEqual([
       'error: no active ruleset on main requires the status check "check": a red content PR can be merged (ruleset "check" requires status checks, but not "check": add it from GitHub Actions)',
     ]);
+  });
+
+  it("names each variable whose value is not of its format, wherever it is set", () => {
+    const state = complete();
+    state.values.MATOMO_URL = "http://statistiky.farakurim.cz";
+    state.values.CONTENT_APP_CLIENT_ID = "1234567";
+    state.values.ANTHROPIC_ORGANIZATION_ID = "";
+    env(state, "events-publish").values.IMAP_HOST = "imaps://imap.example.cz:993";
+    env(state, "service-sheet-publish").values.ANTHROPIC_FEDERATION_RULE_ID = "fdrl_01AbCdEf\n";
+    env(state, "calendar-sync").values.GOOGLE_WORKLOAD_IDENTITY_PROVIDER =
+      "projects/farakurim-web/locations/global/workloadIdentityPools/github/providers/github";
+    expect(messages(state)).toEqual([
+      "error: repository: variable MATOMO_URL is not an https URL",
+      "error: repository: variable CONTENT_APP_CLIENT_ID is not the App's Client ID (Iv23…), not its numeric App ID",
+      "error: repository: variable ANTHROPIC_ORGANIZATION_ID is not the organization's UUID",
+      "error: environment calendar-sync: variable GOOGLE_WORKLOAD_IDENTITY_PROVIDER is not projects/<project number>/locations/global/workloadIdentityPools/<pool>/providers/<provider> (the project number, not its ID)",
+      "error: environment service-sheet-publish: variable ANTHROPIC_FEDERATION_RULE_ID is not an ID fdrl_…",
+      "error: environment events-publish: variable IMAP_HOST is not a host name only (imap.example.cz), without a scheme, port or path",
+    ]);
+  });
+
+  it("checks a value set in the repository for an environment, and the known hosts as a variable", () => {
+    const state = complete();
+    const production = env(state, "Production");
+    production.secrets = production.secrets.filter((name) => name !== "DEPLOY_KNOWN_HOSTS");
+    production.variables.push("DEPLOY_KNOWN_HOSTS");
+    production.values.DEPLOY_KNOWN_HOSTS = "farakurim.cz";
+    state.variables.push("GOOGLE_CALENDAR_SERVICE_ACCOUNT_EMAIL");
+    state.values.GOOGLE_CALENDAR_SERVICE_ACCOUNT_EMAIL = "calendar@gmail.com";
+    expect(messages(state)).toEqual([
+      "error: repository: variable GOOGLE_CALENDAR_SERVICE_ACCOUNT_EMAIL is not a service account address (…@<project>.iam.gserviceaccount.com)",
+      "error: environment Production: variable DEPLOY_KNOWN_HOSTS is not known_hosts lines (<host> <key type> <key>)",
+    ]);
+  });
+
+  it("needs write access of every reviewer", () => {
+    const state = complete();
+    state.values.CONTENT_REVIEWERS = "oplaner4, reader,ghost";
+    state.reviewerAccess = { oplaner4: "admin", reader: "read", ghost: null };
+    expect(messages(state)).toEqual([
+      "error: repository: CONTENT_REVIEWERS names reader, who has read access: a review needs write access",
+      "error: repository: CONTENT_REVIEWERS names ghost, a login GitHub does not know",
+    ]);
+    state.values.CONTENT_REVIEWERS = "oplaner4;reader";
+    expect(messages(state)[0]).toBe(
+      "error: repository: variable CONTENT_REVIEWERS is not GitHub logins separated by commas",
+    );
   });
 
   it("warns of what the token cannot see", () => {

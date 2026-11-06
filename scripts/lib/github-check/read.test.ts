@@ -10,9 +10,10 @@ function api(routes: Record<string, unknown>): typeof fetch {
   }) as typeof fetch;
 }
 
+/** A page of `list`; a variable's value is its name in lower case (a secret has none: GitHub never shows it). */
 const page = (key: string, total: number, list: string[]) => ({
   total_count: total,
-  [key]: list.map((name) => ({ name })),
+  [key]: list.map((name) => (key === "variables" ? { name, value: name.toLowerCase() } : { name })),
 });
 const empty = (key: string) => page(key, 0, []);
 
@@ -25,7 +26,11 @@ describe("readRepository", () => {
       api({
         "": { allow_squash_merge: true },
         "/actions/variables?per_page=30&page=1": page("variables", 31, thirty),
-        "/actions/variables?per_page=30&page=2": page("variables", 31, ["VAR_30"]),
+        "/actions/variables?per_page=30&page=2": {
+          total_count: 31,
+          variables: [{ name: "CONTENT_REVIEWERS", value: "oplaner4, ghost" }],
+        },
+        "/collaborators/oplaner4/permission": { permission: "admin" },
         "/actions/secrets?per_page=100&page=1": page("secrets", 1, ["KEY"]),
         "/environments?per_page=100": {
           environments: [
@@ -64,7 +69,11 @@ describe("readRepository", () => {
     );
     expect(state).toEqual({
       squashMerge: true,
-      variables: [...thirty, "VAR_30"],
+      variables: [...thirty, "CONTENT_REVIEWERS"],
+      values: {
+        ...Object.fromEntries(thirty.map((name) => [name, name.toLowerCase()])),
+        CONTENT_REVIEWERS: "oplaner4, ghost",
+      },
       secrets: ["KEY"],
       environments: [
         {
@@ -75,9 +84,10 @@ describe("readRepository", () => {
             { type: "tag", name: "v*" },
           ],
           variables: ["HOSTS"],
+          values: { HOSTS: "hosts" },
           secrets: ["SSH"],
         },
-        { name: "content fix", requiredReviewers: true, deployFrom: "all", variables: [], secrets: [] },
+        { name: "content fix", requiredReviewers: true, deployFrom: "all", variables: [], values: {}, secrets: [] },
       ],
       rulesets: [
         {
@@ -92,6 +102,8 @@ describe("readRepository", () => {
           bypass: [{ type: "RepositoryRole", id: 5 }],
         },
       ],
+      // A login GitHub does not know answers 404.
+      reviewerAccess: { oplaner4: "admin", ghost: null },
     });
   });
 
