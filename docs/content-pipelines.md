@@ -63,10 +63,6 @@ one DOCX, or a failed step. A failed step leaves the mail unseen for the next ru
   branch protection that restricts who may push (or requires a check, [GitHub setup](github-setup.md)), add the App as a bypass actor of that
   ruleset alone: the release commit and tag are pushed with its token, so that the tag starts `deploy.yml`. A ruleset
   that only blocks force pushes or deletions needs no bypass.
-- **Repository variable** `CONTENT_REVIEWERS` (optional): the GitHub logins, separated by commas, asked to review each
-  content PR when it is opened (sheets and events), so GitHub notifies them. Each needs write access to the repository.
-  An update of an open PR asks no one again. A review request is only a notification: `main` requires no approval, so
-  the PR can be merged without one.
 - **Squash merging** allowed (Settings → General → Pull Requests): the release counts only a PR's squash commit.
 - **Actions policy** allowing `pull_request_target` (Settings → Actions → Policies → Restrict events), scoped to
   `.github/workflows/content-release.yml`: from 2 December 2026 GitHub blocks the event in public repositories without

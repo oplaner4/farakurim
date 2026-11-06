@@ -17,6 +17,10 @@ What the repository on GitHub needs for the [release](deployment.md#release) and
   deploy to Production").
 - **Repository variables** `GOOGLE_CALENDAR_API_KEY`, `MATOMO_URL` and `MATOMO_SITE_ID` for the build (the build job
   has no environment).
+- **Repository variable** `CONTENT_REVIEWERS` (optional): the GitHub logins, separated by commas, asked to review each
+  content PR when it is opened (`service-sheet.yml` and `events.yml`), so GitHub notifies them. A repository variable,
+  not one of an environment: both workflows read it. Each login needs write access to the repository. An update of an
+  open PR asks no one again. A review request is only a notification: the ruleset on `main` requires no approval.
 - **A ruleset on `main`** requiring the status check `check` (the job of `check.yml`), with the content GitHub App and
   the **Repository admin** role as bypass actors, so a red content PR cannot be merged while the content release's
   commit and tag still push. The admin role keeps `pnpm release` and your own pushes to `main` working: a required
