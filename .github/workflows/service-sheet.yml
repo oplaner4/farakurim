@@ -384,6 +384,7 @@ jobs:
           BRANCH: ${{ needs.sheet.outputs.branch }}
           MESSAGE: ${{ steps.changes.outputs.message }}
           DRAFT: ${{ steps.changes.outputs.draft }}
+          REVIEWERS: ${{ vars.CONTENT_REVIEWERS }}
         run: |
           body="$RUNNER_TEMP/run/pr-body.md"
           if [ -n "$PR" ]; then
@@ -398,6 +399,11 @@ jobs:
             if [ "$DRAFT" != false ]; then draft=(--draft); fi
             url=$(gh pr create --base main --head "$BRANCH" --title "$MESSAGE" --body-file "$body" "${draft[@]}")
             echo "action=opened" >> "$GITHUB_OUTPUT"
+            # Only a new PR asks for a review (CONTENT_REVIEWERS, logins separated by commas): GitHub e-mails the reviewers.
+            for login in ${REVIEWERS//,/ }; do
+              gh api -X POST "repos/$GITHUB_REPOSITORY/pulls/${url##*/}/requested_reviewers" -f "reviewers[]=$login" > /dev/null \
+                || echo "::warning::Could not request a review from $login."
+            done
           fi
           issue="repos/$GITHUB_REPOSITORY/issues/${url##*/}"
           if [ "$(gh api "$issue" --jq .locked)" != true ]; then gh api -X PUT "$issue/lock" -f lock_reason=resolved; fi

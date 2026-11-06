@@ -402,6 +402,7 @@ jobs:
           BRANCH: ${{ needs.event.outputs.branch }}
           MESSAGE: ${{ steps.changes.outputs.message }}
           DRAFT: ${{ steps.changes.outputs.draft }}
+          REVIEWERS: ${{ vars.CONTENT_REVIEWERS }}
         run: |
           draft=()
           if [ "$DRAFT" != false ]; then draft=(--draft); fi
@@ -411,6 +412,11 @@ jobs:
           # The PR exists: a failed lock must not leave the mail unread (the next run would refuse it as a duplicate).
           gh api -X PUT "repos/$GITHUB_REPOSITORY/issues/${url##*/}/lock" -f lock_reason=resolved > /dev/null \
             || echo "::warning::The PR is open but not locked: lock its conversation by hand."
+          # Only a new PR asks for a review (CONTENT_REVIEWERS, logins separated by commas): GitHub e-mails the reviewers.
+          for login in ${REVIEWERS//,/ }; do
+            gh api -X POST "repos/$GITHUB_REPOSITORY/pulls/${url##*/}/requested_reviewers" -f "reviewers[]=$login" > /dev/null \
+              || echo "::warning::Could not request a review from $login."
+          done
 
       # Only once the outcome is done (PR opened, or the mail refused) and only when `event` succeeded; otherwise the
       # event mail stays unseen for the next run. The rejected mail is filed whenever `event` handed on its outcome.
