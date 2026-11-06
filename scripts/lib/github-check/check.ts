@@ -144,8 +144,20 @@ function checkRulesets(rulesets: RulesetState[]): Finding[] {
       ruleset.rules.some((rule) => rule.type === "required_status_checks" && rule.checks.includes(REQUIRED_CHECK)),
   );
   if (!requiring.length) {
+    // A "Require status checks to pass" rule with no check added requires nothing.
+    const without = rulesets.find(
+      (ruleset) =>
+        ruleset.enforcement === "active" &&
+        onMain(ruleset) &&
+        ruleset.rules.some((rule) => rule.type === "required_status_checks"),
+    );
+    const hint = without
+      ? ` (ruleset "${without.name}" requires status checks, but not "${REQUIRED_CHECK}": add it from GitHub Actions)`
+      : "";
     return [
-      error(`no active ruleset on main requires the status check "${REQUIRED_CHECK}": a red content PR can be merged`),
+      error(
+        `no active ruleset on main requires the status check "${REQUIRED_CHECK}": a red content PR can be merged${hint}`,
+      ),
     ];
   }
   return requiring.flatMap((ruleset) => {

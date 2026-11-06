@@ -140,6 +140,11 @@ describe("checkRepository", () => {
     expect(messages(state).slice(1)).toEqual([
       'error: no active ruleset on main requires the status check "check": a red content PR can be merged',
     ]);
+    // The rule switched on with no check added, as GitHub saves it.
+    state.rulesets = [{ ...checkRuleset, rules: [{ type: "required_status_checks", checks: [] }] }];
+    expect(messages(state).slice(1)).toEqual([
+      'error: no active ruleset on main requires the status check "check": a red content PR can be merged (ruleset "check" requires status checks, but not "check": add it from GitHub Actions)',
+    ]);
   });
 
   it("warns of what the token cannot see", () => {
