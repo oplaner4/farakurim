@@ -1,185 +1,6 @@
 {
   "sheets": [
     {
-      "validFrom": "2026-10-25",
-      "validTo": "2026-11-01",
-      "days": [
-        {
-          "date": "2026-10-25",
-          "feast": "30. neděle v mezidobí",
-          "solemnity": true,
-          "rows": [
-            {
-              "time": "8:00",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za † maminku Marii Veškrňovu, celou rodinu a rodinu Kašparovskou",
-              "mass": true
-            },
-            {
-              "time": "9:30",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za všechny lesníky a živé a † zaměstnance Lesů města Brna",
-              "mass": true
-            },
-            {
-              "time": "11:00",
-              "place": "moravske-kninice",
-              "title": "Mše sv.",
-              "detail": "za živé a † farníky a dobrodince naší farnosti",
-              "mass": true
-            }
-          ]
-        },
-        {
-          "date": "2026-10-26",
-          "solemnity": false,
-          "rows": [
-            {
-              "time": "8:00",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za rodinu Pohankovu a Bílou",
-              "mass": true
-            }
-          ]
-        },
-        {
-          "date": "2026-10-27",
-          "solemnity": false,
-          "rows": [
-            {
-              "time": "8:00",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za Pavla Kratochvílu a bratry",
-              "mass": true
-            }
-          ]
-        },
-        {
-          "date": "2026-10-28",
-          "feast": "sv. Šimon a Juda",
-          "solemnity": false,
-          "rows": [
-            {
-              "time": "8:00",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za † tatínka Oleha",
-              "mass": true
-            }
-          ]
-        },
-        {
-          "date": "2026-10-29",
-          "solemnity": false,
-          "rows": [
-            {
-              "time": "17:30",
-              "place": "kurim",
-              "title": "Adorace",
-              "service": true
-            },
-            {
-              "time": "18:00",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za rodinu Dočkalovu, Moserovu a Plíškovu",
-              "mass": true
-            }
-          ]
-        },
-        {
-          "date": "2026-10-30",
-          "solemnity": false,
-          "rows": [
-            {
-              "time": "16:45",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za živé a † farníky a dobrodince naší farnosti",
-              "mass": true
-            },
-            {
-              "time": "18:00",
-              "place": "moravske-kninice",
-              "title": "Mše sv.",
-              "detail": "za nemocnou osobu",
-              "mass": true
-            }
-          ]
-        },
-        {
-          "date": "2026-10-31",
-          "solemnity": false,
-          "rows": [
-            {
-              "time": "8:00",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "na poděkování za dar povolání",
-              "mass": true
-            }
-          ]
-        },
-        {
-          "date": "2026-11-01",
-          "feast": "Slavnost Všech svatých",
-          "solemnity": true,
-          "rows": [
-            {
-              "time": "8:00",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za duše v očistci",
-              "mass": true
-            },
-            {
-              "time": "9:30",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za Marii Burgetovu",
-              "mass": true
-            },
-            {
-              "time": "11:00",
-              "place": "moravske-kninice",
-              "title": "Mše sv.",
-              "detail": "za † rodiče Emila a Boženu Dvořáčkovy a za živou a † rodinu Dvořáčkovu a Novotných",
-              "mass": true
-            },
-            {
-              "time": "15:00",
-              "place": "kurim",
-              "title": "Dušičková pobožnost na hřbitově",
-              "service": true
-            }
-          ]
-        }
-      ],
-      "announcements": [
-        {
-          "category": "confession",
-          "html": "<p>V Kuřimi se zpovídá <strong>ve čtvrtek od 17.30 hod</strong>, v Moravských Knínicích <strong>v pátek po mši svaté</strong>.</p>"
-        },
-        {
-          "category": "thanks",
-          "html": "<p>Děkujeme za podporu misií. Na kavárně v Kuřimi se vybralo 5 787 Kč, v Moravských Knínicích u kostela 11 812 Kč.</p>"
-        },
-        {
-          "category": "info",
-          "html": "<p>Dušičková pobožnost na hřbitově v Kuřimi bude <strong>v neděli 1. 11. v 15 hod.</strong></p>"
-        },
-        {
-          "category": "invitation",
-          "html": "<p>Na <strong>neděli 8. 11.</strong> chystáme přednášku „Vědomí a smrt z pohledu současné vědy“. Bude na faře <strong>v 11 hod.</strong></p>",
-          "newsId": "vedomi-a-smrt-2026"
-        }
-      ]
-    },
-    {
       "validFrom": "2026-11-01",
       "validTo": "2026-11-08",
       "days": [
@@ -409,6 +230,172 @@
           "category": "invitation",
           "html": "<p><strong>Na neděli 8. 11.</strong> chystáme přednášku „Vědomí a smrt z pohledu současné vědy“. Proběhne v Kuřimi na faře <strong>v 11 hod</strong>.</p>",
           "newsId": "vedomi-a-smrt-2026"
+        }
+      ]
+    },
+    {
+      "validFrom": "2026-11-08",
+      "validTo": "2026-11-15",
+      "days": [
+        {
+          "date": "2026-11-08",
+          "feast": "32. neděle v mezidobí",
+          "solemnity": true,
+          "rows": [
+            {
+              "time": "8:00",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za Ivetu Plevovu, Zoru Hečkovu, Naďu Hemzovu, Oldřišku Oltovu, manžele Pustějovských a bratra Pavla",
+              "mass": true
+            },
+            {
+              "time": "9:30",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za † tatínka a živou a † rodinu Pospíšilovu",
+              "mass": true
+            },
+            {
+              "time": "11:00",
+              "place": "moravske-kninice",
+              "title": "Mše sv.",
+              "detail": "za Helenu Večeřovou, přízeň a DO",
+              "mass": true
+            }
+          ]
+        },
+        {
+          "date": "2026-11-09",
+          "feast": "svátek Posvěcení lateránské baziliky",
+          "solemnity": false,
+          "rows": [
+            {
+              "time": "8:00",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za † Františka Novotného a manželku Zdeňku",
+              "mass": true
+            }
+          ]
+        },
+        {
+          "date": "2026-11-10",
+          "solemnity": false,
+          "rows": [
+            {
+              "time": "17:00",
+              "place": "Tišnov",
+              "title": "Mše sv.",
+              "detail": "na úmysl dárce",
+              "mass": true
+            }
+          ]
+        },
+        {
+          "date": "2026-11-11",
+          "feast": "sv. Martin",
+          "solemnity": false,
+          "rows": [
+            {
+              "time": "8:00",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za † manžela Jaroslava Chatrného, bratra a rodiče",
+              "mass": true
+            }
+          ]
+        },
+        {
+          "date": "2026-11-12",
+          "solemnity": false,
+          "rows": [
+            {
+              "time": "15:00",
+              "place": "kurim",
+              "title": "Pohřeb paní Ludmily Markové"
+            },
+            {
+              "time": "18:00",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za živé a † farníky a dobrodince naší farnosti",
+              "mass": true
+            }
+          ]
+        },
+        {
+          "date": "2026-11-13",
+          "feast": "sv. Anežka Česká",
+          "solemnity": false,
+          "rows": [
+            {
+              "time": "16:45",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za rodinu Nechvátalovu a † manžela",
+              "mass": true
+            },
+            {
+              "time": "18:00",
+              "place": "moravske-kninice",
+              "title": "Mše sv.",
+              "detail": "za 3. a 4. růži Živého růžence",
+              "mass": true
+            }
+          ]
+        },
+        {
+          "date": "2026-11-14",
+          "solemnity": false,
+          "rows": [
+            {
+              "time": "16:30",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za Komunitu Emmanuel",
+              "mass": true
+            }
+          ]
+        },
+        {
+          "date": "2026-11-15",
+          "feast": "33. neděle v mezidobí",
+          "solemnity": true,
+          "rows": [
+            {
+              "time": "8:00",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za 1. růži Živého růžence",
+              "mass": true
+            },
+            {
+              "time": "9:30",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za Jitku Poláškovu a spolupracovníky",
+              "mass": true
+            },
+            {
+              "time": "11:00",
+              "place": "moravske-kninice",
+              "title": "Hodová mše sv.",
+              "detail": "za obec, občany a rodáky Moravských Knínic",
+              "mass": true
+            }
+          ]
+        }
+      ],
+      "announcements": [
+        {
+          "category": "invitation",
+          "html": "<p><strong>Dnes (8. 11.)</strong> na faře <strong>v 11 hod.</strong> je přednáška MUDr. Pavla Vaška „Vědomí a smrt z pohledu současné vědy“. Téma zapadá do dušičkového týdne. Srdečně zveme.</p>",
+          "newsId": "vedomi-a-smrt-2026"
+        },
+        {
+          "category": "info",
+          "html": "<p>Sbírka příští neděle je na pronásledované křesťany.</p>"
         }
       ]
     }
