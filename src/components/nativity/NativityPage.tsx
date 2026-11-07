@@ -67,14 +67,15 @@ export function NativityPage({ seasons, albums, oldSiteResults, renderedAt }: Pr
   const photosTitle = `Výstava betlémů ${season.year}`;
   const album = albums.find((a) => a.year === season.year);
 
+  // A block whose content is not known yet (the contest, the walk) is left out, pill included.
   const blocks: Record<Block, ReactNode> = {
     doba: <OpeningHours season={season} today={today} />,
     kde: <Places season={season} />,
     co: <WhatToSee season={season} />,
-    soutez: <Contest contest={season.contest} voting={state === "during"} after={after} />,
+    soutez: season.contest && <Contest contest={season.contest} voting={state === "during"} after={after} />,
     figurka: <SharedScene scene={season.sharedScene} />,
-    putovani: <Walk walk={season.walk} />,
-    modlitba: <Prayer season={season} after={after} today={today} />,
+    putovani: season.walk && <Walk walk={season.walk} />,
+    modlitba: <Prayer mass={season.intentionsMass} after={after} today={today} />,
     foto: (
       <Photos
         year={season.year}
@@ -87,7 +88,7 @@ export function NativityPage({ seasons, albums, oldSiteResults, renderedAt }: Pr
       />
     ),
   };
-  const order = ORDER[state];
+  const order = ORDER[state].filter((id) => blocks[id]);
   const anchors = order
     .filter((id) => after || id !== "foto")
     .map((id) => ({ id, label: (after && AFTER_LABELS[id]) || ANCHOR_LABELS[id] }));
@@ -107,7 +108,7 @@ export function NativityPage({ seasons, albums, oldSiteResults, renderedAt }: Pr
       <StatusPanel
         status={status}
         planUrl={season.planUrl}
-        hasResults={!!season.contest.results}
+        hasResults={!!season.contest?.results}
         photo={season.photo}
       />
       {order.map((id) => (

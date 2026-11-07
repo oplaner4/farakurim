@@ -76,6 +76,9 @@ export type NativityWalk = {
   schedule?: string;
 };
 
+/** "Místo pro modlitbu": the mass for the intentions written at the exhibition. */
+export type NativityIntentionsMass = { date: IsoDate; time: ClockTime };
+
 export type NativitySeason = {
   year: number;
   /** "7. ročník" */
@@ -92,11 +95,13 @@ export type NativitySeason = {
   guest?: NativityGuestCollection;
   /** The small cards under the guest collection. */
   highlights: { title: string; text: string }[];
-  contest: NativityContest;
+  /** "Soutěž o nej betlém"; the block is left out until the contest is known. */
+  contest?: NativityContest;
   sharedScene: NativitySharedScene;
-  walk: NativityWalk;
-  /** The mass for the intentions written at the exhibition. */
-  intentionsMass: { date: IsoDate; time: ClockTime };
+  /** "Betlémské putování Kuřimí"; the block is left out until the walk is known. */
+  walk?: NativityWalk;
+  /** The mass for the intentions written at the exhibition; its date "upřesníme" until it is known. */
+  intentionsMass?: NativityIntentionsMass;
   /** The status panel's photo, uploaded to betlemy/<year>/; a designed placeholder until there is one. */
   photo?: AlbumPhoto & { alt: string };
   /** Photos from the season's album, shown after the exhibition (6, the first ones in the grid, all in the lightbox). */

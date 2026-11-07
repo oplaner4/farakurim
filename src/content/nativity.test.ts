@@ -35,13 +35,18 @@ describe("Betlémy (nativity.ts)", () => {
 
   it("gives each season valid dates for the tour, the shared scene and the mass", () => {
     for (const { year, guest, sharedScene, intentionsMass, planUrl } of nativitySeasons) {
-      const dates = [sharedScene.from, sharedScene.to, intentionsMass.date, ...(guest?.tour ? [guest.tour.date] : [])];
+      const dates = [
+        sharedScene.from,
+        sharedScene.to,
+        ...(intentionsMass ? [intentionsMass.date] : []),
+        ...(guest?.tour ? [guest.tour.date] : []),
+      ];
       expect(
         dates.filter((d) => !isIsoDate(d)),
         String(year),
       ).toEqual([]);
       expect(sharedScene.from <= sharedScene.to, String(year)).toBe(true);
-      expect(isClock(intentionsMass.time), String(year)).toBe(true);
+      if (intentionsMass) expect(isClock(intentionsMass.time), String(year)).toBe(true);
       expect(/^\d{3} \d{3} \d{3}$/.test(sharedScene.phone), String(year)).toBe(true);
       expect(isUpload(planUrl), String(year)).toBe(true);
     }
@@ -49,7 +54,7 @@ describe("Betlémy (nativity.ts)", () => {
 
   it("links the photos as uploads of the season's own folder", () => {
     for (const { year, photo, photos, contest } of nativitySeasons) {
-      const all = [photo, ...(photos ?? []), ...(contest.results ?? []).map((r) => r.photo)].flatMap((p) =>
+      const all = [photo, ...(photos ?? []), ...(contest?.results ?? []).map((r) => r.photo)].flatMap((p) =>
         p ? [p.small, p.large] : [],
       );
       expect(
@@ -62,7 +67,7 @@ describe("Betlémy (nativity.ts)", () => {
 
   it("puts the contest results on a podium of three, by votes", () => {
     for (const { year, contest } of nativitySeasons) {
-      if (!contest.results) continue;
+      if (!contest?.results) continue;
       expect(contest.results.length, String(year)).toBe(3);
       expect(
         isSorted(contest.results, (a, b) => a.votes >= b.votes),
