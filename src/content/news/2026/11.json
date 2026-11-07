@@ -126,5 +126,33 @@
         "href": "https://evangelizace.cz/"
       }
     ]
+  },
+  {
+    "id": "cervena-streda-2026",
+    "title": "Červená středa",
+    "start": "2026-11-25",
+    "startTime": "17:00",
+    "endTime": "20:00",
+    "place": "Kuřim, kostel sv. Maří Magdalény",
+    "text": "Mezinárodní připomínka lidí pronásledovaných pro víru – nasvícený kostel, mše svatá za pronásledované a tichá adorace.",
+    "body": "<p>Červená středa je mezinárodní připomínka lidí pronásledovaných pro víru. Kostel bude po celou dobu akce nasvícen červeně.</p><ul><li><strong>18.00</strong> – mše svatá za pronásledované lidi pro jejich víru</li><li><strong>Tichá adorace</strong> a modlitba při svíčkách</li></ul>",
+    "published": "2026-11-07",
+    "poster": {
+      "src": "/uploads/aktuality/cervena-streda-2026-plakat-poster.webp",
+      "alt": "Plakát: Červená středa"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/cervena-streda-2026-plakat.png",
+        "size": 1552674
+      }
+    ],
+    "links": [
+      {
+        "label": "Červená středa",
+        "href": "https://www.cervenastreda.cz"
+      }
+    ]
   }
 ]
