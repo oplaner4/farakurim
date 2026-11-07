@@ -104,6 +104,11 @@ export const nativitySeasons: NativitySeason[] = [
   //   },
   //   highlights,
   //   sharedScene: { ...sharedScene, from: "2026-12-06", to: "2026-12-24" },
+  //   // From the 2025 album "Nafocené betlémy z výstavy" (its foto-1), until the parish chooses a 2026 photo.
+  //   photo: {
+  //     ...photo(2026, "vystava"),
+  //     alt: "Betlém s Ježíškem v jesličkách, Pannou Marií, svatým Josefem a anděly pod hvězdou na modrém nebi",
+  //   },
   // },
   {
     year: 2025,
