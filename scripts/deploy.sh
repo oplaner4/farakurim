@@ -111,7 +111,8 @@ prune_static() {
   [ -s "$tmp/stale" ] || return 0
   sed 's/^/*deleting   /' "$tmp/stale"
   [ "${1:-}" = -n ] ||
-    ssh "$SSH_TARGET" "cd $WEB_ROOT && xargs rm -f -- && find _next/static -mindepth 1 -type d -empty -delete" < "$tmp/stale"
+    ssh "$SSH_TARGET" "cd $WEB_ROOT && while IFS= read -r f; do find \"\$f\" -maxdepth 0 -type f -delete; done &&
+      find _next/static -mindepth 1 -type d -empty -delete" < "$tmp/stale"
 }
 
 cmd_cron() {
