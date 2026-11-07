@@ -62,13 +62,13 @@ Setup, by the maintainer (an agent never connects to the server):
   the old PHP site `/stary.farakurim.cz/`.
 - **Cron**: a _directory cron_ (administration → CRON) runs the PHP scripts of its own folder at the root of the
   hosting space, one after another in alphabetical order. Each cron has a name of your choice and a schedule in the
-  usual cron syntax (`* * * * *`: hourly, daily, weekly, …); creating one named `04-50` creates `/CRON.04-50/`
-  (`CRON_PREFIX` is `/CRON.`), where `cron-scripts/04-50/` would go. Changing the schedule keeps the folder;
-  renaming a cron means renaming its folder in `cron-scripts/` to match: the sync would create a missing folder, but
-  the hosting runs only its crons' folders. It runs only scripts with execute permission for the owner (500 at
-  least, usually 700), from the root of the hosting space as the working directory; scripts cannot write there,
-  only next to themselves. Shared hosting allows 5 directory crons, at most every 15 minutes. Its help documents no
-  log of directory cron.
+  usual cron syntax (`* * * * *`: hourly, daily, weekly, …); creating one named `daily-early` creates
+  `/CRON.daily-early/` (`CRON_PREFIX` is `/CRON.`), where `cron-scripts/daily-early/` would go. Changing the
+  schedule keeps the folder; renaming a cron means renaming its folder in `cron-scripts/` to match: the sync would
+  create a missing folder, but the hosting runs only its crons' folders. It runs only scripts with execute
+  permission for the owner (500 at least, usually 700), from the root of the hosting space as the working directory;
+  scripts cannot write there, only next to themselves. Shared hosting allows 5 directory crons, at most every 15
+  minutes. Its help documents no log of directory cron.
 - **Private folder**: `/data/` at the root of the hosting space, next to the cron folders (`PRIVATE_DIR` is
   `__DIR__ . '/../data'`), for files the web must not serve; it also holds PHP's error logs.
 - **Mailboxes**: created in the administration; their IMAP host (e.g. `mail.cesky-hosting.cz`) is the variable
