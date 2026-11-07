@@ -25,8 +25,8 @@ SERVER_ONLY=("/$UPLOADS/" /nahrane/ /virtualni_prohlidka/ /cache/)
 KEEP_STATIC_DAYS=30
 # Each cron on the server runs the executable scripts of its own folder, CRON_PREFIX and the cron's name (its
 # schedule is set only on the hosting), outside WEB_ROOT: cron-scripts/<name>/ goes to $CRON_PREFIX<name>/, with
-# the shared PHP files directly in cron-scripts/ (github.inc.php). The token and the log of the workflow dispatch live
-# next to the scripts, only on the server.
+# the shared PHP files directly in cron-scripts/ (github.inc.php). The log of the workflow dispatch lives next to the
+# scripts, its token in PRIVATE_DIR (cron-scripts/github.inc.php), both only on the server.
 CRON_PREFIX=/CRON.
 
 cd "$(dirname "$0")/.."
@@ -124,9 +124,9 @@ cmd_cron() {
     [[ "$name" =~ ^[A-Za-z0-9_-]+$ ]] || fail "cron folder cron-scripts/$name/: use letters, digits, - and _ only"
     scripts=("$dir"*.php)
     [ -e "${scripts[0]}" ] || fail "cron folder cron-scripts/$name/ has no PHP script"
-    # The PHP files alone, so the cron folder's own permissions stay; no --delete, so the token and the log next to
-    # them stay. The scripts 700: the hosting runs only executable scripts. The shared files 600: the scripts require
-    # them, the cron must not run them. Checksums, as a checkout's mtimes differ from the machine that uploaded last:
+    # The PHP files alone, so the cron folder's own permissions stay; no --delete, so the log next to them stays.
+    # The scripts 700: the hosting runs only executable scripts. The shared files 600: the scripts require them, the
+    # cron must not run them. Checksums, as a checkout's mtimes differ from the machine that uploaded last:
     # a changed content (<f) or permission (.f...p) is listed, a mere mtime update is not (.f..t).
     {
       rsync -tzc --perms "${n[@]}" --itemize-changes --chmod=F700 "${scripts[@]}" "$SSH_TARGET:$CRON_PREFIX$name/"

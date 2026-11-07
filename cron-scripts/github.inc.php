@@ -3,14 +3,20 @@
 // (cron-scripts/<name>/): `pnpm release` copies this file into every one of them on the server (scripts/deploy.sh
 // cron), as they require it from next to themselves, not executable, so the cron does not run it. GitHub starts
 // scheduled runs hours late, a dispatched one right away. The token (fine-grained, this repository only, Actions:
-// read and write) and the log live next to it in each cron folder, only on the server: the sync sends the PHP
-// scripts alone.
+// read and write) lives once in PRIVATE_DIR, the log next to this file in each cron folder, both only on the server:
+// the sync sends the PHP scripts alone.
 
 declare(strict_types=1);
 
+/**
+ * The hosting's folder for files the web must not serve, shared by every cron folder: on Český hosting /data at the
+ * root of the hosting space, next to the cron folders (/CRON.<name>/). Relative to __DIR__ (the cron folder this file
+ * is copied into), as the absolute path PHP sees need not be the one SFTP shows; change it for another hosting.
+ */
+const PRIVATE_DIR = __DIR__ . '/../data';
 const GITHUB_REPOSITORY = 'oplaner4/farakurim';
 const GITHUB_REF = 'main';
-const GITHUB_TOKEN_FILE = __DIR__ . '/github-dispatch.token';
+const GITHUB_TOKEN_FILE = PRIVATE_DIR . '/github-dispatch.token';
 const GITHUB_LOG_FILE = __DIR__ . '/github-dispatch.log';
 /** A network error, a 5xx or a 429 is tried again, at most this many times in all, this many seconds apart. */
 const GITHUB_ATTEMPTS = 3;

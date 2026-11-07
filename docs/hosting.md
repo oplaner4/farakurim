@@ -2,8 +2,8 @@
 
 What the site needs from its host, and how to set it up with each provider used so far. How releases reach the server
 is in [deployment.md](deployment.md). The server details the scripts use (SSH target, web root, rsync flags, cron
-folder) live only in `scripts/deploy.sh`: moving to another host means changing them there and adding the provider
-below.
+folder) live in `scripts/deploy.sh`, the private folder of the cron scripts in `PRIVATE_DIR` of
+`cron-scripts/github.inc.php`: moving to another host means changing them there and adding the provider below.
 
 ## What the host must offer
 
@@ -14,6 +14,7 @@ below.
   the service sheet mailbox and the events mailbox.
 - **Crons that each run the scripts of their own folder on a schedule**, outside the web root, with outbound HTTPS
   to api.github.com.
+- **A private folder the web does not serve** that the cron scripts can read, for the GitHub token.
 
 ## Starting the workflows on time
 
@@ -29,9 +30,9 @@ next run or until started by hand.
 tries a network error or a 5xx again and logs. The deploy workflow (or `pnpm release --local`) syncs each folder with a
 copy of the shared files (`scripts/deploy.sh cron`, no `--delete`) to that cron's folder on the server,
 `CRON_PREFIX<name>` (`CRON_PREFIX` in `scripts/deploy.sh`); the `pnpm release` preview shows what it will change. The
-scripts get permissions 700, so the cron runs them; the shared files 600, so it does not. Next to the scripts live, only
-on the server, `github-dispatch.token` and `github-dispatch.log`, in each cron folder: the sync never sends nor touches
-them. A script removed from a folder of `cron-scripts/`, or moved to another, stays on the server until the maintainer
+scripts get permissions 700, so the cron runs them; the shared files 600, so it does not. Only on the server live
+`github-dispatch.token`, once in the private folder (`PRIVATE_DIR` in `cron-scripts/github.inc.php`), and
+`github-dispatch.log`, next to the scripts in each cron folder: the sync never sends nor touches them. A script removed from a folder of `cron-scripts/`, or moved to another, stays on the server until the maintainer
 deletes it, so a moved script runs from both crons until then. The scripts write their own log, so it does not depend on
 what the host logs; a PHP error that stops a script before it logs leaves the log without that line.
 
@@ -43,9 +44,9 @@ Setup, by the maintainer (an agent never connects to the server):
    `GITHUB_REPOSITORY` in `cron-scripts/github.inc.php` (for this site `oplaner4/farakurim`),
    repository permission **Actions: Read and write** and nothing else. It can start and cancel workflow runs, not
    push code or read secrets. Note its expiry date: an expired token logs `HTTP 401`, and no workflow runs
-   until it is renewed (in every cron folder).
-3. **Token file**: over SFTP, `github-dispatch.token` in each cron folder holding the token alone, permissions 600
-   (not executable, so a cron that runs the folder's executable files skips it).
+   until it is renewed.
+3. **Token file**: over SFTP, `github-dispatch.token` in the private folder (`PRIVATE_DIR`) holding the token alone,
+   permissions 600. One file serves every cron folder.
 4. **Scripts**: `pnpm release` uploads them.
 5. **Test**: move the cron a few minutes ahead and wait. `github-dispatch.log` in its folder gets one line per
    workflow and run, `started (HTTP 204 …)` or `FAILED, …` with the reason (a network error when PHP cannot reach
@@ -68,6 +69,8 @@ Setup, by the maintainer (an agent never connects to the server):
   least, usually 700), from the root of the hosting space as the working directory; scripts cannot write there,
   only next to themselves. Shared hosting allows 5 directory crons, at most every 15 minutes. Its help documents no
   log of directory cron.
+- **Private folder**: `/data/` at the root of the hosting space, next to the cron folders (`PRIVATE_DIR` is
+  `__DIR__ . '/../data'`), for files the web must not serve; it also holds PHP's error logs.
 - **Mailboxes**: created in the administration; their IMAP host (e.g. `mail.cesky-hosting.cz`) is the variable
   `IMAP_HOST` of each mail workflow's environment.
 - **Help**: [CRON](https://www.cesky-hosting.cz/napoveda/skripty-na-serveru/cron/); support at
