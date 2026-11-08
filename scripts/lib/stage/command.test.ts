@@ -32,9 +32,10 @@ describe("runStage", { timeout: 30_000 }, () => {
       sheetFile,
     ]);
     expect(sheet.format).toEqual({ files: [env.serviceSheetsFile], tests: SERVICE_SHEETS_TESTS });
-    // Without a source, the record of that sheet alone.
+    // `sheet replace`: the record of that sheet alone.
     const corrected = await runStage(env, [
       "sheet",
+      "replace",
       "--from",
       "2099-10-04",
       "--to",
@@ -90,6 +91,22 @@ describe("runStage", { timeout: 30_000 }, () => {
     ).rejects.toThrow("wrong arguments");
     await expect(runStage(env, ["tisk", "a.pdf"])).rejects.toThrow("wrong arguments");
     await expect(runStage(env, ["sheet", "a.pdf", "--rev", "2"])).rejects.toThrow("Unknown option '--rev'");
+    // Each sheet subcommand takes only its own options and positionals.
+    await expect(runStage(env, ["sheet", "--from", "2099-10-04", "--to", "2099-10-11"])).rejects.toThrow(
+      "wrong arguments",
+    );
+    await expect(runStage(env, ["sheet", "draft", "a.docx", "--record", "r.json"])).rejects.toThrow("wrong arguments");
+    await expect(runStage(env, ["sheet", "draft", "a.docx"])).rejects.toThrow("sheet draft needs --out");
+    await expect(runStage(env, ["sheet", "draft", "a.pdf", "--out", "d.json"])).rejects.toThrow(
+      "a draft is read from the parish's DOCX",
+    );
+    await expect(runStage(env, ["sheet", "replace", "a.pdf", "--record", "r.json"])).rejects.toThrow("wrong arguments");
+    await expect(runStage(env, ["sheet", "replace", "--from", "2099-10-04", "--to", "2099-10-11"])).rejects.toThrow(
+      "sheet replace needs --from, --to and --record",
+    );
+    await expect(
+      runStage(env, ["sheet", "replace", "--from", "2099-10-04", "--to", "2099-10-11", "--corrected"]),
+    ).rejects.toThrow("wrong arguments");
     await expect(runStage(env, ["petrklic", "a.pdf", "--year", "2026", "--number", "1", "--rev", "2"])).rejects.toThrow(
       "Unknown option '--rev'",
     );

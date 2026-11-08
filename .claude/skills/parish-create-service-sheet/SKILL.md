@@ -29,7 +29,7 @@ when the week's sheet is already in `service-sheets.json`: then the week was sta
 **`parish-correct-service-sheet`**):
 
 ```sh
-pnpm stage sheet "<source>" --draft <scratchpad>/record.json
+pnpm stage sheet draft "<source>" --out <scratchpad>/record.json
 ```
 
 It prints the week, its days and the events an announcement can link (for `newsId`), and writes `days` and
@@ -49,7 +49,7 @@ Read it with both:
 
 Read the **whole** page: the announcements are the paragraphs below the table.
 
-Get the week, its dates and the events for `newsId` (it refuses and names a week the same way as `--draft`):
+Get the week, its dates and the events for `newsId` (it refuses and names a week the same way as `sheet draft`):
 
 ```sh
 pnpm stage sheet "<source>" --check
@@ -61,14 +61,14 @@ The sheet is `record.json` in the session's scratchpad (never in the repo) with 
 `validFrom` and `validTo` come from the heading, and the script sets `rev` (the PDF's version, with `--corrected`).
 Follow 2a or 2b, then check the record against the fields below.
 
-**Week**: the week `--draft` or `--check` printed from the heading (not part of the record): enter every date of it
+**Week**: the week `sheet draft` or `--check` printed from the heading (not part of the record): enter every date of it
 in `days`. A heading can cover **two weeks** (around Christmas, Easter or a holiday): it is still **one**
 `ServiceSheet` with every day of both weeks, never split into two. Everything below that says "the week" means the
 sheet's whole period.
 
 ### 2a. From the DOCX: fix the draft
 
-`--draft` already wrote `record.json`. What it gets right: every date of the week (the days the table leaves out
+`sheet draft` already wrote `record.json`. What it gets right: every date of the week (the days the table leaves out
 without rows), the rows in time order, `time` as `"8:00"`, `place` as the parish church's id, the `title` / `detail`
 split at " – ", the announcements word for word with Word's bold and italic kept and addresses linked. What it
 guesses or leaves out, so check each against the fields below and fix `record.json` in place:

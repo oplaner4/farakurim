@@ -21,8 +21,8 @@ only, without `validFrom`, `validTo` and `rev` (the script sets them). Change on
 
 - a corrected PDF: compare it with the sheet, the way **`parish-create-service-sheet`** step 1 reads a PDF, and
   take over every difference;
-- a corrected DOCX: draft the week (`pnpm stage sheet "<docx>" --from <validFrom> --to <validTo> --corrected
---draft <scratchpad>/draft.json`), compare the draft with the sheet and take over only the differences in the
+- a corrected DOCX: draft the week (`pnpm stage sheet draft "<docx>" --from <validFrom> --to <validTo> --corrected
+--out <scratchpad>/draft.json`), compare the draft with the sheet and take over only the differences in the
   text, keeping the sheet's fixes (`<strong>`, categories, `newsId`);
 - a correction the user describes: change those rows or announcements.
 
@@ -40,7 +40,7 @@ pnpm stage sheet "<source>" --record <scratchpad>/record.json --corrected --chec
 When only the record changes, without a source:
 
 ```sh
-pnpm stage sheet --from <validFrom> --to <validTo> --record <scratchpad>/record.json --check
+pnpm stage sheet replace --from <validFrom> --to <validTo> --record <scratchpad>/record.json --check
 ```
 
 Show the user what changes (day by day, the rows and announcements that differ).

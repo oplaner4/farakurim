@@ -10,7 +10,7 @@ too, with the changes below.
 - It handles **one week**: the one the prompt names (pass its `--from` and `--to` to every `pnpm stage sheet` run
   on the DOCX), else the DOCX's newest week; never touch other weeks. When `pnpm stage sheet` says the week is not the
   DOCX's newest (also below a refusal), the week's section gives that note in one line after its `Outcome:` line.
-  When `--draft` does not say the week is already there: steps 1 to 4 of `parish-create-service-sheet` as written
+  When `sheet draft` does not say the week is already there: steps 1 to 4 of `parish-create-service-sheet` as written
   (`Outcome: created`). When it does (never open `service-sheets.json` to check): it is a correction, see
   "Unattended correction" below.
 - It never asks and never waits. Every "confirm with the user" or "ask the user" step (step 3, a document error, the
@@ -90,7 +90,8 @@ Steps 1 to 4 of `parish-correct-service-sheet` apply with these changes:
   fact, the reply says the site will then differ from the parish's document.
 - **Allowed:** correct a week the PR holds (services, intentions, announcements) in its record only, as there is no
   DOCX: write `record.json` from the sheet as step 2 says, then run
-  `pnpm stage sheet --from <validFrom> --to <validTo> --record <scratchpad>/record.json` without the confirmation. A
+  `pnpm stage sheet replace --from <validFrom> --to <validTo> --record <scratchpad>/record.json` without the
+  confirmation. A
   question in the comment is answered in the reply.
 - **Fix a check:** when `check.md` shows a failure the PR's content causes, fix it the same way; a failure outside the
   content (a script, the build) is not fixed, and the reply says so.

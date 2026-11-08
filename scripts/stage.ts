@@ -16,22 +16,23 @@
 //       --corrected stages corrected or added files of an event already there and replaces its record (the
 //       --record, else the one on the site) with the files in it: each in the next -r<rev> once its file is on the
 //       server, else under its name; the poster follows its file.
-//   sheet <pdf|docx> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected] [--record <record.json> | --draft <file>]
+//   sheet <pdf|docx> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected] [--record <record.json>]
 //       reads the week from the heading ("od 4. 10. 2026 do 11. 10. 2026"), stages
 //       porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-r<rev>].pdf and adds the confirmed sheet (--record:
 //       days and announcements as JSON) to src/content/service-sheets.json, removing the outdated sheets and the covered
 //       changes in src/content/schedule-exceptions.json. --record is required, except with --check, which then prints
 //       the week, its days and the events its announcements can link as newsId (with a record, --check only
-//       validates it). --corrected stages a corrected PDF of a
-//       week already there, in the next -r<rev> once the week is on the server, else under its name. Every run refuses
-//       a week before the current sheet or overlapping another, and --check without a record says when the week's sheet
-//       is already there (--record replaces it).
-//       Without a source, --record replaces the record of the sheet --from and --to name (a correction of the record
-//       alone): the sheet keeps its PDF and rev, and nothing is staged.
+//       validates it). --corrected stages a corrected PDF of a week already there, in the next -r<rev> once the week
+//       is on the server, else under its name. Every run refuses a week before the current sheet or overlapping
+//       another, and --check without a record says when the week's sheet is already there (--record replaces it).
 //       The parish's DOCX of the whole year gives its newest week (--from and --to pick another): the PDF staged is
-//       that week's page of the document converted with Word (Windows) or LibreOffice, and --draft <file> writes the
-//       week's draft record, read from its table and announcements, to check before --record (stages nothing; it
-//       prints what --check does).
+//       that week's page of the document converted with Word (Windows) or LibreOffice.
+//   sheet draft <docx> --out <record.json> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected]
+//       writes the DOCX week's draft record, read from its table and announcements, to check before `sheet --record`,
+//       and prints what `sheet --check` does; stages nothing (so it takes no --check).
+//   sheet replace --from YYYY-MM-DD --to YYYY-MM-DD --record <record.json>
+//       replaces the record of the sheet --from and --to name (a correction of the record alone): the sheet keeps its
+//       PDF and rev, and nothing is staged.
 //   petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--corrected]
 //       checks the issue, stages petrklic/<id>/petrklic-<id>.pdf with cover.webp and pages/ and adds the
 //       issue to src/content/petrklic.json (with --check it only validates). --corrected stages a corrected PDF of an

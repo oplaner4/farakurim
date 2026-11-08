@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { stageSheet, weekDays } from "./sheet";
+import { draftSheet, replaceSheetRecord, stageSheet, weekDays } from "./sheet";
 import { addEvent } from "../news/add-event";
 import { extractPdfPages, pdfPageTexts } from "../images";
 import { docxToPdf } from "../services/docx-to-pdf";
@@ -173,7 +173,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     ).rejects.toThrow("no sheet of 2099-10-04 in service-sheets.json");
   });
 
-  it("replaces the record of a sheet without a source, keeping its PDF and rev", async () => {
+  it("replaces the record of a sheet, keeping its PDF and rev", async () => {
     const week = { validFrom: "2099-10-04", validTo: "2099-10-11" };
     await stageSheet(env, { ...week, source: download("porad.pdf", "%PDF first"), record: record() });
     // Only the first PDF is on the server.
@@ -185,11 +185,11 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     const fixed = { ...record(), announcements: [{ category: "info", html: "<p>Sbírka na opravy.</p>" }] };
     const lastSheet = () => JSON.parse(readFileSync(env.serviceSheetsFile, "utf8")).sheets.at(-1);
 
-    expect((await stageSheet(env, { ...week, record: fixed, check: true })).lines).toEqual([
+    expect(replaceSheetRecord(env, { ...week, record: fixed, check: true }).lines).toEqual([
       "Would replace the sheet 2099-10-04 – 2099-10-11 with rev 2 in src/content/service-sheets.json",
     ]);
     expect(lastSheet().announcements[0].html).toBe("<p>Sbírka.</p>");
-    const { lines, written } = await stageSheet(env, { ...week, record: fixed });
+    const { lines, written } = replaceSheetRecord(env, { ...week, record: fixed });
     expect(lines).toEqual(["Replaced the sheet 2099-10-04 – 2099-10-11 with rev 2 in src/content/service-sheets.json"]);
     expect(written).toEqual([env.serviceSheetsFile]);
     expect(lastSheet()).toMatchObject({ rev: 2, announcements: [{ html: "<p>Sbírka na opravy.</p>" }] });
@@ -198,16 +198,11 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     );
   });
 
-  it("refuses a run without a source that is not a record of a sheet already there", async () => {
+  it("refuses to replace the record of a sheet that is not there", () => {
     const week = { validFrom: "2099-10-04", validTo: "2099-10-11" };
-    await expect(stageSheet(env, { ...week, record: record() })).rejects.toThrow(
+    expect(() => replaceSheetRecord(env, { ...week, record: record() })).toThrow(
       "no sheet of 2099-10-04 – 2099-10-11 in service-sheets.json",
     );
-    await stageSheet(env, { ...week, source: download("porad.pdf", "%PDF"), record: record() });
-    await expect(stageSheet(env, { record: record() })).rejects.toThrow("--from and --to");
-    await expect(stageSheet(env, { ...week, check: true })).rejects.toThrow("--record");
-    await expect(stageSheet(env, { ...week, record: record(), corrected: true })).rejects.toThrow("--corrected");
-    await expect(stageSheet(env, { ...week, draft: "draft.json" })).rejects.toThrow("--draft");
   });
 
   it("stages nothing for a record it refuses, and only validates with check", async () => {
@@ -248,9 +243,9 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     );
   };
 
-  it("asks a DOCX without a record for --draft first", async () => {
+  it("asks a DOCX without a record for a draft first", async () => {
     await expect(stageSheet(env, { source: yearDocx() })).rejects.toThrow(
-      "--record is required to stage the week's page; for a DOCX, first write the draft record with --draft <file>",
+      "--record is required to stage the week's page; for a DOCX, first write the draft record with `pnpm stage sheet draft`",
     );
   });
 
@@ -261,13 +256,10 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     );
   });
 
-  it("refuses --draft with a PDF or with a record, and a DOCX week it does not have", async () => {
+  it("refuses a draft of a PDF, and a DOCX week it does not have", async () => {
     const pdf = download("porad.pdf", "%PDF");
-    const draft = join(env.home, "draft.json");
-    await expect(stageSheet(env, { source: pdf, draft })).rejects.toThrow("--draft reads the week from a DOCX");
-    await expect(stageSheet(env, { source: yearDocx(), draft, record: record() })).rejects.toThrow(
-      "--draft writes a record to check: not with --record",
-    );
+    const out = join(env.home, "draft.json");
+    await expect(draftSheet(env, { source: pdf, out })).rejects.toThrow("a draft is read from the parish's DOCX");
     await expect(
       stageSheet(env, { source: yearDocx(), validFrom: "2099-10-18", validTo: "2099-10-25", check: true }),
     ).rejects.toThrow("no week 2099-10-18 – 2099-10-25 in the DOCX; it has 2099-10-04 – 2099-10-11, 2099-09-27");
@@ -279,7 +271,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     async () => {
       const source = yearDocx();
       const draft = join(env.home, "draft.json");
-      const { lines } = await stageSheet(env, { source, draft });
+      const { lines } = await draftSheet(env, { source, out: draft });
       expect(lines.slice(0, 3)).toEqual([
         `Wrote the draft record of 2099-10-04 – 2099-10-11 to ${draft}`,
         "Days without services (tell the user): 2099-10-05, 2099-10-06, 2099-10-07, 2099-10-08, 2099-10-09, 2099-10-10",
@@ -304,10 +296,10 @@ describe("stageSheet", { timeout: 30_000 }, () => {
       expect(pages[0]).not.toContain("za rodinu");
 
       // The last week of the document: its page, without the blank one after it.
-      const older = { source, validFrom: "2099-09-27", validTo: "2099-10-04", check: true };
-      await stageSheet(env, { ...older, draft: join(env.home, "older.json") });
+      const older = { source, validFrom: "2099-09-27", validTo: "2099-10-04" };
+      await draftSheet(env, { ...older, out: join(env.home, "older.json") });
       const olderDays = emptyWeek("2099-09-27", "2099-10-04");
-      await stageSheet(env, { ...older, check: false, record: { ...record(), days: olderDays } });
+      await stageSheet(env, { ...older, record: { ...record(), days: olderDays } });
       const olderPages = pdfPageTexts(uploaded("porady_bohosluzeb", "2099-09-27-porad-bohosluzeb.pdf"));
       expect(olderPages.map((page) => page.replace(/\s+/g, " "))).toEqual([expect.stringContaining("za rodinu")]);
     },
@@ -342,7 +334,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     it("drafts the newest week and stages only its page", async () => {
       const source = yearDocx();
       const draft = join(env.home, "draft.json");
-      const { lines } = await stageSheet(env, { source, draft });
+      const { lines } = await draftSheet(env, { source, out: draft });
       expect(lines.slice(0, 6)).toEqual([
         `Wrote the draft record of 2099-10-04 – 2099-10-11 to ${draft}`,
         "Days without services (tell the user): 2099-10-05, 2099-10-06, 2099-10-07, 2099-10-08, 2099-10-09, 2099-10-10",
@@ -408,7 +400,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
         throw new Error("no Word or LibreOffice to convert the DOCX");
       });
       const draft = join(env.home, "draft.json");
-      await expect(stageSheet(env, { source: yearDocx(), draft })).rejects.toThrow("no Word or LibreOffice");
+      await expect(draftSheet(env, { source: yearDocx(), out: draft })).rejects.toThrow("no Word or LibreOffice");
       expect(JSON.parse(readFileSync(draft, "utf8")).days).toHaveLength(8);
     });
 
