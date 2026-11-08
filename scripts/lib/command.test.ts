@@ -1,7 +1,15 @@
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, type MockInstance, vi } from "vitest";
-import { actionVerb, commandExitCode, errorMessage, parseCommandLine, readJsonRecord } from "./command";
+import {
+  actionVerb,
+  commandExitCode,
+  errorMessage,
+  parseCommandLine,
+  parseRecordCommand,
+  readJsonRecord,
+  requiredEnv,
+} from "./command";
 import { freshTempDir } from "./test-helpers";
 
 describe("errorMessage", () => {
@@ -70,6 +78,35 @@ describe("parseCommandLine", () => {
   it("throws with the usage for an unknown option or a missing value", () => {
     expect(() => parseCommandLine(["--chekc"], options, "Usage: pnpm x")).toThrow(/--chekc[^]*\nUsage: pnpm x$/);
     expect(() => parseCommandLine(["--out"], options, "Usage: pnpm x")).toThrow(/\nUsage: pnpm x$/);
+  });
+});
+
+describe("parseRecordCommand", () => {
+  const usage = "Usage: pnpm x <record.json | -> [--check]";
+
+  it("reads the record file (- for stdin) and --check", () => {
+    expect(parseRecordCommand(["record.json"], usage)).toEqual({ file: "record.json", check: false });
+    expect(parseRecordCommand(["record.json", "--check"], usage)).toEqual({ file: "record.json", check: true });
+    expect(parseRecordCommand(["-", "--check"], usage)).toEqual({ file: "-", check: true });
+  });
+
+  it("refuses an unknown option, so a typo of --check never writes, no file and two files", () => {
+    expect(() => parseRecordCommand(["record.json", "--chek"], usage)).toThrow(/--chek[^]*\nUsage: pnpm x/);
+    expect(() => parseRecordCommand([], usage)).toThrow(/^Usage: pnpm x/);
+    expect(() => parseRecordCommand(["a.json", "b.json"], usage)).toThrow(/^Usage: pnpm x/);
+  });
+});
+
+describe("requiredEnv", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("gives a set variable and refuses a missing or empty one", () => {
+    vi.stubEnv("FARAKURIM_TEST", "x");
+    expect(requiredEnv("FARAKURIM_TEST")).toBe("x");
+    vi.stubEnv("FARAKURIM_TEST", "");
+    expect(() => requiredEnv("FARAKURIM_TEST")).toThrow("FARAKURIM_TEST is not set");
   });
 });
 

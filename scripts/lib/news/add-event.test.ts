@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
 import { readEvents, readMonth } from "@/content/news";
 import type { NewsEvent } from "@/content/types/news";
+import { newsEvent } from "@/test/fixtures";
 import { addEvent, insertRecord, parseCommand, targetLine } from "./add-event";
 import { formatFiles, NEWS_DIR } from "../content-files";
 import { useNewsFixture, freshTempDir } from "../test-helpers";
@@ -20,19 +21,10 @@ const FREE_2019 = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "
   (m) => !existsSync(join(NEWS_DIR, "2019", `${m}.json`)),
 );
 
-const record = (fields: Partial<NewsEvent> = {}): NewsEvent => ({
-  id: "hody-ceska-2026",
-  title: "Hody v České",
-  start: "2026-10-02",
-  place: "Česká",
-  text: "Srdečně zveme na tradiční hody.",
-  ...fields,
-});
-
 describe("insertRecord", () => {
-  const list = (...starts: string[]) => starts.map((start, i) => record({ id: `e${i}`, start }));
+  const list = (...starts: string[]) => starts.map((start, i) => newsEvent({ id: `e${i}`, start }));
   const ids = (events: NewsEvent[]) => events.map((e) => e.id);
-  const insert = (events: NewsEvent[], start: string) => insertRecord(events, record({ id: "new", start }));
+  const insert = (events: NewsEvent[], start: string) => insertRecord(events, newsEvent({ id: "new", start }));
 
   it("keeps start-date order", () => {
     expect(ids(insert(list("2026-10-05", "2026-10-20"), "2026-10-01"))).toEqual(["new", "e0", "e1"]);
@@ -69,7 +61,7 @@ describe("addEvent on a copy of news/", { timeout: 30_000 }, () => {
   });
 
   const now = new Date("2026-10-07T10:00:00Z");
-  const full = record({
+  const full = newsEvent({
     id: "hody-ceska-test-2026",
     start: "2026-10-03",
     end: "2026-10-04",
@@ -101,8 +93,8 @@ describe("addEvent on a copy of news/", { timeout: 30_000 }, () => {
 
   it("sets published to the Prague date and keeps one it is given", () => {
     // 22:30 UTC on 6 October is already 7 October in Prague.
-    addEvent(news, record({ id: "x-2026" }), { now: new Date("2026-10-06T22:30:00Z") });
-    addEvent(news, record({ id: "y-2026", published: "2026-09-21" }), { now });
+    addEvent(news, newsEvent({ id: "x-2026" }), { now: new Date("2026-10-06T22:30:00Z") });
+    addEvent(news, newsEvent({ id: "y-2026", published: "2026-09-21" }), { now });
     const list = readMonth(news, "2026/10.json");
     expect(list.find((e) => e.id === "x-2026")?.published).toBe("2026-10-07");
     expect(list.find((e) => e.id === "y-2026")?.published).toBe("2026-09-21");
@@ -115,17 +107,17 @@ describe("addEvent on a copy of news/", { timeout: 30_000 }, () => {
   });
 
   it("refuses an invalid record with every problem and a taken ID", () => {
-    expect(() => addEvent(news, { ...record(), start: "x", tittle: "y" }, { now })).toThrow(
+    expect(() => addEvent(news, { ...newsEvent(), start: "x", tittle: "y" }, { now })).toThrow(
       /Unrecognized key: "tittle"[\s\S]*→ at start/,
     );
     expect(() => addEvent(news, ["not", "a", "record"], { now })).toThrow(/not valid/);
-    expect(() => addEvent(news, record({ id: "setkani-prvokomunikantu-2026" }), { now })).toThrow(
+    expect(() => addEvent(news, newsEvent({ id: "setkani-prvokomunikantu-2026" }), { now })).toThrow(
       "id setkani-prvokomunikantu-2026 is already taken",
     );
   });
 
   it("adds a record to a migrated year", () => {
-    const result = addEvent(news, record({ id: "dodatek-2024", start: "2024-03-15" }), { now });
+    const result = addEvent(news, newsEvent({ id: "dodatek-2024", start: "2024-03-15" }), { now });
     expect(result.target).toBe("2024/03.json");
     const list = readMonth(news, "2024/03.json");
     expect(list.map((e) => e.id)).toContain("dodatek-2024");
@@ -134,14 +126,14 @@ describe("addEvent on a copy of news/", { timeout: 30_000 }, () => {
 
   it("creates the month file in an existing year", () => {
     expect(FREE_2019).toBeDefined();
-    const result = addEvent(news, record({ id: "dodatek-2019", start: `2019-${FREE_2019}-10` }), { now });
+    const result = addEvent(news, newsEvent({ id: "dodatek-2019", start: `2019-${FREE_2019}-10` }), { now });
     expect(result).toMatchObject({ target: `2019/${FREE_2019}.json`, created: true });
     expect(readMonth(news, `2019/${FREE_2019}.json`).map((e) => e.id)).toEqual(["dodatek-2019"]);
   });
 
   it("starts a new year", () => {
     const id = `trikralova-sbirka-${NEW_YEAR}`;
-    const result = addEvent(news, record({ id, start: `${NEW_YEAR}-01-02` }), { now });
+    const result = addEvent(news, newsEvent({ id, start: `${NEW_YEAR}-01-02` }), { now });
     expect(result).toMatchObject({ target: `${NEW_YEAR}/01.json`, created: true, written: [`${NEW_YEAR}/01.json`] });
     expect(readEvents(news)[0].id).toBe(id);
   });
@@ -158,8 +150,8 @@ describe("addEvent on a copy of news/", { timeout: 30_000 }, () => {
 
 describe("addEvent with pinned", () => {
   const news = useNewsFixture({
-    "2026/09.json": [record({ id: "zari-2026", start: "2026-09-12", pinned: true })],
-    "2026/10.json": [record({ id: "hody-2026", start: "2026-10-20" })],
+    "2026/09.json": [newsEvent({ id: "zari-2026", start: "2026-09-12", pinned: true })],
+    "2026/10.json": [newsEvent({ id: "hody-2026", start: "2026-10-20" })],
   });
   const now = new Date("2026-10-07T10:00:00Z");
   const pinnedIds = () =>
@@ -168,22 +160,22 @@ describe("addEvent with pinned", () => {
       .map((e) => e.id);
 
   it("moves the pin to the new record", () => {
-    const result = addEvent(news.dir(), record({ id: "novy-2026", start: "2026-11-01", pinned: true }), { now });
+    const result = addEvent(news.dir(), newsEvent({ id: "novy-2026", start: "2026-11-01", pinned: true }), { now });
     expect(result.unpinned.map((e) => e.id)).toEqual(["zari-2026"]);
     expect(result.written).toEqual(["2026/11.json", "2026/09.json"]);
     expect(pinnedIds()).toEqual(["novy-2026"]);
   });
 
   it("writes a month file once when it holds both records", () => {
-    addEvent(news.dir(), record({ id: "x-2026", start: "2026-10-10", pinned: true }), { now });
-    const result = addEvent(news.dir(), record({ id: "y-2026", start: "2026-10-12", pinned: true }), { now });
+    addEvent(news.dir(), newsEvent({ id: "x-2026", start: "2026-10-10", pinned: true }), { now });
+    const result = addEvent(news.dir(), newsEvent({ id: "y-2026", start: "2026-10-12", pinned: true }), { now });
     expect(result.unpinned.map((e) => e.id)).toEqual(["x-2026"]);
     expect(result.written).toEqual(["2026/10.json"]);
     expect(pinnedIds()).toEqual(["y-2026"]);
   });
 
   it("only reports the unpinned record with check", () => {
-    const result = addEvent(news.dir(), record({ id: "novy-2026", start: "2026-11-01", pinned: true }), {
+    const result = addEvent(news.dir(), newsEvent({ id: "novy-2026", start: "2026-11-01", pinned: true }), {
       now,
       check: true,
     });
@@ -195,14 +187,14 @@ describe("addEvent with pinned", () => {
   it("refuses to pin a record that has ended, also with check", () => {
     for (const check of [true, false]) {
       expect(() =>
-        addEvent(news.dir(), record({ id: "stare-2026", start: "2026-10-01", pinned: true }), { now, check }),
+        addEvent(news.dir(), newsEvent({ id: "stare-2026", start: "2026-10-01", pinned: true }), { now, check }),
       ).toThrow("cannot pin stare-2026: it ended on 2026-10-01");
     }
     expect(pinnedIds()).toEqual(["zari-2026"]);
   });
 
   it("leaves the pin alone without pinned, and drops pinned: false", () => {
-    const result = addEvent(news.dir(), record({ id: "novy-2026", start: "2026-10-25", pinned: false }), { now });
+    const result = addEvent(news.dir(), newsEvent({ id: "novy-2026", start: "2026-10-25", pinned: false }), { now });
     expect(result.unpinned).toEqual([]);
     expect(result.written).toEqual(["2026/10.json"]);
     expect(readMonth(news.dir(), "2026/10.json").find((e) => e.id === "novy-2026")).not.toHaveProperty("pinned");
@@ -211,18 +203,8 @@ describe("addEvent with pinned", () => {
 });
 
 describe("parseCommand", () => {
-  it("reads the record file (- for stdin) and --check", () => {
-    expect(parseCommand(["record.json"])).toEqual({ file: "record.json", check: false });
-    expect(parseCommand(["record.json", "--check"])).toEqual({ file: "record.json", check: true });
+  it("reads the record file and --check, with this command's usage", () => {
     expect(parseCommand(["-", "--check"])).toEqual({ file: "-", check: true });
-  });
-
-  it("refuses an unknown option, so a typo of --check never writes", () => {
-    expect(() => parseCommand(["record.json", "--chek"])).toThrow(/--chek[^]*\nUsage: pnpm add-event/);
-  });
-
-  it("refuses no file and two files", () => {
-    expect(() => parseCommand([])).toThrow(/^Usage: pnpm add-event/);
-    expect(() => parseCommand(["a.json", "b.json"])).toThrow(/^Usage: pnpm add-event/);
+    expect(() => parseCommand([])).toThrow(/^Usage: pnpm add-event <record.json \| -> \[--check\]$/);
   });
 });

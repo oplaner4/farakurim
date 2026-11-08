@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { parishCalendars } from "@/content/site";
 import { googlePage } from "@/test/fetch";
+import { syncGuardTests } from "../test-helpers";
 import { syncServices } from "./services-sync";
 import { accessToken, applyServicesChange } from "./write";
 
@@ -26,33 +27,7 @@ afterEach(() => {
 const freezeAt = (iso: string) => vi.useFakeTimers({ toFake: ["Date"], now: new Date(iso) });
 
 describe("syncServices", () => {
-  it("fails --apply without the service account, before reading anything", async () => {
-    vi.stubEnv("GOOGLE_CALENDAR_SERVICE_ACCOUNT", "");
-    const fetchMock = vi.fn();
-    vi.stubGlobal("fetch", fetchMock);
-    await expect(syncServices({ apply: true, problems: false })).rejects.toThrow("no GOOGLE_CALENDAR_SERVICE_ACCOUNT");
-    expect(fetchMock).not.toHaveBeenCalled();
-  });
-
-  it("previews: says the calendar was not checked without the key, and fails", async () => {
-    vi.stubEnv("NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY", "");
-    const log = vi.spyOn(console, "log").mockImplementation(() => {});
-    await expect(syncServices({ apply: false, problems: false })).rejects.toThrow(
-      "no NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY in .env.local",
-    );
-    expect(log).toHaveBeenCalledWith("Bohoslužby: not checked (no NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY in .env.local).");
-  });
-
-  it("previews: says the calendar was not checked when Google does not answer, and fails", async () => {
-    vi.stubEnv("NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY", "KEY");
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => googlePage([], 403)),
-    );
-    const log = vi.spyOn(console, "log").mockImplementation(() => {});
-    await expect(syncServices({ apply: false, problems: false })).rejects.toThrow("HTTP 403");
-    expect(log).toHaveBeenCalledWith(expect.stringMatching(/^Bohoslužby: not checked \(.*HTTP 403.*\)\.$/));
-  });
+  syncGuardTests("Bohoslužby", syncServices);
 
   it("previews the adds of an empty calendar, and writes nothing", async () => {
     freezeAt("2026-10-24T10:00:00Z");
