@@ -1,3 +1,5 @@
+import { outcomeOf } from "../content-pr/report";
+
 export type FixReport = {
   blocking: boolean;
   commit: string;
@@ -6,16 +8,6 @@ export type FixReport = {
   report: string;
   reply: string;
 };
-
-// As `OUTCOME_SED` in the pipelines: a list marker and bold around `Outcome:` are dropped.
-function outcomeOf(line: string): string | null {
-  const plain = line
-    .replace(/^\s*[-*]\s+/, "")
-    .replace(/^\*\*(Outcome:[^*]*)\*\*/, "$1")
-    .replace(/^\*\*Outcome\*\*:/, "Outcome:");
-  const match = /^Outcome:\s*(.*)$/.exec(plain);
-  return match ? match[1].trim() : null;
-}
 
 /** Reads Claude's fix report: three header lines, the report, and `## Reply` led by an `Outcome:` line. */
 export function parseFixReport(text: string): FixReport {

@@ -21,6 +21,7 @@
     "add-exception": "tsx scripts/add-exception.ts",
     "sheet-mail": "tsx scripts/sheet-mail.ts",
     "content-fix": "tsx scripts/content-fix.ts",
+    "content-pr": "tsx scripts/content-pr.ts",
     "content-release": "tsx scripts/content-release.ts",
     "event-mail": "tsx scripts/event-mail.ts",
     "calendar-sync": "tsx scripts/calendar-sync.ts",

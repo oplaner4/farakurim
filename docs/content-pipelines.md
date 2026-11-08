@@ -17,7 +17,8 @@ provider's DKIM signature.
    one DOCX is a sheet, any other mail is filed in `Odmítnuto`. Of several sheets the newest is handled;
 2. lets Claude run the service sheet skills unattended on the DOCX (workload identity federation, no API key): it
    drafts, corrects and stages the run's week, checks it against the sender's note and writes a report;
-3. commits the change to `src/content/` as the GitHub App's bot (no test or build: [`check.yml`](github-setup.md#checks-on-content-prs)
+3. checks the report against the change and applies it to a fresh checkout only if it touches nothing but
+   `src/content/*.json` (`pnpm content-pr apply`), then commits it as the GitHub App's bot (no test or build: [`check.yml`](github-setup.md#checks-on-content-prs)
    checks the PR) and opens (or adds a commit to)
    the one `service-sheet/*` pull request, its body the report (a later run gets the previous report, keeps its weeks
    and question ids, so the body and title describe every week in the PR, and turns it back into a draft on a new
@@ -135,7 +136,8 @@ signature. `.github/workflows/events.yml`
    in the report), takes each title from the subject or its poster, fills the text from the attachments, pins only
    when the mail asks for "Doporučujeme", and refuses a **correction** (oprava, změna, posun, přesun, zrušeno, nekoná,
    …: make it with `parish-correct-event` or `parish-cancel-event`) and a **duplicate** of a known event;
-4. commits the new events as the GitHub App's bot (no test or build: [`check.yml`](github-setup.md#checks-on-content-prs) checks the
+4. checks the report against the change and applies it only if it touches nothing but the news month files
+   (`pnpm content-pr apply`), then commits the new events as the GitHub App's bot (no test or build: [`check.yml`](github-setup.md#checks-on-content-prs) checks the
    PR) and opens **one PR per mail** on a branch
    `events/<date>`, its body the report (only what is published is quoted: the PR is public), locked, a draft when
    the report has a blocking question. Its body ends with the [calendar sync](calendar-sync.md) preview's lines

@@ -285,9 +285,9 @@ jobs:
 
       # The report (`pnpm content-fix report`, which fails on a report without its three header lines or its reply)
       # gives `{ blocking, commit, fix, changed }`, the PR body's report and the reply. `changed` must agree with the
-      # patch. A patch is applied only if it touches nothing but the kind's files (sheets: src/content/*.json; events:
-      # the news month files), and no id it adds may be held by an open events PR (this PR's own events are on its
-      # head already). Both messages are checked by commitlint, with a default otherwise. The PR body ends with the
+      # patch. A patch is applied (`pnpm content-pr patch`) only if it touches nothing but the kind's files (sheets:
+      # src/content/*.json; events: the news month files), and no id it adds may be held by an open events PR (this
+      # PR's own events are on its head already). Both messages are checked by commitlint, with a default otherwise. The PR body ends with the
       # Události lines that need a person for events (as events.yml builds them), and the footer.
       - name: Apply the change
         id: apply
@@ -312,17 +312,10 @@ jobs:
             exit 1
           fi
           if [ "$changed" = true ]; then
-            if [ "$KIND" = events ]; then
-              allowed='^src/content/news/[0-9]{4}/[0-9]{2}\.json$'
-            else
-              allowed='^src/content/[^/]+\.json$'
-            fi
-            bad=$(git apply --numstat "$patch" | cut -f3- | grep -vE "$allowed" || true)
-            if [ -n "$bad" ] || git apply --summary "$patch" | grep -q ' mode 120000'; then
-              echo "::error::The change touches more than the $KIND files: not applied."
+            if ! pnpm --silent content-pr patch --kind "$KIND" "$patch"; then
+              echo "::error::The change was not applied (see above)."
               exit 1
             fi
-            git apply "$patch"
             if [ "$KIND" = events ]; then pnpm --silent event-mail check-ids "$run/known.json"; fi
           fi
           fix=$(jq -r .fix <<< "$result")
