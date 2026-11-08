@@ -13,13 +13,13 @@ import { checkReport, outcomeLines, parseMailReport, REPORT_RULES } from "./repo
 
 const USAGE = `Usage: pnpm content-pr apply --kind <sheet|events> <report.md> <content.patch>
        pnpm content-pr patch --kind <sheet|events> <content.patch>
-       pnpm content-pr body --kind <sheet|events> --run-url <url> [--calendar <file>] <report.md>
+       pnpm content-pr body --kind <sheet|events> --run-url <url> [--calendar <file>] [--fix] <report.md>
        pnpm content-pr outcomes --kind <sheet|events> [--failed] <report.md>`;
 
 export type Command =
   | { action: "apply"; kind: Kind; report: string; patch: string }
   | { action: "patch"; kind: Kind; patch: string }
-  | { action: "body"; kind: Kind; report: string; runUrl: string; calendar?: string }
+  | { action: "body"; kind: Kind; report: string; runUrl: string; calendar?: string; fix: boolean }
   | { action: "outcomes"; kind: Kind; report: string; failed: boolean };
 
 export function parseCommand(args: string[]): Command {
@@ -30,6 +30,7 @@ export function parseCommand(args: string[]): Command {
       "run-url": { type: "string" },
       calendar: { type: "string" },
       failed: { type: "boolean" },
+      fix: { type: "boolean" },
     },
     USAGE,
   );
@@ -54,7 +55,8 @@ export function parseCommand(args: string[]): Command {
       takes("the report");
       const runUrl = values["run-url"];
       if (!runUrl) throw new Error(`body needs --run-url\n${USAGE}`);
-      return { action, kind: kind(), report: files[0], runUrl, ...(values.calendar && { calendar: values.calendar }) };
+      const calendar = values.calendar ? { calendar: values.calendar } : {};
+      return { action, kind: kind(), report: files[0], runUrl, ...calendar, fix: values.fix ?? false };
     }
     case "outcomes":
       takes("the report");
@@ -84,7 +86,7 @@ const defaultIo: Io = {
 
 /**
  * Runs the command. `apply` checks the report against the patch and applies it (only content files of the kind), and
- * prints `{ changed, draft, message }` as JSON; `patch` only applies; `body` prints the PR body; `outcomes` prints the
+ * prints `{ changed, draft, message }` as JSON; `patch` only applies; `body` prints the PR body (of a comment fix with `fix`); `outcomes` prints the
  * report's `- <item>: <outcome>` lines (with `--failed`, only the items not published).
  */
 export async function execute(command: Command, io: Io = defaultIo): Promise<void> {
@@ -105,9 +107,12 @@ export async function execute(command: Command, io: Io = defaultIo): Promise<voi
       applyContentPatch(io.cwd, command.kind, command.patch);
       return;
     case "body": {
-      const { body } = parseMailReport(command.kind, readFileSync(command.report, "utf8"));
+      // A comment fix's report comes from `pnpm content-fix report` without its header lines.
+      const text = readFileSync(command.report, "utf8");
+      const report = command.fix ? text : parseMailReport(command.kind, text).body;
       const calendar = command.calendar ? readOrEmpty(command.calendar) : undefined;
-      io.print(pullBody({ kind: command.kind, report: body, runUrl: command.runUrl, calendar }).trimEnd());
+      const { kind, runUrl, fix } = command;
+      io.print(pullBody({ kind, report, runUrl, calendar, fix }).trimEnd());
       return;
     }
     case "outcomes":

@@ -2,7 +2,6 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { REPORT_END } from "./body";
 import { execute, parseCommand } from "./command";
 
 const repo = "oplaner4/farakurim";
@@ -158,14 +157,14 @@ describe("check-log", () => {
 });
 
 describe("report", () => {
-  it("writes the body with the report end marker and the reply", async () => {
+  it("writes the body's report and the reply", async () => {
     const file = join(out, "claude.md");
     writeFileSync(
       file,
       "blocking: no\ncommit: fix(content): correct the time\nfix: Corrected\n\n## Hody\n\nTime.\n\n## Reply\n\nOutcome: changed\n\nOpraveno.\n",
     );
     await run(["report", file, "--out", join(out, "result")]);
-    expect(readFileSync(join(out, "result", "body.md"), "utf8")).toBe(`## Hody\n\nTime.\n\n${REPORT_END}\n`);
+    expect(readFileSync(join(out, "result", "body.md"), "utf8")).toBe("## Hody\n\nTime.\n");
     expect(readFileSync(join(out, "result", "reply.md"), "utf8")).toBe("Opraveno.\n");
     expect(JSON.parse(logs[0])).toEqual({
       blocking: false,

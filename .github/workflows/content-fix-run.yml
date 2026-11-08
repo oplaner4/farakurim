@@ -287,8 +287,8 @@ jobs:
       # gives `{ blocking, commit, fix, changed }`, the PR body's report and the reply. `changed` must agree with the
       # patch. A patch is applied (`pnpm content-pr patch`) only if it touches nothing but the kind's files (sheets:
       # src/content/*.json; events: the news month files), and no id it adds may be held by an open events PR (this
-      # PR's own events are on its head already). Both messages are checked by commitlint, with a default otherwise. The PR body ends with the
-      # Události lines that need a person for events (as events.yml builds them), and the footer.
+      # PR's own events are on its head already). Both messages are checked by commitlint, with a default otherwise. The PR body (`pnpm content-pr
+      # body`) ends with the Události lines that need a person for events, as events.yml builds them, and the footer.
       - name: Apply the change
         id: apply
         if: steps.download.outcome == 'success' && needs.fix.result == 'success'
@@ -337,34 +337,12 @@ jobs:
             echo "title=$title"
             echo "uploads=$uploads"
           } >> "$GITHUB_OUTPUT"
-          calendar=""
+          : > "$out/calendar.txt"
           if [ "$KIND" = events ]; then
-            calendar=$(pnpm --silent calendar-sync --calendar events --problems 2> /dev/null || true)
-            workflow="the events workflow (\`events.yml\`)"
-            files="staged files"
-          else
-            workflow="the service sheet workflow (\`service-sheet.yml\`)"
-            files="staged PDFs"
+            pnpm --silent calendar-sync --calendar events --problems > "$out/calendar.txt" 2> /dev/null || true
           fi
-          {
-            cat "$out/body.md"
-            echo
-            if [ -n "$calendar" ]; then
-              echo "## Události"
-              echo
-              echo "Needs a person in Události before the merge (an \`ask:\` event stays out of the calendar until then):"
-              echo
-              echo '```text'
-              echo "$calendar"
-              echo '```'
-              echo
-            fi
-            echo "---"
-            echo
-            echo "Opened by $workflow. Squash merge to publish: the merge releases the site."
-            echo "Comment \`@claude …\` in this conversation to correct it (\`content-fix-run.yml\`)."
-            echo "The $files are in the artifact \`content-uploads-<sha>\` of each commit; last correction: $RUN_URL"
-          } > "$out/pr-body.md"
+          pnpm --silent content-pr body --kind "$KIND" --fix --run-url "$RUN_URL" --calendar "$out/calendar.txt" \
+            "$out/body.md" > "$out/pr-body.md"
 
       # Also for the reply when anything before failed.
       - name: Create the App token

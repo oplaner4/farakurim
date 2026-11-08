@@ -291,88 +291,22 @@ jobs:
           } >> "$GITHUB_OUTPUT"
           pnpm --silent content-pr body --kind sheet --run-url "$RUN_URL" "$run/report.md" > "$run/pr-body.md"
 
-      - name: Create the App token
-        id: app
+      # Commits, uploads the staged files, pushes and opens or updates the PR (.github/actions/content-pr).
+      - name: Open or update the PR
+        id: pr
         if: steps.changes.outputs.changed == 'true'
-        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        uses: ./.github/actions/content-pr
         with:
           client-id: ${{ vars.CONTENT_APP_CLIENT_ID }}
           private-key: ${{ secrets.CONTENT_APP_PRIVATE_KEY }}
-          # Not all of the App's permissions: the push, and opening, editing and locking the PR.
-          permission-contents: write
-          permission-pull-requests: write
-
-      # src/content/ only: the staged PDF is in the staging folder, which git ignores. No hooks (the message is
-      # checked already).
-      - name: Commit
-        id: commit
-        if: steps.changes.outputs.changed == 'true'
-        env:
-          TOKEN: ${{ steps.app.outputs.token }}
-          APP_SLUG: ${{ steps.app.outputs.app-slug }}
-          MESSAGE: ${{ steps.changes.outputs.message }}
-        run: |
-          bot="${APP_SLUG}[bot]"
-          id=$(GH_TOKEN="$TOKEN" gh api "/users/$bot" --jq .id)
-          git add -- src/content
-          git -c core.hooksPath=/dev/null -c user.name="$bot" -c user.email="$id+$bot@users.noreply.github.com" \
-            commit -m "$MESSAGE"
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-
-      # Before the push, so no pushed commit lacks its staged files: a failed upload pushes nothing.
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        if: steps.commit.outcome == 'success'
-        with:
-          name: content-uploads-${{ steps.commit.outputs.sha }}
-          path: ${{ runner.temp }}/run/uploads/
-          if-no-files-found: warn
-          retention-days: 30
-
-      # Never a force-push: a branch moved since `sheet` rejects the push and the sheet is retried.
-      - name: Push
-        id: push
-        if: steps.commit.outcome == 'success'
-        env:
-          TOKEN: ${{ steps.app.outputs.token }}
-          BRANCH: ${{ needs.sheet.outputs.branch }}
-        run: git push "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/$BRANCH"
-
-      # The conversation is locked (the repo is public): only collaborators with write access can comment. An update
-      # also refreshes the title, and a report that is not exactly `blocking: no` turns the PR back into a draft, so a
-      # new blocking question cannot be merged; otherwise the draft state stays (the maintainer marks it ready).
-      - name: Open or update the PR
-        id: pr
-        if: steps.push.outcome == 'success'
-        env:
-          GH_TOKEN: ${{ steps.app.outputs.token }}
-          PR: ${{ needs.sheet.outputs.pr }}
-          BRANCH: ${{ needs.sheet.outputs.branch }}
-          MESSAGE: ${{ steps.changes.outputs.message }}
-          DRAFT: ${{ steps.changes.outputs.draft }}
-          REVIEWERS: ${{ vars.CONTENT_REVIEWERS }}
-        run: |
-          body="$RUNNER_TEMP/run/pr-body.md"
-          if [ -n "$PR" ]; then
-            gh pr edit "$PR" --title "$MESSAGE" --body-file "$body"
-            if [ "$DRAFT" != false ] && [ "$(gh pr view "$PR" --json isDraft --jq .isDraft)" != true ]; then
-              gh pr ready --undo "$PR"
-            fi
-            url=$(gh pr view "$PR" --json url --jq .url)
-            echo "action=updated" >> "$GITHUB_OUTPUT"
-          else
-            draft=()
-            if [ "$DRAFT" != false ]; then draft=(--draft); fi
-            url=$(gh pr create --base main --head "$BRANCH" --title "$MESSAGE" --body-file "$body" "${draft[@]}")
-            echo "action=opened" >> "$GITHUB_OUTPUT"
-            # Only a new PR asks for a review (CONTENT_REVIEWERS, logins separated by commas): GitHub e-mails the reviewers.
-            for login in ${REVIEWERS//,/ }; do
-              gh api -X POST "repos/$GITHUB_REPOSITORY/pulls/${url##*/}/requested_reviewers" -f "reviewers[]=$login" > /dev/null \
-                || echo "::warning::Could not request a review from $login."
-            done
-          fi
-          issue="repos/$GITHUB_REPOSITORY/issues/${url##*/}"
-          if [ "$(gh api "$issue" --jq .locked)" != true ]; then gh api -X PUT "$issue/lock" -f lock_reason=resolved; fi
-          echo "url=$url" >> "$GITHUB_OUTPUT"
+          paths: src/content
+          message: ${{ steps.changes.outputs.message }}
+          uploads: ${{ runner.temp }}/run/uploads/
+          branch: ${{ needs.sheet.outputs.branch }}
+          pr: ${{ needs.sheet.outputs.pr }}
+          draft: ${{ steps.changes.outputs.draft }}
+          body-file: ${{ runner.temp }}/run/pr-body.md
+          reviewers: ${{ vars.CONTENT_REVIEWERS }}
 
       # Dates, kinds, weeks and the script's messages only, never the e-mail's text. Fails the job when something
       # needs the maintainer without a PR: a refused week, a document error, a parish message without one DOCX, a

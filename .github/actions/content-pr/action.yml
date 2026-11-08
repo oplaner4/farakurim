@@ -1,0 +1,141 @@
+# Commits a mail workflow's change to the content as the GitHub App's bot and opens (or updates) its PR: the App token,
+# the commit, the staged files as the artifact `content-uploads-<sha>`, the push and the PR. Used by service-sheet.yml
+# and events.yml after `pnpm content-pr apply` applied the change; any failed step fails the action, so the workflow
+# leaves its mail unread for the next run.
+#
+# - The commit holds only `paths` (the staged files are in the staging folder, which git ignores), without hooks (the
+#   message is checked already).
+# - The artifact is uploaded before the push, so no pushed commit lacks its staged files: a failed upload pushes
+#   nothing.
+# - Never a force-push: a branch moved since the workflow read it rejects the push, and the mail is retried.
+# - With `pr`, the PR is updated: its title and body, and a draft again when `draft` is true, so a new blocking question
+#   cannot be merged (otherwise the draft state stays: the maintainer marks it ready). Without it, a new PR is opened
+#   (a draft when `draft` is true) and asks the `reviewers` for a review (GitHub e-mails them).
+# - The conversation is locked (the repo is public): only collaborators with write access can comment. A failed lock
+#   only warns, as the PR exists and a retry would find nothing to do.
+
+name: Content PR
+description: Commit a content change as the App's bot, upload its staged files, push and open or update the PR.
+
+inputs:
+  client-id:
+    description: The GitHub App's Client ID (CONTENT_APP_CLIENT_ID)
+    required: true
+  private-key:
+    description: The GitHub App's private key (CONTENT_APP_PRIVATE_KEY)
+    required: true
+  paths:
+    description: What the commit holds (`git add` paths, separated by spaces)
+    required: true
+  message:
+    description: The commit message, also the PR title
+    required: true
+  uploads:
+    description: The folder of the staged files to upload as `content-uploads-<sha>`
+    required: true
+  branch:
+    description: The branch to push
+    required: true
+  pr:
+    description: The open PR to update; empty opens a new one
+    default: ""
+  draft:
+    description: "`false` for a ready PR; anything else makes (or turns back into) a draft"
+    default: "true"
+  body-file:
+    description: The PR body
+    required: true
+  reviewers:
+    description: The logins asked for a review of a new PR, separated by commas
+    default: ""
+
+outputs:
+  sha:
+    description: The pushed commit
+    value: ${{ steps.commit.outputs.sha }}
+  url:
+    description: The PR's URL
+    value: ${{ steps.pr.outputs.url }}
+  action:
+    description: "`opened` or `updated`"
+    value: ${{ steps.pr.outputs.action }}
+
+runs:
+  using: composite
+  steps:
+    - name: Create the App token
+      id: app
+      uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+      with:
+        client-id: ${{ inputs.client-id }}
+        private-key: ${{ inputs.private-key }}
+        # Not all of the App's permissions: the push, and opening, editing and locking the PR.
+        permission-contents: write
+        permission-pull-requests: write
+
+    - name: Commit
+      id: commit
+      shell: bash
+      env:
+        TOKEN: ${{ steps.app.outputs.token }}
+        APP_SLUG: ${{ steps.app.outputs.app-slug }}
+        PATHS: ${{ inputs.paths }}
+        MESSAGE: ${{ inputs.message }}
+      run: |
+        bot="${APP_SLUG}[bot]"
+        id=$(GH_TOKEN="$TOKEN" gh api "/users/$bot" --jq .id)
+        read -ra paths <<< "$PATHS"
+        git add -- "${paths[@]}"
+        git -c core.hooksPath=/dev/null -c user.name="$bot" -c user.email="$id+$bot@users.noreply.github.com" \
+          commit -m "$MESSAGE"
+        echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+      with:
+        name: content-uploads-${{ steps.commit.outputs.sha }}
+        path: ${{ inputs.uploads }}
+        if-no-files-found: warn
+        retention-days: 30
+
+    - name: Push
+      shell: bash
+      env:
+        TOKEN: ${{ steps.app.outputs.token }}
+        BRANCH: ${{ inputs.branch }}
+      run: git push "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/$BRANCH"
+
+    - name: Open or update the PR
+      id: pr
+      shell: bash
+      env:
+        GH_TOKEN: ${{ steps.app.outputs.token }}
+        PR: ${{ inputs.pr }}
+        BRANCH: ${{ inputs.branch }}
+        MESSAGE: ${{ inputs.message }}
+        DRAFT: ${{ inputs.draft }}
+        BODY: ${{ inputs.body-file }}
+        REVIEWERS: ${{ inputs.reviewers }}
+      run: |
+        if [ -n "$PR" ]; then
+          gh pr edit "$PR" --title "$MESSAGE" --body-file "$BODY"
+          if [ "$DRAFT" != false ] && [ "$(gh pr view "$PR" --json isDraft --jq .isDraft)" != true ]; then
+            gh pr ready --undo "$PR"
+          fi
+          url=$(gh pr view "$PR" --json url --jq .url)
+          echo "action=updated" >> "$GITHUB_OUTPUT"
+        else
+          draft=()
+          if [ "$DRAFT" != false ]; then draft=(--draft); fi
+          url=$(gh pr create --base main --head "$BRANCH" --title "$MESSAGE" --body-file "$BODY" "${draft[@]}")
+          echo "action=opened" >> "$GITHUB_OUTPUT"
+          for login in ${REVIEWERS//,/ }; do
+            gh api -X POST "repos/$GITHUB_REPOSITORY/pulls/${url##*/}/requested_reviewers" -f "reviewers[]=$login" \
+              > /dev/null || echo "::warning::Could not request a review from $login."
+          done
+        fi
+        echo "url=$url" >> "$GITHUB_OUTPUT"
+        issue="repos/$GITHUB_REPOSITORY/issues/${url##*/}"
+        if [ "$(gh api "$issue" --jq .locked)" != true ]; then
+          gh api -X PUT "$issue/lock" -f lock_reason=resolved > /dev/null \
+            || echo "::warning::The PR is not locked: lock its conversation by hand."
+        fi

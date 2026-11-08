@@ -11,7 +11,7 @@
 // `content-release apply` does, in the order of `--order <file>` (the saved output of `artifacts`), so the newest file
 // of a path wins; it reads no API. `check-log` writes the failed steps of the commit's `check` run to a file and prints
 // `failed`, or prints `ok` and writes nothing. `report` reads Claude's report and writes `<dir>/body.md` (the PR body's
-// report, ended by the report end marker) and `<dir>/reply.md` (the reply to the comment), and prints
+// report, for `pnpm content-pr body --fix`) and `<dir>/reply.md` (the reply to the comment), and prints
 // `{ blocking, commit, fix, changed }`.
 //
 // Usage: pnpm content-fix next --pr <n> --out <dir>

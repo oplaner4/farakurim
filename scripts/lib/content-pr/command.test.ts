@@ -23,6 +23,7 @@ describe("parseCommand", () => {
       report: "r.md",
       runUrl: "u",
       calendar: "cal.txt",
+      fix: false,
     });
     expect(parseCommand(["outcomes", "--kind", "sheet", "--failed", "r.md"])).toEqual({
       action: "outcomes",
@@ -110,8 +111,12 @@ describe("execute", () => {
 
   it("prints the body without the header lines, and the outcomes, nothing for a missing report", async () => {
     const r = report("r.md", "blocking: no\ncommit: x\n\n## A\nOutcome: document error: a date\n");
-    const { out } = await run({ action: "body", kind: "sheet", report: r, runUrl: "u" });
+    const { out } = await run({ action: "body", kind: "sheet", report: r, runUrl: "u", fix: false });
     expect(out[0]).toMatch(/^## A\nOutcome: document error: a date\n\n<!-- report-end -->/);
+    const fixBody = report("body.md", "## A\n\nOutcome: corrected\n");
+    const fixed = (await run({ action: "body", kind: "sheet", report: fixBody, runUrl: "u", fix: true })).out[0];
+    expect(fixed).toMatch(/^## A\n\nOutcome: corrected\n\n<!-- report-end -->/);
+    expect(fixed).toMatch(/; last correction: u$/);
     expect((await run({ action: "outcomes", kind: "sheet", report: r, failed: true })).out).toEqual([
       "- A: document error: a date",
     ]);

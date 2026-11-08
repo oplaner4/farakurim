@@ -1,8 +1,11 @@
-# Opens a pull request when a pinned GitHub Action (.github/workflows/) has a new release.
+# Opens a pull request when a pinned GitHub Action (.github/workflows/ and the local actions in .github/actions/) has a
+# new release.
 version: 2
 updates:
   - package-ecosystem: github-actions
-    directory: /
+    directories:
+      - /
+      - /.github/actions/*
     schedule:
       interval: monthly
     # A release must be a week old before it is proposed, so a compromised one has time to be pulled.

@@ -8,7 +8,7 @@ import { applyArtifacts } from "../content-release/apply";
 import { artifactsOfPull, KINDS, type ContentPull, type Kind } from "../content-release/plan";
 import { gitHubReader } from "../content-release/sources";
 import { UPLOADS_DIR } from "../uploads";
-import { fixInput, REPORT_END } from "./body";
+import { fixInput } from "./body";
 import { MARKER_START, unansweredRequests } from "./comments";
 import { fixReader } from "./github";
 import { parseFixReport } from "./report";
@@ -182,7 +182,7 @@ export async function execute(command: Command, fetchImpl: typeof fetch = fetch,
     }
     case "report": {
       const { blocking, commit, fix, changed, report, reply } = parseFixReport(readFileSync(command.file, "utf8"));
-      writeFileIn(join(command.out, "body.md"), `${report}\n\n${REPORT_END}\n`);
+      writeFileIn(join(command.out, "body.md"), `${report}\n`);
       // A line with a marker would mark another comment answered: the workflow appends the one real marker.
       const own = reply
         .split("\n")

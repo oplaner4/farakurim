@@ -17,9 +17,11 @@ export type BodyOptions = {
   runUrl: string;
   /** What `pnpm calendar-sync --calendar events --problems` printed: the events that need a person in Události. */
   calendar?: string;
+  /** A comment fix's body: the footer names the run as the last correction. */
+  fix?: boolean;
 };
 
-export function pullBody({ kind, report, runUrl, calendar }: BodyOptions): string {
+export function pullBody({ kind, report, runUrl, calendar, fix = false }: BodyOptions): string {
   const { workflow, files } = FOOTER[kind];
   const events = calendar?.trim()
     ? [
@@ -43,7 +45,7 @@ export function pullBody({ kind, report, runUrl, calendar }: BodyOptions): strin
     "",
     `Opened by ${workflow}. Squash merge to publish: the merge releases the site.`,
     "Comment `@claude …` in this conversation to correct it (`content-fix-run.yml`).",
-    `The ${files} are in the artifact \`content-uploads-<sha>\` of each commit; this run: ${runUrl}`,
+    `The ${files} are in the artifact \`content-uploads-<sha>\` of each commit; ${fix ? "last correction" : "this run"}: ${runUrl}`,
     "",
   ].join("\n");
 }
