@@ -15,7 +15,8 @@ import { inPrague, pragueDate } from "@/lib/shared/prague";
 import { slug } from "@/lib/shared/slug";
 import { parseCommandLine, readJsonRecord, requiredEnv } from "../command";
 import { NEWS_DIR } from "../content-files";
-import { fileMessages, imapEnv, imapMailbox, uidList, type Mailbox } from "../mail/imap";
+import { MAILBOX_OPTIONS, mailboxCommand, runMailboxCommand, type MailboxCommand } from "../mail/command";
+import type { Mailbox } from "../mail/imap";
 import { EVENT_SENDERS, judgeSender, type SenderVerdict } from "../mail/senders";
 import { mailStamp as stamp } from "../mail/stamp";
 import { mailText } from "../mail/text";
@@ -124,34 +125,26 @@ export async function fetchEventMail(
 }
 
 export type EventMailCommand =
-  | { action: "fetch"; out: string }
-  | { action: "file"; processed: number[]; rejected: number[] }
-  | { action: "known"; out: string }
-  | { action: "check-ids"; known: string };
+  MailboxCommand | { action: "known"; out: string } | { action: "check-ids"; known: string };
 
 const USAGE = `Usage: pnpm event-mail fetch --out <dir> | file --processed <uid,…> --rejected <uid,…>
        pnpm event-mail known --out <known.json> | check-ids <known.json>`;
 
 export function parseCommand(args: string[]): EventMailCommand {
-  const { values, positionals } = parseCommandLine(
-    args,
-    { out: { type: "string" }, processed: { type: "string" }, rejected: { type: "string" } },
-    USAGE,
-  );
+  const { values, positionals } = parseCommandLine(args, MAILBOX_OPTIONS, USAGE);
   const [action, ...rest] = positionals;
   if (action === "check-ids") {
     if (rest.length !== 1) throw new Error(`check-ids <known.json> takes one file\n${USAGE}`);
     return { action, known: rest[0] };
   }
   if (rest.length) throw new Error(`unexpected argument ${rest[0]}\n${USAGE}`);
-  if (action === "fetch" || action === "known") {
-    if (!values.out) throw new Error(`${action} needs --out\n${USAGE}`);
+  if (action === "known") {
+    if (!values.out) throw new Error(`known needs --out\n${USAGE}`);
     return { action, out: values.out };
   }
-  if (action === "file") {
-    return { action, processed: uidList(values.processed, USAGE), rejected: uidList(values.rejected, USAGE) };
-  }
-  throw new Error(USAGE);
+  const command = mailboxCommand(action, values, USAGE);
+  if (!command) throw new Error(USAGE);
+  return command;
 }
 
 /** Writes the known events (loadKnownEvents()) or refuses an added id an open events PR holds. */
@@ -174,15 +167,5 @@ async function runKnownEvents(command: Extract<EventMailCommand, { action: "know
 /** Runs `fetch` (the outcome as one JSON document on stdout), `file`, `known` or `check-ids`. */
 export async function execute(command: EventMailCommand): Promise<void> {
   if (command.action === "known" || command.action === "check-ids") return runKnownEvents(command);
-  const mailbox = await imapMailbox(imapEnv());
-  try {
-    if (command.action === "fetch") {
-      console.log(JSON.stringify(await fetchEventMail(mailbox, command.out)));
-    } else {
-      await fileMessages(mailbox, command);
-      console.error(`Filed ${command.processed.length} processed and ${command.rejected.length} rejected message(s)`);
-    }
-  } finally {
-    await mailbox.close();
-  }
+  return runMailboxCommand(command, (mailbox, out) => fetchEventMail(mailbox, out));
 }

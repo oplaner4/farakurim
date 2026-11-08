@@ -11,7 +11,7 @@ import { newsEventSchema } from "@/lib/news/schema";
 import { parseOrThrow } from "@/lib/shared/json-file";
 import { pragueDate } from "@/lib/shared/prague";
 import { insertRecord } from "./add-event";
-import { actionVerb, parseCommandLine, readJsonRecord } from "../command";
+import { actionVerb, parseRecordCommand, readJsonRecord } from "../command";
 import { formatAndTestNews, NEWS_DIR, writeMonth } from "../content-files";
 import { assertPinnable, withoutPin } from "./pin-event";
 
@@ -124,15 +124,8 @@ export function replaceLines(
 
 const USAGE = "Usage: pnpm replace-event <record.json | -> [--check]";
 
-/**
- * Reads the command line `args`: the record file (`-` for stdin) and --check. An unknown option throws with the usage,
- * so a typo of --check never writes.
- */
-export function parseCommand(args: string[]): { file: string; check: boolean } {
-  const { positionals, values } = parseCommandLine(args, { check: { type: "boolean" } }, USAGE);
-  if (positionals.length !== 1) throw new Error(USAGE);
-  return { file: positionals[0], check: values.check ?? false };
-}
+/** Reads the command line `args`: the record file (`-` for stdin) and --check. */
+export const parseCommand = (args: string[]) => parseRecordCommand(args, USAGE);
 
 /** Replaces the record in `file` and prints what changed; then formats and tests the news files. */
 export async function execute({ file, check }: { file: string; check: boolean }) {

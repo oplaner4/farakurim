@@ -10,7 +10,8 @@ import { join } from "node:path";
 import type { DNSResolver } from "mailauth";
 import { period } from "@/lib/services/service-sheet";
 import { parseCommandLine } from "../command";
-import { fileMessages, imapEnv, imapMailbox, uidList, type Mailbox } from "../mail/imap";
+import { MAILBOX_OPTIONS, mailboxCommand, runMailboxCommand, type MailboxCommand } from "../mail/command";
+import type { Mailbox } from "../mail/imap";
 import { mailStamp as stamp } from "../mail/stamp";
 import { judgeMessage, pickNewest, type Verdict } from "./mailbox";
 import { docxWeeks } from "./sheet-docx";
@@ -157,41 +158,19 @@ export async function fetchSheet(
   return outcome;
 }
 
-export type SheetMailCommand =
-  { action: "fetch"; out: string } | { action: "file"; processed: number[]; rejected: number[] };
+export type SheetMailCommand = MailboxCommand;
 
 const USAGE = "Usage: pnpm sheet-mail fetch --out <dir> | file --processed <uid,…> --rejected <uid,…>";
 
 export function parseCommand(args: string[]): SheetMailCommand {
-  const { values, positionals } = parseCommandLine(
-    args,
-    { out: { type: "string" }, processed: { type: "string" }, rejected: { type: "string" } },
-    USAGE,
-  );
+  const { values, positionals } = parseCommandLine(args, MAILBOX_OPTIONS, USAGE);
   const [action, ...rest] = positionals;
   if (rest.length) throw new Error(`unexpected argument ${rest[0]}\n${USAGE}`);
-  if (action === "fetch") {
-    if (!values.out) throw new Error(`fetch needs --out\n${USAGE}`);
-    return { action, out: values.out };
-  }
-  if (action === "file") {
-    return { action, processed: uidList(values.processed, USAGE), rejected: uidList(values.rejected, USAGE) };
-  }
-  throw new Error(USAGE);
+  const command = mailboxCommand(action, values, USAGE);
+  if (!command) throw new Error(USAGE);
+  return command;
 }
 
 /** Runs `fetch` (the outcome as one JSON document on stdout) or `file`. */
-export async function execute(command: SheetMailCommand): Promise<void> {
-  const mailbox = await imapMailbox(imapEnv());
-  try {
-    if (command.action === "fetch") {
-      const outcome = await fetchSheet(mailbox, command.out);
-      console.log(JSON.stringify(outcome));
-    } else {
-      await fileMessages(mailbox, command);
-      console.error(`Filed ${command.processed.length} processed and ${command.rejected.length} rejected message(s)`);
-    }
-  } finally {
-    await mailbox.close();
-  }
-}
+export const execute = (command: SheetMailCommand): Promise<void> =>
+  runMailboxCommand(command, (mailbox, out) => fetchSheet(mailbox, out));

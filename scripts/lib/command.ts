@@ -24,6 +24,16 @@ export function parseCommandLine<const T extends ParseArgsOptionsConfig>(args: s
   }
 }
 
+/**
+ * The command line of a script that takes one record file (`-` for stdin) and --check. An unknown option throws with
+ * `usage`, so a typo of --check never writes.
+ */
+export function parseRecordCommand(args: string[], usage: string): { file: string; check: boolean } {
+  const { positionals, values } = parseCommandLine(args, { check: { type: "boolean" } }, usage);
+  if (positionals.length !== 1) throw new Error(usage);
+  return { file: positionals[0], check: values.check ?? false };
+}
+
 /** The environment variable `name`; throws when it is not set or empty. */
 export function requiredEnv(name: string): string {
   const value = process.env[name];
