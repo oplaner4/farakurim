@@ -367,6 +367,18 @@ describe("stageSheet", { timeout: 30_000 }, () => {
       expect(readFileSync(uploaded("porady_bohosluzeb", "2099-09-27-porad-bohosluzeb.pdf"), "utf8")).toBe("pages 2–2");
     });
 
+    it("names the DOCX's newest week when --from and --to name an older one, and only then", async () => {
+      const source = yearDocx();
+      const older = { source, validFrom: "2099-09-27", validTo: "2099-10-04", check: true };
+      expect((await stageSheet(env, older)).lines[0]).toBe(
+        "Not the DOCX's newest week: its newest, 2099-10-04 – 2099-10-11, is not staged by this run (tell the user)",
+      );
+      const newest = { source, validFrom: "2099-10-04", validTo: "2099-10-11", check: true };
+      expect((await stageSheet(env, newest)).lines[0]).toBe(
+        "Would stage uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf",
+      );
+    });
+
     it("writes the draft before converting, so it can be checked without a converter", async () => {
       vi.mocked(docxToPdf).mockImplementation(() => {
         throw new Error("no Word or LibreOffice to convert the DOCX");

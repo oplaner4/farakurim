@@ -3,8 +3,9 @@
 // (addServiceSheet()); without a record it only checks and prints the week. The week is checked against the sheets
 // first, with or without a record: one before the current sheet or overlapping another is refused, and one already
 // there is named. The sheet stores the rev, so a rerun keeps it and a corrected PDF gets the next one. The source can
-// also be the parish's DOCX of the whole year: then the week is its newest one (or the one --from names), its PDF that
-// week's page of the converted document, and its draft record is read from the week's table and announcements.
+// also be the parish's DOCX of the whole year: then the week is its newest one (or the one --from names, and the DOCX's
+// newer week is named), its PDF that week's page of the converted document, and its draft record is read from the
+// week's table and announcements.
 // Without a record it also lists the events an announcement can link, so the newsIds need no search of the news.
 // Without a source, the record replaces the one of the sheet --from and --to name, which keeps its PDF and rev.
 
@@ -71,18 +72,22 @@ function pdfWeek(src: string, options: SheetOptions): Week {
   return checkLength(week);
 }
 
-/** The week of the DOCX `src`: the one --from and --to name, else the newest. */
-async function docxWeek(src: string, options: SheetOptions): Promise<DocxWeek> {
+/**
+ * The week of the DOCX `src`: the one --from and --to name, else the newest; with `newer`, the DOCX's newest week when
+ * the named one is not it.
+ */
+async function docxWeek(src: string, options: SheetOptions): Promise<{ week: DocxWeek; newer?: Week }> {
   const weeks = await docxWeeks(src);
   if (weeks.length === 0) throw new Error("no 'ROZPIS BOHOSLUŽEB … od … do …' heading in the DOCX");
-  if (!options.validFrom) return newestWeek(weeks)!;
+  const newest = newestWeek(weeks)!;
+  if (!options.validFrom) return { week: newest };
   const week = weeks.find((w) => w.validFrom === options.validFrom && w.validTo === options.validTo);
   if (!week) {
     const listed = weeks.slice(0, 5).map(period).join(", ");
     throw new Error(`no week ${options.validFrom} – ${options.validTo} in the DOCX; it has ${listed}, …`);
   }
   checkLength(week);
-  return week;
+  return { week, ...(period(newest) !== period(week) && { newer: newest }) };
 }
 
 /**
@@ -139,9 +144,11 @@ async function sourceWeek(
     if (options.draft !== undefined) throw new Error("--draft reads the week from a DOCX");
     return { pdf: src, week: pdfWeek(src, options), lines: [] };
   }
-  const docxSheet = await docxWeek(src, options);
+  const { week: docxSheet, newer } = await docxWeek(src, options);
   const week = { validFrom: docxSheet.validFrom, validTo: docxSheet.validTo };
-  const lines: string[] = [];
+  const lines = newer
+    ? [`Not the DOCX's newest week: its newest, ${period(newer)}, is not staged by this run (tell the user)`]
+    : [];
   // Written before the conversion, so the draft is there to check even without a converter.
   if (options.draft !== undefined) {
     const draft = docxSheet.draft();

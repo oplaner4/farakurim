@@ -110,8 +110,6 @@ jobs:
             "sheet=\(.sheetUid // "")",
             "week_from=\(.week.validFrom // "" | select(test("^([0-9]{4}-[0-9]{2}-[0-9]{2})?$")))",
             "week_to=\(.week.validTo // "" | select(test("^([0-9]{4}-[0-9]{2}-[0-9]{2})?$")))",
-            "newest_from=\(.newest.validFrom // "" | select(test("^([0-9]{4}-[0-9]{2}-[0-9]{2})?$")))",
-            "newest_to=\(.newest.validTo // "" | select(test("^([0-9]{4}-[0-9]{2}-[0-9]{2})?$")))",
             "skipped=\(if .newest then "\(.newest.validFrom) – \(.newest.validTo)" else "" end)",
             "note=\(if .note then "true" else "" end)",
             "superseded=\(.superseded | map(tostring) | join(","))",
@@ -197,7 +195,6 @@ jobs:
           prompt: |
             The parish sent its service sheet DOCX: ${{ runner.temp }}/sheet/mail/porad.docx.
             ${{ steps.fetch.outputs.week_from != '' && format('The week to handle: {0} to {1} (`--from {0} --to {1}`).', steps.fetch.outputs.week_from, steps.fetch.outputs.week_to) || 'The week to handle: the DOCX''s newest.' }}
-            ${{ steps.fetch.outputs.newest_from != '' && format('The DOCX''s newest week, {0} to {1}, is not handled in this run.', steps.fetch.outputs.newest_from, steps.fetch.outputs.newest_to) || '' }}
             ${{ steps.fetch.outputs.note == 'true' && format('The sender''s note: {0}/sheet/mail/note.txt.', runner.temp) || 'The sender wrote no note.' }}
             Run the service sheet skills unattended (their "Unattended run" section). The report file is
             ${{ runner.temp }}/sheet/report.md and the scratchpad is ${{ runner.temp }}/sheet.
