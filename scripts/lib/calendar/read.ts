@@ -2,7 +2,7 @@ import { SITE_URL } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import type { IsoDate } from "@/content/types/shared";
 import type { DateRange } from "@/lib/calendar/agenda";
-import { eventsUrl, parseEventsPage, refererInit, type GoogleEvent } from "@/lib/calendar/google-calendar";
+import { fetchGoogleCalendar, refererInit, type GoogleEvent } from "@/lib/calendar/google-calendar";
 import { desiredEvents } from "./desired";
 
 // Reads a parish calendar as the sync sees it (the Události one with its repeating
@@ -22,25 +22,23 @@ export function snapshotRange(events: NewsEvent[], today: IsoDate): DateRange {
   return { from: `${year}-01-01`, to: `${last}-12-31` };
 }
 
-async function readAll(
+/** Every event of the calendar in `range`, read with the API key (sent with the site's referrer) or the token. */
+function readAll(
   access: CalendarAccess,
   calendarId: string,
   range: DateRange,
   options: { singleEvents?: boolean; showDeleted?: boolean },
 ): Promise<GoogleEvent[]> {
-  const apiKey = "apiKey" in access ? access.apiKey : undefined;
-  const init: RequestInit =
-    "token" in access ? { headers: { Authorization: `Bearer ${access.token}` } } : refererInit(SITE_URL);
-  const events: GoogleEvent[] = [];
-  let pageToken: string | undefined;
-  do {
-    const response = await fetch(eventsUrl(calendarId, apiKey, range, pageToken, options), init);
-    if (!response.ok) throw new Error(`Google Calendar ${calendarId}: HTTP ${response.status}`);
-    const page = parseEventsPage(await response.json());
-    events.push(...page.events);
-    pageToken = page.nextPageToken;
-  } while (pageToken);
-  return events;
+  if ("token" in access) {
+    return fetchGoogleCalendar(
+      calendarId,
+      undefined,
+      range,
+      { headers: { Authorization: `Bearer ${access.token}` } },
+      options,
+    );
+  }
+  return fetchGoogleCalendar(calendarId, access.apiKey, range, refererInit(SITE_URL), options);
 }
 
 /** The events of calendar `calendarId` in `range`, expanded, with the deleted ones. */

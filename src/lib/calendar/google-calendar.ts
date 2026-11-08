@@ -171,17 +171,21 @@ export function toEntries(events: GoogleEvent[], calendar: CalendarId, linkableP
   });
 }
 
-/** All events of one calendar in `range`, following the result pages. Throws when the API fails. */
+/**
+ * All events of one calendar in `range`, following the result pages; `options` as eventsUrl() takes them, and without
+ * `apiKey` `init` carries the token. Throws when the API fails.
+ */
 export async function fetchGoogleCalendar(
   calendarId: string,
-  apiKey: string,
+  apiKey: string | undefined,
   range: DateRange,
   init?: RequestInit,
+  options?: { singleEvents?: boolean; showDeleted?: boolean },
 ): Promise<GoogleEvent[]> {
   const events: GoogleEvent[] = [];
   let pageToken: string | undefined;
   do {
-    const response = await fetch(eventsUrl(calendarId, apiKey, range, pageToken), init);
+    const response = await fetch(eventsUrl(calendarId, apiKey, range, pageToken, options), init);
     if (!response.ok) throw new Error(`Google Calendar ${calendarId}: HTTP ${response.status}`);
     const page = parseEventsPage(await response.json());
     events.push(...page.events);

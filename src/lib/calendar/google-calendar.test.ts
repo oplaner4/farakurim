@@ -294,4 +294,21 @@ describe("fetchGoogleCalendar", () => {
     stubFetch({ body: { items: "nothing" } });
     await expect(fetchGoogleCalendar("cal", "KEY", range)).rejects.toThrow();
   });
+
+  it("passes the options and init to every page, without a key when there is none", async () => {
+    stubFetch({ body: { items: [], nextPageToken: "p2" } }, { body: { items: [] } });
+    const init = { headers: { Authorization: "Bearer T" } };
+    await fetchGoogleCalendar("cal", undefined, range, init, { singleEvents: false, showDeleted: true });
+    const calls = vi.mocked(fetch).mock.calls as unknown as [string, RequestInit][];
+    expect(calls).toHaveLength(2);
+    for (const [url, sent] of calls) {
+      const params = new URL(url).searchParams;
+      expect([params.get("key"), params.get("singleEvents"), params.get("showDeleted")]).toEqual([
+        null,
+        "false",
+        "true",
+      ]);
+      expect(sent).toBe(init);
+    }
+  });
 });
