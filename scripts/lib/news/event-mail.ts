@@ -17,6 +17,7 @@ import { parseCommandLine, readJsonRecord } from "../command";
 import { NEWS_DIR } from "../content-files";
 import { fileMessages, imapEnv, imapMailbox, uidList, type Mailbox } from "../mail/imap";
 import { EVENT_SENDERS, judgeSender, type SenderVerdict } from "../mail/senders";
+import { mailText } from "../mail/text";
 import { addedIds, knownJson, loadKnownEvents, takenIds, type KnownEvent } from "./known-events";
 
 /** The attachment types handed on, each with the extension it is written under. */
@@ -38,19 +39,6 @@ export type EventMailVerdict =
     }
   | { kind: "incomplete"; date: Date }
   | Extract<SenderVerdict, { kind: "rejected" }>;
-
-/** A line from which on a reply quotes or a mail forwards an earlier message, or the signature starts. */
-const CUT = [/^-- ?$/, /^Dne .+ napsal\(a\):$/, /^On .+ wrote:$/, /^-{3,} ?(Původní|Přeposlaná|Original|Forwarded) /i];
-
-/** The new text of a mail: without quoted lines, a quoted or forwarded earlier message and the signature. */
-export function mailText(text: string): string {
-  const lines = text.replace(/\r\n/g, "\n").split("\n");
-  const end = lines.findIndex((line) => CUT.some((cut) => cut.test(line.trim())));
-  return (end === -1 ? lines : lines.slice(0, end))
-    .filter((line) => !line.startsWith(">"))
-    .join("\n")
-    .trim();
-}
 
 /** Judges one raw message of the events mailbox; `resolver` answers the DKIM key lookups (real DNS by default). */
 export async function judgeEventMail(

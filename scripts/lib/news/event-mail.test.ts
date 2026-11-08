@@ -2,7 +2,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { dkimSigned, fakeDkimResolver as resolver, fakeMailbox, freshTempDir, mailMessage } from "../test-helpers";
-import { fetchEventMail, judgeEventMail, mailText, parseCommand } from "./event-mail";
+import { fetchEventMail, judgeEventMail, parseCommand } from "./event-mail";
 
 const parish = "fara.kurim@seznam.cz";
 const milan = "milancisar@centrum.cz";
@@ -50,24 +50,6 @@ describe("judgeEventMail", () => {
   it("passes on the sender check's refusal", async () => {
     const stranger = await mail({ from: "x@seznam.cz", files: ["a.pdf"] });
     expect(await judgeEventMail(stranger, { resolver })).toEqual({ kind: "rejected", reason: "sender" });
-  });
-});
-
-describe("mailText", () => {
-  it("keeps only the new text of a reply", () => {
-    const text = [
-      "Posíláme pozvánku.",
-      "",
-      "> stará zpráva",
-      "Dne 20. 10. 2026 v 10:00 Jan Novák napsal(a):",
-      "> ještě starší",
-    ].join("\n");
-    expect(mailText(text)).toBe("Posíláme pozvánku.");
-  });
-
-  it("drops the signature and a forwarded original", () => {
-    expect(mailText("Zveme vás.\n-- \nJan Novák\n+420 777 000 000")).toBe("Zveme vás.");
-    expect(mailText("Přeposílám.\n---------- Původní e-mail ----------\nOd: x")).toBe("Přeposílám.");
   });
 });
 
