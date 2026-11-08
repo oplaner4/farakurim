@@ -6,11 +6,15 @@ import { period } from "@/lib/services/service-sheet";
 import { isIsoDate } from "@/lib/shared/prague";
 
 /** An ISO date of a valid day, month and year; throws for 31. 2. */
-function isoDate(day: number, month: number, year: number): IsoDate {
+export function isoDate(day: number, month: number, year: number): IsoDate {
   const date = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
   if (!isIsoDate(date)) throw new Error(`${day}. ${month}. ${year} is not a date`);
   return date;
 }
+
+/** The year a range ending in `endMonth` of `endYear` starts in `month`: the year before when it crosses New Year. */
+export const startYear = (month: number, endMonth: number, endYear: number) =>
+  month > endMonth ? endYear - 1 : endYear;
 
 /**
  * The week of a service sheet from its heading: "od 30. 11. 2025 do 7. 12. 2025", or without the first year
@@ -22,7 +26,7 @@ export function parseWeek(text: string): { validFrom: IsoDate; validTo: IsoDate 
   );
   if (!m) return null;
   const [day, month, endDay, endMonth, endYear] = [m[1], m[2], m[4], m[5], m[6]].map(Number);
-  const year = m[3] ? Number(m[3]) : month > endMonth ? endYear - 1 : endYear;
+  const year = m[3] ? Number(m[3]) : startYear(month, endMonth, endYear);
   return { validFrom: isoDate(day, month, year), validTo: isoDate(endDay, endMonth, endYear) };
 }
 

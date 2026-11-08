@@ -27,6 +27,8 @@ export type MailOutcome = {
   sheetUid?: number;
   /** The week the subject names, when it names one the DOCX has (else the run takes the DOCX's newest week). */
   week?: Week;
+  /** The DOCX's newest week, when the subject names another: this run does not handle it. */
+  newest?: Week;
   /** The sender's note written, when the sheet's mail has text. */
   note?: string;
   superseded: number[];
@@ -114,7 +116,11 @@ async function handleNewest(
   const lines = new Map<number, string>();
   if (own.kind === "week") {
     outcome.week = own.week;
-    lines.set(uid, `${when}: sheet (newest), the week ${period(own.week)}`);
+    const docxNewest = newestWeek(weeks);
+    const other = docxNewest && period(docxNewest) !== period(own.week) ? docxNewest : undefined;
+    outcome.newest = other;
+    const skipped = other ? ` (not the DOCX's newest, ${period(other)}, which is not handled)` : "";
+    lines.set(uid, `${when}: sheet (newest), the week ${period(own.week)}${skipped}`);
   }
   for (const other of namingAnotherWeek(superseded, weeks, outcome.week ?? newestWeek(weeks))) {
     outcome.unhandled.push(other.uid);

@@ -98,8 +98,31 @@ describe("fetchSheet with the sender's subject and text", () => {
   it("hands on the week the subject names", async () => {
     const { mailbox } = fakeMailbox([{ uid: 1, source: await yearSheet("Oprava ohlášek 10. 11.") }]);
     const outcome = await fetchSheet(mailbox, dir(), { resolver });
-    expect(outcome).toMatchObject({ sheetUid: 1, week: { validFrom: "2026-11-08", validTo: "2026-11-15" } });
-    expect(outcome.summary).toEqual(["2026-11-12 09:00: sheet (newest), the week 2026-11-08 – 2026-11-15"]);
+    expect(outcome).toMatchObject({
+      sheetUid: 1,
+      week: { validFrom: "2026-11-08", validTo: "2026-11-15" },
+      newest: { validFrom: "2026-11-15", validTo: "2026-11-22" },
+    });
+    expect(outcome.summary).toEqual([
+      "2026-11-12 09:00: sheet (newest), the week 2026-11-08 – 2026-11-15 " +
+        "(not the DOCX's newest, 2026-11-15 – 2026-11-22, which is not handled)",
+    ]);
+  });
+
+  it("names no other newest week when the subject names the newest", async () => {
+    const { mailbox } = fakeMailbox([{ uid: 1, source: await yearSheet("Pořad 16.–22. 11.") }]);
+    const outcome = await fetchSheet(mailbox, dir(), { resolver });
+    expect(outcome).toMatchObject({ week: { validFrom: "2026-11-15", validTo: "2026-11-22" } });
+    expect(outcome.newest).toBeUndefined();
+    expect(outcome.summary).toEqual(["2026-11-12 09:00: sheet (newest), the week 2026-11-15 – 2026-11-22"]);
+  });
+
+  it("ignores the dates in a reply's subject", async () => {
+    const { mailbox } = fakeMailbox([{ uid: 1, source: await yearSheet("Re: Pořad bohoslužeb 8.–15. 11.") }]);
+    const outcome = await fetchSheet(mailbox, dir(), { resolver });
+    expect(outcome).toMatchObject({ sheetUid: 1, noWeek: [] });
+    expect(outcome.week).toBeUndefined();
+    expect(outcome.summary).toEqual(["2026-11-12 09:00: sheet (newest)"]);
   });
 
   it("refuses the sheet when the subject names a week its DOCX does not have", async () => {

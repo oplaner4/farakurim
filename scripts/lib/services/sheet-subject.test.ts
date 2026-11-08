@@ -11,6 +11,29 @@ describe("subjectDates", () => {
     }
   });
 
+  it("names no week in a reply's or a forward's subject", () => {
+    for (const subject of [
+      "Re: Pořad 1.–8. 11.",
+      "RE: Pořad 8. 11.",
+      "Odp: Ohlášky 8. 11.",
+      "Fwd: Pořad 8. 11.",
+      "FW: Pořad 8. 11.",
+      "TR: Pořad 8. 11.",
+      "Re[2]: Pořad 8. 11.",
+      " re : Pořad 8. 11.",
+    ]) {
+      expect(subjectDates(subject, sent)).toEqual({ kind: "none" });
+    }
+    expect(subjectDates("Oprava: Pořad 8. 11.", sent)).toEqual(dates("2026-11-08"));
+    expect(subjectDates("Rekolekce 8. 11.", sent)).toEqual(dates("2026-11-08"));
+  });
+
+  it("reads the heading's form as the DOCX heading is read", () => {
+    expect(subjectDates("Pořad od 15. 11. 2026 do 22. 11. 2026", sent)).toEqual(dates("2026-11-15", "2026-11-22"));
+    expect(subjectDates("Pořad od 28. 12. do 4. 1. 2027", sent)).toEqual(dates("2026-12-28", "2027-01-04"));
+    expect(subjectDates("Pořad od 30. 2. do 6. 3. 2026", sent)).toEqual({ kind: "invalid" });
+  });
+
   it("reads one date, with or without the year", () => {
     expect(subjectDates("Ohlášky na neděli 15. 11.", sent)).toEqual(dates("2026-11-15"));
     expect(subjectDates("Ohlášky 15.11.2026", sent)).toEqual(dates("2026-11-15"));

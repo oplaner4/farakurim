@@ -177,7 +177,8 @@ Only when the prompt says the run is **unattended**; a local run follows steps 1
 follows them too, with these changes:
 
 - It handles **one week**: the one the prompt names (pass its `--from` and `--to` to every `pnpm stage sheet` run
-  on the DOCX), else the DOCX's newest week; never touch other weeks. When `--draft` does not say the week is
+  on the DOCX), else the DOCX's newest week; never touch other weeks. When the prompt says the DOCX's newest week is
+  not handled, the week's section says so in one line after its `Outcome:` line. When `--draft` does not say the week is
   already there: steps 1 to 4 as written (`Outcome: created`). When it does (never open `service-sheets.json` to
   check): it is a correction, made as **`parish-correct-service-sheet`** "Unattended run" says, with the rules of this
   section and its report.
