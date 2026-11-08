@@ -4,8 +4,8 @@
 // first, with or without a record: one before the current sheet or overlapping another is refused, and one already
 // there is named. The sheet stores the rev, so a rerun keeps it and a corrected PDF gets the next one. The source can
 // also be the parish's DOCX of the whole year: then the week is its newest one (or the one --from names, and the DOCX's
-// newer week is named), its PDF that week's page of the converted document, and its draft record is read from the
-// week's table and announcements.
+// newer week is named, also in a refusal), its PDF that week's page of the converted document, and its draft record is
+// read from the week's table and announcements.
 // Without a record it also lists the events an announcement can link, so the newsIds need no search of the news.
 // Without a source, the record replaces the one of the sheet --from and --to name, which keeps its PDF and rev.
 
@@ -91,6 +91,21 @@ async function docxWeek(src: string, options: SheetOptions): Promise<{ week: Doc
 }
 
 /**
+ * The note on the DOCX's `newer` week, which a run on its older `week` does not stage: whether service-sheets.json
+ * already has it, and, when `week` ended before `today` (Prague) and the newer week is not there, that it is likely
+ * the one meant.
+ */
+function newerWeekNote(env: StageEnv, week: Week, newer: Week, today = pragueDate(new Date())): string {
+  const there = readServiceSheets(env.serviceSheetsFile).sheets.some((sheet) => sheet.validFrom === newer.validFrom);
+  const where = there ? "it is already staged, and this DOCX's version of it is not checked" : "it is not staged yet";
+  const meant =
+    !there && week.validTo < today
+      ? `. This week ended on ${week.validTo}: the newer week is likely the one meant`
+      : "";
+  return `Not the DOCX's newest week: its newest, ${period(newer)}, is left out of this run; ${where}${meant} (tell the user)`;
+}
+
+/**
  * The week's pages of the DOCX `src` as a PDF in `dir`: the document converted, then cut from the page with the
  * week's heading to the page before the next heading.
  */
@@ -134,9 +149,11 @@ function newsLines(newsDir: string, validFrom: IsoDate): string[] {
  * with `draft`, the week's draft record written there). Returns the lines to print too.
  */
 async function sourceWeek(
+  env: StageEnv,
   src: string,
   options: SheetOptions,
   dir: string,
+  notes: string[],
 ): Promise<{ pdf: string; week: Week; lines: string[] }> {
   const docx = extname(src).toLowerCase() === ".docx";
   if (!docx && extname(src).toLowerCase() !== ".pdf") throw new Error("the service sheet is a PDF or a DOCX");
@@ -146,9 +163,9 @@ async function sourceWeek(
   }
   const { week: docxSheet, newer } = await docxWeek(src, options);
   const week = { validFrom: docxSheet.validFrom, validTo: docxSheet.validTo };
-  const lines = newer
-    ? [`Not the DOCX's newest week: its newest, ${period(newer)}, is not staged by this run (tell the user)`]
-    : [];
+  // Kept in `notes` before anything can throw, so a refusal names the newer week too.
+  if (newer) notes.push(newerWeekNote(env, week, newer));
+  const lines = [...notes];
   // Written before the conversion, so the draft is there to check even without a converter.
   if (options.draft !== undefined) {
     const draft = docxSheet.draft();
@@ -207,8 +224,9 @@ export async function stageSheet(env: StageEnv, options: SheetOptions) {
   checkRecordOptions({ ...options, source: options.source }, check);
   const src = sourceFile(options.source, MAX_MB.sheet, env.home);
   const dir = mkdtempSync(join(tmpdir(), "sheet-"));
+  const notes: string[] = [];
   try {
-    const { pdf, week, lines } = await sourceWeek(src, options, dir);
+    const { pdf, week, lines } = await sourceWeek(env, src, options, dir, notes);
     const { validFrom, validTo } = week;
     // Refuses a week before the current sheet or overlapping another before anything else, even without a record.
     const there = placeSheet<SheetWeek>(readServiceSheets(env.serviceSheetsFile).sheets, week).replaced;
@@ -237,6 +255,9 @@ export async function stageSheet(env: StageEnv, options: SheetOptions) {
     const result = addServiceSheet(env, options.record, sheet);
     lines.push(...serviceSheetLines(result, false));
     return { lines, written: result.written };
+  } catch (error) {
+    if (notes.length === 0 || !(error instanceof Error)) throw error;
+    throw new Error(`${error.message}\n${notes.join("\n")}`, { cause: error });
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

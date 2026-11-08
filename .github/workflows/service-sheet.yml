@@ -67,6 +67,7 @@ jobs:
       no_week: ${{ steps.fetch.outputs.no_week }}
       unhandled: ${{ steps.fetch.outputs.unhandled }}
       skipped: ${{ steps.fetch.outputs.skipped }}
+      week_to: ${{ steps.fetch.outputs.week_to }}
       superseded: ${{ steps.fetch.outputs.superseded }}
       rejected: ${{ steps.fetch.outputs.rejected }}
       no_docx: ${{ steps.fetch.outputs.no_docx }}
@@ -438,6 +439,7 @@ jobs:
           NO_WEEK: ${{ needs.sheet.outputs.no_week }}
           UNHANDLED: ${{ needs.sheet.outputs.unhandled }}
           SKIPPED: ${{ needs.sheet.outputs.skipped }}
+          WEEK_TO: ${{ needs.sheet.outputs.week_to }}
           SHEET_RESULT: ${{ needs.sheet.result }}
           CLAUDE: ${{ needs.sheet.outputs.claude }}
           DOWNLOAD: ${{ steps.download.outcome }}
@@ -492,11 +494,23 @@ jobs:
               echo "send it again with the week's dates in the subject, or with none for the newest week."
             fi
             # A subject naming an older week leaves the newest one out: a PR says so in its report, and a run that
-            # changed nothing fails, so the newest week is never missed in silence.
+            # changed nothing fails, so the newest week is never missed in silence. The checkout (main or the sheet
+            # PR's branch, before this run's change) tells whether that week is there already.
             quiet=""
+            sheets=src/content/service-sheets.json
             if [ -n "$SKIPPED" ]; then
               echo
               echo "The subject named an older week, so the DOCX's newest week ($SKIPPED) was not handled."
+              if [ -f "$sheets" ]; then
+                if jq -e --arg from "${SKIPPED%% *}" 'any(.sheets[]; .validFrom == $from)' "$sheets" > /dev/null; then
+                  echo "It is already staged, but this DOCX's version of it was not checked."
+                else
+                  echo "It is not staged yet: the site does not have it."
+                  if [ -n "$WEEK_TO" ] && [[ "$WEEK_TO" < "$(TZ=Europe/Prague date +%F)" ]]; then
+                    echo "The named week ended on $WEEK_TO: the parish probably meant the newest week."
+                  fi
+                fi
+              fi
               if [ "$CHANGED" = false ]; then
                 quiet=true
                 echo "Nothing changed in the named week either: ask the parish to send the sheet again without"

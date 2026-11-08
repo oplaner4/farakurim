@@ -370,12 +370,36 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     it("names the DOCX's newest week when --from and --to name an older one, and only then", async () => {
       const source = yearDocx();
       const older = { source, validFrom: "2099-09-27", validTo: "2099-10-04", check: true };
-      expect((await stageSheet(env, older)).lines[0]).toBe(
-        "Not the DOCX's newest week: its newest, 2099-10-04 – 2099-10-11, is not staged by this run (tell the user)",
-      );
+      const note = "Not the DOCX's newest week: its newest, 2099-10-04 – 2099-10-11, is left out of this run;";
+      expect((await stageSheet(env, older)).lines[0]).toBe(`${note} it is not staged yet (tell the user)`);
       const newest = { source, validFrom: "2099-10-04", validTo: "2099-10-11", check: true };
       expect((await stageSheet(env, newest)).lines[0]).toBe(
         "Would stage uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf",
+      );
+
+      // Once the newest week is there, the note says so.
+      await stageSheet(env, { source, record: record() });
+      expect((await stageSheet(env, older)).lines[0]).toBe(
+        `${note} it is already staged, and this DOCX's version of it is not checked (tell the user)`,
+      );
+    });
+
+    it("names the newer week in a refusal too, and that it is likely the one meant", async () => {
+      const source = download(
+        "Pořad bohoslužeb 2000.docx",
+        docxWithBody(
+          wordml.p("ROZPIS BOHOSLUŽEB V TÝDNU od 9. 1. 2000 do 16. 1. 2000") +
+            wordml.p("ROZPIS BOHOSLUŽEB V TÝDNU od 2. 1. 2000 do 9. 1. 2000"),
+        ),
+      );
+      vi.mocked(pdfPageTexts).mockImplementation(() => [
+        "ROZPIS BOHOSLUŽEB V TÝDNU od 9. 1. 2000 do 16. 1. 2000",
+        "ROZPIS BOHOSLUŽEB V TÝDNU od 2. 1. 2000 do 9. 1. 2000",
+      ]);
+      const refusal = stageSheet(env, { source, validFrom: "2000-01-02", validTo: "2000-01-09", check: true });
+      await expect(refusal).rejects.toThrow("the sheet 2000-01-02 – 2000-01-09 is before the current sheet");
+      await expect(refusal).rejects.toThrow(
+        "Not the DOCX's newest week: its newest, 2000-01-09 – 2000-01-16, is left out of this run; it is not staged yet. This week ended on 2000-01-09: the newer week is likely the one meant (tell the user)",
       );
     });
 

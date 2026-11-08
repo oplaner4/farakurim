@@ -178,7 +178,7 @@ follows them too, with these changes:
 
 - It handles **one week**: the one the prompt names (pass its `--from` and `--to` to every `pnpm stage sheet` run
   on the DOCX), else the DOCX's newest week; never touch other weeks. When `pnpm stage sheet` says the week is not the
-  DOCX's newest, the week's section says so in one line after its `Outcome:` line. When `--draft` does not say the week is
+  DOCX's newest (also below a refusal), the week's section gives that note in one line after its `Outcome:` line. When `--draft` does not say the week is
   already there: steps 1 to 4 as written (`Outcome: created`). When it does (never open `service-sheets.json` to
   check): it is a correction, made as **`parish-correct-service-sheet`** "Unattended run" says, with the rules of this
   section and its report.
