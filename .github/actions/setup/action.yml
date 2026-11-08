@@ -1,7 +1,6 @@
 # Installs pnpm, Node (the version in .nvmrc, with pnpm's store cached) and the locked dependencies, in a checkout made
-# before (a local action runs from it). Used by the content workflows (service-sheet.yml, events.yml,
-# content-fix-run.yml, content-release.yml), which check out main or a content branch made after it. check.yml and
-# deploy.yml keep their own steps: a refresh deploy checks out the latest release tag, which may predate this action.
+# before: a local action runs from the checkout, so every ref a workflow checks out (main, a content branch, a release
+# tag from v1.36.1 on) must hold it.
 
 name: Setup
 description: Install pnpm, Node from .nvmrc and the locked dependencies.
