@@ -9,6 +9,7 @@ import {
   type JWTInput,
 } from "google-auth-library";
 import { parishCalendars } from "@/content/site";
+import type { GoogleEventBody, GoogleTime } from "./google-body";
 import type { Change } from "./plan";
 import type { ServicesChange } from "./services-plan";
 
@@ -126,13 +127,25 @@ async function send(method: string, url: string, token: string, body?: Json, acc
   throw new Error(`HTTP ${response.status}${reason ? ` ${reason}` : ""}`);
 }
 
+/** A time that replaces the stored one: Google merges a patched object into it, and a time with both a date and a
+ * dateTime (an all-day event made timed, or back) is "Invalid start time". */
+const replacing = (time: GoogleTime): Json =>
+  time.dateTime ? { ...time, date: null } : { ...time, dateTime: null, timeZone: null };
+
+/** The PATCH body of `body`: its start and end replace the stored ones. */
+const patchOf = (body: Partial<GoogleEventBody>): Json => ({
+  ...body,
+  ...(body.start && { start: replacing(body.start) }),
+  ...(body.end && { end: replacing(body.end) }),
+});
+
 /** Adds the event, or patches the changed fields of the calendar event; throws with Google's status. */
 export async function applyChange(change: Change, token: string): Promise<void> {
   const eventsUrl = eventsUrlOf("events");
   if (change.kind === "add") {
     return send("POST", eventsUrl, token, { ...change.body, id: change.desired.googleId });
   }
-  return send("PATCH", `${eventsUrl}/${encodeURIComponent(change.target.id)}`, token, change.body);
+  return send("PATCH", `${eventsUrl}/${encodeURIComponent(change.target.id)}`, token, patchOf(change.body));
 }
 
 /**
@@ -146,10 +159,10 @@ export async function applyServicesChange(change: ServicesChange, token: string)
     case "add":
       return send("POST", eventsUrl, token, { ...change.desired.body, id: change.desired.googleId });
     case "update":
-      return send("PATCH", `${eventsUrl}/${encodeURIComponent(change.target.id)}`, token, change.body);
+      return send("PATCH", `${eventsUrl}/${encodeURIComponent(change.target.id)}`, token, patchOf(change.body));
     case "restore":
       return send("PATCH", `${eventsUrl}/${encodeURIComponent(change.target.id)}`, token, {
-        ...change.desired.body,
+        ...patchOf(change.desired.body),
         status: "confirmed",
       });
     case "delete":

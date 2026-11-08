@@ -59,6 +59,32 @@ describe("applyChange", () => {
     expect(JSON.parse(init.body as string)).toEqual({ summary: "Nový název" });
   });
 
+  it("PATCHes a changed time so it replaces the stored one: an all-day event becomes timed and back", async () => {
+    const fetchMock = stubFetch();
+    const patch = async (body: Change & { kind: "update" }) => {
+      await applyChange(body, "TOKEN");
+      const [, init] = fetchMock.mock.calls.at(-1) as unknown as [string, RequestInit];
+      return JSON.parse(init.body as string);
+    };
+    const update = (body: Partial<ReturnType<typeof eventBody>>): Change & { kind: "update" } => ({
+      kind: "update",
+      desired: item,
+      target: { id: "target1", start: {}, end: {} },
+      claim: false,
+      fields: ["start", "end"],
+      body,
+    });
+    const timed = eventBody(item);
+    expect(await patch(update({ start: timed.start, end: timed.end }))).toEqual({
+      start: { ...timed.start, date: null },
+      end: { ...timed.end, date: null },
+    });
+    expect(await patch(update({ start: { date: "2026-10-12" }, end: { date: "2026-10-13" } }))).toEqual({
+      start: { date: "2026-10-12", dateTime: null, timeZone: null },
+      end: { date: "2026-10-13", dateTime: null, timeZone: null },
+    });
+  });
+
   it("throws with Google's status", async () => {
     stubFetch(409);
     await expect(applyChange({ kind: "add", desired: item, body: eventBody(item) }, "T")).rejects.toThrow("HTTP 409");
@@ -110,7 +136,12 @@ describe("applyServicesChange", () => {
     const { url, init, body } = await sent({ kind: "restore", desired, target });
     expect(url).toBe(`https://www.googleapis.com/calendar/v3/calendars/${SERVICES}/events/t1`);
     expect(init.method).toBe("PATCH");
-    expect(body).toEqual({ ...desired.body, status: "confirmed" });
+    expect(body).toEqual({
+      ...desired.body,
+      start: { ...desired.body.start, date: null },
+      end: { ...desired.body.end, date: null },
+      status: "confirmed",
+    });
   });
 
   it("DELETEs, and takes an event already gone (410) as done", async () => {
