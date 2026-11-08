@@ -19,7 +19,7 @@ export const EXCEPTIONS_FILE = join(ROOT, "src/content/schedule-exceptions.json"
 /** The tests of the service sheets and the changes announced for later, which a sheet prunes. */
 export const SERVICE_SHEETS_TESTS = ["src/content/service-sheets.test.ts", "src/content/schedule-exceptions.test.ts"];
 
-/** Writes `data` to the JSON content file `file`; Prettier formats it later. */
+/** Writes `data` to `file` as JSON in the content files' form (2 spaces, a final newline); Prettier formats it later. */
 export const writeContentFile = (file: string, data: unknown) =>
   writeFileSync(file, `${JSON.stringify(data, null, 2)}\n`);
 

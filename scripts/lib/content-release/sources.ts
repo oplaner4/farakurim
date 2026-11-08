@@ -2,8 +2,8 @@
 // adds to the content (git) and, from the GitHub REST API, the PRs of a commit, the commits of a PR and the artifacts
 // of a name.
 
-import { execFileSync } from "node:child_process";
 import { UPLOAD_EXTENSIONS, UPLOADS_PATH } from "@/lib/shared/uploads";
+import { git } from "../git";
 import { gitHubGet } from "../github";
 
 /** `merge` when the commit has more than one parent. */
@@ -79,14 +79,13 @@ export function gitHubReader(repo: string, token: string, fetchImpl: typeof fetc
 
 /** The commits of the checkout in `cwd` since the last `v*` tag (all of them without one), newest first. */
 export function unreleasedCommits(cwd = process.cwd()): UnreleasedCommit[] {
-  const git = (...args: string[]) => execFileSync("git", args, { cwd, encoding: "utf8", stdio: "pipe" });
   let tag = "";
   try {
-    tag = git("describe", "--tags", "--abbrev=0", "--match", "v*").trim();
+    tag = git(cwd, "describe", "--tags", "--abbrev=0", "--match", "v*").trim();
   } catch {
     // no release tag yet
   }
-  return git("log", "--format=%H%x09%P%x09%s", tag ? `${tag}..HEAD` : "HEAD")
+  return git(cwd, "log", "--format=%H%x09%P%x09%s", tag ? `${tag}..HEAD` : "HEAD")
     .split("\n")
     .filter(Boolean)
     .map((line) => {
@@ -102,11 +101,7 @@ const UPLOAD_LINK = `${UPLOADS_PATH}[A-Za-z0-9._/%-]+\\.(${UPLOAD_EXTENSIONS.map
 export function uploadLinksAt(rev: string, cwd = process.cwd()): Set<string> {
   let out = "";
   try {
-    out = execFileSync("git", ["grep", "-ohE", UPLOAD_LINK, rev, "--", "src/content"], {
-      cwd,
-      encoding: "utf8",
-      stdio: "pipe",
-    });
+    out = git(cwd, "grep", "-ohE", UPLOAD_LINK, rev, "--", "src/content");
   } catch (error) {
     // git grep exits 1 when nothing matches.
     if ((error as { status?: number }).status !== 1) throw error;

@@ -3,7 +3,7 @@
 
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { parseCommandLine, readJsonRecord } from "../command";
+import { parseCommandLine, readJsonRecord, requiredEnv } from "../command";
 import { UPLOADS_DIR } from "../uploads";
 import { applyArtifacts, missingLinks } from "./apply";
 import { planRelease, type ReleasePlan } from "./plan";
@@ -24,12 +24,6 @@ export function parseCommand(args: string[]): Command {
   return { action: "plan" };
 }
 
-function env(name: string): string {
-  const value = process.env[name];
-  if (!value) throw new Error(`${name} is not set`);
-  return value;
-}
-
 export async function execute(command: Command): Promise<void> {
   if (command.action === "apply") {
     const plan = readJsonRecord(command.plan) as ReleasePlan;
@@ -43,7 +37,7 @@ export async function execute(command: Command): Promise<void> {
     if (missing.length) throw new Error(missing.join("; "));
     return;
   }
-  const repo = env("GITHUB_REPOSITORY");
-  const github = gitHubReader(repo, env("GH_TOKEN"));
+  const repo = requiredEnv("GITHUB_REPOSITORY");
+  const github = gitHubReader(repo, requiredEnv("GH_TOKEN"));
   console.log(JSON.stringify(await planRelease({ repo, commits: unreleasedCommits(), github })));
 }

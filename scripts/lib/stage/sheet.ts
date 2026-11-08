@@ -8,7 +8,7 @@
 // Without a record it also lists the events an announcement can link, so the newsIds need no search of the news.
 // Without a source, the record replaces the one of the sheet --from and --to name, which keeps its PDF and rev.
 
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { extname, join } from "node:path";
 import { addDays } from "date-fns";
@@ -24,6 +24,7 @@ import {
   readServiceSheets,
   type SheetWeek,
 } from "../services/add-service-sheet";
+import { writeContentFile } from "../content-files";
 import { docxToPdf } from "../services/docx-to-pdf";
 import { docxWeeks, type DocxWeek } from "../services/sheet-docx";
 import { newestWeek, parseWeek, weekPages } from "../services/sheet-week";
@@ -144,7 +145,7 @@ async function sourceWeek(
   // Written before the conversion, so the draft is there to check even without a converter.
   if (options.draft !== undefined) {
     const draft = docxSheet.draft();
-    writeFileSync(options.draft, `${JSON.stringify(draft, null, 2)}\n`);
+    writeContentFile(options.draft, draft);
     lines.push(`Wrote the draft record of ${period(week)} to ${options.draft}`);
     const empty = draft.days.filter((day) => day.rows.length === 0).map((day) => day.date);
     if (empty.length > 0) lines.push(`Days without services (tell the user): ${empty.join(", ")}`);

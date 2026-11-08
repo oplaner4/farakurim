@@ -7,12 +7,11 @@
 
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { format } from "date-fns";
 import type { DNSResolver } from "mailauth";
 import { period } from "@/lib/services/service-sheet";
-import { inPrague } from "@/lib/shared/prague";
 import { parseCommandLine } from "../command";
 import { fileMessages, imapEnv, imapMailbox, uidList, type Mailbox } from "../mail/imap";
+import { mailStamp as stamp } from "../mail/stamp";
 import { judgeMessage, pickNewest, type Verdict } from "./mailbox";
 import { docxWeeks } from "./sheet-docx";
 import { subjectDates, weekOf } from "./sheet-subject";
@@ -43,8 +42,6 @@ export type MailOutcome = {
   /** One line per message, in uid order: dates and kinds only. A rejected message has no trustworthy date. */
   summary: string[];
 };
-
-const stamp = (date: Date) => format(inPrague(date), "yyyy-MM-dd HH:mm");
 
 function summaryLine(uid: number, verdict: Verdict, { sheet, superseded }: ReturnType<typeof pickNewest>): string {
   if (verdict.kind === "rejected") return `rejected (${verdict.reason})`;

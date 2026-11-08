@@ -13,10 +13,11 @@ import { simpleParser } from "mailparser";
 import { readEvents } from "@/content/news";
 import { inPrague, pragueDate } from "@/lib/shared/prague";
 import { slug } from "@/lib/shared/slug";
-import { parseCommandLine, readJsonRecord } from "../command";
+import { parseCommandLine, readJsonRecord, requiredEnv } from "../command";
 import { NEWS_DIR } from "../content-files";
 import { fileMessages, imapEnv, imapMailbox, uidList, type Mailbox } from "../mail/imap";
 import { EVENT_SENDERS, judgeSender, type SenderVerdict } from "../mail/senders";
+import { mailStamp as stamp } from "../mail/stamp";
 import { mailText } from "../mail/text";
 import { addedIds, knownJson, loadKnownEvents, takenIds, type KnownEvent } from "./known-events";
 
@@ -73,8 +74,6 @@ export type EventMailOutcome = {
   /** One line per message, in uid order: dates, kinds and known senders only. */
   summary: string[];
 };
-
-const stamp = (date: Date) => format(inPrague(date), "yyyy-MM-dd HH:mm");
 
 function summaryLine(verdict: EventMailVerdict, picked: boolean): string {
   if (verdict.kind === "rejected") return `rejected (${verdict.reason}${verdict.known ? `: ${verdict.known}` : ""})`;
@@ -155,17 +154,15 @@ export function parseCommand(args: string[]): EventMailCommand {
   throw new Error(USAGE);
 }
 
-function env(name: string): string {
-  const value = process.env[name];
-  if (!value) throw new Error(`${name} is not set`);
-  return value;
-}
-
 /** Writes the known events (loadKnownEvents()) or refuses an added id an open events PR holds. */
 async function runKnownEvents(command: Extract<EventMailCommand, { action: "known" | "check-ids" }>): Promise<void> {
   if (command.action === "known") {
     const today = pragueDate(new Date());
-    const found = await loadKnownEvents({ repo: env("GITHUB_REPOSITORY"), token: env("GH_TOKEN"), today });
+    const found = await loadKnownEvents({
+      repo: requiredEnv("GITHUB_REPOSITORY"),
+      token: requiredEnv("GH_TOKEN"),
+      today,
+    });
     writeFileSync(command.out, knownJson(found));
     console.error(`Wrote ${found.length} known event(s)`);
     return;

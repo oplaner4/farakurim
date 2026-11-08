@@ -1,6 +1,6 @@
 // Fixtures for the script tests.
 
-import { execFileSync, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { generateKeyPairSync } from "node:crypto";
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -12,6 +12,7 @@ import { afterEach, beforeEach, vi } from "vitest";
 import type { NewsEvent } from "@/content/types/news";
 import { periodDates } from "@/lib/services/service-sheet";
 import { EXCEPTIONS_FILE, NEWS_DIR, ROOT, SERVICE_SHEETS_FILE, PETRKLIC_FILE } from "./content-files";
+import { git } from "./git";
 import type { Mailbox } from "./mail/imap";
 import type { StageEnv } from "./stage/core";
 import { UPLOADS_DIR } from "./uploads";
@@ -140,11 +141,7 @@ const TEST_GIT_CONFIG = [
  * it detached, and it could still write in .git while freshTempDir() removes the folder (ENOTEMPTY).
  */
 export const testGit = (cwd: string, ...args: string[]) =>
-  execFileSync("git", [...TEST_GIT_CONFIG.flatMap((setting) => ["-c", setting]), ...args], {
-    cwd,
-    encoding: "utf8",
-    stdio: "pipe",
-  }).trim();
+  git(cwd, ...TEST_GIT_CONFIG.flatMap((setting) => ["-c", setting]), ...args).trim();
 
 /**
  * A temp news folder holding only `months` (`"<year>/<MM>.json"` → records), fresh for each test; `dir()` is its

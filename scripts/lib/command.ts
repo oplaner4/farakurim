@@ -24,6 +24,13 @@ export function parseCommandLine<const T extends ParseArgsOptionsConfig>(args: s
   }
 }
 
+/** The environment variable `name`; throws when it is not set or empty. */
+export function requiredEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) throw new Error(`${name} is not set`);
+  return value;
+}
+
 /** The JSON record in `file` (`-` reads stdin); a file that cannot be read or is not JSON throws, naming it. */
 export function readJsonRecord(file: string): unknown {
   try {

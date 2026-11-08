@@ -3,7 +3,7 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { parseCommandLine } from "../command";
+import { parseCommandLine, requiredEnv } from "../command";
 import { applyArtifacts } from "../content-release/apply";
 import { artifactsOfPull, KINDS, type ContentPull, type Kind } from "../content-release/plan";
 import { gitHubReader } from "../content-release/sources";
@@ -77,12 +77,6 @@ export function parseCommand(args: string[]): Command {
   }
 }
 
-function env(name: string): string {
-  const value = process.env[name];
-  if (!value) throw new Error(`${name} is not set`);
-  return value;
-}
-
 /** What may ask for a fix: the repo permissions that write to it. */
 const WRITE_PERMISSIONS = ["admin", "maintain", "write"];
 
@@ -98,8 +92,8 @@ function writeFileIn(file: string, content: string) {
 }
 
 async function next({ pr, out }: { pr: number; out: string }, fetchImpl: typeof fetch) {
-  const repo = env("GITHUB_REPOSITORY");
-  const reader = fixReader(repo, env("GH_TOKEN"), fetchImpl);
+  const repo = requiredEnv("GITHUB_REPOSITORY");
+  const reader = fixReader(repo, requiredEnv("GH_TOKEN"), fetchImpl);
   const pull = await reader.pull(pr);
   const result = {
     open: pull.open,
@@ -127,7 +121,7 @@ async function next({ pr, out }: { pr: number; out: string }, fetchImpl: typeof 
 
 /** The artifacts of the PR's commits, oldest first; an expired one throws. */
 async function artifactsOf(pr: number, kind: Kind, fetchImpl: typeof fetch) {
-  const github = gitHubReader(env("GITHUB_REPOSITORY"), env("GH_TOKEN"), fetchImpl);
+  const github = gitHubReader(requiredEnv("GITHUB_REPOSITORY"), requiredEnv("GH_TOKEN"), fetchImpl);
   const { artifacts, expired } = await artifactsOfPull({ number: pr, kind }, github);
   if (expired.length) throw new Error(`PR #${pr} has an expired artifact: recreate the PR`);
   return artifacts;
@@ -179,7 +173,9 @@ export async function execute(command: Command, fetchImpl: typeof fetch = fetch,
       return;
     }
     case "check-log": {
-      const steps = await fixReader(env("GITHUB_REPOSITORY"), env("GH_TOKEN"), fetchImpl).failedCheck(command.sha);
+      const steps = await fixReader(requiredEnv("GITHUB_REPOSITORY"), requiredEnv("GH_TOKEN"), fetchImpl).failedCheck(
+        command.sha,
+      );
       if (steps.length) writeFileIn(command.out, failedStepsMarkdown(steps));
       console.log(steps.length ? "failed" : "ok");
       return;

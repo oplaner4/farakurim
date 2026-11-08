@@ -2,8 +2,8 @@
 // open events/ PR of this repo adds or changes. The unattended parish-create-event run reads them to refuse a
 // duplicate, and takenIds() refuses an id an open PR already holds (add-event refuses one main holds).
 
-import { execFileSync } from "node:child_process";
 import type { NewsEvent } from "@/content/types/news";
+import { git } from "../git";
 import { gitHubGet } from "../github";
 import { notEndedBy } from "./upcoming-events";
 
@@ -49,8 +49,6 @@ export function takenIds(events: KnownEvent[], ids: string[]): string[] {
   const held = new Set(events.filter((event) => event.where !== "main").map((event) => event.id));
   return ids.filter((id) => held.has(id));
 }
-
-const git = (cwd: string, ...args: string[]) => execFileSync("git", args, { cwd, encoding: "utf8", stdio: "pipe" });
 
 /** Every event record of the news folder at the git `ref` of the repo in `cwd`. */
 export function eventsAt(ref: string, cwd = process.cwd()): NewsEvent[] {
