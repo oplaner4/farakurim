@@ -247,24 +247,21 @@ jobs:
           name: service-sheet-run-${{ github.run_id }}
           path: ${{ runner.temp }}/run/
 
-      # A fresh checkout of the commit Claude's change is based on: nothing from `sheet`'s workspace runs here.
+      # A fresh checkout of the commit Claude's change is based on: nothing from `sheet`'s workspace runs here. Also
+      # when the download failed, for the summary.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        if: steps.download.outcome == 'success'
         with:
           ref: ${{ needs.sheet.outputs.base || 'main' }}
           persist-credentials: false # only the push step gets a token
 
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-        if: steps.download.outcome == 'success'
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        if: steps.download.outcome == 'success'
         with:
           node-version-file: .nvmrc
           cache: pnpm
 
-      - if: steps.download.outcome == 'success'
-        run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
 
       # `pnpm content-pr apply` checks the report against the patch (each week exactly one `Outcome:` line; a change
       # needs a week created or corrected, no change a week corrected, refused or a document error) and applies the
@@ -308,20 +305,17 @@ jobs:
           body-file: ${{ runner.temp }}/run/pr-body.md
           reviewers: ${{ vars.CONTENT_REVIEWERS }}
 
-      # Dates, kinds, weeks and the script's messages only, never the e-mail's text. Fails the job when something
-      # needs the maintainer without a PR: a refused week, a document error, a parish message without one DOCX, a
-      # subject naming a week the DOCX does not have, an older message naming another week than the one handled.
+      # `pnpm content-pr summary`: dates, kinds, weeks and the script's messages only, never the e-mail's text. Fails
+      # the job when something needs the maintainer without a PR: a refused week, a document error, a parish message
+      # without one DOCX, a subject naming a week the DOCX does not have, an older message naming another week than
+      # the one handled, a subject naming an older week when nothing changed.
       - name: Summary
         if: always()
         env:
           FETCHED: ${{ needs.sheet.outputs.fetched }}
           SUMMARY: ${{ needs.sheet.outputs.summary }}
-          DOCX: ${{ needs.sheet.outputs.docx }}
-          NO_DOCX: ${{ needs.sheet.outputs.no_docx }}
-          NO_WEEK: ${{ needs.sheet.outputs.no_week }}
-          UNHANDLED: ${{ needs.sheet.outputs.unhandled }}
-          SKIPPED: ${{ needs.sheet.outputs.skipped }}
-          SHEET_RESULT: ${{ needs.sheet.result }}
+          HANDLED: ${{ needs.sheet.outputs.docx }}
+          JOB_RESULT: ${{ needs.sheet.result }}
           CLAUDE: ${{ needs.sheet.outputs.claude }}
           DOWNLOAD: ${{ steps.download.outcome }}
           APPLY: ${{ steps.changes.outcome }}
@@ -329,69 +323,11 @@ jobs:
           PR_OUTCOME: ${{ steps.pr.outcome }}
           PR_ACTION: ${{ steps.pr.outputs.action }}
           PR_URL: ${{ steps.pr.outputs.url }}
-        run: |
-          failed=$(pnpm --silent content-pr outcomes --kind sheet --failed "$RUNNER_TEMP/run/report.md" 2> /dev/null || true)
-          {
-            echo "## Service sheet"
-            echo
-            if [ "$FETCHED" != true ]; then
-              echo "The mail could not be read."
-            elif [ "$(jq 'length' <<< "$SUMMARY")" = 0 ]; then
-              echo "No new mail."
-            else
-              jq -r '.[] | "- " + .' <<< "$SUMMARY"
-            fi
-            echo
-            if [ -n "$DOCX" ]; then
-              if [ "$CLAUDE" != success ]; then
-                echo "Claude's run failed: the sheet stays unread and the next run retries it."
-              elif [ "$SHEET_RESULT" != success ] || [ "$DOWNLOAD" != success ]; then
-                echo "The sheet job failed after Claude's run (see the log): the sheet stays unread for the next run."
-              elif [ "$APPLY" != success ]; then
-                echo "The change or the report was not accepted (see the log): the sheet stays unread for the next run."
-              elif [ "$CHANGED" = false ]; then
-                echo "Nothing changed: no PR."
-              elif [ "$PR_OUTCOME" = success ]; then
-                echo "PR $PR_ACTION: $PR_URL"
-              else
-                echo "The commit or PR failed (see the log): the sheet stays unread for the next run."
-              fi
-            fi
-            if [ -n "$failed" ]; then
-              echo
-              echo "Weeks not published:"
-              echo "$failed"
-            fi
-            if [ "${NO_DOCX:-0}" != 0 ]; then
-              echo
-              echo "$NO_DOCX message(s) from the parish had no DOCX or several: ask the parish for the sheet."
-            fi
-            if [ "${NO_WEEK:-0}" != 0 ]; then
-              echo
-              echo "The sheet's subject names a date no week of its DOCX holds: nothing was handled. Ask the parish to"
-              echo "send it again with the week's dates in the subject, or with none for the newest week."
-            fi
-            # A subject naming an older week leaves the newest one out: the mail's summary line above names it, a PR's
-            # report says whether it is staged (`pnpm stage sheet`), and a run that changed nothing fails, so the
-            # newest week is never missed in silence.
-            quiet=""
-            if [ -n "$SKIPPED" ] && [ "$CHANGED" = false ]; then
-              quiet=true
-              echo
-              echo "The subject named an older week, in which nothing changed, and the DOCX's newest week ($SKIPPED) was"
-              echo "not handled: ask the parish to send the sheet again without dates in the subject (or with the newest week's)."
-            fi
-            if [ "${UNHANDLED:-0}" != 0 ]; then
-              echo
-              echo "$UNHANDLED older sheet message(s) named another week than the one handled: ask the parish to send"
-              echo "them again."
-            fi
-          } >> "$GITHUB_STEP_SUMMARY"
-          if [ -n "$failed" ] || [ "${NO_DOCX:-0}" != 0 ] || [ "${NO_WEEK:-0}" != 0 ] || [ "${UNHANDLED:-0}" != 0 ] \
-            || [ -n "$quiet" ]; then
-            echo "::error::A week was refused or left out, a document error occurred or a parish message had no single DOCX."
-            exit 1
-          fi
+          NO_DOCX: ${{ needs.sheet.outputs.no_docx }}
+          NO_WEEK: ${{ needs.sheet.outputs.no_week }}
+          UNHANDLED: ${{ needs.sheet.outputs.unhandled }}
+          SKIPPED: ${{ needs.sheet.outputs.skipped }}
+        run: pnpm --silent content-pr summary --kind sheet "$RUNNER_TEMP/run/report.md" >> "$GITHUB_STEP_SUMMARY"
 
       # Only once the outcome is done (PR opened or updated, nothing changed, or the problem in the summary) and only
       # when `sheet` succeeded; otherwise the sheet and the superseded mail stay unseen for the next run. The rejected

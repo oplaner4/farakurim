@@ -9,13 +9,17 @@
 // message when commitlint accepts it, else a default. A refused report or patch fails and applies nothing. `patch`
 // only checks and applies a patch. `body` prints the PR body: the report, its end marker, the Události lines that need
 // a person (`--calendar`, the output of `pnpm calendar-sync --calendar events --problems`) and the footer; with
-// `--fix`, the report is a comment fix's (`pnpm content-fix report`'s body.md) and the footer names the last correction. `outcomes`
-// prints `- <item>: <outcome>` for each item of the report (`--failed`: only those not published), nothing without it.
+// `--fix`, the report is a comment fix's (`pnpm content-fix report`'s body.md) and the footer names the last
+// correction. `summary` prints the job summary (the mail's lines, what became of the sheet or mail, the weeks or
+// events, and what the maintainer must do) from the step results the workflow passes in the environment (FETCHED,
+// SUMMARY, HANDLED, JOB_RESULT, CLAUDE, DOWNLOAD, APPLY, CHANGED, PR_OUTCOME, PR_ACTION, PR_URL; sheet: NO_DOCX,
+// NO_WEEK, UNHANDLED, SKIPPED; events: INCOMPLETE, KNOWN_DKIM) and the report (none when it is missing), and fails
+// when the maintainer must act without a PR to look at.
 //
 // Usage: pnpm --silent content-pr apply --kind <sheet|events> <report.md> <content.patch>
 //        pnpm content-pr patch --kind <sheet|events> <content.patch>
 //        pnpm --silent content-pr body --kind <sheet|events> --run-url <url> [--calendar <file>] [--fix] <report.md>
-//        pnpm --silent content-pr outcomes --kind <sheet|events> [--failed] <report.md>
+//        pnpm --silent content-pr summary --kind <sheet|events> <report.md>
 import { runCommand } from "./lib/command";
 import { execute, parseCommand } from "./lib/content-pr/command";
 

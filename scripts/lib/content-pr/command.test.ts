@@ -25,11 +25,10 @@ describe("parseCommand", () => {
       calendar: "cal.txt",
       fix: false,
     });
-    expect(parseCommand(["outcomes", "--kind", "sheet", "--failed", "r.md"])).toEqual({
-      action: "outcomes",
+    expect(parseCommand(["summary", "--kind", "sheet", "r.md"])).toEqual({
+      action: "summary",
       kind: "sheet",
       report: "r.md",
-      failed: true,
     });
   });
 
@@ -47,16 +46,19 @@ describe("parseCommand", () => {
 describe("execute", () => {
   const dir = freshTempDir("content-pr");
 
-  function run(command: Command, lint = () => true) {
+  function run(command: Command, lint = () => true, env: Record<string, string> = {}) {
     const out: string[] = [];
     const warnings: string[] = [];
+    const errors: string[] = [];
     const io = {
       cwd: join(dir(), "repo"),
+      env,
       print: (l: string) => out.push(l),
       warn: (l: string) => warnings.push(l),
       lint,
+      fail: (m: string) => errors.push(m),
     };
-    return execute(command, io).then(() => ({ out, warnings }));
+    return execute(command, io).then(() => ({ out, warnings, errors }));
   }
 
   function repoWithPatch(): string {
@@ -109,7 +111,7 @@ describe("execute", () => {
     );
   });
 
-  it("prints the body without the header lines, and the outcomes, nothing for a missing report", async () => {
+  it("prints the body without the header lines, or a comment fix's body", async () => {
     const r = report("r.md", "blocking: no\ncommit: x\n\n## A\nOutcome: document error: a date\n");
     const { out } = await run({ action: "body", kind: "sheet", report: r, runUrl: "u", fix: false });
     expect(out[0]).toMatch(/^## A\nOutcome: document error: a date\n\n<!-- report-end -->/);
@@ -117,12 +119,27 @@ describe("execute", () => {
     const fixed = (await run({ action: "body", kind: "sheet", report: fixBody, runUrl: "u", fix: true })).out[0];
     expect(fixed).toMatch(/^## A\n\nOutcome: corrected\n\n<!-- report-end -->/);
     expect(fixed).toMatch(/; last correction: u$/);
-    expect((await run({ action: "outcomes", kind: "sheet", report: r, failed: true })).out).toEqual([
-      "- A: document error: a date",
-    ]);
-    expect((await run({ action: "outcomes", kind: "sheet", report: join(dir(), "x.md"), failed: false })).out).toEqual(
-      [],
-    );
+  });
+
+  it("prints the summary from the environment and fails when the maintainer must act", async () => {
+    const r = report("r.md", "blocking: no\ncommit: x\n\n## A\nOutcome: document error: a date\n");
+    const env = {
+      FETCHED: "true",
+      SUMMARY: '["2026-11-08 09:12: sheet (newest)"]',
+      HANDLED: "/tmp/porad.docx",
+      JOB_RESULT: "success",
+      CLAUDE: "success",
+      DOWNLOAD: "success",
+      APPLY: "success",
+      CHANGED: "false",
+    };
+    const { out, errors } = await run({ action: "summary", kind: "sheet", report: r }, undefined, env);
+    expect(out[0]).toContain("- 2026-11-08 09:12: sheet (newest)\n\nNothing changed: no PR.");
+    expect(out[0]).toContain("Weeks not published:\n- A: document error: a date");
+    expect(errors).toHaveLength(1);
+    const quiet = await run({ action: "summary", kind: "sheet", report: join(dir(), "x.md") }, undefined, {});
+    expect(quiet.out[0]).toBe("## Service sheet\n\nThe mail could not be read.\n");
+    expect(quiet.errors).toEqual([]);
   });
 });
 

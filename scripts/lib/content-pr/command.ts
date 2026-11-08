@@ -9,18 +9,19 @@ import { ROOT } from "../content-files";
 import { KINDS, type Kind } from "../content-release/plan";
 import { pullBody } from "./body";
 import { applyContentPatch, hasChange } from "./patch";
-import { checkReport, outcomeLines, parseMailReport, REPORT_RULES } from "./report";
+import { checkReport, parseMailReport, REPORT_RULES } from "./report";
+import { runStateFromEnv, summarize, type Env } from "./summary";
 
 const USAGE = `Usage: pnpm content-pr apply --kind <sheet|events> <report.md> <content.patch>
        pnpm content-pr patch --kind <sheet|events> <content.patch>
        pnpm content-pr body --kind <sheet|events> --run-url <url> [--calendar <file>] [--fix] <report.md>
-       pnpm content-pr outcomes --kind <sheet|events> [--failed] <report.md>`;
+       pnpm content-pr summary --kind <sheet|events> <report.md>`;
 
 export type Command =
   | { action: "apply"; kind: Kind; report: string; patch: string }
   | { action: "patch"; kind: Kind; patch: string }
   | { action: "body"; kind: Kind; report: string; runUrl: string; calendar?: string; fix: boolean }
-  | { action: "outcomes"; kind: Kind; report: string; failed: boolean };
+  | { action: "summary"; kind: Kind; report: string };
 
 export function parseCommand(args: string[]): Command {
   const { values, positionals } = parseCommandLine(
@@ -29,7 +30,6 @@ export function parseCommand(args: string[]): Command {
       kind: { type: "string" },
       "run-url": { type: "string" },
       calendar: { type: "string" },
-      failed: { type: "boolean" },
       fix: { type: "boolean" },
     },
     USAGE,
@@ -58,9 +58,9 @@ export function parseCommand(args: string[]): Command {
       const calendar = values.calendar ? { calendar: values.calendar } : {};
       return { action, kind: kind(), report: files[0], runUrl, ...calendar, fix: values.fix ?? false };
     }
-    case "outcomes":
+    case "summary":
       takes("the report");
-      return { action, kind: kind(), report: files[0], failed: values.failed ?? false };
+      return { action, kind: kind(), report: files[0] };
     default:
       throw new Error(USAGE);
   }
@@ -75,19 +75,33 @@ export function commitlintAccepts(message: string): boolean {
   return spawnSync(bin, { cwd: ROOT, input: `${message}\n`, stdio: ["pipe", "ignore", "ignore"] }).status === 0;
 }
 
-type Io = { cwd: string; print: (line: string) => void; warn: (line: string) => void; lint: (m: string) => boolean };
+type Io = {
+  cwd: string;
+  env: Env;
+  print: (line: string) => void;
+  warn: (line: string) => void;
+  lint: (message: string) => boolean;
+  /** Fails the command after its output, with an error annotation. */
+  fail: (message: string) => void;
+};
 
 const defaultIo: Io = {
   cwd: process.cwd(),
+  env: process.env,
   print: (line) => console.log(line),
   warn: (line) => console.error(line),
   lint: commitlintAccepts,
+  fail: (message) => {
+    console.error(`::error::${message}`);
+    process.exitCode = 1;
+  },
 };
 
 /**
  * Runs the command. `apply` checks the report against the patch and applies it (only content files of the kind), and
- * prints `{ changed, draft, message }` as JSON; `patch` only applies; `body` prints the PR body (of a comment fix with `fix`); `outcomes` prints the
- * report's `- <item>: <outcome>` lines (with `--failed`, only the items not published).
+ * prints `{ changed, draft, message }` as JSON; `patch` only applies; `body` prints the PR body (of a comment fix with `fix`); `summary` prints the
+ * job summary from the step results in the environment (`runStateFromEnv`) and the report, and fails when the
+ * maintainer must act without a PR.
  */
 export async function execute(command: Command, io: Io = defaultIo): Promise<void> {
   switch (command.action) {
@@ -115,9 +129,10 @@ export async function execute(command: Command, io: Io = defaultIo): Promise<voi
       io.print(pullBody({ kind, report, runUrl, calendar, fix }).trimEnd());
       return;
     }
-    case "outcomes":
-      for (const line of outcomeLines(command.kind, readOrEmpty(command.report), { failed: command.failed })) {
-        io.print(`- ${line}`);
-      }
+    case "summary": {
+      const { lines, error } = summarize(command.kind, runStateFromEnv(io.env), readOrEmpty(command.report));
+      io.print(lines.join("\n"));
+      if (error) io.fail(error);
+    }
   }
 }

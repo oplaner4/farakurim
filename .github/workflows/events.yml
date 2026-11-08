@@ -232,24 +232,21 @@ jobs:
           name: events-run-${{ github.run_id }}
           path: ${{ runner.temp }}/run/
 
-      # A fresh checkout of the commit Claude's change is based on: nothing from `event`'s workspace runs here.
+      # A fresh checkout of the commit Claude's change is based on: nothing from `event`'s workspace runs here. Also
+      # when the download failed, for the summary.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        if: steps.download.outcome == 'success'
         with:
           ref: ${{ needs.event.outputs.base || 'main' }}
           persist-credentials: false # only the push step gets a token
 
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-        if: steps.download.outcome == 'success'
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        if: steps.download.outcome == 'success'
         with:
           node-version-file: .nvmrc
           cache: pnpm
 
-      - if: steps.download.outcome == 'success'
-        run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
 
       # `pnpm content-pr apply` checks the report against the patch (each event exactly one `Outcome:` line, `created`
       # or `refused: …`; without a change every event refused, or no event at all, and the mail is refused) and applies
@@ -331,70 +328,26 @@ jobs:
             echo "filed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      # Dates, kinds, known senders, event titles and the outcomes only, never the e-mail's text. Fails the job when
-      # something needs the maintainer without a PR: a refused mail, an incomplete mail, a known sender's failed DKIM.
+      # `pnpm content-pr summary`: dates, kinds, known senders, event titles and the outcomes only, never the e-mail's
+      # text. Fails the job when something needs the maintainer without a PR: a refused mail, an incomplete mail, a
+      # known sender's failed DKIM.
       - name: Summary
         if: always()
         env:
           FETCHED: ${{ needs.event.outputs.fetched }}
           SUMMARY: ${{ needs.event.outputs.summary }}
-          MAIL: ${{ needs.event.outputs.mail }}
-          INCOMPLETE: ${{ needs.event.outputs.incomplete }}
-          KNOWN_DKIM: ${{ needs.event.outputs.known_dkim }}
-          EVENT_RESULT: ${{ needs.event.result }}
+          HANDLED: ${{ needs.event.outputs.mail }}
+          JOB_RESULT: ${{ needs.event.result }}
           CLAUDE: ${{ needs.event.outputs.claude }}
           DOWNLOAD: ${{ steps.download.outcome }}
           APPLY: ${{ steps.changes.outcome }}
           CHANGED: ${{ steps.changes.outputs.changed }}
           PR_OUTCOME: ${{ steps.pr.outcome }}
+          PR_ACTION: ${{ steps.pr.outputs.action }}
           PR_URL: ${{ steps.pr.outputs.url }}
-        run: |
-          outcomes=$(pnpm --silent content-pr outcomes --kind events "$RUNNER_TEMP/run/report.md" 2> /dev/null || true)
-          refused=false
-          {
-            echo "## Events"
-            echo
-            if [ "$FETCHED" != true ]; then
-              echo "The mail could not be read."
-            elif [ "$(jq 'length' <<< "$SUMMARY")" = 0 ]; then
-              echo "No new mail."
-            else
-              jq -r '.[] | "- " + .' <<< "$SUMMARY"
-            fi
-            echo
-            if [ -n "$MAIL" ]; then
-              if [ "$CLAUDE" != success ]; then
-                echo "Claude's run failed: the mail stays unread and the next run retries it."
-              elif [ "$EVENT_RESULT" != success ] || [ "$DOWNLOAD" != success ]; then
-                echo "The event job failed after Claude's run (see the log): the mail stays unread for the next run."
-              elif [ "$APPLY" != success ]; then
-                echo "The change or the report was not accepted (see the log): the mail stays unread for the next run."
-              elif [ "$CHANGED" = false ]; then
-                echo "Nothing new in the mail (every event refused, or no event in it): refused, no PR."
-                refused=true
-              elif [ "$PR_OUTCOME" = success ]; then
-                echo "PR opened: $PR_URL"
-              else
-                echo "The commit or PR failed (see the log): the mail stays unread for the next run."
-              fi
-              if [ -n "$outcomes" ]; then
-                echo
-                echo "$outcomes"
-              fi
-            fi
-            if [ "${INCOMPLETE:-0}" != 0 ]; then
-              echo
-              echo "$INCOMPLETE mail(s) from an accepted sender had neither an attachment nor a subject and a text."
-            fi
-            if [ -n "$KNOWN_DKIM" ]; then
-              echo
-              echo "Mail from $KNOWN_DKIM failed the DKIM check (forwarded, or another provider): refused."
-            fi
-          } >> "$GITHUB_STEP_SUMMARY"
-          if [ "$refused" = true ] || [ "${INCOMPLETE:-0}" != 0 ] || [ -n "$KNOWN_DKIM" ]; then
-            echo "::error::A mail added nothing, had nothing to read, or failed the DKIM check of a known sender."
-            exit 1
-          fi
+          INCOMPLETE: ${{ needs.event.outputs.incomplete }}
+          KNOWN_DKIM: ${{ needs.event.outputs.known_dkim }}
+        run: pnpm --silent content-pr summary --kind events "$RUNNER_TEMP/run/report.md" >> "$GITHUB_STEP_SUMMARY"
 
   # One mail per run: while accepted mail remains and the mail of this run is filed, the next run takes the next one
   # (at most 5 runs per start of the cron). GITHUB_TOKEN may dispatch a workflow.
