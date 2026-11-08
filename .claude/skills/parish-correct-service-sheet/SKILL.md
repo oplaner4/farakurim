@@ -57,13 +57,14 @@ Follow **`parish-publish-content`**. The release brings the "Bohoslužby" calend
 
 ## Unattended run
 
-Only when the prompt says the run is **unattended**: the DOCX's newest week is already in `service-sheets.json`
+Only when the prompt says the run is **unattended**: the run's week (the one the prompt names, else the DOCX's newest)
+is already in `service-sheets.json`
 (**`parish-create-service-sheet`** "Unattended run" sends it here). Its rules and its report apply; steps 1 to 4 here
 change:
 
 - It is a correction, always, even when nothing seems to differ: build the record from the draft as
-  `parish-create-service-sheet` step 2a says (not from the sheet), and stage it, with `--corrected` when the script
-  says the week is already published.
+  `parish-create-service-sheet` step 2a says (not from the sheet), and stage it (with the prompt's `--from` and
+  `--to` when it names the week), with `--corrected` when the script says the week is already published.
 - The week's outcome is `corrected`, and its summary is what differs from the published sheet.
 
 ## Comment run

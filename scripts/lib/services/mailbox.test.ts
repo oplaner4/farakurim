@@ -15,6 +15,18 @@ describe("judgeMessage", () => {
     }
   });
 
+  it("keeps the subject and the new text, without the quote and the signature", async () => {
+    const text = "Oprava: mše v sobotu až v 18:00.\n-- \nJan Novák\n\n> Pořad bohoslužeb";
+    const raw = await dkimSigned(
+      message({ from: parish, files: ["a.docx"], subject: " Pořad 16.–22. 11. ", text }),
+      "seznam.cz",
+    );
+    expect(await judgeMessage(raw, { resolver })).toMatchObject({
+      subject: "Pořad 16.–22. 11.",
+      note: "Oprava: mše v sobotu až v 18:00.",
+    });
+  });
+
   it("refuses a message the sender check refuses", async () => {
     const stranger = await dkimSigned(message({ from: "x@seznam.cz", files: ["a.docx"] }), "seznam.cz");
     expect(await judgeMessage(stranger, { resolver })).toEqual({ kind: "rejected", reason: "sender" });
@@ -35,7 +47,13 @@ describe("judgeMessage", () => {
 describe("pickNewest", () => {
   it("picks the newest sheet and supersedes the others", () => {
     const sheet = (iso: string) =>
-      ({ kind: "sheet", date: new Date(iso), docx: { name: "a.docx", content: Buffer.alloc(0) } }) as const;
+      ({
+        kind: "sheet",
+        date: new Date(iso),
+        docx: { name: "a.docx", content: Buffer.alloc(0) },
+        subject: "",
+        note: "",
+      }) as const;
     expect(
       pickNewest([
         { uid: 3, verdict: sheet("2026-10-15T10:00:00Z") },

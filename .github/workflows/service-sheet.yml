@@ -1,13 +1,15 @@
 # Opens a pull request with the week's service sheet from the parish's e-mail (docs/content-pipelines.md "Service sheet by
 # e-mail"). On each run of the hosting's cron it reads the unseen mail of the service sheet mailbox over IMAP
-# (`pnpm sheet-mail`): only the parish's DKIM-signed message with one DOCX is a sheet.
+# (`pnpm sheet-mail`): only the parish's DKIM-signed message with one DOCX is a sheet. Two parts of the mail are
+# optional: a date in the subject names the week to handle (else the DOCX's newest week), and the mail's new text is
+# the sender's note, which Claude checks the draft against (never a source of content).
 # Two jobs, so that no step holding a secret runs code from a workspace Claude has touched:
 # - `sheet` fetches the mail and lets Claude (claude-code-action, workload identity federation, no API key) run the
 #   service sheet skills unattended on the DOCX: it drafts, corrects and stages the weeks and writes a report. Claude's
 #   file tools may write only in $RUNNER_TEMP/sheet (the checkout is denied); only `pnpm stage sheet` writes
 #   src/content/ and the staging folder. The job hands on the report, the change to src/content/ as a patch and the staged PDFs
-#   as a one-day artifact. The year's DOCX (intentions with names) never leaves this job: it is not uploaded, cached
-#   or logged, and it is deleted at the end.
+#   as a one-day artifact. The year's DOCX (intentions with names) and the note never leave this job: they are not
+#   uploaded, cached or logged, and they are deleted at the end.
 # - `publish` starts from a fresh checkout, applies the patch only if it touches nothing but src/content/*.json, then
 #   commits as the GitHub App's bot and opens or updates the one service-sheet/* PR, its body the report (ended by a
 #   `<!-- report-end -->` line, so a comment fix can replace the report), a draft while the report has a blocking
@@ -20,8 +22,8 @@
 # a run that breaks retries the sheet on the next run. Both jobs run in the environment `service-sheet-publish` (the
 # IMAP login; the federation rule matches it, but only `sheet` has an id-token). The App key is the repository secret
 # CONTENT_APP_PRIVATE_KEY, shared with content-release.yml; a secret reaches only the steps that name it. The
-# job summary and the failure (refused week, document error, a parish message without exactly one DOCX) tell the
-# maintainer; no e-mail is sent. The runner image and the actions are pinned (actions by
+# job summary and the failure (refused week, document error, a parish message without exactly one DOCX, a subject
+# naming a week the DOCX does not have, a superseded mail naming another week) tell the maintainer; no e-mail is sent. The runner image and the actions are pinned (actions by
 # commit SHA).
 
 name: Service sheet
@@ -60,6 +62,8 @@ jobs:
       fetched: ${{ steps.fetch.outputs.fetched }}
       docx: ${{ steps.fetch.outputs.docx }}
       sheet: ${{ steps.fetch.outputs.sheet }}
+      no_week: ${{ steps.fetch.outputs.no_week }}
+      unhandled: ${{ steps.fetch.outputs.unhandled }}
       superseded: ${{ steps.fetch.outputs.superseded }}
       rejected: ${{ steps.fetch.outputs.rejected }}
       no_docx: ${{ steps.fetch.outputs.no_docx }}
@@ -84,9 +88,10 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # The outcome is one JSON document on stdout (--silent keeps pnpm's banner out of it); it holds uids, dates and
-      # kinds, never message text. The DOCX lands in $RUNNER_TEMP/sheet/mail/porad.docx, mail.json in
-      # $RUNNER_TEMP/run (the artifact's folder, outside Claude's reach).
+      # The outcome is one JSON document on stdout (--silent keeps pnpm's banner out of it); it holds uids, dates,
+      # weeks and kinds, never message text. The DOCX lands in $RUNNER_TEMP/sheet/mail/porad.docx, the sender's note
+      # (if any) in $RUNNER_TEMP/sheet/mail/note.txt, mail.json in $RUNNER_TEMP/run (the artifact's folder, outside
+      # Claude's reach). A named week reaches the prompt only as two ISO dates.
       - name: Fetch the mail
         id: fetch
         env:
@@ -100,11 +105,16 @@ jobs:
           jq -r '
             "docx=\(.docx // "")",
             "sheet=\(.sheetUid // "")",
+            "week_from=\(.week.validFrom // "" | select(test("^([0-9]{4}-[0-9]{2}-[0-9]{2})?$")))",
+            "week_to=\(.week.validTo // "" | select(test("^([0-9]{4}-[0-9]{2}-[0-9]{2})?$")))",
+            "note=\(if .note then "true" else "" end)",
             "superseded=\(.superseded | map(tostring) | join(","))",
-            "rejected=\(.rejected + .noDocx | map(tostring) | join(","))",
+            "rejected=\(.rejected + .noDocx + .noWeek | map(tostring) | join(","))",
             "no_docx=\(.noDocx | length)",
+            "no_week=\(.noWeek | length)",
+            "unhandled=\(.unhandled | length)",
             "summary=\(.summary | tojson)",
-            "date=\([.summary[] | select(endswith(": sheet (newest)")) | .[0:10]] | first // "")"
+            "date=\([.summary[] | select(contains(": sheet (newest)")) | .[0:10]] | first // "")"
           ' "$mail" >> "$GITHUB_OUTPUT"
           echo "fetched=true" >> "$GITHUB_OUTPUT"
 
@@ -180,6 +190,8 @@ jobs:
             --disallowedTools "WebFetch,WebSearch,NotebookEdit,Edit(/${{ github.workspace }}/**)"
           prompt: |
             The parish sent its service sheet DOCX: ${{ runner.temp }}/sheet/mail/porad.docx.
+            ${{ steps.fetch.outputs.week_from != '' && format('The week to handle: {0} to {1} (`--from {0} --to {1}`).', steps.fetch.outputs.week_from, steps.fetch.outputs.week_to) || 'The week to handle: the DOCX''s newest.' }}
+            ${{ steps.fetch.outputs.note == 'true' && format('The sender''s note: {0}/sheet/mail/note.txt.', runner.temp) || 'The sender wrote no note.' }}
             Run the service sheet skills unattended (their "Unattended run" section). The report file is
             ${{ runner.temp }}/sheet/report.md and the scratchpad is ${{ runner.temp }}/sheet.
             The previous report of this PR, if present: ${{ runner.temp }}/sheet/previous-report.md.
@@ -210,7 +222,7 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-      - name: Delete the DOCX
+      - name: Delete the DOCX and the note
         if: always()
         run: rm -rf "$RUNNER_TEMP/sheet"
 
@@ -410,7 +422,8 @@ jobs:
           echo "url=$url" >> "$GITHUB_OUTPUT"
 
       # Dates, kinds, weeks and the script's messages only, never the e-mail's text. Fails the job when something
-      # needs the maintainer without a PR: a refused week, a document error, a parish message without one DOCX.
+      # needs the maintainer without a PR: a refused week, a document error, a parish message without one DOCX, a
+      # subject naming a week the DOCX does not have, an older message naming another week than the one handled.
       - name: Summary
         if: always()
         env:
@@ -418,6 +431,8 @@ jobs:
           SUMMARY: ${{ needs.sheet.outputs.summary }}
           DOCX: ${{ needs.sheet.outputs.docx }}
           NO_DOCX: ${{ needs.sheet.outputs.no_docx }}
+          NO_WEEK: ${{ needs.sheet.outputs.no_week }}
+          UNHANDLED: ${{ needs.sheet.outputs.unhandled }}
           SHEET_RESULT: ${{ needs.sheet.result }}
           CLAUDE: ${{ needs.sheet.outputs.claude }}
           DOWNLOAD: ${{ steps.download.outcome }}
@@ -466,9 +481,19 @@ jobs:
               echo
               echo "$NO_DOCX message(s) from the parish had no DOCX or several: ask the parish for the sheet."
             fi
+            if [ "${NO_WEEK:-0}" != 0 ]; then
+              echo
+              echo "The sheet's subject names a date no week of its DOCX holds: nothing was handled. Ask the parish to"
+              echo "send it again with the week's dates in the subject, or with none for the newest week."
+            fi
+            if [ "${UNHANDLED:-0}" != 0 ]; then
+              echo
+              echo "$UNHANDLED older sheet message(s) named another week than the one handled: ask the parish to send"
+              echo "them again."
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
-          if [ -n "$failed" ] || [ "${NO_DOCX:-0}" != 0 ]; then
-            echo "::error::A week was refused, a document error occurred or a parish message had no single DOCX."
+          if [ -n "$failed" ] || [ "${NO_DOCX:-0}" != 0 ] || [ "${NO_WEEK:-0}" != 0 ] || [ "${UNHANDLED:-0}" != 0 ]; then
+            echo "::error::A week was refused, a document error occurred or a parish message had no single DOCX or week."
             exit 1
           fi
 

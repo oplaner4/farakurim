@@ -1,7 +1,15 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { dkimSigned, fakeDkimResolver as resolver, fakeMailbox, freshTempDir, mailMessage } from "../test-helpers";
+import {
+  dkimSigned,
+  docxWithBody,
+  fakeDkimResolver as resolver,
+  fakeMailbox,
+  freshTempDir,
+  mailMessage,
+  wordml,
+} from "../test-helpers";
 import { fetchSheet, parseCommand } from "./sheet-mail";
 
 const dir = freshTempDir("sheet-mail");
@@ -9,6 +17,23 @@ const parish = "fara.kurim@seznam.cz";
 
 const sheet = (name: string, date: string) =>
   dkimSigned(mailMessage({ from: parish, files: [{ name, content: Buffer.from(`docx ${date}`) }], date }), "seznam.cz");
+
+/** A DOCX of the weeks 8.–15. 11. and 15.–22. 11. 2026, the newest first (headings only). */
+const twoWeeks = docxWithBody(
+  ["od 15. 11. 2026 do 22. 11. 2026", "od 8. 11. 2026 do 15. 11. 2026"]
+    .map((week) => wordml.p(wordml.run(`ROZPIS BOHOSLUŽEB V TÝDNU ${week}`, { bold: true })))
+    .join(""),
+);
+
+/** A sheet e-mail with the two weeks' DOCX, sent on 12. 11. 2026 unless `date` says otherwise. */
+const yearSheet = (
+  subject: string,
+  { text, date = "Thu, 12 Nov 2026 08:00:00 +0000" }: { text?: string; date?: string } = {},
+) =>
+  dkimSigned(
+    mailMessage({ from: parish, files: [{ name: "Pořad 2026.docx", content: twoWeeks }], subject, text, date }),
+    "seznam.cz",
+  );
 
 describe("fetchSheet", () => {
   it("writes the newest sheet as porad.docx and sorts the other messages", async () => {
@@ -52,9 +77,65 @@ describe("fetchSheet", () => {
       superseded: [],
       rejected: [],
       noDocx: [],
+      noWeek: [],
+      unhandled: [],
       summary: [],
     });
     expect(existsSync(join(dir(), "porad.docx"))).toBe(false);
+  });
+});
+
+describe("fetchSheet with the sender's subject and text", () => {
+  it("behaves as before without a date in the subject or a text", async () => {
+    const { mailbox } = fakeMailbox([{ uid: 1, source: await yearSheet("Pořad bohoslužeb 2026") }]);
+    const outcome = await fetchSheet(mailbox, dir(), { resolver });
+    expect(outcome).toMatchObject({ sheetUid: 1, noWeek: [], unhandled: [] });
+    expect(outcome.week).toBeUndefined();
+    expect(outcome.note).toBeUndefined();
+    expect(existsSync(join(dir(), "note.txt"))).toBe(false);
+  });
+
+  it("hands on the week the subject names", async () => {
+    const { mailbox } = fakeMailbox([{ uid: 1, source: await yearSheet("Oprava ohlášek 10. 11.") }]);
+    const outcome = await fetchSheet(mailbox, dir(), { resolver });
+    expect(outcome).toMatchObject({ sheetUid: 1, week: { validFrom: "2026-11-08", validTo: "2026-11-15" } });
+    expect(outcome.summary).toEqual(["2026-11-12 09:00: sheet (newest), the week 2026-11-08 – 2026-11-15"]);
+  });
+
+  it("refuses the sheet when the subject names a week its DOCX does not have", async () => {
+    const { mailbox } = fakeMailbox([{ uid: 4, source: await yearSheet("Pořad 29. 11.", { text: "Posílám." }) }]);
+    const outcome = await fetchSheet(mailbox, dir(), { resolver });
+    expect(outcome).toMatchObject({ noWeek: [4], superseded: [] });
+    expect(outcome.docx).toBeUndefined();
+    expect(outcome.note).toBeUndefined();
+    expect(existsSync(join(dir(), "porad.docx"))).toBe(false);
+    expect(outcome.summary).toEqual(["2026-11-12 09:00: sheet (newest), its subject names no week of its DOCX"]);
+  });
+
+  it("writes the sender's new text as the note, never into the outcome", async () => {
+    const text = "Oprava: v sobotu mše až v 18:00.\n-- \nJan Novák";
+    const { mailbox } = fakeMailbox([{ uid: 1, source: await yearSheet("Pořad", { text }) }]);
+    const outcome = await fetchSheet(mailbox, dir(), { resolver });
+    expect(outcome.note).toBe(join(dir(), "note.txt"));
+    expect(readFileSync(join(dir(), "note.txt"), "utf8")).toBe("Oprava: v sobotu mše až v 18:00.\n");
+    expect(JSON.stringify(outcome)).not.toMatch(/Oprava|Novák|sobotu/);
+  });
+
+  it("flags a superseded sheet whose subject names another week", async () => {
+    const { mailbox } = fakeMailbox([
+      { uid: 1, source: await yearSheet("Pořad 8.–15. 11.", { date: "Wed, 11 Nov 2026 08:00:00 +0000" }) },
+      { uid: 2, source: await yearSheet("Pořad 15. 11.", { date: "Wed, 11 Nov 2026 09:00:00 +0000" }) },
+      { uid: 3, source: await yearSheet("Pořad bohoslužeb") },
+    ]);
+    const outcome = await fetchSheet(mailbox, dir(), { resolver });
+    // The newest names no week, so it is the DOCX's newest (15.–22. 11.), the one uid 2 names too.
+    expect(outcome).toMatchObject({ sheetUid: 3, superseded: [1, 2], unhandled: [1] });
+    expect(outcome.week).toBeUndefined();
+    expect(outcome.summary).toEqual([
+      "2026-11-11 09:00: superseded, its subject names the week 2026-11-08 – 2026-11-15: not handled",
+      "2026-11-11 10:00: superseded",
+      "2026-11-12 09:00: sheet (newest)",
+    ]);
   });
 });
 

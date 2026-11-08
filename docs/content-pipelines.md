@@ -14,20 +14,34 @@ provider's DKIM signature.
 [started by the hosting's cron](hosting.md#starting-the-workflows-on-time), or **Run workflow** by hand) then:
 
 1. reads the unseen mail over IMAP (`pnpm sheet-mail`): only an accepted sender's DKIM-signed message with exactly
-   one DOCX is a sheet, any other mail is filed in `Odmítnuto`;
+   one DOCX is a sheet, any other mail is filed in `Odmítnuto`. Of several sheets the newest is handled;
 2. lets Claude run the service sheet skills unattended on the DOCX (workload identity federation, no API key): it
-   drafts, corrects and stages the weeks and writes a report;
+   drafts, corrects and stages the run's week, checks it against the sender's note and writes a report;
 3. commits the change to `src/content/` as the GitHub App's bot (no test or build: [`check.yml`](github-setup.md#checks-on-content-prs)
    checks the PR) and opens (or adds a commit to)
    the one `service-sheet/*` pull request, its body the report (a later run gets the previous report, keeps its weeks
    and question ids, so the body and title describe every week in the PR, and turns it back into a draft on a new
    blocking question). The conversation is locked: only
-   collaborators with write access can comment. Every e-mail is about the DOCX's newest week: a new week is created,
+   collaborators with write access can comment. Every e-mail is about one week (see below): a new week is created,
    a week already on the site is replaced from the new draft (a correction, never compared with the published sheet),
    so a resend opens a PR you close when nothing changed;
 4. files the mail in `Zpracováno` once the outcome is done, so a run that breaks retries the sheet on the next run.
 
-The DOCX (it holds intentions with names) never leaves the `sheet` job: it is not uploaded, cached or logged. Claude's
+**The subject and the text are optional**, and a mail with neither works as it always did:
+
+- **A date in the subject names the week** to handle: one date ("Ohlášky 15. 11."), a range ("Pořad 16.–22. 11.",
+  "16. 11. – 22. 11. 2026", "od 15. 11. do 22. 11."), the year optional (the one closest to the mail). It picks the
+  DOCX's week that holds the date or the whole range, the newer one on the Sunday two weeks share. Without a date
+  the week is the DOCX's newest. This is how the parish corrects an older week that is still on the site. A date no
+  week of the DOCX holds (or one that does not exist) handles nothing: the mail goes to `Odmítnuto` and the run
+  fails, so the parish sends it again with the right dates or none. The run also fails when an older sheet mail,
+  superseded by a newer one, named another week: that week was not handled, so ask for it again.
+- **The mail's new text is the sender's note** (without a quoted reply or the signature): "Oprava: sobotní mše až
+  v 18:00". Claude checks the draft against it and says in the report's `### Sender's note` what it asks to check
+  and whether the draft agrees; a disagreement is a blocking question. The note is never a source: the site shows
+  what the DOCX says.
+
+The DOCX (it holds intentions with names) and the note never leave the `sheet` job: it is not uploaded, cached or logged. Claude's
 file tools may write only in the job's scratch folder, never in the checkout. The second job, `publish`, uses the App
 key from a fresh checkout and has no id-token, so it cannot act as Claude.
 

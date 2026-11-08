@@ -1,12 +1,14 @@
 // Which e-mail is accepted as the parish's service sheet: from one of SHEET_SENDERS with its provider's DKIM signature
-// (judgeSender()), with exactly one DOCX attached. A verdict never carries the message's text.
+// (judgeSender()), with exactly one DOCX attached. A sheet's verdict carries its subject and new text (the sender's
+// optional week and note), which only the caller's files may hold, never its output.
 
 import type { DNSResolver } from "mailauth";
 import { simpleParser } from "mailparser";
 import { judgeSender, SHEET_SENDERS } from "../mail/senders";
+import { mailText } from "../mail/text";
 
 export type Verdict =
-  | { kind: "sheet"; date: Date; docx: { name: string; content: Buffer } }
+  | { kind: "sheet"; date: Date; docx: { name: string; content: Buffer }; subject: string; note: string }
   | { kind: "rejected"; reason: "sender" | "dkim" }
   | { kind: "no-docx"; date: Date; count: number };
 
@@ -19,7 +21,13 @@ export async function judgeMessage(raw: Buffer, { resolver }: { resolver?: DNSRe
   const date = mail.date ?? new Date(0);
   const docxs = mail.attachments.filter((a) => a.filename?.toLowerCase().endsWith(".docx"));
   if (docxs.length !== 1) return { kind: "no-docx", date, count: docxs.length };
-  return { kind: "sheet", date, docx: { name: docxs[0].filename ?? "", content: docxs[0].content } };
+  return {
+    kind: "sheet",
+    date,
+    docx: { name: docxs[0].filename ?? "", content: docxs[0].content },
+    subject: (mail.subject ?? "").trim(),
+    note: mailText(mail.text ?? ""),
+  };
 }
 
 /** The uid of the newest sheet by its date, and the uids of the other sheets. */
