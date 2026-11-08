@@ -9,12 +9,14 @@ import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { format } from "date-fns";
 import type { DNSResolver } from "mailauth";
+import { period } from "@/lib/services/service-sheet";
 import { inPrague } from "@/lib/shared/prague";
 import { parseCommandLine } from "../command";
 import { fileMessages, imapEnv, imapMailbox, uidList, type Mailbox } from "../mail/imap";
 import { judgeMessage, pickNewest, type Verdict } from "./mailbox";
 import { docxWeeks } from "./sheet-docx";
-import { newestWeek, subjectDates, weekOf, type Week } from "./sheet-subject";
+import { subjectDates, weekOf } from "./sheet-subject";
+import { newestWeek, type Week } from "./sheet-week";
 
 /** The DOCX is written under this fixed ASCII name, whatever the attachment was called. */
 export const DOCX_FILE = "porad.docx";
@@ -43,7 +45,6 @@ export type MailOutcome = {
 };
 
 const stamp = (date: Date) => format(inPrague(date), "yyyy-MM-dd HH:mm");
-const period = (week: Week) => `${week.validFrom} – ${week.validTo}`;
 
 function summaryLine(uid: number, verdict: Verdict, { sheet, superseded }: ReturnType<typeof pickNewest>): string {
   if (verdict.kind === "rejected") return `rejected (${verdict.reason})`;

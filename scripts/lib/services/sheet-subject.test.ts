@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { newestWeek, subjectDates, weekOf } from "./sheet-subject";
+import { subjectDates, weekOf } from "./sheet-subject";
 
 const sent = new Date("2026-11-12T08:00:00Z");
 const dates = (from: string, to = from) => ({ kind: "dates", from, to });
@@ -76,10 +76,5 @@ describe("weekOf", () => {
   it("finds none for dates outside every week or across two", () => {
     expect(weekOf(weeks, { from: "2026-11-29", to: "2026-11-29" })).toBeUndefined();
     expect(weekOf(weeks, { from: "2026-11-10", to: "2026-11-17" })).toBeUndefined();
-  });
-
-  it("knows the newest week", () => {
-    expect(newestWeek([weeks[1], weeks[0]])).toBe(weeks[0]);
-    expect(newestWeek([])).toBeUndefined();
   });
 });

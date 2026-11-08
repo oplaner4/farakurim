@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { parseWeek, weekHeading, weekPages } from "./sheet-week";
+import { newestWeek, parseWeek, weekHeading, weekPages } from "./sheet-week";
+
+describe("newestWeek", () => {
+  it("takes the week that starts last, whatever the order", () => {
+    const older = { validFrom: "2026-11-08", validTo: "2026-11-15" };
+    const newer = { validFrom: "2026-11-15", validTo: "2026-11-22" };
+    expect(newestWeek([older, newer])).toBe(newer);
+    expect(newestWeek([newer, older])).toBe(newer);
+    expect(newestWeek([])).toBeUndefined();
+  });
+});
 
 describe("parseWeek", () => {
   it("reads the week from the heading", () => {

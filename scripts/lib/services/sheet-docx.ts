@@ -17,7 +17,7 @@ import { pragueWeekday } from "@/lib/shared/prague";
 import { period, periodDates } from "@/lib/services/service-sheet";
 import { feastCase } from "./sheet-feast";
 import { guessCategory, serviceFlags } from "./sheet-guess";
-import { weekHeading } from "./sheet-week";
+import { weekHeading, type Week } from "./sheet-week";
 
 /** A sheet record without its week: the days and announcements. */
 export type DraftRecord = {
@@ -185,7 +185,7 @@ function tableGrid(rows: Cell[][], where: string): (Cell | null)[][] {
  * The days of the week's table: one per table row, or more rows of one day in merged cells, and the days the table
  * leaves out without rows.
  */
-function tableDays(rows: Cell[][], week: { validFrom: IsoDate; validTo: IsoDate }): SheetDay[] {
+function tableDays(rows: Cell[][], week: Week): SheetDay[] {
   const where = `the week ${period(week)}`;
   const dates = periodDates(week.validFrom, week.validTo);
   const days: SheetDay[] = [];
@@ -213,7 +213,7 @@ function tableDays(rows: Cell[][], week: { validFrom: IsoDate; validTo: IsoDate 
 
 /** A week's heading, its table and its announcements, each the paragraphs up to an empty one. */
 type BodyWeek = {
-  week: { validFrom: IsoDate; validTo: IsoDate };
+  week: Week;
   table?: Cell[][];
   notes: { text: string; html: string }[][];
 };

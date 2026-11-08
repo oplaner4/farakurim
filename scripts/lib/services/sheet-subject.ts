@@ -6,9 +6,7 @@
 
 import type { IsoDate } from "@/content/types/shared";
 import { pragueDate } from "@/lib/shared/prague";
-import { isoDate, parseWeek, startYear } from "./sheet-week";
-
-export type Week = { validFrom: IsoDate; validTo: IsoDate };
+import { isoDate, newestWeek, parseWeek, startYear, type Week } from "./sheet-week";
 
 /** The dates a subject names: none, a range (`from` = `to` for one date), or a date that does not exist (31. 2.). */
 export type SubjectDates = { kind: "none" } | { kind: "dates"; from: IsoDate; to: IsoDate } | { kind: "invalid" };
@@ -73,13 +71,6 @@ export function subjectDates(subject: string, sent: Date): SubjectDates {
   const date = () => isoDate(day!, month!, year ?? nearestYear(month!, day!, sent));
   return datesOf(date, date);
 }
-
-/** The newest week of `weeks` (the latest start), as the DOCX's week when none is named. */
-export const newestWeek = <W extends Week>(weeks: W[]): W | undefined =>
-  weeks.reduce<W | undefined>(
-    (newest, week) => (!newest || week.validFrom > newest.validFrom ? week : newest),
-    undefined,
-  );
 
 /**
  * The week of `weeks` that holds every day from `from` to `to`; on the Sunday two weeks share, the newer one. Undefined

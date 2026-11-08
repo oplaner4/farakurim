@@ -26,7 +26,7 @@ import {
 } from "../services/add-service-sheet";
 import { docxToPdf } from "../services/docx-to-pdf";
 import { docxWeeks, type DocxWeek } from "../services/sheet-docx";
-import { parseWeek, weekPages } from "../services/sheet-week";
+import { newestWeek, parseWeek, weekPages } from "../services/sheet-week";
 import { eventLine, notEndedBy } from "../news/upcoming-events";
 import { correctedHint, correctedRev, MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
 import { extractPdfPages, pdfFirstPageText, pdfPageTexts } from "../images";
@@ -74,7 +74,7 @@ function pdfWeek(src: string, options: SheetOptions): Week {
 async function docxWeek(src: string, options: SheetOptions): Promise<DocxWeek> {
   const weeks = await docxWeeks(src);
   if (weeks.length === 0) throw new Error("no 'ROZPIS BOHOSLUŽEB … od … do …' heading in the DOCX");
-  if (!options.validFrom) return weeks.reduce((newest, week) => (week.validFrom > newest.validFrom ? week : newest));
+  if (!options.validFrom) return newestWeek(weeks)!;
   const week = weeks.find((w) => w.validFrom === options.validFrom && w.validTo === options.validTo);
   if (!week) {
     const listed = weeks.slice(0, 5).map(period).join(", ");

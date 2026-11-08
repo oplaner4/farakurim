@@ -5,6 +5,16 @@ import type { IsoDate } from "@/content/types/shared";
 import { period } from "@/lib/services/service-sheet";
 import { isIsoDate } from "@/lib/shared/prague";
 
+/** The days a service sheet covers, from its heading. */
+export type Week = { validFrom: IsoDate; validTo: IsoDate };
+
+/** The newest of `weeks` (the latest start): the DOCX's week when none is named. */
+export const newestWeek = <W extends Week>(weeks: W[]): W | undefined =>
+  weeks.reduce<W | undefined>(
+    (newest, week) => (!newest || week.validFrom > newest.validFrom ? week : newest),
+    undefined,
+  );
+
 /** An ISO date of a valid day, month and year; throws for 31. 2. */
 export function isoDate(day: number, month: number, year: number): IsoDate {
   const date = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
@@ -20,7 +30,7 @@ export const startYear = (month: number, endMonth: number, endYear: number) =>
  * The week of a service sheet from its heading: "od 30. 11. 2025 do 7. 12. 2025", or without the first year
  * ("od 30. 11. do 7. 12. 2025", the year before when the week crosses New Year). Null without a heading.
  */
-export function parseWeek(text: string): { validFrom: IsoDate; validTo: IsoDate } | null {
+export function parseWeek(text: string): Week | null {
   const m = /od (\d{1,2})\. ?(\d{1,2})\. ?(\d{4})? ?do (\d{1,2})\. ?(\d{1,2})\. ?(\d{4})/i.exec(
     text.replace(/\s+/g, " "),
   );
@@ -38,7 +48,7 @@ export const weekHeading = (text: string) => (/rozpis|po[řr]ad/i.test(text) ? p
  * its heading to the page before the next heading, without the blank pages the empty paragraphs at the end can fill.
  * Throws when no page has the week's heading.
  */
-export function weekPages(pages: string[], week: { validFrom: IsoDate; validTo: IsoDate }): [number, number] {
+export function weekPages(pages: string[], week: Week): [number, number] {
   const headings = pages.map(weekHeading);
   // Both dates: a typo can give two headings the same first day.
   const first = headings.findIndex((h) => h?.validFrom === week.validFrom && h.validTo === week.validTo);
