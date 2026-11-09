@@ -24,5 +24,75 @@
         "href": "mailto:poutnicimkk@seznam.cz"
       }
     ]
+  },
+  {
+    "id": "vystava-betlemu-2026",
+    "title": "Výstava betlémů",
+    "start": "2026-12-19",
+    "end": "2027-01-02",
+    "place": "Kuřim, kostel a fara",
+    "mapQuery": "Kostel sv. Maří Magdalény Kuřim",
+    "text": "Výstava betlémů v kostele sv. Maří Magdalény a na faře v Kuřimi, otevřená od 19. 12. 2026 do 2. 1. 2027.",
+    "sessions": [
+      {
+        "date": "2026-12-19",
+        "startTime": "14:00",
+        "endTime": "17:00"
+      },
+      {
+        "date": "2026-12-20",
+        "startTime": "10:30",
+        "endTime": "12:00"
+      },
+      {
+        "date": "2026-12-24",
+        "startTime": "13:00",
+        "endTime": "15:00"
+      },
+      {
+        "date": "2026-12-25",
+        "startTime": "10:30",
+        "endTime": "12:00"
+      },
+      {
+        "date": "2026-12-26",
+        "startTime": "14:00",
+        "endTime": "17:00"
+      },
+      {
+        "date": "2026-12-27",
+        "startTime": "14:00",
+        "endTime": "17:00"
+      },
+      {
+        "date": "2027-01-01",
+        "startTime": "14:00",
+        "endTime": "17:00"
+      },
+      {
+        "date": "2027-01-02",
+        "startTime": "14:00",
+        "endTime": "17:00"
+      }
+    ],
+    "longTerm": true,
+    "published": "2026-11-09",
+    "poster": {
+      "src": "/uploads/aktuality/vystava-betlemu-2026-plakat-poster.webp",
+      "alt": "Plakát: Výstava betlémů, kostel a fara Kuřim, 19. 12. 2026 – 2. 1. 2027"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/vystava-betlemu-2026-plakat.pdf",
+        "size": 414906
+      }
+    ],
+    "links": [
+      {
+        "label": "Betlémy na webu farnosti",
+        "href": "https://farakurim.cz/betlemy/"
+      }
+    ]
   }
 ]
