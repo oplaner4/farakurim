@@ -64,6 +64,9 @@ export async function correctedRev(env: StageEnv, current: number | undefined, r
   return (await onServer(env, rel(current))) ? (current ?? 1) + 1 : current;
 }
 
+/** The step for a run without --record, which stages nothing. */
+export const RECORD_OR_CHECK = "pass --record, or --check to check without staging";
+
 /** The refusal's lines when a corrected PDF's name is taken on the server: the file is published. */
 export const correctedHint = () => [state("published"), next("pass --corrected for a corrected PDF")];
 

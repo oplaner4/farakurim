@@ -23,7 +23,7 @@ import { planPoster, POSTER_EXTENSIONS, type PosterRender } from "../news/event-
 import { replaceEvent, replaceLines } from "../news/replace-event";
 import { unpinnedLines } from "../news/pin-event";
 import { next, refusal } from "../output";
-import { correctedRev, MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
+import { correctedRev, MAX_MB, RECORD_OR_CHECK, sourceFile, stage, stagedLine, type StageEnv } from "./core";
 import { renderPoster } from "../images";
 
 /** An attachment label's file name suffix: "Plakát" → "plakat", "Mapka trasy" → "mapka-trasy". */
@@ -78,7 +78,7 @@ function posterIndex(
   { noPoster, corrected }: { noPoster: boolean; corrected: boolean },
 ) {
   if (!corrected) return !noPoster && POSTER_EXTENSIONS.has(files[0].ext) ? 0 : -1;
-  if (noPoster) throw new Error("--no-poster is for a new event: pnpm event-poster changes the poster");
+  if (noPoster) throw refusal("--no-poster is for a new event", next("pnpm event-poster changes the poster"));
   const event = record as NewsEvent | undefined;
   if (!event?.poster) return -1;
   const source = event.attachments?.find((a) => a.file === posterHref(event))?.label;
@@ -93,7 +93,7 @@ function posterIndex(
 function eventInput(env: StageEnv, options: EventOptions): Record<string, unknown> | undefined {
   const { id, files, corrected, check } = options;
   if (!options.record && !corrected && !check) {
-    throw new Error("--record is required to stage the files; without it, only --check");
+    throw refusal("--record is required to stage the files", next(RECORD_OR_CHECK));
   }
   // Checked here too: the id names the staged files before the record is checked, and --check has no record.
   if (!newsEventSchema.shape.id.safeParse(id).success) throw new Error(`"${id}" is not an ASCII kebab-case id`);

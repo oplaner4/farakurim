@@ -32,7 +32,16 @@ import { docxWeeks, type DocxWeek } from "../services/sheet-docx";
 import { newestWeek, parseWeek, weekPages } from "../services/sheet-week";
 import { eventLine, notEndedBy } from "../news/upcoming-events";
 import { next, refusal, state, tell } from "../output";
-import { correctedHint, correctedRev, MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
+import {
+  correctedHint,
+  correctedRev,
+  MAX_MB,
+  RECORD_OR_CHECK,
+  sourceFile,
+  stage,
+  stagedLine,
+  type StageEnv,
+} from "./core";
 import { extractPdfPages, pdfFirstPageText, pdfPageTexts } from "../images";
 
 /** Every date from `validFrom` to `validTo` with its Czech weekday: "so 2026-10-03". */
@@ -223,11 +232,12 @@ export async function draftSheet(env: StageEnv, { out, ...options }: DraftOption
 export async function stageSheet(env: StageEnv, options: SheetOptions) {
   // A PDF staged without its sheet would go to the server with nothing linking it, and take the week's name there.
   if (!options.record && !options.check) {
-    throw new Error(
-      isDocx(options.source)
-        ? "--record is required to stage the week's page; for a DOCX, first write the draft record with `pnpm stage sheet draft` (or only print the week with --check)"
-        : "--record is required to stage the PDF; without it, only --check",
-    );
+    throw isDocx(options.source)
+      ? refusal(
+          "--record is required to stage the week's page",
+          next("write the draft record with `pnpm stage sheet draft` first (or only print the week with --check)"),
+        )
+      : refusal("--record is required to stage the PDF", next(RECORD_OR_CHECK));
   }
   return runSheet(env, options);
 }

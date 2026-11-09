@@ -60,7 +60,7 @@ describe("stageEvent", { timeout: 30_000 }, () => {
   it("stages nothing without a record, except with check", async () => {
     const source = await poster();
     await expect(stageOne({ source, id: "hody-ceska", label: "Plakát" })).rejects.toThrow(
-      "--record is required to stage the files; without it, only --check",
+      "--record is required to stage the files\nnext: pass --record, or --check to check without staging",
     );
     expect(existsSync(uploaded())).toBe(false);
   });
@@ -379,7 +379,7 @@ describe("stageEvent", { timeout: 30_000 }, () => {
 
       await expect(
         stageEvent(env, { id, files: [{ source: newProgram, label: "Program" }], corrected: true, noPoster: true }),
-      ).rejects.toThrow("--no-poster is for a new event: pnpm event-poster changes the poster");
+      ).rejects.toThrow("--no-poster is for a new event\nnext: pnpm event-poster changes the poster");
     });
 
     it("with corrected refuses a label that differs from one in the record only in accents", async () => {

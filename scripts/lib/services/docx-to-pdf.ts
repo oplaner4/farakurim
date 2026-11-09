@@ -6,6 +6,7 @@ import { copyFileSync, existsSync, mkdirSync, mkdtempSync, rmSync } from "node:f
 import { tmpdir } from "node:os";
 import { basename, extname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { next, refusal } from "../output";
 
 /** Opens the document read-only in a hidden Word and saves it as PDF (17 is wdExportFormatPDF). */
 const WORD_SCRIPT = `$ErrorActionPreference = 'Stop'
@@ -89,8 +90,9 @@ export function docxToPdf(file: string, dir: string, platform: NodeJS.Platform =
   const pdf = join(outDir, "document.pdf");
   if (platform === "win32" && withWord(src, pdf)) return pdf;
   if (!withLibreOffice(src, outDir, platform)) {
-    throw new Error(
-      `no converter for ${basename(file)}: install LibreOffice (or Word on Windows), or export the week's page as a PDF`,
+    throw refusal(
+      `no converter for ${basename(file)}`,
+      next("install LibreOffice (or Word on Windows), or export the week's page as a PDF"),
     );
   }
   if (!existsSync(pdf)) throw new Error(`LibreOffice wrote no PDF for ${basename(file)}`);

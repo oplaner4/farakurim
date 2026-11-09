@@ -65,7 +65,9 @@ describe("downloadAlbumZip", () => {
     });
     await expect(
       downloadAlbumZip("16583642", tempDir(), { fetch: fetch as unknown as typeof globalThis.fetch, wait: noWait }),
-    ).rejects.toThrow(/did not send a zip[^]*--photos <zip>/);
+    ).rejects.toThrow(
+      /did not send a zip[^\n]*\)\nnext: download the album's zip from Zonerama by hand and pass --photos <zip>$/,
+    );
     expect(readdirSync(tempDir()).flatMap((d) => readdirSync(join(tempDir(), d)))).toEqual([]);
   });
 
@@ -73,7 +75,9 @@ describe("downloadAlbumZip", () => {
     const fetch = zonerama({ ready: { IsReady: false, Error: "Album je příliš velké" } });
     await expect(
       downloadAlbumZip("16583642", tempDir(), { fetch: fetch as unknown as typeof globalThis.fetch, wait: noWait }),
-    ).rejects.toThrow(/Album je příliš velké[^]*--photos <zip>/);
+    ).rejects.toThrow(
+      /Album je příliš velké[^\n]*\)\nnext: download the album's zip from Zonerama by hand and pass --photos <zip>$/,
+    );
   });
 
   it("gives up when the zip is never ready", async () => {

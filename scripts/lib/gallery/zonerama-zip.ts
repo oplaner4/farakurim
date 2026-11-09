@@ -10,6 +10,7 @@ import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import type { ReadableStream } from "node:stream/web";
 import { errorMessage } from "../command";
+import { next, refusal } from "../output";
 
 const ZONERAMA = "https://eu.zonerama.com";
 const BY_HAND = "download the album's zip from Zonerama by hand and pass --photos <zip>";
@@ -92,6 +93,6 @@ export async function downloadAlbumZip(
     return await saveZip(await preparedZipUrl(number, { fetch, wait, attempts }), folder, number, fetch);
   } catch (error) {
     rmSync(folder, { recursive: true, force: true });
-    throw new Error(`could not download album ${number} (${errorMessage(error)}): ${BY_HAND}`);
+    throw refusal(`could not download album ${number} (${errorMessage(error)})`, next(BY_HAND));
   }
 }

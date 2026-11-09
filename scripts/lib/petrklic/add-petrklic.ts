@@ -42,7 +42,8 @@ export function addPetrklic(
   const id = issueId(record);
   let { issues } = readPetrklic(file);
   if (from !== undefined) {
-    if (from === id) throw new Error(`the issue keeps its id ${id}: --from is for a new year, number or note`);
+    if (from === id)
+      throw refusal(`the issue keeps its id ${id}`, next("leave out --from: it is for a new year, number or note"));
     const old = issues.findIndex((issue) => issueId(issue) === from);
     if (old === -1) throw new Error(`the issue ${from} is not added`);
     issues = issues.toSpliced(old, 1);

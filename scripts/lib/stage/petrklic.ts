@@ -11,7 +11,7 @@ import type { PetrklicRecord } from "@/content/types/petrklic";
 import { issueFiles, issueId, issuePath } from "@/lib/petrklic/issues";
 import { UPLOADS_PATH } from "@/lib/shared/uploads";
 import { addPetrklic, petrklicLines, readPetrklic } from "../petrklic/add-petrklic";
-import { next, tell } from "../output";
+import { next, refusal, tell } from "../output";
 import { onServer, serverUrl, UPLOADS_DIR } from "../uploads";
 import { correctedHint, correctedRev, MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
 import { pdfPageCount, renderPetrklic } from "../images";
@@ -43,7 +43,9 @@ export async function stagePetrklic(env: StageEnv, options: PetrklicOptions) {
     throw new Error("--from takes the issue's own PDF: no source and no --corrected");
   }
   const id = issueId(options);
-  if (from === id) throw new Error(`the issue keeps its id ${id}: --from is for a new year, number or note`);
+  if (from === id) {
+    throw refusal(`the issue keeps its id ${id}`, next("leave out --from: it is for a new year, number or note"));
+  }
   const moved = from !== undefined ? await movedIssue(env, from) : undefined;
   try {
     return await stageIssue(env, options, moved);

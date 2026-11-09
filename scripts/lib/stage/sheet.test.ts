@@ -40,7 +40,9 @@ describe("stageSheet", { timeout: 30_000 }, () => {
       `days: ${weekDays("2099-10-04", "2099-10-11").join(", ")}`,
       "Events for newsId (not ended by 2099-09-20):",
     ]);
-    await expect(stageSheet(env, week)).rejects.toThrow("--record is required to stage the PDF");
+    await expect(stageSheet(env, week)).rejects.toThrow(
+      "--record is required to stage the PDF\nnext: pass --record, or --check to check without staging",
+    );
     expect(existsSync(uploaded("porady_bohosluzeb"))).toBe(false);
   });
 
@@ -113,7 +115,9 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     const fixed = download("porad oprava.pdf", "%PDF fixed");
     await expect(
       stageSheet(env, { source: fixed, validFrom: "2099-10-04", validTo: "2099-10-11", corrected: true }),
-    ).rejects.toThrow("--record is required to stage the PDF");
+    ).rejects.toThrow(
+      "--record is required to stage the PDF\nnext: pass --record, or --check to check without staging",
+    );
     const { lines } = await stageSheet(env, { ...week, source: fixed, corrected: true });
     expect(lines[0]).toBe("Staged uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb-r2.pdf");
     expect(lines[1]).toBe("Replaced the sheet 2099-10-04 – 2099-10-11 with rev 2");
@@ -247,7 +251,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
 
   it("asks a DOCX without a record for a draft first", async () => {
     await expect(stageSheet(env, { source: yearDocx() })).rejects.toThrow(
-      "--record is required to stage the week's page; for a DOCX, first write the draft record with `pnpm stage sheet draft`",
+      "--record is required to stage the week's page\nnext: write the draft record with `pnpm stage sheet draft` first (or only print the week with --check)",
     );
   });
 

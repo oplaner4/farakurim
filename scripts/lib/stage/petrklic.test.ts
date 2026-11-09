@@ -153,7 +153,9 @@ describe.skipIf(!hasPoppler)("stagePetrklic", { timeout: 30_000 }, () => {
     await expect(stagePetrklic(env, { from: "2099-1", year: 2099, number: 2 })).rejects.toThrow(
       "the issue 2099-1 is not added",
     );
-    await expect(stagePetrklic(env, { from: id, year, number, note })).rejects.toThrow(/keeps its id/);
+    await expect(stagePetrklic(env, { from: id, year, number, note })).rejects.toThrow(
+      /keeps its id [^\n]*\nnext: leave out --from: it is for a new year, number or note$/,
+    );
     await expect(stagePetrklic(env, { from: id, year: 2099, number: 2, corrected: true })).rejects.toThrow(
       "no source and no --corrected",
     );
