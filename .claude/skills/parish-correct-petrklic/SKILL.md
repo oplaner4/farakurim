@@ -19,7 +19,7 @@ and note. When it fits several issues or none, list the candidates (id, year, nu
 pnpm stage petrklic "<source>" --year <year> --number <number> [--note "<note>"] --corrected --check
 ```
 
-It refuses an issue that is not in the file. Show the user the id, the folder it would stage, the rev and the page
+It refuses an issue that is not added. Show the user the id, the folder it would stage, the rev and the page
 count it prints (next to the record's old `pageCount`).
 
 Wait for the user's yes or corrections to these before staging anything. Then stage it without `--check`:

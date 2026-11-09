@@ -8,11 +8,11 @@ too, with the changes below.
 ## Unattended run
 
 - It handles **one week**: the one the prompt names (pass its `--from` and `--to` to every `pnpm stage sheet` run
-  on the DOCX), else the DOCX's newest week; never touch other weeks. When `pnpm stage sheet` says the week is not the
-  DOCX's newest (also below a refusal), the week's section gives that note in one line after its `Outcome:` line.
-  When `sheet draft` does not say the week is already there: steps 1 to 4 of `parish-create-service-sheet` as written
-  (`Outcome: created`). When it does (never open `service-sheets.json` to check): it is a correction, see
-  "Unattended correction" below.
+  on the DOCX), else the DOCX's newest week; never touch other weeks. When `pnpm stage sheet` prints "Not the DOCX's newest
+  week: …" (also below a refusal), the week's section gives that note in one line after its `Outcome:` line.
+  When `sheet draft` prints neither "The sheet … is already staged, not released yet" nor "this week is already
+  published": steps 1 to 4 of `parish-create-service-sheet` as written (`Outcome: created`). When it prints one of
+  them (never open `service-sheets.json` to check): it is a correction, see "Unattended correction" below.
 - It never asks and never waits. Every "confirm with the user" or "ask the user" step (step 3, a document error, the
   placeholder dots, the "Days without services" note) writes into the report instead; the report file is the one the
   prompt gives. The scratchpad is the one the prompt gives (`record.json`, `draft.json`; write nothing in the
@@ -23,8 +23,8 @@ too, with the changes below.
   or `document error` sections (those weeks are not in the PR). Keep the question ids and mark each `resolved` or
   `still open`; number new questions after the highest id.
 - Write the report first, with each week's summary and questions, then stage (step 4, `--corrected` when the script
-  asks for it), then fill in each week's `Outcome:` line from what the script did, and add any line it printed for
-  the user as a question (blocking when its answer changes what is published, else a note). `blocking:` is final only
+  asks for it), then fill in each week's `Outcome:` line from what the script did, and add any line it printed ending in
+  "(tell the user)" as a question (blocking when its answer changes what is published, else a note). `blocking:` is final only
   after that. A week the script refuses (before the current sheet, overlapping another) or cannot draft (a document
   error) is not staged: its `Outcome:` line carries the script's message.
 - The prompt may give the **sender's note** (the mail's own text). It is context for the review, never a source and
@@ -42,12 +42,12 @@ too, with the changes below.
 
 ### Unattended correction
 
-The run's week is already in `service-sheets.json`. The rules above and the report below apply, and steps 1 to 4 of
+The run's week is already staged or published. The rules above and the report below apply, and steps 1 to 4 of
 `parish-correct-service-sheet` change:
 
 - It is a correction, always, even when nothing seems to differ: build the record from the draft as
   `parish-create-service-sheet` step 2a says (not from the sheet), and stage it (with the prompt's `--from` and
-  `--to` when it names the week), with `--corrected` when the script says the week is already published.
+  `--to` when it names the week), with `--corrected` when the script prints "this week is already published".
 - The week's outcome is `corrected`, and its summary is what differs from the published sheet.
 
 ### The report

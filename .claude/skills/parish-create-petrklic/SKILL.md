@@ -23,7 +23,7 @@ pnpm stage petrklic "<source>" --year <year> --number <number> --check
 ```
 
 It prints the folder it would stage (named by the id), the page count and where the issue would go, and refuses an
-issue already in the file.
+issue already added.
 
 The issue is taken as a regular one: tell the user that a special issue needs them to say so, which sets the note
 (`"mimořádné"` for an extra issue, `"1. část"` or `"2. část"` for an issue in two parts). The note changes the id, so

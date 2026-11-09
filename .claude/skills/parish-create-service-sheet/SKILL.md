@@ -24,9 +24,9 @@ Follow 1a or 1b.
 
 ### 1a. From the DOCX
 
-Draft the record (it also refuses a week already released, before the current sheet or overlapping another, and says
-when the week's sheet is already in `service-sheets.json`: then the week was staged before, so take it to
-**`parish-correct-service-sheet`**):
+Draft the record (it also refuses a week already released, "this week is already published", before the current
+sheet or overlapping another). When it prints "The sheet … is already staged, not released yet", the week was staged
+before: take it to **`parish-correct-service-sheet`**.
 
 ```sh
 pnpm stage sheet draft "<source>" --out <scratchpad>/record.json
@@ -165,7 +165,7 @@ pnpm stage sheet "<source>" --record <scratchpad>/record.json
 ```
 
 It validates the record first (the error names each field), stages the PDF, adds the sheet, removes the outdated
-sheets and runs the service sheet tests. A line it prints that asks the user something goes to the user as printed.
+sheets and runs the service sheet tests. A line it prints ending in "(tell the user)" goes to the user as printed.
 
 ## 5. Publish
 
