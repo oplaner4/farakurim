@@ -58,6 +58,14 @@ describe("commandExitCode", () => {
     expect(printed).toHaveBeenCalledWith("demo: fetch failed (ENOTFOUND)");
   });
 
+  it("prefixes only a refusal's first line, so its tagged lines start their lines", async () => {
+    const run = async () => {
+      throw new Error("bad\nnext: fix it");
+    };
+    expect(await commandExitCode("demo", ["hody"], parse, run)).toBe(1);
+    expect(printed).toHaveBeenCalledWith("demo: bad\nnext: fix it");
+  });
+
   it("awaits an async parse", async () => {
     const run = vi.fn();
     expect(await commandExitCode("demo", ["x"], async (args) => args[0], run)).toBe(0);
