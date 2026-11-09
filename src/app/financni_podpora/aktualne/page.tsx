@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SiteHeader } from "@/components/layout/SiteHeader";
+import { PageShell } from "@/components/layout/PageShell";
 import { OtherSupport } from "@/components/support/OtherSupport";
 import { ProjectCard } from "@/components/support/ProjectCard";
 import { WaysToGive } from "@/components/support/WaysToGive";
@@ -21,33 +21,24 @@ export const metadata: Metadata = {
 /** Finanční podpora (design/DESIGN.md §22): how to give, the projects of the year and the other funds. */
 export default function SupportPage() {
   return (
-    <>
-      <SiteHeader currentHref={links.support} />
-      <main
-        id="obsah"
-        className="container-page flex flex-col gap-5 pt-5 pb-12 md:gap-6 md:pt-7 md:pb-14 lg:gap-8 lg:pt-9 lg:pb-20"
-      >
-        <PageHeading title="Finanční podpora" color="orange" size="standard" intro={lead} />
-        <WaysToGive />
-        <section aria-labelledby="projekty" className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <SectionHeading id="projekty" title={`Projekty ${support.year}`} color="orange" small />
-            <span className="text-14 text-muted">Stav k {formatNumericDate(support.asOf)}</span>
-          </div>
-          <div className="grid gap-4 md:gap-5 lg:grid-cols-3">
-            {support.projects.map((project) => (
-              <ProjectCard key={project.id} project={project} />
-            ))}
-          </div>
-        </section>
-        <OtherSupport support={support} />
-        <ArrowLink href={links.supportArchive} gap="wide" className="self-start">
-          Starší projekty a jejich vyúčtování
-        </ArrowLink>
-        <noscript>
-          <style>{"[data-js-only]{display:none}"}</style>
-        </noscript>
-      </main>
-    </>
+    <PageShell currentHref={links.support}>
+      <PageHeading title="Finanční podpora" color="orange" size="standard" intro={lead} />
+      <WaysToGive />
+      <section aria-labelledby="projekty" className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <SectionHeading id="projekty" title={`Projekty ${support.year}`} color="orange" small />
+          <span className="text-14 text-muted">Stav k {formatNumericDate(support.asOf)}</span>
+        </div>
+        <div className="grid gap-4 md:gap-5 lg:grid-cols-3">
+          {support.projects.map((project) => (
+            <ProjectCard key={project.id} project={project} />
+          ))}
+        </div>
+      </section>
+      <OtherSupport support={support} />
+      <ArrowLink href={links.supportArchive} gap="wide" className="self-start">
+        Starší projekty a jejich vyúčtování
+      </ArrowLink>
+    </PageShell>
   );
 }

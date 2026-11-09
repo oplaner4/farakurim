@@ -142,9 +142,6 @@ export function EventDetail({ event }: { event: NewsEvent }) {
         </article>
 
         <MoreEvents items={moreItems} currentId={event.id} renderedAt={BUILD_TIME} />
-        <noscript>
-          <style>{"[data-js-only]{display:none}"}</style>
-        </noscript>
       </main>
     </>
   );

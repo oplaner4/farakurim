@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { GroupPageView } from "@/components/activities/GroupPageView";
 import { NextMeeting } from "@/components/activities/NextMeeting";
-import { SiteHeader } from "@/components/layout/SiteHeader";
+import { PageShell } from "@/components/layout/PageShell";
 import { loadCalendarEntries } from "@/server/calendar";
 import { groupPages } from "@/content/groups";
 import { isMeeting, meetingRange } from "@/lib/activities/meetings";
@@ -42,18 +42,12 @@ export default async function GroupPage({ params }: PageProps<"/aktivity/[group]
   const group = findGroup(id);
   if (!group) notFound();
   return (
-    <>
-      <SiteHeader currentHref={group.href} />
-      <main
-        id="obsah"
-        className="container-page flex flex-col gap-5 pt-5 pb-12 md:gap-6 md:pt-7 md:pb-14 lg:gap-8 lg:pt-9 lg:pb-20"
-      >
-        <GroupPageView
-          group={group}
-          groups={groupPages}
-          nextMeeting={group.nextMeeting && (await nextMeeting(group.nextMeeting.calendarTitle))}
-        />
-      </main>
-    </>
+    <PageShell currentHref={group.href}>
+      <GroupPageView
+        group={group}
+        groups={groupPages}
+        nextMeeting={group.nextMeeting && (await nextMeeting(group.nextMeeting.calendarTitle))}
+      />
+    </PageShell>
   );
 }

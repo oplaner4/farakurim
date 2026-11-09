@@ -32,9 +32,6 @@ export default function PetrklicPage() {
         {pageImages && <PageViewer issue={{ ...current, pageImages }} />}
         <PreviousIssues issues={previous.slice(0, 4)} />
         <EditorialPanels {...petrklicEditorial} />
-        <noscript>
-          <style>{"[data-js-only]{display:none}"}</style>
-        </noscript>
       </main>
     </>
   );

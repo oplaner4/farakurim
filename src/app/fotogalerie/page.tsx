@@ -31,9 +31,6 @@ export default function GalleryPage() {
           ))}
         </div>
         <ZoneramaPanel />
-        <noscript>
-          <style>{"[data-js-only]{display:none}"}</style>
-        </noscript>
       </main>
     </>
   );

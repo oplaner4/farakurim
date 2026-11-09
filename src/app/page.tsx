@@ -64,9 +64,6 @@ export default async function HomePage() {
             <ContactsPanel />
           </div>
         </div>
-        <noscript>
-          <style>{"[data-js-only]{display:none}"}</style>
-        </noscript>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLdScript(parishJsonLd(`${SITE_URL}${links.home}`, buildDay)) }}

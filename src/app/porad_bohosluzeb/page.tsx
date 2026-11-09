@@ -77,9 +77,6 @@ export default function ServicesPage() {
         <RegularServices churches={churches} renderedAt={BUILD_TIME} />
         <IntentionsCard text={intentions} />
         <InfoCards confession={sacraments.confession} baptism={sacraments.baptism} />
-        <noscript>
-          <style>{"[data-js-only]{display:none}"}</style>
-        </noscript>
       </main>
     </>
   );

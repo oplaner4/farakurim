@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SiteHeader } from "@/components/layout/SiteHeader";
+import { PageShell } from "@/components/layout/PageShell";
 import { NativityPage } from "@/components/nativity/NativityPage";
 import { nativityAlbums, oldSiteContestResults } from "@/content/nativity";
 import { links } from "@/content/site";
@@ -16,19 +16,13 @@ export const metadata: Metadata = {
 /** Betlémy (design/DESIGN.md §30): before, during and after the exhibition, chosen by the visitor's date. */
 export default function NativityRoute() {
   return (
-    <>
-      <SiteHeader currentHref={links.nativity} />
-      <main
-        id="obsah"
-        className="container-page flex flex-col gap-5 pt-5 pb-12 md:gap-6 md:pt-7 md:pb-14 lg:gap-8 lg:pt-9 lg:pb-20"
-      >
-        <NativityPage
-          seasons={shownNativitySeasons}
-          albums={nativityAlbums}
-          oldSiteResults={oldSiteContestResults}
-          renderedAt={BUILD_TIME}
-        />
-      </main>
-    </>
+    <PageShell currentHref={links.nativity}>
+      <NativityPage
+        seasons={shownNativitySeasons}
+        albums={nativityAlbums}
+        oldSiteResults={oldSiteContestResults}
+        renderedAt={BUILD_TIME}
+      />
+    </PageShell>
   );
 }

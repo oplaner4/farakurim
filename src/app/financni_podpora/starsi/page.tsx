@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SiteHeader } from "@/components/layout/SiteHeader";
+import { PageShell } from "@/components/layout/PageShell";
 import { PastProjectCard } from "@/components/support/PastProjectCard";
 import { ArrowLeftIcon } from "@/components/ui/icons/navigation-icons";
 import { PageHeading } from "@/components/ui/PageHeading";
@@ -18,26 +18,20 @@ export const metadata: Metadata = {
 /** Starší projekty (design/DESIGN.md §28): the yearly accounts of the finished repairs. */
 export default function SupportArchivePage() {
   return (
-    <>
-      <SiteHeader currentHref={links.support} />
-      <main
-        id="obsah"
-        className="container-page flex flex-col gap-5 pt-5 pb-12 md:gap-6 md:pt-7 md:pb-14 lg:gap-8 lg:pt-9 lg:pb-20"
-      >
-        <PageHeading
-          title="Starší projekty"
-          color="orange"
-          size="standard"
-          parents={[{ label: "Finanční podpora", href: links.support }]}
-          intro={lead}
-        />
-        {pastProjects.map((project, i) => (
-          <PastProjectCard key={project.id} project={project} open={i === 0} />
-        ))}
-        <ArrowLink href={links.support} icon={ArrowLeftIcon} iconAt="start" gap="wide" className="self-start">
-          Aktuální projekty a jak přispět
-        </ArrowLink>
-      </main>
-    </>
+    <PageShell currentHref={links.support}>
+      <PageHeading
+        title="Starší projekty"
+        color="orange"
+        size="standard"
+        parents={[{ label: "Finanční podpora", href: links.support }]}
+        intro={lead}
+      />
+      {pastProjects.map((project, i) => (
+        <PastProjectCard key={project.id} project={project} open={i === 0} />
+      ))}
+      <ArrowLink href={links.support} icon={ArrowLeftIcon} iconAt="start" gap="wide" className="self-start">
+        Aktuální projekty a jak přispět
+      </ArrowLink>
+    </PageShell>
   );
 }

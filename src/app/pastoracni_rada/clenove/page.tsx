@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SiteHeader } from "@/components/layout/SiteHeader";
+import { PageShell } from "@/components/layout/PageShell";
 import { CouncilMembers } from "@/components/parish/CouncilMembers";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { councilMeetings, parishCouncil } from "@/content/parish-council";
@@ -19,20 +19,14 @@ export const metadata: Metadata = {
 export default function ParishCouncilPage() {
   const [latest] = councilMeetings;
   return (
-    <>
-      <SiteHeader currentHref={links.parishCouncil} />
-      <main
-        id="obsah"
-        className="container-page flex flex-col gap-5 pt-5 pb-12 md:gap-6 md:pt-7 md:pb-14 lg:gap-8 lg:pt-9 lg:pb-20"
-      >
-        <PageHeading title="Pastorační rada" color="blue" size="standard" intro={lead} />
-        <CouncilMembers council={parishCouncil} />
-        {latest && (
-          <ArrowLink href={links.councilMinutes} tone="blue" className="self-start">
-            Zápisy ze zasedání (poslední {formatLongDate(latest.date)})
-          </ArrowLink>
-        )}
-      </main>
-    </>
+    <PageShell currentHref={links.parishCouncil}>
+      <PageHeading title="Pastorační rada" color="blue" size="standard" intro={lead} />
+      <CouncilMembers council={parishCouncil} />
+      {latest && (
+        <ArrowLink href={links.councilMinutes} tone="blue" className="self-start">
+          Zápisy ze zasedání (poslední {formatLongDate(latest.date)})
+        </ArrowLink>
+      )}
+    </PageShell>
   );
 }

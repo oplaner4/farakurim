@@ -52,6 +52,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           >
             Přejít na obsah
           </a>
+          {/* Without JS, what only works with it (data-js-only) is hidden. */}
+          <noscript>
+            <style>{"[data-js-only]{display:none}"}</style>
+          </noscript>
           {/* Each page renders <SiteHeader> (it marks the current page) and <main id="obsah">. */}
           <QueryProvider>
             <NuqsAdapter>{children}</NuqsAdapter>

@@ -40,9 +40,6 @@ export function ArchivePage({ year }: { year?: number }) {
         <ArrowLink href={links.petrklic} icon={ChevronLeftIcon} iconAt="start" className="self-start">
           Aktuální číslo
         </ArrowLink>
-        <noscript>
-          <style>{"[data-js-only]{display:none}"}</style>
-        </noscript>
       </main>
     </>
   );

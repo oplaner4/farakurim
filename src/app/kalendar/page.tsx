@@ -39,9 +39,6 @@ export default async function CalendarPage() {
         <MonthCalendar entries={entries} months={months} linkablePages={linkablePages} renderedAt={BUILD_TIME}>
           <SubscribePanel />
         </MonthCalendar>
-        <noscript>
-          <style>{"[data-js-only]{display:none}"}</style>
-        </noscript>
       </main>
     </>
   );

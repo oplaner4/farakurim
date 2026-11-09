@@ -54,7 +54,7 @@ export function ArchivePage({ yearSlug }: { yearSlug: string }) {
         <noscript>
           <style>
             {
-              "[data-more]{display:flex;flex-direction:column}[data-after-more]{display:flex}[data-load-more],[data-js-only]{display:none}"
+              "[data-more]{display:flex;flex-direction:column}[data-after-more]{display:flex}[data-load-more]{display:none}"
             }
           </style>
         </noscript>
