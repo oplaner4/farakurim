@@ -5,7 +5,7 @@ import { UPLOADS_PATH } from "@/lib/shared/uploads";
  * Betlémy (design/DESIGN.md §30): the exhibition seasons, newest first. A season's page takes over on 1. 11. of its
  * year and shows the finished season until the next one starts. 2025 comes from the old site's pages (Výstava,
  * Putování, the 2025 results and their photos, its photos from the year's album). 2026 is the design's draft (the
- * 2025 texts with the dates moved), commented out below until the parish confirms the dates and the guest collection.
+ * 2025 texts with the dates moved), commented out below until the parish confirms the guest collection.
  * A season leaves out the contest and the walk (and their blocks) until they are known; without the intentions mass
  * "Místo pro modlitbu" says its date "upřesníme".
  */
@@ -79,7 +79,8 @@ const walk = { stops: 9, note: "předposlední zastávkou je venkovní betlém Z
 const sharedScene = { since: 2024, maxHeight: "nejvýše 20 cm", where: "do kostela v Kuřimi", phone: "725 867 515" };
 
 export const nativitySeasons: NativitySeason[] = [
-  // The 2026 draft, hidden until the parish confirms it (dates, guest collection); restore and correct it. The contest,
+  // The 2026 draft, hidden until the parish confirms it (guest collection); restore and correct it. Its opening days
+  // follow the city's A2 poster (2609-00032). The contest,
   // the walk and the intentions mass are not known yet: add them (2025's below) once the parish announces them.
   // {
   //   year: 2026,
@@ -92,7 +93,7 @@ export const nativitySeasons: NativitySeason[] = [
   //     { date: "2026-12-26", from: "14:00", to: "17:00" },
   //     { date: "2026-12-27", from: "14:00", to: "17:00" },
   //     { date: "2027-01-01", from: "14:00", to: "17:00" },
-  //     { date: "2027-01-03", from: "14:00", to: "17:00", note: "poslední den" },
+  //     { date: "2027-01-02", from: "14:00", to: "17:00", note: "poslední den" },
   //   ],
   //   hoursNote: "Ve čtvrtek 24. 12. v 15:00 následuje v kostele vánoční příběh s doprovodem dětské scholy.",
   //   places,
