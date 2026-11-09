@@ -50,18 +50,17 @@ export function addEvent(newsDir: string, input: unknown, { check = false, now =
   const taken = [...months.values()].flat().find((e) => e.id === record.id);
   if (taken) throw takenIdError(taken);
   const target = monthFile(record.start);
-  const created = !months.has(target);
   months.set(target, insertRecord(months.get(target) ?? [], record));
   const { changed, unpinned } = record.pinned ? movePin(months, record.id) : { changed: new Map(), unpinned: [] };
   // The record's month file first; movePin() may have changed it too.
   const files = new Map<string, NewsEvent[]>([[target, months.get(target) ?? []], ...changed]);
   if (!check) for (const [file, list] of files) writeMonth(newsDir, file, list);
-  return { record, target, created, unpinned, written: check ? [] : [...files.keys()] };
+  return { record, target, unpinned, written: check ? [] : [...files.keys()] };
 }
 
-/** The line saying where the record went (or would go) in src/content/news/. */
-export const targetLine = ({ target, created }: { target: string; created: boolean }, check: boolean) =>
-  `${actionVerb(check, "add")} the record to src/content/news/${target}${created ? " (new file)" : ""}`;
+/** The line saying which record was (or would be) added. */
+export const targetLine = ({ record }: { record: { id: string } }, check: boolean) =>
+  `${actionVerb(check, "add")} the record ${record.id}`;
 
 const USAGE = "Usage: pnpm add-event <record.json | -> [--check]";
 

@@ -44,10 +44,7 @@ describe("replaceEvent", () => {
     expect(readMonth(news.dir(), "2026/09.json")[0]).toEqual(
       newsEvent({ id: "zari-2026", start: "2026-09-12", startTime: "10:00", published: "2026-09-01", pinned: true }),
     );
-    expect(replaceLines(result, false)).toEqual([
-      "Replaced the record in src/content/news/2026/09.json",
-      "Changed: startTime",
-    ]);
+    expect(replaceLines(result, false)).toEqual(["Replaced the record zari-2026", "Changed: startTime"]);
   });
 
   it("keeps start-date order for a new start in the same month", () => {
@@ -64,11 +61,8 @@ describe("replaceEvent", () => {
     const left = replaceEvent(news.dir(), newsEvent({ id: "koncert-2026", start: "2026-12-08" }), { now });
     replaceEvent(news.dir(), newsEvent({ id: "hody-2026", start: "2026-11-05" }), { now });
     const last = replaceEvent(news.dir(), newsEvent({ id: "pout-2026", start: "2026-11-10" }), { now });
-    expect(replaceLines(left, false)[0]).toBe(
-      "Moved the record from src/content/news/2026/10.json to src/content/news/2026/12.json (new file)",
-    );
+    expect(replaceLines(left, false)).toEqual(["Replaced the record koncert-2026", "Changed: start"]);
     expect(last.removed).toEqual(["2026/10.json"]);
-    expect(replaceLines(last, true).at(-1)).toBe("Would remove src/content/news/2026/10.json (no record left)");
     expect(existsSync(join(news.dir(), "2026/10.json"))).toBe(false);
 
     // The last month of a year takes its folder with it (an id holds the start year, so only one naming both).

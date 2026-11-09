@@ -43,17 +43,16 @@ export function addPetrklic(
   if (from !== undefined) {
     if (from === id) throw new Error(`the issue keeps its id ${id}: --from is for a new year, number or note`);
     const old = issues.findIndex((issue) => issueId(issue) === from);
-    if (old === -1) throw new Error(`the issue ${from} is not in petrklic.json`);
+    if (old === -1) throw new Error(`the issue ${from} is not added`);
     issues = issues.toSpliced(old, 1);
   }
   const at = issues.findIndex((issue) => issueId(issue) === id);
   let list: PetrklicRecord[];
   if (replace) {
-    if (at === -1)
-      throw new Error(`the issue ${id} is not in petrklic.json: --corrected is for an issue already there`);
+    if (at === -1) throw new Error(`the issue ${id} is not added: --corrected is for an issue already added`);
     list = issues.toSpliced(at, 1, record);
   } else {
-    if (at !== -1) throw new Error(`the issue ${id} is already in petrklic.json; for a corrected PDF pass --corrected`);
+    if (at !== -1) throw new Error(`the issue ${id} is already added; for a corrected PDF pass --corrected`);
     const before = issues.findIndex((issue) => !isNewerIssue(issue, record));
     list = before === -1 ? [...issues, record] : issues.toSpliced(before, 0, record);
   }
@@ -76,7 +75,5 @@ export function petrklicLines({ record, position, replaced, from }: AddPetrklicR
       ? `${actionVerb(check, "replace")} ${from} with`
       : actionVerb(check, replaced ? "replace" : "add");
   const rev = replaced && record.rev ? ` with rev ${record.rev}` : "";
-  return [
-    `${verb} ${issueLabel(record)}${rev} (${record.pageCount} pages) at position ${position} in src/content/petrklic.json (${where})`,
-  ];
+  return [`${verb} ${issueLabel(record)}${rev} (${record.pageCount} pages) at position ${position} (${where})`];
 }

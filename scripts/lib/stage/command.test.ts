@@ -43,7 +43,7 @@ describe("runStage", { timeout: 30_000 }, () => {
       "--record",
       sheetFile,
     ]);
-    expect(corrected.lines).toEqual(["Replaced the sheet 2099-10-04 – 2099-10-11 in src/content/service-sheets.json"]);
+    expect(corrected.lines).toEqual(["Replaced the sheet 2099-10-04 – 2099-10-11"]);
     expect(corrected.format).toEqual({ files: [env.serviceSheetsFile], tests: SERVICE_SHEETS_TESTS });
 
     const recordFile = join(env.home, "record.json");
@@ -58,10 +58,7 @@ describe("runStage", { timeout: 30_000 }, () => {
       recordFile,
       "--check",
     ]);
-    expect(staged.lines).toEqual([
-      "Would add the record to src/content/news/2026/10.json",
-      "Would stage uploads/aktuality/x-2026-letak.jpg",
-    ]);
+    expect(staged.lines).toEqual(["Would add the record x-2026", "Would stage uploads/aktuality/x-2026-letak.jpg"]);
   });
 
   it("refuses missing arguments, another command's options and the old --rev", async () => {

@@ -95,7 +95,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
       record: record(),
     });
     expect(lines[0]).toBe("Staged uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf");
-    expect(lines[1]).toBe("Added the sheet 2099-10-04 – 2099-10-11 to src/content/service-sheets.json");
+    expect(lines[1]).toBe("Added the sheet 2099-10-04 – 2099-10-11");
     expect(written).toEqual([env.serviceSheetsFile]);
     expect(JSON.parse(readFileSync(env.serviceSheetsFile, "utf8")).sheets.at(-1)).not.toHaveProperty("rev");
   });
@@ -115,7 +115,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     ).rejects.toThrow("--record is required to stage the PDF");
     const { lines } = await stageSheet(env, { ...week, source: fixed, corrected: true });
     expect(lines[0]).toBe("Staged uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb-r2.pdf");
-    expect(lines[1]).toBe("Replaced the sheet 2099-10-04 – 2099-10-11 with rev 2 in src/content/service-sheets.json");
+    expect(lines[1]).toBe("Replaced the sheet 2099-10-04 – 2099-10-11 with rev 2");
     expect(lastSheet().rev).toBe(2);
     // Corrected again before the release, and a plain rerun: both keep rev 2.
     const again = download("porad oprava 2.pdf", "%PDF fixed again");
@@ -161,7 +161,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     expect((await stageSheet(env, { ...week, check: true })).lines).toHaveLength(5);
     await stageSheet(env, { ...week, record: record() });
     expect((await stageSheet(env, { ...week, check: true })).lines.at(-1)).toBe(
-      "The sheet 2099-10-04 – 2099-10-11 is already in src/content/service-sheets.json, not released yet: --record replaces it, so start the record from that sheet to keep its fixes",
+      "The sheet 2099-10-04 – 2099-10-11 is already staged, not released yet: --record replaces it, so start the record from that sheet to keep its fixes",
     );
     expect((await stageSheet(env, { ...week, corrected: true, check: true })).lines).toHaveLength(5);
   });
@@ -170,7 +170,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     const source = download("porad.pdf", "%PDF");
     await expect(
       stageSheet(env, { source, validFrom: "2099-10-04", validTo: "2099-10-11", corrected: true, record: record() }),
-    ).rejects.toThrow("no sheet of 2099-10-04 in service-sheets.json");
+    ).rejects.toThrow("no sheet of 2099-10-04 is added");
   });
 
   it("replaces the record of a sheet, keeping its PDF and rev", async () => {
@@ -186,11 +186,11 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     const lastSheet = () => JSON.parse(readFileSync(env.serviceSheetsFile, "utf8")).sheets.at(-1);
 
     expect(replaceSheetRecord(env, { ...week, record: fixed, check: true }).lines).toEqual([
-      "Would replace the sheet 2099-10-04 – 2099-10-11 with rev 2 in src/content/service-sheets.json",
+      "Would replace the sheet 2099-10-04 – 2099-10-11 with rev 2",
     ]);
     expect(lastSheet().announcements[0].html).toBe("<p>Sbírka.</p>");
     const { lines, written } = replaceSheetRecord(env, { ...week, record: fixed });
-    expect(lines).toEqual(["Replaced the sheet 2099-10-04 – 2099-10-11 with rev 2 in src/content/service-sheets.json"]);
+    expect(lines).toEqual(["Replaced the sheet 2099-10-04 – 2099-10-11 with rev 2"]);
     expect(written).toEqual([env.serviceSheetsFile]);
     expect(lastSheet()).toMatchObject({ rev: 2, announcements: [{ html: "<p>Sbírka na opravy.</p>" }] });
     expect(readFileSync(uploaded("porady_bohosluzeb", "2099-10-04-porad-bohosluzeb-r2.pdf"), "utf8")).toBe(
@@ -201,7 +201,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
   it("refuses to replace the record of a sheet that is not there", () => {
     const week = { validFrom: "2099-10-04", validTo: "2099-10-11" };
     expect(() => replaceSheetRecord(env, { ...week, record: record() })).toThrow(
-      "no sheet of 2099-10-04 – 2099-10-11 in service-sheets.json",
+      "no sheet of 2099-10-04 – 2099-10-11 is added",
     );
   });
 
@@ -213,7 +213,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     // The real sheets copied into the temp folder may add "Would remove …" lines in between: assert the ends only.
     const before = readFileSync(env.serviceSheetsFile, "utf8");
     const checked = await stageSheet(env, { ...week, record: record(), check: true });
-    expect(checked.lines[0]).toBe("Would add the sheet 2099-10-04 – 2099-10-11 to src/content/service-sheets.json");
+    expect(checked.lines[0]).toBe("Would add the sheet 2099-10-04 – 2099-10-11");
     expect(checked.lines.at(-1)).toBe("Would stage uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf");
     expect(readFileSync(env.serviceSheetsFile, "utf8")).toBe(before);
   });

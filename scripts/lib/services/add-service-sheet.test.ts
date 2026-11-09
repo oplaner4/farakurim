@@ -76,9 +76,9 @@ describe("addServiceSheet on a temp service-sheets.json, schedule-exceptions.jso
     expect(readScheduleExceptions(laterFile).exceptions).toEqual([LATER[1]]);
     expect(Object.keys(JSON.parse(raw()).sheets[1])).toEqual(["validFrom", "validTo", "days", "announcements"]);
     expect(serviceSheetLines(result, false)).toEqual([
-      "Added the sheet 2026-10-11 – 2026-10-18 to src/content/service-sheets.json",
+      "Added the sheet 2026-10-11 – 2026-10-18",
       "Removed the outdated sheet 2026-09-27 – 2026-10-04",
-      "Removed the later change on 2026-10-18 from src/content/schedule-exceptions.json (a sheet covers it)",
+      "Removed the later change on 2026-10-18 (a sheet covers it)",
     ]);
   });
 
@@ -99,9 +99,7 @@ describe("addServiceSheet on a temp service-sheets.json, schedule-exceptions.jso
     expect(result.replaced).toBe(true);
     expect(readServiceSheets(file).sheets.at(-1)!.rev).toBe(2);
     expect(Object.keys(JSON.parse(raw()).sheets.at(-1)).slice(0, 3)).toEqual(["validFrom", "validTo", "rev"]);
-    expect(serviceSheetLines(result, false)[0]).toBe(
-      "Replaced the sheet 2026-10-04 – 2026-10-11 with rev 2 in src/content/service-sheets.json",
-    );
+    expect(serviceSheetLines(result, false)[0]).toBe("Replaced the sheet 2026-10-04 – 2026-10-11 with rev 2");
   });
 
   it("refuses an overlap, a week before the current sheet, the PDF fields and an unknown event", () => {
@@ -157,8 +155,8 @@ describe("addServiceSheet on a temp service-sheets.json, schedule-exceptions.jso
     const next = addServiceSheet(files, record(november), week("2026-10-31", "2026-11-07"), { now: later });
     expect(readScheduleExceptions(laterFile).exceptions).toEqual([]);
     expect(serviceSheetLines(next, false).slice(-2)).toEqual([
-      "Removed the later change on 2026-10-18 from src/content/schedule-exceptions.json (it is past)",
-      "Removed the later change on 2026-10-19 from src/content/schedule-exceptions.json (it is past)",
+      "Removed the later change on 2026-10-18 (it is past)",
+      "Removed the later change on 2026-10-19 (it is past)",
     ]);
   });
 
@@ -171,9 +169,9 @@ describe("addServiceSheet on a temp service-sheets.json, schedule-exceptions.jso
     expect(result.written).toEqual([]);
     expect(raw()).toBe(before);
     expect(serviceSheetLines(result, true)).toEqual([
-      "Would add the sheet 2026-10-11 – 2026-10-18 to src/content/service-sheets.json",
+      "Would add the sheet 2026-10-11 – 2026-10-18",
       "Would remove the outdated sheet 2026-09-27 – 2026-10-04",
-      "Would remove the later change on 2026-10-18 from src/content/schedule-exceptions.json (a sheet covers it)",
+      "Would remove the later change on 2026-10-18 (a sheet covers it)",
     ]);
   });
 });

@@ -28,7 +28,7 @@ describe.skipIf(!hasPoppler)("stagePetrklic", { timeout: 30_000 }, () => {
     expect(await stagePetrklic(env, { ...options, check: true })).toEqual({
       lines: [
         "Would stage uploads/petrklic/2099-3-mimoradne/ (PDF), 2 pages",
-        "Would add 3/2099 (Mimořádné) (2 pages) at position 1 in src/content/petrklic.json (the current issue)",
+        "Would add 3/2099 (Mimořádné) (2 pages) at position 1 (the current issue)",
       ],
       written: [],
     });
@@ -37,7 +37,7 @@ describe.skipIf(!hasPoppler)("stagePetrklic", { timeout: 30_000 }, () => {
     expect(result).toEqual({
       lines: [
         "Staged uploads/petrklic/2099-3-mimoradne/ (PDF, cover.webp, pages/), 2 pages",
-        "Added 3/2099 (Mimořádné) (2 pages) at position 1 in src/content/petrklic.json (the current issue)",
+        "Added 3/2099 (Mimořádné) (2 pages) at position 1 (the current issue)",
       ],
       written: [env.petrklicFile],
     });
@@ -53,7 +53,7 @@ describe.skipIf(!hasPoppler)("stagePetrklic", { timeout: 30_000 }, () => {
   it("stops on an issue already there before copying anything", async () => {
     const source = download("Petrklic.pdf", pdfWithText(["Petrklic"]));
     const { year, number, note } = readPetrklic(env.petrklicFile).issues[0];
-    await expect(stagePetrklic(env, { source, year, number, note })).rejects.toThrow(/is already in petrklic\.json/);
+    await expect(stagePetrklic(env, { source, year, number, note })).rejects.toThrow(/is already added/);
     expect(existsSync(env.uploadsDir) ? readdirSync(env.uploadsDir) : []).toEqual([]);
   });
 
@@ -88,7 +88,7 @@ describe.skipIf(!hasPoppler)("stagePetrklic", { timeout: 30_000 }, () => {
     const check = await stagePetrklic(env, { source, year: 2099, number: 1, corrected: true, check: true });
     expect(check.lines).toEqual([
       "Would stage uploads/petrklic/2099-1/ (PDF), 2 pages",
-      "Would replace 1/2099 (2 pages) at position 1 in src/content/petrklic.json (the current issue)",
+      "Would replace 1/2099 (2 pages) at position 1 (the current issue)",
     ]);
     expect(readPetrklic(env.petrklicFile).issues[0]).toEqual({ year: 2099, number: 1, pageCount: 1 });
     await stagePetrklic(env, { source, year: 2099, number: 1, corrected: true });
@@ -99,7 +99,7 @@ describe.skipIf(!hasPoppler)("stagePetrklic", { timeout: 30_000 }, () => {
   it("refuses --corrected for an issue not in petrklic.json", async () => {
     const source = download("Petrklic.pdf", pdfWithText(["Petrklic"]));
     await expect(stagePetrklic(env, { source, year: 2099, number: 1, corrected: true })).rejects.toThrow(
-      "the issue 2099-1 is not in petrklic.json",
+      "the issue 2099-1 is not added",
     );
   });
 
@@ -108,7 +108,7 @@ describe.skipIf(!hasPoppler)("stagePetrklic", { timeout: 30_000 }, () => {
     const check = await stagePetrklic(env, { from: "2099-1", year: 2099, number: 2, check: true });
     expect(check.lines).toEqual([
       "Would stage uploads/petrklic/2099-2/ (PDF), 1 pages",
-      "Would replace 2099-1 with 2/2099 (1 pages) at position 1 in src/content/petrklic.json (the current issue)",
+      "Would replace 2099-1 with 2/2099 (1 pages) at position 1 (the current issue)",
       "Would remove the unreleased old folder uploads/petrklic/2099-1/",
     ]);
     expect(firstId()).toBe("2099-1");
@@ -135,7 +135,7 @@ describe.skipIf(!hasPoppler)("stagePetrklic", { timeout: 30_000 }, () => {
     expect(position).toBeGreaterThan(1);
     expect(result.lines).toEqual([
       "Staged uploads/petrklic/2006-9/ (PDF, cover.webp, pages/), 2 pages",
-      `Replaced ${id} with 9/2006 (2 pages) at position ${position} in src/content/petrklic.json (not the current issue: newer issues come first)`,
+      `Replaced ${id} with 9/2006 (2 pages) at position ${position} (not the current issue: newer issues come first)`,
       `The old folder https://example.cz/uploads/petrklic/${id}/ stays online: files on the server are never deleted`,
       `public/.htaccess redirects to the old PDF on line 2: change ${old} to /uploads/petrklic/2006-9/petrklic-2006-9.pdf there`,
     ]);
@@ -149,7 +149,7 @@ describe.skipIf(!hasPoppler)("stagePetrklic", { timeout: 30_000 }, () => {
     const { year, number, note } = readPetrklic(env.petrklicFile).issues[0];
     const id = firstId();
     await expect(stagePetrklic(env, { from: "2099-1", year: 2099, number: 2 })).rejects.toThrow(
-      "the issue 2099-1 is not in petrklic.json",
+      "the issue 2099-1 is not added",
     );
     await expect(stagePetrklic(env, { from: id, year, number, note })).rejects.toThrow(/keeps its id/);
     await expect(stagePetrklic(env, { from: id, year: 2099, number: 2, corrected: true })).rejects.toThrow(

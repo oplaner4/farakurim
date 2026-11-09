@@ -98,27 +98,20 @@ export function replaceEvent(newsDir: string, input: unknown, { check = false, n
     previous,
     from,
     target,
-    created: !months.has(target),
     changed: changedFields(previous, record),
     removed,
     written: check ? [] : kept,
   };
 }
 
-/** The lines saying how replaceEvent() changed (or would change, with `check`) the news files. */
+/** The lines saying which record replaceEvent() replaced (or would replace, with `check`) and what changed. */
 export function replaceLines(
-  result: { from: string; target: string; created: boolean; changed: string[]; removed: string[] },
+  { record, changed }: { record: { id: string }; changed: string[] },
   check: boolean,
 ): string[] {
-  const { from, target, created, changed, removed } = result;
-  const where =
-    from === target
-      ? `${actionVerb(check, "replace")} the record in src/content/news/${target}`
-      : `${actionVerb(check, "move")} the record from src/content/news/${from} to src/content/news/${target}${created ? " (new file)" : ""}`;
   return [
-    where,
+    `${actionVerb(check, "replace")} the record ${record.id}`,
     changed.length > 0 ? `Changed: ${changed.join(", ")}` : "Nothing changed",
-    ...removed.map((file) => `${actionVerb(check, "remove")} src/content/news/${file} (no record left)`),
   ];
 }
 

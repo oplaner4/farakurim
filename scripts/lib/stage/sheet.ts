@@ -135,8 +135,7 @@ function docxWeekPdf(src: string, week: Week, dir: string) {
 async function sheetRev(env: StageEnv, validFrom: string, corrected: boolean): Promise<number | undefined> {
   const current = readServiceSheets(env.serviceSheetsFile).sheets.find((sheet) => sheet.validFrom === validFrom);
   if (!corrected) return current?.rev;
-  if (!current)
-    throw new Error(`no sheet of ${validFrom} in service-sheets.json: --corrected is for a week already there`);
+  if (!current) throw new Error(`no sheet of ${validFrom} is added: --corrected is for a week already added`);
   return correctedRev(env, current.rev, (r) => sheetPdfFile({ validFrom, rev: r }));
 }
 
@@ -200,7 +199,7 @@ export function replaceSheetRecord(env: StageEnv, { validFrom, validTo, record, 
   const current = readServiceSheets(env.serviceSheetsFile).sheets.find(
     (sheet) => sheet.validFrom === validFrom && sheet.validTo === validTo,
   );
-  if (!current) throw new Error(`no sheet of ${period({ validFrom, validTo })} in service-sheets.json`);
+  if (!current) throw new Error(`no sheet of ${period({ validFrom, validTo })} is added`);
   const sheet = { validFrom, validTo, ...(current.rev !== undefined && { rev: current.rev }) };
   const result = addServiceSheet(env, record, sheet, { check });
   return { lines: serviceSheetLines(result, check), written: result.written };
@@ -258,7 +257,7 @@ async function runSheet(env: StageEnv, options: RunOptions) {
       const note =
         there && !corrected
           ? [
-              `The sheet ${period(week)} is already in src/content/service-sheets.json, not released yet: --record replaces it, so start the record from that sheet to keep its fixes`,
+              `The sheet ${period(week)} is already staged, not released yet: --record replaces it, so start the record from that sheet to keep its fixes`,
             ]
           : [];
       return { lines: [...lines, ...weekLines(sheet), ...newsLines(env.newsDir, validFrom), ...note], written: [] };

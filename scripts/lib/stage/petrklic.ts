@@ -116,7 +116,7 @@ type MovedIssue = {
 /** The issue `from` and its PDF: staged here, or else downloaded from the site (the files there are public). */
 async function movedIssue(env: StageEnv, from: string): Promise<MovedIssue> {
   const record = readPetrklic(env.petrklicFile).issues.find((issue) => issueId(issue) === from);
-  if (!record) throw new Error(`the issue ${from} is not in petrklic.json`);
+  if (!record) throw new Error(`the issue ${from} is not added`);
   const folder = issuePath({ id: from, rev: record.rev });
   const pdf = pdfPath(from, record.rev);
   const released = await onServer(env, pdf);

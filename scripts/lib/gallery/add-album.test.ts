@@ -234,14 +234,14 @@ describe("addAlbum on a temp gallery.json", () => {
     save([stored(2), stored(1)]);
     expect(() => addAlbum(file, stored(20, { id: "album-1-2026" }))).toThrow(/pass another one with --id/);
     expect(() => addAlbum(file, stored(20, { href: "https://eu.zonerama.com/FarnostKurim/Album/2" }))).toThrow(
-      "the album https://eu.zonerama.com/FarnostKurim/Album/2 is already in gallery.json",
+      "the album https://eu.zonerama.com/FarnostKurim/Album/2 is already added",
     );
   });
 
   it("says the album is already there when it is added again, not that its id is taken", () => {
     save([stored(2), stored(1)]);
     expect(() => addAlbum(file, stored(2))).toThrow(
-      "the album https://www.zonerama.com/FarnostKurim/Album/2 is already in gallery.json",
+      "the album https://www.zonerama.com/FarnostKurim/Album/2 is already added",
     );
   });
 
@@ -280,14 +280,14 @@ describe("albumLines", () => {
 
   it("says what was added and removed", () => {
     expect(albumLines(result, false)).toEqual([
-      "Added album-20-2026 (1 photos) at position 1 in src/content/gallery.json",
+      "Added album-20-2026 (1 photos) at position 1",
       "Removed the old album album-1-2026 (2026-06-11)",
     ]);
   });
 
   it("says would under check", () => {
     expect(albumLines(result, true)).toEqual([
-      "Would add album-20-2026 (1 photos) at position 1 in src/content/gallery.json",
+      "Would add album-20-2026 (1 photos) at position 1",
       "Would remove the old album album-1-2026 (2026-06-11)",
     ]);
   });

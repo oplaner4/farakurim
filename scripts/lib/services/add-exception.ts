@@ -77,11 +77,10 @@ const servicesOf = ({ services }: ScheduleException) =>
 
 /** The line saying what addException() did (or would do, with `check`). */
 export function exceptionLine({ date, exception, replaced }: AddExceptionResult, check: boolean): string {
-  const file = "src/content/schedule-exceptions.json";
-  if (!exception) return `${actionVerb(check, "remove")} the change on ${date} from ${file}`;
+  if (!exception) return `${actionVerb(check, "remove")} the change on ${date}`;
   const verb = actionVerb(check, replaced ? "replace" : "add");
   const reason = exception.reason ? ` (${exception.reason})` : "";
-  return `${verb} the change on ${date}${reason} ${replaced ? "in" : "to"} ${file}: ${servicesOf(exception)}`;
+  return `${verb} the change on ${date}${reason}: ${servicesOf(exception)}`;
 }
 
 const USAGE = "Usage: pnpm add-exception <record.json> | --remove <YYYY-MM-DD> [--check]";

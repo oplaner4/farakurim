@@ -120,10 +120,9 @@ export function serviceSheetLines(result: AddServiceSheetResult, check: boolean)
   const { sheet, replaced, removed, coveredExceptions, pastExceptions } = result;
   const verb = actionVerb(check, replaced ? "replace" : "add");
   const remove = actionVerb(check, "remove");
-  const exceptionLine = (date: IsoDate, why: string) =>
-    `${remove} the later change on ${date} from src/content/schedule-exceptions.json (${why})`;
+  const exceptionLine = (date: IsoDate, why: string) => `${remove} the later change on ${date} (${why})`;
   return [
-    `${verb} the sheet ${period(sheet)}${sheet.rev ? ` with rev ${sheet.rev}` : ""} ${replaced ? "in" : "to"} src/content/service-sheets.json`,
+    `${verb} the sheet ${period(sheet)}${sheet.rev ? ` with rev ${sheet.rev}` : ""}`,
     ...removed.map((p) => `${remove} the outdated sheet ${p}`),
     ...coveredExceptions.map((date) => exceptionLine(date, "a sheet covers it")),
     ...pastExceptions.map((date) => exceptionLine(date, "it is past")),

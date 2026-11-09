@@ -29,7 +29,7 @@ describe("setEventPoster", { timeout: 30_000 }, () => {
     await add();
     expect(await lines("Leták", true)).toEqual([
       "Would render uploads/aktuality/test-farni-den-2026-letak-poster.webp from uploads/aktuality/test-farni-den-2026-letak.jpg",
-      "Would replace the record in src/content/news/2026/10.json",
+      "Would replace the record test-farni-den-2026",
       "Changed: poster",
     ]);
     expect(existsSync(uploaded("aktuality", "test-farni-den-2026-letak-poster.webp"))).toBe(false);
@@ -52,7 +52,7 @@ describe("setEventPoster", { timeout: 30_000 }, () => {
     await add();
     expect(await lines(null)).toEqual([
       "Removed the poster (its WebP stays on the server)",
-      "Replaced the record in src/content/news/2026/10.json",
+      "Replaced the record test-farni-den-2026",
       "Changed: poster",
     ]);
     expect(added()?.poster).toBeUndefined();

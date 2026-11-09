@@ -41,13 +41,9 @@ describe("insertRecord", () => {
 });
 
 describe("targetLine", () => {
-  it("says where the record went, and when the file is new", () => {
-    expect(targetLine({ target: "2026/10.json", created: false }, false)).toBe(
-      "Added the record to src/content/news/2026/10.json",
-    );
-    expect(targetLine({ target: "2027/01.json", created: true }, true)).toBe(
-      "Would add the record to src/content/news/2027/01.json (new file)",
-    );
+  it("names the record added", () => {
+    expect(targetLine({ record: { id: "hody-2026" } }, false)).toBe("Added the record hody-2026");
+    expect(targetLine({ record: { id: "hody-2026" } }, true)).toBe("Would add the record hody-2026");
   });
 });
 
@@ -77,8 +73,8 @@ describe("addEvent on a copy of news/", { timeout: 30_000 }, () => {
   const raw = (file: string) => readFileSync(join(news, file), "utf8");
 
   it("writes a record that reads back unchanged, in a formatted file", async () => {
-    const { written, created } = addEvent(news, full, { now });
-    expect({ written, created }).toEqual({ written: ["2026/10.json"], created: false });
+    const { written } = addEvent(news, full, { now });
+    expect(written).toEqual(["2026/10.json"]);
     await formatFiles(written.map((f) => join(news, f)));
     const formatted = raw("2026/10.json");
     await formatFiles(written.map((f) => join(news, f)));
@@ -127,14 +123,14 @@ describe("addEvent on a copy of news/", { timeout: 30_000 }, () => {
   it("creates the month file in an existing year", () => {
     expect(FREE_2019).toBeDefined();
     const result = addEvent(news, newsEvent({ id: "dodatek-2019", start: `2019-${FREE_2019}-10` }), { now });
-    expect(result).toMatchObject({ target: `2019/${FREE_2019}.json`, created: true });
+    expect(result).toMatchObject({ target: `2019/${FREE_2019}.json` });
     expect(readMonth(news, `2019/${FREE_2019}.json`).map((e) => e.id)).toEqual(["dodatek-2019"]);
   });
 
   it("starts a new year", () => {
     const id = `trikralova-sbirka-${NEW_YEAR}`;
     const result = addEvent(news, newsEvent({ id, start: `${NEW_YEAR}-01-02` }), { now });
-    expect(result).toMatchObject({ target: `${NEW_YEAR}/01.json`, created: true, written: [`${NEW_YEAR}/01.json`] });
+    expect(result).toMatchObject({ target: `${NEW_YEAR}/01.json`, written: [`${NEW_YEAR}/01.json`] });
     expect(readEvents(news)[0].id).toBe(id);
   });
 

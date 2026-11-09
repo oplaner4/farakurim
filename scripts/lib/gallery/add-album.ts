@@ -156,10 +156,10 @@ export function addAlbum(galleryFile: string, input: unknown, { check = false } 
   const { albums } = readGallery(galleryFile);
   // The album first: added again, its proposed id is the stored one, and "pass another id" would mislead.
   if (albums.some((a) => albumNumber(a.href) === albumNumber(album.href))) {
-    throw new Error(`the album ${album.href} is already in gallery.json`);
+    throw new Error(`the album ${album.href} is already added`);
   }
   if (albums.some((a) => a.id === album.id)) {
-    throw new Error(`the id ${album.id} is already in gallery.json: pass another one with --id`);
+    throw new Error(`the id ${album.id} is already taken: pass another one with --id`);
   }
   const at = albums.findIndex((a) => a.date <= album.date);
   const all = at === -1 ? [...albums, album] : albums.toSpliced(at, 0, album);
@@ -176,9 +176,8 @@ export function addAlbum(galleryFile: string, input: unknown, { check = false } 
 
 /** The lines the command prints for `result`. */
 export function albumLines({ album, position, removed }: AddAlbumResult, check: boolean): string[] {
-  const added = `${actionVerb(check, "add")} ${album.id} (${album.photoCount} photos) at position ${position}`;
   return [
-    `${added} in src/content/gallery.json`,
+    `${actionVerb(check, "add")} ${album.id} (${album.photoCount} photos) at position ${position}`,
     ...removed.map((a) => `${actionVerb(check, "remove")} the old album ${a.id} (${a.date})`),
   ];
 }

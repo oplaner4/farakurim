@@ -165,16 +165,14 @@ describe("stageEvent", { timeout: 30_000 }, () => {
   it("adds the record with the poster and attachment", async () => {
     const source = await poster();
     const options = { source, id: "test-hody-2026", label: "Plakát", record };
-    expect((await stageOne({ ...options, check: true })).lines[0]).toBe(
-      "Would add the record to src/content/news/2026/10.json",
-    );
+    expect((await stageOne({ ...options, check: true })).lines[0]).toBe("Would add the record test-hody-2026");
     const { lines, written } = await stageOne({
       ...options,
       record: { ...record, poster: { alt: "Plakát: Hody v České 20. října" } },
     });
     expect(lines).toEqual([
       "Staged uploads/aktuality/test-hody-2026-plakat.jpg and its -poster.webp",
-      "Added the record to src/content/news/2026/10.json",
+      "Added the record test-hody-2026",
     ]);
     expect(written).toEqual(["2026/10.json"]);
     const added = readMonth(env.newsDir, "2026/10.json").find((e) => e.id === "test-hody-2026");
@@ -199,15 +197,12 @@ describe("stageEvent", { timeout: 30_000 }, () => {
       record: { ...record, id: "test-hody-2099", start: "2099-10-20", pinned: true },
     };
     expect((await stageOne({ ...options, check: true })).lines).toEqual([
-      "Would add the record to src/content/news/2099/10.json (new file)",
+      "Would add the record test-hody-2099",
       "Would unpin test-pinned-2098 (Hody v České)",
       "Would stage uploads/aktuality/test-hody-2099-plakat.jpg and its -poster.webp",
     ]);
     const { lines, written } = await stageOne(options);
-    expect(lines.slice(1)).toEqual([
-      "Added the record to src/content/news/2099/10.json (new file)",
-      "Unpinned test-pinned-2098 (Hody v České)",
-    ]);
+    expect(lines.slice(1)).toEqual(["Added the record test-hody-2099", "Unpinned test-pinned-2098 (Hody v České)"]);
     expect(written).toEqual(["2099/10.json", "2098/10.json"]);
     expect(
       readEvents(env.newsDir)
@@ -258,12 +253,12 @@ describe("stageEvent", { timeout: 30_000 }, () => {
       const other = await poster("opraveny.jpg", 900);
       const options = { source: other, id: "test-hody-2026", label: "Plakát", corrected: true };
       expect((await stageOne({ ...options, check: true })).lines).toEqual([
-        "Would replace the record in src/content/news/2026/10.json",
+        "Would replace the record test-hody-2026",
         "Changed: attachments",
         "Would stage uploads/aktuality/test-hody-2026-plakat.jpg and its -poster.webp",
       ]);
       const { lines, written } = await stageOne(options);
-      expect(lines.slice(1)).toEqual(["Replaced the record in src/content/news/2026/10.json", "Changed: attachments"]);
+      expect(lines.slice(1)).toEqual(["Replaced the record test-hody-2026", "Changed: attachments"]);
       expect(written).toEqual(["2026/10.json"]);
       expect(readFileSync(uploaded("aktuality", "test-hody-2026-plakat.jpg"))).toEqual(
         readFileSync(join(env.home, "Downloads", other)),

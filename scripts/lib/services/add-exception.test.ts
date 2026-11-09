@@ -40,9 +40,7 @@ describe("addException on a temp service-sheets.json and schedule-exceptions.jso
     const result = addException(files, { add }, { now });
     expect(dates()).toEqual(["2026-10-18", "2026-10-25"]);
     expect(result.written).toEqual([files.exceptionsFile]);
-    expect(exceptionLine(result, false)).toBe(
-      "Added the change on 2026-10-18 to src/content/schedule-exceptions.json: 1 service: 10:00 kurim",
-    );
+    expect(exceptionLine(result, false)).toBe("Added the change on 2026-10-18: 1 service: 10:00 kurim");
   });
 
   it("replaces the change of the same date", () => {
@@ -50,16 +48,14 @@ describe("addException on a temp service-sheets.json and schedule-exceptions.jso
     const result = addException(files, { add }, { now });
     expect(readScheduleExceptions(files.exceptionsFile).exceptions).toEqual([add]);
     expect(exceptionLine(result, false)).toBe(
-      "Replaced the change on 2026-10-25 (přesun) in src/content/schedule-exceptions.json: 1 service: 18:00 jinacovice",
+      "Replaced the change on 2026-10-25 (přesun): 1 service: 18:00 jinacovice",
     );
   });
 
   it("removes a change", () => {
     const result = addException(files, { remove: "2026-10-25" }, { now });
     expect(dates()).toEqual([]);
-    expect(exceptionLine(result, false)).toBe(
-      "Removed the change on 2026-10-25 from src/content/schedule-exceptions.json",
-    );
+    expect(exceptionLine(result, false)).toBe("Removed the change on 2026-10-25");
   });
 
   it("refuses a date a sheet covers, a past date, a bad record and a removal of no change", () => {
@@ -83,9 +79,7 @@ describe("addException on a temp service-sheets.json and schedule-exceptions.jso
     const result = addException(files, { add: { date: "2026-10-18", services: [] } }, { now, check: true });
     expect(result.written).toEqual([]);
     expect(raw()).toBe(before);
-    expect(exceptionLine(result, true)).toBe(
-      "Would add the change on 2026-10-18 to src/content/schedule-exceptions.json: no services",
-    );
+    expect(exceptionLine(result, true)).toBe("Would add the change on 2026-10-18: no services");
   });
 });
 
