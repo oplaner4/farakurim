@@ -53,7 +53,7 @@ describe("syncEvents", () => {
     );
     await syncEvents({ apply: false, problems: true });
     expect(log).toHaveBeenCalledExactlyOnceWith(
-      expect.stringMatching(/^Události, 2099-01-05: ask: "Alfa" on 2099-01-05/),
+      expect.stringMatching(/^ask: Události, 2099-01-05: "Alfa" on 2099-01-05/),
     );
   });
 

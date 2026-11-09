@@ -141,7 +141,7 @@ signature. `.github/workflows/events.yml`
    PR) and opens **one PR per mail** on a branch
    `events/<date>`, its body the report (only what is published is quoted: the PR is public), locked, a draft when
    the report has a blocking question. Its body ends with the [calendar sync](calendar-sync.md) preview's lines
-   that need a person (an `ask:` or `cannot pair` line, or that the calendar was not checked), so the reviewer can fix
+   that need a person (its `ask:` lines, or that the calendar was not checked), so the reviewer can fix
    Události before the merge releases the site. It refuses an id an open events PR already holds (`pnpm event-mail
 check-ids`). The staged files go into the artifact `content-uploads-<sha>`;
 5. files the mail in `Zpracováno` once its PR exists, or in `Odmítnuto` when it added nothing.

@@ -11,10 +11,10 @@ Only a release applies them, after the site is deployed (so every URL it writes 
 - **The `calendar` job of `deploy.yml`** runs after `deploy` (and its verify). On a release tag push it runs
   `pnpm calendar-sync --calendar events --apply` and `pnpm calendar-sync --calendar services --apply`; on a refresh,
   or before the `calendar-sync` environment has `GOOGLE_WORKLOAD_IDENTITY_PROVIDER` (the setup below), both are only
-  previewed. Either way its lines go into the run summary, and each line that needs a person warns (`--problems`): a
-  hand-made Bohoslužby event doubling a service, an `ask:` (the sync cannot tell which Události event is the record's:
-  paste the page URL into the right one's description, or add the event with it) or a `cannot pair` line, as either
-  leaves that event out of line until a person acts and the next release runs. A failure ends as a warning too and does not mark the release failed: the
+  previewed. Either way its lines go into the run summary, and each line that needs a person starts with `ask:` and warns
+  (`--problems`): a hand-made Bohoslužby event doubling a service, a Události event the sync cannot tell is the
+  record's (paste the page URL into the right one's description, or add the event with it), or meetings it cannot
+  pair, as each leaves that event out of line until a person acts and the next release runs. A failure ends as a warning too and does not mark the release failed: the
   next release catches up. It skips a `--local` release, which applies the sync itself.
 - **`pnpm release --local`** applies both calendars after its deploy and verify, with the credentials in `.env.local`.
 

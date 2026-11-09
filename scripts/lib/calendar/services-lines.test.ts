@@ -83,7 +83,7 @@ describe("servicesLines", () => {
       'Bohoslužby, 2026-10-14: restore 8:00 "Mše svatá v Kuřimi" (it was deleted)',
       'Bohoslužby, 2026-10-18: add 8:00 "Mše svatá v Kuřimi", 9:30 "Mše svatá v Kuřimi"',
       'Bohoslužby, 2026-10-20: update 8:00 "Mše svatá v Kuřimi": time',
-      'Bohoslužby, 2026-10-25: 9:00 "Mše svatá v Kuřimi" doubles "Mše svatá v Kuřimi" (repeating): remove it by hand',
+      'ask: Bohoslužby, 2026-10-25: 9:00 "Mše svatá v Kuřimi" doubles "Mše svatá v Kuřimi" (repeating): remove it by hand',
     ]);
   });
 
@@ -95,7 +95,7 @@ describe("servicesLines", () => {
       'Bohoslužby, 2026-10-14: restored 8:00 "Mše svatá v Kuřimi" (it was deleted)',
       'Bohoslužby, 2026-10-18: added 8:00 "Mše svatá v Kuřimi", 9:30 "Mše svatá v Kuřimi"',
       'Bohoslužby, 2026-10-20: updated 8:00 "Mše svatá v Kuřimi": time',
-      'Bohoslužby, 2026-10-25: 9:00 "Mše svatá v Kuřimi" doubles "Mše svatá v Kuřimi" (repeating): remove it by hand',
+      'ask: Bohoslužby, 2026-10-25: 9:00 "Mše svatá v Kuřimi" doubles "Mše svatá v Kuřimi" (repeating): remove it by hand',
     ]);
   });
 
@@ -123,7 +123,7 @@ describe("servicesLines", () => {
       false,
     );
     expect(lines).toEqual([
-      'Bohoslužby, 2026-10-25: 9:00 "Mše svatá v Kuřimi" doubles "Mše", "Mše sv.": remove them by hand',
+      'ask: Bohoslužby, 2026-10-25: 9:00 "Mše svatá v Kuřimi" doubles "Mše", "Mše sv.": remove them by hand',
     ]);
   });
 
@@ -133,7 +133,7 @@ describe("servicesLines", () => {
 
   it("gives only the reports as the lines that need a person, and none when there is none", () => {
     expect(servicesProblemLines(full)).toEqual([
-      'Bohoslužby, 2026-10-25: 9:00 "Mše svatá v Kuřimi" doubles "Mše svatá v Kuřimi" (repeating): remove it by hand',
+      'ask: Bohoslužby, 2026-10-25: 9:00 "Mše svatá v Kuřimi" doubles "Mše svatá v Kuřimi" (repeating): remove it by hand',
     ]);
     expect(servicesProblemLines(plan([add("2026-10-18", "8:00")]))).toEqual([]);
   });

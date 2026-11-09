@@ -90,10 +90,10 @@ describe("planLines", () => {
     const a = google("a", "2026-10-12", "Adorace");
     const b = google("b", "2026-10-14", "Adorační den");
     expect(planLines(plan([], [{ kind: "ask", desired: item, candidates: [a, b] }]), false)).toEqual([
-      `${PREFIX}ask: "Adorace" on 2026-10-12, "Adorační den" on 2026-10-14: paste ${PAGE} into its description if it is this event; if none of them is, add it in Události on 2026-10-12 with that URL in its description; until then nothing changes`,
+      `ask: ${PREFIX}"Adorace" on 2026-10-12, "Adorační den" on 2026-10-14: paste ${PAGE} into its description if it is this event; if none of them is, add it in Události on 2026-10-12 with that URL in its description; until then nothing changes`,
     ]);
     expect(planLines(plan([], [{ kind: "ask", desired: weeklyItem, candidates: [a] }]), false)).toEqual([
-      `Události, weekly from 2026-10-01: ask: "Adorace" on 2026-10-12: paste https://farakurim.cz/aktuality/obnova/ into its description if it is this event; if none of them is, add it in Události weekly from 2026-10-01 with that URL in its description; until then nothing changes`,
+      `ask: Události, weekly from 2026-10-01: "Adorace" on 2026-10-12: paste https://farakurim.cz/aktuality/obnova/ into its description if it is this event; if none of them is, add it in Události weekly from 2026-10-01 with that URL in its description; until then nothing changes`,
     ]);
     const unpaired: Report = {
       kind: "unpaired",
@@ -102,7 +102,7 @@ describe("planLines", () => {
       events: [a, b],
     };
     expect(planLines(plan([], [unpaired]), false)).toEqual([
-      'Události, 2026-10-19: cannot pair the meetings 2026-10-19, 2026-10-26 with "Adorace" on 2026-10-12, "Adorační den" on 2026-10-14: nothing changes',
+      'ask: Události, 2026-10-19: cannot pair the meetings 2026-10-19, 2026-10-26 with "Adorace" on 2026-10-12, "Adorační den" on 2026-10-14: nothing changes',
     ]);
     expect(planLines(plan([], [{ kind: "orphan", path: "/aktuality/x/", event: a }]), false)).toEqual([
       'Události, 2026-10-12: "Adorace" on 2026-10-12 links /aktuality/x/, which no record has: left alone',
@@ -132,8 +132,8 @@ describe("problemLines", () => {
       { kind: "deleted", desired: item },
     ];
     expect(problemLines(plan([add], reports))).toEqual([
-      expect.stringMatching(/^Události, 2026-10-12: ask: /),
-      expect.stringMatching(/^Události, 2026-10-19: cannot pair /),
+      expect.stringMatching(/^ask: Události, 2026-10-12: "/),
+      expect.stringMatching(/^ask: Události, 2026-10-19: cannot pair /),
     ]);
     expect(problemLines(plan([add]))).toEqual([]);
   });

@@ -1,4 +1,5 @@
 import { eventDays, type GoogleEvent } from "@/lib/calendar/google-calendar";
+import { ask } from "../output";
 import type { DesiredService } from "./services-desired";
 import { fieldNames } from "./lines";
 import type { ServicesChange, ServicesPlan, ServicesReport } from "./services-plan";
@@ -58,6 +59,9 @@ const startOf = (service: DesiredService) => Date.parse(service.body.start.dateT
 
 const line = ({ date, text }: Entry) => `Bohoslužby, ${date}: ${text}`;
 
+/** The line of a report, which needs a person. */
+const problemLine = (entry: Entry) => ask(line(entry));
+
 const byDate = (a: Entry, b: Entry) => a.date.localeCompare(b.date);
 
 /**
@@ -95,11 +99,11 @@ export function servicesLines(
   }));
   // The sort is stable: on one date the adds come first, then the other changes in the plan's order.
   const lines = [...adds, ...single].sort(byDate).map(line);
-  const reports = plan.reports.map(reportEntry).sort(byDate).map(line);
+  const reports = plan.reports.map(reportEntry).sort(byDate).map(problemLine);
   const all = [...lines, ...reports];
   return all.length > 0 ? all : ["Bohoslužby: nothing to do."];
 }
 
 /** The lines of the reports in `plan`, which need a person (a hand-made event doubling a service); none when none. */
 export const servicesProblemLines = (plan: ServicesPlan): string[] =>
-  plan.reports.map(reportEntry).sort(byDate).map(line);
+  plan.reports.map(reportEntry).sort(byDate).map(problemLine);

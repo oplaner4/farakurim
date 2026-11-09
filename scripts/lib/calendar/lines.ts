@@ -1,5 +1,6 @@
 import { eventDays, type GoogleEvent } from "@/lib/calendar/google-calendar";
 import { actionVerb } from "../command";
+import { ask } from "../output";
 import type { DesiredEvent } from "./desired";
 import type { BodyField, Change, Report, SyncPlan } from "./plan";
 
@@ -43,15 +44,17 @@ function reportLine(report: Report): string {
       const candidates = report.candidates.map(titled).join(", ");
       const url = `https://farakurim.cz${pagePath(report.desired.newsId)}`;
       const when = report.desired.key === "weekly" ? dateOf(report.desired) : `on ${report.desired.meeting.start}`;
-      return (
-        `Události, ${dateOf(report.desired)}: ask: ${candidates}: paste ${url} into its description if it is this ` +
-        `event; if none of them is, add it in Události ${when} with that URL in its description; until then nothing ` +
-        "changes"
+      return ask(
+        `Události, ${dateOf(report.desired)}: ${candidates}: paste ${url} into its description if it is this ` +
+          `event; if none of them is, add it in Události ${when} with that URL in its description; until then ` +
+          "nothing changes",
       );
     }
     case "unpaired": {
       const events = report.events.map(titled).join(", ");
-      return `Události, ${report.meetings[0]}: cannot pair the meetings ${report.meetings.join(", ")} with ${events}: nothing changes`;
+      return ask(
+        `Události, ${report.meetings[0]}: cannot pair the meetings ${report.meetings.join(", ")} with ${events}: nothing changes`,
+      );
     }
     case "orphan":
       return `Události, ${dayOf(report.event)}: ${titled(report.event)} links ${report.path}, which no record has: left alone`;

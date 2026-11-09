@@ -75,7 +75,11 @@ const quotes: { quote: string; skills: string[]; lines: () => string[] }[] = [
     skills: ["parish-correct-event/SKILL.md", "parish-cancel-event/SKILL.md"],
     lines: () => replaceLines({ record: event, changed: ["start"] }, true),
   },
-  { quote: "ask:", skills: ["parish-release/SKILL.md"], lines: () => sourceLines("calendar/lines.ts") },
+  {
+    quote: "ask:",
+    skills: ["parish-release/SKILL.md"],
+    lines: () => sourceLines("calendar/lines.ts").map((l) => l.replace("ask(", "ask: ")),
+  },
 ];
 
 describe("the script lines the skills quote", () => {
