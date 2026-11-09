@@ -11,6 +11,7 @@ import type { PetrklicRecord } from "@/content/types/petrklic";
 import { issueFiles, issueId, issuePath } from "@/lib/petrklic/issues";
 import { UPLOADS_PATH } from "@/lib/shared/uploads";
 import { addPetrklic, petrklicLines, readPetrklic } from "../petrklic/add-petrklic";
+import { next, tell } from "../output";
 import { onServer, serverUrl, UPLOADS_DIR } from "../uploads";
 import { correctedHint, correctedRev, MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
 import { pdfPageCount, renderPetrklic } from "../images";
@@ -134,7 +135,7 @@ async function movedIssue(env: StageEnv, from: string): Promise<MovedIssue> {
 /** What the user must know about the old folder: it stays online, and public/.htaccess may still redirect to it. */
 function movedLines(env: StageEnv, moved: MovedIssue, pdf: string, check: boolean): string[] {
   const lines = moved.released
-    ? [`The old folder ${serverUrl(env, moved.folder)}/ stays online: files on the server are never deleted`]
+    ? [tell(`The old folder ${serverUrl(env, moved.folder)}/ stays online: files on the server are never deleted`)]
     : [`${check ? "Would remove" : "Removed"} the unreleased old folder ${UPLOADS_DIR}${moved.folder}/`];
   const oldUrl = `${UPLOADS_PATH}${moved.pdf}`;
   const redirects = existsSync(env.htaccessFile)
@@ -143,9 +144,7 @@ function movedLines(env: StageEnv, moved: MovedIssue, pdf: string, check: boolea
         .flatMap((line, i) => (line.includes(oldUrl) ? [i + 1] : []))
     : [];
   if (redirects.length > 0) {
-    lines.push(
-      `public/.htaccess redirects to the old PDF on line ${redirects.join(", ")}: change ${oldUrl} to ${UPLOADS_PATH}${pdf} there`,
-    );
+    lines.push(next(`in public/.htaccess, line ${redirects.join(", ")}, change ${oldUrl} to ${UPLOADS_PATH}${pdf}`));
   }
   return lines;
 }

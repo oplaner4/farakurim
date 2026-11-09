@@ -53,7 +53,9 @@ describe.skipIf(!hasPoppler)("stagePetrklic", { timeout: 30_000 }, () => {
   it("stops on an issue already there before copying anything", async () => {
     const source = download("Petrklic.pdf", pdfWithText(["Petrklic"]));
     const { year, number, note } = readPetrklic(env.petrklicFile).issues[0];
-    await expect(stagePetrklic(env, { source, year, number, note })).rejects.toThrow(/is already added/);
+    await expect(stagePetrklic(env, { source, year, number, note })).rejects.toThrow(
+      /is already added\nnext: pass --corrected for a corrected PDF/,
+    );
     expect(existsSync(env.uploadsDir) ? readdirSync(env.uploadsDir) : []).toEqual([]);
   });
 
@@ -136,8 +138,8 @@ describe.skipIf(!hasPoppler)("stagePetrklic", { timeout: 30_000 }, () => {
     expect(result.lines).toEqual([
       "Staged uploads/petrklic/2006-9/ (PDF, cover.webp, pages/), 2 pages",
       `Replaced ${id} with 9/2006 (2 pages) at position ${position} (not the current issue: newer issues come first)`,
-      `The old folder https://example.cz/uploads/petrklic/${id}/ stays online: files on the server are never deleted`,
-      `public/.htaccess redirects to the old PDF on line 2: change ${old} to /uploads/petrklic/2006-9/petrklic-2006-9.pdf there`,
+      `tell: The old folder https://example.cz/uploads/petrklic/${id}/ stays online: files on the server are never deleted`,
+      `next: in public/.htaccess, line 2, change ${old} to /uploads/petrklic/2006-9/petrklic-2006-9.pdf`,
     ]);
     expect(readPetrklic(env.petrklicFile).issues[position - 1]).toEqual({ year: 2006, number: 9, pageCount: 2 });
     expect(readPetrklic(env.petrklicFile).issues[0]).toEqual(issues[1]);

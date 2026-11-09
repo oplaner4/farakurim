@@ -40,9 +40,9 @@ pnpm stage petrklic --from <old id> --year <year> --number <number> [--note "<no
 ```
 
 Show the user the old and new id, the folder it would stage and the page count it prints. Wait for the user's yes or
-corrections, then run it without `--check`. It moves the record, removes an unreleased old folder, and says when a
-released one stays online and when `public/.htaccess` still redirects to the old PDF: tell the user, and change those
-lines as it says.
+corrections, then run it without `--check`. It moves the record, removes an unreleased old folder, and prints a
+`tell:` line when a released one stays online (tell the user) and a `next:` line for each `public/.htaccess` redirect
+to the old PDF (make that change).
 
 ## 4. Publish
 

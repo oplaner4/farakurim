@@ -3,6 +3,7 @@ import { join } from "node:path";
 import sharp from "sharp";
 import { describe, expect, it, vi } from "vitest";
 import { assertFreeOnServer, stageAlbumPhotos } from "./album-photos";
+import { next } from "../output";
 import { freshTempDir } from "../test-helpers";
 
 const tempDir = freshTempDir("album-photos");
@@ -65,11 +66,11 @@ describe("assertFreeOnServer", () => {
 
   it("refuses a name on the server", async () => {
     await expect(
-      assertFreeOnServer(env(200), "fotogalerie/x/foto-1-800.webp", "pass another id with --id"),
-    ).rejects.toThrow("fotogalerie/x/foto-1-800.webp is already on the server: pass another id with --id");
+      assertFreeOnServer(env(200), "fotogalerie/x/foto-1-800.webp", [next("pass another id with --id")]),
+    ).rejects.toThrow("fotogalerie/x/foto-1-800.webp is already on the server\nnext: pass another id with --id");
   });
 
   it("accepts a free name", async () => {
-    await expect(assertFreeOnServer(env(404), "fotogalerie/x/foto-1-800.webp", "hint")).resolves.toBeUndefined();
+    await expect(assertFreeOnServer(env(404), "fotogalerie/x/foto-1-800.webp", [])).resolves.toBeUndefined();
   });
 });

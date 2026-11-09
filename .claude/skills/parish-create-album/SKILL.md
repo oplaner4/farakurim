@@ -49,7 +49,8 @@ pnpm add-album "<album URL>" --write --title "<title>" --date <YYYY-MM-DD> --id 
 ```
 
 Pass the confirmed values (each only when it differs from the JSON), and `--photos "<zip>"` if step 2 used it. It
-prints each older album it removed to stay within the site's limit (they stay on Zonerama): tell the user. It refuses
+prints a `tell:` line for each older album it removed to stay within the site's limit (they stay on Zonerama): tell
+the user. It refuses
 an id or album already on the site, an id without the album's year (`--id` must keep it, e.g. `vranov-2026`), an album older than
 all the kept ones, and an id whose folder is already on the server (the server's files are never overwritten): pass
 another `--id`.

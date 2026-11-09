@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { ALBUM_PHOTO_WIDTHS, albumPhotoPath } from "@/lib/gallery/albums";
 import { UPLOADS_PATH } from "@/lib/shared/uploads";
 import { ALBUM_PHOTO_QUALITY, toWebp } from "../images";
+import { refusal } from "../output";
 import { onServer, type UploadsEnv } from "../uploads";
 
 /**
@@ -23,7 +24,7 @@ export async function stageAlbumPhotos(uploadsDir: string, id: string, sources: 
   return written;
 }
 
-/** Throws `<rel> is already on the server: <hint>` when `rel` is on the server. */
-export async function assertFreeOnServer(env: UploadsEnv, rel: string, hint: string) {
-  if (await onServer(env, rel)) throw new Error(`${rel} is already on the server: ${hint}`);
+/** Refuses `rel` when it is on the server, with the tagged lines `hint`. */
+export async function assertFreeOnServer(env: UploadsEnv, rel: string, hint: string[]) {
+  if (await onServer(env, rel)) throw refusal(`${rel} is already on the server`, ...hint);
 }

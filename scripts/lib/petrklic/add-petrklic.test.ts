@@ -52,7 +52,9 @@ describe("addPetrklic on a temp petrklic.json", () => {
   });
 
   it("refuses an issue already there and an invalid one", () => {
-    expect(() => addPetrklic(file, record(2025, 4))).toThrow("the issue 2025-4 is already added");
+    expect(() => addPetrklic(file, record(2025, 4))).toThrow(
+      "the issue 2025-4 is already added\nnext: pass --corrected for a corrected PDF",
+    );
     expect(() => addPetrklic(file, record(2026, 0))).toThrow(/the issue is not valid/);
   });
 
@@ -69,8 +71,10 @@ describe("addPetrklic on a temp petrklic.json", () => {
   });
 
   it("asks for --corrected for an issue already there and refuses it for a new one", () => {
-    expect(() => addPetrklic(file, record(2025, 4))).toThrow("for a corrected PDF pass --corrected");
-    expect(() => addPetrklic(file, record(2026, 2), { replace: true })).toThrow("the issue 2026-2 is not added");
+    expect(() => addPetrklic(file, record(2025, 4))).toThrow("next: pass --corrected for a corrected PDF");
+    expect(() => addPetrklic(file, record(2026, 2), { replace: true })).toThrow(
+      "the issue 2026-2 is not added\nnext: leave out --corrected for a new issue",
+    );
   });
 
   it("only says what it would do with check", () => {

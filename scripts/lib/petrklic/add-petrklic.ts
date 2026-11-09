@@ -9,6 +9,7 @@ import { petrklicFileSchema, petrklicRecordSchema } from "@/lib/petrklic/schema"
 import { parseOrThrow, readJsonFile } from "@/lib/shared/json-file";
 import { actionVerb } from "../command";
 import { writeContentFile } from "../content-files";
+import { next, refusal } from "../output";
 
 /** The issues in `file`, checked by petrklicFileSchema; a broken file throws, naming it. */
 export const readPetrklic = (file: string): PetrklicFile => readJsonFile(file, petrklicFileSchema);
@@ -49,10 +50,10 @@ export function addPetrklic(
   const at = issues.findIndex((issue) => issueId(issue) === id);
   let list: PetrklicRecord[];
   if (replace) {
-    if (at === -1) throw new Error(`the issue ${id} is not added: --corrected is for an issue already added`);
+    if (at === -1) throw refusal(`the issue ${id} is not added`, next("leave out --corrected for a new issue"));
     list = issues.toSpliced(at, 1, record);
   } else {
-    if (at !== -1) throw new Error(`the issue ${id} is already added; for a corrected PDF pass --corrected`);
+    if (at !== -1) throw refusal(`the issue ${id} is already added`, next("pass --corrected for a corrected PDF"));
     const before = issues.findIndex((issue) => !isNewerIssue(issue, record));
     list = before === -1 ? [...issues, record] : issues.toSpliced(before, 0, record);
   }

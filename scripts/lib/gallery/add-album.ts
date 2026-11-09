@@ -19,6 +19,7 @@ import { parseOrThrow, readJsonFile } from "@/lib/shared/json-file";
 import { actionVerb, parseCommandLine } from "../command";
 import { formatAndTest, GALLERY_FILE, writeContentFile } from "../content-files";
 import { defaultUploadsEnv, UPLOADS_DIR, type UploadsEnv } from "../uploads";
+import { next, refusal, tell } from "../output";
 import { assertFreeOnServer, stageAlbumPhotos } from "./album-photos";
 import { extractPhotos, type LocalPhoto } from "./zip-photos";
 import { downloadAlbumZip, zipFolder } from "./zonerama-zip";
@@ -159,7 +160,7 @@ export function addAlbum(galleryFile: string, input: unknown, { check = false } 
     throw new Error(`the album ${album.href} is already added`);
   }
   if (albums.some((a) => a.id === album.id)) {
-    throw new Error(`the id ${album.id} is already taken: pass another one with --id`);
+    throw refusal(`the id ${album.id} is already taken`, next("pass another id with --id"));
   }
   const at = albums.findIndex((a) => a.date <= album.date);
   const all = at === -1 ? [...albums, album] : albums.toSpliced(at, 0, album);
@@ -178,7 +179,7 @@ export function addAlbum(galleryFile: string, input: unknown, { check = false } 
 export function albumLines({ album, position, removed }: AddAlbumResult, check: boolean): string[] {
   return [
     `${actionVerb(check, "add")} ${album.id} (${album.photoCount} photos) at position ${position}`,
-    ...removed.map((a) => `${actionVerb(check, "remove")} the old album ${a.id} (${a.date})`),
+    ...removed.map((a) => tell(`${actionVerb(check, "remove")} the old album ${a.id} (${a.date})`)),
   ];
 }
 
@@ -260,9 +261,10 @@ export async function runAlbum(
       ...(page === null ? ["The album page did not answer: the title and the date are from the zip's name."] : []),
     ];
     if (!write && !check) return { output: [...note, JSON.stringify(proposal, null, 2)].join("\n"), written: [] };
-    if (!album.date) throw new Error("the album title has no date: pass the date of the event with --date YYYY-MM-DD");
+    if (!album.date)
+      throw refusal("the album title has no date", next("pass the date of the event with --date YYYY-MM-DD"));
     addAlbum(galleryFile, album, { check: true });
-    await assertFreeOnServer(env, `fotogalerie/${album.id}/foto-1-800.webp`, "pass another id with --id");
+    await assertFreeOnServer(env, `fotogalerie/${album.id}/foto-1-800.webp`, [next("pass another id with --id")]);
     if (!check) await stagePhotos(env, album.id, sources);
     const result = check ? addAlbum(galleryFile, album, { check: true }) : addAlbum(galleryFile, album);
     if (!check && !given) rmSync(zipFolder(cacheDir, number), { recursive: true, force: true });
