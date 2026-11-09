@@ -1,4 +1,4 @@
-// Reads a content-pr command line and runs it: the checks between Claude's run and the commit of a content PR, on a
+// Reads a content-pr command line and runs it: the checks between the agent's run and the commit of a content PR, on a
 // fresh checkout in the working directory.
 
 import { spawnSync } from "node:child_process";
@@ -66,7 +66,7 @@ export function parseCommand(args: string[]): Command {
   }
 }
 
-/** The text of `file`, empty when it is missing (Claude's run may not have written the report). */
+/** The text of `file`, empty when it is missing (the agent's run may not have written the report). */
 const readOrEmpty = (file: string) => (existsSync(file) ? readFileSync(file, "utf8") : "");
 
 /** Whether commitlint accepts `message`, with the repo's config. */

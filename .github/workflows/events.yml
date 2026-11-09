@@ -2,20 +2,20 @@
 # unseen mail of the events mailbox over IMAP (`pnpm event-mail fetch`) and handles the oldest event mail: one from
 # EVENT_SENDERS (scripts/lib/mail/senders.ts) with its provider's DKIM signature, holding an attachment or a subject
 # and a text. Strangers are filed in `Odmítnuto` silently.
-# Two jobs, so that no step holding a secret runs code from a workspace Claude has touched:
+# Two jobs, so that no step holding a secret runs code from a workspace the agent has touched:
 # - `event` fetches the mail and the known events (`pnpm event-mail known`: the upcoming events on main and those the
-#   open events/ PRs add) and lets Claude (the agent action, workload identity federation, no API key) run
+#   open events/ PRs add) and lets the agent (workload identity federation, no API key) run
 #   parish-create-event unattended on the mail: it groups the attachments into events, refuses corrections and
-#   duplicates, stages the new events and writes a report. Claude's file tools may write only in $RUNNER_TEMP/event
+#   duplicates, stages the new events and writes a report. The agent's file tools may write only in $RUNNER_TEMP/event
 #   (the checkout is denied); only `pnpm stage event` and `pnpm add-event` write src/content/ and the staging folder.
-#   The job hands on the report, the change to src/content/news/ as a patch, the known events (read before Claude ran)
-#   and the staged files as a one-day artifact. The mail itself never leaves this job, and is deleted at the end.
+#   The job hands on the report, the change to src/content/news/ as a patch, the known events (read before the agent
+#   ran) and the staged files as a one-day artifact. The mail itself never leaves this job, and is deleted at the end.
 # - `publish` starts from a fresh checkout, applies the patch only if it touches nothing but the news month files,
 #   refuses an id an open events PR holds (`pnpm event-mail check-ids`), then commits as the GitHub App's bot and opens
 #   a new events/ PR, its body the report (ended by a `<!-- report-end -->` line, so a comment fix can replace the
 #   report), a draft while the report has a blocking question. It neither tests nor builds: check.yml does that on
 #   every commit the App pushes, and a red check is fixed with an `@claude` comment (content-fix-run.yml) or a commit.
-#   It has no id-token, so it cannot act as Claude. It uploads the staged files as `content-uploads-<sha>` before it
+#   It has no id-token, so it cannot act as the agent. It uploads the staged files as `content-uploads-<sha>` before it
 #   pushes the commit, so no pushed commit lacks them.
 # The maintainer's squash merge releases the site (content-release.yml). One PR per mail: a later mail never changes
 # it. The run fails, so GitHub tells the maintainer, when an accepted sender's mail added nothing (every event refused,
@@ -55,14 +55,14 @@ env:
 jobs:
   event:
     runs-on: ubuntu-24.04
-    timeout-minutes: 50 # Claude's step has 30 of them
+    timeout-minutes: 50 # The agent's step has 30 of them
     environment: events-publish
     permissions:
       contents: read
       pull-requests: read # the open events PRs
-      id-token: write # Claude's workload identity federation
-    # The outcome comes from the fetch step, which ran before Claude's: it is not read back from files Claude could
-    # have changed.
+      id-token: write # The agent's workload identity federation
+    # The outcome comes from the fetch step, which ran before the agent's: it is not read back from files the agent
+    # could have changed.
     outputs:
       fetched: ${{ steps.fetch.outputs.fetched }}
       mail: ${{ steps.fetch.outputs.mail }}
@@ -85,7 +85,7 @@ jobs:
 
       # The outcome is one JSON document on stdout (--silent keeps pnpm's banner out of it); it holds uids, dates, kinds
       # and known senders, never message text. The mail lands in $RUNNER_TEMP/event/mail, mail.json in $RUNNER_TEMP/run
-      # (the artifact's folder, outside Claude's reach).
+      # (the artifact's folder, outside the agent's reach).
       - name: Fetch the mail
         id: fetch
         env:
@@ -107,8 +107,8 @@ jobs:
           ' "$mail" >> "$GITHUB_OUTPUT"
           echo "fetched=true" >> "$GITHUB_OUTPUT"
 
-      # Before Claude's step, into the artifact's folder: `publish` checks the ids against this copy, and Claude reads
-      # its own copy.
+      # Before the agent's step, into the artifact's folder: `publish` checks the ids against this copy, and the agent
+      # reads its own copy.
       - name: List the known events
         if: steps.fetch.outputs.mail != ''
         env:
@@ -144,7 +144,7 @@ jobs:
             echo "base=$(git rev-parse HEAD)"
           } >> "$GITHUB_OUTPUT"
 
-      # The prompt holds no event rules: they live in the skill. What Claude may do: .github/actions/agent.
+      # The prompt holds no event rules: they live in the skill. What the agent may do: .github/actions/agent.
       - name: Run parish-create-event
         id: agent
         if: steps.fetch.outputs.mail != ''
@@ -214,7 +214,7 @@ jobs:
           name: events-run-${{ github.run_id }}
           path: ${{ runner.temp }}/run/
 
-      # A fresh checkout of the commit Claude's change is based on: nothing from `event`'s workspace runs here. Also
+      # A fresh checkout of the commit the agent's change is based on: nothing from `event`'s workspace runs here. Also
       # when the download failed, for the summary.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

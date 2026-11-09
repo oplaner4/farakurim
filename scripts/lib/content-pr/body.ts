@@ -1,4 +1,4 @@
-// The body of a content PR: Claude's report, the end marker (so a comment fix can replace the report), the Události
+// The body of a content PR: the agent's report, the end marker (so a comment fix can replace the report), the Události
 // lines that need a person for events, and the footer naming the workflow.
 
 import type { Kind } from "../content-release/plan";

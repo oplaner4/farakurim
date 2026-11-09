@@ -5,9 +5,10 @@ request, the `@claude` comments that fix such a PR, and the content release its 
 the repository and the `check` ruleset they rely on are in [github-setup.md](github-setup.md); a release by hand is
 in [deployment.md](deployment.md#release).
 
-All three workflows run Claude through one action, `.github/actions/agent` (used from `main`, never from the checked-out
-branch): it holds the provider, the model and the rules for what the agent may write and run, so a change of model or
-provider is made there alone. Each workflow passes only the prompt, its scratch folder and its commands.
+All three workflows run the AI agent (Claude today) through one action, `.github/actions/agent` (used from `main`, never
+from the checked-out branch): it holds the provider, the model and the rules for what the agent may write and run, so a
+change of model or provider is made there alone. Each workflow passes only the prompt, its scratch folder and its
+commands.
 
 ## Service sheet by e-mail
 
@@ -19,7 +20,7 @@ provider's DKIM signature.
 
 1. reads the unseen mail over IMAP (`pnpm sheet-mail`): only an accepted sender's DKIM-signed message with exactly
    one DOCX is a sheet, any other mail is filed in `Odmítnuto`. Of several sheets the newest is handled;
-2. lets Claude run the service sheet skills unattended on the DOCX (workload identity federation, no API key): it
+2. lets the agent run the service sheet skills unattended on the DOCX (workload identity federation, no API key): it
    drafts, corrects and stages the run's week, checks it against the sender's note and writes a report;
 3. checks the report against the change and applies it to a fresh checkout only if it touches nothing but
    `src/content/*.json` (`pnpm content-pr apply`), then commits it as the GitHub App's bot (no test or build: [`check.yml`](github-setup.md#checks-on-content-prs)
@@ -45,13 +46,13 @@ provider's DKIM signature.
   fails, so the parish sends it again with the right dates or none. The run also fails when an older sheet mail,
   superseded by a newer one, named another week: that week was not handled, so ask for it again.
 - **The mail's new text is the sender's note** (without a quoted reply or the signature): "Oprava: sobotní mše až
-  v 18:00". Claude checks the draft against it and says in the report's `### Sender's note` what it asks to check
+  v 18:00". The agent checks the draft against it and says in the report's `### Sender's note` what it asks to check
   and whether the draft agrees; a disagreement is a blocking question. The note is never a source: the site shows
   what the DOCX says.
 
-The DOCX (it holds intentions with names) and the note never leave the `sheet` job: it is not uploaded, cached or logged. Claude's
-file tools may write only in the job's scratch folder, never in the checkout. The second job, `publish`, uses the App
-key from a fresh checkout and has no id-token, so it cannot act as Claude.
+The DOCX (it holds intentions with names) and the note never leave the `sheet` job: it is not uploaded, cached or
+logged. The agent's file tools may write only in the job's scratch folder, never in the checkout. The second job,
+`publish`, uses the App key from a fresh checkout and has no id-token, so it cannot act as the agent.
 
 **Answering the PR:** a **squash merge** means yes (the PR title becomes the commit) and releases the site; close
 means no, and nothing happens (the branch stays). A **draft** PR has a blocking question in its body: answer it, mark
@@ -114,7 +115,7 @@ and check in the run:
 - DKIM is accepted and the stranger's mail is filed in `Odmítnuto`;
 - the federation exchange succeeds (on a 401, see the Console's history);
 - the skills load and the report is written;
-- Claude could not write in the checkout: the log shows its Write and Edit calls only under the scratch folder
+- the agent could not write in the checkout: the log shows its Write and Edit calls only under the scratch folder
   (`…/_temp/sheet/`), and any attempt elsewhere was denied;
 - LibreOffice produces the sheet's PDF page;
 - the PR is opened and locked, and a draft when the report has a blocking question;
@@ -135,7 +136,7 @@ signature. `.github/workflows/events.yml`
    a mail with neither such an attachment nor both a subject and a text is refused;
 2. lists the known events (`pnpm event-mail known`): the upcoming ones on `main` and those the open `events/*` PRs
    add;
-3. lets Claude run `parish-create-event` unattended ("Unattended run"): it groups the attachments into events (one
+3. lets the agent run `parish-create-event` unattended ("Unattended run"): it groups the attachments into events (one
    attachment is one event; related ones are one event with its poster and attachments; others it drops, described
    in the report), takes each title from the subject or its poster, fills the text from the attachments, pins only
    when the mail asks for "Doporučujeme", and refuses a **correction** (oprava, změna, posun, přesun, zrušeno, nekoná,
@@ -194,8 +195,8 @@ run starts while mail remains; after the merge the content release publishes the
 ## Fixing content PRs with comments
 
 A comment containing `@claude` in the **conversation** of an open content PR (a `service-sheet/*` or `events/*` PR of
-this repo) makes Claude correct the PR on its branch. Review comments and inline comments on the diff do nothing: only
-conversation comments count (a review comment's run would not be on `main`, so the release would not trust its
+this repo) makes the agent correct the PR on its branch. Review comments and inline comments on the diff do nothing:
+only conversation comments count (a review comment's run would not be on `main`, so the release would not trust its
 files). Comments are **text only**: a file attached to a comment is not read.
 
 | PR     | A comment may                                                                                                                              |
@@ -216,7 +217,7 @@ commenter with write access (`OWNER`, `MEMBER` or `COLLABORATOR`, and the repo p
 
 1. `fix` reads the PR (closed or merged meanwhile: nothing happens), downloads its staged files from the
    `content-uploads-<sha>` artifacts of its commits, the failed `check` run's log and, for events, the known events,
-   then lets Claude run `parish-correct-service-sheet` or `parish-correct-event` as a comment run ("Comment run") on
+   then lets the agent run `parish-correct-service-sheet` or `parish-correct-event` as a comment run ("Comment run") on
    the PR's head, with the comment and the PR's report as its only input (never the rest of the thread). Its file
    tools write only in the job's scratch folder, as in the mail workflows.
 2. `publish` (a fresh checkout, the App key, no id-token) checks the report, applies the change only if it touches
@@ -229,7 +230,7 @@ commenter with write access (`OWNER`, `MEMBER` or `COLLABORATOR`, and the repo p
    marker naming the comment it answers (`<!-- content-fix: <comment id> -->`), so a comment is answered once and a
    later run takes the next unanswered one (up to 10 runs per start).
 
-**Failures:** on a technical failure (Claude's step, a report without its header lines, a change outside the allowed
+**Failures:** on a technical failure (the agent's step, a report without its header lines, a change outside the allowed
 files) the run is red (GitHub tells you) and the reply says "The fix failed" with the run's link, never the comment's
 or a file's content. A failed comment is not retried: write it again. A PR merged, closed or moved meanwhile (a new
 sheet mail, your own push), seen before the push or as a rejected push, gets nothing pushed and the reply "The PR

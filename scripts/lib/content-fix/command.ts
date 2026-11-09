@@ -1,5 +1,5 @@
 // Reads a content-fix command line and runs it: the steps of the comment fix workflow that need the GitHub API, the
-// PR's artifacts or Claude's report.
+// PR's artifacts or the agent's report.
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";

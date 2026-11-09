@@ -17,7 +17,7 @@ export function replyMarker(commentId: number): string {
   return `${MARKER_START} ${commentId} -->`;
 }
 
-/** A comment asking Claude for a fix: mentions `@claude`, from a writer's association, not from a bot. */
+/** A comment asking the agent for a fix: mentions `@claude`, from a writer's association, not from a bot. */
 export function isFixRequest(comment: IssueComment): boolean {
   return (
     comment.body.includes("@claude") && WRITER_ASSOCIATIONS.has(comment.association) && comment.authorType !== "Bot"

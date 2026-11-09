@@ -3,11 +3,11 @@
 # (`pnpm sheet-mail`): only the parish's DKIM-signed message with one DOCX is a sheet. Two parts of the mail are
 # optional: a date in the subject names the week to handle (else the DOCX's newest week; a reply's or forward's
 # subject names none), and the mail's new text is
-# the sender's note, which Claude checks the draft against (never a source of content).
-# Two jobs, so that no step holding a secret runs code from a workspace Claude has touched:
-# - `sheet` fetches the mail and lets Claude (the agent action, workload identity federation, no API key) run the
-#   service sheet skills unattended on the DOCX: it drafts, corrects and stages the weeks and writes a report. Claude's
-#   file tools may write only in $RUNNER_TEMP/sheet (the checkout is denied); only `pnpm stage sheet` writes
+# the sender's note, which the agent checks the draft against (never a source of content).
+# Two jobs, so that no step holding a secret runs code from a workspace the agent has touched:
+# - `sheet` fetches the mail and lets the agent (workload identity federation, no API key) run the
+#   service sheet skills unattended on the DOCX: it drafts, corrects and stages the weeks and writes a report. The
+#   agent's file tools may write only in $RUNNER_TEMP/sheet (the checkout is denied); only `pnpm stage sheet` writes
 #   src/content/ and the staging folder. The job hands on the report, the change to src/content/ as a patch and the staged PDFs
 #   as a one-day artifact. The year's DOCX (intentions with names) and the note never leave this job: they are not
 #   uploaded, cached or logged, and they are deleted at the end.
@@ -16,7 +16,7 @@
 #   `<!-- report-end -->` line, so a comment fix can replace the report), a draft while the report has a blocking
 #   question (an update turns it back into one). It neither tests nor builds: check.yml does that on every commit the
 #   App pushes, and a red check is fixed with an `@claude` comment (content-fix-run.yml) or a commit. It has no
-#   id-token, so it cannot act as Claude. It uploads the staged PDFs as `content-uploads-<sha>` before it pushes the
+#   id-token, so it cannot act as the agent. It uploads the staged PDFs as `content-uploads-<sha>` before it pushes the
 #   commit, so no pushed commit lacks them.
 # The maintainer's merge releases the site (content-release.yml), with the staged PDFs from the artifacts of the PR's
 # commits (`content-uploads-<sha>`, the PDFs under porady_bohosluzeb/ as in the staging folder). Nothing changed: no PR. The mail is filed (Zpracováno, Odmítnuto) only once its outcome is done, so
@@ -52,14 +52,14 @@ env:
 jobs:
   sheet:
     runs-on: ubuntu-24.04
-    timeout-minutes: 75 # Claude's step has 45 of them
+    timeout-minutes: 75 # The agent's step has 45 of them
     environment: service-sheet-publish
     permissions:
       contents: read
       pull-requests: read # find the open sheet PR
-      id-token: write # Claude's workload identity federation
-    # The uids and the summary come from the fetch step, which ran before Claude's: they are not read back from files
-    # Claude could have changed.
+      id-token: write # The agent's workload identity federation
+    # The uids and the summary come from the fetch step, which ran before the agent's: they are not read back from files
+    # the agent could have changed.
     outputs:
       fetched: ${{ steps.fetch.outputs.fetched }}
       docx: ${{ steps.fetch.outputs.docx }}
@@ -87,7 +87,7 @@ jobs:
       # The outcome is one JSON document on stdout (--silent keeps pnpm's banner out of it); it holds uids, dates,
       # weeks and kinds, never message text. The DOCX lands in $RUNNER_TEMP/sheet/mail/porad.docx, the sender's note
       # (if any) in $RUNNER_TEMP/sheet/mail/note.txt, mail.json in $RUNNER_TEMP/run (the artifact's folder, outside
-      # Claude's reach). A named week reaches the prompt only as two ISO dates.
+      # the agent's reach). A named week reaches the prompt only as two ISO dates.
       - name: Fetch the mail
         id: fetch
         env:
@@ -139,7 +139,7 @@ jobs:
           if [ -n "$found" ]; then read -r pr branch <<< "$found"; fi
           if [ -n "$pr" ]; then
             git checkout -B "$branch" "origin/$branch"
-            # The report of the earlier runs, so Claude keeps its question ids. The conversation is locked: only
+            # The report of the earlier runs, so the agent keeps its question ids. The conversation is locked: only
             # collaborators can edit this body.
             gh pr view "$pr" --json body --jq .body > "$RUNNER_TEMP/sheet/previous-report.md"
           else
@@ -159,7 +159,7 @@ jobs:
             echo "base=$(git rev-parse HEAD)"
           } >> "$GITHUB_OUTPUT"
 
-      # The prompt holds no sheet rules: they live in the skills. What Claude may do: .github/actions/agent.
+      # The prompt holds no sheet rules: they live in the skills. What the agent may do: .github/actions/agent.
       - name: Run the service sheet skills
         id: agent
         if: steps.fetch.outputs.docx != ''
@@ -227,7 +227,7 @@ jobs:
           name: service-sheet-run-${{ github.run_id }}
           path: ${{ runner.temp }}/run/
 
-      # A fresh checkout of the commit Claude's change is based on: nothing from `sheet`'s workspace runs here. Also
+      # A fresh checkout of the commit the agent's change is based on: nothing from `sheet`'s workspace runs here. Also
       # when the download failed, for the summary.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

@@ -9,7 +9,7 @@ export type FixReport = {
   reply: string;
 };
 
-/** Reads Claude's fix report: three header lines, the report, and `## Reply` led by an `Outcome:` line. */
+/** Reads the agent's fix report: three header lines, the report, and `## Reply` led by an `Outcome:` line. */
 export function parseFixReport(text: string): FixReport {
   const lines = text.split(/\r?\n/);
   const blocking = /^blocking: (yes|no)$/.exec(lines[0] ?? "");

@@ -1,6 +1,6 @@
-// Applies the change Claude made to the content (a `git diff --binary` patch) to a fresh checkout, only when it touches
-// nothing but the content files of its kind: a patch from a workspace Claude touched never reaches a script, a
-// workflow or a hook.
+// Applies the change the agent made to the content (a `git diff --binary` patch) to a fresh checkout, only when it
+// touches nothing but the content files of its kind: a patch from a workspace the agent touched never reaches a script,
+// a workflow or a hook.
 
 import { existsSync, statSync } from "node:fs";
 import type { Kind } from "../content-release/plan";

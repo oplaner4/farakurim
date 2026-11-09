@@ -23,7 +23,7 @@ export function splitPullBody(body: string): { report: string; rest: string } {
   };
 }
 
-/** The input Claude gets: the PR's state and commit message, then the report it may correct. */
+/** The input the agent gets: the PR's state and commit message, then the report it may correct. */
 export function fixInput({ title, draft, body }: { title: string; draft: boolean; body: string }): string {
   return `blocking: ${draft ? "yes" : "no"}\ncommit: ${title}\n\n${splitPullBody(body).report}\n`;
 }

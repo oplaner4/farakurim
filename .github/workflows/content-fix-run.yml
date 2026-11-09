@@ -4,24 +4,24 @@
 # PR's oldest unanswered comment: one from a commenter with write access that no bot reply names by its marker
 # (`<!-- content-fix: <comment id> -->`). So no comment is lost when a pending run is cancelled, and a comment is
 # answered once, success, refusal and failure alike (a failed comment is written again, never retried).
-# Two jobs per comment, so that no step holding a secret runs code from a workspace Claude has touched:
+# Two jobs per comment, so that no step holding a secret runs code from a workspace the agent has touched:
 # - `fix` reads the PR (`pnpm content-fix next`: open, kind, head and the comment, from main's code before anything
 #   else) and, for a request, downloads the PR's staged files (the `content-uploads-<sha>` artifacts of its commits,
 #   applied in commit order into the staging folder), the failed `check` run's log and, for events, the known events.
-#   It then checks out the PR's head and lets Claude (the agent action, workload identity federation, no API key) run
+#   It then checks out the PR's head and lets the agent (workload identity federation, no API key) run
 #   the kind's correction skill as a comment run: the comment, the PR's report and the check's log are its only input,
-#   the rest of the thread never reaches it. Claude's file tools may write only in $RUNNER_TEMP/fix (the checkout is
+#   the rest of the thread never reaches it. The agent's file tools may write only in $RUNNER_TEMP/fix (the checkout is
 #   denied); only the stage and replace scripts write src/content/ and the staging folder. The job hands on the report,
 #   the change to src/content/ as a patch, the staged files that are new or changed, and the known events as a one-day
 #   artifact. Its token is read-only and it has no App key.
-# - `publish` starts from a fresh checkout of the head `fix` read before Claude ran, so the code it runs is the PR's
-#   own, never Claude's workspace. It checks the report (`pnpm content-fix report`), applies the patch only if it
+# - `publish` starts from a fresh checkout of the head `fix` read before the agent ran, so the code it runs is the PR's
+#   own, never the agent's workspace. It checks the report (`pnpm content-fix report`), applies the patch only if it
 #   touches nothing but the kind's files and the report says it changed something, refuses an id an open events PR
 #   holds, reads the PR again (merged, closed or moved since `fix` read it: nothing is pushed), commits as the GitHub
 #   App's bot, uploads the changed staged files as `content-uploads-<sha>` (so the content release finds them) and only
 #   then pushes without force (a branch moved meanwhile rejects it), so no pushed commit lacks its files. It updates
 #   the PR's body and title from the report and turns it back into a draft on a blocking question. It neither tests
-#   nor builds: check.yml does that on the pushed commit. It has no id-token, so it cannot act as Claude. It always
+#   nor builds: check.yml does that on the pushed commit. It has no id-token, so it cannot act as the agent. It always
 #   replies to the comment (the report's reply, or the failure with the run's link, never the comment's or a file's
 #   content), with the marker.
 # While unanswered comments remain and the reply was posted, `next` dispatches the workflow again, up to 10 runs per
@@ -58,16 +58,16 @@ env:
 jobs:
   fix:
     runs-on: ubuntu-24.04
-    timeout-minutes: 50 # Claude's step has 30 of them
+    timeout-minutes: 50 # The agent's step has 30 of them
     environment: content-fix
     permissions:
       contents: read
       pull-requests: read # the PR, its comments, the open events PRs
       actions: read # the PR's artifacts and the check's log
       checks: read # the head commit's check run
-      id-token: write # Claude's workload identity federation
-    # Read by the `next` step, before Claude's: never read back from files Claude could have changed. `comment` is set
-    # only for an open content PR with a request, and `publish` runs only then.
+      id-token: write # The agent's workload identity federation
+    # Read by the `next` step, before the agent's: never read back from files the agent could have changed. `comment` is
+    # set only for an open content PR with a request, and `publish` runs only then.
     outputs:
       comment: ${{ steps.next.outputs.comment }}
       kind: ${{ steps.next.outputs.kind }}
@@ -87,7 +87,7 @@ jobs:
 
       # One JSON document on stdout: the PR's state, kind, head, branch, the comment's id and the requests after it,
       # never the comment's text, which goes to $RUNNER_TEMP/fix/comment.md with the PR's report (report.md, whose
-      # second line is the PR's title). The kind picks the skill and the scripts Claude may run.
+      # second line is the PR's title). The kind picks the skill and the scripts the agent may run.
       - name: Read the PR
         id: next
         env:
@@ -155,7 +155,7 @@ jobs:
           HEAD_SHA: ${{ steps.next.outputs.head }}
         run: pnpm --silent content-fix check-log --sha "$HEAD_SHA" --out "$RUNNER_TEMP/fix/check.md"
 
-      # Before Claude's step, into the artifact's folder: `publish` checks new ids against it.
+      # Before the agent's step, into the artifact's folder: `publish` checks new ids against it.
       - name: List the known events
         if: steps.next.outputs.comment != '' && steps.next.outputs.kind == 'events'
         env:
@@ -163,7 +163,7 @@ jobs:
         run: pnpm --silent event-mail known --out "$RUNNER_TEMP/run/known.json"
 
       # The PR's head as `next` read it: a push since then fails `publish`'s push. The staging folder's sums tell the
-      # files Claude's run stages from those it found.
+      # files the agent's run stages from those it found.
       - name: Check out the PR
         if: steps.next.outputs.comment != ''
         env:
@@ -182,7 +182,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends poppler-utils
 
       # The prompt holds no content rules and never the comment: they live in the skill's "Comment run" section and in
-      # comment.md. What Claude may do: .github/actions/agent, with the kind's stage and replace scripts.
+      # comment.md. What the agent may do: .github/actions/agent, with the kind's stage and replace scripts.
       - name: Run the correction skill
         id: agent
         if: steps.next.outputs.comment != ''
@@ -246,7 +246,7 @@ jobs:
           name: content-fix-${{ github.run_id }}
           path: ${{ runner.temp }}/run/
 
-      # A fresh checkout of the head `fix` read before Claude ran: nothing from `fix`'s workspace runs here.
+      # A fresh checkout of the head `fix` read before the agent ran: nothing from `fix`'s workspace runs here.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         if: steps.download.outcome == 'success'
         with:

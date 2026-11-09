@@ -1,4 +1,4 @@
-// Reads the report Claude writes in a mail workflow (service sheet, events) and checks it against the change it
+// Reads the report the agent writes in a mail workflow (service sheet, events) and checks it against the change it
 // made: line 1 `blocking: yes|no`, line 2 `commit: <message>`, then the PR body, one `## ` section per item (a week,
 // an event) with exactly one `Outcome:` line.
 
@@ -105,7 +105,7 @@ export function checkReport(kind: Kind, text: string, changed: boolean): ReportV
     throw new Error(`The report lacks its first line, \`blocking: yes|no\`: ${unread}.`);
   }
   const verdict = { changed, draft: report.blocking, ...(report.commit && { commit: report.commit }) };
-  // A mail Claude found no event in (a thank-you with a logo) is answered, not retried.
+  // A mail the agent found no event in (a thank-you with a logo) is answered, not retried.
   if (rules.empty && report.items.length === 0 && !changed) return verdict;
   const outcomes = report.items.flatMap((item) => item.outcomes);
   if (

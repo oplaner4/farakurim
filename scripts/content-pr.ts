@@ -1,7 +1,7 @@
-// pnpm content-pr: the checks between Claude's run and the commit of a content PR, run by the mail workflows (service
-// sheet, events) and the comment fix on a fresh checkout. No skill uses it.
+// pnpm content-pr: the checks between the agent's run and the commit of a content PR, run by the mail workflows
+// (service sheet, events) and the comment fix on a fresh checkout. No skill uses it.
 //
-// `apply` checks Claude's report (line 1 `blocking: yes|no`, line 2 `commit: <message>`, then one `## ` section per
+// `apply` checks the agent's report (line 1 `blocking: yes|no`, line 2 `commit: <message>`, then one `## ` section per
 // week or event with exactly one `Outcome:` line) against the patch: a change needs an item created (or a week
 // corrected), no change needs a report explaining it. It then applies the patch, only if it touches nothing but the
 // kind's content files (sheets: src/content/*.json; events: the news month files), and prints
