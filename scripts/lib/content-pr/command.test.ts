@@ -128,7 +128,7 @@ describe("execute", () => {
       SUMMARY: '["2026-11-08 09:12: sheet (newest)"]',
       HANDLED: "/tmp/porad.docx",
       JOB_RESULT: "success",
-      CLAUDE: "success",
+      AGENT: "success",
       DOWNLOAD: "success",
       APPLY: "success",
       CHANGED: "false",

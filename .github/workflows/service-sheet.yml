@@ -5,7 +5,7 @@
 # subject names none), and the mail's new text is
 # the sender's note, which Claude checks the draft against (never a source of content).
 # Two jobs, so that no step holding a secret runs code from a workspace Claude has touched:
-# - `sheet` fetches the mail and lets Claude (claude-code-action, workload identity federation, no API key) run the
+# - `sheet` fetches the mail and lets Claude (the agent action, workload identity federation, no API key) run the
 #   service sheet skills unattended on the DOCX: it drafts, corrects and stages the weeks and writes a report. Claude's
 #   file tools may write only in $RUNNER_TEMP/sheet (the checkout is denied); only `pnpm stage sheet` writes
 #   src/content/ and the staging folder. The job hands on the report, the change to src/content/ as a patch and the staged PDFs
@@ -74,7 +74,7 @@ jobs:
       pr: ${{ steps.branch.outputs.pr }}
       branch: ${{ steps.branch.outputs.branch }}
       base: ${{ steps.branch.outputs.base }}
-      claude: ${{ steps.claude.outcome }}
+      agent: ${{ steps.agent.outcome }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -159,32 +159,19 @@ jobs:
             echo "base=$(git rev-parse HEAD)"
           } >> "$GITHUB_OUTPUT"
 
-      # The prompt holds no sheet rules: they live in the skills. Claude can read files, write with its file tools in
-      # $RUNNER_TEMP/sheet only (an `Edit(...)` rule covers Write too; the deny on the checkout wins over any allow, so
-      # it cannot change scripts, package.json, node_modules, hooks or .git), stage the sheet and read PDFs to stdout
-      # only (pdftotext writes the file a second argument names, which no Edit rule checks); no git, no network. A
-      # rule's `//` marks an absolute path (runner.temp and github.workspace start with `/`). The deny names the
-      # checkout by its absolute path: `./**` follows the shell's working directory, so after a `cd` into
-      # $RUNNER_TEMP/sheet it denied the report itself. github.token (read-only) keeps the action from fetching its own
-      # App token; the action's output stays out of the public log.
+      # The prompt holds no sheet rules: they live in the skills. What Claude may do: .github/actions/agent.
       - name: Run the service sheet skills
-        id: claude
+        id: agent
         if: steps.fetch.outputs.docx != ''
         timeout-minutes: 45
-        uses: anthropics/claude-code-action@d535f5172dec02b204866b393d6b20b9b2aaf98d # v1.0.266
+        uses: oplaner4/farakurim/.github/actions/agent@main # from main, not the checkout: see the action
         with:
-          github_token: ${{ github.token }}
-          anthropic_federation_rule_id: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
-          anthropic_organization_id: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
-          anthropic_service_account_id: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
-          anthropic_workspace_id: ${{ vars.ANTHROPIC_WORKSPACE_ID }}
-          show_full_output: false
-          display_report: false
-          claude_args: |
-            --model claude-opus-5-5
-            --add-dir ${{ runner.temp }}/sheet
-            --allowedTools "Read,Edit(/${{ runner.temp }}/sheet/**),Bash(pnpm stage sheet:*),Bash(pdftotext -layout * -),Bash(ls:*),Bash(cat:*)"
-            --disallowedTools "WebFetch,WebSearch,NotebookEdit,Edit(/${{ github.workspace }}/**)"
+          workdir: ${{ runner.temp }}/sheet
+          commands: pnpm stage sheet:*
+          federation-rule-id: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
+          organization-id: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
+          service-account-id: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
+          workspace-id: ${{ vars.ANTHROPIC_WORKSPACE_ID }}
           prompt: |
             The parish sent its service sheet DOCX: ${{ runner.temp }}/sheet/mail/porad.docx.
             ${{ steps.fetch.outputs.week_from != '' && format('The week to handle: {0} to {1} (`--from {0} --to {1}`).', steps.fetch.outputs.week_from, steps.fetch.outputs.week_to) || 'The week to handle: the DOCX''s newest.' }}
@@ -302,7 +289,7 @@ jobs:
           SUMMARY: ${{ needs.sheet.outputs.summary }}
           HANDLED: ${{ needs.sheet.outputs.docx }}
           JOB_RESULT: ${{ needs.sheet.result }}
-          CLAUDE: ${{ needs.sheet.outputs.claude }}
+          AGENT: ${{ needs.sheet.outputs.agent }}
           DOWNLOAD: ${{ steps.download.outcome }}
           APPLY: ${{ steps.changes.outcome }}
           CHANGED: ${{ steps.changes.outputs.changed }}

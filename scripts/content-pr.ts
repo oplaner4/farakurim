@@ -12,7 +12,7 @@
 // `--fix`, the report is a comment fix's (`pnpm content-fix report`'s body.md) and the footer names the last
 // correction. `summary` prints the job summary (the mail's lines, what became of the sheet or mail, the weeks or
 // events, and what the maintainer must do) from the step results the workflow passes in the environment (FETCHED,
-// SUMMARY, HANDLED, JOB_RESULT, CLAUDE, DOWNLOAD, APPLY, CHANGED, PR_OUTCOME, PR_ACTION, PR_URL; sheet: NO_DOCX,
+// SUMMARY, HANDLED, JOB_RESULT, AGENT, DOWNLOAD, APPLY, CHANGED, PR_OUTCOME, PR_ACTION, PR_URL; sheet: NO_DOCX,
 // NO_WEEK, UNHANDLED, SKIPPED; events: INCOMPLETE, KNOWN_DKIM) and the report (none when it is missing), and fails
 // when the maintainer must act without a PR to look at.
 //

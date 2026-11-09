@@ -1,0 +1,83 @@
+# Runs the AI agent unattended on a project skill, for the mail and comment workflows (service-sheet.yml, events.yml,
+# content-fix-run.yml). Callers say what the run needs (the prompt, the scratch folder, the commands), never the
+# provider: a change of provider or model is made here alone. The calling job needs `id-token: write` (workload identity
+# federation, no API key) and sets the step's `timeout-minutes`; the step's outcome is the run's result.
+#
+# Callers use it as `oplaner4/farakurim/.github/actions/agent@main`, never `./.github/actions/agent`: GitHub fetches it
+# from main when the job starts, while a local action would run from the checkout, which by then is the PR's branch or
+# head. So the rules below always come from main (as the workflow files do), never from a commit on a content branch,
+# and a branch opened before the action existed still runs. A change here reaches the workflows once it is on main.
+#
+# The agent can read files, write with its file tools in `workdir` only (an `Edit(...)` rule covers Write too; the deny
+# on the checkout wins over any allow, so it cannot change scripts, package.json, node_modules, hooks or .git), read
+# PDFs to stdout only (pdftotext writes the file a second argument names, which no Edit rule checks), list and print
+# files, and run the caller's `commands`; no git, no network. A rule's `//` marks an absolute path (`workdir` and
+# github.workspace start with `/`). The deny names the checkout by its absolute path: `./**` follows the shell's
+# working directory, so after a `cd` into the scratch folder it denied the report itself. github.token (read-only)
+# keeps the action from fetching its own App token; the agent's output stays out of the public log.
+
+name: Agent
+description: Run the AI agent on a skill, writing only in a scratch folder and running only the allowed commands.
+
+inputs:
+  prompt:
+    description: What the run does (the skill and its section, the input, the report file, the scratch folder)
+    required: true
+  workdir:
+    description: The scratch folder, an absolute path; the only place the agent's file tools may write
+    required: true
+  commands:
+    description: The commands it may run besides the basics, one Claude Code pattern per line (`pnpm stage sheet:*`)
+    required: false
+    default: ""
+  model:
+    description: The model
+    required: false
+    default: claude-opus-5-5
+  federation-rule-id:
+    description: The environment's workload identity federation rule (ANTHROPIC_FEDERATION_RULE_ID)
+    required: true
+  organization-id:
+    description: The Anthropic organization (ANTHROPIC_ORGANIZATION_ID)
+    required: true
+  service-account-id:
+    description: The federation's service account (ANTHROPIC_SERVICE_ACCOUNT_ID)
+    required: true
+  workspace-id:
+    description: The workspace the runs are billed to (ANTHROPIC_WORKSPACE_ID)
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - id: rules
+      shell: bash
+      env:
+        WORKDIR: ${{ inputs.workdir }}
+        COMMANDS: ${{ inputs.commands }}
+      run: |
+        if [[ "$WORKDIR" != /* ]]; then
+          echo "::error::The agent's workdir must be an absolute path."
+          exit 1
+        fi
+        allowed="Read,Edit(/$WORKDIR/**),Bash(pdftotext -layout * -),Bash(ls:*),Bash(cat:*)"
+        while IFS= read -r command; do
+          if [ -n "$command" ]; then allowed="$allowed,Bash($command)"; fi
+        done <<< "$COMMANDS"
+        echo "allowed=$allowed" >> "$GITHUB_OUTPUT"
+
+    - uses: anthropics/claude-code-action@d535f5172dec02b204866b393d6b20b9b2aaf98d # v1.0.266
+      with:
+        github_token: ${{ github.token }}
+        anthropic_federation_rule_id: ${{ inputs.federation-rule-id }}
+        anthropic_organization_id: ${{ inputs.organization-id }}
+        anthropic_service_account_id: ${{ inputs.service-account-id }}
+        anthropic_workspace_id: ${{ inputs.workspace-id }}
+        show_full_output: false
+        display_report: false
+        claude_args: |
+          --model ${{ inputs.model }}
+          --add-dir ${{ inputs.workdir }}
+          --allowedTools "${{ steps.rules.outputs.allowed }}"
+          --disallowedTools "WebFetch,WebSearch,NotebookEdit,Edit(/${{ github.workspace }}/**)"
+        prompt: ${{ inputs.prompt }}

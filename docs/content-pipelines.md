@@ -5,6 +5,10 @@ request, the `@claude` comments that fix such a PR, and the content release its 
 the repository and the `check` ruleset they rely on are in [github-setup.md](github-setup.md); a release by hand is
 in [deployment.md](deployment.md#release).
 
+All three workflows run Claude through one action, `.github/actions/agent` (used from `main`, never from the checked-out
+branch): it holds the provider, the model and the rules for what the agent may write and run, so a change of model or
+provider is made there alone. Each workflow passes only the prompt, its scratch folder and its commands.
+
 ## Service sheet by e-mail
 
 The parish (or the webmaster) e-mails the year's service sheet DOCX to the service sheet mailbox. Each sender must be

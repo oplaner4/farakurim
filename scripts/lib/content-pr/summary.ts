@@ -16,9 +16,9 @@ export type RunState = {
   mail: string[];
   /** Whether there was a sheet or an event mail to handle. */
   handled: boolean;
-  /** The result of the job that ran Claude, and of Claude's step in it. */
+  /** The result of the job that ran the agent, and of the agent's step in it. */
   job: Result;
-  claude: Result;
+  agent: Result;
   /** The publish job's steps: the artifact download, the apply step and the PR. */
   download: Result;
   apply: Result;
@@ -46,11 +46,11 @@ const WORDS = {
 function outcomeLine(kind: Kind, state: RunState): { line: string; refused: boolean } {
   const { source, job } = WORDS[kind];
   const retried = `the ${source} stays unread for the next run`;
-  if (state.claude !== "success") {
-    return { line: `Claude's run failed: the ${source} stays unread and the next run retries it.`, refused: false };
+  if (state.agent !== "success") {
+    return { line: `The agent's run failed: the ${source} stays unread and the next run retries it.`, refused: false };
   }
   if (state.job !== "success" || state.download !== "success") {
-    return { line: `The ${job} failed after Claude's run (see the log): ${retried}.`, refused: false };
+    return { line: `The ${job} failed after the agent's run (see the log): ${retried}.`, refused: false };
   }
   if (state.apply !== "success") {
     return { line: `The change or the report was not accepted (see the log): ${retried}.`, refused: false };
@@ -120,7 +120,7 @@ const ERRORS = {
 } as const satisfies Record<Kind, string>;
 
 /**
- * The summary of a run of `kind` from its `state` and Claude's `report` (empty without one): its markdown lines, and
+ * The summary of a run of `kind` from its `state` and the agent's `report` (empty without one): its markdown lines, and
  * the error that fails the job when the maintainer must act without a PR.
  */
 export function summarize(kind: Kind, state: RunState, report: string): { lines: string[]; error?: string } {
@@ -172,7 +172,7 @@ export function runStateFromEnv(env: Env): RunState {
     mail: mailLines(env.SUMMARY),
     handled: Boolean(env.HANDLED),
     job: result(env.JOB_RESULT),
-    claude: result(env.CLAUDE),
+    agent: result(env.AGENT),
     download: result(env.DOWNLOAD),
     apply: result(env.APPLY),
     ...(env.CHANGED === "true" || env.CHANGED === "false" ? { changed: env.CHANGED === "true" } : {}),

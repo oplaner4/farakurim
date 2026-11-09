@@ -7,7 +7,7 @@ const done = (overrides: Partial<RunState> = {}): RunState => ({
   mail: ["2026-11-08 09:12: sheet (newest)"],
   handled: true,
   job: "success",
-  claude: "success",
+  agent: "success",
   download: "success",
   apply: "success",
   changed: true,
@@ -49,16 +49,16 @@ describe("summarize", () => {
 
   it("names the first failed step, which leaves the sheet or mail unread", () => {
     const line = (kind: "sheet" | "events", state: Partial<RunState>) => summarize(kind, done(state), "").lines[4];
-    expect(line("sheet", { claude: "failure" })).toBe(
-      "Claude's run failed: the sheet stays unread and the next run retries it.",
+    expect(line("sheet", { agent: "failure" })).toBe(
+      "The agent's run failed: the sheet stays unread and the next run retries it.",
     );
     expect(line("events", { job: "failure" })).toBe(
-      "The event job failed after Claude's run (see the log): the mail stays unread for the next run.",
+      "The event job failed after the agent's run (see the log): the mail stays unread for the next run.",
     );
-    expect(line("sheet", { download: "failure" })).toMatch(/^The sheet job failed after Claude's run/);
+    expect(line("sheet", { download: "failure" })).toMatch(/^The sheet job failed after the agent's run/);
     expect(line("sheet", { apply: "failure" })).toMatch(/^The change or the report was not accepted/);
     expect(line("sheet", { pr: "failure" })).toMatch(/^The commit or PR failed/);
-    expect(summarize("sheet", done({ claude: "failure" }), "").error).toBeUndefined();
+    expect(summarize("sheet", done({ agent: "failure" }), "").error).toBeUndefined();
   });
 
   it("fails a sheet run with a week not published, and lists it", () => {
@@ -121,7 +121,7 @@ describe("runStateFromEnv", () => {
         SUMMARY: '["a","b"]',
         HANDLED: "42",
         JOB_RESULT: "success",
-        CLAUDE: "failure",
+        AGENT: "failure",
         CHANGED: "false",
         PR_ACTION: "opened",
         NO_DOCX: "2",
@@ -132,7 +132,7 @@ describe("runStateFromEnv", () => {
       mail: ["a", "b"],
       handled: true,
       job: "success",
-      claude: "failure",
+      agent: "failure",
       download: "",
       apply: "",
       changed: false,
@@ -144,9 +144,9 @@ describe("runStateFromEnv", () => {
       skipped: "2026-11-15 – 2026-11-22",
       incomplete: 0,
     });
-    const empty = runStateFromEnv({ SUMMARY: "not json", CLAUDE: "weird", NO_WEEK: "x" });
+    const empty = runStateFromEnv({ SUMMARY: "not json", AGENT: "weird", NO_WEEK: "x" });
     expect(empty.mail).toEqual([]);
-    expect(empty.claude).toBe("");
+    expect(empty.agent).toBe("");
     expect(empty.noWeek).toBe(0);
     expect(empty.changed).toBeUndefined();
   });
