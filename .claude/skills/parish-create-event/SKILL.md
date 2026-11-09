@@ -158,7 +158,8 @@ follows them too, with these changes:
   event after another. Skip the `--check` runs of steps 3a and 3b: step 5a or 5b checks everything first and stages
   nothing when it refuses, so fix `record.json` and run it again.
 - Write the report first, then stage, then fill in each event's `Outcome:` line from what the script did, and add any
-  line it printed for the user (an unpinned event) to the report. A script refusal is `refused: <its message>`.
+  line it printed for the user (an unpinned event) to the report. A script refusal is `refused: <its reason>`:
+  the refusal's first line; its `next:` lines say what to do, not what to publish.
 - Skip step 6: no `parish-publish-content`, no commit, no release.
 
 **The report** is English, with site content quoted in Czech, and starts with exactly these two lines:
