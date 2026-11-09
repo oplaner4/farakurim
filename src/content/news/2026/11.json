@@ -127,6 +127,58 @@
     ]
   },
   {
+    "id": "charitativni-beh-2026",
+    "title": "9. charitativní běh",
+    "start": "2026-11-21",
+    "startTime": "10:00",
+    "place": "Lelekovice, u vodojemu na Pasekách",
+    "text": "Zveme na 9. charitativní běh v Lelekovicích. Výtěžek půjde na humanitární pomoc do sbírky Člověka v tísni SOS Ukrajina.",
+    "program": [
+      {
+        "time": "10:00",
+        "title": "Prezence"
+      },
+      {
+        "time": "10:30",
+        "title": "Start"
+      }
+    ],
+    "published": "2026-11-09",
+    "poster": {
+      "src": "/uploads/aktuality/charitativni-beh-2026-plakat-poster.webp",
+      "alt": "Plakát: 9. charitativní běh"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/charitativni-beh-2026-plakat.jpg",
+        "size": 229014
+      }
+    ]
+  },
+  {
+    "id": "charitativni-jarmark-2026",
+    "title": "26. farní charitativní jarmark",
+    "start": "2026-11-22",
+    "startTime": "14:00",
+    "endTime": "18:00",
+    "place": "Česká, sokolovna",
+    "text": "Zveme na 26. farní charitativní jarmark v sokolovně v České. Výtěžek půjde na humanitární pomoc do sbírky Člověka v tísni SOS Ukrajina.",
+    "body": "<p>Přispějte svým ručně vyrobeným zbožím a nabídněte své speciality do stánku s občerstvením.</p><p>Výrobky shromažďuje sokolovna v České v sobotu 21. 11. 2026 od 15 do 17 hodin.</p><p>Akce se koná pod záštitou obce Česká, farnosti Vranov a farnosti Kuřim.</p>",
+    "published": "2026-11-09",
+    "poster": {
+      "src": "/uploads/aktuality/charitativni-jarmark-2026-plakat-poster.webp",
+      "alt": "Plakát: 26. farní charitativní jarmark"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/charitativni-jarmark-2026-plakat.jpg",
+        "size": 286376
+      }
+    ]
+  },
+  {
     "id": "cervena-streda-2026",
     "title": "Červená středa",
     "start": "2026-11-25",
@@ -135,6 +187,7 @@
     "place": "Kuřim, kostel sv. Maří Magdalény",
     "text": "Mezinárodní připomínka lidí pronásledovaných pro víru – nasvícený kostel, mše svatá za pronásledované a tichá adorace.",
     "body": "<p>Červená středa je mezinárodní připomínka lidí pronásledovaných pro víru. Kostel bude po celou dobu akce nasvícen červeně.</p><ul><li><strong>18.00</strong> – mše svatá za pronásledované lidi pro jejich víru</li><li><strong>Tichá adorace</strong> a modlitba při svíčkách</li></ul>",
+    "pinned": true,
     "published": "2026-11-07",
     "poster": {
       "src": "/uploads/aktuality/cervena-streda-2026-plakat-poster.webp",
@@ -152,7 +205,6 @@
         "label": "Červená středa",
         "href": "https://www.cervenastreda.cz"
       }
-    ],
-    "pinned": true
+    ]
   }
 ]
