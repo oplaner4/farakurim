@@ -1,4 +1,4 @@
-import type { NativityAlbum, NativityPlace, NativitySeason } from "./types/nativity";
+import type { NativityAlbum, NativitySeason } from "./types/nativity";
 import { UPLOADS_PATH } from "@/lib/shared/uploads";
 
 /*
@@ -9,26 +9,6 @@ import { UPLOADS_PATH } from "@/lib/shared/uploads";
  * A season leaves out the contest and the walk (and their blocks) until they are known; without the intentions mass
  * "Místo pro modlitbu" says its date "upřesníme".
  */
-
-const places: NativityPlace[] = [
-  {
-    name: "Kostel sv. Maří Magdalény",
-    address: "Kuřim",
-    notes: [
-      "prostor pod kůrem",
-      "venku u věže",
-      "dvě oratoře v 1. patře – každá má vlastní vchod zvenku (věží a bočním vchodem)",
-    ],
-    color: "blue",
-  },
-  {
-    name: "Fara – sbírka Zdeňka Jílka",
-    address: "Křížkovského 55/5",
-    notes: ["sál v přízemí", "vstup bočním vchodem dřevěnou brankou"],
-    color: "green",
-    accessible: true,
-  },
-];
 
 /** A photo of the season uploaded to betlemy/<year>/ in two widths: "foto-3" → its 800 and 1600 px files. */
 const photo = (year: number, name: string) => ({
@@ -79,6 +59,7 @@ const walk = { stops: 9, note: "předposlední zastávkou je venkovní betlém Z
 const sharedScene = { since: 2024, maxHeight: "nejvýše 20 cm", where: "do kostela v Kuřimi", phone: "725 867 515" };
 
 export const nativitySeasons: NativitySeason[] = [
+  // No guest collection for now (left out until the parish confirms one).
   // The contest, the walk and the intentions mass are not known yet: add them (2025's below) once the parish
   // announces them. The opening days follow the city's A2 poster (2609-00032).
   {
@@ -86,7 +67,7 @@ export const nativitySeasons: NativitySeason[] = [
     edition: 7,
     openingDays: [
       { date: "2026-12-19", from: "14:00", to: "17:00", note: "zahájení výstavy" },
-      { date: "2026-12-20", from: "10:30", to: "12:00", note: "komentovaná prohlídka se Zdeňkem Jílkem" },
+      { date: "2026-12-20", from: "10:30", to: "12:00" },
       { date: "2026-12-24", from: "13:00", to: "15:00", note: "v 15:00 vánoční příběh se scholou" },
       { date: "2026-12-25", from: "10:30", to: "12:00" },
       { date: "2026-12-26", from: "14:00", to: "17:00" },
@@ -95,13 +76,27 @@ export const nativitySeasons: NativitySeason[] = [
       { date: "2027-01-02", from: "14:00", to: "17:00", note: "poslední den" },
     ],
     hoursNote: "Ve čtvrtek 24. 12. v 15:00 následuje v kostele vánoční příběh s doprovodem dětské scholy.",
-    places,
+    places: [
+      {
+        name: "Kostel sv. Maří Magdalény",
+        address: "Kuřim",
+        notes: [
+          "prostor pod kůrem",
+          "venku u věže",
+          "dvě oratoře v 1. patře – každá má vlastní vchod zvenku (věží a bočním vchodem)",
+        ],
+        color: "blue",
+      },
+      {
+        name: "Fara",
+        address: "Křížkovského 55/5",
+        notes: ["sál v přízemí", "vstup bočním vchodem dřevěnou brankou"],
+        color: "green",
+        accessible: true,
+      },
+    ],
     planUrl,
     mapQuery,
-    guest: {
-      ...guestCollection,
-      tour: { title: tourTitle, date: "2026-12-20", from: "10:30", to: "12:00", place: "fara" },
-    },
     highlights,
     sharedScene: { ...sharedScene, from: "2026-12-06", to: "2026-12-24" },
     // From the 2025 album "Nafocené betlémy z výstavy" (its foto-1), until the parish chooses a 2026 photo.
@@ -124,7 +119,25 @@ export const nativitySeasons: NativitySeason[] = [
       { date: "2026-01-04", from: "14:00", to: "17:00", note: "poslední den" },
     ],
     hoursNote: "Ve středu 24. 12. v 15:00 následuje v kostele vánoční příběh s doprovodem kuřimské dětské scholy.",
-    places,
+    places: [
+      {
+        name: "Kostel sv. Maří Magdalény",
+        address: "Kuřim",
+        notes: [
+          "prostor pod kůrem",
+          "venku u věže",
+          "dvě oratoře v 1. patře – každá má vlastní vchod zvenku (věží a bočním vchodem)",
+        ],
+        color: "blue",
+      },
+      {
+        name: "Fara – sbírka Zdeňka Jílka",
+        address: "Křížkovského 55/5",
+        notes: ["sál v přízemí", "vstup bočním vchodem dřevěnou brankou"],
+        color: "green",
+        accessible: true,
+      },
+    ],
     planUrl,
     mapQuery,
     guest: {
