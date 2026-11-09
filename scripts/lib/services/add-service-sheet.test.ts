@@ -102,6 +102,18 @@ describe("addServiceSheet on a temp service-sheets.json, schedule-exceptions.jso
     expect(serviceSheetLines(result, false)[0]).toBe("Replaced the sheet 2026-10-04 – 2026-10-11 with rev 2");
   });
 
+  it("gives every overlap in the refusal's reason, its first line", () => {
+    addServiceSheet(files, record(datesOf(11, 18)), week("2026-10-11", "2026-10-18"), { now });
+    let message = "";
+    try {
+      addServiceSheet(files, record(datesOf(10, 17)), week("2026-10-10", "2026-10-17"), { now });
+    } catch (error) {
+      message = (error as Error).message;
+    }
+    expect(message.split("\n")[0]).toContain("2026-10-10 – 2026-10-17 starts before 2026-10-04 – 2026-10-11 ends");
+    expect(message.split("\n")[0]).toContain("2026-10-11 – 2026-10-18 starts before 2026-10-10 – 2026-10-17 ends");
+  });
+
   it("refuses an overlap, a week before the current sheet, the PDF fields and an unknown event", () => {
     const before = raw();
     expect(() => addServiceSheet(files, record(datesOf(10, 17)), week("2026-10-10", "2026-10-17"), { now })).toThrow(

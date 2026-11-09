@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { draftSheet, replaceSheetRecord, stageSheet, weekDays } from "./sheet";
 import { addEvent } from "../news/add-event";
+import { errorMessage } from "../command";
 import { extractPdfPages, pdfPageTexts } from "../images";
 import { docxToPdf } from "../services/docx-to-pdf";
 import { docxWithBody, emptyWeek, hasPoppler, hasSoffice, pdfWithText, useStageFixture, wordml } from "../test-helpers";
@@ -390,6 +391,9 @@ describe("stageSheet", { timeout: 30_000 }, () => {
         "ROZPIS BOHOSLUŽEB V TÝDNU od 2. 1. 2000 do 9. 1. 2000",
       ]);
       const refusal = stageSheet(env, { source, validFrom: "2000-01-02", validTo: "2000-01-09", check: true });
+      // Printed once: the note's tell: line ends the message, with nothing of the refusal repeated after it.
+      const error = await refusal.catch((e: unknown) => e);
+      expect(errorMessage(error)).toBe((error as Error).message);
       await expect(refusal).rejects.toThrow("the sheet 2000-01-02 – 2000-01-09 is before the current sheet");
       await expect(refusal).rejects.toThrow(
         "tell: Not the DOCX's newest week: its newest, 2000-01-09 – 2000-01-16, is left out of this run; it is not staged yet. This week ended on 2000-01-09: the newer week is likely the one meant",

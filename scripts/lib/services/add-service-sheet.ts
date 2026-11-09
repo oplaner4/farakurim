@@ -46,7 +46,7 @@ export function placeSheet<T extends Pick<ServiceSheetRecord, "validFrom" | "val
     throw new Error(`the sheet ${period(sheet)} is before the current sheet (${current.validFrom}): nothing to add`);
   }
   const problems = sheetOrderProblems(kept);
-  if (problems.length > 0) throw new Error(problems.join("\n"));
+  if (problems.length > 0) throw new Error(problems.join("; "));
   return { all, current, kept, replaced };
 }
 

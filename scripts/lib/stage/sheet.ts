@@ -267,7 +267,8 @@ async function runSheet(env: StageEnv, options: RunOptions) {
     return { lines, written: result.written };
   } catch (error) {
     if (notes.length === 0 || !(error instanceof Error)) throw error;
-    throw new Error(`${error.message}\n${notes.join("\n")}`, { cause: error });
+    // No cause: the message holds the refusal already, and errorMessage() would print it again after the note.
+    throw new Error(`${error.message}\n${notes.join("\n")}`);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
