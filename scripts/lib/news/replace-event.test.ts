@@ -79,7 +79,7 @@ describe("replaceEvent", () => {
 
   it("refuses an unknown id, an invalid record and a change of the pin", () => {
     expect(() => replaceEvent(news.dir(), newsEvent({ id: "nove-2026" }), { now })).toThrow(
-      "there is no event nove-2026: add a new one with pnpm add-event",
+      "there is no event nove-2026\nnext: pnpm add-event adds a new one",
     );
     expect(() => replaceEvent(news.dir(), { ...newsEvent({ id: "hody-2026" }), start: "5. 10." }, { now })).toThrow(
       "the record is not valid",

@@ -13,6 +13,7 @@ import { pragueDate } from "@/lib/shared/prague";
 import { insertRecord } from "./add-event";
 import { actionVerb, parseRecordCommand, readJsonRecord } from "../command";
 import { formatAndTestNews, NEWS_DIR, writeMonth } from "../content-files";
+import { next, refusal } from "../output";
 import { assertPinnable, withoutPin } from "./pin-event";
 
 /** The fields that differ between `before` and `after`, in the order they first appear. */
@@ -28,7 +29,7 @@ function findRecord(months: Map<string, NewsEvent[]>, input: unknown) {
     const previous = list.find((e) => e.id === id);
     if (previous) return { from, list, previous };
   }
-  throw new Error(`there is no event ${String(id)}: add a new one with pnpm add-event`);
+  throw refusal(`there is no event ${String(id)}`, next("pnpm add-event adds a new one"));
 }
 
 /** `input` checked as the record replacing `previous`: it keeps `published` and the pin. */
@@ -38,7 +39,7 @@ function parseReplacement(input: unknown, previous: NewsEvent, now: Date): NewsE
   const parsed = parseOrThrow(newsEventSchema, withDate, "the record");
   const record = parsed.pinned === false ? withoutPin(parsed) : parsed;
   if (Boolean(record.pinned) !== Boolean(previous.pinned)) {
-    throw new Error(`the pin of ${record.id} changes only with pnpm pin-event: keep "pinned" as it is`);
+    throw refusal(`the pin of ${record.id} changes only with pnpm pin-event`, next('keep "pinned" as it is'));
   }
   if (record.pinned) assertPinnable(record, pragueDate(now));
   return record;

@@ -80,7 +80,7 @@ describe("setEventPoster", { timeout: 30_000 }, () => {
     );
     rmSync(uploaded("aktuality", "test-farni-den-2026-letak.jpg"));
     await expect(setEventPoster(env, id, "Leták", { check: true })).rejects.toThrow(
-      "uploads/aktuality/test-farni-den-2026-letak.jpg is not here: pnpm pull-uploads fetches it from the server",
+      "uploads/aktuality/test-farni-den-2026-letak.jpg is not here\nnext: pnpm pull-uploads",
     );
     expect(added()?.poster?.src).toBe("/uploads/aktuality/test-farni-den-2026-plakat-poster.webp");
   });

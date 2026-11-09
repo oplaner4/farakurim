@@ -53,7 +53,7 @@ Another attachment (an image or PDF) as the poster, or no poster:
 pnpm event-poster <id> "<label>" --check   # or: pnpm event-poster <id> --none --check
 ```
 
-When it says the attachment's file is not here, run `pnpm pull-uploads` first.
+When it refuses with `next: pnpm pull-uploads` (the attachment's file is not here), run that first.
 
 They all print the fields that change (`Changed: …`); the stage command also the files it would stage, the poster
 command the poster it would render.

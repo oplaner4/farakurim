@@ -10,6 +10,7 @@ import { parseOrThrow } from "@/lib/shared/json-file";
 import { pragueDate } from "@/lib/shared/prague";
 import { actionVerb, parseRecordCommand, readJsonRecord } from "../command";
 import { formatAndTestNews, NEWS_DIR, writeMonth } from "../content-files";
+import { next, refusal } from "../output";
 import { assertPinnable, movePin, unpinnedLines, withoutPin } from "./pin-event";
 
 /** `list` (in start-date order) with `record` after the last record that starts on or before it. */
@@ -24,8 +25,10 @@ export function insertRecord(list: NewsEvent[], record: NewsEvent): NewsEvent[] 
  */
 export function takenIdError(taken: NewsEvent): Error {
   const dated = `${taken.id.replace(/-\d{4}$/, "")}-<start YYYY-MM-DD>`;
-  return new Error(
-    `id ${taken.id} is already taken by "${taken.title}" (${taken.start}): for another event of that title, use ${dated} instead; to correct that event, use pnpm replace-event (or pnpm stage event --corrected for a file)`,
+  return refusal(
+    `id ${taken.id} is already taken by "${taken.title}" (${taken.start})`,
+    next(`use the id ${dated} for another event of that title`),
+    next("pnpm replace-event corrects that event (pnpm stage event --corrected for a file)"),
   );
 }
 

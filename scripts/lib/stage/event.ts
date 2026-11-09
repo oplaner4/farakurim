@@ -22,7 +22,7 @@ import { addEvent, takenIdError, targetLine } from "../news/add-event";
 import { planPoster, POSTER_EXTENSIONS, type PosterRender } from "../news/event-poster";
 import { replaceEvent, replaceLines } from "../news/replace-event";
 import { unpinnedLines } from "../news/pin-event";
-import { next } from "../output";
+import { next, refusal } from "../output";
 import { correctedRev, MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
 import { renderPoster } from "../images";
 
@@ -103,7 +103,7 @@ function eventInput(env: StageEnv, options: EventOptions): Record<string, unknow
   let input = options.record;
   const existing = readEvents(env.newsDir).find((e) => e.id === id);
   if (corrected) {
-    if (!existing) throw new Error(`there is no event ${id}: --corrected is for one already on the site`);
+    if (!existing) throw refusal(`there is no event ${id}`, next("leave out --corrected for a new event"));
     input ??= { ...existing };
   } else if (existing) {
     throw takenIdError(existing);

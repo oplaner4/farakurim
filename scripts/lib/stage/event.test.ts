@@ -145,7 +145,7 @@ describe("stageEvent", { timeout: 30_000 }, () => {
     await expect(
       stageOne({ source, id: "setkani-prvokomunikantu-2026", label: "Program", noPoster: true, check: true }),
     ).rejects.toThrow(
-      'id setkani-prvokomunikantu-2026 is already taken by "Setkání prvokomunikantů s biskupem Pavlem" (2026-10-01): for another event of that title, use setkani-prvokomunikantu-<start YYYY-MM-DD> instead',
+      'id setkani-prvokomunikantu-2026 is already taken by "Setkání prvokomunikantů s biskupem Pavlem" (2026-10-01)\nnext: use the id setkani-prvokomunikantu-<start YYYY-MM-DD> for another event of that title\nnext: pnpm replace-event corrects that event (pnpm stage event --corrected for a file)',
     );
     expect(fetchMock).not.toHaveBeenCalled();
   });
@@ -245,7 +245,7 @@ describe("stageEvent", { timeout: 30_000 }, () => {
       const source = await poster();
       await expect(
         stageOne({ source, id: "test-nic-2026", label: "Plakát", corrected: true, check: true }),
-      ).rejects.toThrow("there is no event test-nic-2026: --corrected is for one already on the site");
+      ).rejects.toThrow("there is no event test-nic-2026\nnext: leave out --corrected for a new event");
     });
 
     it("replaces the staged file before the release, keeping the poster's alt", async () => {

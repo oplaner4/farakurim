@@ -9,6 +9,7 @@ import { eventEnd, isCancelled } from "@/lib/news/timing";
 import { pragueDate } from "@/lib/shared/prague";
 import { actionVerb, parseCommandLine } from "../command";
 import { formatAndTestNews, NEWS_DIR, writeMonth } from "../content-files";
+import { next, refusal, state } from "../output";
 
 /** `event` without the `pinned` key (an unpinned record has none, never `"pinned": false`). */
 export function withoutPin(event: NewsEvent): NewsEvent {
@@ -23,7 +24,7 @@ export function withoutPin(event: NewsEvent): NewsEvent {
 export function assertPinnable(event: NewsEvent, today: IsoDate) {
   if (eventEnd(event) < today) throw new Error(`cannot pin ${event.id}: it ended on ${eventEnd(event)}`);
   if (isCancelled(event)) {
-    throw new Error(`cannot pin ${event.id}: it is cancelled (unpin it first with pnpm pin-event --none)`);
+    throw refusal(`cannot pin ${event.id}: it is cancelled`, next("pnpm pin-event --none to unpin it"));
   }
 }
 
@@ -83,7 +84,7 @@ export function pinLines(
   { pinned, unpinned, alreadyPinned = false }: { pinned?: NewsEvent; unpinned: NewsEvent[]; alreadyPinned?: boolean },
   check: boolean,
 ): string[] {
-  if (pinned && alreadyPinned) return [`${named(pinned)} is already the only pinned event`];
+  if (pinned && alreadyPinned) return [state("pinned")];
   const lines = unpinnedLines(unpinned, check);
   if (pinned) lines.push(`${actionVerb(check, "pin")} ${named(pinned)}`);
   return lines.length > 0 ? lines : ["Nothing is pinned"];

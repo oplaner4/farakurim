@@ -66,7 +66,7 @@ const quotes: { quote: string; skills: string[]; lines: () => string[] }[] = [
     lines: () => unpinnedLines([other], true),
   },
   {
-    quote: "<id> (<title>) is already the only pinned event",
+    quote: "state: pinned",
     skills: ["parish-pin-event/SKILL.md"],
     lines: () => pinLines({ pinned: event, unpinned: [], alreadyPinned: true }, true),
   },

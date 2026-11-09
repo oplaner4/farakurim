@@ -86,7 +86,7 @@ describe("assertPinnable", () => {
   it("refuses a cancelled event", () => {
     expect(() =>
       assertPinnable(event("a-2026", "2026-10-20", { change: { status: "cancelled" } }), "2026-10-07"),
-    ).toThrow("cannot pin a-2026: it is cancelled");
+    ).toThrow("cannot pin a-2026: it is cancelled\nnext: pnpm pin-event --none to unpin it");
   });
 });
 
@@ -102,9 +102,7 @@ describe("pinLines", () => {
     expect(pinLines({ unpinned: [zari] }, true)).toEqual(["Would unpin zari-2026 (Akce zari-2026)"]);
     expect(pinLines({ pinned: hody, unpinned: [] }, true)).toEqual(["Would pin hody-2026 (Akce hody-2026)"]);
     expect(pinLines({ unpinned: [] }, false)).toEqual(["Nothing is pinned"]);
-    expect(pinLines({ pinned: hody, unpinned: [], alreadyPinned: true }, false)).toEqual([
-      "hody-2026 (Akce hody-2026) is already the only pinned event",
-    ]);
+    expect(pinLines({ pinned: hody, unpinned: [], alreadyPinned: true }, false)).toEqual(["state: pinned"]);
   });
 });
 

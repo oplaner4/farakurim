@@ -11,6 +11,7 @@ import { isPosterOf, posterOf } from "@/lib/news/posters";
 import { IMAGE_EXTENSIONS, UPLOADS_PATH } from "@/lib/shared/uploads";
 import { actionVerb, parseCommandLine } from "../command";
 import { formatAndTestNews, NEWS_DIR } from "../content-files";
+import { next, refusal } from "../output";
 import { renderPoster } from "../images";
 import { defaultUploadsEnv, onServer, UPLOADS_DIR, type UploadsEnv } from "../uploads";
 import { replaceEvent, replaceLines } from "./replace-event";
@@ -46,7 +47,7 @@ export async function planPoster(
       to: join(env.uploadsDir, rel),
     };
     if (!existsSync(render.from)) {
-      throw new Error(`${attachment.file.slice(1)} is not here: pnpm pull-uploads fetches it from the server`);
+      throw refusal(`${attachment.file.slice(1)} is not here`, next("pnpm pull-uploads"));
     }
   }
   const alt = (record.poster as { alt?: string } | undefined)?.alt ?? `${label}: ${String(record.title)}`;

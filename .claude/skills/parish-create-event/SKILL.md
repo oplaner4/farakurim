@@ -152,7 +152,7 @@ follows them too, with these changes:
   refused, the others go ahead.
 - **Refuse duplicates.** Compare each event with the known-events file (`where`: `main` or an open PR's number): the
   same event under any title (same date, time and place, or the same poster) is refused. An uncertain match is a
-  blocking question, not a refusal. A different event whose id is taken gets the date id the refusal gives.
+  blocking question, not a refusal. A different event whose id is taken gets the date id the refusal's `next:` line gives.
 - It never asks and never waits: every "confirm with the user" or "ask the user" step writes into the report
   instead. The scratchpad is the prompt's (`record.json`; write nothing in the repo); run step 5a or 5b one
   event after another. Skip the `--check` runs of steps 3a and 3b: step 5a or 5b checks everything first and stages
