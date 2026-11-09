@@ -29,7 +29,7 @@ const pullBody = (over: object = {}) => ({
 
 const apiComment = (id: number, over: object = {}) => ({
   id,
-  body: `@claude fix ${id}`,
+  body: `/fix ${id}`,
   created_at: `2026-10-26T10:0${id}:00Z`,
   user: { login: "ondrej", type: "User" },
   author_association: "OWNER",
@@ -63,7 +63,7 @@ describe("next", () => {
     const comments = [
       apiComment(1),
       apiComment(2, { body: "<!-- content-fix: 1 -->\nDone.", user: { login: "bot", type: "Bot" } }),
-      apiComment(3, { body: "@claude change the time" }),
+      apiComment(3, { body: "/fix change the time" }),
       apiComment(4),
     ];
     await run(["next", "--pr", "7", "--out", out], routes(comments));
@@ -75,7 +75,7 @@ describe("next", () => {
       comment: 3,
       remaining: 1,
     });
-    expect(readFileSync(join(out, "comment.md"), "utf8")).toBe("@claude change the time\n");
+    expect(readFileSync(join(out, "comment.md"), "utf8")).toBe("/fix change the time\n");
     expect(readFileSync(join(out, "report.md"), "utf8")).toMatch(/^blocking: yes\ncommit: feat\(content\)/);
   });
 

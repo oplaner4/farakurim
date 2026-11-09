@@ -44,7 +44,7 @@ export function pullBody({ kind, report, runUrl, calendar, fix = false }: BodyOp
     "---",
     "",
     `Opened by ${workflow}. Squash merge to publish: the merge releases the site.`,
-    "Comment `@claude …` in this conversation to correct it (`content-fix-run.yml`).",
+    "Comment `/fix …` in this conversation to correct it (`content-fix-run.yml`).",
     `The ${files} are in the artifact \`content-uploads-<sha>\` of each commit; ${fix ? "last correction" : "this run"}: ${runUrl}`,
     "",
   ].join("\n");

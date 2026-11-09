@@ -85,5 +85,5 @@ The content workflows (`service-sheet.yml`, `events.yml`) do not test or build b
 on every commit the App pushes to a content PR. What stays in them are the cheap guards (the patch's allowed files, the
 ids an open events PR holds, the commit message, the report's format, and a report that creates or corrects nothing
 carries no change). A mail whose change fails the check is no longer left unread for the next run: it is filed and its
-PR opens red. Fix a red check with an [`@claude` comment](content-pipelines.md#fixing-content-prs-with-comments) or a commit to the PR's
+PR opens red. Fix a red check with a [`/fix` comment](content-pipelines.md#fixing-content-prs-with-comments) or a commit to the PR's
 branch; a red check notifies nobody, so look at the PR before merging.

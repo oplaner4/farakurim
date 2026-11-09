@@ -1,5 +1,5 @@
 // pnpm content-fix: the steps of the content-fix workflow, which fixes a content PR (service sheet, events) from a
-// `@claude` comment on it. Only that workflow runs it. The subcommands that read the GitHub API take the repository
+// `/fix` comment on it. Only that workflow runs it. The subcommands that read the GitHub API take the repository
 // and the token from GITHUB_REPOSITORY and GH_TOKEN.
 //
 // `next` prints `{ open, kind, head, branch, comment, remaining }` for the PR: `kind` is `sheet` or `events` (null for

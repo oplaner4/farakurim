@@ -15,7 +15,7 @@ describe("pullBody", () => {
         "---",
         "",
         "Opened by the service sheet workflow (`service-sheet.yml`). Squash merge to publish: the merge releases the site.",
-        "Comment `@claude …` in this conversation to correct it (`content-fix-run.yml`).",
+        "Comment `/fix …` in this conversation to correct it (`content-fix-run.yml`).",
         `The staged PDFs are in the artifact \`content-uploads-<sha>\` of each commit; this run: ${runUrl}`,
         "",
       ].join("\n"),

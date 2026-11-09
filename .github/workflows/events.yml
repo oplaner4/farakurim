@@ -14,7 +14,7 @@
 #   refuses an id an open events PR holds (`pnpm event-mail check-ids`), then commits as the GitHub App's bot and opens
 #   a new events/ PR, its body the report (ended by a `<!-- report-end -->` line, so a comment fix can replace the
 #   report), a draft while the report has a blocking question. It neither tests nor builds: check.yml does that on
-#   every commit the App pushes, and a red check is fixed with an `@claude` comment (content-fix-run.yml) or a commit.
+#   every commit the App pushes, and a red check is fixed with a `/fix` comment (content-fix-run.yml) or a commit.
 #   It has no id-token, so it cannot act as the agent. It uploads the staged files as `content-uploads-<sha>` before it
 #   pushes the commit, so no pushed commit lacks them.
 # The maintainer's squash merge releases the site (content-release.yml). One PR per mail: a later mail never changes

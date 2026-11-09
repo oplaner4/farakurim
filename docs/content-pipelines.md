@@ -1,7 +1,7 @@
 # Content pipelines
 
 How content reaches the site without the local skills: the service sheet and events by e-mail, each as a pull
-request, the `@claude` comments that fix such a PR, and the content release its merge starts. The GitHub App,
+request, the `/fix` comments that fix such a PR, and the content release its merge starts. The GitHub App,
 the repository and the `check` ruleset they rely on are in [github-setup.md](github-setup.md); a release by hand is
 in [deployment.md](deployment.md#release).
 
@@ -56,7 +56,7 @@ logged. The agent's file tools may write only in the job's scratch folder, never
 
 **Answering the PR:** a **squash merge** means yes (the PR title becomes the commit) and releases the site; close
 means no, and nothing happens (the branch stays). A **draft** PR has a blocking question in its body: answer it, mark
-the PR ready, merge. A correction or a failed check is an [`@claude` comment](#fixing-content-prs-with-comments) in the
+the PR ready, merge. A correction or a failed check is a [`/fix` comment](#fixing-content-prs-with-comments) in the
 PR's conversation, a commit pushed to the PR's branch, or made locally with the skills
 (`parish-correct-service-sheet`).
 
@@ -164,7 +164,7 @@ reason that does not go away (an id an open PR holds) fails each run and the mai
 after it wait. Fix the cause, or move that mail to `Odmítnuto` (or `Zpracováno`) in the mailbox by hand.
 
 **Answering the PR:** as for sheets, a squash merge publishes through the [content release](#content-release), close
-means no. Fix an event or a failed check with an [`@claude` comment](#fixing-content-prs-with-comments) in the PR's
+means no. Fix an event or a failed check with a [`/fix` comment](#fixing-content-prs-with-comments) in the PR's
 conversation, a commit to the PR's branch (the release goes ahead when it links no new file), or the local skills.
 Two events PRs that add events at the same place in a month conflict once one is merged: resolve it in GitHub's
 editor, or close the PR and send the mail again.
@@ -194,10 +194,14 @@ run starts while mail remains; after the merge the content release publishes the
 
 ## Fixing content PRs with comments
 
-A comment containing `@claude` in the **conversation** of an open content PR (a `service-sheet/*` or `events/*` PR of
+A comment starting with `/fix` in the **conversation** of an open content PR (a `service-sheet/*` or `events/*` PR of
 this repo) makes the agent correct the PR on its branch. Review comments and inline comments on the diff do nothing:
 only conversation comments count (a review comment's run would not be on `main`, so the release would not trust its
 files). Comments are **text only**: a file attached to a comment is not read.
+
+`/fix` must open the comment, followed by the request on the same or the next lines (`/fix the mass on Sunday is at
+9:00`); `/fix` later in the text, or `/fixed`, does nothing. It is a command, not an @-mention: a mention on this public
+repo would notify whoever owns that GitHub account.
 
 | PR     | A comment may                                                                                                                              |
 | ------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -208,7 +212,7 @@ files). Comments are **text only**: a file attached to a comment is not read.
 Anything else (a new, dropped, pinned or split event, a new or replaced file, a week or event the PR does not hold)
 changes nothing, and the reply says what to do instead (close the PR, push a commit, run a skill locally, or
 `parish-pin-event` after the merge). A fact no document has is made as asked, and the reply says the site will then
-differ from the parish's document. An answer to a question ("@claude q2: correct as is") is recorded in the report.
+differ from the parish's document. An answer to a question ("/fix q2: correct as is") is recorded in the report.
 
 `.github/workflows/content-fix.yml` runs on every new comment (an edited one does not run again): only one from a
 commenter with write access (`OWNER`, `MEMBER` or `COLLABORATOR`, and the repo permission `write`, `maintain` or
@@ -236,7 +240,7 @@ or a file's content. A failed comment is not retried: write it again. A PR merge
 sheet mail, your own push), seen before the push or as a rejected push, gets nothing pushed and the reply "The PR
 changed or was merged meanwhile: write the comment again if it still applies". A failed upload of the staged files
 pushes nothing either. A reply that could not be posted stops the chain, so the comment is not applied again run
-after run (the next `@claude` comment starts from the oldest unanswered one, which may be that comment). An expired
+after run (the next `/fix` comment starts from the oldest unanswered one, which may be that comment). An expired
 artifact (after 30 days) means the PR has to be recreated. A refusal is a reply and a green run.
 
 The run uses the PR head's own scripts and skills, so a PR whose branch was made before this workflow existed gets

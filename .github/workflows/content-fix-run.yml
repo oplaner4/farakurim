@@ -1,4 +1,4 @@
-# Fixes a content PR (a `service-sheet/*` or `events/*` PR of this repo) from the `@claude` comments in its
+# Fixes a content PR (a `service-sheet/*` or `events/*` PR of this repo) from the `/fix` comments in its
 # conversation (docs/content-pipelines.md "Fixing content PRs with comments"). content-fix.yml dispatches it on main for each
 # picked-up comment; one run per PR at a time (a newer pending run replaces an older one), and each run answers the
 # PR's oldest unanswered comment: one from a commenter with write access that no bot reply names by its marker

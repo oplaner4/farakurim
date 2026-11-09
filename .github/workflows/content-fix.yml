@@ -1,7 +1,7 @@
-# Picks up an `@claude` comment on a content PR (docs/content-pipelines.md "Fixing content PRs with comments"). It runs on
+# Picks up a `/fix` comment on a content PR (docs/content-pipelines.md "Fixing content PRs with comments"). It runs on
 # every new comment in a PR conversation; review and inline comments are other events and never start it. The `gate`
-# job only filters: an open PR of this repo from a `service-sheet/` or `events/` branch, a comment containing
-# `@claude` from a commenter with write access (the association and the repo permission), never a bot (the App's own
+# job only filters: an open PR of this repo from a `service-sheet/` or `events/` branch, a comment starting with
+# `/fix` from a commenter with write access (the association and the repo permission), never a bot (the App's own
 # replies). It adds an eyes reaction, so the maintainer sees the comment was picked up, and dispatches
 # content-fix-run.yml on main, which does the work: one run per PR at a time, each answering the PR's unanswered
 # comments, so a comment whose dispatch was cancelled while pending is still answered.
@@ -20,10 +20,11 @@ permissions:
 
 jobs:
   gate:
-    # The cheap filters of the event; the PR's branch, its repo and the commenter's permission are read below.
+    # The cheap filters of the event; the PR's branch, its repo and the commenter's permission are read below. An
+    # expression has no regex, so `/fixed` passes here too: content-fix-run.yml then finds no request (`isFixRequest`).
     if: >-
       github.event.issue.pull_request && github.event.issue.state == 'open'
-      && contains(github.event.comment.body, '@claude')
+      && startsWith(github.event.comment.body, '/fix')
       && contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
       && github.event.comment.user.type != 'Bot'
     runs-on: ubuntu-24.04

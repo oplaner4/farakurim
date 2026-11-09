@@ -14,7 +14,7 @@ The rest has its own guide:
 - [calendar-sync.md](calendar-sync.md): the Události and Bohoslužby calendars a release brings in line, and their
   setup;
 - [content-pipelines.md](content-pipelines.md): the service sheet and events by e-mail, fixing their PRs with
-  `@claude` comments, and the content release their merge starts (and how to release one by hand).
+  `/fix` comments, and the content release their merge starts (and how to release one by hand).
 
 ## Release
 
