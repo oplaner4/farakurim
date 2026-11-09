@@ -262,7 +262,7 @@ expect(albumLines(result, true).slice(1)).toEqual(["tell: Would remove the old a
 - [ ] **Step 2: Run** `pnpm exec vitest run --project scripts scripts/lib/calendar scripts/lib/content-pr` — expected:
       FAIL on those lines.
 - [ ] **Step 3: Implement:** `reportLine()` returns `ask(\`Události, …\`)`for`ask`and`unpaired`; `orphan`and
-   `deleted` stay untagged (nothing for a person to do).
+ `deleted` stay untagged (nothing for a person to do).
 - [ ] **Step 4: Update** `parish-release` step 2: "If the user acts on an `ask:` line before the yes, run the preview
       again" stays true; `docs/calendar-sync.md:15` and `docs/content-pipelines.md:144` say "an `ask:` or `cannot pair` line":
       both are now `ask:` lines, so say "an `ask:` line".
