@@ -1,7 +1,7 @@
 import "server-only";
 import { newsEntries, scheduleEntries, type DateRange } from "@/lib/calendar/agenda";
 import { subYears } from "date-fns";
-import { fetchGoogleCalendar, refererInit, toEntries } from "@/lib/calendar/google-calendar";
+import { readCalendars, refererInit } from "@/lib/calendar/google-calendar";
 import { BUILD_TIME } from "@/lib/shared/build-time";
 import { pragueDate } from "@/lib/shared/prague";
 import { eventHref } from "@/lib/news/events";
@@ -9,7 +9,7 @@ import { eventEnd } from "@/lib/news/timing";
 import { places, regularServices } from "@/content/masses";
 import { events } from "@/content/news";
 import { GOOGLE_CALENDAR_API_KEY, parishCalendars, SITE_URL } from "@/content/site";
-import type { CalendarEntry, CalendarId } from "@/content/types/calendar";
+import type { CalendarEntry } from "@/content/types/calendar";
 import { currentExceptions } from "./services";
 
 // The two parish calendars (design/DESIGN.md §16.4), read at build time. Server-only: it imports all events.
@@ -32,16 +32,5 @@ export async function loadCalendarEntries(range: DateRange): Promise<CalendarEnt
       ...newsEntries(events, eventHref).filter((e) => (e.end ?? e.date) >= range.from && e.date <= range.to),
     ];
   }
-  const init = refererInit(SITE_URL);
-  const ids = Object.keys(parishCalendars) as CalendarId[];
-  const lists = await Promise.all(
-    ids.map(async (id) =>
-      toEntries(
-        await fetchGoogleCalendar(parishCalendars[id].googleId, GOOGLE_CALENDAR_API_KEY!, range, init),
-        id,
-        linkablePages,
-      ),
-    ),
-  );
-  return lists.flat();
+  return readCalendars(parishCalendars, GOOGLE_CALENDAR_API_KEY, range, linkablePages, refererInit(SITE_URL));
 }

@@ -2,7 +2,7 @@
 
 import { queryOptions, type UseQueryResult, useQueries, useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import type { CalendarEntry, CalendarId } from "@/content/types/calendar";
+import type { CalendarEntry } from "@/content/types/calendar";
 import { GOOGLE_CALENDAR_API_KEY, parishCalendars } from "@/content/site";
 import {
   addRange,
@@ -12,7 +12,7 @@ import {
   type DateRange,
   mergeEntries,
 } from "@/lib/calendar/agenda";
-import { fetchGoogleCalendar, toEntries } from "@/lib/calendar/google-calendar";
+import { readCalendars } from "@/lib/calendar/google-calendar";
 
 // The prerendered calendars hold the entries of the build's date range. With an API key, the browser re-reads
 // every range it shows from Google Calendar (one TanStack query per range), so changes appear without a redeploy.
@@ -22,17 +22,7 @@ import { fetchGoogleCalendar, toEntries } from "@/lib/calendar/google-calendar";
 type Read = { range: DateRange; entries: CalendarEntry[] };
 
 async function readRange(range: DateRange, linkablePages: string[]): Promise<Read> {
-  const ids = Object.keys(parishCalendars) as CalendarId[];
-  const lists = await Promise.all(
-    ids.map(async (id) =>
-      toEntries(
-        await fetchGoogleCalendar(parishCalendars[id].googleId, GOOGLE_CALENDAR_API_KEY!, range),
-        id,
-        linkablePages,
-      ),
-    ),
-  );
-  return { range, entries: lists.flat() };
+  return { range, entries: await readCalendars(parishCalendars, GOOGLE_CALENDAR_API_KEY!, range, linkablePages) };
 }
 
 const rangeQuery = (range: DateRange, linkablePages: string[]) =>

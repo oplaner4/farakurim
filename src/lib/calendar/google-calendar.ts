@@ -193,3 +193,23 @@ export async function fetchGoogleCalendar(
   } while (pageToken);
   return events;
 }
+
+/**
+ * The entries of each of `calendars` in `range`, read in parallel (`init` as fetchGoogleCalendar() takes it);
+ * `linkablePages` as toEntries() takes them. Throws when a calendar cannot be read.
+ */
+export async function readCalendars(
+  calendars: Record<CalendarId, { googleId: string }>,
+  apiKey: string,
+  range: DateRange,
+  linkablePages: string[],
+  init?: RequestInit,
+): Promise<CalendarEntry[]> {
+  const ids = Object.keys(calendars) as CalendarId[];
+  const lists = await Promise.all(
+    ids.map(async (id) =>
+      toEntries(await fetchGoogleCalendar(calendars[id].googleId, apiKey, range, init), id, linkablePages),
+    ),
+  );
+  return lists.flat();
+}

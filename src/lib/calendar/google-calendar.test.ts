@@ -6,6 +6,7 @@ import {
   fetchGoogleCalendar,
   parseEventsPage,
   parseTitle,
+  readCalendars,
   refererInit,
   toEntries,
 } from "./google-calendar";
@@ -310,5 +311,29 @@ describe("fetchGoogleCalendar", () => {
       ]);
       expect(sent).toBe(init);
     }
+  });
+});
+
+describe("readCalendars", () => {
+  const range = { from: "2026-10-01", to: "2026-10-31" };
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("reads every calendar with the init and gives the entries of each under its id", async () => {
+    const fetch = vi.fn(async (url: string) => {
+      const id = decodeURIComponent(new URL(url).pathname.split("/")[4]);
+      return jsonResponse({ items: [{ id, summary: id, start: { date: "2026-10-04" }, end: { date: "2026-10-05" } }] });
+    });
+    vi.stubGlobal("fetch", fetch);
+    const init = refererInit("https://farakurim.cz");
+    const calendars = { services: { googleId: "s@g" }, events: { googleId: "e@g" } };
+    const entries = await readCalendars(calendars, "KEY", range, [], init);
+    expect(entries.map((e) => [e.calendar, e.title])).toEqual([
+      ["services", "s@g"],
+      ["events", "e@g"],
+    ]);
+    for (const [, sent] of fetch.mock.calls as unknown as [string, RequestInit][]) expect(sent).toBe(init);
   });
 });
