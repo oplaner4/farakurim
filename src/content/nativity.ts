@@ -76,6 +76,15 @@ export const nativitySeasons: NativitySeason[] = [
       { date: "2027-01-02", from: "14:00", to: "17:00", note: "poslední den" },
     ],
     hoursNote: "Ve čtvrtek 24. 12. v 15:00 následuje v kostele vánoční příběh s doprovodem dětské scholy.",
+    schoolVisits: [
+      { date: "2026-12-07", schools: { from: "8:15", to: "9:15" }, nurseries: { from: "9:45", to: "11:00" } },
+      { date: "2026-12-08", schools: { from: "8:15", to: "9:15" }, nurseries: { from: "9:45", to: "11:00" } },
+      { date: "2026-12-09", schools: { from: "8:15", to: "9:15" }, nurseries: { from: "9:45", to: "11:00" } },
+      { date: "2026-12-14", schools: { from: "8:15", to: "9:15" }, nurseries: { from: "9:45", to: "11:00" } },
+      { date: "2026-12-15", schools: { from: "8:15", to: "9:15" }, nurseries: { from: "9:45", to: "11:00" } },
+      { date: "2026-12-16", schools: { from: "8:15", to: "9:15" }, nurseries: { from: "9:45", to: "11:00" } },
+      { date: "2026-12-22", schools: { from: "10:30", to: "12:00" } },
+    ],
     places: [
       {
         name: "Kostel sv. Maří Magdalény",

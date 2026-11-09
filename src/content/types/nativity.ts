@@ -7,6 +7,16 @@ import type { ClockTime, IsoDate } from "./shared";
 /** One day the exhibition is open, with an optional note ("zahájení výstavy", "poslední den"). */
 export type NativityOpeningDay = { date: IsoDate; from: ClockTime; to: ClockTime; note?: string };
 
+/**
+ * A day with times reserved for the classes of schools and nurseries ("Pro školy a školky", under the opening hours).
+ * The classes have their slots assigned already, so the page names only the times, never which school comes when.
+ */
+export type NativitySchoolVisit = {
+  date: IsoDate;
+  schools?: { from: ClockTime; to: ClockTime };
+  nurseries?: { from: ClockTime; to: ClockTime };
+};
+
 /** A place of the exhibition ("Kde výstavu najdete"): a card in its tint with the parts of the place. */
 export type NativityPlace = {
   name: string;
@@ -87,6 +97,8 @@ export type NativitySeason = {
   openingDays: NativityOpeningDay[];
   /** The line under the opening hours. */
   hoursNote?: string;
+  /** In date order; not opening days, so they never change the page's state. Left out when not published. */
+  schoolVisits?: NativitySchoolVisit[];
   places: NativityPlace[];
   /** "Orientační plánek (PDF)" */
   planUrl: string;

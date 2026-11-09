@@ -3,10 +3,11 @@ import type { NativitySeason } from "@/content/types/nativity";
 import type { IsoDate } from "@/content/types/shared";
 import { formatWeekdayDate } from "@/lib/shared/czech";
 import { NativitySection } from "./NativitySection";
+import { SchoolVisits } from "./SchoolVisits";
 
 /**
  * "Otevírací doba" (design/DESIGN.md §30.2): one row per opening day with its hours and note; today's row on the
- * green tint with a "dnes" pill, the past days faded.
+ * green tint with a "dnes" pill, the past days faded. Under them the times reserved for schools, when published.
  */
 export function OpeningHours({ season, today }: { season: NativitySeason; today: IsoDate }) {
   return (
@@ -42,6 +43,9 @@ export function OpeningHours({ season, today }: { season: NativitySeason; today:
         })}
       </ol>
       {season.hoursNote && <p className="text-15 text-muted">{season.hoursNote}</p>}
+      {season.schoolVisits && season.schoolVisits.length > 0 && (
+        <SchoolVisits visits={season.schoolVisits} today={today} />
+      )}
     </NativitySection>
   );
 }

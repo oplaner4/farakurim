@@ -33,6 +33,29 @@ describe("Betlémy (nativity.ts)", () => {
     }
   });
 
+  it("reserves valid times for schools and nurseries, in date order, in December", () => {
+    for (const { year, schoolVisits = [] } of nativitySeasons) {
+      const slots = schoolVisits.flatMap((v) => [v.schools, v.nurseries].flatMap((t) => (t ? [t] : [])));
+      expect(
+        schoolVisits.filter(
+          (v) => !isIsoDate(v.date) || !v.date.startsWith(`${year}-12-`) || !(v.schools || v.nurseries),
+        ),
+        String(year),
+      ).toEqual([]);
+      expect(
+        slots.filter((t) => !isClock(t.from) || !isClock(t.to) || clockMinutes(t.to) <= clockMinutes(t.from)),
+        String(year),
+      ).toEqual([]);
+      expect(
+        isSorted(
+          schoolVisits.map((v) => v.date),
+          (a, b) => a < b,
+        ),
+        String(year),
+      ).toBe(true);
+    }
+  });
+
   it("gives each season valid dates for the tour, the shared scene and the mass", () => {
     for (const { year, guest, sharedScene, intentionsMass, planUrl } of nativitySeasons) {
       const dates = [
