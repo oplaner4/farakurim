@@ -38,7 +38,8 @@ in.
 pnpm add-exception <scratchpad>/exception.json --check
 ```
 
-It refuses a date the service sheets already cover (correct that week with `parish-correct-service-sheet` instead),
+It refuses a date the service sheets already cover (its `next:` line names the sheet: correct that week with
+`parish-correct-service-sheet` instead),
 a past date and a record that breaks the schema, and says whether it adds or replaces the schedule exception of that
 date. Show the user the date and the day's services as they will be.
 

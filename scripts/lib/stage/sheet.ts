@@ -31,6 +31,7 @@ import { docxToPdf } from "../services/docx-to-pdf";
 import { docxWeeks, type DocxWeek } from "../services/sheet-docx";
 import { newestWeek, parseWeek, weekPages } from "../services/sheet-week";
 import { eventLine, notEndedBy } from "../news/upcoming-events";
+import { next, refusal, state, tell } from "../output";
 import { correctedHint, correctedRev, MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
 import { extractPdfPages, pdfFirstPageText, pdfPageTexts } from "../images";
 
@@ -72,7 +73,7 @@ type Week = { validFrom: string; validTo: string };
 function checkLength(week: Week) {
   // Sunday to Sunday is 14 days for two weeks.
   const days = periodLength(week);
-  if (days <= 0 || days > 21) throw new Error(`the period ${period(week)} looks wrong: pass --from and --to`);
+  if (days <= 0 || days > 21) throw refusal(`the period ${period(week)} looks wrong`, next("pass --from and --to"));
   return week;
 }
 
@@ -83,7 +84,7 @@ function pdfWeek(src: string, options: RunOptions): Week {
     options.validFrom && options.validTo
       ? { validFrom: options.validFrom, validTo: options.validTo }
       : parseWeek(pdfFirstPageText(src));
-  if (!week) throw new Error("no 'od … do …' week in the PDF heading: pass --from and --to");
+  if (!week) throw refusal("no 'od … do …' week in the PDF heading", next("pass --from and --to"));
   return checkLength(week);
 }
 
@@ -117,7 +118,7 @@ function newerWeekNote(env: StageEnv, week: Week, newer: Week, today = pragueDat
     !there && week.validTo < today
       ? `. This week ended on ${week.validTo}: the newer week is likely the one meant`
       : "";
-  return `Not the DOCX's newest week: its newest, ${period(newer)}, is left out of this run; ${where}${meant} (tell the user)`;
+  return tell(`Not the DOCX's newest week: its newest, ${period(newer)}, is left out of this run; ${where}${meant}`);
 }
 
 /**
@@ -135,7 +136,7 @@ function docxWeekPdf(src: string, week: Week, dir: string) {
 async function sheetRev(env: StageEnv, validFrom: string, corrected: boolean): Promise<number | undefined> {
   const current = readServiceSheets(env.serviceSheetsFile).sheets.find((sheet) => sheet.validFrom === validFrom);
   if (!corrected) return current?.rev;
-  if (!current) throw new Error(`no sheet of ${validFrom} is added: --corrected is for a week already added`);
+  if (!current) throw refusal(`no sheet of ${validFrom} is added`, next("leave out --corrected for a new week"));
   return correctedRev(env, current.rev, (r) => sheetPdfFile({ validFrom, rev: r }));
 }
 
@@ -184,7 +185,7 @@ async function sourceWeek(
     writeContentFile(options.draft, draft);
     lines.push(`Wrote the draft record of ${period(week)} to ${options.draft}`);
     const empty = draft.days.filter((day) => day.rows.length === 0).map((day) => day.date);
-    if (empty.length > 0) lines.push(`Days without services (tell the user): ${empty.join(", ")}`);
+    if (empty.length > 0) lines.push(tell(`Days without services: ${empty.join(", ")}`));
   }
   return { pdf: docxWeekPdf(src, week, dir), week, lines };
 }
@@ -250,15 +251,13 @@ async function runSheet(env: StageEnv, options: RunOptions) {
       if (check) lines.push(...serviceSheetLines(checked, true));
     }
     // Each conversion writes a new file, so a DOCX's page replaces the one staged before (never one on the server).
-    await stage(env, pdf, rel, check, correctedHint("this week"), corrected || pdf !== src);
+    await stage(env, pdf, rel, check, correctedHint(), corrected || pdf !== src);
     lines.push(stagedLine(check, rel));
     if (!options.record) {
       // Past the server check, so the week is not released: a record replaces its sheet, as a correction does.
       const note =
         there && !corrected
-          ? [
-              `The sheet ${period(week)} is already staged, not released yet: --record replaces it, so start the record from that sheet to keep its fixes`,
-            ]
+          ? [state("staged"), next("start the record from the staged sheet to keep its fixes; --record replaces it")]
           : [];
       return { lines: [...lines, ...weekLines(sheet), ...newsLines(env.newsDir, validFrom), ...note], written: [] };
     }

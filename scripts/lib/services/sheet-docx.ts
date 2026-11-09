@@ -15,6 +15,7 @@ import { clockMinutes } from "@/lib/shared/clock";
 import { WEEKDAY_SHORT } from "@/lib/shared/czech";
 import { pragueWeekday } from "@/lib/shared/prague";
 import { period, periodDates } from "@/lib/services/service-sheet";
+import { ask, refusal } from "../output";
 import { feastCase } from "./sheet-feast";
 import { guessCategory, serviceFlags } from "./sheet-guess";
 import { weekHeading, type Week } from "./sheet-week";
@@ -202,7 +203,10 @@ function tableDays(rows: Cell[][], week: Week): SheetDay[] {
   // A heading with a wrong date ("od 14. 6." over a table from 28. 6.) would publish the sheet over the wrong days.
   const [first, last] = [days[0]?.date, days.at(-1)?.date];
   if (first !== week.validFrom || last !== week.validTo) {
-    throw new Error(`${where}: the table runs from ${first} to ${last}, so the heading looks wrong: ask the user`);
+    throw refusal(
+      `${where}: the table runs from ${first} to ${last}, so the heading looks wrong`,
+      ask("Which dates does the week have?"),
+    );
   }
   for (const day of days) day.rows.sort((a, b) => clockMinutes(a.time) - clockMinutes(b.time));
   // A two-week sheet leaves out the days without services; the sheet lists every day, those with no rows.

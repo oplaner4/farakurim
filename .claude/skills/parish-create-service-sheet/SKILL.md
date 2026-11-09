@@ -24,19 +24,20 @@ Follow 1a or 1b.
 
 ### 1a. From the DOCX
 
-Draft the record (it also refuses a week already released, "this week is already published", before the current
-sheet or overlapping another). When it prints "The sheet … is already staged, not released yet", the week was staged
-before: take it to **`parish-correct-service-sheet`**.
+Draft the record (it also refuses a week before the current sheet or overlapping another). When it prints
+`state: staged` (the week was staged before) or refuses with `state: published` (the week is released), take it to
+**`parish-correct-service-sheet`**.
 
 ```sh
 pnpm stage sheet draft "<source>" --out <scratchpad>/record.json
 ```
 
 It prints the week, its days and the events an announcement can link (for `newsId`), and writes `days` and
-`announcements` to `record.json`. The days a two-week table leaves out become days without services, printed as "Days
-without services": tell the user. A table it cannot read (a date outside the week, a weekday that does not fit the
-date, times that do not pair with the services, a table that does not start and end on the heading's dates) stops it
-with the week and day: ask the user what the document should say, as the error is in their document. The draft
+`announcements` to `record.json`. The days a two-week table leaves out become days without services, printed in a
+`tell: Days without services: …` line. A table it cannot read (a date outside the week, a weekday that does not fit
+the date, times that do not pair with the services, a table that does not start and end on the heading's dates)
+stops it with the week and day: ask the user what the document should say (its `ask:` line when it prints one), as
+the error is in their document. The draft
 is a starting point: step 2a says what to check in it.
 
 ### 1b. From a PDF
@@ -165,7 +166,7 @@ pnpm stage sheet "<source>" --record <scratchpad>/record.json
 ```
 
 It validates the record first (the error names each field), stages the PDF, adds the sheet, removes the outdated
-sheets and runs the service sheet tests. A line it prints ending in "(tell the user)" goes to the user as printed.
+sheets and runs the service sheet tests. Pass each `tell:` line it prints on to the user as printed, and ask each `ask:` line.
 
 ## 5. Publish
 

@@ -5,6 +5,7 @@ import { newsEvent } from "@/test/fixtures";
 import { ROOT } from "./content-files";
 import { pinLines, unpinnedLines } from "./news/pin-event";
 import { replaceLines } from "./news/replace-event";
+import { state } from "./output";
 import { correctedHint } from "./stage/core";
 
 // The parish skills quote lines the scripts print and decide from them (a correction instead of a new sheet, stop when
@@ -35,21 +36,25 @@ const other = newsEvent({ id: "pout-2026", title: "Pouť" });
 
 const quotes: { quote: string; skills: string[]; lines: () => string[] }[] = [
   {
-    quote: "this week is already published",
+    quote: "state: published",
     skills: [SHEET, UNATTENDED],
-    lines: () =>
-      sourceLines("stage/sheet.ts").some((l) => l.includes('correctedHint("this week")'))
-        ? [correctedHint("this week")]
-        : [],
+    lines: () => (sourceLines("stage/sheet.ts").some((l) => l.includes("correctedHint()")) ? correctedHint() : []),
   },
   {
-    quote: "The sheet … is already staged, not released yet",
+    quote: "state: staged",
     skills: [SHEET, UNATTENDED],
-    lines: () => sourceLines("stage/sheet.ts"),
+    lines: () => (sourceLines("stage/sheet.ts").some((l) => l.includes('state("staged")')) ? [state("staged")] : []),
   },
-  { quote: "Not the DOCX's newest week: …", skills: [UNATTENDED], lines: () => sourceLines("stage/sheet.ts") },
-  { quote: "(tell the user)", skills: [SHEET, UNATTENDED], lines: () => sourceLines("stage/sheet.ts") },
-  { quote: "Days without services", skills: [SHEET, UNATTENDED], lines: () => sourceLines("stage/sheet.ts") },
+  {
+    quote: "tell: Not the DOCX's newest week: …",
+    skills: [UNATTENDED],
+    lines: () => sourceLines("stage/sheet.ts").map((l) => l.replace("tell(`", "tell: ")),
+  },
+  {
+    quote: "tell: Days without services: …",
+    skills: [SHEET],
+    lines: () => sourceLines("stage/sheet.ts").map((l) => l.replace("tell(`", "tell: ")),
+  },
   {
     quote: "Would pin <id> (<title>)",
     skills: ["parish-pin-event/SKILL.md"],

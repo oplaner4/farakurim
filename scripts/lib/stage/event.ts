@@ -22,6 +22,7 @@ import { addEvent, takenIdError, targetLine } from "../news/add-event";
 import { planPoster, POSTER_EXTENSIONS, type PosterRender } from "../news/event-poster";
 import { replaceEvent, replaceLines } from "../news/replace-event";
 import { unpinnedLines } from "../news/pin-event";
+import { next } from "../output";
 import { correctedRev, MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
 import { renderPoster } from "../images";
 
@@ -185,7 +186,7 @@ async function stageFiles(
   { corrected, check }: { corrected: boolean; check: boolean },
 ): Promise<string[]> {
   // Every name is checked before any file is copied, so a taken second name leaves nothing staged.
-  const takenHint = corrected ? "pick another label" : "pick another id";
+  const takenHint = [next(corrected ? "pick another label" : "pick another id")];
   for (const f of files) await stage(env, f.src, f.rel, true, takenHint, corrected);
   const lines: string[] = [];
   for (const [i, f] of files.entries()) {

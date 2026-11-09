@@ -229,7 +229,7 @@ describe("docxWeeks", () => {
     );
     expect(await draft([[["12. 10.", "Po"], ["Kuřim"], ["8:00"], ["Mše sv."]]])).toThrow("a table row with 4 cells");
     expect(await draft([[["12. 10.", "Po"], [], ["Kuřim"], ["8:00"], ["Mše sv."]]])).toThrow(
-      "the table runs from 2026-10-12 to 2026-10-12, so the heading looks wrong",
+      "the table runs from 2026-10-12 to 2026-10-12, so the heading looks wrong\nask: Which dates does the week have?",
     );
   });
 

@@ -154,7 +154,7 @@ describe("stageEvent", { timeout: 30_000 }, () => {
     const source = await poster();
     const stageIt = () => stageOne({ source, id: "hody", label: "Plakát", check: true });
     status(200);
-    await expect(stageIt()).rejects.toThrow("hody-plakat.jpg already exists on the server: pick another id");
+    await expect(stageIt()).rejects.toThrow("hody-plakat.jpg already exists on the server\nnext: pick another id");
     status(500);
     await expect(stageIt()).rejects.toThrow("answered 500: cannot tell whether the name is free");
     fetchMock.mockRejectedValue(new Error("getaddrinfo ENOTFOUND"));

@@ -15,6 +15,8 @@ describe("sourceFile", () => {
 
   it("refuses a file over the limit", () => {
     download("big.pdf", Buffer.alloc(1024 * 1024 + 1));
-    expect(() => sourceFile("big.pdf", 1, env.home)).toThrow("big.pdf is 1.0 MB, over 1 MB");
+    expect(() => sourceFile("big.pdf", 1, env.home)).toThrow(
+      "big.pdf is 1.0 MB, over 1 MB\nask: Is there a smaller file?",
+    );
   });
 });

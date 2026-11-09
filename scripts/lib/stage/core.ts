@@ -7,6 +7,7 @@ import { basename, dirname, join } from "node:path";
 import { actionVerb } from "../command";
 import { EXCEPTIONS_FILE, NEWS_DIR, SERVICE_SHEETS_FILE, PETRKLIC_FILE, ROOT } from "../content-files";
 import { defaultUploadsEnv, onServer, serverUrl, UPLOADS_DIR, type UploadsEnv } from "../uploads";
+import { ask, next, refusal, state } from "../output";
 
 const MB = 1024 * 1024;
 /** The largest source file each command stages, in MB; the usage and the size error name them. */
@@ -41,16 +42,17 @@ export function sourceFile(path: string, maxMb: number, home: string): string {
   if (!existsSync(src) || !statSync(src).isFile()) throw new Error(`${path} not found (also looked in ~/Downloads/)`);
   const { size } = statSync(src);
   if (size > maxMb * MB) {
-    throw new Error(
-      `${basename(src)} is ${(size / MB).toFixed(1)} MB, over ${maxMb} MB: ask the user for a smaller file`,
+    throw refusal(
+      `${basename(src)} is ${(size / MB).toFixed(1)} MB, over ${maxMb} MB`,
+      ask("Is there a smaller file?"),
     );
   }
   return src;
 }
 
-/** Refuses a name that is already on the server. */
-async function checkFree(env: StageEnv, rel: string, takenHint: string) {
-  if (await onServer(env, rel)) throw new Error(`${serverUrl(env, rel)} already exists on the server: ${takenHint}`);
+/** Refuses a name that is already on the server, with the tagged lines `takenHint`. */
+async function checkFree(env: StageEnv, rel: string, takenHint: string[]) {
+  if (await onServer(env, rel)) throw refusal(`${serverUrl(env, rel)} already exists on the server`, ...takenHint);
 }
 
 /**
@@ -62,8 +64,8 @@ export async function correctedRev(env: StageEnv, current: number | undefined, r
   return (await onServer(env, rel(current))) ? (current ?? 1) + 1 : current;
 }
 
-/** The error's hint when a corrected PDF's name is taken on the server. */
-export const correctedHint = (what: string) => `${what} is already published; for a corrected PDF pass --corrected`;
+/** The refusal's lines when a corrected PDF's name is taken on the server: the file is published. */
+export const correctedHint = () => [state("published"), next("pass --corrected for a corrected PDF")];
 
 /**
  * Copies `src` to `rel` in the staging folder unless `check`, after making sure the name is free on the server. Staging the same
@@ -74,7 +76,7 @@ export async function stage(
   src: string,
   rel: string,
   check: boolean,
-  takenHint = "pick another id",
+  takenHint = [next("pick another id")],
   replace = false,
 ) {
   const dest = join(env.uploadsDir, rel);

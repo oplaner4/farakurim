@@ -74,7 +74,7 @@ async function stageIssue(env: StageEnv, options: PetrklicOptions, moved: MovedI
   const pdf = pdfPath(id, rev);
   const folder = join(env.uploadsDir, issuePath({ id, rev }));
   const existed = existsSync(folder);
-  await stage(env, src, pdf, check, correctedHint("this issue"), corrected);
+  await stage(env, src, pdf, check, correctedHint(), corrected);
   let result = checked;
   if (!check) {
     try {

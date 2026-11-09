@@ -61,14 +61,14 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     status(200);
     await expect(
       stageSheet(env, { source, validFrom: "2099-10-04", validTo: "2099-10-11", check: true }),
-    ).rejects.toThrow("this week is already published; for a corrected PDF pass --corrected");
+    ).rejects.toThrow("already exists on the server\nstate: published\nnext: pass --corrected for a corrected PDF");
   });
 
   it("refuses a period that is not one or two weeks, and a file that is not a PDF or a DOCX", async () => {
     const source = download("porad.pdf", "%PDF");
     await expect(
       stageSheet(env, { source, validFrom: "2026-10-04", validTo: "2026-11-04", check: true }),
-    ).rejects.toThrow("the period 2026-10-04 – 2026-11-04 looks wrong");
+    ).rejects.toThrow("the period 2026-10-04 – 2026-11-04 looks wrong\nnext: pass --from and --to");
     await expect(stageSheet(env, { source: download("porad.txt", "x"), check: true })).rejects.toThrow(
       "is a PDF or a DOCX",
     );
@@ -160,9 +160,10 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     const week = { source: download("porad.pdf", "%PDF"), validFrom: "2099-10-04", validTo: "2099-10-11" };
     expect((await stageSheet(env, { ...week, check: true })).lines).toHaveLength(5);
     await stageSheet(env, { ...week, record: record() });
-    expect((await stageSheet(env, { ...week, check: true })).lines.at(-1)).toBe(
-      "The sheet 2099-10-04 – 2099-10-11 is already staged, not released yet: --record replaces it, so start the record from that sheet to keep its fixes",
-    );
+    expect((await stageSheet(env, { ...week, check: true })).lines.slice(-2)).toEqual([
+      "state: staged",
+      "next: start the record from the staged sheet to keep its fixes; --record replaces it",
+    ]);
     expect((await stageSheet(env, { ...week, corrected: true, check: true })).lines).toHaveLength(5);
   });
 
@@ -170,7 +171,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     const source = download("porad.pdf", "%PDF");
     await expect(
       stageSheet(env, { source, validFrom: "2099-10-04", validTo: "2099-10-11", corrected: true, record: record() }),
-    ).rejects.toThrow("no sheet of 2099-10-04 is added");
+    ).rejects.toThrow("no sheet of 2099-10-04 is added\nnext: leave out --corrected for a new week");
   });
 
   it("replaces the record of a sheet, keeping its PDF and rev", async () => {
@@ -274,7 +275,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
       const { lines } = await draftSheet(env, { source, out: draft });
       expect(lines.slice(0, 3)).toEqual([
         `Wrote the draft record of 2099-10-04 – 2099-10-11 to ${draft}`,
-        "Days without services (tell the user): 2099-10-05, 2099-10-06, 2099-10-07, 2099-10-08, 2099-10-09, 2099-10-10",
+        "tell: Days without services: 2099-10-05, 2099-10-06, 2099-10-07, 2099-10-08, 2099-10-09, 2099-10-10",
         "Would stage uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf",
       ]);
       const drafted = JSON.parse(readFileSync(draft, "utf8"));
@@ -337,7 +338,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
       const { lines } = await draftSheet(env, { source, out: draft });
       expect(lines.slice(0, 6)).toEqual([
         `Wrote the draft record of 2099-10-04 – 2099-10-11 to ${draft}`,
-        "Days without services (tell the user): 2099-10-05, 2099-10-06, 2099-10-07, 2099-10-08, 2099-10-09, 2099-10-10",
+        "tell: Days without services: 2099-10-05, 2099-10-06, 2099-10-07, 2099-10-08, 2099-10-09, 2099-10-10",
         "Would stage uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf",
         '  validFrom: "2099-10-04",\n  validTo: "2099-10-11",',
         `days: ${weekDays("2099-10-04", "2099-10-11").join(", ")}`,
@@ -362,8 +363,8 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     it("names the DOCX's newest week when --from and --to name an older one, and only then", async () => {
       const source = yearDocx();
       const older = { source, validFrom: "2099-09-27", validTo: "2099-10-04", check: true };
-      const note = "Not the DOCX's newest week: its newest, 2099-10-04 – 2099-10-11, is left out of this run;";
-      expect((await stageSheet(env, older)).lines[0]).toBe(`${note} it is not staged yet (tell the user)`);
+      const note = "tell: Not the DOCX's newest week: its newest, 2099-10-04 – 2099-10-11, is left out of this run;";
+      expect((await stageSheet(env, older)).lines[0]).toBe(`${note} it is not staged yet`);
       const newest = { source, validFrom: "2099-10-04", validTo: "2099-10-11", check: true };
       expect((await stageSheet(env, newest)).lines[0]).toBe(
         "Would stage uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf",
@@ -372,7 +373,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
       // Once the newest week is there, the note says so.
       await stageSheet(env, { source, record: record() });
       expect((await stageSheet(env, older)).lines[0]).toBe(
-        `${note} it is already staged, and this DOCX's version of it is not checked (tell the user)`,
+        `${note} it is already staged, and this DOCX's version of it is not checked`,
       );
     });
 
@@ -391,7 +392,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
       const refusal = stageSheet(env, { source, validFrom: "2000-01-02", validTo: "2000-01-09", check: true });
       await expect(refusal).rejects.toThrow("the sheet 2000-01-02 – 2000-01-09 is before the current sheet");
       await expect(refusal).rejects.toThrow(
-        "Not the DOCX's newest week: its newest, 2000-01-09 – 2000-01-16, is left out of this run; it is not staged yet. This week ended on 2000-01-09: the newer week is likely the one meant (tell the user)",
+        "tell: Not the DOCX's newest week: its newest, 2000-01-09 – 2000-01-16, is left out of this run; it is not staged yet. This week ended on 2000-01-09: the newer week is likely the one meant",
       );
     });
 

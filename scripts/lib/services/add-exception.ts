@@ -17,6 +17,7 @@ import {
   SERVICE_SHEETS_TESTS,
   writeContentFile,
 } from "../content-files";
+import { next, refusal } from "../output";
 import { readServiceSheets, readScheduleExceptions } from "./add-service-sheet";
 
 export type ExceptionChange = { add: unknown } | { remove: IsoDate };
@@ -52,7 +53,7 @@ export function addException(
     date = exception.date;
     const sheet = sheetCovering(readServiceSheets(serviceSheetsFile).sheets, date);
     if (sheet) {
-      throw new Error(`the sheet ${period(sheet)} covers ${date}: correct that sheet instead`);
+      throw refusal(`the sheet ${period(sheet)} covers ${date}`, next(`correct the sheet ${period(sheet)}`));
     }
     if (date < pragueDate(now)) throw new Error(`${date} is past`);
   }
