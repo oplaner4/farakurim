@@ -3,7 +3,7 @@
 import { clsx } from "clsx";
 import type { AlbumPhoto } from "@/content/types/gallery";
 import { ZoomInIcon } from "@/components/ui/icons/media-icons";
-import { loadTeamLightbox, openTeamPhoto } from "./TeamLightbox";
+import { loadPageLightbox, openPagePhoto } from "@/components/gallery/PageLightbox";
 
 type Props = {
   name: string;
@@ -24,9 +24,9 @@ export function TeamPhoto({ name, photo, n, className }: Props) {
       href={photo.large}
       aria-label={`Zobrazit fotku: ${name}`}
       className={clsx("group relative flex-none rounded-full lg:rounded-16", className)}
-      onPointerEnter={loadTeamLightbox}
-      onFocus={loadTeamLightbox}
-      onClick={openTeamPhoto(n)}
+      onPointerEnter={loadPageLightbox}
+      onFocus={loadPageLightbox}
+      onClick={openPagePhoto(n)}
     >
       <span className="block size-full overflow-hidden rounded-full lg:rounded-16">
         <img

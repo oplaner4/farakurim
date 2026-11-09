@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import type { MouseEvent } from "react";
 import type { AlbumPhoto } from "@/content/types/gallery";
+import type { PhotoLabel } from "./PhotoLightbox";
 import { photoFromHash, photoHash } from "@/lib/shared/lightbox";
 import { isModifiedClick } from "@/lib/shared/links";
 import { clearHash, pushHash, replaceHash } from "@/lib/shared/location-hash";
@@ -22,12 +23,23 @@ export const openPagePhoto = (n: number) => (e: MouseEvent) => {
   pushHash(photoHash(n));
 };
 
+type Props = {
+  name: string;
+  /** The album on Zonerama, when there is one. */
+  href?: string;
+  photos: AlbumPhoto[];
+  /** A title and caption per photo instead of the album's ("Honza · Hlavní vedoucí · 22 let" for the Tábor team). */
+  labels?: PhotoLabel[];
+  /** The mobile swipe hint, when the default does not fit ("Přejeďte prstem na dalšího vedoucího"). */
+  hint?: string;
+};
+
 /**
  * The photo lightbox of a page (design/DESIGN.md §21): a group page's hero and photos (§27), Betlémy's exhibition
- * photos (§30), open while the hash is `#foto-N`, so the back button closes it and a link can open it. `href` is
- * the album on Zonerama, when there is one.
+ * photos (§30), the Tábor team (§29.3), open while the hash is `#foto-N`, so the back button closes it and a link
+ * can open it.
  */
-export function PageLightbox({ name, href, photos }: { name: string; href?: string; photos: AlbumPhoto[] }) {
+export function PageLightbox({ name, href, photos, labels, hint }: Props) {
   const open = photoFromHash(useLocationHash(), photos.length);
   if (open === null) return null;
   return (
@@ -35,6 +47,8 @@ export function PageLightbox({ name, href, photos }: { name: string; href?: stri
       album={{ title: name, href, photoCount: photos.length, photos }}
       index={open}
       position={0}
+      labels={labels}
+      hint={hint}
       onView={(i) => replaceHash(photoHash(i + 1))}
       onClose={clearHash}
     />
