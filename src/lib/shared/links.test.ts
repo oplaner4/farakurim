@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { displayDomain, externalLinkAttrs, isExternalHref, isModifiedClick, withExternalLinkTargets } from "./links";
+import {
+  displayDomain,
+  externalLinkAttrs,
+  isExternalHref,
+  isModifiedClick,
+  mapHref,
+  venueMapHref,
+  withExternalLinkTargets,
+} from "./links";
 
 describe("isExternalHref", () => {
   it("treats other sites as external", () => {
@@ -63,5 +71,25 @@ describe("isModifiedClick", () => {
     expect(isModifiedClick({ ...click, button: 1 })).toBe(true);
     for (const key of ["metaKey", "ctrlKey", "shiftKey", "altKey"] as const)
       expect(isModifiedClick({ ...click, [key]: true })).toBe(true);
+  });
+});
+
+describe("venueMapHref", () => {
+  it("prefers the venue's own link", () => {
+    expect(venueMapHref({ name: "Kaple", village: "Česká", mapUrl: "https://mapy.com/s/x", mapQuery: "q" })).toBe(
+      "https://mapy.com/s/x",
+    );
+  });
+
+  it("searches the query, else the address, else the name and village", () => {
+    expect(venueMapHref({ name: "Kaple", village: "Česká", mapQuery: "kaple Česká", address: "a" })).toBe(
+      mapHref("kaple Česká"),
+    );
+    expect(venueMapHref({ name: "Fara", village: "Kuřim", address: "Křížkovského 55/5, 664 34 Kuřim" })).toBe(
+      mapHref("Křížkovského 55/5, 664 34 Kuřim"),
+    );
+    expect(venueMapHref({ name: "Kaple sv. Jana Nepomuckého", village: "Kuřim" })).toBe(
+      mapHref("Kaple sv. Jana Nepomuckého Kuřim"),
+    );
   });
 });

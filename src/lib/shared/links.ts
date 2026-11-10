@@ -1,10 +1,15 @@
 import { SITE_HOST } from "@/content/site";
+import type { Venue } from "@/content/types/venues";
 
 /** `tel:` link of a Czech phone number written with spaces ("723 661 146"). */
 export const telHref = (phone: string) => `tel:+420${phone.replace(/\s/g, "")}`;
 
 /** Mapy.cz search. */
 export const mapHref = (query: string) => `https://mapy.cz/zakladni?q=${encodeURIComponent(query)}`;
+
+/** A venue's map link: its own link, else a search of its query, its address, or its name and village. */
+export const venueMapHref = (venue: Venue) =>
+  venue.mapUrl ?? mapHref(venue.mapQuery ?? venue.address ?? `${venue.name} ${venue.village}`);
 
 /** An absolute http(s) link to another site; the parish's own domain, relative links, mailto: and tel: are not. */
 export function isExternalHref(href: string | undefined): boolean {
