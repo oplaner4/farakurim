@@ -63,9 +63,9 @@ build-time next mass.
 ## Venues
 
 - The parish's buildings (the churches, the fara and the chapels) are written once in `content/venues.ts`, with
-  their address (with ", Česko"), map search (without one, the link searches the address) and catalogue page. The services' `places`, the Kontakty churches and
+  their address (postal, including the country), map search (without one, the link searches the address) and catalogue page. The services' `places`, the Kontakty churches and
   chapels, the office (`contacts.venue`) and the nativity seasons refer to them by `VenueId`, and every map link is
-  `venueMapHref()`. A church's `address` is the Bohoslužby calendar's location, by which the sync finds its events:
+  `venueMapHref()`. An `address` is the postal address only; the calendars' location is `venueLocation()` (name, address). A church's is the Bohoslužby calendar's location, by which the sync finds its events:
   change it only knowingly, as the next sync rewrites the location of every upcoming service.
 
 ## Services and calendars

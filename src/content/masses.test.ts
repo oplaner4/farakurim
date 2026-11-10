@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { parishChurches, places, regularServices } from "./masses";
 import { venues } from "./venues";
 import { mapHref, venueMapHref } from "@/lib/shared/links";
+import { venueLocation } from "@/lib/shared/venues";
 import { parish } from "./site";
 import { isClock, isMonthDay } from "@/test/content-checks";
 
@@ -16,13 +17,13 @@ describe("Pravidelné bohoslužby (masses.ts)", () => {
     }
   });
 
-  it("gives every place a locative and a venue with the calendar's address", () => {
+  it("gives every place a locative and a venue with the calendar's location", () => {
     for (const [id, p] of Object.entries(places)) expect(p.locative, id).toMatch(/^ve? \S/);
-    // The Bohoslužby calendar matches its events by this address: a change rewrites every upcoming service.
-    expect(Object.fromEntries(Object.entries(places).map(([id, p]) => [id, venues[p.venue].address]))).toEqual({
-      kurim: "Kostel sv. Maří Magdalény, Křížkovského, 664 34 Kuřim, Česko",
-      "moravske-kninice": "Kostel svaté Markéty, 386, 664 34 Moravské Knínice, Česko",
-      jinacovice: "Jinačovice, 664 34 Jinačovice-Kuřim, Česko",
+    // The Bohoslužby calendar matches its events by this location: a change rewrites every upcoming service.
+    expect(Object.fromEntries(Object.entries(places).map(([id, p]) => [id, venueLocation(venues[p.venue])]))).toEqual({
+      kurim: "Kostel sv. Maří Magdalény, Pátera Peši, 664 34 Kuřim, Česko",
+      "moravske-kninice": "Kostel sv. Markéty, Kuřimská, 664 34 Moravské Knínice, Česko",
+      jinacovice: "Kaple sv. Máří Magdaleny, Jinačovice 46, 664 34 Jinačovice, Česko",
     });
   });
 

@@ -6,7 +6,7 @@ export const venues: Record<VenueId, Venue> = {
   "kurim-kostel": {
     name: "Kostel sv. Maří Magdalény",
     village: "Kuřim",
-    address: "Kostel sv. Maří Magdalény, Křížkovského, 664 34 Kuřim, Česko",
+    address: "Pátera Peši, 664 34 Kuřim, Česko",
     mapQuery: "kostel sv. Maří Magdalény Kuřim",
   },
   "kurim-fara": {
@@ -28,7 +28,7 @@ export const venues: Record<VenueId, Venue> = {
   "moravske-kninice-kostel": {
     name: "Kostel sv. Markéty",
     village: "Moravské Knínice",
-    address: "Kostel svaté Markéty, 386, 664 34 Moravské Knínice, Česko",
+    address: "Kuřimská, 664 34 Moravské Knínice, Česko",
     mapQuery: "kostel sv. Markéty Moravské Knínice",
   },
   "moravske-kninice-kaple-cyrila-a-metodeje": {
@@ -46,8 +46,7 @@ export const venues: Record<VenueId, Venue> = {
   "jinacovice-kaple": {
     name: "Kaple sv. Máří Magdaleny",
     village: "Jinačovice",
-    // The village's address, as the Bohoslužby calendar has carried it.
-    address: "Jinačovice, 664 34 Jinačovice-Kuřim, Česko",
+    address: "Jinačovice 46, 664 34 Jinačovice, Česko",
     mapQuery: "kaple sv. Máří Magdaleny Jinačovice",
   },
   "ceska-kaple": {

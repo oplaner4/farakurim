@@ -72,7 +72,7 @@ describe("desiredServices on a regular day", () => {
     ]);
     expect(events.every((e) => e.status === "regular")).toBe(true);
     const [first, second] = events;
-    expect(first.body.location).toBe("Kostel sv. Maří Magdalény, Křížkovského, 664 34 Kuřim, Česko");
+    expect(first.body.location).toBe("Kostel sv. Maří Magdalény, Pátera Peši, 664 34 Kuřim, Česko");
     expect(first.body.description.endsWith(`Pořad bohoslužeb: ${SERVICES_URL}`)).toBe(true);
     expect(first.body.start).toEqual({ dateTime: "2026-11-01T08:00:00+01:00", timeZone: "Europe/Prague" });
     expect(first.body.end.dateTime).toBe("2026-11-01T09:00:00+01:00");

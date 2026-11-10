@@ -13,6 +13,7 @@ import type { Venue, VenueId } from "@/content/types/venues";
 import type { ClockTime, IsoDate } from "@/content/types/shared";
 import type { DateRange } from "@/lib/calendar/agenda";
 import { servicesOnDate } from "@/lib/services/masses";
+import { venueLocation } from "@/lib/shared/venues";
 import { isChangedMass, periodDates, scheduleExceptions } from "@/lib/services/service-sheet";
 import { clockMinutes } from "@/lib/shared/clock";
 import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
@@ -27,7 +28,7 @@ export type ServicesContent = {
   sheets: ServiceSheetRecord[];
   later: ScheduleException[];
   places: Record<PlaceId, Place>;
-  /** The churches' addresses, the events' location. */
+  /** The churches, the events' location. */
   venues: Record<VenueId, Venue>;
 };
 
@@ -111,7 +112,7 @@ export function desiredServices(content: ServicesContent, range: DateRange): Des
         status,
         body: {
           summary: `${STATUS_PREFIXES[status]}${title ?? MASS_TITLE} ${church.locative}`,
-          location: venues[church.venue].address,
+          location: venueLocation(venues[church.venue]),
           description: [...lines, "", `Pořad bohoslužeb: ${SERVICES_URL}`].join("\n"),
           start: pragueTime(startAt),
           end: pragueTime(nextAt && nextAt < defaultEnd ? nextAt : defaultEnd),

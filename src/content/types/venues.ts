@@ -20,7 +20,10 @@ export type Venue = {
   name: string;
   /** The village it stands in: "Kuřim". */
   village: string;
-  /** The postal address. A church's is the Bohoslužby calendar's location: changing it rewrites every upcoming service. */
+  /**
+   * The postal address only, including the country. A church's is part of the Bohoslužby calendar's location
+   * (`venueLocation()`): changing it rewrites every upcoming service.
+   */
   address?: string;
   /** Mapy.cz search of its map link; without it, the link searches the address. */
   mapQuery?: string;

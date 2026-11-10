@@ -20,7 +20,7 @@ export type Place = {
   color: ChurchColor;
   /** After "Mše svatá": "v Kuřimi". */
   locative: string;
-  /** The church: its address (the calendar events' location) and its map link. */
+  /** The church: the calendar events' location (`venueLocation()`) and its map link. */
   venue: VenueId;
   /** No regular services: "Bohoslužby dle domluvy na faře." */
   byAgreement?: boolean;
