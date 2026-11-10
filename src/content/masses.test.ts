@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { parishChurches, places, regularServices } from "./masses";
 import { venues } from "./venues";
+import { venueMapHref } from "@/lib/shared/links";
 import { parish } from "./site";
 import { isClock, isMonthDay } from "@/test/content-checks";
 
@@ -39,11 +40,21 @@ describe("Kostely a kaple (masses.ts)", () => {
     for (const c of parishChurches) expect(c.building, c.village).not.toBe("");
   });
 
-  it("links the other chapels to the diocese catalogue and map overrides to Mapy.com", () => {
+  it("takes the churches from the venues and links the other chapels to the diocese catalogue", () => {
+    expect(parishChurches.map((c) => c.venue)).toEqual([
+      "kurim-kostel",
+      "moravske-kninice-kostel",
+      "jinacovice-kaple",
+      "ceska-kaple",
+    ]);
     for (const c of parishChurches) {
       for (const chapel of c.chapels ?? [])
         expect(chapel.href, chapel.name).toMatch(/^https:\/\/katalog\.biskupstvi\.cz\//);
-      if (c.mapUrl) expect(c.mapUrl, c.village).toMatch(/^https:\/\/mapy\.(com|cz)\//);
     }
+  });
+
+  it("keeps the Česká chapel's share link, as the search finds another place", () => {
+    const ceska = parishChurches.find((c) => c.village === "Česká");
+    expect(ceska && venueMapHref(venues[ceska.venue])).toBe("https://mapy.com/s/kedezofodo");
   });
 });

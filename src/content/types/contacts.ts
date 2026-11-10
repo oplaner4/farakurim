@@ -1,5 +1,6 @@
 import type { ChurchColor } from "./services";
 import type { ClockTime, Weekday, YearlyBreak } from "./shared";
+import type { VenueId } from "./venues";
 
 // Kontakty (masses.ts, site.ts): the churches and chapels and the office hours.
 
@@ -12,10 +13,8 @@ export type ParishChurch = {
   note?: string;
   /** Bar colour: the place's colour, magenta for Česká. */
   color: ChurchColor | "magenta";
-  /** Mapy.cz search. */
-  mapQuery: string;
-  /** A Mapy.com share link, used instead of `mapQuery` when the search finds the wrong place. */
-  mapUrl?: string;
+  /** The building: its map link. */
+  venue: VenueId;
   /** The village's other chapels, each linked to its page in the diocese catalogue (katalog.biskupstvi.cz). */
   chapels?: ParishChapel[];
 };

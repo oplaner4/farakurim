@@ -1,6 +1,7 @@
 import type { ParishChapel, ParishChurch } from "@/content/types/contacts";
 import type { Intentions, Place, PlaceId, RegularService } from "@/content/types/services";
 import type { YearlyBreak } from "@/content/types/shared";
+import type { VenueId } from "@/content/types/venues";
 import { venues } from "./venues";
 
 // The parish's churches and its regular weekly schedule. Edit here when the schedule changes; the current service sheets
@@ -34,55 +35,32 @@ export const places: Record<PlaceId, Place> = {
 };
 
 /** The other chapels of the villages with a church, listed under it on Kontakty. */
-const otherChapels: Partial<Record<PlaceId, ParishChapel[]>> = {
-  kurim: [
-    {
-      name: "Kaple Panny Marie Bolestné",
-      href: "https://katalog.biskupstvi.cz/detail/kostel/7414/Ku%C5%99im,%20kaple-Panny-Marie-Bolestne",
-    },
-    {
-      name: "Kaple sv. Jana Nepomuckého",
-      href: "https://katalog.biskupstvi.cz/detail/kostel/8128/Ku%C5%99im,%20kaple-sv-Jana-Nepomuckeho",
-    },
-  ],
-  "moravske-kninice": [
-    {
-      name: "Kaple sv. Cyrila a Metoděje",
-      href: "https://katalog.biskupstvi.cz/detail/kostel/6910/Moravsk%C3%A9%20Kn%C3%ADnice,%20kaple-sv-Cyrila-a-Metodeje",
-    },
-    {
-      name: "Kaple sv. Jana Nepomuckého",
-      href: "https://katalog.biskupstvi.cz/detail/kostel/6937/Moravsk%C3%A9%20Kn%C3%ADnice,%20kaple-sv-Jana-Nepomuckeho",
-    },
-  ],
+const otherChapels: Partial<Record<PlaceId, VenueId[]>> = {
+  kurim: ["kurim-kaple-panny-marie-bolestne", "kurim-kaple-jana-nepomuckeho"],
+  "moravske-kninice": ["moravske-kninice-kaple-cyrila-a-metodeje", "moravske-kninice-kaple-jana-nepomuckeho"],
 };
+
+/** A chapel of `otherChapels`, linked to its page in the diocese catalogue. */
+const chapel = (id: VenueId): ParishChapel => ({ name: venues[id].name, href: venues[id].catalogueHref ?? "" });
 
 /** The churches of `places` plus the chapels, one per village of the parish, in display order. */
 export const parishChurches: ParishChurch[] = [
   ...(["kurim", "moravske-kninice"] as const).map((id) => {
     const { name, church = "", color, venue } = places[id];
-    return {
-      village: name,
-      building: church,
-      color,
-      mapQuery: venues[venue].mapQuery ?? "",
-      chapels: otherChapels[id],
-    };
+    return { village: name, building: church, color, venue, chapels: otherChapels[id]?.map(chapel) };
   }),
   {
     village: "Jinačovice",
     building: "Kaple sv. Máří Magdaleny",
     note: "bohoslužby dle domluvy",
     color: "orange",
-    mapQuery: "kaple sv. Máří Magdaleny Jinačovice",
+    venue: "jinacovice-kaple",
   },
   {
     village: "Česká",
     building: "Kaple Panny Marie Růžencové",
     color: "magenta",
-    mapQuery: "kaple Panny Marie Růžencové Česká",
-    // The search finds another place; the share link points at the chapel.
-    mapUrl: "https://mapy.com/s/kedezofodo",
+    venue: "ceska-kaple",
   },
 ];
 

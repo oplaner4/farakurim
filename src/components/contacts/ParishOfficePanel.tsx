@@ -1,6 +1,7 @@
 import { clsx } from "clsx";
 import { contacts, parish } from "@/content/site";
-import { mapHref, telHref } from "@/lib/shared/links";
+import { venues } from "@/content/venues";
+import { telHref, venueMapHref } from "@/lib/shared/links";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { MailIcon, PhoneIcon } from "@/components/ui/icons/contact-icons";
 import { OfficeMap } from "./OfficeMap";
@@ -41,7 +42,7 @@ export function ParishOfficePanel({ className }: { className?: string }) {
       </div>
       <div className="flex flex-col">
         <OfficeMap />
-        <ArrowLink href={mapHref(contacts.mapQuery)}>Navigovat na Mapy.cz</ArrowLink>
+        <ArrowLink href={venueMapHref(venues[contacts.venue])}>Navigovat na Mapy.cz</ArrowLink>
       </div>
     </section>
   );

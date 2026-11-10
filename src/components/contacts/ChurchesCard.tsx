@@ -2,7 +2,8 @@ import { clsx } from "clsx";
 import { parishChurches } from "@/content/masses";
 import { links } from "@/content/site";
 import type { ParishChurch } from "@/content/types/contacts";
-import { mapHref, NEW_TAB } from "@/lib/shared/links";
+import { venues } from "@/content/venues";
+import { NEW_TAB, venueMapHref } from "@/lib/shared/links";
 import { ArrowRightIcon, ExternalLinkIcon } from "@/components/ui/icons/navigation-icons";
 import { ContactCard } from "./ContactCard";
 import { ArrowLink } from "@/components/ui/ArrowLink";
@@ -29,7 +30,7 @@ export function ChurchesCard() {
         {parishChurches.map((church) => (
           <li key={church.village} className="border-t border-line last:border-b">
             <a
-              href={church.mapUrl ?? mapHref(church.mapQuery)}
+              href={venueMapHref(venues[church.venue])}
               {...NEW_TAB}
               className="flex min-h-18 items-center gap-3.5 py-2 text-ink no-underline hover:text-ink"
             >

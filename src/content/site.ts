@@ -195,8 +195,8 @@ export const contacts = {
   street: "Křížkovského 55/5",
   postalCode: "664 34",
   town: "Kuřim",
-  /** Mapy.cz search for the parish office. */
-  mapQuery: "Křížkovského 55/5 Kuřim",
+  /** The fara: the parish office's map link. */
+  venue: "kurim-fara" as const,
   /** Mapy.com embed of the parish office (the share link mapy.com/s/lamepuvozu, resolved to Czech). */
   mapEmbed: "https://mapy.com/cs/turisticka?l=0&source=addr&id=11101983&x=16.5264040&y=49.2965974&z=17&frame=1",
   /** The priest's mobile, the parish's only phone. */
