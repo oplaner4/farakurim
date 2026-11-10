@@ -75,18 +75,12 @@ describe("isModifiedClick", () => {
 });
 
 describe("venueMapHref", () => {
-  it("prefers the venue's own link", () => {
-    expect(venueMapHref({ name: "Kaple", village: "Česká", mapUrl: "https://mapy.com/s/x", mapQuery: "q" })).toBe(
-      "https://mapy.com/s/x",
-    );
-  });
-
   it("searches the query, else the address, else the name and village", () => {
     expect(venueMapHref({ name: "Kaple", village: "Česká", mapQuery: "kaple Česká", address: "a" })).toBe(
       mapHref("kaple Česká"),
     );
-    expect(venueMapHref({ name: "Fara", village: "Kuřim", address: "Křížkovského 55/5, 664 34 Kuřim" })).toBe(
-      mapHref("Křížkovského 55/5, 664 34 Kuřim"),
+    expect(venueMapHref({ name: "Fara", village: "Kuřim", address: "Křížkovského 55/5, 664 34 Kuřim, Česko" })).toBe(
+      mapHref("Křížkovského 55/5, 664 34 Kuřim, Česko"),
     );
     expect(venueMapHref({ name: "Kaple sv. Jana Nepomuckého", village: "Kuřim" })).toBe(
       mapHref("Kaple sv. Jana Nepomuckého Kuřim"),

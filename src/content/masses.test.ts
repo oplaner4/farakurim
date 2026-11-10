@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { parishChurches, places, regularServices } from "./masses";
 import { venues } from "./venues";
-import { venueMapHref } from "@/lib/shared/links";
+import { mapHref, venueMapHref } from "@/lib/shared/links";
 import { parish } from "./site";
 import { isClock, isMonthDay } from "@/test/content-checks";
 
@@ -53,8 +53,8 @@ describe("Kostely a kaple (masses.ts)", () => {
     }
   });
 
-  it("keeps the Česká chapel's share link, as the search finds another place", () => {
+  it("finds the Česká chapel by its address, as a search of its name finds another place", () => {
     const ceska = parishChurches.find((c) => c.village === "Česká");
-    expect(ceska && venueMapHref(venues[ceska.venue])).toBe("https://mapy.com/s/kedezofodo");
+    expect(ceska && venueMapHref(venues[ceska.venue])).toBe(mapHref("Česká 20, 664 31 Česká, Česko"));
   });
 });

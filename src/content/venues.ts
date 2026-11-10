@@ -12,7 +12,7 @@ export const venues: Record<VenueId, Venue> = {
   "kurim-fara": {
     name: "Fara",
     village: "Kuřim",
-    address: "Křížkovského 55/5, 664 34 Kuřim",
+    address: "Křížkovského 55/5, 664 34 Kuřim, Česko",
     mapQuery: "Křížkovského 55/5 Kuřim",
   },
   "kurim-kaple-panny-marie-bolestne": {
@@ -53,8 +53,7 @@ export const venues: Record<VenueId, Venue> = {
   "ceska-kaple": {
     name: "Kaple Panny Marie Růžencové",
     village: "Česká",
-    mapQuery: "kaple Panny Marie Růžencové Česká",
-    // The search finds another place; the share link points at the chapel.
-    mapUrl: "https://mapy.com/s/kedezofodo",
+    // A search of the chapel's name finds another place; its address finds the chapel.
+    address: "Česká 20, 664 31 Česká, Česko",
   },
 };
