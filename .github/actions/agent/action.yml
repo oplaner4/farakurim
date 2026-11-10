@@ -15,6 +15,11 @@
 # github.workspace start with `/`). The deny names the checkout by its absolute path: `./**` follows the shell's
 # working directory, so after a `cd` into the scratch folder it denied the report itself. github.token (read-only)
 # keeps the action from fetching its own App token; the agent's output stays out of the public log.
+#
+# `allowed_bots: github-actions` lets runs that a workflow dispatched with GITHUB_TOKEN start the agent: events.yml's
+# `next` chain and content-fix.yml's dispatch of content-fix-run.yml run as github-actions[bot], which the action
+# refuses by default. Only a workflow of this repo can act as that bot (content-fix.yml checks the commenter's write
+# access first); other bots and Apps stay refused.
 
 name: Agent
 description: Run the AI agent on a skill, writing only in a scratch folder and running only the allowed commands.
@@ -69,6 +74,7 @@ runs:
     - uses: anthropics/claude-code-action@d535f5172dec02b204866b393d6b20b9b2aaf98d # v1.0.266
       with:
         github_token: ${{ github.token }}
+        allowed_bots: github-actions
         anthropic_federation_rule_id: ${{ inputs.federation-rule-id }}
         anthropic_organization_id: ${{ inputs.organization-id }}
         anthropic_service_account_id: ${{ inputs.service-account-id }}
