@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { places } from "@/content/masses";
+import { venues } from "@/content/venues";
 import type { GoogleEvent } from "@/lib/calendar/google-calendar";
 import { isOwned, planServices } from "./services-plan";
 import { SERVICES_URL, serviceEventId, type DesiredService } from "./services-desired";
@@ -22,7 +23,7 @@ const service = (date: string, hour: number, place: "kurim" | "moravske-kninice"
     status: "regular",
     body: {
       summary: `Mše svatá ${places[place].locative}`,
-      location: places[place].address,
+      location: venues[places[place].venue].address,
       description: DESCRIPTION,
       start: at(hour),
       end: at(hour + 1),
@@ -187,7 +188,7 @@ describe("planServices", () => {
     const knin = service("2026-10-25", 9, "moravske-kninice");
     for (const location of [
       "Kostel svaté Markéty, 386, 664 34 Moravské Knínice-Kuřim, Česko",
-      places.jinacovice.address,
+      venues[places.jinacovice.venue].address,
     ]) {
       const e = hand("village", 9, { location });
       expect(planServices([sunday], [e], NOW)).toEqual({ changes: [{ kind: "add", desired: sunday }], reports: [] });

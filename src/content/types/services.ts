@@ -1,4 +1,5 @@
 import type { ClockTime, IsoDate, Weekday, YearlyBreak } from "./shared";
+import type { VenueId } from "./venues";
 
 // Services (masses.ts, service-sheets.json, schedule-exceptions.json): the parish churches, the weekly schedule,
 // the service sheets and the changes announced for later.
@@ -19,10 +20,8 @@ export type Place = {
   color: ChurchColor;
   /** After "Mše svatá": "v Kuřimi". */
   locative: string;
-  /** The postal address of the church, as the calendar events carry it. */
-  address: string;
-  /** Mapy.cz search. */
-  mapQuery: string;
+  /** The church: its address (the calendar events' location) and its map link. */
+  venue: VenueId;
   /** No regular services: "Bohoslužby dle domluvy na faře." */
   byAgreement?: boolean;
 };

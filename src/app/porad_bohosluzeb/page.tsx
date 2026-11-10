@@ -14,7 +14,8 @@ import { serviceSheets } from "@/server/service-sheets";
 import { links } from "@/content/site";
 import type { PlaceId, ServiceSheet } from "@/content/types/services";
 import { BUILD_TIME } from "@/lib/shared/build-time";
-import { mapHref } from "@/lib/shared/links";
+import { venueMapHref } from "@/lib/shared/links";
+import { venues } from "@/content/venues";
 import { weeklySchedule } from "@/lib/services/masses";
 import { eventHref } from "@/lib/news/events";
 import { isOneWeek, markChanges } from "@/lib/services/service-sheet";
@@ -28,13 +29,13 @@ export const metadata: Metadata = {
 
 // The schedule is grouped at build time; the client only filters it.
 const churches: ChurchSchedule[] = (Object.keys(places) as PlaceId[]).map((id) => {
-  const { name, church, color, mapQuery, byAgreement } = places[id];
+  const { name, church, color, venue, byAgreement } = places[id];
   return {
     id,
     place: name,
     church,
     color,
-    mapHref: mapHref(mapQuery),
+    mapHref: venueMapHref(venues[venue]),
     byAgreement,
     days: weeklySchedule(regularServices, id),
   };

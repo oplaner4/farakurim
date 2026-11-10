@@ -29,15 +29,14 @@ import {
 } from "./agenda";
 
 const places = {
-  kurim: { name: "Kuřim", locative: "v Kuřimi", address: "", color: "blue", mapQuery: "" },
+  kurim: { name: "Kuřim", locative: "v Kuřimi", color: "blue", venue: "kurim-kostel" },
   "moravske-kninice": {
     name: "Moravské Knínice",
     locative: "v Moravských Knínicích",
-    address: "",
     color: "green",
-    mapQuery: "",
+    venue: "moravske-kninice-kostel",
   },
-  jinacovice: { name: "Jinačovice", locative: "v Jinačovicích", address: "", color: "orange", mapQuery: "" },
+  jinacovice: { name: "Jinačovice", locative: "v Jinačovicích", color: "orange", venue: "jinacovice-kaple" },
 } satisfies Record<PlaceId, Place>;
 
 const entry = (e: Partial<CalendarEntry> & Pick<CalendarEntry, "id" | "date">): CalendarEntry => ({

@@ -9,6 +9,7 @@ import type {
   ServiceEntry,
   ServiceSheetRecord,
 } from "@/content/types/services";
+import type { Venue, VenueId } from "@/content/types/venues";
 import type { ClockTime, IsoDate } from "@/content/types/shared";
 import type { DateRange } from "@/lib/calendar/agenda";
 import { servicesOnDate } from "@/lib/services/masses";
@@ -26,6 +27,8 @@ export type ServicesContent = {
   sheets: ServiceSheetRecord[];
   later: ScheduleException[];
   places: Record<PlaceId, Place>;
+  /** The churches' addresses, the events' location. */
+  venues: Record<VenueId, Venue>;
 };
 
 export type DesiredService = {
@@ -70,7 +73,7 @@ const sameSlot = (a: ServiceEntry, b: ServiceEntry) => a.time === b.time && a.pl
 
 /** The desired services of every date of `range`, by date and time, with the cancelled regular ones among them. */
 export function desiredServices(content: ServicesContent, range: DateRange): DesiredService[] {
-  const { regular, sheets, later, places } = content;
+  const { regular, sheets, later, places, venues } = content;
   const exceptions = scheduleExceptions(sheets, later, PLACE_IDS);
   const events = periodDates(range.from, range.to).flatMap((date) => {
     // The newer sheet wins a day two sheets share, as in `scheduleExceptions`.
@@ -108,7 +111,7 @@ export function desiredServices(content: ServicesContent, range: DateRange): Des
         status,
         body: {
           summary: `${STATUS_PREFIXES[status]}${title ?? MASS_TITLE} ${church.locative}`,
-          location: church.address,
+          location: venues[church.venue].address,
           description: [...lines, "", `Pořad bohoslužeb: ${SERVICES_URL}`].join("\n"),
           start: pragueTime(startAt),
           end: pragueTime(nextAt && nextAt < defaultEnd ? nextAt : defaultEnd),

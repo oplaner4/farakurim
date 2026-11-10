@@ -1,6 +1,7 @@
 import type { ParishChapel, ParishChurch } from "@/content/types/contacts";
 import type { Intentions, Place, PlaceId, RegularService } from "@/content/types/services";
 import type { YearlyBreak } from "@/content/types/shared";
+import { venues } from "./venues";
 
 // The parish's churches and its regular weekly schedule. Edit here when the schedule changes; the current service sheets
 // (`content/service-sheets.json`) override it day by day.
@@ -13,8 +14,7 @@ export const places: Record<PlaceId, Place> = {
     churchShort: "kostel sv. Maří Magdalény",
     color: "blue",
     locative: "v Kuřimi",
-    address: "Kostel sv. Maří Magdalény, Křížkovského, 664 34 Kuřim, Česko",
-    mapQuery: "kostel sv. Maří Magdalény Kuřim",
+    venue: "kurim-kostel",
   },
   "moravske-kninice": {
     name: "Moravské Knínice",
@@ -22,15 +22,13 @@ export const places: Record<PlaceId, Place> = {
     churchShort: "kostel sv. Markéty",
     color: "green",
     locative: "v Moravských Knínicích",
-    address: "Kostel svaté Markéty, 386, 664 34 Moravské Knínice, Česko",
-    mapQuery: "kostel sv. Markéty Moravské Knínice",
+    venue: "moravske-kninice-kostel",
   },
   jinacovice: {
     name: "Jinačovice",
     locative: "v Jinačovicích",
-    address: "Jinačovice, 664 34 Jinačovice-Kuřim, Česko",
     color: "orange",
-    mapQuery: "Jinačovice",
+    venue: "jinacovice-kaple",
     byAgreement: true,
   },
 };
@@ -62,8 +60,14 @@ const otherChapels: Partial<Record<PlaceId, ParishChapel[]>> = {
 /** The churches of `places` plus the chapels, one per village of the parish, in display order. */
 export const parishChurches: ParishChurch[] = [
   ...(["kurim", "moravske-kninice"] as const).map((id) => {
-    const { name, church = "", color, mapQuery } = places[id];
-    return { village: name, building: church, color, mapQuery, chapels: otherChapels[id] };
+    const { name, church = "", color, venue } = places[id];
+    return {
+      village: name,
+      building: church,
+      color,
+      mapQuery: venues[venue].mapQuery ?? "",
+      chapels: otherChapels[id],
+    };
   }),
   {
     village: "Jinačovice",

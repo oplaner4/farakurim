@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { places } from "@/content/masses";
+import { venues } from "@/content/venues";
 import type { RegularService, ScheduleException, ServiceSheetRecord } from "@/content/types/services";
 import type { SheetRow } from "@/content/types/services";
 import {
@@ -39,6 +40,7 @@ const content = (fields: Partial<ServicesContent> = {}): ServicesContent => ({
   sheets: [],
   later: [],
   places,
+  venues,
   ...fields,
 });
 

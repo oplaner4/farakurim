@@ -1,4 +1,5 @@
 import { places, regularServices } from "@/content/masses";
+import { venues } from "@/content/venues";
 import { parishCalendars } from "@/content/site";
 import { pragueDate } from "@/lib/shared/prague";
 import { errorMessage } from "../command";
@@ -18,7 +19,13 @@ function readContent(): ServicesContent {
   const sheets = readServiceSheets(SERVICE_SHEETS_FILE).sheets.toSorted((a, b) =>
     a.validFrom.localeCompare(b.validFrom),
   );
-  return { regular: regularServices, sheets, later: readScheduleExceptions(EXCEPTIONS_FILE).exceptions, places };
+  return {
+    regular: regularServices,
+    sheets,
+    later: readScheduleExceptions(EXCEPTIONS_FILE).exceptions,
+    places,
+    venues,
+  };
 }
 
 /** The plan for the services of the next six months, as of now, read through `access`. */

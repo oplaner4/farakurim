@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { places } from "@/content/masses";
+import { venues } from "@/content/venues";
 import type { PlaceId } from "@/content/types/services";
 import type { GoogleEvent } from "@/lib/calendar/google-calendar";
 import { SERVICES_URL, serviceEventId, type DesiredService } from "./services-desired";
@@ -19,7 +20,7 @@ const service = (date: string, time: string, summary = "Mše svatá v Kuřimi", 
     status: "regular",
     body: {
       summary,
-      location: places[place].address,
+      location: venues[places[place].venue].address,
       description: SERVICES_URL,
       start: at(hour),
       end: at(hour + 1),

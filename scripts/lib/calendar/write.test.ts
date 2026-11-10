@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { BaseExternalAccountClient, Impersonated, JWT } from "google-auth-library";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { places } from "@/content/masses";
+import { venues } from "@/content/venues";
 import { parishCalendars } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import { freshTempDir } from "../test-helpers";
@@ -99,6 +100,7 @@ describe("applyServicesChange", () => {
       sheets: [],
       later: [],
       places,
+      venues,
     },
     { from: "2026-10-25", to: "2026-10-25" },
   );
