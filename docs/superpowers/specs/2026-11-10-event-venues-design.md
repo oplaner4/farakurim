@@ -47,7 +47,7 @@ the Mapy.com API), the agent for what needs judgment (which venue a text means),
   | `id`            | `<village>-<building>` slug (`lib/shared/slug.ts`), unique, never changed once used               |
   | `name`          | "Sokolovna", "Kostel sv. Maří Magdalény"                                                          |
   | `village`       | The **municipality** as Mapy.com names it ("Brno" for Brno-Husovice; the district goes in `name`) |
-  | `address`       | Postal address ending with ", Česko" (or the country); optional for a place without one           |
+  | `address`       | Postal address, including the country; optional for a place without one                           |
   | `position`      | `{ lat, lon }` from Mapy.com; optional until looked up                                            |
   | `mapQuery`      | Only when searching `address` does not find the place (the map link's priority stays step 1's)    |
   | `aliases`       | Building texts already confirmed for this venue ("areál za farou", "farní zahrada")               |
@@ -55,18 +55,16 @@ the Mapy.com API), the agent for what needs judgment (which venue a text means),
 
 - The map link stays `venueMapHref()`: `mapQuery`, else `address`, else `name village`.
 - **Addresses are postal addresses only**, without the building's name: "Křížkovského 55/5, 664 34 Kuřim, Česko".
-  Step 1 left three that are not: the two churches carry their name ("Kostel sv. Maří Magdalény, Křížkovského, …",
-  "Kostel svaté Markéty, 386, …") and Jinačovice the village's address instead of the chapel's. They become postal
-  addresses (the chapel's looked up on Mapy.com), and step 1's pinned test pins the new ones. The Bohoslužby sync then
-  updates the location of every upcoming service once: it no longer matches the old location exactly, and claims each
-  event by the village in its title (`namesPlace()` in `scripts/lib/calendar/services-plan.ts`), so nothing is
-  duplicated. A church whose search by address finds the street rather than the building keeps a `mapQuery`.
+  The calendars' location is `venueLocation()`: "`name`, `address`" ("Kostel sv. Maří Magdalény, Pátera Peši, 664 34
+  Kuřim, Česko"), or "`name`, `village`" without an address, because a church or chapel often has a street but no
+  number, and its address alone finds the street. Done before this step (the churches' addresses corrected from
+  Mapy.com, the Bohoslužby location built this way).
 
 ### Events
 
 - `NewsEvent` gains `venue?: string`. `place` stays required and is what people read.
-- With a venue: the map link is `venueMapHref(venue)`; the `.ics` `LOCATION` and the Události location are the venue's
-  `address` alone (falling back to `place`), as the Bohoslužby location is; `GEO` and the structured data's `geo` come from `position`; the structured data's
+- With a venue: the map link is `venueMapHref(venue)`; the `.ics` `LOCATION` and the Události location are
+  `venueLocation(venue)` (falling back to `place`), as the Bohoslužby location is; `GEO` and the structured data's `geo` come from `position`; the structured data's
   `location.name` is `place`, its `address` the venue's address.
 - Without a venue: everything as today (`mapQuery ?? place`, `place` as the location). `mapQuery` on events is kept
   for them and is refused next to a `venue`.
@@ -138,8 +136,8 @@ can `lookup` and put a proposed venue (with its Mapy link) in the report's quest
   church, of Bohoslužby: step 1's pinned test guards it).
 - **Wrong building:** Mapy.com can return a plausible address for the wrong building; only the user's yes guards it, so
   every new venue is shown with its Mapy link.
-- **Google differs from Mapy:** the calendars geocode the address with Google, not Mapy; a postal address with ", Česko"
-  is what both find most reliably.
+- **Google differs from Mapy:** the calendars geocode the location with Google, not Mapy; the building's name with a
+  postal address including the country is what both find most reliably.
 - **Alias collisions:** "kostel" means a different venue in each village; aliases are matched only within the stated
   village, and `alias` refuses a text another venue of that village already has.
 
