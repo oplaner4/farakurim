@@ -1,6 +1,7 @@
 import { clsx } from "clsx";
 import type { NativityPlace, NativitySeason } from "@/content/types/nativity";
-import { mapHref } from "@/lib/shared/links";
+import { venues } from "@/content/venues";
+import { venueMapHref } from "@/lib/shared/links";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { PinIcon } from "@/components/ui/icons/contact-icons";
 import { FileIcon } from "@/components/ui/icons/media-icons";
@@ -61,7 +62,7 @@ export function Places({ season }: { season: NativitySeason }) {
           <FileIcon size={18} />
           Orientační plánek (PDF)
         </ButtonLink>
-        <ButtonLink href={mapHref(season.mapQuery)} variant="outline-orange" size="small">
+        <ButtonLink href={venueMapHref(venues[season.venue])} variant="outline-orange" size="small">
           <PinIcon size={18} />
           Navigovat
         </ButtonLink>

@@ -1,5 +1,6 @@
 import type { AlbumPhoto } from "./gallery";
 import type { ClockTime, IsoDate } from "./shared";
+import type { VenueId } from "./venues";
 
 // Betlémy (design/DESIGN.md §30): one record per season. The exhibition's opening days decide what the page shows
 // (before, during or after the exhibition) and when the seasonal main-menu item says "Betlémy" (§4.1a).
@@ -102,8 +103,8 @@ export type NativitySeason = {
   places: NativityPlace[];
   /** "Orientační plánek (PDF)" */
   planUrl: string;
-  /** Mapy.cz search of "Navigovat". */
-  mapQuery: string;
+  /** The venue "Navigovat" leads to. */
+  venue: VenueId;
   guest?: NativityGuestCollection;
   /** The small cards under the guest collection. */
   highlights: { title: string; text: string }[];

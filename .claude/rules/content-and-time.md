@@ -60,6 +60,14 @@ build-time next mass.
 - A poster that is an image opens the lightbox (DESIGN.md §21) at `#plakat` (detail page) or `#plakat-<event id>`
   (the Aktuality page); a PDF poster opens in the browser.
 
+## Venues
+
+- The parish's buildings (the churches, the fara and the chapels) are written once in `content/venues.ts`, with
+  their address, map search or Mapy.com link and catalogue page. The services' `places`, the Kontakty churches and
+  chapels, the office (`contacts.venue`) and the nativity seasons refer to them by `VenueId`, and every map link is
+  `venueMapHref()`. A church's `address` is the Bohoslužby calendar's location, by which the sync finds its events:
+  change it only knowingly, as the next sync rewrites the location of every upcoming service.
+
 ## Services and calendars
 
 - Schedule (`content/masses.ts`): `regularServices` is the weekly schedule, one data source for the homepage

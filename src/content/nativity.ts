@@ -17,7 +17,6 @@ const photo = (year: number, name: string) => ({
 });
 
 const planUrl = `${UPLOADS_PATH}betlemy/orientacni-planek.pdf`;
-const mapQuery = "Kostel sv. Maří Magdalény Kuřim";
 
 const guestCollection = {
   label: "Novinka na faře",
@@ -105,7 +104,7 @@ export const nativitySeasons: NativitySeason[] = [
       },
     ],
     planUrl,
-    mapQuery,
+    venue: "kurim-kostel",
     highlights,
     sharedScene: { ...sharedScene, from: "2026-12-06", to: "2026-12-24" },
     // From the 2025 album "Nafocené betlémy z výstavy" (its foto-1), until the parish chooses a 2026 photo.
@@ -148,7 +147,7 @@ export const nativitySeasons: NativitySeason[] = [
       },
     ],
     planUrl,
-    mapQuery,
+    venue: "kurim-kostel",
     guest: {
       ...guestCollection,
       tour: { title: tourTitle, date: "2025-12-21", from: "10:30", to: "12:00", place: "fara" },
