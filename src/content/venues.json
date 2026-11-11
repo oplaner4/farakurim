@@ -1,0 +1,92 @@
+{
+  "venues": [
+    {
+      "id": "kurim-kostel",
+      "name": "Kostel sv. Maří Magdalény",
+      "address": {
+        "streetAddress": "Pátera Peši",
+        "postalCode": "664 34",
+        "municipality": "Kuřim",
+        "country": "Česko"
+      },
+      "position": { "lat": 49.2966286, "lon": 16.5257081 }
+    },
+    {
+      "id": "kurim-fara",
+      "name": "Fara",
+      "address": {
+        "streetAddress": "Křížkovského 55/5",
+        "postalCode": "664 34",
+        "municipality": "Kuřim",
+        "country": "Česko"
+      },
+      "position": { "lat": 49.2965974, "lon": 16.526404 }
+    },
+    {
+      "id": "kurim-kaple-panny-marie-bolestne",
+      "name": "Kaple Panny Marie Bolestné",
+      "address": { "streetAddress": "Křížkovského", "municipality": "Kuřim", "country": "Česko" },
+      "position": { "lat": 49.2966181, "lon": 16.5261006 },
+      "catalogueHref": "https://katalog.biskupstvi.cz/detail/kostel/7414/Ku%C5%99im,%20kaple-Panny-Marie-Bolestne"
+    },
+    {
+      "id": "kurim-kaple-jana-nepomuckeho",
+      "name": "Kaple sv. Jana Nepomuckého",
+      "address": { "streetAddress": "Podhoří", "municipality": "Kuřim", "country": "Česko" },
+      "position": { "lat": 49.2956373, "lon": 16.5387944 },
+      "catalogueHref": "https://katalog.biskupstvi.cz/detail/kostel/8128/Ku%C5%99im,%20kaple-sv-Jana-Nepomuckeho"
+    },
+    {
+      "id": "moravske-kninice-kostel",
+      "name": "Kostel sv. Markéty",
+      "address": {
+        "streetAddress": "Kuřimská",
+        "postalCode": "664 34",
+        "municipality": "Moravské Knínice",
+        "country": "Česko"
+      },
+      "position": { "lat": 49.2933365, "lon": 16.5012323 }
+    },
+    {
+      "id": "moravske-kninice-kaple-cyrila-a-metodeje",
+      "name": "Kaple sv. Cyrila a Metoděje",
+      "address": {
+        "streetAddress": "Úvoz ev. č. 44",
+        "postalCode": "664 34",
+        "municipality": "Moravské Knínice",
+        "country": "Česko"
+      },
+      "position": { "lat": 49.2884917, "lon": 16.5020122 },
+      "catalogueHref": "https://katalog.biskupstvi.cz/detail/kostel/6910/Moravsk%C3%A9%20Kn%C3%ADnice,%20kaple-sv-Cyrila-a-Metodeje"
+    },
+    {
+      "id": "moravske-kninice-kaple-jana-nepomuckeho",
+      "name": "Kaple sv. Jana Nepomuckého",
+      "address": {
+        "streetAddress": "U Jánečka 144",
+        "postalCode": "664 34",
+        "municipality": "Moravské Knínice",
+        "country": "Česko"
+      },
+      "position": { "lat": 49.2922414, "lon": 16.5079609 },
+      "catalogueHref": "https://katalog.biskupstvi.cz/detail/kostel/6937/Moravsk%C3%A9%20Kn%C3%ADnice,%20kaple-sv-Jana-Nepomuckeho"
+    },
+    {
+      "id": "jinacovice-kaple",
+      "name": "Kaple sv. Máří Magdaleny",
+      "address": {
+        "streetAddress": "Jinačovice 46",
+        "postalCode": "664 34",
+        "municipality": "Jinačovice",
+        "country": "Česko"
+      },
+      "position": { "lat": 49.2679434, "lon": 16.5292303 }
+    },
+    {
+      "id": "ceska-kaple",
+      "name": "Kaple Panny Marie Růžencové",
+      "address": { "streetAddress": "Česká 20", "postalCode": "664 31", "municipality": "Česká", "country": "Česko" },
+      "position": { "lat": 49.2806179, "lon": 16.56528 }
+    }
+  ]
+}

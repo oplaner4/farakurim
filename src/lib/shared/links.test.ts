@@ -4,8 +4,7 @@ import {
   externalLinkAttrs,
   isExternalHref,
   isModifiedClick,
-  mapHref,
-  venueMapHref,
+  positionMapHref,
   withExternalLinkTargets,
 } from "./links";
 
@@ -74,16 +73,10 @@ describe("isModifiedClick", () => {
   });
 });
 
-describe("venueMapHref", () => {
-  it("searches the query, else the address, else the name and village", () => {
-    expect(venueMapHref({ name: "Kaple", village: "Česká", mapQuery: "kaple Česká", address: "a" })).toBe(
-      mapHref("kaple Česká"),
-    );
-    expect(venueMapHref({ name: "Fara", village: "Kuřim", address: "Křížkovského 55/5, 664 34 Kuřim, Česko" })).toBe(
-      mapHref("Křížkovského 55/5, 664 34 Kuřim, Česko"),
-    );
-    expect(venueMapHref({ name: "Kaple sv. Jana Nepomuckého", village: "Kuřim" })).toBe(
-      mapHref("Kaple sv. Jana Nepomuckého Kuřim"),
+describe("positionMapHref", () => {
+  it("drops a pin at the position", () => {
+    expect(positionMapHref({ lat: 49.2966286, lon: 16.5257081 })).toBe(
+      "https://mapy.cz/zakladni?source=coor&id=16.5257081%2C49.2966286&x=16.5257081&y=49.2966286&z=17",
     );
   });
 });

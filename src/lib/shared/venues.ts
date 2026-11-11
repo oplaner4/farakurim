@@ -1,4 +1,13 @@
-import type { Venue } from "@/content/types/venues";
+import type { Venue, VenueAddress } from "@/content/types/venues";
 
-/** Where a venue is, for the calendars: its name and postal address, or its name and village without one. */
-export const venueLocation = (venue: Venue): string => `${venue.name}, ${venue.address ?? venue.village}`;
+/**
+ * An address as Mapy.com writes it: "Křížkovského 55/5, 664 34 Kuřim, Česko", "Vranovská 766/103, 614 00 Brno -
+ * Husovice, Česko"; the parts it lacks left out.
+ */
+export function formatAddress({ streetAddress, part, postalCode, municipality, country }: VenueAddress): string {
+  const town = [postalCode, part ? `${municipality} - ${part}` : municipality].filter(Boolean).join(" ");
+  return [streetAddress, town, country].filter(Boolean).join(", ");
+}
+
+/** Where a venue is, for the calendars: its name and address. */
+export const venueLocation = (venue: Venue): string => `${venue.name}, ${formatAddress(venue.address)}`;

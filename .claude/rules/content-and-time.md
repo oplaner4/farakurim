@@ -62,11 +62,14 @@ build-time next mass.
 
 ## Venues
 
-- The parish's buildings (the churches, the fara and the chapels) are written once in `content/venues.ts`, with
-  their address (postal, including the country), map search (without one, the link searches the address) and catalogue page. The services' `places`, the Kontakty churches and
-  chapels, the office (`contacts.venue`) and the nativity seasons refer to them by `VenueId`, and every map link is
-  `venueMapHref()`. An `address` is the postal address only; the calendars' location is `venueLocation()` (name, address). A church's is the Bohoslužby calendar's location, by which the sync finds its events:
-  change it only knowingly, as the next sync rewrites the location of every upcoming service.
+- The venues (the churches, the fara, the chapels and the places events are held at) are written once in
+  `content/venues.json`, checked on import by `lib/venues/schema.ts`. Each has an `address` in parts (`streetAddress`
+  as street and number in one text, never split; `part`, `postalCode`, `municipality`, `country`), joined by
+  `formatAddress()` as Mapy.com writes it, and a `position` confirmed on a pin. The services' `places`, the Kontakty
+  churches and chapels, the office (`contacts.venue`) and the nativity seasons refer to them by `VenueId`; every map
+  link is `venueMapHref()`, a pin at the position (a text search is Mapy's guess). The calendars' location is
+  `venueLocation()` (name, address). A church's is the Bohoslužby calendar's location, by which the sync finds its
+  events: change it only knowingly, as the next sync rewrites the location of every upcoming service.
 
 ## Services and calendars
 
