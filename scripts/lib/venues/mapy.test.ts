@@ -1,6 +1,15 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { jsonResponse } from "@/test/fetch";
-import { addressOf, distanceMetres, geocode, mapyKey, municipalityOf, rgeocode, shareLinkPosition } from "./mapy";
+import {
+  addressOf,
+  distanceMetres,
+  geocode,
+  gpsPosition,
+  mapyKey,
+  municipalityOf,
+  rgeocode,
+  shareLinkPosition,
+} from "./mapy";
 import type { MapyItem } from "./mapy";
 
 // The example item of the Mapy.com REST API docs.
@@ -153,6 +162,20 @@ describe("addressOf", () => {
       municipality: "Kuřim",
       country: "Česko",
     });
+  });
+});
+
+describe("gpsPosition", () => {
+  it("reads a card's GPS line and plain degrees, south and west negative", () => {
+    expect(gpsPosition("49.2827397N, 16.5662197E")).toEqual({ lat: 49.2827397, lon: 16.5662197 });
+    expect(gpsPosition(" 49.2827397, 16.5662197 ")).toEqual({ lat: 49.2827397, lon: 16.5662197 });
+    expect(gpsPosition("33.9S, 18.4w")).toEqual({ lat: -33.9, lon: -18.4 });
+  });
+
+  it("refuses anything else", () => {
+    expect(() => gpsPosition("16.5662197E, 49.2827397N")).toThrow(/is no GPS line/);
+    expect(() => gpsPosition("95, 16")).toThrow(/is no GPS line/);
+    expect(() => gpsPosition("Kuřim")).toThrow(/is no GPS line/);
   });
 });
 

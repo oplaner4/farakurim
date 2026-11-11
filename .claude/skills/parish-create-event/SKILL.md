@@ -66,15 +66,13 @@ An event held at a building gets a `venue`: its pin is the map link. An event in
    numbered, with its address, position and pin link; judge which one is the building. The file holds the same
    results, in the same order, as venue candidates. When none is the building, ask the user for a Mapy.com link of it
    and run `--link <link>`: a link to a point ("Co je zde?") is exact, one to a named place is only approximate (the
-   map's centre) and gives no candidate: then ask for the GPS line of the place's card (`49.2827397N, 16.5662197E`)
-   and use it as the position.
+   map's centre) and gives no candidate: then ask for the GPS line of the place's card and run `--position
+"49.2827397N, 16.5662197E"`, exact like a point.
 4. **Propose the new venue** from the chosen candidate _n_: `pnpm venue add <scratchpad>/venue-candidates.json
 --pick <n> [--name "<building>"] [--alias "<text>"…] --check`. The id is made of the municipality and the name.
    - `--name` (in Czech: `"Sokolovna"`) when the candidate's own name is not the building's plain name ("Sokolovna
      Kuřim"), and always for an address or a point, which have none.
    - `--alias` with the place's building text when it differs from the name.
-   - For a position from a card's GPS line, write `<scratchpad>/venue.json` by hand (`name`, `address` as the lookup
-     printed it, `position`, `aliases`) and run `pnpm venue add <scratchpad>/venue.json --check`.
 
    It prints `Would add the venue <id>` with its fields and pin link, and a `tell:` when the address lands far from
    the position.

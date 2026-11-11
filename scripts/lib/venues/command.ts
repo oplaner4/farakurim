@@ -14,8 +14,8 @@ import { findVenue, venuesOf, venuesWith } from "./match";
 // a venue exactly, and each command run (the lookup and its candidates in lookup.ts, writing the list in add.ts).
 
 export const USAGE = `Usage: pnpm venue find --municipality "<municipality>" [<keyword>…]
-       pnpm venue lookup --municipality "<municipality>" ("<query>" | --link <Mapy.com link> | --address "<address>")
-                         [--out <candidates.json>]
+       pnpm venue lookup --municipality "<municipality>" ("<query>" | --link <Mapy.com link> | --address "<address>"
+                         | --position "<GPS line>") [--out <candidates.json>]
        pnpm venue add <venue.json | candidates.json | -> [--pick <n>] [--name "<building>"] [--alias "<text>"…]
                       [--check]
        pnpm venue alias <id> "<text>" [--check]
@@ -32,6 +32,7 @@ const OPTIONS = {
   municipality: { type: "string" },
   link: { type: "string" },
   address: { type: "string" },
+  position: { type: "string" },
   name: { type: "string" },
   alias: { type: "string", multiple: true },
   pick: { type: "string" },
@@ -41,11 +42,12 @@ const OPTIONS = {
 
 type Parsed = ReturnType<typeof parseCommandLine<typeof OPTIONS>>;
 
-/** `lookup` takes exactly one of a query, --link and --address; a name or an alias is `add`'s. */
+/** `lookup` takes exactly one of a query, --link, --address and --position; a name or an alias is `add`'s. */
 function parseLookup({ positionals, values }: Parsed): VenueCommand | undefined {
-  const { municipality, link, address, out } = values;
+  const { municipality, link, address, position, out } = values;
   const [query, ...extra] = positionals;
-  if (!municipality || extra.length > 0 || [query, link, address].filter(Boolean).length !== 1) return undefined;
+  const sources = [query, link, address, position].filter(Boolean).length;
+  if (!municipality || extra.length > 0 || sources !== 1) return undefined;
   if (values.name !== undefined || values.alias !== undefined || values.pick !== undefined) return undefined;
   return {
     sub: "lookup",
@@ -53,6 +55,7 @@ function parseLookup({ positionals, values }: Parsed): VenueCommand | undefined 
     ...(query && { query }),
     ...(link && { link }),
     ...(address && { address }),
+    ...(position && { position }),
     ...(out && { out }),
   };
 }

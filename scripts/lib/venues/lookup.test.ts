@@ -63,7 +63,20 @@ describe("lookup", () => {
       "KEY",
     );
     expect(centre.candidates).toEqual([]);
-    expect(centre.lines.at(-1)).toMatch(/^next: ask the user for the GPS line/);
+    expect(centre.lines.at(-1)).toMatch(/^next: ask the user for the GPS line of the place's card: --position/);
+  });
+
+  it("makes a candidate of a GPS line, exact like a point", async () => {
+    stubMapy("Česká");
+    const { lines, candidates } = await lookupResults(lookup({ position: "49.2966N, 16.5264E" }), VENUE_LIST, "KEY");
+    expect(lines[0]).toBe("position: 49.2966, 16.5264 (exact)");
+    expect(candidates).toEqual([
+      {
+        name: "",
+        address: { streetAddress: "Hlavní 1", municipality: "Česká", country: "Česko" },
+        position: { lat: 49.2966, lon: 16.5264 },
+      },
+    ]);
   });
 
   it("makes no candidate of a point in another municipality", async () => {

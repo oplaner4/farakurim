@@ -135,6 +135,23 @@ export async function shareLinkPosition(link: string): Promise<Position & { exac
   return { lat, lon, exact: false };
 }
 
+/**
+ * The position of a GPS line as a Mapy.com place's card shows it ("49.2827397N, 16.5662197E"), or as plain degrees
+ * ("49.2827397, 16.5662197", latitude first).
+ */
+export function gpsPosition(text: string): Position {
+  const match = /^\s*(\d{1,2}(?:\.\d+)?)\s*([NS])?\s*,\s*(\d{1,3}(?:\.\d+)?)\s*([EW])?\s*$/i.exec(text);
+  const [, lat, ns = "N", lon, ew = "E"] = match ?? [];
+  const position = {
+    lat: Number(lat) * (ns.toUpperCase() === "S" ? -1 : 1),
+    lon: Number(lon) * (ew.toUpperCase() === "W" ? -1 : 1),
+  };
+  if (!match || Math.abs(position.lat) > 90 || Math.abs(position.lon) > 180) {
+    throw refusal(`"${text}" is no GPS line`, next('copy it from the place\'s card: "49.2827397N, 16.5662197E"'));
+  }
+  return position;
+}
+
 /** The distance of two positions in metres (haversine, on a sphere of the Earth's mean radius). */
 export function distanceMetres(a: Position, b: Position): number {
   const rad = (deg: number) => (deg * Math.PI) / 180;

@@ -2,7 +2,16 @@ import type { Position, Venue } from "@/content/types/venues";
 import { positionMapHref } from "@/lib/shared/links";
 import { formatAddress } from "@/lib/shared/venues";
 import { next, tell } from "../output";
-import { addressOf, distanceMetres, geocode, municipalityOf, rgeocode, shareLinkPosition, type MapyItem } from "./mapy";
+import {
+  addressOf,
+  distanceMetres,
+  geocode,
+  gpsPosition,
+  municipalityOf,
+  rgeocode,
+  shareLinkPosition,
+  type MapyItem,
+} from "./mapy";
 
 // Places looked up on Mapy.com inside one municipality, printed numbered for the agent to judge, and the same places
 // as venue candidates: what Mapy.com knows of each, for `add` to take one of.
@@ -19,17 +28,27 @@ const itemBlock = (item: MapyItem, i: number) => [
 /** A lookup result as Mapy.com gives it: a place's own name (empty for an address or a point), address and position. */
 export type VenueCandidate = Pick<Venue, "name" | "address" | "position">;
 
-/** What `lookup` takes: the municipality and one of a query, an address and a link. */
-export type LookupRequest = { municipality: string; query?: string; link?: string; address?: string };
+/** What `lookup` takes: the municipality and one of a query, an address, a link and a GPS line. */
+export type LookupRequest = {
+  municipality: string;
+  query?: string;
+  link?: string;
+  address?: string;
+  position?: string;
+};
 
 export type LookupResults = { lines: string[]; candidates: VenueCandidate[] };
 
 /**
- * The position of a shared link, its address and the nearest venue; a candidate only for an exact point inside
- * `municipality`.
+ * A position (of a shared link or a GPS line), its address and the nearest venue; a candidate only for an exact one
+ * inside `municipality`.
  */
-async function linkResults(link: string, municipality: string, list: Venue[], key: string): Promise<LookupResults> {
-  const { exact, ...position } = await shareLinkPosition(link);
+async function positionResults(
+  { exact, ...position }: Position & { exact: boolean },
+  municipality: string,
+  list: Venue[],
+  key: string,
+): Promise<LookupResults> {
   const [place] = await rgeocode(position, key);
   const nearest = list
     .map((v) => ({ v, metres: distanceMetres(v.position, position) }))
@@ -42,7 +61,7 @@ async function linkResults(link: string, municipality: string, list: Venue[], ke
     ...(place ? [`  address: ${formatAddress(addressOf(place))}`] : []),
     ...(elsewhere ? [tell(`the position lies in ${found}, not in ${municipality}`)] : []),
     ...(nearest ? [`  nearest venue: ${nearest.v.id}, ${Math.round(nearest.metres)} m`] : []),
-    ...(exact ? [] : [next("ask the user for the GPS line of the place's card and use it as the position")]),
+    ...(exact ? [] : [next('ask the user for the GPS line of the place\'s card: --position "<GPS line>"')]),
   ];
   const usable = exact && place && !elsewhere;
   return { lines, candidates: usable ? [{ name: "", address: addressOf(place), position }] : [] };
@@ -68,11 +87,15 @@ async function searchResults({ municipality, query, address }: LookupRequest, ke
 }
 
 /**
- * `lookup`: Mapy.com's places for a name, an address or a shared link, inside `municipality` only, numbered, and the
+ * `lookup`: Mapy.com's places for a name, an address, a shared link or a GPS line, inside `municipality` only, numbered, and the
  * same places as venue candidates (none for a link's approximate position, or for one outside the municipality).
  */
-export const lookupResults = (request: LookupRequest, list: Venue[], key: string): Promise<LookupResults> =>
-  request.link ? linkResults(request.link, request.municipality, list, key) : searchResults(request, key);
+export async function lookupResults(request: LookupRequest, list: Venue[], key: string): Promise<LookupResults> {
+  const { municipality, link, position } = request;
+  if (link) return positionResults(await shareLinkPosition(link), municipality, list, key);
+  if (position) return positionResults({ ...gpsPosition(position), exact: true }, municipality, list, key);
+  return searchResults(request, key);
+}
 
 /** What `lookup --out` prints about the candidates it wrote to `file` (nothing is written when there are none). */
 export function candidatesLines(file: string, candidates: VenueCandidate[]): string[] {

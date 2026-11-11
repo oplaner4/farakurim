@@ -70,6 +70,14 @@ describe("parseCommand", () => {
       query: "sokolovna",
       out: "c.json",
     });
+    expect(parseCommand(["lookup", "--municipality", "Česká", "--position", "49.28N, 16.56E"])).toEqual({
+      sub: "lookup",
+      municipality: "Česká",
+      position: "49.28N, 16.56E",
+    });
+    expect(() => parseCommand(["lookup", "--municipality", "Česká", "x", "--position", "49.28N, 16.56E"])).toThrow(
+      /Usage/,
+    );
     expect(parseCommand(["add", "v.json", "--check"])).toEqual({ sub: "add", file: "v.json", check: true });
     const add = ["add", "c.json", "--pick", "2", "--name", "Sokolovna", "--alias", "a", "--alias", "b"];
     expect(parseCommand(add)).toEqual({
