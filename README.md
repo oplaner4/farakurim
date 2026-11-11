@@ -104,14 +104,14 @@ Content tooling, used by the content skills (see [Content](#content)):
 
 | Command                                                                    | What it does                                                                                                                                                                                                                                                                                 |
 | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm stage event\|sheet\|petrklic … [--check]`                            | Stage files for upload; petrklic adds the issue to `petrklic.json`, the others add a `--record` (without one, only `--check`); `--corrected` for corrected files                                                                                                                             |
-| `pnpm add-event <record.json> [--check]`                                   | Add an event to its month's JSON file in `src/content/news/`, checked by its schema                                                                                                                                                                                                          |
+| `pnpm stage event\|sheet\|petrklic … [--check]`                            | Stage files for upload; petrklic adds the issue, the others add a `--record` (without one, only `--check`); `--corrected` for corrected files                                                                                                                                                |
+| `pnpm add-event <record.json> [--check]`                                   | Add an event, checked by its schema                                                                                                                                                                                                                                                          |
 | `pnpm replace-event <record.json> [--check]`                               | Correct the event with the record's id, keeping its `published` and pin; a new start month moves it to that month's file                                                                                                                                                                     |
 | `pnpm pin-event <id> \| --none [--check]`                                  | Pin an event for "Doporučujeme" and unpin every other one (`--none`: unpin all); a pinned new record moves the pin itself                                                                                                                                                                    |
 | `pnpm event-poster <id> "<label>" \| --none [--check]`                     | Make an attachment of the event its poster (rendering `<file>-poster.webp`), or remove the poster                                                                                                                                                                                            |
 | `pnpm calendar-sync [--calendar events\|services] [--apply \| --problems]` | Preview (no flag) or apply the changes that bring the calendars in line: Události with the event records (never deletes an event), Bohoslužby with the services of the next six months (deletes only its own events). `--calendar` picks one, `--problems` previews only what needs a person |
-| `pnpm add-exception <record.json> \| --remove <date> [--check]`            | Add a change announced for a day no service sheet covers to `schedule-exceptions.json` (`--remove`: take it out)                                                                                                                                                                             |
-| `pnpm add-album <album-url> [--photos <zip>] [--write \| --check …]`       | Propose a Zonerama album with photos from its zip (downloaded, or `--photos`) as JSON; `--write` stages the photos, adds it to `gallery.json` and removes the oldest beyond 6, `--check` only says what `--write` would do                                                                   |
+| `pnpm add-exception <record.json> \| --remove <date> [--check]`            | Add a change announced for a day no service sheet covers (`--remove`: take it out)                                                                                                                                                                                                           |
+| `pnpm add-album <album-url> [--photos <zip>] [--write \| --check …]`       | Propose a Zonerama album with photos from its zip (downloaded, or `--photos`) as JSON; `--write` stages the photos, adds the album and removes the oldest beyond 6, `--check` only says what `--write` would do                                                                              |
 
 Before you commit, run the full check and compare the change with the mockups: see
 [docs/conventions.md](docs/conventions.md), which also holds the language, stack, static-export and commit conventions.
@@ -147,20 +147,20 @@ links, hooks, checking against the design) are in `.claude/rules/`.
 
 Content lives in `src/content/` and is added with the Claude Code project skills in `.claude/skills/`:
 
-| Skill                          | Adds                                                                                            |
-| ------------------------------ | ----------------------------------------------------------------------------------------------- |
-| `parish-create-event`          | An event from a poster or PDF, into `news/`                                                     |
-| `parish-correct-event`         | A corrected event (record, poster or attachment)                                                |
-| `parish-cancel-event`          | A cancelled or postponed event, or a dropped meeting of a series                                |
-| `parish-pin-event`             | The "Doporučujeme" pin, moved to an existing event or removed                                   |
-| `parish-manage-venues`         | A venue or an alias, chosen for an event, added or changed in `venues.json`                     |
-| `parish-create-service-sheet`  | The weekly service sheet (the parish's DOCX or PDF), into `service-sheets.json`                 |
-| `parish-correct-service-sheet` | A corrected service sheet (record, DOCX or PDF)                                                 |
-| `parish-create-exception`      | A change to the mass schedule on a day no service sheet covers, into `schedule-exceptions.json` |
-| `parish-remove-exception`      | A withdrawn change to the mass schedule, out of `schedule-exceptions.json`                      |
-| `parish-create-album`          | A Zonerama album (its zip downloaded or given), into `gallery.json`                             |
-| `parish-create-petrklic`       | A Petrklíč newsletter PDF, into `petrklic.json`                                                 |
-| `parish-correct-petrklic`      | A corrected Petrklíč PDF or issue record                                                        |
+| Skill                          | Adds                                                             |
+| ------------------------------ | ---------------------------------------------------------------- |
+| `parish-create-event`          | An event from a poster or PDF                                    |
+| `parish-correct-event`         | A corrected event (record, poster or attachment)                 |
+| `parish-cancel-event`          | A cancelled or postponed event, or a dropped meeting of a series |
+| `parish-pin-event`             | The "Doporučujeme" pin, moved to an existing event or removed    |
+| `parish-manage-venues`         | A venue or an alias, chosen for an event, added or changed       |
+| `parish-create-service-sheet`  | The weekly service sheet (the parish's DOCX or PDF)              |
+| `parish-correct-service-sheet` | A corrected service sheet (record, DOCX or PDF)                  |
+| `parish-create-exception`      | A change to the mass schedule on a day no service sheet covers   |
+| `parish-remove-exception`      | A withdrawn change to the mass schedule                          |
+| `parish-create-album`          | A Zonerama album (its zip downloaded or given)                   |
+| `parish-create-petrklic`       | A Petrklíč newsletter PDF                                        |
+| `parish-correct-petrklic`      | A corrected Petrklíč PDF or issue record                         |
 
 Each finishes with `parish-publish-content`, which commits and releases with `parish-release`.
 
