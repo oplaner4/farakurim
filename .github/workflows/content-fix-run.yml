@@ -109,7 +109,7 @@ jobs:
           case "$kind" in
             events)
               skill=parish-correct-event label=events
-              commands=$'pnpm replace-event:*\npnpm event-poster:*\npnpm stage event:*'
+              commands=$'pnpm replace-event:*\npnpm event-poster:*\npnpm stage event:*\npnpm venue find:*\npnpm venue lookup:*'
               ;;
             sheet)
               skill=parish-correct-service-sheet label="service sheets"
@@ -188,6 +188,9 @@ jobs:
         if: steps.next.outputs.comment != ''
         timeout-minutes: 30
         uses: oplaner4/farakurim/.github/actions/agent@main # from main, not the checkout: see the action
+        # The venue lookups' key; a comment run may only find and look venues up, never add one.
+        env:
+          MAPY_API_KEY: ${{ secrets.MAPY_API_KEY }}
         with:
           workdir: ${{ runner.temp }}/fix
           commands: ${{ steps.next.outputs.commands }}

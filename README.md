@@ -54,6 +54,10 @@ cp .env.local.example .env.local
   federation instead, and the preview needs only the API key above. A secret: never `NEXT_PUBLIC_`, never committed,
   never printed.
 
+- **`MAPY_API_KEY`**: a Mapy.com REST API key ([developer.mapy.com](https://developer.mapy.com/)) for
+  `pnpm venue lookup` and `pnpm venue add`, which look an event's venue up while it is added (the free tariff is
+  plenty). The build and the browser never use it. A secret: never `NEXT_PUBLIC_`, never committed, never printed.
+
 - **`NEXT_PUBLIC_MATOMO_URL`** and **`NEXT_PUBLIC_MATOMO_SITE_ID`**: anonymous statistics (see below). Leave them
   empty locally so development visits are not counted.
 
