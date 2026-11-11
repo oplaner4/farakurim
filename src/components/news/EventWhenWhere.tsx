@@ -63,7 +63,7 @@ export function EventWhenWhere({ event, venue }: { event: NewsEvent; venue?: Ven
             <span className="text-13 text-muted md:text-14">Kde</span>
             <strong>{event.place}</strong>
             <a
-              href={venue ? venueMapHref(venue) : mapHref(event.mapQuery ?? event.place)}
+              href={venue ? venueMapHref(venue) : mapHref(event.place)}
               {...NEW_TAB}
               className="text-15 font-bold lg:text-16"
             >

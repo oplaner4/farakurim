@@ -35,7 +35,7 @@ export function takenIdError(taken: NewsEvent): Error {
   );
 }
 
-/** Refuses a record whose venue is unknown, without a place, or next to a `mapQuery`. */
+/** Refuses a record whose venue is unknown or has no place. */
 export function assertVenue(record: NewsEvent): void {
   const [first, ...rest] = venueProblems(record, venues);
   if (first)

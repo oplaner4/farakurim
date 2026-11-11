@@ -15,7 +15,7 @@ import type { NewsEvent } from "@/content/types/news";
 const buildToday = pragueDate(BUILD_TIME);
 const featured = featuredEvent(events, buildToday);
 // The cards don't show the detail page's fields, so they stay off the client (the archive holds hundreds of events).
-const card = ({ body, lead, program, highlights, mapQuery, venue, ...rest }: NewsEvent): NewsEvent => rest;
+const card = ({ body, lead, program, highlights, venue, ...rest }: NewsEvent): NewsEvent => rest;
 const all = events.map(card);
 // Finished events only show under "Vše"; the other filters don't need them on the client.
 const unfinished = all.filter((e) => eventEnd(e) >= buildToday);

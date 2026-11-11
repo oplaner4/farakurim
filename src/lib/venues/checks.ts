@@ -8,7 +8,7 @@ import { fold } from "@/lib/shared/czech";
 export const foldPlace = (text: string): string => fold(text).replace(/\./g, "").replace(/\s+/g, " ").trim();
 
 /** The fields of an event a venue check reads. */
-export type VenueFields = { place?: string; venue?: string; mapQuery?: string };
+export type VenueFields = { place?: string; venue?: string };
 
 /**
  * What is wrong with an event's venue, as sentences naming the field; [] when nothing is. A venue in another
@@ -16,11 +16,8 @@ export type VenueFields = { place?: string; venue?: string; mapQuery?: string };
  * the venue scripts note it.
  */
 export function venueProblems(event: VenueFields, venues: Record<string, Venue>): string[] {
-  const { place, venue: id, mapQuery } = event;
+  const { place, venue: id } = event;
   if (!id) return [];
   if (!Object.hasOwn(venues, id)) return [`venue: no venue with the id "${id}"`];
-  const problems: string[] = [];
-  if (!place) problems.push("venue: needs a place");
-  if (mapQuery) problems.push("mapQuery: must be left out next to a venue, whose position gives the map link");
-  return problems;
+  return place ? [] : ["venue: needs a place"];
 }

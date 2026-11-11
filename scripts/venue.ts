@@ -7,7 +7,7 @@
 //   add     adds a venue from a JSON file: its municipality taken from its position (refused when another is
 //           stated), its id <municipality>-<name> as slug() makes it; warns when the address lands > 150 m away.
 //   alias   adds a confirmed text of a place to a venue, refused when another venue of the municipality has it.
-//   assign  gives every record without a venue the one its place names exactly, dropping its mapQuery.
+//   assign  gives every record without a venue the one its place names exactly.
 // --check prints what add, alias and assign would do without writing. lookup and add need MAPY_API_KEY (.env.local).
 //
 // Usage: pnpm venue find --municipality "<municipality>" "<place>"

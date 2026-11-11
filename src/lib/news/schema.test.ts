@@ -35,6 +35,8 @@ describe("newsEventSchema", () => {
 
   it("rejects unknown fields, also nested ones", () => {
     expect(problems({ tittle: "x" })).toEqual([': Unrecognized key: "tittle"']);
+    // The map link is the venue's pin, or a search of the place: no map query of its own.
+    expect(problems({ mapQuery: "fara Kuřim" })).toEqual([': Unrecognized key: "mapQuery"']);
     expect(problems({ poster: { src: "/uploads/aktuality/x.webp", alt: "x", width: 600 } })).toEqual([
       'poster: Unrecognized key: "width"',
     ]);

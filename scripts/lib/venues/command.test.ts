@@ -151,7 +151,7 @@ describe("pnpm venue", () => {
   describe("assign", () => {
     const news = useNewsFixture({
       "2026/10.json": [
-        newsEvent({ id: "a-2026", start: "2026-10-01", place: "Kuřim, areál za farou", mapQuery: "fara Kuřim" }),
+        newsEvent({ id: "a-2026", start: "2026-10-01", place: "Kuřim, areál za farou" }),
         newsEvent({ id: "b-2026", start: "2026-10-02", place: "Kuřim, farní zahrada" }),
         newsEvent({ id: "c-2026", start: "2026-10-03", place: "Kuřim, fara", venue: "kurim-fara" }),
         newsEvent({ id: "d-2026", start: "2026-10-04", place: "Česká, kaple Panny Marie Růžencové" }),
@@ -161,14 +161,13 @@ describe("pnpm venue", () => {
     it("prints the venue of every record whose place matches exactly, writing only without check", () => {
       const before = readFileSync(join(news.dir(), "2026/10.json"), "utf8");
       const { lines, written } = assignVenues(news.dir(), LIST, { check: true });
-      expect(lines).toEqual(["Would set a-2026 venue kurim-fara, drop mapQuery", "Would set d-2026 venue ceska-kaple"]);
+      expect(lines).toEqual(["Would set a-2026 venue kurim-fara", "Would set d-2026 venue ceska-kaple"]);
       expect(written).toEqual([]);
       expect(readFileSync(join(news.dir(), "2026/10.json"), "utf8")).toBe(before);
 
       expect(assignVenues(news.dir(), LIST, { check: false }).written).toEqual(["2026/10.json"]);
       const a = readMonth(news.dir(), "2026/10.json").find((e) => e.id === "a-2026");
       expect(a).toMatchObject({ venue: "kurim-fara" });
-      expect(a).not.toHaveProperty("mapQuery");
     });
   });
 });

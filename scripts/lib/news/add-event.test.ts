@@ -112,7 +112,7 @@ describe("addEvent on a copy of news/", { timeout: 30_000 }, () => {
     );
   });
 
-  it("refuses mapQuery next to a venue, and notes but takes a venue from another municipality", () => {
+  it("notes but takes a venue from another municipality", () => {
     const elsewhere = addEvent(news, newsEvent({ id: "v-2026", place: "Česká, fara", venue: "kurim-fara" }), {
       now,
       check: true,
@@ -120,8 +120,6 @@ describe("addEvent on a copy of news/", { timeout: 30_000 }, () => {
     expect(venueLines(elsewhere.record)).toEqual([
       'tell: the venue kurim-fara is in Kuřim, which the place "Česká, fara" does not start with: check it is meant',
     ]);
-    const both = newsEvent({ id: "v-2026", place: "Kuřim, fara", venue: "kurim-fara", mapQuery: "fara Kuřim" });
-    expect(() => addEvent(news, both, { now })).toThrow(/^mapQuery: must be left out next to a venue/);
     const fitting = newsEvent({ id: "v-2026", place: "Kuřim, fara", venue: "kurim-fara" });
     expect(addEvent(news, fitting, { now, check: true }).target).toBe("2026/10.json");
   });

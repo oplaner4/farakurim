@@ -205,8 +205,8 @@ export function addAlias(file: string, id: string, text: string, { check }: { ch
   return [`${actionVerb(check, "add")} the alias "${text.trim()}" to ${id}`];
 }
 
-/** The record with `venue` right after its place, and without its `mapQuery`. */
-function withVenue({ mapQuery: _, ...event }: NewsEvent, venue: string): NewsEvent {
+/** The record with `venue` right after its place. */
+function withVenue(event: NewsEvent, venue: string): NewsEvent {
   return Object.fromEntries(
     Object.entries(event).flatMap(([key, value]) =>
       key === "place"
@@ -233,9 +233,7 @@ export function assignVenues(newsDir: string, list: Venue[], { check }: { check:
       if (event.venue || !event.place) return event;
       const match = municipalities.map((m) => findVenue(list, m, event.place!)).find((m) => m.kind === "known");
       if (match?.kind !== "known") return event;
-      lines.push(
-        `${actionVerb(check, "set")} ${event.id} venue ${match.venue.id}${event.mapQuery ? ", drop mapQuery" : ""}`,
-      );
+      lines.push(`${actionVerb(check, "set")} ${event.id} venue ${match.venue.id}`);
       return withVenue(event, match.venue.id);
     });
     if (updated.some((e, i) => e !== events[i])) {

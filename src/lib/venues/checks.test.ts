@@ -30,14 +30,11 @@ describe("venueProblems", () => {
     expect(venueProblems({ place: "Kuřim, fara" }, byId)).toEqual([]);
   });
 
-  it("refuses an unknown venue, a venue without a place and mapQuery next to it, not one from another municipality", () => {
+  it("refuses an unknown venue and a venue without a place, not one from another municipality", () => {
     expect(venueProblems({ place: "Kuřim, fara", venue: "kurim-sokolovna" }, byId)).toEqual([
       'venue: no venue with the id "kurim-sokolovna"',
     ]);
     expect(venueProblems({ venue: "kurim-fara" }, byId)).toEqual(["venue: needs a place"]);
     expect(venueProblems({ place: "Česká, fara", venue: "kurim-fara" }, byId)).toEqual([]);
-    expect(venueProblems({ place: "Kuřim, fara", venue: "kurim-fara", mapQuery: "fara Kuřim" }, byId)).toEqual([
-      "mapQuery: must be left out next to a venue, whose position gives the map link",
-    ]);
   });
 });

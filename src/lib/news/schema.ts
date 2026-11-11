@@ -118,7 +118,6 @@ export const newsEventSchema = z
     startTime: clockSchema.optional(),
     endTime: clockSchema.optional(),
     place: text.optional(),
-    mapQuery: text.optional(),
     venue: text.optional(),
     text,
     lead: text.optional(),

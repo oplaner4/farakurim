@@ -29,7 +29,7 @@ Copy the record whole into `record.json` in the session's scratchpad (never in t
 
 The fields follow **`parish-create-event`** step 2. A changed `place` takes its venue again as **`parish-create-event`**
 "Finding `venue`" says (`Known venue: <id> (<name>)`, else a candidate, a lookup or none, a new venue or alias only
-after the user's yes), and the old `venue` and `mapQuery` go when they no longer fit. `--check` names `venue` among the
+after the user's yes), and the old `venue` goes when it no longer fits. `--check` names `venue` among the
 `Changed:` fields.
 
 ## 3. Check

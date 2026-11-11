@@ -27,8 +27,8 @@ the Mapy.com API), the agent for what needs judgment (which venue a text means),
 
 ## Non-goals
 
-- No venue for an event in several municipalities, a whole municipality, an alternative ("…, nebo …") or online: they keep
-  `place` alone.
+- No venue for a whole municipality or an online event: they keep `place` alone. An event in several places or with an
+  alternative ("…, nebo …") takes the venue it is mainly held at (decided after the migration).
 - No fuzzy text matching in scripts: a script matches exactly or lists candidates.
 - No network in the build or the tests: the Mapy.com API is called only while content is added.
 - No venue page on the site and no change to the design of the cards or the detail page.
@@ -81,8 +81,8 @@ the Mapy.com API), the agent for what needs judgment (which venue a text means),
 - With a venue: the map link is `venueMapHref(venue)`; the `.ics` `LOCATION` and the Události location are
   `venueLocation(venue)`, as the Bohoslužby location is; `GEO` and the structured data's `geo` come from `position`; the structured data's
   `location.name` is `place`, its `address` the venue's address.
-- Without a venue: everything as today (`mapQuery ?? place`, `place` as the location). `mapQuery` on events is kept
-  for them and is refused next to a `venue`.
+- Without a venue: the map link searches `place`, and `place` is the location. Events have no `mapQuery` any more:
+  once every record that had one took a venue, the field was removed (the schema refuses it).
 - The writers and the content test refuse a `venue` that is not in the list. One whose `address.municipality` does not
   start `place` (folded) is allowed and noted (`tell:`): an event in several villages takes the venue it is held at
   ("Moravské Knínice, Kuřim a Česká" → the Vranov church). The structured data's address is a `PostalAddress` built from the parts.
@@ -129,7 +129,7 @@ The flow in the skill, for an event at one building:
 | `pnpm venue lookup --municipality <m> …`       | yes     | keeps only results whose municipality is `<m>`; resolves a share link's redirect first (no key needed for that part)                                                                                                                                         |
 | `pnpm venue add <file> [--check]`              | yes     | schema; unique id from municipality and name; refuses a position whose reverse lookup names another municipality than `address.municipality` (fills it when missing); warns (no refusal) when the formatted address, searched, lands > 150 m from `position` |
 | `pnpm venue alias <id> "<text>" [--check]`     | no      | refused when the text already matches another venue of the same municipality                                                                                                                                                                                 |
-| `add-event`, `replace-event`, `stage event`    | no      | refuse an unknown venue and `mapQuery` next to `venue`; note a venue from another municipality                                                                                                                                                               |
+| `add-event`, `replace-event`, `stage event`    | no      | refuse an unknown venue and a venue without `place`; note a venue from another municipality                                                                                                                                                                  |
 
 - The key is `MAPY_API_KEY` in `.env.local` (README, `.env.example`), read only by `lookup` and `add`; it never reaches
   `out/` or the browser. The calls happen on the maintainer's machine or in CI, never in a visitor's browser, so the
