@@ -27,7 +27,10 @@ Copy the record whole into `record.json` in the session's scratchpad (never in t
 - a correction the user describes: change those fields;
 - a cancellation, a postponement or a dropped meeting: stop and follow **`parish-cancel-event`** instead.
 
-The fields follow **`parish-create-event`** step 2.
+The fields follow **`parish-create-event`** step 2. A changed `place` takes its venue again as **`parish-create-event`**
+"Finding `venue`" says (`Known venue: <id> (<name>)`, else a candidate, a lookup or none, a new venue or alias only
+after the user's yes), and the old `venue` and `mapQuery` go when they no longer fit. `--check` names `venue` among the
+`Changed:` fields.
 
 ## 3. Check
 
@@ -88,6 +91,9 @@ Only when the prompt says the run is a **comment run** on an events PR; steps 1 
   but still run each `--check` and read its `Changed:` line: when it lists fields the comment did not ask to change,
   stop with `Outcome: unchanged` and say why. Use `pnpm replace-event` and `pnpm event-poster`, as in step 3. A
   question in the comment is answered in the reply.
+- **Venue:** a changed place may take a `Known venue: <id> (<name>)`, or the venue the comment names by its id; any
+  other match is answered with the `pnpm venue find` candidates or the `pnpm venue lookup` proposal (its pin link) in
+  the reply. Never run `pnpm venue add` or `pnpm venue alias`.
 - **Fix a check:** when `check.md` shows a failure the PR's content causes, fix it the same way; a failure outside the
   content (a script, the build) is not fixed, and the reply says so.
 - **Out of bounds**, answered without a change (`Outcome: unchanged`): a new event, dropping, pinning or splitting an

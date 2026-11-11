@@ -5,6 +5,7 @@ import { newsEvent } from "@/test/fixtures";
 import { ROOT } from "./content-files";
 import { pinLines, unpinnedLines } from "./news/pin-event";
 import { replaceLines } from "./news/replace-event";
+import { findLines } from "./venues/command";
 
 // The parish skills act on the lines the scripts print: the tagged ones (tell:, ask:, next:, state:, scripts/lib/output.ts)
 // and a few result lines. A quote is the line with "…" or a <placeholder> where the line varies; it holds while some
@@ -60,6 +61,23 @@ const resultQuotes: { quote: string; skills: string[]; lines: () => string[] }[]
     quote: "Would unpin …",
     skills: ["parish-pin-event/SKILL.md", "parish-create-event/SKILL.md"],
     lines: () => unpinnedLines([other], true),
+  },
+  {
+    quote: "Known venue: <id> (<name>)",
+    skills: ["parish-create-event/SKILL.md", "parish-correct-event/SKILL.md"],
+    lines: () =>
+      findLines(
+        [
+          {
+            id: "kurim-fara",
+            name: "Fara",
+            address: { municipality: "Kuřim", country: "Česko" },
+            position: { lat: 49, lon: 16 },
+          },
+        ],
+        "Kuřim",
+        "Kuřim, fara",
+      ),
   },
   {
     quote: "Changed: …",

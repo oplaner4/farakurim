@@ -30,7 +30,9 @@ Write the text from the source, in Czech; do not invent facts. Leave out what th
 | `start`, `end`         | ISO dates. `end` only for multi-day events. A date without a year is the next such date from today.                                                         |
 | `startTime`            | `"18:00"` (H:MM). Omit for all-day events.                                                                                                                  |
 | `endTime`              | `"20:30"`, when the source gives an end; only with `startTime`, and after it.                                                                               |
-| `place`                | `"Kuřim, kostel sv. Maří Magdalény"`, `"Kuřim, fara"`, `"Tišnov"`. **Required.** Add `mapQuery` when the place alone would not find it on Mapy.cz.          |
+| `place`                | `"Kuřim, kostel sv. Maří Magdalény"`, `"Kuřim, fara"`, `"Tišnov"`: the village first, then the building. **Required.**                                      |
+| `venue`                | For an event at one building: the venue's id (see "Finding `venue`"). Its address and position give the map link and the calendars' location.               |
+| `mapQuery`             | Only without a `venue`: a Mapy.cz search when the place alone would not find it.                                                                            |
 | `text`                 | 1–2 sentences for the cards. **Required.** No URLs.                                                                                                         |
 | `lead`                 | Optional: one inviting sentence under the detail title (also the page description). Defaults to `text`.                                                     |
 | `body`                 | Optional HTML for "O akci" (`<p>`, `<strong>`, `<ul><li>`) when the source says more than `text`: a few short paragraphs, no links (`links`).               |
@@ -44,6 +46,30 @@ Write the text from the source, in Czech; do not invent facts. Leave out what th
 | `tags`                 | Free tags when nothing above fits: `[{ label: "Pro rodiny", color? }]` (`"orange"`, `"magenta"`, `"grey"`; blue). Never "Zrušeno": `change`.                |
 | `pinned`               | `true` only when the user asks for "Doporučujeme". The script moves the pin: it unpins the event pinned before and names it.                                |
 | `published`            | Leave out: the script sets today's date in Prague (the shared link's publication date). Keep it when editing a record later.                                |
+
+### Finding `venue`
+
+An event held at one building gets a `venue` from the list (`src/content/venues.json`). An event in several villages,
+a whole village, an alternative ("…, nebo …") or online gets none and keeps `place` alone.
+
+1. **Name the village:** the municipality the event is in, as Mapy.com names it ("Brno" for Brno-Husovice). Read it
+   from the source; never split `place` at a comma to get it.
+2. **Find it:** `pnpm venue find --village "<village>" "<place>"`.
+   - `Known venue: <id> (<name>)`: take that venue.
+   - `ask:` with the village's venues: pick one only when it is plainly the same building by meaning (`"farní
+zahrada"` → `kurim-fara`), and propose the text as its new alias. A doubtful match is a question, never a guess.
+   - `tell: … has no venues yet.`, or none of them fits: step 3.
+3. **Look it up:** `pnpm venue lookup --village "<village>" "<name of the building>"` (or `--address "<address>"` for
+   a building with a number). Each result has its address, position and pin link; judge which one is the building.
+   When none is, ask the user for a Mapy.com link of it and run `--link <link>`: a link to a point ("Co je zde?") is
+   exact, one to a named place is only approximate.
+4. **Propose the new venue** in `<scratchpad>/venue.json`: `id` (`<municipality>-<building>`, as `slug()` makes it),
+   `name` (the building, in Czech: `"Sokolovna"`), `address` (the result's `streetAddress`, `part` and `postalCode`,
+   `country`; the municipality is filled in from the position), `position`, and `aliases` with the place's building
+   text when it differs from the name. Check it: `pnpm venue add <scratchpad>/venue.json --check` prints `Would add the
+venue <id>` with its fields and pin link, and a `tell:` when the address lands far from the position.
+5. Step 4 shows the venue, and any new venue (with its pin link, for the user to open) or alias. After the yes, write
+   them first: `pnpm venue add <scratchpad>/venue.json`, `pnpm venue alias <id> "<text>"`. Then the record.
 
 ## 3a. Pick the labels and the order (only with files)
 
@@ -82,7 +108,7 @@ pnpm add-event <scratchpad>/record.json --check
 
 Show the extracted fields and, with files, each file with its label as written, in their order, and which one becomes
 the poster in a short list (the script takes any label, so a typo like `Plakat` would go on the page). Point out guesses: the year, an
-inferred end date, `longTerm`. For a pinned event, say which event loses "Doporučujeme" (the `Would unpin …` line of
+inferred end date, `longTerm`. Name the `venue`, and show a new venue with its pin link and a new alias. For a pinned event, say which event loses "Doporučujeme" (the `Would unpin …` line of
 the step 3a command run with `--record`, or of step 3b).
 
 Wait for the user's yes or corrections to these before staging or adding anything.
@@ -160,6 +186,9 @@ follows them too, with these changes:
 - Write the report first, then stage, then fill in each event's `Outcome:` line from what the script did, and add any
   line it printed for the user (an unpinned event) to the report. A script refusal is `refused: <its reason>`:
   the refusal's first line; its `next:` lines say what to do, not what to publish.
+- **Venue:** take only a `Known venue: <id> (<name>)`; otherwise leave `venue` out and write a question (`blocking:
+no`) with the candidate or the `pnpm venue lookup` proposal and its pin link, for the maintainer to confirm. Never
+  run `pnpm venue add` or `pnpm venue alias`.
 - Skip step 6: no `parish-publish-content`, no commit, no release.
 
 **The report** is English, with site content quoted in Czech, and starts with exactly these two lines:
@@ -191,6 +220,8 @@ mail without quoting it.
 - Copying the poster's capitals into `title`, or its whole text into `body`: keep `text` short and `body` brief.
 - Putting URLs or e-mails into `text`/`body` instead of `links`.
 - Guessing a year or end date silently: say it in the confirmation.
+- Guessing a venue from a similar name, or adding one without the user's yes on its pin: ask instead.
+- Setting both `venue` and `mapQuery`: the script refuses it; the venue gives the map link.
 - Going on without a file and without the warning in step 1: the user may have a poster to add.
 - Staging (without `--check`) before the user confirms: an abandoned file would go out with the next release.
 - Adding a new event by hand instead of `--record` (or `pnpm add-event`): the order and `published` are then up
