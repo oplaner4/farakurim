@@ -1,5 +1,6 @@
 import type { NewsEvent } from "@/content/types/news";
 import type { IsoDate } from "@/content/types/shared";
+import type { Venue } from "@/content/types/venues";
 import { eventDays, eventPaths, type GoogleEvent } from "@/lib/calendar/google-calendar";
 import { eventHref } from "@/lib/news/events";
 import { meetingsOf } from "@/lib/news/timing";
@@ -59,12 +60,19 @@ const overlaps = (event: GoogleEvent, from: IsoDate, to: IsoDate): boolean => {
   return first !== undefined && last !== undefined && first <= to && last >= from;
 };
 
-/** The changes and reports that bring the Události calendar in line with `events`. */
-export function planSync(events: NewsEvent[], snapshot: CalendarSnapshot, today: IsoDate): SyncPlan {
+/** The changes and reports that bring the Události calendar in line with `events`, located at their `venues`. */
+export function planSync(
+  events: NewsEvent[],
+  snapshot: CalendarSnapshot,
+  today: IsoDate,
+  venues: Record<string, Venue> = {},
+): SyncPlan {
   const run: Run = { changes: [], reports: [], claimed: new Set() };
   // Every claim on a meeting's own day comes first, so a calendar event another meeting claims is never a
   // candidate elsewhere, whatever the order of the records.
-  const unowned = events.flatMap((event) => planRecord(event, snapshot, today, run));
+  const unowned = events.flatMap((event) =>
+    planRecord(event, snapshot, today, run, event.venue ? venues[event.venue] : undefined),
+  );
   const unclaimed = unowned.filter((meeting) => !claimOnDay(meeting, run));
   for (const meeting of unclaimed) planElsewhere(meeting, today, run);
   run.reports.push(...orphans(events, snapshot.instances, today));
@@ -72,8 +80,14 @@ export function planSync(events: NewsEvent[], snapshot: CalendarSnapshot, today:
 }
 
 /** Brings the owned calendar events of a record in line; returns its meetings without one. */
-function planRecord(event: NewsEvent, snapshot: CalendarSnapshot, today: IsoDate, run: Run): Unowned[] {
-  const items = desiredEvents(event, today);
+function planRecord(
+  event: NewsEvent,
+  snapshot: CalendarSnapshot,
+  today: IsoDate,
+  run: Run,
+  venue: Venue | undefined,
+): Unowned[] {
+  const items = desiredEvents(event, today, venue);
   if (items.length === 0) return [];
   const weekly = items[0].key === "weekly";
   const source = weekly ? snapshot.masters : snapshot.instances;

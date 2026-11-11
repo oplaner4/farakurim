@@ -1,10 +1,32 @@
 import { describe, expect, it } from "vitest";
-import { newsEvent } from "@/test/fixtures";
+import { newsEvent, sokolovna } from "@/test/fixtures";
 import { eventJsonLd, parishJsonLd } from "./structured-data";
 
 const URL = "https://farakurim.cz/aktuality/hody-v-ceske/";
 
 describe("eventJsonLd", () => {
+  it("takes the address and position of the venue, naming the place", () => {
+    expect(
+      eventJsonLd(newsEvent({ place: "Česká, sokolovna", venue: "ceska-sokolovna" }), URL, sokolovna).location,
+    ).toEqual({
+      "@type": "Place",
+      name: "Česká, sokolovna",
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "Hlavní 1",
+        postalCode: "664 31",
+        addressLocality: "Česká",
+        addressCountry: "Česko",
+      },
+      geo: { "@type": "GeoCoordinates", latitude: 49.28, longitude: 16.56 },
+    });
+    expect(eventJsonLd(newsEvent({}), URL).location).toEqual({
+      "@type": "Place",
+      name: "Česká, náves",
+      address: "Česká, náves",
+    });
+  });
+
   it("makes a root-relative poster absolute", () => {
     const poster = { src: "/uploads/aktuality/hody-ceska-plakat.webp", alt: "Plakát" };
     expect(eventJsonLd(newsEvent({ poster }), URL).image).toBe(

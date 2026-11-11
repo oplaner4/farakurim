@@ -1,5 +1,6 @@
 import { events } from "@/content/news";
 import { links, SITE_URL } from "@/content/site";
+import { venues } from "@/content/venues";
 import type { NewsEvent } from "@/content/types/news";
 import { BUILD_TIME } from "@/lib/shared/build-time";
 import { eventDateBlock, formatTimes } from "@/lib/shared/czech";
@@ -53,6 +54,7 @@ export function EventDetail({ event }: { event: NewsEvent }) {
   const eventLinks = event.links ?? [];
   const posterLink = posterHref(event);
   const cancelled = isCancelled(event);
+  const venue = event.venue ? venues[event.venue] : undefined;
 
   return (
     <>
@@ -63,7 +65,7 @@ export function EventDetail({ event }: { event: NewsEvent }) {
       >
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: jsonLdScript(eventJsonLd(event, url)) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdScript(eventJsonLd(event, url, venue)) }}
         />
         <Breadcrumbs
           parents={[
@@ -127,7 +129,7 @@ export function EventDetail({ event }: { event: NewsEvent }) {
           </div>
 
           <div className="flex min-w-0 flex-col gap-7 max-lg:order-1 md:flex-row md:gap-6 lg:shrink lg:grow lg:basis-90 lg:flex-col">
-            <EventWhenWhere event={event} />
+            <EventWhenWhere event={event} venue={venue} />
 
             {posterLink && (
               <EventPoster

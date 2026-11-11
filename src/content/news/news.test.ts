@@ -3,7 +3,9 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { venueProblems } from "@/lib/venues/match";
 import { duplicates, isSorted } from "@/test/content-checks";
+import { venues } from "../venues";
 import { events, monthFile, monthFiles, readEvents, readMonth } from "./index";
 
 const newsDir = dirname(fileURLToPath(import.meta.url));
@@ -11,6 +13,10 @@ const newsDir = dirname(fileURLToPath(import.meta.url));
 describe("Aktuality (news/)", () => {
   // The rules of one record (dates, times, uploads, links, unknown fields) are the schema's: the loader checks every
   // month file with it on import, so a broken record fails here naming the file and the field.
+
+  it("gives every venue a record refers to a place in its municipality", () => {
+    expect(events.flatMap((e) => venueProblems(e, venues).map((p) => `${e.id}: ${p}`))).toEqual([]);
+  });
 
   it("has unique IDs and at most one pinned event", () => {
     expect(duplicates(events.map((e) => e.id))).toEqual([]);

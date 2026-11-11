@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { newsEvent } from "@/test/fixtures";
+import { newsEvent, sokolovna } from "@/test/fixtures";
 import { eventCalendar } from "./ics";
 
 const URL = "https://farakurim.cz/aktuality/hody-v-ceske/";
@@ -22,6 +22,15 @@ describe("eventCalendar", () => {
     expect(out).toContain(`URL:${URL}`);
     expect(out).toContain(`DESCRIPTION:Stavění máje.\\n\\n${URL}`);
     expect(out).toContain("UID:hody-v-ceske@farakurim.cz");
+  });
+
+  it("takes the location and GEO from the venue", () => {
+    const out = lines(
+      eventCalendar(newsEvent({ place: "Česká, sokolovna", venue: "ceska-sokolovna" }), URL, sokolovna),
+    );
+    expect(out).toContain("LOCATION:Sokolovna\\, Hlavní 1\\, 664 31 Česká\\, Česko");
+    expect(out).toContain("GEO:49.28;16.56");
+    expect(lines(eventCalendar(newsEvent({}), URL)).some((l) => l.startsWith("GEO"))).toBe(false);
   });
 
   it("uses the end time of a range, in winter time after 25. 10.", () => {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { NewsEvent } from "@/content/types/news";
 import type { GoogleEvent } from "@/lib/calendar/google-calendar";
+import { sokolovna } from "@/test/fixtures";
 import { calendarEventId, desiredEvents, eventBody } from "./desired";
 
 const testEvent = (fields: Partial<NewsEvent> = {}): NewsEvent => ({
@@ -43,6 +44,13 @@ describe("desiredEvents", () => {
       googleId: calendarEventId("farni-den-2026", "2026-06-13"),
     });
     expect(item.description).toBe("Text farního dne.\n\nhttps://farakurim.cz/aktuality/farni-den-2026/");
+  });
+
+  it("takes the location from the venue", () => {
+    const atVenue = testEvent({ place: "Česká, sokolovna", venue: "ceska-sokolovna" });
+    expect(desiredEvents(atVenue, "2026-06-01", sokolovna)[0].location).toBe(
+      "Sokolovna, Hlavní 1, 664 31 Česká, Česko",
+    );
   });
 
   it("uses the lead for the description", () => {

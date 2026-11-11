@@ -97,8 +97,13 @@ export type NewsEvent = {
   program?: ProgramItem[];
   /** Up to 3 tiles under their own heading ("800 let v datech"); only for real key facts. */
   highlights?: { title: string; items: Highlight[] };
-  /** Mapy.cz search for "Zobrazit na mapě"; defaults to `place`. */
+  /** Mapy.cz search for "Zobrazit na mapě"; defaults to `place`. Left out with a `venue`. */
   mapQuery?: string;
+  /**
+   * A venue of `venues.json` (its id) for an event at one building; requires `place`, which stays what people read.
+   * Its address and position give the map link, the `.ics` and the Události location.
+   */
+  venue?: string;
   poster?: { src: string; alt: string };
   attachments?: EventAttachment[];
   links?: EventLink[];

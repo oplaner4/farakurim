@@ -1,8 +1,9 @@
 import { clsx } from "clsx";
 import type { NewsEvent } from "@/content/types/news";
+import type { Venue } from "@/content/types/venues";
 import { BUILD_TIME } from "@/lib/shared/build-time";
 import { capitalize, formatEventWhen, formatShortDate } from "@/lib/shared/czech";
-import { mapHref, NEW_TAB } from "@/lib/shared/links";
+import { mapHref, NEW_TAB, venueMapHref } from "@/lib/shared/links";
 import { eventCalendarHref } from "@/lib/news/events";
 import { eventEnd, isCancelled } from "@/lib/news/timing";
 import { CalendarIcon, PinIcon } from "@/components/ui/icons/contact-icons";
@@ -11,9 +12,9 @@ import { EventActions } from "./EventActions";
 /**
  * "Kdy a kde" (§13.2): date, place with a map link, and the calendar and share actions. A cancelled event (§13.7) gets
  * a grey panel without the corner shards, its date struck through and no calendar file; a postponed one names its
- * first date under the new one.
+ * first date under the new one. The map link is a pin at the venue, or a search of the place.
  */
-export function EventWhenWhere({ event }: { event: NewsEvent }) {
+export function EventWhenWhere({ event, venue }: { event: NewsEvent; venue?: Venue }) {
   const when = formatEventWhen(event, { longMonth: true });
   const cancelled = isCancelled(event);
   const iconColor = cancelled ? "text-muted" : "text-magenta-ink";
@@ -61,7 +62,11 @@ export function EventWhenWhere({ event }: { event: NewsEvent }) {
           <span className="flex flex-col items-start">
             <span className="text-13 text-muted md:text-14">Kde</span>
             <strong>{event.place}</strong>
-            <a href={mapHref(event.mapQuery ?? event.place)} {...NEW_TAB} className="text-15 font-bold lg:text-16">
+            <a
+              href={venue ? venueMapHref(venue) : mapHref(event.mapQuery ?? event.place)}
+              {...NEW_TAB}
+              className="text-15 font-bold lg:text-16"
+            >
               Zobrazit na mapě
             </a>
           </span>

@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import { contacts, parish, SITE_URL } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import type { IsoDate } from "@/content/types/shared";
+import type { Venue } from "@/content/types/venues";
 import { openSeason } from "@/lib/contacts/office-hours";
 import { telHref } from "./links";
 import { eventTimes } from "@/lib/news/timing";
@@ -24,7 +25,25 @@ function eventStatusJsonLd({ change }: NewsEvent) {
   return {};
 }
 
-export function eventJsonLd(event: NewsEvent, url: string) {
+/** The event's place: with a venue, its postal address and position. */
+function placeJsonLd(place: string, venue?: Venue) {
+  if (!venue) return { "@type": "Place", name: place, address: place };
+  const { streetAddress, postalCode, municipality, country } = venue.address;
+  return {
+    "@type": "Place",
+    name: place,
+    address: {
+      "@type": "PostalAddress",
+      ...(streetAddress && { streetAddress }),
+      ...(postalCode && { postalCode }),
+      addressLocality: municipality,
+      addressCountry: country,
+    },
+    geo: { "@type": "GeoCoordinates", latitude: venue.position.lat, longitude: venue.position.lon },
+  };
+}
+
+export function eventJsonLd(event: NewsEvent, url: string, venue?: Venue) {
   const { start, end = start } = event;
   const { startTime, endTime } = end === start ? eventTimes(event) : {};
   return {
@@ -36,7 +55,7 @@ export function eventJsonLd(event: NewsEvent, url: string) {
     endDate: startTime && endTime ? isoDateTime(start, endTime) : end,
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     ...eventStatusJsonLd(event),
-    ...(event.place && { location: { "@type": "Place", name: event.place, address: event.place } }),
+    ...(event.place && { location: placeJsonLd(event.place, venue) }),
     // Uploaded posters are root-relative; search engines need the full URL.
     ...(event.poster && { image: new URL(event.poster.src, SITE_URL).href }),
     url,

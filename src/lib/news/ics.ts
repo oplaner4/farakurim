@@ -4,8 +4,10 @@ import { createEvents, type DateArray, type DateTime, type EventAttributes } fro
 import { SITE_HOST } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import type { IsoDate } from "@/content/types/shared";
+import type { Venue } from "@/content/types/venues";
 import { eventEnd, meetingsOf, type Meeting } from "./timing";
 import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
+import { venueLocation } from "@/lib/shared/venues";
 
 // "Přidat do kalendáře" (design/DESIGN.md §13.2): one .ics file per event, generated at build time.
 // Times are Prague wall-clock and written in UTC, so no VTIMEZONE block is needed.
@@ -51,8 +53,8 @@ function occurrences(event: NewsEvent): (Timing & Pick<EventAttributes, "status"
   }));
 }
 
-/** iCalendar text of one event, with the detail page's absolute URL. */
-export function eventCalendar(event: NewsEvent, url: string): string {
+/** iCalendar text of one event, with the detail page's absolute URL; its venue gives LOCATION and GEO. */
+export function eventCalendar(event: NewsEvent, url: string, venue?: Venue): string {
   const attributes = occurrences(event).map(
     ({ start, startInputType, end, recurrenceRule, status, sequence, uid }) =>
       ({
@@ -63,7 +65,8 @@ export function eventCalendar(event: NewsEvent, url: string): string {
         status,
         sequence,
         title: event.title,
-        location: event.place,
+        location: venue ? venueLocation(venue) : event.place,
+        geo: venue?.position,
         description: `${event.lead ?? event.text}\n\n${url}`,
         url,
         uid,

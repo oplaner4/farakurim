@@ -1,6 +1,7 @@
 import { parishCalendars } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import { readEvents } from "@/content/news";
+import { venues } from "@/content/venues";
 import { pragueDate } from "@/lib/shared/prague";
 import { errorMessage } from "../command";
 import { NEWS_DIR } from "../content-files";
@@ -19,6 +20,7 @@ async function planFor(events: NewsEvent[], access: CalendarAccess): Promise<Syn
     events,
     await readSnapshot(access, parishCalendars.events.googleId, snapshotRange(events, today)),
     today,
+    venues,
   );
 }
 

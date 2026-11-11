@@ -1,5 +1,6 @@
 import { events } from "@/content/news";
 import { SITE_URL } from "@/content/site";
+import { venues } from "@/content/venues";
 import { eventCalendar } from "@/lib/news/ics";
 import { eventHref, findEventById } from "@/lib/news/events";
 
@@ -14,7 +15,8 @@ export function generateStaticParams() {
 export async function GET(_request: Request, { params }: RouteContext<"/aktuality/[slug]/kalendar.ics">) {
   const event = findEventById(events, (await params).slug);
   if (!event) return new Response(null, { status: 404 });
-  return new Response(eventCalendar(event, `${SITE_URL}${eventHref(event)}`), {
+  const venue = event.venue ? venues[event.venue] : undefined;
+  return new Response(eventCalendar(event, `${SITE_URL}${eventHref(event)}`, venue), {
     headers: { "Content-Type": "text/calendar; charset=utf-8" },
   });
 }

@@ -2,11 +2,13 @@ import { addMilliseconds } from "date-fns";
 import { SITE_URL } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
 import type { IsoDate } from "@/content/types/shared";
+import type { Venue } from "@/content/types/venues";
 import type { GoogleEvent } from "@/lib/calendar/google-calendar";
 import { eventHref } from "@/lib/news/events";
 import { DEFAULT_DURATION, nextDay, utcStamp } from "@/lib/news/ics";
 import { eventEnd, meetingsOf, type Meeting } from "@/lib/news/timing";
 import { pragueDateTime } from "@/lib/shared/prague";
+import { venueLocation } from "@/lib/shared/venues";
 import { pragueTime, type GoogleEventBody } from "./google-body";
 
 // What the Události calendar should hold for an event record: one Google event per meeting, or one repeating event
@@ -32,8 +34,11 @@ const CANCELLED_PREFIX = "Zrušeno: ";
 export const calendarEventId = (newsId: string, key: IsoDate | "weekly"): string =>
   Buffer.from(`${newsId}/${key}`, "utf8").toString("hex");
 
-/** The Google events an event record should have: the meetings that are not over, the weekly one, or none. */
-export function desiredEvents(event: NewsEvent, today: IsoDate): DesiredEvent[] {
+/**
+ * The Google events an event record should have: the meetings that are not over, the weekly one, or none. Its venue,
+ * when it has one, gives the location.
+ */
+export function desiredEvents(event: NewsEvent, today: IsoDate, venue?: Venue): DesiredEvent[] {
   const weekly = !event.sessions && event.longTerm && event.longTerm !== true;
   if (event.longTerm === true && !event.sessions) return [];
   const url = `${SITE_URL}${eventHref(event)}`;
@@ -48,7 +53,7 @@ export function desiredEvents(event: NewsEvent, today: IsoDate): DesiredEvent[] 
         meeting,
         ...(weekly && { weeklyUntil: eventEnd(event) }),
         summary: meeting.cancelled ? `${CANCELLED_PREFIX}${event.title}` : event.title,
-        ...(event.place && { location: event.place }),
+        ...(venue ? { location: venueLocation(venue) } : event.place && { location: event.place }),
         description: `${event.lead ?? event.text}\n\n${url}`,
       };
     });

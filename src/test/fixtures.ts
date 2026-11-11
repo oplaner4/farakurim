@@ -1,4 +1,5 @@
 import type { NewsEvent } from "@/content/types/news";
+import type { Venue } from "@/content/types/venues";
 import { pragueDateTime } from "@/lib/shared/prague";
 
 // Fixtures shared by the site's tests: event records, instants of Prague time and the events of the event and archive
@@ -13,6 +14,14 @@ export const newsEvent = (fields: Partial<NewsEvent> = {}): NewsEvent => ({
   start: "2026-10-18",
   ...fields,
 });
+
+/** A venue for "Hody v České": the sokolovna with a full postal address. */
+export const sokolovna: Venue = {
+  id: "ceska-sokolovna",
+  name: "Sokolovna",
+  address: { streetAddress: "Hlavní 1", postalCode: "664 31", municipality: "Česká", country: "Česko" },
+  position: { lat: 49.28, lon: 16.56 },
+};
 
 /** A bare event record: its id as the title, without a place or a text. */
 export const event = (id: string, start: string, end?: string, extra: Partial<NewsEvent> = {}): NewsEvent => ({
