@@ -5,7 +5,7 @@ import { parseOrThrow, readJsonFile } from "@/lib/shared/json-file";
 import { positionMapHref } from "@/lib/shared/links";
 import { slug } from "@/lib/shared/slug";
 import { formatAddress } from "@/lib/shared/venues";
-import { findVenue } from "./match";
+import { findVenue, venuesOf, venuesWith } from "./match";
 import { venueFileSchema, venueSchema } from "@/lib/venues/schema";
 import { actionVerb, parseCommandLine, readJsonRecord } from "../command";
 import {
@@ -16,7 +16,7 @@ import {
   writeContentFile,
   writeMonth,
 } from "../content-files";
-import { ask, next, refusal, tell } from "../output";
+import { next, refusal, tell } from "../output";
 import {
   addressOf,
   distanceMetres,
@@ -28,11 +28,11 @@ import {
   type MapyItem,
 } from "./mapy";
 
-// The venue list (src/content/venues.json) and the records' venues: an exact match of a place within its municipality,
+// The venue list (src/content/venues.json) and the records' venues: a municipality's venues narrowed by keywords,
 // Mapy.com lookups inside one municipality, a new venue or alias written after the user's yes, and the records whose
 // place matches a venue exactly.
 
-export const USAGE = `Usage: pnpm venue find --municipality "<municipality>" "<place>"
+export const USAGE = `Usage: pnpm venue find --municipality "<municipality>" [<keyword>…]
        pnpm venue lookup --municipality "<municipality>" ("<query>" | --link <Mapy.com link> | --address "<address>")
        pnpm venue add <venue.json | -> [--check]
        pnpm venue alias <id> "<text>" [--check]
@@ -42,7 +42,7 @@ export const USAGE = `Usage: pnpm venue find --municipality "<municipality>" "<p
 const ADDRESS_DISTANCE_METRES = 150;
 
 export type VenueCommand =
-  | { sub: "find"; municipality: string; place: string }
+  | { sub: "find"; municipality: string; keywords: string[] }
   | { sub: "lookup"; municipality: string; query?: string; link?: string; address?: string }
   | { sub: "add"; file: string; check: boolean }
   | { sub: "alias"; id: string; text: string; check: boolean }
@@ -66,7 +66,7 @@ function parseLookup({ positionals, values: { municipality, link, address } }: P
 
 const PARSERS: Record<string, (parsed: Parsed, check: boolean) => VenueCommand | undefined> = {
   find: ({ positionals, values: { municipality } }) =>
-    municipality && positionals.length === 1 ? { sub: "find", municipality, place: positionals[0] } : undefined,
+    municipality ? { sub: "find", municipality, keywords: positionals } : undefined,
   lookup: parseLookup,
   add: ({ positionals }, check) => (positionals.length === 1 ? { sub: "add", file: positionals[0], check } : undefined),
   alias: ({ positionals: [id, text, ...extra] }, check) =>
@@ -87,21 +87,21 @@ export const readVenues = (file: string): Venue[] => readJsonFile(file, venueFil
 
 const aliasNote = (venue: Venue) => (venue.aliases?.length ? ` (${venue.aliases.join(", ")})` : "");
 
-/** `find`: the venue `place` names in `municipality`, else the municipality's venues to choose from. */
-export function findLines(list: Venue[], municipality: string, place: string): string[] {
-  const match = findVenue(list, municipality, place);
-  if (match.kind === "wrong-municipality") {
-    throw refusal(
-      `the place "${place}" does not start with ${municipality}`,
-      next("name the municipality the place is in"),
-    );
-  }
-  if (match.kind === "known") return [`Known venue: ${match.venue.id} (${match.venue.name})`];
-  if (match.venues.length === 0) return [tell(`${municipality} has no venues yet.`)];
-  return [
-    ask(`"${place}" matches no venue of ${municipality}. Is it one of these, or a new venue?`),
-    ...match.venues.map((v) => `  ${v.id}  ${v.name}${aliasNote(v)}`),
-  ];
+const venueLine = (v: Venue) => `  ${v.id}  ${v.name}${aliasNote(v)}`;
+
+/**
+ * `find`: the venues of `municipality` whose name or an alias holds any of `keywords`; all of them without keywords,
+ * or after a note when none does.
+ */
+export function findLines(list: Venue[], municipality: string, keywords: string[] = []): string[] {
+  const all = venuesOf(list, municipality);
+  if (all.length === 0) return [tell(`${municipality} has no venues yet.`)];
+  if (keywords.length === 0) return [`Venues of ${municipality}:`, ...all.map(venueLine)];
+  const words = keywords.map((k) => `"${k}"`).join(", ");
+  const found = venuesWith(list, municipality, keywords);
+  if (found.length === 0)
+    return [tell(`no venue of ${municipality} has ${words}; all of them:`), ...all.map(venueLine)];
+  return [`Venues of ${municipality} with ${words}:`, ...found.map(venueLine)];
 }
 
 const positionText = ({ lat, lon }: Position) => `${lat}, ${lon}`;
@@ -246,7 +246,7 @@ export function assignVenues(newsDir: string, list: Venue[], { check }: { check:
 
 export async function execute(command: VenueCommand) {
   if (command.sub === "find") {
-    console.log(findLines(readVenues(VENUES_FILE), command.municipality, command.place).join("\n"));
+    console.log(findLines(readVenues(VENUES_FILE), command.municipality, command.keywords).join("\n"));
   } else if (command.sub === "lookup") {
     console.log((await lookupLines(command, readVenues(VENUES_FILE), mapyKey())).join("\n"));
   } else if (command.sub === "add") {

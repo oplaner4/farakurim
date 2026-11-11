@@ -63,8 +63,8 @@ const resultQuotes: { quote: string; skills: string[]; lines: () => string[] }[]
     lines: () => unpinnedLines([other], true),
   },
   {
-    quote: "Known venue: <id> (<name>)",
-    skills: ["parish-create-event/SKILL.md", "parish-correct-event/SKILL.md"],
+    quote: "Venues of <municipality>:",
+    skills: ["parish-create-event/SKILL.md"],
     lines: () =>
       findLines(
         [
@@ -76,7 +76,6 @@ const resultQuotes: { quote: string; skills: string[]; lines: () => string[] }[]
           },
         ],
         "Kuřim",
-        "Kuřim, fara",
       ),
   },
   {

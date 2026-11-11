@@ -66,20 +66,25 @@ describe("pnpm venue", () => {
   const ids = () => readVenues(file).map((v) => v.id);
 
   describe("find", () => {
-    it("names a known venue, else lists the municipality's venues, else says it has none", () => {
-      expect(findLines(LIST, "Kuřim", "Kuřim, areál za farou")).toEqual(["Known venue: kurim-fara (Fara)"]);
-      expect(findLines(LIST, "Kuřim", "Kuřim, farní zahrada")).toEqual([
-        'ask: "Kuřim, farní zahrada" matches no venue of Kuřim. Is it one of these, or a new venue?',
+    it("lists the municipality's venues, else says it has none", () => {
+      expect(findLines(LIST, "Kuřim")).toEqual([
+        "Venues of Kuřim:",
         "  kurim-kostel  Kostel sv. Maří Magdalény (kostel)",
         "  kurim-fara  Fara (areál za farou)",
       ]);
-      expect(findLines(LIST, "Lelekovice", "Lelekovice, u vodojemu")).toEqual(["tell: Lelekovice has no venues yet."]);
+      expect(findLines(LIST, "Lelekovice", ["vodojem"])).toEqual(["tell: Lelekovice has no venues yet."]);
     });
 
-    it("refuses a place in another municipality", () => {
-      expect(() => findLines(LIST, "Kuřim", "Česká, sokolovna")).toThrow(
-        /^the place "Česká, sokolovna" does not start with Kuřim/,
-      );
+    it("lists only the venues whose name or an alias holds a keyword, folded", () => {
+      expect(findLines(LIST, "Kuřim", ["FAR", "zahrada"])).toEqual([
+        'Venues of Kuřim with "FAR", "zahrada":',
+        "  kurim-fara  Fara (areál za farou)",
+      ]);
+      expect(findLines(LIST, "Kuřim", ["kaple"])).toEqual([
+        'tell: no venue of Kuřim has "kaple"; all of them:',
+        "  kurim-kostel  Kostel sv. Maří Magdalény (kostel)",
+        "  kurim-fara  Fara (areál za farou)",
+      ]);
     });
   });
 
@@ -174,10 +179,10 @@ describe("pnpm venue", () => {
 
 describe("parseCommand", () => {
   it("reads each subcommand and refuses a missing municipality", () => {
-    expect(parseCommand(["find", "--municipality", "Kuřim", "Kuřim, fara"])).toEqual({
+    expect(parseCommand(["find", "--municipality", "Kuřim", "fara", "zahrada"])).toEqual({
       sub: "find",
       municipality: "Kuřim",
-      place: "Kuřim, fara",
+      keywords: ["fara", "zahrada"],
     });
     expect(parseCommand(["lookup", "--municipality", "Česká", "--link", "https://mapy.com/s/x"])).toEqual({
       sub: "lookup",

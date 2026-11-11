@@ -55,11 +55,13 @@ gets none, and its map link searches `place`.
 
 1. **Name the municipality:** the one the event is in, as Mapy.com names it ("Brno" for Brno-Husovice). Read it
    from the source; never split `place` at a comma to get it.
-2. **Find it:** `pnpm venue find --municipality "<municipality>" "<place>"`.
-   - `Known venue: <id> (<name>)`: take that venue.
-   - `ask:` with the municipality's venues: pick one only when it is plainly the same building by meaning (`"farní
-zahrada"` → `kurim-fara`), and propose the text as its new alias. A doubtful match is a question, never a guess.
-   - `tell: … has no venues yet.`, or none of them fits: step 3.
+2. **Find it:** `pnpm venue find --municipality "<municipality>"` prints `Venues of <municipality>:`, each with its
+   name and aliases. Take the one the source plainly means (`"farní zahrada"` → `kurim-fara`), and when the source
+   names it in words not yet its name or alias, propose them as its new alias. Several that could fit, or a doubtful
+   one, is a question, never a guess. `tell: … has no venues yet.`, or none of them fits: step 3.
+   - Only when the list is long (more than about 15 venues, as in Brno), narrow it with a word or two of the
+     building: `pnpm venue find --municipality "<municipality>" <keyword>…`, which lists the venues whose name or an
+     alias holds one (`far` finds "Fara" and "areál za farou"), or all of them after a `tell:` when none does.
 3. **Look it up:** `pnpm venue lookup --municipality "<municipality>" "<name of the building>"` (or `--address "<address>"` for
    a building with a number). Each result has its address, position and pin link; judge which one is the building.
    When none is, ask the user for a Mapy.com link of it and run `--link <link>`: a link to a point ("Co je zde?") is
@@ -188,8 +190,9 @@ follows them too, with these changes:
 - Write the report first, then stage, then fill in each event's `Outcome:` line from what the script did, and add any
   line it printed for the user (an unpinned event) to the report. A script refusal is `refused: <its reason>`:
   the refusal's first line; its `next:` lines say what to do, not what to publish.
-- **Venue:** take only a `Known venue: <id> (<name>)`; otherwise leave `venue` out and write a question (`blocking:
-no`) with the candidate or the `pnpm venue lookup` proposal and its pin link, for the maintainer to confirm. Never
+- **Venue:** take a venue only when the source names it by its name or an alias (case and word endings aside);
+  otherwise leave `venue` out and write a question (`blocking: no`) with the candidates or the `pnpm venue lookup`
+  proposal and its pin link, for the maintainer to confirm. Never
   run `pnpm venue add` or `pnpm venue alias`.
 - Skip step 6: no `parish-publish-content`, no commit, no release.
 

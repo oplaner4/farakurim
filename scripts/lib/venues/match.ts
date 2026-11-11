@@ -2,7 +2,7 @@ import type { Venue } from "@/content/types/venues";
 import { foldPlace, type VenueFields } from "@/lib/venues/checks";
 
 // Matching an event's place with the venues: exact, after folding, never fuzzy. The municipality is stated by whoever
-// reads the source, never parsed from `place`.
+// reads the source, never parsed from `place`. Keywords only narrow the venues to choose from.
 
 /**
  * The building part of `place` in `municipality`: the text after the first comma ("Kuřim, areál za farou" → "areál
@@ -20,6 +20,18 @@ export function buildingText(place: string, municipality: string): string | null
 const inMunicipality = (venue: Venue, municipality: string) =>
   foldPlace(venue.address.municipality) === foldPlace(municipality);
 
+/** The venues of `municipality`, in list order. */
+export const venuesOf = (list: Venue[], municipality: string): Venue[] =>
+  list.filter((v) => inMunicipality(v, municipality));
+
+/** The venues of `municipality` whose name or an alias holds any of `keywords`, folded ("far" finds "Fara"). */
+export function venuesWith(list: Venue[], municipality: string, keywords: string[]): Venue[] {
+  const folded = keywords.map(foldPlace).filter(Boolean);
+  return venuesOf(list, municipality).filter((v) =>
+    [v.name, ...(v.aliases ?? [])].some((t) => folded.some((k) => foldPlace(t).includes(k))),
+  );
+}
+
 export type VenueMatch =
   { kind: "known"; venue: Venue } | { kind: "candidates"; venues: Venue[] } | { kind: "wrong-municipality" };
 
@@ -30,7 +42,7 @@ export type VenueMatch =
 export function findVenue(list: Venue[], municipality: string, place: string): VenueMatch {
   const building = buildingText(place, municipality);
   if (building === null) return { kind: "wrong-municipality" };
-  const local = list.filter((v) => inMunicipality(v, municipality));
+  const local = venuesOf(list, municipality);
   const venue = local.find((v) => [v.name, ...(v.aliases ?? [])].some((t) => foldPlace(t) === foldPlace(building)));
   return venue ? { kind: "known", venue } : { kind: "candidates", venues: local };
 }

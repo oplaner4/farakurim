@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Venue } from "@/content/types/venues";
-import { buildingText, findVenue, venueNotes } from "./match";
+import { buildingText, findVenue, venueNotes, venuesWith } from "./match";
 
 const at = (id: string, name: string, municipality: string, aliases?: string[]): Venue => ({
   id,
@@ -56,6 +56,17 @@ describe("findVenue", () => {
 
   it("refuses a place in another municipality", () => {
     expect(findVenue(list, "Kuřim", "Česká, sokolovna")).toEqual({ kind: "wrong-municipality" });
+  });
+});
+
+describe("venuesWith", () => {
+  it("gives the municipality's venues whose name or an alias holds any keyword, folded", () => {
+    expect(venuesWith(list, "Kuřim", ["kaple"])).toEqual([byId["kurim-kaple-jana-nepomuckeho"]]);
+    expect(venuesWith(list, "Kuřim", ["areal", "nepomuckeho"])).toEqual([
+      byId["kurim-fara"],
+      byId["kurim-kaple-jana-nepomuckeho"],
+    ]);
+    expect(venuesWith(list, "Kuřim", ["sokolovna"])).toEqual([]);
   });
 });
 
