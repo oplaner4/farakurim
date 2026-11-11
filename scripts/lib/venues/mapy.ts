@@ -99,7 +99,8 @@ export function addressOf(item: MapyItem): VenueAddress {
   return {
     ...(streetAddress && { streetAddress }),
     ...(part && part !== municipality && { part }),
-    ...(item.zip && { postalCode: item.zip }),
+    // A place's postcode comes without its space ("66434"), an address's with it.
+    ...(item.zip && { postalCode: item.zip.replace(/^(\d{3}) ?(\d{2})$/, "$1 $2") }),
     municipality,
     country: structure(item, "regional.country") ?? "",
   };

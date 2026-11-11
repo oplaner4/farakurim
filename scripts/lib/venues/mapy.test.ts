@@ -128,6 +128,10 @@ describe("addressOf", () => {
     expect(addressOf(numbered).streetAddress).toBe("Kuřimská 55/5");
   });
 
+  it("writes a place's postcode with its space, as an address's", () => {
+    expect(addressOf({ ...tynska, type: "poi", zip: "11000" }).postalCode).toBe("110 00");
+  });
+
   it("leaves out a part named as the municipality", () => {
     const kurim: MapyItem = {
       ...tynska,
