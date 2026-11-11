@@ -42,33 +42,49 @@ the Mapy.com API), the agent for what needs judgment (which venue a text means),
   (services, Kontakty, nativity, events) against the list.
 - A venue:
 
-  | Field           | Meaning                                                                                           |
-  | --------------- | ------------------------------------------------------------------------------------------------- |
-  | `id`            | `<village>-<building>` slug (`lib/shared/slug.ts`), unique, never changed once used               |
-  | `name`          | "Sokolovna", "Kostel sv. Maří Magdalény"                                                          |
-  | `village`       | The **municipality** as Mapy.com names it ("Brno" for Brno-Husovice; the district goes in `name`) |
-  | `address`       | Postal address, including the country; optional for a place without one                           |
-  | `position`      | `{ lat, lon }` from Mapy.com; optional until looked up                                            |
-  | `mapQuery`      | Only when searching `address` does not find the place (the map link's priority stays step 1's)    |
-  | `aliases`       | Building texts already confirmed for this venue ("areál za farou", "farní zahrada")               |
-  | `catalogueHref` | As in step 1                                                                                      |
+  | Field           | Meaning                                                                                  |
+  | --------------- | ---------------------------------------------------------------------------------------- |
+  | `id`            | `<municipality>-<building>` slug (`lib/shared/slug.ts`), unique, never changed once used |
+  | `name`          | "Sokolovna", "Kostel sv. Maří Magdalény"                                                 |
+  | `address`       | Where it is, in parts (below); required, with only `municipality` and `country` in it    |
+  | `position`      | `{ lat, lon }`: the building itself, confirmed by the user on a pin; required            |
+  | `aliases`       | Building texts already confirmed for this venue ("areál za farou", "farní zahrada")      |
+  | `catalogueHref` | As in step 1                                                                             |
 
-- The map link stays `venueMapHref()`: `mapQuery`, else `address`, else `name village`.
-- **Addresses are postal addresses only**, without the building's name: "Křížkovského 55/5, 664 34 Kuřim, Česko".
-  The calendars' location is `venueLocation()`: "`name`, `address`" ("Kostel sv. Maří Magdalény, Pátera Peši, 664 34
-  Kuřim, Česko"), or "`name`, `village`" without an address, because a church or chapel often has a street but no
-  number, and its address alone finds the street. Done before this step (the churches' addresses corrected from
-  Mapy.com, the Bohoslužby location built this way).
+- **The address is structured**, with schema.org's names where they fit:
+
+  | Field           | Example             | Meaning                                                                                                    |
+  | --------------- | ------------------- | ---------------------------------------------------------------------------------------------------------- |
+  | `streetAddress` | "Křížkovského 55/5" | Street and number as one text, as Mapy.com names an address ("Jinačovice 46" without streets); never split |
+  | `part`          | "Husovice"          | The part of the municipality, when the address names it                                                    |
+  | `postalCode`    | "664 34"            | The delivering post office's code; the town after it is always the municipality                            |
+  | `municipality`  | "Kuřim"             | Required. The municipality as Mapy.com names it ("Brno" for Brno-Husovice); replaces `village`             |
+  | `country`       | "Česko"             | Required                                                                                                   |
+
+  `formatAddress()` joins the parts present: "Křížkovského 55/5, 664 34 Kuřim, Česko" ("`streetAddress`, `part`,
+  `postalCode` `municipality`, `country`"; the place of `part` is checked on a real address, the Husovice fara, before
+  it is coded). It must give exactly today's strings for the churches, or every upcoming Bohoslužby event is rewritten:
+  step 1's pinned test guards it.
+
+- The calendars' location stays `venueLocation()`: "`name`, `formatAddress(address)`" ("Kostel sv. Maří Magdalény,
+  Pátera Peši, 664 34 Kuřim, Česko"), because a church often has a street but no number, and its address alone finds the
+  street.
+- **The map link is a pin at `position`** (`https://mapy.cz/zakladni?source=coor&id=<lon>,<lat>&x=<lon>&y=<lat>&z=17`),
+  not a search. A text search is Mapy's guess, whatever the text: of five venues searched by "name, address", two were
+  found, two gave only a result list and one gave a chapel of the same name near Olomouc. The pin's card says "Pozice na
+  mapě", not the building's name; the exact place is worth that. `mapQuery` goes from venues (events without a venue
+  keep theirs).
 
 ### Events
 
-- `NewsEvent` gains `venue?: string`. `place` stays required and is what people read.
+- `NewsEvent` gains `venue?: string`, which requires `place`; `place` stays what people read.
 - With a venue: the map link is `venueMapHref(venue)`; the `.ics` `LOCATION` and the Události location are
-  `venueLocation(venue)` (falling back to `place`), as the Bohoslužby location is; `GEO` and the structured data's `geo` come from `position`; the structured data's
+  `venueLocation(venue)`, as the Bohoslužby location is; `GEO` and the structured data's `geo` come from `position`; the structured data's
   `location.name` is `place`, its `address` the venue's address.
 - Without a venue: everything as today (`mapQuery ?? place`, `place` as the location). `mapQuery` on events is kept
   for them and is refused next to a `venue`.
-- The schema refuses a `venue` that is not in the list, and one whose `village` does not start `place` (folded).
+- The schema refuses a `venue` that is not in the list, and one whose `address.municipality` does not start `place`
+  (folded). The structured data's address is a `PostalAddress` built from the parts.
 
 ### Choosing a venue (hybrid)
 
@@ -89,22 +105,30 @@ The flow in the skill, for an event at one building:
 2. Known → the event takes the venue. Otherwise the agent reads the candidates with the source: a venue that fits by
    meaning ("farní zahrada" → `kurim-fara`) is proposed as that venue plus a new alias; a doubtful one is asked; none
    fits → step 3. Never guess (as "Finding `newsId`" in `parish-create-service-sheet`).
-3. `pnpm venue lookup --village "<village>" (--link <share link> | --address "<address>" | "<query>")`: Mapy.com
-   results inside that municipality only, each with its name, address, position and Mapy link. The agent judges which
-   one is the building, or asks the user for a share link when none is.
-4. `pnpm venue add <venue.json> --check` prints the new venue (`Would add …`); `pnpm venue alias <id> "<text>"
---check` the new alias. The user confirms; the same commands without `--check` write.
+3. `pnpm venue lookup --village "<village>" …` finds the **position**, from one of three sources, best first:
+   - `"<query>"`: the building by name; Mapy.com results inside that municipality only, each with its name, address
+     parts, position and pin link. When Mapy.com knows the building, its position is the building's. The agent judges
+     which result is the building, or asks the user for a share link when none is.
+   - `--link <share link>`: a place Mapy.com does not know by name. A link to a point ("Co je zde?", `source=coor`) is
+     exact; a link to a named place carries the map's centre, which is where the place is only if the user did not move
+     the map, so it is printed as approximate.
+   - `--address "<address>"`: the address point, a few metres from the building; for a building with a number and no
+     entry of its own.
+4. The agent writes the venue file (name, address parts from the lookup, position, aliases); `pnpm venue add
+<venue.json> --check` fills `address.municipality` from a reverse lookup of the position and prints the new venue
+   with its pin link (`Would add …`); `pnpm venue alias <id> "<text>" --check` the new alias. The user opens the pin and
+   confirms; the same commands without `--check` write.
 5. `add-event` / `replace-event` write the event with its `venue`.
 
 ### Scripts
 
-| Command                                     | Network | Rules                                                                                                                                     |
-| ------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm venue find --village <v> "<place>"`   | no      | `place` must start with the village (folded); exact match only; output in the tags of `scripts/lib/output.ts`                             |
-| `pnpm venue lookup --village <v> …`         | yes     | keeps only results whose municipality is `<v>`; resolves a share link's redirect first (no key needed for that part)                      |
-| `pnpm venue add <file> [--check]`           | yes     | schema; unique id from village and name; `address` searched on Mapy.com must land within 100 m of `position`, else `mapQuery` is required |
-| `pnpm venue alias <id> "<text>" [--check]`  | no      | refused when the text already matches another venue of the same village                                                                   |
-| `add-event`, `replace-event`, `stage event` | no      | refuse an unknown venue, a venue from another village, and `mapQuery` next to `venue`                                                     |
+| Command                                     | Network | Rules                                                                                                                                                                                                                                                        |
+| ------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `pnpm venue find --village <v> "<place>"`   | no      | `place` must start with the village (folded); exact match only; output in the tags of `scripts/lib/output.ts`                                                                                                                                                |
+| `pnpm venue lookup --village <v> …`         | yes     | keeps only results whose municipality is `<v>`; resolves a share link's redirect first (no key needed for that part)                                                                                                                                         |
+| `pnpm venue add <file> [--check]`           | yes     | schema; unique id from municipality and name; refuses a position whose reverse lookup names another municipality than `address.municipality` (fills it when missing); warns (no refusal) when the formatted address, searched, lands > 150 m from `position` |
+| `pnpm venue alias <id> "<text>" [--check]`  | no      | refused when the text already matches another venue of the same village                                                                                                                                                                                      |
+| `add-event`, `replace-event`, `stage event` | no      | refuse an unknown venue, a venue from another village, and `mapQuery` next to `venue`                                                                                                                                                                        |
 
 - The key is `MAPY_API_KEY` in `.env.local` (README, `.env.example`), read only by `lookup` and `add`; it never reaches
   `out/` or the browser. The calls happen on the maintainer's machine or in CI, never in a visitor's browser, so the
@@ -117,11 +141,14 @@ The flow in the skill, for an event at one building:
 The events pipeline and comment runs cannot ask. They accept a `known` venue, or none; anything else (a candidate by
 meaning, a new venue, a new alias) is a question in the report (`blocking: no`: the event is published without a
 venue and corrected after the answer). CI gets `MAPY_API_KEY` as a secret of the pipelines' environment, so a run
-can `lookup` and put a proposed venue (with its Mapy link) in the report's question, ready for the maintainer's yes.
+can `lookup` and put a proposed venue (with its pin link) in the report's question, ready for the maintainer's yes.
 
 ### Moving the existing records
 
-- Seed `venues.json` with step 1's nine venues and the recurring venues found in the records (the Kuřim castle, the ZŠ
+- Step 1's nine venues move to the new shape first: their addresses in parts, `mapQuery` dropped, and a position each
+  (five known, the four chapels looked up), confirmed by the user on their pins. Their map links on Pořad bohoslužeb,
+  Kontakty and Betlémy become pins.
+- Seed `venues.json` with the recurring venues found in the records (the Kuřim castle, the ZŠ
   Komenského, the SKC, the kulturní dům, the Česká sokolovna, the Lelekovice vodojem, Mezihoří, the Tišnov fara,
   church and sál pod kinem, Porta Coeli, Petrov, Lidická 24, the Brno churches used twice, the Biskupské gymnázium,
   Výstaviště, the Husovice fara), each looked up and confirmed by the user, with the spellings already used as
@@ -134,8 +161,8 @@ can `lookup` and put a proposed venue (with its Mapy link) in the report's quest
 
 - **Calendar churn:** a venue's address change rewrites the Události location of its upcoming events (and, for a
   church, of Bohoslužby: step 1's pinned test guards it).
-- **Wrong building:** Mapy.com can return a plausible address for the wrong building; only the user's yes guards it, so
-  every new venue is shown with its Mapy link.
+- **Wrong building:** Mapy.com can return a plausible result for the wrong building, and a shared link to a named
+  place can carry a moved map's centre; only the user's yes guards it, so every new venue is shown with its pin link.
 - **Google differs from Mapy:** the calendars geocode the location with Google, not Mapy; the building's name with a
   postal address including the country is what both find most reliably.
 - **Alias collisions:** "kostel" means a different venue in each village; aliases are matched only within the stated

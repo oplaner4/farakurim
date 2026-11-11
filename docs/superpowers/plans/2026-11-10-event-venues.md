@@ -27,7 +27,11 @@ on events (announcements have none), so a `venue` requires `place` instead of `p
   ≤ 15, `type` repeated, `locality`), `rgeocode` (`lon`, `lat`); items `{ name, label, position: {lon, lat}, type,
 location, regionalStructure: [{ name, type }], zip? }`; 4 credits a call, 250 000 free a month. The key is
   `MAPY_API_KEY`, never in `src/`, `out/` or a commit.
-- A venue's `address` is postal, including the country; the calendars' location is `venueLocation()` ("name, address").
+- A venue's `address` is `{ streetAddress?, part?, postalCode?, municipality, country }` (street and number one text,
+  never split); `formatAddress()` gives "Křížkovského 55/5, 664 34 Kuřim, Česko"; the calendars' location is
+  `venueLocation()` ("name, formatted address"). `position` is required; the map link is a pin:
+  `https://mapy.cz/zakladni?source=coor&id=<lon>%2C<lat>&x=<lon>&y=<lat>&z=17`. Venues have no `mapQuery` and no
+  `village`.
 - Never run `pnpm calendar-sync --apply`, `pnpm release --yes` or anything that publishes without the user's yes.
 - Done means `pnpm format && pnpm test && pnpm lint && pnpm exec tsc --noEmit && pnpm build` (the 4 `content-pr` tests
   that fail on Windows on `main` excepted) and, for Task 3, the browser check of an event detail page.
@@ -40,42 +44,60 @@ location, regionalStructure: [{ name, type }], zip? }`; 4 credits a call, 250 00
   that village has → Task 2 `findVenue` test, Task 6 `alias` test.
 - **No key:** `lookup` and `add` without `MAPY_API_KEY` stop with `next:` naming `.env.local`; `find`, `alias`,
   `assign` work offline → Task 6 test.
-- **A share link that is not Mapy.com** (or does not redirect to coordinates) is refused, not fetched blindly →
-  Task 5 test.
-- **Calendar churn:** assigning venues changes the Události location of upcoming events; the preview must show only
-  `place` updates → Task 9 verification step.
+- **A share link** that is not Mapy.com is refused unfetched; one to a named place (map centre) is marked approximate,
+  one to a point (`source=coor`) exact → Task 5 test.
+- **Calendar churn:** the structured address must format to today's church strings exactly (Bohoslužby unchanged),
+  and assigning venues changes only the Události location of upcoming events → Task 1 pinned test, Task 9 preview.
 
 ---
 
-### Task 1: The venue list as JSON
+### Task 1: The venue list as JSON, with structured addresses and positions
 
 **Files:**
 
 - Create: `src/content/venues.json`, `src/lib/venues/schema.ts`, `src/lib/venues/schema.test.ts`
 - Modify: `src/content/venues.ts` (loader), `src/content/types/venues.ts`, `src/content/venues.test.ts`,
-  `.claude/rules/structure.md` (`venues` group: content in `venues.json`, schema in `lib/venues/`)
-- Delete: `VENUE_IDS` from `types/venues.ts`
+  `src/lib/shared/venues.ts` (+ test), `src/lib/shared/links.ts` (+ test), `src/content/masses.test.ts` (pinned
+  locations stay), `.claude/rules/structure.md` (`venues` group: content in `venues.json`, schema in `lib/venues/`),
+  `.claude/rules/content-and-time.md` (`## Venues`: structured address, position, pin link)
+- Delete: `VENUE_IDS` from `types/venues.ts`; `mapQuery` and `village` from venues
 
 **Interfaces:**
 
-- Produces: `type VenueId = string`; `type Venue = { id: string; name: string; village: string; address?: string;
-position?: { lat: number; lon: number }; mapQuery?: string; aliases?: string[]; catalogueHref?: string }`;
-  `venueFileSchema` (`{ venues: Venue[] }`, strict); `venueList: Venue[]` and `venues: Record<string, Venue>` (by id)
-  from `@/content/venues`. `venueMapHref` and `venueLocation` keep their signatures.
+- Produces: `type VenueId = string`; `type Position = { lat: number; lon: number }`; `type VenueAddress = {
+streetAddress?: string; part?: string; postalCode?: string; municipality: string; country: string }`; `type Venue
+= { id: string; name: string; address: VenueAddress; position: Position; aliases?: string[]; catalogueHref?: string
+}`; `venueFileSchema` (`{ venues: Venue[] }`, strict); `venueList: Venue[]` and `venues: Record<string, Venue>` (by
+  id) from `@/content/venues`; `formatAddress(address: VenueAddress): string` and `venueLocation(venue)` in
+  `lib/shared/venues.ts`; `positionMapHref(position: Position): string` in `lib/shared/links.ts`, and
+  `venueMapHref(venue) = positionMapHref(venue.position)`.
 
-- [ ] **Step 1: Failing tests.** `schema.test.ts`: refuses a duplicate `id`; refuses an `id` that is not
-      slug-shaped (`/^[a-z0-9]+(-[a-z0-9]+)*$/`; the nine existing ids are shorter than `slug(village name)`, so only
-      `pnpm venue add` derives new ids from it); refuses an alias that equals (folded,
-      `foldPlace`) another venue's name or alias in the same village; refuses an `address` without a comma. `venues.test.ts`:
-      every `venue` referenced by `places`, `parishChurches`, the chapels, `contacts.venue` and `nativitySeasons` exists in
-      `venues`.
-- [ ] **Step 2: Run** `pnpm exec vitest run src/lib/venues src/content/venues.test.ts` → FAIL (no schema).
-- [ ] **Step 3: Move the nine venues into `venues.json`** (same values, `id` added, keys in the schema's order), load
-      it like `gallery.ts` (`safeParse`, throw with `z.prettifyError`). References typed `VenueId` stay. `foldPlace` is
-      needed here: take it from Task 2's file (create `src/lib/venues/match.ts` with only `foldPlace` now).
-- [ ] **Step 4: Run** `pnpm test && pnpm exec tsc --noEmit` → PASS (but the 4 known); the calendar preview
-      `pnpm calendar-sync --calendar services` shows nothing to do.
-- [ ] **Step 5: Commit** `refactor(content): keep the venue list as JSON`
+- [ ] **Step 1: Positions of the nine.** Known: `kurim-kostel` 49.2966286, 16.5257081; `kurim-fara` 49.2965974,
+      16.5264040; `moravske-kninice-kostel` 49.2933365, 16.5012323; `jinacovice-kaple` 49.2679434, 16.5292303. Look up
+      the Česká chapel (the building, not the address point 49.2803893, 16.5653142) and the four other chapels on
+      Mapy.cz in the browser; check the Husovice-style order of `part` on one real address. Show the user a table (id,
+      address parts, position, pin link); wait for the yes.
+- [ ] **Step 2: Failing tests.**
+  - `schema.test.ts`: refuses a duplicate `id`; an `id` that is not slug-shaped (`/^[a-z0-9]+(-[a-z0-9]+)*$/`; the nine
+    existing ids are shorter than `slug(municipality name)`, so only `pnpm venue add` derives new ids from it); an alias
+    equal (folded, `foldPlace`) to another venue's name or alias in the same municipality; a venue without `position`
+    or `address.municipality`; a latitude outside −90…90.
+  - `venues.test.ts` (shared): `formatAddress` of `{ streetAddress: "Křížkovského 55/5", postalCode: "664 34",
+municipality: "Kuřim", country: "Česko" }` → "Křížkovského 55/5, 664 34 Kuřim, Česko"; of `{ municipality: "Kuřim",
+country: "Česko" }` → "Kuřim, Česko"; with `part` in the order step 1 found.
+  - `links.test.ts`: `positionMapHref({ lat: 49.2966286, lon: 16.5257081 })` →
+    `https://mapy.cz/zakladni?source=coor&id=16.5257081%2C49.2966286&x=16.5257081&y=49.2966286&z=17`.
+  - `content/venues.test.ts`: every `venue` referenced by `places`, `parishChurches`, the chapels, `contacts.venue`
+    and `nativitySeasons` exists. `masses.test.ts`' pinned Bohoslužby locations stay as they are.
+- [ ] **Step 3: Run** `pnpm exec vitest run src/lib/venues src/lib/shared src/content` → FAIL.
+- [ ] **Step 4: Implement.** Move the nine venues into `venues.json` (addresses in parts, the confirmed positions,
+      no `mapQuery`, keys in the schema's order), load it like `gallery.ts` (`safeParse`, throw with
+      `z.prettifyError`). References typed `VenueId` stay. `foldPlace` is needed here: create `src/lib/venues/match.ts`
+      with only `foldPlace` now (Task 2).
+- [ ] **Step 5: Run** the full check → PASS (but the 4 known); `pnpm calendar-sync --calendar services` (preview) shows
+      nothing new to do beyond the 231 location updates already pending. Browser: the map links on Pořad bohoslužeb,
+      Kontakty and Betlémy open a pin on the building (390/834/1440 px, both themes).
+- [ ] **Step 6: Commit** `refactor(content): keep the venues as JSON with their addresses in parts and positions`
 
 ### Task 2: Matching and checks
 
@@ -99,7 +121,8 @@ string[]` (a structural type, so it needs no `NewsEvent.venue` before Task 3).
   - `findVenue(l, "Kuřim", "Kuřim, farní zahrada")` → candidates = the Kuřim venues;
   - `findVenue(l, "Kuřim", "Česká, sokolovna")` → `wrong-village`;
   - `venueProblems`: `[]` for `{place: "Kuřim, fara", venue: "kurim-fara"}`; one problem each for an unknown venue, a
-    venue without `place`, a venue whose village `place` does not start with, and `mapQuery` next to `venue`.
+    venue without `place`, a venue whose `address.municipality` `place` does not start with, and `mapQuery` next to
+    `venue`.
 - [ ] **Step 2: Run** `pnpm exec vitest run src/lib/venues/match.test.ts` → FAIL.
 - [ ] **Step 3: Implement** the four functions. Problems are English sentences naming the field
       (`venue: no venue with the id …`).
@@ -123,11 +146,12 @@ string[]` (a structural type, so it needs no `NewsEvent.venue` before Task 3).
   `desiredEvents(event, today, venue?: Venue)`; callers pass `event.venue ? venues[event.venue] : undefined`.
 
 - [ ] **Step 1: Failing tests:**
-  - `ics.test.ts`: with a venue `{ name: "Sokolovna", address: "Hlavní 1, 664 31 Česká, Česko", position: { lat: 49.28,
-lon: 16.56 } }` the calendar holds `LOCATION:Sokolovna\, Hlavní 1\, 664 31 Česká\, Česko` and `GEO:49.28;16.56`;
+  - `ics.test.ts`: with a venue `{ name: "Sokolovna", address: { streetAddress: "Hlavní 1", postalCode: "664 31",
+municipality: "Česká", country: "Česko" }, position: { lat: 49.28, lon: 16.56 } }` the calendar holds `LOCATION:Sokolovna\, Hlavní 1\, 664 31 Česká\, Česko` and `GEO:49.28;16.56`;
     without one, `LOCATION:` is `place` and there is no `GEO`.
-  - `structured-data.test.ts`: with the venue, `location` is `{ "@type": "Place", name: place, address: venue.address,
-geo: { "@type": "GeoCoordinates", latitude, longitude } }`; without, as today.
+  - `structured-data.test.ts`: with the venue, `location` is `{ "@type": "Place", name: place, address: { "@type":
+"PostalAddress", streetAddress, postalCode, addressLocality: municipality, addressCountry: country }, geo: { "@type":
+"GeoCoordinates", latitude, longitude } }` (absent parts left out); without, as today.
   - `desired.test.ts`: `location` is `venueLocation(venue)` with a venue, `place` without.
   - `news.test.ts`: every record's `venueProblems(e, venues)` is `[]`.
 - [ ] **Step 2: Run** `pnpm exec vitest run src/lib/news src/lib/shared scripts/lib/calendar src/content/news` → FAIL.
@@ -160,19 +184,26 @@ and their tests.
   `loadEnvLocal()` from `scripts/lib/calendar/apply.ts`, then `requiredEnv("MAPY_API_KEY")`);
   `geocode(query: string, opts: { village: string; types?: string[]; limit?: number }, key): Promise<MapyItem[]>` (keeps
   only items whose `regionalStructure` has `{ type: "regional.municipality", name: village }`);
-  `rgeocode(position, key): Promise<MapyItem[]>`; `shareLinkPosition(url: string): Promise<{ lat; lon; sourceId? }>`;
+  `rgeocode(position, key): Promise<MapyItem[]>`; `municipalityOf(item: MapyItem): string | undefined` (its
+  `regional.municipality` entry); `addressOf(item: MapyItem): VenueAddress` (an address item: `streetAddress` = its
+  `name`, `part` = its `regional.municipality_part` when that differs from the municipality, `postalCode` = `zip`,
+  `municipality`, `country`); `shareLinkPosition(url: string): Promise<Position & { exact: boolean }>`;
   `distanceMetres(a, b): number` (haversine).
 
 - [ ] **Step 1: Failing tests** with a stubbed `fetch` (as `src/test/fetch.ts`):
   - `geocode` sends `X-Mapy-Api-Key`, `query`, `lang=cs`, `locality=<village>`, each type as its own `type=` and
     drops an item whose municipality is "Brno" when the village is "Česká";
   - `shareLinkPosition("https://mapy.com/s/pajohadave")` reads the `301` `location`
-    (`…&x=16.5826607&y=49.2935811…`) → `{ lat: 49.2935811, lon: 16.5826607 }`, with `redirect: "manual"`;
+    (`…&x=16.5826607&y=49.2935811…`) → `{ lat: 49.2935811, lon: 16.5826607 }`, with `redirect: "manual"`; `exact` is
+    `true` for `source=coor` (position from its `id`), `false` for a named place (`source=base`, map centre);
     a URL not on `mapy.com`/`mapy.cz` is refused without a request;
+  - `addressOf` of the docs' example item ("Týnská ulička 610/7", `zip` "110 00", part "Staré Město", municipality
+    "Praha 1") → the matching `VenueAddress`;
   - `distanceMetres` of two points 0.001° of latitude apart ≈ 111 m (±1).
 - [ ] **Step 2: Run** `pnpm exec vitest run --project scripts scripts/lib/venues/mapy.test.ts` → FAIL.
-- [ ] **Step 3: Implement.** One real call with the key (`geocode("kostel sv. Markéty", { village: "Moravské
-Knínice" })`) confirms the shapes and the `type`/`locality` encoding before the commit; adjust the code, not the
+- [ ] **Step 3: Implement.** Real calls with the key (`geocode("kostel sv. Markéty", { village: "Moravské
+Knínice" })`, `rgeocode` of the fara and the Kuřim church) confirm the shapes, what `regionalStructure` holds for a
+      POI and an address, and the `type`/`locality` encoding before the commit; adjust the code, not the
       spec, if they differ, and ledger it.
 - [ ] **Step 4: Run** → PASS. **Step 5: Commit** `feat(scripts): look places up on Mapy.com`
 
@@ -187,17 +218,19 @@ Knínice" })`) confirms the shapes and the `type`/`locality` encoding before the
 - Consumes: Task 2's `findVenue`, `foldPlace`; Task 5's client; `slug`; `writeContentFile`; `venueFileSchema`.
 - Produces the subcommands and their output:
 
-  | Subcommand                                                            | Output                                                                                                                                                                                                                                                     |
-  | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-  | `find --village <v> "<place>"`                                        | `state: known <id>`; or `ask: "<place>" matches no venue of <v>.` then one line per candidate `<id>  <name> (<aliases>)`, or `tell: <v> has no venues yet.`; `wrong-village` → refusal                                                                     |
-  | `lookup --village <v> ("<query>" \| --link <url> \| --address "<a>")` | one block per item: `name`, `label`, the postal address (`name`/`zip`/municipality joined as the spec's format), `lat,lon`, a Mapy link `https://mapy.com/cs/zakladni?x=<lon>&y=<lat>&z=18`; with `--link`, also the nearest listed venue and its distance |
-  | `add <venue.json> [--check]`                                          | `Would add the venue <id>` / `Added …`, then the fields                                                                                                                                                                                                    |
-  | `alias <id> "<text>" [--check]`                                       | `Would add the alias …` / `Added …`                                                                                                                                                                                                                        |
-  | `assign [--check]`                                                    | per record whose `place` gives `known` with the record's own village (`place` before the first comma): `Would set <event id> venue <id>` (and `, drop mapQuery`); records already with a venue are skipped                                                 |
+  | Subcommand                                                            | Output                                                                                                                                                                                                                                                                       |
+  | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+  | `find --village <v> "<place>"`                                        | `state: known <id>`; or `ask: "<place>" matches no venue of <v>.` then one line per candidate `<id>  <name> (<aliases>)`, or `tell: <v> has no venues yet.`; `wrong-village` → refusal                                                                                       |
+  | `lookup --village <v> ("<query>" \| --link <url> \| --address "<a>")` | one block per item: `name`, `label`, `formatAddress(addressOf(item))`, `lat,lon`, `positionMapHref`; with `--link`, the one position marked `exact` or `approximate (the shared map's centre)`, its reverse-looked-up address and the nearest listed venue with its distance |
+  | `add <venue.json> [--check]`                                          | `Would add the venue <id>` / `Added …`, then the fields and the pin link; a `tell:` when the formatted address lands > 150 m from the position                                                                                                                               |
+  | `alias <id> "<text>" [--check]`                                       | `Would add the alias …` / `Added …`                                                                                                                                                                                                                                          |
+  | `assign [--check]`                                                    | per record whose `place` gives `known` with the record's own village (`place` before the first comma): `Would set <event id> venue <id>` (and `, drop mapQuery`); records already with a venue are skipped                                                                   |
 
 - [ ] **Step 1: Failing tests** (temp copies of `venues.json` and a news dir via `freshTempDir()`):
-  - `add` refuses an id not equal to `slug(`${village} ${name}`)`, an existing id, and (with a stubbed `geocode`) an
-    `address` whose first result lies > 100 m from `position` when the venue has no `mapQuery`;
+  - `add` refuses an id not equal to `slug(`${municipality} ${name}`)`, an existing id, a file without `position`,
+    and (stubbed `rgeocode`) a position whose municipality differs from `address.municipality`; fills a missing
+    `address.municipality` from it; (stubbed `geocode`) prints a `tell:` and still adds when the formatted address
+    lands > 150 m from `position`;
   - `alias kurim-fara "kostel"` is refused when `kurim-kostel` has that name or alias folded; accepted for
     `"farní zahrada"`, writing it sorted into `aliases`;
   - `lookup` without `MAPY_API_KEY` throws a refusal with `next: add MAPY_API_KEY to .env.local`; `find` needs no key;
@@ -229,7 +262,7 @@ only for `pnpm venue lookup` and `add`"), `README.md` (the env table), `.github/
       `venue`'"); `mapQuery` only without a venue. New section **Finding `venue`** after step 2, written like "Finding
       `newsId`" in `parish-create-service-sheet`: decide one building or none; name the village (the municipality); `pnpm
 venue find`; known → take it; candidates → pick by meaning or none, never guess, propose an alias; nothing fits →
-      `lookup`, judge the building, `add --check`, show the proposal with its Mapy link; the confirmation (step 4) lists
+      `lookup`, judge the building, `add --check`, show the proposal with its pin link (the user opens it); the confirmation (step 4) lists
       the venue and any new venue or alias; write them before the record. **Unattended run:** only `known` or no venue; a
       candidate, a new venue or an alias becomes a question (`blocking: no`) with the `lookup` proposal and its link.
 - [ ] **Step 2:** `parish-correct-event`: a changed place runs the same section; **Comment run** may set a `known`
@@ -240,8 +273,7 @@ venue find`; known → take it; candidates → pick by meaning or none, never gu
 ### Task 9: Seed the list and move the records
 
 - [ ] **Step 1:** For each venue of the spec's "Moving the existing records" list: `pnpm venue lookup`, fill a
-      `venue.json`, `pnpm venue add … --check`. Add `position` to the nine existing venues the same way (`lookup` by
-      their `mapQuery` or address). Show the user one table (id, name, village, address, position, Mapy link, aliases =
+      `venue.json`, `pnpm venue add … --check`. Show the user one table (id, name, formatted address, position, pin link, aliases =
       the `place` spellings the records use); after the yes, `add` without `--check` and commit
       `feat(content): add the venues events are held at`.
 - [ ] **Step 2:** `pnpm venue assign --check`; show the user the list (count by venue, and every record losing a
