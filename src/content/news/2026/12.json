@@ -31,7 +31,7 @@
     "start": "2026-12-19",
     "end": "2027-01-02",
     "place": "Kuřim, kostel a fara",
-    "mapQuery": "Kostel sv. Maří Magdalény Kuřim",
+    "venue": "kurim-kostel",
     "text": "Výstava betlémů v kostele sv. Maří Magdalény a na faře v Kuřimi, otevřená od 19. 12. 2026 do 2. 1. 2027.",
     "sessions": [
       {

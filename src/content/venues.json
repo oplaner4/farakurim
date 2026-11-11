@@ -346,6 +346,33 @@
         "lon": 16.4225
       },
       "aliases": ["sál pod kinem"]
+    },
+    {
+      "id": "vranov-farni-kostel-narozeni-panny-marie",
+      "name": "Farní kostel Narození Panny Marie",
+      "address": {
+        "municipality": "Vranov",
+        "country": "Česko"
+      },
+      "position": {
+        "lat": 49.3089897,
+        "lon": 16.6123919
+      }
+    },
+    {
+      "id": "brno-kostel-sv-tomase",
+      "name": "Kostel sv. Tomáše",
+      "address": {
+        "streetAddress": "Moravské náměstí 1/1",
+        "part": "Brno-město",
+        "postalCode": "602 00",
+        "municipality": "Brno",
+        "country": "Česko"
+      },
+      "position": {
+        "lat": 49.1979522,
+        "lon": 16.6078981
+      }
     }
   ]
 }
