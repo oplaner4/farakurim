@@ -84,6 +84,7 @@
     "startTime": "18:00",
     "endTime": "20:00",
     "place": "Tišnov, sál pod kinem Svratka",
+    "venue": "tisnov-sal-pod-kinem-svratka",
     "text": "Setkání floristů, květinářů, výzdobářů a uklízečů v kostele tišnovského děkanství.",
     "program": [
       {
@@ -119,7 +120,7 @@
     "end": "2025-03-30",
     "startTime": "19:00",
     "place": "Tišnov, fara",
-    "mapQuery": "Kostelní 16, Tišnov",
+    "venue": "tisnov-fara",
     "text": "Desetitýdenní duchovní obnova v Tišnově pod vedením P. Petra Beneše, vždy v neděli večer.",
     "body": "<p>Náplní zhruba dvouhodinových setkání je společná modlitba chval, uvedení do tématu, sdílení a adorace. Účastníci věnují také každý den čtvrthodinku modlitbě s Písmem svatým k tématům semináře. Seminář pomáhá obnovit vztah s Bohem a objevit vlastní obdarování.</p>",
     "sessions": [

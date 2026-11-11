@@ -6,6 +6,7 @@
     "startTime": "18:00",
     "endTime": "20:00",
     "place": "Tišnov, kostel sv. Václava",
+    "venue": "tisnov-kostel-sv-vaclava",
     "text": "Prostor pro pokoj, odpuštění, smíření a nový začátek. Přijďte se na chvíli zastavit.",
     "lead": "Všichni jste srdečně zváni.",
     "body": "<p>Večer nabídne:</p><ul><li>ticho</li><li>modlitbu</li><li>rozhovor s knězem či psychologem</li><li>slovo o odpuštění a smíření</li></ul>",
@@ -86,6 +87,7 @@
     "start": "2026-11-08",
     "startTime": "11:00",
     "place": "Kuřim, fara",
+    "venue": "kurim-fara",
     "text": "Zveme vás na přednášku MUDr. Pavla Vaška o vědomí a smrti z pohledu současné vědy a medicíny.",
     "published": "2026-10-27",
     "poster": {
@@ -132,7 +134,7 @@
     "start": "2026-11-21",
     "startTime": "10:00",
     "place": "Lelekovice, u vodojemu na Pasekách",
-    "mapQuery": "49.2935811N, 16.5826607E",
+    "venue": "lelekovice-vodojem-na-pasekach",
     "text": "Zveme na 9. charitativní běh v Lelekovicích. Výtěžek půjde na humanitární pomoc do sbírky Člověka v tísni SOS Ukrajina.",
     "program": [
       {
@@ -164,7 +166,7 @@
     "startTime": "14:00",
     "endTime": "18:00",
     "place": "Česká, sokolovna",
-    "mapQuery": "49.2825020N, 16.5638461E",
+    "venue": "ceska-sokolovna",
     "text": "Zveme na 26. farní charitativní jarmark v sokolovně v České. Výtěžek půjde na humanitární pomoc do sbírky Člověka v tísni SOS Ukrajina.",
     "body": "<p>Přispějte svým ručně vyrobeným zbožím a nabídněte své speciality do stánku s občerstvením.</p><p>Výrobky shromažďuje sokolovna v České v sobotu 21. 11. 2026 od 15 do 17 hodin.</p><p>Akce se koná pod záštitou obce Česká, farnosti Vranov a farnosti Kuřim.</p>",
     "published": "2026-11-09",
@@ -187,6 +189,7 @@
     "startTime": "17:00",
     "endTime": "20:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Mezinárodní připomínka lidí pronásledovaných pro víru – nasvícený kostel, mše svatá za pronásledované a tichá adorace.",
     "body": "<p>Červená středa je mezinárodní připomínka lidí pronásledovaných pro víru. Kostel bude po celou dobu akce nasvícen červeně.</p><ul><li><strong>18.00</strong> – mše svatá za pronásledované lidi pro jejich víru</li><li><strong>Tichá adorace</strong> a modlitba při svíčkách</li></ul>",
     "pinned": true,

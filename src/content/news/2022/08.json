@@ -25,6 +25,7 @@
     "start": "2022-08-27",
     "startTime": "10:15",
     "place": "Předklášteří, klášter Porta coeli",
+    "venue": "predklasteri-klaster-porta-coeli",
     "text": "18. diecézní pouť rodin s pontifikální mší svatou a bohatým programem pro všechny generace.",
     "body": "<p>Zpovídat se bude dopoledne od 9:30 do 11:00 během růžence a mše svaté a odpoledne při adoraci od 13:00 do 14:00. Občerstvení lze zakoupit přímo v areálu.</p>",
     "program": [
@@ -61,6 +62,7 @@
     "start": "2022-08-28",
     "startTime": "7:00",
     "place": "Česká, kaple Panny Marie Růžencové",
+    "venue": "ceska-kaple",
     "text": "Pěší pouť po sedmiradostné cestě z České na Vranov, mše svatá na Vranově je v 11 hodin.",
     "poster": {
       "src": "/uploads/aktuality/pout-sedmiradostnou-cestou-2022-plakat.webp",

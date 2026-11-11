@@ -5,6 +5,7 @@
     "start": "2023-06-02",
     "startTime": "18:30",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Noc kostelů v kuřimském kostele: zpěvy dětské scholy, duchovní písně neduchovních autorů a večer s komunitou Emmanuel.",
     "program": [
       {
@@ -46,6 +47,7 @@
     "start": "2023-06-04",
     "startTime": "17:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Brněnský ekumenický sbor a komorní orchestr barokních nástrojů uvedou díla barokních a renesančních skladatelů.",
     "price": "dobrovolné vstupné",
     "poster": {

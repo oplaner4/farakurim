@@ -20,6 +20,7 @@
     "start": "2022-09-04",
     "startTime": "10:00",
     "place": "Kuřim, areál ZŠ Komenského",
+    "venue": "kurim-zs-komenskeho",
     "text": "Tradiční celodenní akce plná zábavy, pestrého programu a medu."
   },
   {
@@ -48,6 +49,7 @@
     "start": "2022-09-14",
     "end": "2022-09-25",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Výstava velkoformátových fotografií společenství Člověk a Víra. Vstup zdarma.",
     "body": "<p>Člověk a Víra je společenství fotografů, kteří ve svém volném čase bez nároku na odměnu dokumentují život církve, sakrální architekturu a víru člověka obecně.</p><p>Výstavu si můžete prohlédnout před bohoslužbami a po nich a v neděli 18. září od 14:00 při Dni národnostních menšin.</p>",
     "poster": {
@@ -74,6 +76,7 @@
     "start": "2022-09-18",
     "startTime": "14:00",
     "place": "Kuřim, areál zámku",
+    "venue": "kurim-zamek",
     "text": "Přijměte pozvání na Den národnostních menšin v areálu kuřimského zámku.",
     "poster": {
       "src": "/uploads/aktuality/den-narodnostnich-mensin-2022-plakat.webp",

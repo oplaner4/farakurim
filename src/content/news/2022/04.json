@@ -5,6 +5,7 @@
     "start": "2022-04-02",
     "startTime": "9:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Postní duchovní obnova s P. Janem Pacnerem, dlouholetým vojenským kaplanem.",
     "body": "<p>Drobné občerstvení bude zajištěno.</p>",
     "program": [
@@ -53,6 +54,7 @@
     "title": "Diecézní setkání mládeže",
     "start": "2022-04-09",
     "place": "Brno, katedrála sv. Petra a Pavla",
+    "venue": "brno-katedrala-sv-petra-a-pavla",
     "text": "Setkání mladých s biskupem Vojtěchem v brněnské katedrále.",
     "poster": {
       "src": "/uploads/aktuality/diecezni-setkani-mladeze-2022-plakat.webp",
@@ -72,6 +74,7 @@
     "start": "2022-04-09",
     "startTime": "10:00",
     "place": "Kuřim, kaple sv. Jana Nepomuckého",
+    "venue": "kurim-kaple-jana-nepomuckeho",
     "text": "Křížová cesta pro rodiny s dětmi, vhodná i pro kočárky, zakončená opékáním špekáčků na faře.",
     "body": "<p>Sejdeme se u vodní kaple sv. Jana Nepomuckého. Po skončení cesty si na faře můžeme opéct špekáčky a ještě společně strávit pěkné chvíle. Špekáčky a pečivo si prosím vezměte vlastní, nezapomeňte na pití a na něco na psaní.</p><p>Budeme moc rádi, když se k rodinám připojíte i vy ostatní.</p>"
   },

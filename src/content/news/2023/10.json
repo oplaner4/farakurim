@@ -5,6 +5,7 @@
     "start": "2023-10-01",
     "startTime": "18:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Ve farním kostele zahrají skupiny Dej nám akord z Brna a Mosty ze Znojma."
   },
   {
@@ -55,6 +56,7 @@
     "start": "2023-10-12",
     "startTime": "9:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Adorační den naší farnosti. Zapište se pod kůrem do rozpisu adorantů, abychom pokryli celou dobu adorace.",
     "program": [
       {
@@ -85,6 +87,7 @@
     "title": "Misijní klubko nabízí koláčky",
     "start": "2023-10-15",
     "place": "Kuřim, před kostelem sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Po mších svatých budou děti z Misijního klubka před kostelem nabízet koláčky a perníčky na podporu Papežských misijních děl dětí."
   },
   {
@@ -106,7 +109,7 @@
     "start": "2023-10-21",
     "end": "2023-12-02",
     "place": "Tišnov, fara",
-    "mapQuery": "Kostelní 16, Tišnov",
+    "venue": "tisnov-fara",
     "text": "Farnost Tišnov a Předklášteří ve spolupráci s komunitou Emmanuel zve manžele všeho věku na tři sobotní setkání.",
     "body": "<p>Obnova se koná v soboty 21. 10., 18. 11. a 2. 12. na faře v Tišnově (Kostelní 16). Hlídání dětí bude zajištěno.</p>",
     "registrationDeadline": "2023-10-15",

@@ -5,6 +5,7 @@
     "start": "2023-03-17",
     "end": "2023-03-18",
     "place": "Tišnov, kostel sv. Václava",
+    "venue": "tisnov-kostel-sv-vaclava",
     "text": "Děkanství Tišnov zve do kostela sv. Václava k modlitbě, adoraci a svátosti smíření.",
     "body": "<p>Ke svátosti smíření nebo k rozhovoru s knězem je možné přijít v pátek od 17:00 do 17:50 a od 19:00 do 21:00 a v sobotu od 19:00 do 21:00.</p>",
     "program": [
@@ -39,6 +40,7 @@
     "start": "2023-03-17",
     "end": "2023-03-18",
     "place": "Brno-Husovice, fara",
+    "venue": "brno-fara-husovice",
     "text": "Postní duchovní obnova pro ženy „Žena, nositelka Boží krásy“ s Pavlou Cenkovou na faře v Husovicích.",
     "poster": {
       "src": "/uploads/aktuality/duchovni-obnova-pro-zeny-2023-pozvanka.webp",

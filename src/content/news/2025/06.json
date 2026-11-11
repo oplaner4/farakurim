@@ -25,6 +25,7 @@
     "start": "2025-06-14",
     "startTime": "14:00",
     "place": "Kuřim, areál fary",
+    "venue": "kurim-fara",
     "text": "Farní den s mottem „Být poutníky naděje“. Novinkou je dopolední evangelizace ve spolupráci s komunitou Emmanuel.",
     "body": "<p>Všichni jste srdečně zváni zapojit se do misijní iniciativy i do upevňování vztahů v naší farnosti.</p>",
     "program": [
@@ -61,6 +62,7 @@
     "start": "2025-06-15",
     "startTime": "17:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Tradiční koncert duchovní hudby: Brněnský ekumenický sbor a komorní orchestr barokních nástrojů pod vedením Luboše Rause uvedou díla renesančních a barokních skladatelů.",
     "price": "dobrovolné vstupné",
     "poster": {
@@ -81,6 +83,7 @@
     "start": "2025-06-15",
     "startTime": "17:00",
     "place": "Moravské Knínice, kostel sv. Markéty",
+    "venue": "moravske-kninice-kostel",
     "text": "Koncert Brněnského varhanního festivalu: na varhany hraje Přemysl Kšica, zpívá sopranistka Karolína Janů.",
     "body": "<p>Koncert pořádají Římskokatolická farnost Kuřim a Klub moravských skladatelů.</p>",
     "price": "dobrovolné vstupné",

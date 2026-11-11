@@ -5,6 +5,7 @@
     "start": "2022-10-02",
     "startTime": "18:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Srdečně zveme na koncert duchovní hudby Ať svoboda zní.",
     "poster": {
       "src": "/uploads/aktuality/at-svoboda-zni-2022-plakat.webp",
@@ -79,6 +80,7 @@
     "startTime": "9:00",
     "endTime": "17:30",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Celodenní adorace v kuřimském kostele. Zapište se do archu pod kůrem, kdy přijdete adorovat.",
     "body": "<p>Rozpis adoračních stráží je po půlhodinách. Adorace bude zakončena modlitbou růžence a v 18:00 mší svatou se zpěvem chrámového sboru.</p>"
   },

@@ -74,6 +74,7 @@
     "startTime": "10:30",
     "endTime": "15:00",
     "place": "Kuřim, farní zahrada",
+    "venue": "kurim-fara",
     "text": "Farní den letos netradičně formou pikniku na farní zahradě, hned po druhé mši svaté.",
     "body": "<p>Na programu je představení služeb Oblastní charity Tišnov, živá hudba a táborák. Přineste si své oblíbené pochoutky, špekáčky a deku.</p>",
     "poster": {
@@ -94,6 +95,7 @@
     "start": "2024-06-09",
     "startTime": "17:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Brněnský ekumenický sbor a komorní orchestr barokních nástrojů uvedou koncert duchovní hudby Co činí Bůh, vše dobré jest.",
     "poster": {
       "src": "/uploads/aktuality/koncert-co-cini-buh-2024-plakat.webp",
@@ -119,6 +121,7 @@
     "start": "2024-06-09",
     "startTime": "17:00",
     "place": "Moravské Knínice, kostel sv. Markéty",
+    "venue": "moravske-kninice-kostel",
     "text": "Koncert Brněnského varhanního festivalu: Hana Bartošová (varhany) a Barbora Štěflová (hoboj).",
     "price": "dobrovolné vstupné",
     "poster": {
@@ -139,6 +142,7 @@
     "start": "2024-06-11",
     "startTime": "18:30",
     "place": "Tišnov, fara",
+    "venue": "tisnov-fara",
     "text": "Přednáška Mgr. Jitky Šebkové na téma „Jak nepřijít o motivaci ve službě“ a vzájemné sdílení.",
     "body": "<p>Jste srdečně zváni už na mši svatou v 17:30 v kostele sv. Václava.</p>",
     "poster": {

@@ -5,6 +5,7 @@
     "start": "2021-09-12",
     "startTime": "17:00",
     "place": "Moravské Knínice, kostel sv. Markéty",
+    "venue": "moravske-kninice-kostel",
     "text": "Koncert Varhanní cesty po starém kontinentu: Kamila Dubská (varhany) a Martin Flašar (housle).",
     "body": "<p>Koncert Brněnského varhanního festivalu pořádají Římskokatolická farnost Kuřim a Klub moravských skladatelů. Zazní skladby Corelliho, Purcella, Frobergera a Vivaldiho. Vstupné dobrovolné.</p>",
     "poster": {
@@ -31,6 +32,7 @@
     "startTime": "10:00",
     "endTime": "18:00",
     "place": "Kuřim, areál ZŠ Komenského",
+    "venue": "kurim-zs-komenskeho",
     "text": "Na Medovém dni bude mít naše farnost svůj stánek. Zisk z prodeje půjde na stavbu na faře.",
     "body": "<p>Těšit se můžete na domácí meduňkovou limonádu s medem, hotdogy, párky v rohlíku a medové perníčky. Zakoupit si můžete také drobné dekorační předměty.</p>",
     "program": [
@@ -82,6 +84,7 @@
     "start": "2021-09-19",
     "startTime": "14:00",
     "place": "Kuřim, zámek",
+    "venue": "kurim-zamek",
     "text": "Srdečně zveme na Den národnostních menšin na kuřimském zámku."
   }
 ]

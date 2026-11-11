@@ -5,6 +5,7 @@
     "start": "2025-12-08",
     "startTime": "19:00",
     "place": "Tišnov, fara",
+    "venue": "tisnov-fara",
     "text": "Kurz Launch Point se Zuzanou Palátovou pro všechny, kdo chtějí být motorem farnosti.",
     "body": "<p>Kurz nabízí modlitbu, rozjímání, video a diskusi i čas skupinového rozlišování. Přejděte z udržovacího režimu k misijnímu zápalu!</p>",
     "poster": {
@@ -44,6 +45,7 @@
     "start": "2025-12-13",
     "startTime": "9:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Adventní duchovní obnova s P. Michaelem Martinkem na téma Naděje v současném světě a v adventu.",
     "body": "<p>Obnova začíná mší svatou, po ní následuje promluva a prostor pro otázky. P. Michael Martinek je salesián, teolog, cestovatel a autor videí Očima křesťana.</p>"
   },
@@ -53,6 +55,7 @@
     "start": "2025-12-24",
     "startTime": "15:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Na Štědrý den vás zveme na Vánoční příběh. Přijďte prožít vánoční atmosféru.",
     "poster": {
       "src": "/uploads/aktuality/vanocni-pribeh-2025-plakat.webp",
@@ -72,6 +75,7 @@
     "start": "2025-12-25",
     "startTime": "8:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Pastorely při mši svaté o slavnosti Narození Páně.",
     "body": "<p>Zazní „Poslyšte, bratři jen“ Petra Chaloupského, „Quem vidistis pastores“ F. X. Brixiho a „Vzhůru, pastýřové“ J. J. Ryby. Sólový zpěv Anna Keprtová, varhanní doprovod Jan Čáp.</p>",
     "poster": {
@@ -92,6 +96,7 @@
     "start": "2025-12-26",
     "startTime": "16:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Přijměte pozvání na vánoční zpívání Základní školy DiviZna.",
     "poster": {
       "src": "/uploads/aktuality/vanocni-zpivani-zs-divizna-2025-pozvanka.webp",

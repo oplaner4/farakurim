@@ -5,6 +5,7 @@
     "start": "2021-12-06",
     "startTime": "17:30",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Tradiční adventní koncert: vystoupí Bára Basiková a skupina Shot-C.",
     "body": "<p>Koncert pořádají ZŠ Jungmannova, Římskokatolická farnost Kuřim a Společenské a kulturní centrum Kuřim. Vstupenky jsou v předprodeji na ZŠ Jungmannova a ve Společenském a kulturním centru Kuřim.</p>",
     "price": "300 Kč v předprodeji, 350 Kč na místě",
@@ -49,6 +50,7 @@
     "start": "2021-12-18",
     "startTime": "8:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Vánoční zdobení a úklid kuřimského kostela před svátky. Předem děkujeme za vaši pomoc."
   },
   {
@@ -70,6 +72,7 @@
     "start": "2021-12-24",
     "end": "2021-12-25",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Mše svaté na Štědrý den a na slavnost Narození Páně doprovodí chrámový sbor.",
     "program": [
       {

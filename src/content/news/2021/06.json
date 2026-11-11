@@ -5,6 +5,7 @@
     "start": "2021-06-05",
     "startTime": "15:00",
     "place": "Kuřim, areál za farou",
+    "venue": "kurim-fara",
     "text": "Farní odpoledne s hrami pro děti, prezentací fotografií o naší farnosti a písničkami u táboráku.",
     "body": "<p>Přijďte posedět, povykládat a pobýt s námi. Občerstvení je zajištěno.</p>"
   },
@@ -14,6 +15,7 @@
     "start": "2021-06-06",
     "startTime": "17:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Tradiční jarní koncert violoncellistů Filharmonie Brno, po dlouhé době jeden z prvních před živým publikem.",
     "body": "<p>Zazní Bachovy suity pro violoncello, Haydnův Koncert D dur a Popperova Koncertní polonéza. Koncert pod uměleckým vedením koncertního mistra Pavla Šabackého je věnován všem zdravotníkům jako poděkování za jejich obětavou práci. Vstupné dobrovolné.</p>",
     "poster": {

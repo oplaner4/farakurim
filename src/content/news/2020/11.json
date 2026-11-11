@@ -33,6 +33,7 @@
     "startTime": "13:00",
     "endTime": "20:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Výstav Nejsvětější svátosti s rozpisem adorujících po půlhodinách.",
     "body": "<p>Adorovat se bude po dvojicích (případně členové jedné domácnosti). Příležitost ke svaté zpovědi bude během adorace od 15 do 17 hodin.</p>"
   },
@@ -43,6 +44,7 @@
     "startTime": "12:00",
     "endTime": "20:00",
     "place": "Moravské Knínice, kostel sv. Markéty",
+    "venue": "moravske-kninice-kostel",
     "text": "Výstav Nejsvětější svátosti v knínickém kostele. Rozpis pro střídání je vyvěšen na kostelních dveřích.",
     "body": "<p>Příležitost ke svaté zpovědi bude během adorace od 14:00 do 15:30 v sakristii.</p>"
   },
@@ -70,6 +72,7 @@
     "start": "2020-11-25",
     "startTime": "18:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Mezinárodní připomínka lidí pronásledovaných pro víru: kostel nasvícený červeně, mše svatá a adorace.",
     "program": [
       {

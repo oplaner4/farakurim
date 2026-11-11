@@ -23,6 +23,7 @@
     "title": "Duchovní obnova pro rodiče s dětmi",
     "start": "2025-10-04",
     "place": "Brno, Lidická 24",
+    "venue": "brno-komunita-emmanuel",
     "text": "Nadechni se: duchovní obnova pro rodiče malých dětí, kterou pořádá komunita Emmanuel. Přednáška, chvály, sdílení a čas pro pár.",
     "poster": {
       "src": "/uploads/aktuality/obnova-pro-rodice-s-detmi-2025-plakat.webp",
@@ -48,6 +49,7 @@
     "start": "2025-10-05",
     "startTime": "18:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Koncert duchovní hudby k výročí projevu Martina Luthera Kinga „Mám sen“. Vystoupí Dej Nám Akord – DNA a Simply Gospel.",
     "body": "<p>Akce se koná s podporou města Kuřimi.</p>",
     "price": "dobrovolné vstupné",
@@ -102,6 +104,7 @@
     "start": "2025-10-12",
     "startTime": "13:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Adorační den naší farnosti s adoračními strážemi po půlhodinách.",
     "body": "<p>Na adoraci se bylo možné zapsat do archu pod kůrem nebo do sdílené tabulky.</p>",
     "program": [
@@ -121,6 +124,7 @@
     "start": "2025-10-16",
     "startTime": "19:00",
     "place": "Tišnov, sál pod kinem",
+    "venue": "tisnov-sal-pod-kinem-svratka",
     "text": "Přednáška katolického teologa prof. Tomáše Petráčka „Víra a naděje v rozdělené společnosti: role církve a charity v minulosti a dnes“.",
     "body": "<p>Vstupné je dobrovolné a podpoří Oblastní charitu Tišnov.</p>",
     "price": "dobrovolné vstupné",
@@ -142,6 +146,7 @@
     "start": "2025-10-17",
     "startTime": "17:45",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Setkání hnutí křesťanských žen Modlitby matek. Zvány jsou všechny ženy.",
     "program": [
       {
@@ -171,7 +176,7 @@
     "title": "Laboratoř pastoračních příležitostí a projektů",
     "start": "2025-10-18",
     "place": "Brno, Biskupské gymnázium",
-    "mapQuery": "Biskupské gymnázium Brno, Barvičova",
+    "venue": "brno-biskupske-gymnazium",
     "text": "Jednodenní seminář brněnské diecéze o vizích, plánování a propagaci farních aktivit.",
     "body": "<p>Seminář dále nabídne pastorační náměty pro budování farních společenství a prorodinnou pastoraci. Přihlášení bylo možné přes web Biskupství brněnského.</p>",
     "poster": {

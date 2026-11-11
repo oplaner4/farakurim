@@ -6,6 +6,7 @@
     "startTime": "18:00",
     "endTime": "20:00",
     "place": "Tišnov, fara",
+    "venue": "tisnov-fara",
     "text": "Kurz pro vedoucí ministrantů a ministrantek z tišnovského děkanství.",
     "body": "<p>Program zahrnuje vedení skupiny, liturgii, organizaci schůzek a praktické tipy z praxe. Občerstvení a materiály jsou zajištěny.</p>",
     "price": "zdarma",
@@ -27,6 +28,7 @@
     "start": "2026-09-13",
     "startTime": "14:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Výstava obrazů Kamily Veroniky Planerové Pozvedám své oči k Tobě.",
     "poster": {
       "src": "/uploads/aktuality/vystava-pozvedam-sve-oci-2026-plakat.webp",
@@ -46,6 +48,7 @@
     "start": "2026-09-13",
     "startTime": "13:00",
     "place": "Kuřim, zámek",
+    "venue": "kurim-zamek",
     "text": "Město Kuřim a Společenské a kulturní centrum Kuřim zvou na Den národnostních menšin.",
     "body": "<p>Součástí programu je také výstava obrazů v kostele sv. Maří Magdalény.</p>",
     "poster": {

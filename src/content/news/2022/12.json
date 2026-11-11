@@ -5,6 +5,7 @@
     "start": "2022-12-03",
     "startTime": "9:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Adventní duchovní obnova s P. Zdeňkem Jančaříkem, salesiánem a spisovatelem.",
     "program": [
       {
@@ -40,6 +41,7 @@
     "start": "2022-12-07",
     "startTime": "16:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Na mši svaté bude hostovat P. Zbigniew Czendlik, děkan v Lanškrouně.",
     "body": "<p>Večer v 17:00 následuje setkání se Zbigniewem Czendlikem, které pořádá Společenské a kulturní centrum Kuřim.</p>",
     "poster": {
@@ -72,6 +74,7 @@
     "title": "Výstava betlémů",
     "start": "2022-12-18",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Srdečně zveme na výstavu betlémů v oratořích kuřimského kostela.",
     "links": [
       {
@@ -85,6 +88,7 @@
     "title": "Štědrý den v kuřimském kostele",
     "start": "2022-12-24",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Výstava betlémů, dětská katecheze s divadelní vánoční hrou a „půlnoční“ mše svatá se zpěvem chrámového sboru.",
     "program": [
       {
@@ -119,6 +123,7 @@
     "title": "Zvukový záznam mše svaté na Boží hod",
     "start": "2022-12-25",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Poslechněte si záznam mše svaté na Boží hod vánoční se zpěvem chrámového sboru.",
     "attachments": [
       {
@@ -134,6 +139,7 @@
     "start": "2022-12-26",
     "startTime": "16:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Přijměte pozvání na vánoční zpívání základní školy DiviZna.",
     "poster": {
       "src": "/uploads/aktuality/vanocni-zpivani-zs-divizna-2022-plakat.webp",

@@ -63,6 +63,7 @@
     "start": "2021-11-14",
     "startTime": "10:15",
     "place": "Předklášteří, bazilika Porta Coeli",
+    "venue": "predklasteri-klaster-porta-coeli",
     "text": "Oslava 32. výročí kanonizace svaté Anežky České mší svatou v bazilice Nanebevzetí Panny Marie kláštera Porta Coeli.",
     "body": "<p>Mši svatou bude sloužit P. PharmDr. Mgr. Josef Šedivý, O.Cr. Zvou farnosti Tišnov a Předklášteří.</p>",
     "poster": {
@@ -126,6 +127,7 @@
     "start": "2021-11-21",
     "startTime": "10:30",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Promítání dokumentárního filmu o sv. Anežce České po mši svaté.",
     "body": "<p>Promítání pořádá senátorka Jaromíra Vítková společně s farností Kuřim.</p>",
     "poster": {
@@ -146,6 +148,7 @@
     "start": "2021-11-24",
     "startTime": "19:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Společenství mladých zve na mši svatou za pronásledované pro víru s hudebním doprovodem. Kostel bude nasvícen červeně.",
     "body": "<p>Po mši následuje výstava s možností modlitby až do 21 hodin.</p>",
     "poster": {

@@ -14,6 +14,7 @@
     "start": "2024-12-09",
     "startTime": "18:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Chantal Poullain, žáci ZŠ Jungmannova a Trio Štěpána Markoviče. Výtěžek je věnován nadaci Archa Chantal.",
     "body": "<p>Vstupenky lze zakoupit v kanceláři školy a v den koncertu na místě. Výtěžek podpoří oddělení dětské psychiatrie.</p>",
     "price": "350 Kč",
@@ -109,6 +110,7 @@
     "start": "2024-12-24",
     "end": "2024-12-25",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Kuřimský chrámový sbor zpívá Steckerovy koledy při mši na Štědrý den a na Boží hod vánoční.",
     "body": "<p>Diriguje Adam Janík.</p>",
     "program": [
@@ -139,6 +141,7 @@
     "start": "2024-12-26",
     "startTime": "15:30",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Přijďte si zazpívat, nebo jen poslechnout známé i méně známé koledy, vánoční písně a kánony.",
     "poster": {
       "src": "/uploads/aktuality/vanocni-zpivani-zs-divizna-2024-plakat.webp",
@@ -158,6 +161,7 @@
     "start": "2024-12-29",
     "startTime": "17:30",
     "place": "Moravské Knínice, kostel sv. Markéty",
+    "venue": "moravske-kninice-kostel",
     "text": "Večer s koledami a Českou mší vánoční Jakuba Jana Ryby v podání mužského sboru, scholy a orchestru.",
     "body": "<p>Rybovu mši uslyšíte také při slavnostní bohoslužbě na Boží hod vánoční 25. prosince v 11:00.</p>",
     "poster": {

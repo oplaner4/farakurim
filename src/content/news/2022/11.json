@@ -55,6 +55,7 @@
     "start": "2022-11-19",
     "startTime": "10:00",
     "place": "Lelekovice, vodojem Na Pasekách",
+    "venue": "lelekovice-vodojem-na-pasekach",
     "text": "Přijďte si zaběhat a přispět na dobrou věc: 6. charitativní běh, jehož výtěžek půjde na konto SOS Ukrajina Člověka v tísni.",
     "program": [
       {
@@ -87,6 +88,7 @@
     "startTime": "13:30",
     "endTime": "16:30",
     "place": "Česká, sokolovna",
+    "venue": "ceska-sokolovna",
     "text": "Tradiční 22. farní charitativní jarmark, letos pro Ukrajinu. Výtěžek půjde na konto SOS Ukrajina Člověka v tísni.",
     "body": "<p>Přispějte svým ručně vyrobeným zbožím nebo nabídněte své speciality do stánku s občerstvením. Příspěvky se shromažďují v sobotu 19. 11. od 17 do 18 hodin v sokolovně v České.</p>",
     "poster": {
@@ -108,6 +110,7 @@
     "startTime": "17:00",
     "endTime": "20:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Připomeňme si všechny, kdo jsou pronásledováni pro víru: nasvícený kostel, mše svatá a tichá adorace.",
     "program": [
       {

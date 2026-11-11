@@ -38,7 +38,7 @@
     "start": "2024-08-12",
     "end": "2024-08-23",
     "place": "Kuřim, fara",
-    "mapQuery": "Křížkovského 55, Kuřim",
+    "venue": "kurim-fara",
     "text": "Dva turnusy příměstského tábora pro děti od 3 do 5 let na téma Poznáváme IZS.",
     "body": "<p>Tábor probíhá od <strong>12. do 16. 8.</strong> a od <strong>19. do 23. 8.</strong> pod záštitou farnosti a za podpory města Kuřimi.</p><p>Hledáme dobrovolníky – „čtecí babičky a dědečky“ – pro odpolední pauzu od 13:00 do 14:30. Přihlášky a informace u Mgr. Ing. Jany Němečkové.</p>",
     "poster": {
@@ -65,6 +65,7 @@
     "start": "2024-08-31",
     "startTime": "10:30",
     "place": "Předklášteří, klášter Porta Coeli",
+    "venue": "predklasteri-klaster-porta-coeli",
     "text": "Dvacátá diecézní pouť rodin s pontifikální mší svatou, kterou slouží biskup Pavel Konzbul.",
     "program": [
       {

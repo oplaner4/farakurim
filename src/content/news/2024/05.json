@@ -5,6 +5,7 @@
     "start": "2024-05-11",
     "startTime": "9:00",
     "place": "Předklášteří, klášter Porta Coeli",
+    "venue": "predklasteri-klaster-porta-coeli",
     "text": "Komunita Emmanuel a kuřimská farnost zvou na pěší pouť k Bráně nebes, do kláštera Porta Coeli v Předklášteří.",
     "program": [
       {
@@ -68,6 +69,7 @@
     "start": "2024-05-19",
     "startTime": "14:00",
     "place": "Kuřim, areál zámku",
+    "venue": "kurim-zamek",
     "text": "Odpoledne pro rodiny s vystoupeními, soutěžemi, malováním na obličej a skákacími hrady. Vstupné dobrovolné.",
     "program": [
       {

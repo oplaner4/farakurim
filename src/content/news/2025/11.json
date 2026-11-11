@@ -26,6 +26,7 @@
     "start": "2025-11-09",
     "startTime": "10:45",
     "place": "Kuřim, fara",
+    "venue": "kurim-fara",
     "text": "Pastorační rada zve na představení výsledků dotazníku k životu farnosti. Prostor bude i pro vaše otázky, názory a komentáře."
   },
   {
@@ -35,6 +36,7 @@
     "startTime": "18:00",
     "endTime": "19:30",
     "place": "Tišnov, sál pod kinem",
+    "venue": "tisnov-sal-pod-kinem-svratka",
     "text": "2. setkání členů pastoračních rad Děkanství tišnovské. Vstup zdarma, drobné občerstvení zajištěno.",
     "body": "<p>Na programu jsou témata „Kde jsme“ a „Učíme se vidět dobré věci“, novinky a očekávané akce v brněnské diecézi, jedinečnost děkanství a práce ve skupinách.</p>",
     "poster": {
@@ -91,6 +93,7 @@
     "start": "2025-11-28",
     "startTime": "17:30",
     "place": "Brno, Petrov",
+    "venue": "brno-katedrala-sv-petra-a-pavla",
     "text": "Brněnská diecéze zve hnutí a modlitební společenství na jubilejní pouť na Petrov.",
     "program": [
       {

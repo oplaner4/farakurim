@@ -5,6 +5,7 @@
     "start": "2024-03-08",
     "end": "2024-03-09",
     "place": "Tišnov, kostel sv. Václava",
+    "venue": "tisnov-kostel-sv-vaclava",
     "text": "Den modliteb, adorace a návštěv kostela s příležitostí ke svaté zpovědi.",
     "body": "<p>Příležitost ke svaté zpovědi je v pátek od 17 do 21 hodin a v sobotu od 19 do 20 hodin.</p>",
     "poster": {
@@ -25,6 +26,7 @@
     "start": "2024-03-10",
     "startTime": "14:30",
     "place": "Kuřim, fara",
+    "venue": "kurim-fara",
     "text": "Postní duchovní obnova na téma Ježíšova křížová cesta s P. Jaroslavem Filkou.",
     "poster": {
       "src": "/uploads/aktuality/postni-duchovni-obnova-2024-plakat.webp",
@@ -115,6 +117,7 @@
     "start": "2024-03-23",
     "startTime": "10:00",
     "place": "Kuřim, kaple sv. Jana Nepomuckého",
+    "venue": "kurim-kaple-jana-nepomuckeho",
     "text": "Křížová cesta rodin vychází od vodní kaple sv. Jana Nepomuckého a končí na faře u ohně.",
     "body": "<p>Doneste si něco na opečení.</p>"
   },
@@ -123,6 +126,7 @@
     "title": "Misijní kavárna",
     "start": "2024-03-24",
     "place": "Kuřim, fara",
+    "venue": "kurim-fara",
     "text": "Na Květnou neděli ochutnáte kávu Agapé z produkce Papežských misijních děl a děti si vytvoří velikonoční přání.",
     "body": "<p>Káva pochází z česko-ugandské spolupráce. Výtěžek půjde na aktuální projekty Papežských misijních děl.</p>",
     "poster": {

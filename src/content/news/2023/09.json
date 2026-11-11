@@ -55,6 +55,7 @@
     "start": "2023-09-17",
     "startTime": "14:00",
     "place": "Kuřim, areál zámku",
+    "venue": "kurim-zamek",
     "text": "Srdečně zveme na Den národnostních menšin v areálu kuřimského zámku.",
     "poster": {
       "src": "/uploads/aktuality/den-narodnostnich-mensin-2023-plakat.webp",
@@ -75,6 +76,7 @@
     "startTime": "10:00",
     "endTime": "17:00",
     "place": "Kuřim, u kulturního domu",
+    "venue": "kurim-spolecenske-a-kulturni-centrum",
     "text": "Farnost bude mít opět svůj stánek s občerstvením, perníčky, drobnými výrobky a věcmi na podporu cystické fibrózy.",
     "poster": {
       "src": "/uploads/aktuality/medovy-den-2023-plakat.webp",

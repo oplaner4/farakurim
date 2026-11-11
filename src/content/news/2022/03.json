@@ -67,6 +67,7 @@
     "start": "2022-03-25",
     "startTime": "17:30",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Modlitbou růžence se na dálku připojíme k zasvěcení Ruska a Ukrajiny Neposkvrněnému Srdci Panny Marie.",
     "body": "<p>Papež František zasvětí Rusko a Ukrajinu Neposkvrněnému Srdci Panny Marie v pátek 25. března od 17:00 během modliteb za mír v bazilice sv. Petra v Římě. Přijďte se s námi pomodlit.</p>",
     "attachments": [
@@ -83,6 +84,7 @@
     "start": "2022-03-25",
     "end": "2022-03-26",
     "place": "Tišnov, kostel sv. Václava",
+    "venue": "tisnov-kostel-sv-vaclava",
     "text": "Děkanství Tišnov zve do kostela sv. Václava k celodenní adoraci a ke svátosti smíření.",
     "program": [
       {

@@ -19,6 +19,7 @@
     "startTime": "13:00",
     "endTime": "20:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Adorace v kuřimském kostele s rozpisem adorujících."
   },
   {
@@ -28,6 +29,7 @@
     "startTime": "14:30",
     "endTime": "15:30",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Zakoupením ručně vyráběných výrobků můžete přispět na opravu fary. Výrobky budou k mání při adoraci.",
     "body": "<p>Osobní předání lze domluvit i na jinou dobu. Bližší informace podá Lucie Sádlíková.</p>",
     "attachments": [

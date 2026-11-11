@@ -5,6 +5,7 @@
     "start": "2022-06-04",
     "startTime": "14:00",
     "place": "Kuřim, areál za farou",
+    "venue": "kurim-fara",
     "text": "Farní den s představením komunity Emmanuel, ukulele bandem, posezením u ohně a hrami pro děti.",
     "body": "<p>Čeká vás soutěž o nej… jednohubku (doneste alespoň 20 kusů), posezení u ohně s živou hudbou a zábavné hry pro děti. Drobné občerstvení, které přinesete, je vítáno.</p>",
     "program": [
@@ -40,6 +41,7 @@
     "start": "2022-06-05",
     "startTime": "17:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Tradiční jarní koncert: Solitutticelli Brno Cello Sextet zahraje chrámovou a romantickou hudbu pro šest violoncell.",
     "body": "<p>Na programu jsou skladby J. S. Bacha, D. Poppera, J. Haydna, F. Schuberta a C. Saint-Saënse. Vstupné dobrovolné.</p>",
     "price": "dobrovolné vstupné",
@@ -135,6 +137,7 @@
     "start": "2022-06-26",
     "startTime": "17:00",
     "place": "Moravské Knínice, kostel sv. Markéty",
+    "venue": "moravske-kninice-kostel",
     "text": "Varhanní koncert Hany Bartošové. Výtěžek bude věnován na opravy knínického kostela."
   }
 ]

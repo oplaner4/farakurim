@@ -31,6 +31,7 @@
     "start": "2024-01-10",
     "startTime": "18:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Základní umělecká škola a Klub přátel ZUŠ Kuřim zvou na Tříkrálový koncert.",
     "poster": {
       "src": "/uploads/aktuality/trikralovy-koncert-zus-2024-plakat.webp",
@@ -50,7 +51,7 @@
     "start": "2024-01-16",
     "startTime": "19:00",
     "place": "Tišnov, fara",
-    "mapQuery": "Kostelní 16, Tišnov",
+    "venue": "tisnov-fara",
     "text": "Kurz Alfa „Jiný pohled“ pro lidi, kteří se chtějí bavit o hlubších otázkách života a o křesťanské víře.",
     "poster": {
       "src": "/uploads/aktuality/kurz-alfa-tisnov-2024-plakat.webp",
@@ -76,6 +77,7 @@
     "start": "2024-01-20",
     "end": "2024-03-26",
     "place": "Kuřim, fara",
+    "venue": "kurim-fara",
     "text": "Kurz dialogu a misie komunity Emmanuel pro angažované křesťany na kuřimské faře.",
     "body": "<p>Kurz má dvě soboty (20. 1. a 16. 3. od 9:00 do 18:30) a čtyři úterní večery (30. 1., 13. 2., 27. 2. a 26. 3. od 19:00 do 21:30). Setkání obsahují impulz k tématu, sdílení ve skupinkách, společnou modlitbu a vlastní projekt.</p>",
     "sessions": [

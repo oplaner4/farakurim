@@ -6,7 +6,7 @@
     "end": "2024-11-12",
     "startTime": "19:00",
     "place": "Tišnov, fara",
-    "mapQuery": "Kostelní 16, Tišnov",
+    "venue": "tisnov-fara",
     "text": "Beta kurz pro absolventy kurzu Alfa: každé úterý od 19:00 na tišnovské faře.",
     "longTerm": {
       "weeklyAt": "19:00"
@@ -72,6 +72,7 @@
     "title": "Nadechni se",
     "start": "2024-10-05",
     "place": "Brno, Lidická 24",
+    "venue": "brno-komunita-emmanuel",
     "text": "Duchovní obnova pro rodiče malých dětí: přednáška, chvály, sdílení, čas pro pár a přímluvná modlitba.",
     "body": "<p>Je možné zajistit hlídání dětí.</p>",
     "poster": {
@@ -102,6 +103,7 @@
     "start": "2024-10-06",
     "startTime": "18:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Koncert duchovní hudby k výročí projevu Martina Luthera Kinga „Mám sen“. Vystoupí Dej Nám Akord – DNA a Soumrak ze Zbraslavi.",
     "price": "dobrovolné vstupné",
     "poster": {
@@ -122,6 +124,7 @@
     "start": "2024-10-06",
     "startTime": "14:00",
     "place": "Kuřim, areál zámku",
+    "venue": "kurim-zamek",
     "text": "Den národnostních menšin v areálu kuřimského zámku.",
     "body": "<p>Akce byla kvůli nepříznivému počasí přesunuta z 15. září na 6. října.</p>",
     "poster": {
@@ -141,6 +144,7 @@
     "title": "Adorační den farnosti",
     "start": "2024-10-12",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Adorační den naší farnosti. Na adorační stráž se zapisujte po půlhodinách do tabulky vzadu v kostele."
   },
   {
@@ -149,6 +153,7 @@
     "start": "2024-10-19",
     "startTime": "9:00",
     "place": "Brno, Biskupské gymnázium",
+    "venue": "brno-biskupske-gymnazium",
     "text": "Pastorační veletrh brněnské diecéze s přednáškami a workshopy.",
     "registrationDeadline": "2024-10-13",
     "poster": {
@@ -199,6 +204,7 @@
     "start": "2024-10-24",
     "startTime": "18:00",
     "place": "Brno, Výstaviště, pavilon B",
+    "venue": "brno-vystaviste",
     "text": "Evangelizační koncert pro mladé skupiny Godzone, doprovázený slovem a svědectvími. Vstup zdarma.",
     "poster": {
       "src": "/uploads/aktuality/godzone-2024-plakat.webp",

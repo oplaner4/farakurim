@@ -43,6 +43,7 @@
     "start": "2025-03-16",
     "startTime": "18:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Zazpívá Schola brněnské mládeže (SBM) za doprovodu kapely a komorního orchestru.",
     "body": "<p>Akci finančně podpořilo město Kuřim.</p>",
     "price": "dobrovolné vstupné",
@@ -64,6 +65,7 @@
     "start": "2025-03-22",
     "startTime": "17:00",
     "place": "Kuřim, fara",
+    "venue": "kurim-fara",
     "text": "Duchovní obnova na téma Křížová cesta našeho Pána Ježíše Krista jako příprava na Velikonoce. Vede P. Jaroslav Filka.",
     "body": "<p>Volně navážeme na téma z loňského roku.</p>",
     "poster": {
@@ -104,6 +106,7 @@
     "start": "2025-03-27",
     "end": "2025-03-28",
     "place": "Brno-Husovice, fara",
+    "venue": "brno-fara-husovice",
     "text": "Duchovní obnova pro ženy s Pavlou Cenkovou na téma Učednictví ve světle zjevení Nejsvětějšího srdce Ježíšova.",
     "body": "<p>Program zahrnuje promluvy, adoraci (také soukromou celonoční), mši svatou a sdílení ve skupinkách. V sobotu bude možnost svátosti smíření a duchovního rozhovoru s bratrem Didakem.</p>",
     "program": [

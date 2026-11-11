@@ -5,7 +5,7 @@
     "start": "2026-06-13",
     "startTime": "14:00",
     "place": "Kuřim, fara",
-    "mapQuery": "Křížkovského 55/5, Kuřim",
+    "venue": "kurim-fara",
     "text": "Farní den k výročí 800 let Kuřimi: mše svatá venku, diskuse s pamětníky, workshopy a táborák.",
     "body": "<p>Od 15:30 do 17:00 probíhají workshopy (hudební, výtvarný, sportovní, retrohry), od 15:00 do 18:00 je otevřen stánek čajovny s možností rozhovoru a sdílení. Pro děti a rodiny je připraven odpolední katechetický program.</p>",
     "program": [
@@ -58,6 +58,7 @@
     "start": "2026-06-28",
     "startTime": "9:00",
     "place": "Kuřim, kostel sv. Maří Magdalény",
+    "venue": "kurim-kostel",
     "text": "Slavnostní mše svatá k výročí 800 let od první zmínky o Kuřimi, výjimečně v 9:00. Mše se nakonec přesunula z náměstí do kostela.",
     "program": [
       {
