@@ -112,6 +112,16 @@ describe("addEvent on a copy of news/", { timeout: 30_000 }, () => {
     );
   });
 
+  it("refuses a venue from another village and mapQuery next to a venue, and takes a fitting one", () => {
+    expect(() =>
+      addEvent(news, newsEvent({ id: "v-2026", place: "Česká, fara", venue: "kurim-fara" }), { now }),
+    ).toThrow(/^venue: kurim-fara is in Kuřim, but the place "Česká, fara" does not start with it/);
+    const both = newsEvent({ id: "v-2026", place: "Kuřim, fara", venue: "kurim-fara", mapQuery: "fara Kuřim" });
+    expect(() => addEvent(news, both, { now })).toThrow(/^mapQuery: must be left out next to a venue/);
+    const fitting = newsEvent({ id: "v-2026", place: "Kuřim, fara", venue: "kurim-fara" });
+    expect(addEvent(news, fitting, { now, check: true }).target).toBe("2026/10.json");
+  });
+
   it("adds a record to a migrated year", () => {
     const result = addEvent(news, newsEvent({ id: "dodatek-2024", start: "2024-03-15" }), { now });
     expect(result.target).toBe("2024/03.json");

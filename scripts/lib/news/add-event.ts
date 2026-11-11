@@ -5,12 +5,14 @@
 
 import { monthFile, readMonths } from "@/content/news";
 import type { NewsEvent } from "@/content/types/news";
+import { venues } from "@/content/venues";
 import { newsEventSchema } from "@/lib/news/schema";
 import { parseOrThrow } from "@/lib/shared/json-file";
 import { pragueDate } from "@/lib/shared/prague";
+import { venueProblems } from "@/lib/venues/match";
 import { actionVerb, parseRecordCommand, readJsonRecord } from "../command";
 import { formatAndTestNews, NEWS_DIR, writeMonth } from "../content-files";
-import { next, refusal } from "../output";
+import { next, refusal, tell } from "../output";
 import { assertPinnable, movePin, unpinnedLines, withoutPin } from "./pin-event";
 
 /** `list` (in start-date order) with `record` after the last record that starts on or before it. */
@@ -32,11 +34,18 @@ export function takenIdError(taken: NewsEvent): Error {
   );
 }
 
+/** Refuses a record whose venue is unknown, of another village than its place, or next to a `mapQuery`. */
+export function assertVenue(record: NewsEvent): void {
+  const [first, ...rest] = venueProblems(record, venues);
+  if (first) throw refusal(first, ...rest.map(tell), next("pnpm venue find names the venues of the place's village"));
+}
+
 /** `input` checked as a new record, published `now` unless it says otherwise; a pinned one must be pinnable. */
 function parseRecord(input: unknown, now: Date): NewsEvent {
   const withDate = input !== null && typeof input === "object" ? { published: pragueDate(now), ...input } : input;
   const parsed = parseOrThrow(newsEventSchema, withDate, "the record");
   const record = parsed.pinned === false ? withoutPin(parsed) : parsed;
+  assertVenue(record);
   if (record.pinned) assertPinnable(record, pragueDate(now));
   return record;
 }

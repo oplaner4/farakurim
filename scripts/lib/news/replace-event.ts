@@ -10,7 +10,7 @@ import type { NewsEvent } from "@/content/types/news";
 import { newsEventSchema } from "@/lib/news/schema";
 import { parseOrThrow } from "@/lib/shared/json-file";
 import { pragueDate } from "@/lib/shared/prague";
-import { insertRecord } from "./add-event";
+import { assertVenue, insertRecord } from "./add-event";
 import { actionVerb, parseRecordCommand, readJsonRecord } from "../command";
 import { formatAndTestNews, NEWS_DIR, writeMonth } from "../content-files";
 import { next, refusal } from "../output";
@@ -41,6 +41,7 @@ function parseReplacement(input: unknown, previous: NewsEvent, now: Date): NewsE
   if (Boolean(record.pinned) !== Boolean(previous.pinned)) {
     throw refusal(`the pin of ${record.id} changes only with pnpm pin-event`, next('keep "pinned" as it is'));
   }
+  assertVenue(record);
   if (record.pinned) assertPinnable(record, pragueDate(now));
   return record;
 }

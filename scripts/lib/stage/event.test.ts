@@ -227,6 +227,14 @@ describe("stageEvent", { timeout: 30_000 }, () => {
         record: { ...record, id: "test-stare-2020", start: "2020-10-20", pinned: true },
       }),
     ).rejects.toThrow("cannot pin test-stare-2020: it ended on 2020-10-20");
+    await expect(
+      stageOne({
+        source,
+        id: "test-hody-2026",
+        label: "Plakát",
+        record: { ...record, place: "Česká, fara", venue: "kurim-fara" },
+      }),
+    ).rejects.toThrow(/^venue: kurim-fara is in Kuřim/);
     expect(existsSync(uploaded())).toBe(false);
   });
 

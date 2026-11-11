@@ -77,6 +77,16 @@ describe("replaceEvent", () => {
     expect(ids("2026/09.json")).toEqual(["zari-2026", "pout-2026"]);
   });
 
+  it("names a new venue and the mapQuery it replaces, and refuses one from another village", () => {
+    replaceEvent(news.dir(), newsEvent({ id: "pout-2026", start: "2026-09-20", mapQuery: "fara Kuřim" }), { now });
+    const atFara = newsEvent({ id: "pout-2026", start: "2026-09-20", place: "Kuřim, fara", venue: "kurim-fara" });
+    const result = replaceEvent(news.dir(), atFara, { now, check: true });
+    expect(replaceLines(result, true)).toContain("Changed: place, mapQuery, venue");
+    expect(() => replaceEvent(news.dir(), { ...atFara, place: "Česká, fara" }, { now, check: true })).toThrow(
+      /^venue: kurim-fara is in Kuřim/,
+    );
+  });
+
   it("refuses an unknown id, an invalid record and a change of the pin", () => {
     expect(() => replaceEvent(news.dir(), newsEvent({ id: "nove-2026" }), { now })).toThrow(
       "there is no event nove-2026\nnext: pnpm add-event adds a new one",
