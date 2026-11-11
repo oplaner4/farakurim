@@ -97,6 +97,23 @@ describe("parseCommand", () => {
     expect(parseCommand(["assign", "--check"])).toEqual({ sub: "assign", check: true });
     expect(() => parseCommand(["find", "Kuřim, fara"])).toThrow(/Usage: pnpm venue/);
     expect(() => parseCommand(["move"])).toThrow(/Usage: pnpm venue/);
+    expect(parseCommand(["set", "ceska-kaple", "c.json", "--pick", "2", "--check"])).toEqual({
+      sub: "set",
+      id: "ceska-kaple",
+      file: "c.json",
+      pick: 2,
+      check: true,
+    });
+    expect(parseCommand(["set", "ceska-kaple", "--name", "Kaple"])).toEqual({
+      sub: "set",
+      id: "ceska-kaple",
+      name: "Kaple",
+      check: false,
+    });
+    // set changes something, takes --pick only with a file and never an alias.
+    expect(() => parseCommand(["set", "ceska-kaple"])).toThrow(/Usage/);
+    expect(() => parseCommand(["set", "ceska-kaple", "--name", "K", "--pick", "1"])).toThrow(/Usage/);
+    expect(() => parseCommand(["set", "ceska-kaple", "--name", "K", "--alias", "k"])).toThrow(/Usage/);
     // A name or an alias is add's, and a pick is a whole number from 1.
     expect(() => parseCommand(["lookup", "--municipality", "Česká", "x", "--name", "X"])).toThrow(/Usage/);
     expect(() => parseCommand(["add", "c.json", "--pick", "0"])).toThrow(/Usage/);

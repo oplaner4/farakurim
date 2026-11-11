@@ -10,15 +10,20 @@
 //   add     adds a venue from a JSON file, or candidate --pick <n> of lookup's file, named --name and with --alias
 //           texts: its municipality taken from its position (refused when another is stated), its id
 //           <municipality>-<name> as slug() makes it; warns when the address lands > 150 m away.
+//   set     changes a venue's name (--name), or its address and position to candidate --pick <n> of lookup's file,
+//           inside its municipality; its id never changes. Prints the changes and what uses the venue; refuses the
+//           parish office's address (Kontakty's too).
 //   alias   adds a confirmed text of a place to a venue, refused when another venue of the municipality has it.
 //   assign  gives every record without a venue the one its place names exactly.
-// --check prints what add, alias and assign would do without writing. lookup and add need MAPY_API_KEY (.env.local).
+// --check prints what add, set, alias and assign would do without writing. lookup, add and set (with a candidate)
+// need MAPY_API_KEY (.env.local).
 //
 // Usage: pnpm venue find --municipality "<municipality>" [<keyword>…]
 //        pnpm venue lookup --municipality "<municipality>" ("<query>" | --link <Mapy.com link> | --address "<address>"
 //                          | --position "<GPS line>") [--out <candidates.json>]
 //        pnpm venue add <venue.json | candidates.json | -> [--pick <n>] [--name "<building>"] [--alias "<text>"…]
 //                       [--check]
+//        pnpm venue set <id> [--name "<name>"] [<candidates.json> --pick <n>] [--check]
 //        pnpm venue alias <id> "<text>" [--check]
 //        pnpm venue assign [--check]
 import { runCommand } from "./lib/command";

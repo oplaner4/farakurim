@@ -20,7 +20,7 @@ const ADDRESS_DISTANCE_METRES = 150;
 export const readVenues = (file: string): Venue[] => readJsonFile(file, venueFileSchema).venues;
 
 /** The municipality Mapy.com names at `position`; refuses another than `stated`. */
-async function municipalityAt(position: Position, stated: string | undefined, key: string): Promise<string> {
+export async function municipalityAt(position: Position, stated: string | undefined, key: string): Promise<string> {
   const [here] = await rgeocode(position, key);
   const municipality = here && municipalityOf(here);
   if (!municipality) throw refusal("Mapy.com names no municipality at the position", next("check the pin"));
@@ -31,7 +31,7 @@ async function municipalityAt(position: Position, stated: string | undefined, ke
 }
 
 /** A note when a search of the venue's address lands far from its position (a typo, or the wrong pin). */
-async function addressNote(venue: Venue, key: string): Promise<string[]> {
+export async function addressNote(venue: Venue, key: string): Promise<string[]> {
   if (!venue.address.streetAddress) return [];
   const types = ["regional.address", "regional.street"];
   const { municipality } = venue.address;
@@ -46,8 +46,8 @@ async function addressNote(venue: Venue, key: string): Promise<string[]> {
 /** What `add` changes on the venue it reads: the candidate `pick` (from 1) of a list, its name, aliases to add. */
 export type AddOptions = { pick?: number; name?: string; aliases?: string[] };
 
-/** The venue `input` holds, or candidate `pick` of the list it holds, named `name` and with `aliases` added. */
-function chosenVenue(input: unknown, { pick, name, aliases = [] }: AddOptions): Partial<Venue> {
+/** The record `input` holds, or candidate `pick` (from 1) of the list it holds, as lookup's file numbers them. */
+export function pickedRecord(input: unknown, pick: number | undefined): Partial<Venue> {
   let record = input;
   if (Array.isArray(input)) {
     if (pick === undefined) {
@@ -59,7 +59,12 @@ function chosenVenue(input: unknown, { pick, name, aliases = [] }: AddOptions): 
   } else if (pick !== undefined) {
     throw refusal("--pick takes a candidate of a list, and the file holds one venue");
   }
-  const raw = (record !== null && typeof record === "object" ? record : {}) as Partial<Venue>;
+  return (record !== null && typeof record === "object" ? record : {}) as Partial<Venue>;
+}
+
+/** The venue `input` holds, or candidate `pick` of the list it holds, named `name` and with `aliases` added. */
+function chosenVenue(input: unknown, { pick, name, aliases = [] }: AddOptions): Partial<Venue> {
+  const raw = pickedRecord(input, pick);
   const named = name ?? raw.name;
   if (typeof named !== "string" || !named.trim()) {
     throw refusal("the venue has no name", next('--name "<building>" names it ("Sokolovna")'));

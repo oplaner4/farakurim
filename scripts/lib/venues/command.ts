@@ -8,16 +8,19 @@ import { tell } from "../output";
 import { addAlias, addVenue, readVenues, type AddOptions } from "./add";
 import { candidatesLines, lookupResults, type LookupRequest } from "./lookup";
 import { mapyKey } from "./mapy";
+import { setVenue, venueUse } from "./set";
 import { findVenue, venuesOf, venuesWith } from "./match";
 
 // The venue commands: their arguments, a municipality's venues narrowed by keywords, the records whose place matches
-// a venue exactly, and each command run (the lookup and its candidates in lookup.ts, writing the list in add.ts).
+// a venue exactly, and each command run (the lookup and its candidates in lookup.ts, adding to the list in add.ts,
+// changing a venue in set.ts).
 
 export const USAGE = `Usage: pnpm venue find --municipality "<municipality>" [<keyword>…]
        pnpm venue lookup --municipality "<municipality>" ("<query>" | --link <Mapy.com link> | --address "<address>"
                          | --position "<GPS line>") [--out <candidates.json>]
        pnpm venue add <venue.json | candidates.json | -> [--pick <n>] [--name "<building>"] [--alias "<text>"…]
                       [--check]
+       pnpm venue set <id> [--name "<name>"] [<candidates.json> --pick <n>] [--check]
        pnpm venue alias <id> "<text>" [--check]
        pnpm venue assign [--check]`;
 
@@ -25,6 +28,7 @@ export type VenueCommand =
   | { sub: "find"; municipality: string; keywords: string[] }
   | ({ sub: "lookup"; out?: string } & LookupRequest)
   | ({ sub: "add"; file: string; check: boolean } & AddOptions)
+  | { sub: "set"; id: string; file?: string; pick?: number; name?: string; check: boolean }
   | { sub: "alias"; id: string; text: string; check: boolean }
   | { sub: "assign"; check: boolean };
 
@@ -60,9 +64,26 @@ function parseLookup({ positionals, values }: Parsed): VenueCommand | undefined 
   };
 }
 
+const isPick = (pick: string | undefined) => pick === undefined || /^[1-9]\d*$/.test(pick);
+
+/** `set` takes the venue's id, and a new name, a candidates file or both. */
+function parseSet({ positionals: [id, file, ...extra], values: { pick, name, alias } }: Parsed, check: boolean) {
+  if (!id || extra.length > 0 || alias !== undefined || !isPick(pick) || (name === undefined && !file))
+    return undefined;
+  if (pick !== undefined && !file) return undefined;
+  return {
+    sub: "set" as const,
+    id,
+    check,
+    ...(file && { file }),
+    ...(pick !== undefined && { pick: Number(pick) }),
+    ...(name !== undefined && { name }),
+  };
+}
+
 /** `add` takes one file, and --pick a whole number from 1. */
 function parseAdd({ positionals, values: { pick, name, alias: aliases } }: Parsed, check: boolean) {
-  if (positionals.length !== 1 || (pick !== undefined && !/^[1-9]\d*$/.test(pick))) return undefined;
+  if (positionals.length !== 1 || !isPick(pick)) return undefined;
   return {
     sub: "add" as const,
     file: positionals[0],
@@ -78,6 +99,7 @@ const PARSERS: Record<string, (parsed: Parsed, check: boolean) => VenueCommand |
     municipality ? { sub: "find", municipality, keywords: positionals } : undefined,
   lookup: parseLookup,
   add: parseAdd,
+  set: parseSet,
   alias: ({ positionals: [id, text, ...extra] }, check) =>
     id && text && extra.length === 0 ? { sub: "alias", id, text, check } : undefined,
   assign: ({ positionals }, check) => (positionals.length === 0 ? { sub: "assign", check } : undefined),
@@ -164,6 +186,16 @@ export async function execute(command: VenueCommand) {
     const lines = await addVenue(VENUES_FILE, readJsonRecord(file), { ...options, key: mapyKey() });
     console.log(lines.join("\n"));
     if (!command.check) await formatAndTest([VENUES_FILE], ["src/content/venues.test.ts", "src/content/news"]);
+  } else if (command.sub === "set") {
+    const { id, file, pick, name, check } = command;
+    const input = file === undefined ? undefined : readJsonRecord(file);
+    const use = venueUse(id, NEWS_DIR);
+    const lines = await setVenue(VENUES_FILE, id, { name, input, pick, check, key: mapyKey(), use });
+    console.log(lines.join("\n"));
+    if (!check) {
+      const tests = ["src/content/venues.test.ts", "src/content/masses.test.ts", "src/content/news"];
+      await formatAndTest([VENUES_FILE], tests);
+    }
   } else if (command.sub === "alias") {
     console.log(addAlias(VENUES_FILE, command.id, command.text, { check: command.check }).join("\n"));
     if (!command.check) await formatAndTest([VENUES_FILE], ["src/content/venues.test.ts"]);
