@@ -373,6 +373,63 @@
         "lat": 49.1979522,
         "lon": 16.6078981
       }
+    },
+    {
+      "id": "brno-kaple-sv-alzbety",
+      "name": "Kaple sv. Alžběty",
+      "address": {
+        "streetAddress": "Kamenná 207/36",
+        "part": "Štýřice",
+        "postalCode": "639 00",
+        "municipality": "Brno",
+        "country": "Česko"
+      },
+      "position": {
+        "lat": 49.18514,
+        "lon": 16.5912
+      }
+    },
+    {
+      "id": "kurim-sbor-dr-karla-farskeho",
+      "name": "Sbor Dr. Karla Farského",
+      "address": {
+        "streetAddress": "Farského 349/22",
+        "postalCode": "664 34",
+        "municipality": "Kuřim",
+        "country": "Česko"
+      },
+      "position": {
+        "lat": 49.30053,
+        "lon": 16.53328
+      }
+    },
+    {
+      "id": "brno-biskupstvi-brnenske",
+      "name": "Biskupství brněnské",
+      "address": {
+        "streetAddress": "Petrov 269/8",
+        "part": "Brno-město",
+        "postalCode": "602 00",
+        "municipality": "Brno",
+        "country": "Česko"
+      },
+      "position": {
+        "lat": 49.19097,
+        "lon": 16.60662
+      }
+    },
+    {
+      "id": "brno-bazilika-nanebevzeti-panny-marie",
+      "name": "Bazilika Nanebevzetí Panny Marie",
+      "address": {
+        "part": "Staré Brno",
+        "municipality": "Brno",
+        "country": "Česko"
+      },
+      "position": {
+        "lat": 49.1919,
+        "lon": 16.59452
+      }
     }
   ]
 }
