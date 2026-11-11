@@ -57,7 +57,7 @@ export function MoreEvents({
               href={item.href}
               className="flex h-full items-center gap-3.5 rounded-16 bg-surface p-3 text-ink no-underline hover:bg-magenta-tint hover:text-ink md:rounded-18 md:p-3.5 lg:gap-4 lg:rounded-20 lg:p-4"
             >
-              <span className="flex h-14 w-13 shrink-0 flex-col items-center justify-center rounded-12 bg-raised leading-display text-magenta-ink md:h-15.5 md:w-14 lg:h-17.5 lg:w-16 lg:rounded-14">
+              <span className="flex h-14 w-16 shrink-0 flex-col items-center justify-center rounded-12 bg-raised px-1.5 leading-display whitespace-nowrap text-magenta-ink md:h-15.5 md:w-18 lg:h-17.5 lg:w-20 lg:rounded-14">
                 <strong className="text-18 md:text-20 lg:text-22">{item.date.top}</strong>
                 <span className="text-12 lg:text-13">{item.date.bottom}</span>
               </span>
