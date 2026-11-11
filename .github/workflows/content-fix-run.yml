@@ -109,7 +109,7 @@ jobs:
           case "$kind" in
             events)
               skill=parish-correct-event label=events
-              commands=$'pnpm replace-event:*\npnpm event-poster:*\npnpm stage event:*\npnpm venue find:*\npnpm venue lookup:*'
+              commands=$'pnpm replace-event:*\npnpm event-poster:*\npnpm stage event:*\npnpm venue find:*\npnpm venue lookup:*\npnpm venue add:*\npnpm venue alias:*'
               ;;
             sheet)
               skill=parish-correct-service-sheet label="service sheets"
@@ -188,7 +188,7 @@ jobs:
         if: steps.next.outputs.comment != ''
         timeout-minutes: 30
         uses: oplaner4/farakurim/.github/actions/agent@main # from main, not the checkout: see the action
-        # The venue lookups' key; a comment run may only find and look venues up, never add one.
+        # The venue lookups' key; a comment run may add a venue or an alias, which the PR's review confirms.
         env:
           MAPY_API_KEY: ${{ secrets.MAPY_API_KEY }}
         with:
@@ -262,7 +262,8 @@ jobs:
       # The report (`pnpm content-fix report`, which fails on a report without its three header lines or its reply)
       # gives `{ blocking, commit, fix, changed }`, the PR body's report and the reply. `changed` must agree with the
       # patch. A patch is applied (`pnpm content-pr patch`) only if it touches nothing but the kind's files (sheets:
-      # src/content/*.json; events: the news month files), and no id it adds may be held by an open events PR (this
+      # src/content/*.json; events: the news month files and the venue list), a change to the venue list only adds
+      # venues and aliases, and no id it adds may be held by an open events PR (this
       # PR's own events are on its head already). Both messages are checked by commitlint, with a default otherwise. The PR body (`pnpm content-pr
       # body`) ends with the Události lines that need a person for events, as events.yml builds them, and the footer.
       - name: Apply the change

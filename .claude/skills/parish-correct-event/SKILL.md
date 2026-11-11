@@ -91,9 +91,10 @@ Only when the prompt says the run is a **comment run** on an events PR; steps 1 
   but still run each `--check` and read its `Changed:` line: when it lists fields the comment did not ask to change,
   stop with `Outcome: unchanged` and say why. Use `pnpm replace-event` and `pnpm event-poster`, as in step 3. A
   question in the comment is answered in the reply.
-- **Venue:** a changed place may take a venue the source or the comment names by its name, an alias or its id; any
-  other match is answered with the `pnpm venue find` candidates or the `pnpm venue lookup` proposal (its pin link) in
-  the reply. Never run `pnpm venue add` or `pnpm venue alias`.
+- **Venue:** a changed place takes its venue as **`parish-create-event`** "Unattended run" says, a new venue or
+  alias included (added before the record is replaced). The comment is the maintainer's yes for a venue, an alias or
+  a Mapy.com link it names. The reply shows each new venue and alias with its pin link, and answers anything less
+  certain with the candidates and their pin links. Never change or remove a venue already in the list.
 - **Fix a check:** when `check.md` shows a failure the PR's content causes, fix it the same way; a failure outside the
   content (a script, the build) is not fixed, and the reply says so.
 - **Out of bounds**, answered without a change (`Outcome: unchanged`): a new event, dropping, pinning or splitting an

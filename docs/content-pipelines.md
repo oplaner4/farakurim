@@ -141,8 +141,8 @@ signature. `.github/workflows/events.yml`
    in the report), takes each title from the subject or its poster, fills the text from the attachments, pins only
    when the mail asks for "Doporučujeme", and refuses a **correction** (oprava, změna, posun, přesun, zrušeno, nekoná,
    …: make it with `parish-correct-event` or `parish-cancel-event`) and a **duplicate** of a known event;
-4. checks the report against the change and applies it only if it touches nothing but the news month files
-   (`pnpm content-pr apply`), then commits the new events as the GitHub App's bot (no test or build: [`check.yml`](github-setup.md#checks-on-content-prs) checks the
+4. checks the report against the change and applies it only if it touches nothing but the news month files and the
+   venue list, which may only gain venues and aliases (`pnpm content-pr apply`), then commits the new events as the GitHub App's bot (no test or build: [`check.yml`](github-setup.md#checks-on-content-prs) checks the
    PR) and opens **one PR per mail** on a branch
    `events/<date>`, its body the report (only what is published is quoted: the PR is public), locked, a draft when
    the report has a blocking question. Its body ends with the [calendar sync](calendar-sync.md) preview's lines
@@ -175,7 +175,7 @@ editor, or close the PR and send the mail again.
   secret `IMAP_USER` below); the script creates `Zpracováno` and `Odmítnuto`.
 - **Environment** `events-publish`, deployment branches allowing `main`, no required reviewers: variable `IMAP_HOST`,
   secrets `IMAP_USER` and `IMAP_PASSWORD` of that mailbox, the secret `MAPY_API_KEY` (the agent's `pnpm venue
-lookup`), and the variable `ANTHROPIC_FEDERATION_RULE_ID` of the rule below (the sheet's rule is the same variable
+lookup` and `add`), and the variable `ANTHROPIC_FEDERATION_RULE_ID` of the rule below (the sheet's rule is the same variable
   of `service-sheet-publish`).
 - **Claude Console:** a second federation rule for the same service account, `subject_prefix` exactly
   `repo:<owner>@<owner-id>/<repo>@<repo-id>:environment:events-publish` (for this site
@@ -251,7 +251,7 @@ only a failure reply: correct it with a commit or locally.
 
 - **Environment** `content-fix` (repository Settings → Environments), for both jobs of `content-fix-run.yml`:
   deployment branches allowing `main`, no required reviewers, the secret `MAPY_API_KEY` (the agent's `pnpm venue
-lookup`), and the variable `ANTHROPIC_FEDERATION_RULE_ID` of the rule below. It holds no IMAP login; the App key stays the repository secret `CONTENT_APP_PRIVATE_KEY`.
+lookup` and `add`), and the variable `ANTHROPIC_FEDERATION_RULE_ID` of the rule below. It holds no IMAP login; the App key stays the repository secret `CONTENT_APP_PRIVATE_KEY`.
 - **Claude Console:** a third federation rule for the pipelines' service account, `subject_prefix` exactly
   `repo:<owner>@<owner-id>/<repo>@<repo-id>:environment:content-fix` (for this site
   `repo:oplaner4@38047115/farakurim@1403139652:environment:content-fix`), audience `https://api.anthropic.com`, the

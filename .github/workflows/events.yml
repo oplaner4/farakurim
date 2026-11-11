@@ -7,10 +7,11 @@
 #   open events/ PRs add) and lets the agent (workload identity federation, no API key) run
 #   parish-create-event unattended on the mail: it groups the attachments into events, refuses corrections and
 #   duplicates, stages the new events and writes a report. The agent's file tools may write only in $RUNNER_TEMP/event
-#   (the checkout is denied); only `pnpm stage event` and `pnpm add-event` write src/content/ and the staging folder.
-#   The job hands on the report, the change to src/content/news/ as a patch, the known events (read before the agent
-#   ran) and the staged files as a one-day artifact. The mail itself never leaves this job, and is deleted at the end.
-# - `publish` starts from a fresh checkout, applies the patch only if it touches nothing but the news month files,
+#   (the checkout is denied); only `pnpm stage event`, `pnpm add-event` and `pnpm venue add`/`alias` write
+#   src/content/ and the staging folder. The job hands on the report, the change to src/content/news/ and the venue
+#   list as a patch, the known events (read before the agent ran) and the staged files as a one-day artifact. The mail itself never leaves this job, and is deleted at the end.
+# - `publish` starts from a fresh checkout, applies the patch only if it touches nothing but the news month files
+#   and the venue list, and the list only gains venues and aliases,
 #   refuses an id an open events PR holds (`pnpm event-mail check-ids`), then commits as the GitHub App's bot and opens
 #   a new events/ PR, its body the report (ended by a `<!-- report-end -->` line, so a comment fix can replace the
 #   report), a draft while the report has a blocking question. It neither tests nor builds: check.yml does that on
@@ -150,7 +151,7 @@ jobs:
         if: steps.fetch.outputs.mail != ''
         timeout-minutes: 30
         uses: oplaner4/farakurim/.github/actions/agent@main # from main, not the checkout: see the action
-        # The venue lookups' key; the agent may only find and look venues up, never add one.
+        # The venue lookups' key; the agent may add a venue or an alias, which the PR's review confirms.
         env:
           MAPY_API_KEY: ${{ secrets.MAPY_API_KEY }}
         with:
@@ -160,6 +161,8 @@ jobs:
             pnpm add-event:*
             pnpm venue find:*
             pnpm venue lookup:*
+            pnpm venue add:*
+            pnpm venue alias:*
           federation-rule-id: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
           organization-id: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
           service-account-id: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
@@ -171,8 +174,8 @@ jobs:
             scratchpad is ${{ runner.temp }}/event. The skill holds all the run needs: don't read README.md, docs/
             or design/.
 
-      # What `publish` needs, never the mail: the report, the change to src/content/news/ against the branch base (new
-      # files included) and the staged event files.
+      # What `publish` needs, never the mail: the report, the change to src/content/news/ and the venue list against
+      # the branch base (new files included) and the staged event files.
       - name: Collect the outcome
         if: always() && steps.fetch.outputs.mail != ''
         env:
@@ -182,7 +185,7 @@ jobs:
           printf '%s\n' "$BRANCH" > "$run/branch"
           if [ -f "$RUNNER_TEMP/event/report.md" ]; then cp "$RUNNER_TEMP/event/report.md" "$run/report.md"; fi
           git add --intent-to-add -- src/content/news
-          git diff --binary HEAD -- src/content/news > "$run/content.patch"
+          git diff --binary HEAD -- src/content/news src/content/venues.json > "$run/content.patch"
           mkdir -p "$run/uploads/$EVENTS"
           if [ -d "$UPLOADS/$EVENTS" ]; then
             find "$UPLOADS/$EVENTS" -maxdepth 1 -type f -exec cp {} "$run/uploads/$EVENTS/" \;
@@ -267,7 +270,7 @@ jobs:
         with:
           client-id: ${{ vars.CONTENT_APP_CLIENT_ID }}
           private-key: ${{ secrets.CONTENT_APP_PRIVATE_KEY }}
-          paths: src/content/news
+          paths: src/content/news src/content/venues.json
           message: ${{ steps.changes.outputs.message }}
           uploads: ${{ runner.temp }}/run/uploads/
           branch: ${{ needs.event.outputs.branch }}

@@ -194,10 +194,17 @@ follows them too, with these changes:
 - Write the report first, then stage, then fill in each event's `Outcome:` line from what the script did, and add any
   line it printed for the user (an unpinned event) to the report. A script refusal is `refused: <its reason>`:
   the refusal's first line; its `next:` lines say what to do, not what to publish.
-- **Venue:** take a venue only when the source names it by its name or an alias (case and word endings aside);
-  otherwise leave `venue` out and write a question (`blocking: no`) with the candidates or the `pnpm venue lookup`
-  proposal and its pin link, for the maintainer to confirm. Never
-  run `pnpm venue add` or `pnpm venue alias`.
+- **Venue:** follow "Finding `venue`"; the PR's review is the user's yes, so the report must show what to check.
+  - Take a listed venue when the source names it by its name or an alias (case and word endings aside), or plainly
+    means it: then add the source's building text as its alias (`pnpm venue alias <id> "<text>"`).
+  - Add a new venue only when one lookup candidate is plainly the building (its name is the source's building, or it
+    is the address the source gives): `pnpm venue add <scratchpad>/venue.json --check`, then without `--check`.
+  - Add the venue or alias before the event is staged, which refuses a venue not in the list.
+  - Report each in the event's section, with the pin to check: `New venue <id>: <name>, <address> — pin: <pin
+link>`, `New alias "<text>" for <id>`.
+  - Anything less certain (several candidates, none, an approximate link): leave `venue` out and write a question
+    (`blocking: no`) with the candidates and their pin links.
+  - Never change or remove a venue already in the list: the PR refuses the whole change.
 - Skip step 6: no `parish-publish-content`, no commit, no release.
 
 **The report** is English, with site content quoted in Czech, and starts with exactly these two lines:
@@ -229,7 +236,8 @@ mail without quoting it.
 - Copying the poster's capitals into `title`, or its whole text into `body`: keep `text` short and `body` brief.
 - Putting URLs or e-mails into `text`/`body` instead of `links`.
 - Guessing a year or end date silently: say it in the confirmation.
-- Guessing a venue from a similar name, or adding one without the user's yes on its pin: ask instead.
+- Guessing a venue from a similar name, or adding one without the user's yes on its pin (unattended: without a
+  candidate that is plainly the building): ask instead.
 - Going on without a file and without the warning in step 1: the user may have a poster to add.
 - Staging (without `--check`) before the user confirms: an abandoned file would go out with the next release.
 - Adding a new event by hand instead of `--record` (or `pnpm add-event`): the order and `published` are then up
