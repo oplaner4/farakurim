@@ -17,9 +17,6 @@ export function czechIban(account: string): string {
   return `CZ${String(BigInt(98) - remainder).padStart(2, "0")}${bban}`;
 }
 
-/** "CZ65 0800 0000 1920 0014 5399" */
-export const formatIban = (iban: string) => iban.replace(/(.{4})(?=.)/g, "$1 ");
-
 type SpaydInput = { iban: string; variableSymbol: string; message: string };
 
 /**

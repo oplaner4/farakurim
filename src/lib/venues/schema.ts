@@ -1,7 +1,7 @@
 import * as z from "zod";
 import type { Venue, VenueFile } from "@/content/types/venues";
 import { kebabIdSchema } from "@/lib/shared/schema";
-import { foldPlace } from "./match";
+import { foldPlace } from "./checks";
 
 // The rules of the venue list, in one place: src/content/venues.ts checks src/content/venues.json with them when the
 // site loads it, and the venue scripts check a new venue and the file before they write.

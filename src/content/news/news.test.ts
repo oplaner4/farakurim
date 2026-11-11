@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { venueProblems } from "@/lib/venues/match";
+import { venueProblems } from "@/lib/venues/checks";
 import { duplicates, isSorted } from "@/test/content-checks";
 import { venues } from "../venues";
 import { events, monthFile, monthFiles, readEvents, readMonth } from "./index";

@@ -1,4 +1,4 @@
-import type { CampYear, NextCamp } from "@/content/types/camp";
+import type { NextCamp } from "@/content/types/camp";
 import { formatCompactDate } from "@/lib/shared/czech";
 
 // Ročníky (design/DESIGN.md §29.5) and the next camp's panel on O táboru (§29.2).
@@ -15,9 +15,6 @@ export const campDates = (start: string, end: string) => `${formatCompactDate(st
 
 /** The id of a year's card, which the old year URLs open (public/.htaccess): "rok-2019". */
 export const yearAnchor = (year: number) => `rok-${year}`;
-
-/** The visible heading of a year's card: the camp game's theme, or "Tábor 2020" when it is not known. */
-export const yearTitle = ({ year, theme }: Pick<CampYear, "year" | "theme">) => theme ?? `Tábor ${year}`;
 
 /** The next camp's dates, or "upřesníme" until they are known. */
 export const nextCampDates = ({ start, end }: Pick<NextCamp, "start" | "end">) =>

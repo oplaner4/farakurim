@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { czechIban, formatIban, MIN_PROGRESS, projectProgress, spayd } from "./payment";
+import { czechIban, MIN_PROGRESS, projectProgress, spayd } from "./payment";
 
 /** ISO 13616 check: the IBAN with its first four characters moved to the end, as a number, mod 97 is 1. */
 function ibanIsValid(iban: string): boolean {
@@ -24,12 +24,6 @@ describe("czechIban", () => {
 
   it.each(["247704317", "247704317/03", "abc/0300"])("rejects %s", (account) => {
     expect(() => czechIban(account)).toThrow();
-  });
-});
-
-describe("formatIban", () => {
-  it("groups by four", () => {
-    expect(formatIban("CZ6508000000192000145399")).toBe("CZ65 0800 0000 1920 0014 5399");
   });
 });
 

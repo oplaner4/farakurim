@@ -1,11 +1,8 @@
 import type { Venue } from "@/content/types/venues";
-import { fold } from "@/lib/shared/czech";
+import { foldPlace, type VenueFields } from "@/lib/venues/checks";
 
 // Matching an event's place with the venues: exact, after folding, never fuzzy. The municipality is stated by whoever
 // reads the source, never parsed from `place`.
-
-/** A place text compared without case, accents, dots or extra spaces: "Kurim,  ARÉAL za farou." → "kurim, areal za farou". */
-export const foldPlace = (text: string): string => fold(text).replace(/\./g, "").replace(/\s+/g, " ").trim();
 
 /**
  * The building part of `place` in `municipality`: the text after the first comma ("Kuřim, areál za farou" → "areál
@@ -36,23 +33,6 @@ export function findVenue(list: Venue[], municipality: string, place: string): V
   const local = list.filter((v) => inMunicipality(v, municipality));
   const venue = local.find((v) => [v.name, ...(v.aliases ?? [])].some((t) => foldPlace(t) === foldPlace(building)));
   return venue ? { kind: "known", venue } : { kind: "candidates", venues: local };
-}
-
-type VenueFields = { place?: string; venue?: string; mapQuery?: string };
-
-/**
- * What is wrong with an event's venue, as sentences naming the field; [] when nothing is. A venue in another
- * municipality than the place starts with is allowed (an event in several villages may take the one it is held at):
- * `venueNotes()` names it.
- */
-export function venueProblems(event: VenueFields, venues: Record<string, Venue>): string[] {
-  const { place, venue: id, mapQuery } = event;
-  if (!id) return [];
-  if (!Object.hasOwn(venues, id)) return [`venue: no venue with the id "${id}"`];
-  const problems: string[] = [];
-  if (!place) problems.push("venue: needs a place");
-  if (mapQuery) problems.push("mapQuery: must be left out next to a venue, whose position gives the map link");
-  return problems;
 }
 
 /** What to check about an event's venue that is allowed: one in another municipality than the place starts with. */

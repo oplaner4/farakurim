@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Venue } from "@/content/types/venues";
-import { buildingText, findVenue, foldPlace, venueNotes, venueProblems } from "./match";
+import { buildingText, findVenue, venueNotes } from "./match";
 
 const at = (id: string, name: string, municipality: string, aliases?: string[]): Venue => ({
   id,
@@ -17,12 +17,6 @@ const list = [
   at("ceska-kaple", "Kaple Panny Marie Růžencové", "Česká"),
 ];
 const byId = Object.fromEntries(list.map((v) => [v.id, v]));
-
-describe("foldPlace", () => {
-  it("ignores case, accents, dots and extra spaces", () => {
-    expect(foldPlace("  Kaple  sv. Jana   NEPOMUCKÉHO ")).toBe("kaple sv jana nepomuckeho");
-  });
-});
 
 describe("buildingText", () => {
   it("gives the text after the municipality and a comma", () => {
@@ -62,24 +56,6 @@ describe("findVenue", () => {
 
   it("refuses a place in another municipality", () => {
     expect(findVenue(list, "Kuřim", "Česká, sokolovna")).toEqual({ kind: "wrong-municipality" });
-  });
-});
-
-describe("venueProblems", () => {
-  it("accepts a venue of the place's municipality", () => {
-    expect(venueProblems({ place: "Kuřim, fara", venue: "kurim-fara" }, byId)).toEqual([]);
-    expect(venueProblems({ place: "Kuřim, fara" }, byId)).toEqual([]);
-  });
-
-  it("refuses an unknown venue, a venue without a place and mapQuery next to it, not one from another municipality", () => {
-    expect(venueProblems({ place: "Kuřim, fara", venue: "kurim-sokolovna" }, byId)).toEqual([
-      'venue: no venue with the id "kurim-sokolovna"',
-    ]);
-    expect(venueProblems({ venue: "kurim-fara" }, byId)).toEqual(["venue: needs a place"]);
-    expect(venueProblems({ place: "Česká, fara", venue: "kurim-fara" }, byId)).toEqual([]);
-    expect(venueProblems({ place: "Kuřim, fara", venue: "kurim-fara", mapQuery: "fara Kuřim" }, byId)).toEqual([
-      "mapQuery: must be left out next to a venue, whose position gives the map link",
-    ]);
   });
 });
 

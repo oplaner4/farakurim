@@ -14,8 +14,9 @@ routes), `chronicle` (Kronika farnosti), `activities` (Seznam aktivit, Výuka n�
 `activities.ts`, `religious-education.ts` and `groups.ts`, types in `types/activities.ts`), `camp` (Tábor; content in
 `camp.ts`), `nativity` (Betlémy; content in `nativity.ts`), `parish` (Pastorační
 rada and Kněží – rodáci; content in `parish-council.ts` and `native-priests.ts`), `venues` (the buildings
-services, contacts, nativity and events refer to; content in `venues.json` loaded by `venues.ts`, schema and matching
-in `lib/venues/`, type in `types/venues.ts`), `home`, `layout`
+services, contacts, nativity and events refer to; content in `venues.json` loaded by `venues.ts`, its schema and
+the checks the content tests share in `lib/venues/`, the matching the scripts use in `scripts/lib/venues/`, type in
+`types/venues.ts`), `home`, `layout`
 (header, footer and their parts) and `shared` (`ui` in components) for what several domains use.
 
 | Folder                         | Holds                                                                                 |

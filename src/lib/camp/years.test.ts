@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { campDates, nextCampDates, yearAnchor, yearTint, yearTitle } from "./years";
+import { campDates, nextCampDates, yearAnchor, yearTint } from "./years";
 
 describe("campDates", () => {
   it("writes a camp's days with the year", () => {
@@ -15,11 +15,6 @@ describe("year cards", () => {
 
   it("anchors each card for the old year URLs", () => {
     expect(yearAnchor(2019)).toBe("rok-2019");
-  });
-
-  it("shows the theme, or the year when the theme is not known", () => {
-    expect(yearTitle({ year: 2019, theme: "Piráti z Ostrova" })).toBe("Piráti z Ostrova");
-    expect(yearTitle({ year: 2020 })).toBe("Tábor 2020");
   });
 });
 

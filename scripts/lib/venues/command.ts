@@ -5,7 +5,7 @@ import { parseOrThrow, readJsonFile } from "@/lib/shared/json-file";
 import { positionMapHref } from "@/lib/shared/links";
 import { slug } from "@/lib/shared/slug";
 import { formatAddress } from "@/lib/shared/venues";
-import { findVenue } from "@/lib/venues/match";
+import { findVenue } from "./match";
 import { venueFileSchema, venueSchema } from "@/lib/venues/schema";
 import { actionVerb, parseCommandLine, readJsonRecord } from "../command";
 import {
