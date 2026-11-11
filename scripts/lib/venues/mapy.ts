@@ -7,11 +7,16 @@ import { next, refusal } from "../output";
 
 const API = "https://api.mapy.com/v1";
 
+/** The Kuřim church: a village's name means the municipality of that name nearest the parish. */
+const PARISH = { lon: 16.5257081, lat: 49.2966286 };
+
 /** One result of `geocode` or `rgeocode`. */
 export type MapyItem = {
   name: string;
   label: string;
   position: { lon: number; lat: number };
+  /** `[minLon, minLat, maxLon, maxLat]` */
+  bbox?: number[];
   type: string;
   location: string;
   /** The places it lies in, smallest first. */
@@ -41,15 +46,36 @@ const structure = (item: MapyItem, type: string) => item.regionalStructure.find(
 export const municipalityOf = (item: MapyItem) => structure(item, "regional.municipality");
 
 /**
- * Places matching `query` in the municipality `village` only (Mapy.com's `locality` prefers it; the rest is dropped
- * here), each of `types` when given ("poi", "regional.address", …).
+ * The box of the municipality `village`, the one of that name nearest the parish. A name alone is no filter: Mapy.com
+ * reads `locality=Česká` as all of Czechia.
+ */
+async function municipalityBox(village: string, key: string): Promise<string> {
+  const params = new URLSearchParams({
+    query: village,
+    lang: "cs",
+    limit: "5",
+    type: "regional.municipality",
+    preferNear: `${PARISH.lon},${PARISH.lat}`,
+  });
+  const found = (await call("geocode", params, key)).find(
+    (item) => item.type === "regional.municipality" && item.name === village && item.bbox?.length === 4,
+  );
+  if (!found?.bbox)
+    throw refusal(`Mapy.com knows no municipality ${village}`, next("name the municipality as Mapy.com does"));
+  return `BOX(${found.bbox.join(",")})`;
+}
+
+/**
+ * Places matching `query` in the municipality `village` only (searched inside its box; anything outside the
+ * municipality is dropped), each of `types` when given ("poi", "regional.address", …).
  */
 export async function geocode(
   query: string,
   { village, types = [], limit = 10 }: { village: string; types?: string[]; limit?: number },
   key: string,
 ): Promise<MapyItem[]> {
-  const params = new URLSearchParams({ query, lang: "cs", limit: String(limit), locality: village });
+  const locality = await municipalityBox(village, key);
+  const params = new URLSearchParams({ query, lang: "cs", limit: String(limit), locality });
   for (const type of types) params.append("type", type);
   return (await call("geocode", params, key)).filter((item) => municipalityOf(item) === village);
 }

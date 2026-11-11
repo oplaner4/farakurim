@@ -39,21 +39,40 @@ afterEach(() => {
 });
 
 describe("geocode", () => {
-  it("asks within the village, in Czech, with the key in a header, and keeps its municipality's items", async () => {
-    const fetchMock = stubFetch(() =>
-      jsonResponse({ items: [inVillage("Česká", "Brno"), inVillage("Sokolovna", "Česká")] }),
+  // The municipality "Česká" first (its box, the one nearest the parish), then the places inside that box.
+  const ceska = { ...inVillage("Česká", "Česká"), type: "regional.municipality", bbox: [16.55, 49.27, 16.58, 49.29] };
+  const answers = (...bodies: unknown[]) => {
+    const queue = [...bodies];
+    return stubFetch(() => jsonResponse(queue.shift()));
+  };
+
+  it("searches inside the village's box, in Czech, with the key in a header, and keeps its municipality's items", async () => {
+    const fetchMock = answers(
+      { items: [inVillage("Česká", "Brno"), ceska] },
+      { items: [inVillage("Česká", "Brno"), inVillage("Sokolovna", "Česká")] },
     );
     const items = await geocode("sokolovna", { village: "Česká", types: ["poi", "regional.address"] }, "KEY");
     expect(items.map((i) => i.name)).toEqual(["Sokolovna"]);
-    const [url, init] = fetchMock.mock.calls[0];
+    const [[first], [url, init]] = fetchMock.mock.calls;
+    const box = new URL(String(first)).searchParams;
+    expect([box.get("query"), box.getAll("type"), box.get("preferNear")]).toEqual([
+      "Česká",
+      ["regional.municipality"],
+      "16.5257081,49.2966286",
+    ]);
     const params = new URL(String(url)).searchParams;
     expect(String(url)).toMatch(/^https:\/\/api\.mapy\.com\/v1\/geocode\?/);
     expect(params.get("query")).toBe("sokolovna");
     expect(params.get("lang")).toBe("cs");
-    expect(params.get("locality")).toBe("Česká");
+    expect(params.get("locality")).toBe("BOX(16.55,49.27,16.58,49.29)");
     expect(params.getAll("type")).toEqual(["poi", "regional.address"]);
     expect(params.has("apikey")).toBe(false);
     expect(new Headers(init?.headers).get("X-Mapy-Api-Key")).toBe("KEY");
+  });
+
+  it("refuses a village Mapy.com does not know as a municipality", async () => {
+    answers({ items: [inVillage("Česká", "Brno")] });
+    await expect(geocode("x", { village: "Česká" }, "KEY")).rejects.toThrow(/no municipality Česká/);
   });
 
   it("throws the status of a failed call", async () => {

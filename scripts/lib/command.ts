@@ -59,6 +59,7 @@ const DONE = {
   remove: "Removed",
   render: "Rendered",
   replace: "Replaced",
+  set: "Set",
   stage: "Staged",
   unpin: "Unpinned",
   update: "Updated",

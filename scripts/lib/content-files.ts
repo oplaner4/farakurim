@@ -14,6 +14,7 @@ export const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 export const NEWS_DIR = join(ROOT, "src/content/news");
 export const SERVICE_SHEETS_FILE = join(ROOT, "src/content/service-sheets.json");
 export const GALLERY_FILE = join(ROOT, "src/content/gallery.json");
+export const VENUES_FILE = join(ROOT, "src/content/venues.json");
 export const PETRKLIC_FILE = join(ROOT, "src/content/petrklic.json");
 export const EXCEPTIONS_FILE = join(ROOT, "src/content/schedule-exceptions.json");
 /** The tests of the service sheets and the changes announced for later, which a sheet prunes. */

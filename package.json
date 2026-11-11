@@ -15,6 +15,7 @@
     "stage": "tsx scripts/stage.ts",
     "add-event": "tsx scripts/add-event.ts",
     "add-album": "tsx scripts/add-album.ts",
+    "venue": "tsx scripts/venue.ts",
     "replace-event": "tsx scripts/replace-event.ts",
     "pin-event": "tsx scripts/pin-event.ts",
     "event-poster": "tsx scripts/event-poster.ts",
