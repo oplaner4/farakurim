@@ -150,16 +150,12 @@ jobs:
         if: steps.fetch.outputs.mail != ''
         timeout-minutes: 30
         uses: oplaner4/farakurim/.github/actions/agent@main # from main, not the checkout: see the action
-        # The venue lookups' key; the agent may only find and look venues up, never add one.
-        env:
-          MAPY_API_KEY: ${{ secrets.MAPY_API_KEY }}
         with:
           workdir: ${{ runner.temp }}/event
           commands: |
             pnpm stage event:*
             pnpm add-event:*
             pnpm venue find:*
-            pnpm venue lookup:*
           federation-rule-id: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
           organization-id: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
           service-account-id: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}

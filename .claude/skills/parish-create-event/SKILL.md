@@ -187,9 +187,9 @@ follows them too, with these changes:
 - Write the report first, then stage, then fill in each event's `Outcome:` line from what the script did, and add any
   line it printed for the user (an unpinned event) to the report. A script refusal is `refused: <its reason>`:
   the refusal's first line; its `next:` lines say what to do, not what to publish.
-- **Venue:** take only a `Known venue: <id> (<name>)`; otherwise leave `venue` out and write a question (`blocking:
-no`) with the candidate or the `pnpm venue lookup` proposal and its pin link, for the maintainer to confirm. Never
-  run `pnpm venue add` or `pnpm venue alias`.
+- **Venue:** run only `pnpm venue find` (the run has no Mapy.com key: no `lookup`, `add` or `alias`). Take only a
+  `Known venue: <id> (<name>)`; otherwise leave `venue` out and write a question (`blocking: no`) naming the village,
+  the place and the `find` candidates, for the maintainer to choose or look up locally.
 - Skip step 6: no `parish-publish-content`, no commit, no release.
 
 **The report** is English, with site content quoted in Czech, and starts with exactly these two lines:

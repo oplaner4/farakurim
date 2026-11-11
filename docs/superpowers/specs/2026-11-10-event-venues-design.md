@@ -131,7 +131,7 @@ The flow in the skill, for an event at one building:
 | `add-event`, `replace-event`, `stage event` | no      | refuse an unknown venue, a venue from another village, and `mapQuery` next to `venue`                                                                                                                                                                        |
 
 - The key is `MAPY_API_KEY` in `.env.local` (README, `.env.example`), read only by `lookup` and `add`; it never reaches
-  `out/` or the browser. The calls happen on the maintainer's machine or in CI, never in a visitor's browser, so the
+  `out/`, the browser or CI. The calls happen on the maintainer's machine only, never in a visitor's browser, so the
   privacy page does not change.
 - The exact request and response shapes are taken from the current Mapy.com REST API docs before the plan is written
   (geocode, reverse geocode, the place-type and municipality filters, the free tier's limits).
@@ -140,8 +140,9 @@ The flow in the skill, for an event at one building:
 
 The events pipeline and comment runs cannot ask. They accept a `known` venue, or none; anything else (a candidate by
 meaning, a new venue, a new alias) is a question in the report (`blocking: no`: the event is published without a
-venue and corrected after the answer). CI gets `MAPY_API_KEY` as a secret of the pipelines' environment, so a run
-can `lookup` and put a proposed venue (with its pin link) in the report's question, ready for the maintainer's yes.
+venue and corrected after the answer). They run only `pnpm venue find`: CI holds no Mapy.com key, because the agents
+read untrusted mail and could be talked into printing their environment (final review); the maintainer looks a new
+venue up locally when answering.
 
 ### Moving the existing records
 

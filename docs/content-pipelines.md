@@ -174,9 +174,8 @@ editor, or close the PR and send the mail again.
 - **Mailbox** (at the host, [hosting.md](hosting.md#providers)): create a mailbox for the events (its address is the
   secret `IMAP_USER` below); the script creates `Zpracováno` and `Odmítnuto`.
 - **Environment** `events-publish`, deployment branches allowing `main`, no required reviewers: variable `IMAP_HOST`,
-  secrets `IMAP_USER` and `IMAP_PASSWORD` of that mailbox, the secret `MAPY_API_KEY` (the agent's `pnpm venue
-lookup`), and the variable `ANTHROPIC_FEDERATION_RULE_ID` of the rule below (the sheet's rule is the same variable
-  of `service-sheet-publish`).
+  secrets `IMAP_USER` and `IMAP_PASSWORD` of that mailbox, and the variable `ANTHROPIC_FEDERATION_RULE_ID` of the
+  rule below (the sheet's rule is the same variable of `service-sheet-publish`).
 - **Claude Console:** a second federation rule for the same service account, `subject_prefix` exactly
   `repo:<owner>@<owner-id>/<repo>@<repo-id>:environment:events-publish` (for this site
   `repo:oplaner4@38047115/farakurim@1403139652:environment:events-publish`), audience `https://api.anthropic.com`,
@@ -250,8 +249,8 @@ only a failure reply: correct it with a commit or locally.
 ### Comment fixes setup (once)
 
 - **Environment** `content-fix` (repository Settings → Environments), for both jobs of `content-fix-run.yml`:
-  deployment branches allowing `main`, no required reviewers, the secret `MAPY_API_KEY` (the agent's `pnpm venue
-lookup`), and the variable `ANTHROPIC_FEDERATION_RULE_ID` of the rule below. It holds no IMAP login; the App key stays the repository secret `CONTENT_APP_PRIVATE_KEY`.
+  deployment branches allowing `main`, no required reviewers, and the variable `ANTHROPIC_FEDERATION_RULE_ID` of the
+  rule below. It holds no IMAP login; the App key stays the repository secret `CONTENT_APP_PRIVATE_KEY`.
 - **Claude Console:** a third federation rule for the pipelines' service account, `subject_prefix` exactly
   `repo:<owner>@<owner-id>/<repo>@<repo-id>:environment:content-fix` (for this site
   `repo:oplaner4@38047115/farakurim@1403139652:environment:content-fix`), audience `https://api.anthropic.com`, the
