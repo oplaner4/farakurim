@@ -30,7 +30,7 @@ Write the text from the source, in Czech; do not invent facts. Leave out what th
 | `start`, `end`         | ISO dates. `end` only for multi-day events. A date without a year is the next such date from today.                                                         |
 | `startTime`            | `"18:00"` (H:MM). Omit for all-day events.                                                                                                                  |
 | `endTime`              | `"20:30"`, when the source gives an end; only with `startTime`, and after it.                                                                               |
-| `place`                | `"Kuřim, kostel sv. Maří Magdalény"`, `"Kuřim, fara"`, `"Tišnov"`: the village first, then the building. **Required.**                                      |
+| `place`                | `"Kuřim, kostel sv. Maří Magdalény"`, `"Kuřim, fara"`, `"Tišnov"`: the municipality first, then the building. **Required.**                                 |
 | `venue`                | For an event at one building: the venue's id (see "Finding `venue`"). Its address and position give the map link and the calendars' location.               |
 | `mapQuery`             | Only without a `venue`: a Mapy.cz search when the place alone would not find it.                                                                            |
 | `text`                 | 1–2 sentences for the cards. **Required.** No URLs.                                                                                                         |
@@ -49,17 +49,17 @@ Write the text from the source, in Czech; do not invent facts. Leave out what th
 
 ### Finding `venue`
 
-An event held at one building gets a `venue` from the list (`src/content/venues.json`). An event in several villages,
-a whole village, an alternative ("…, nebo …") or online gets none and keeps `place` alone.
+An event held at one building gets a `venue` from the list (`src/content/venues.json`). An event in several municipalities,
+a whole municipality, an alternative ("…, nebo …") or online gets none and keeps `place` alone.
 
-1. **Name the village:** the municipality the event is in, as Mapy.com names it ("Brno" for Brno-Husovice). Read it
+1. **Name the municipality:** the one the event is in, as Mapy.com names it ("Brno" for Brno-Husovice). Read it
    from the source; never split `place` at a comma to get it.
-2. **Find it:** `pnpm venue find --village "<village>" "<place>"`.
+2. **Find it:** `pnpm venue find --municipality "<municipality>" "<place>"`.
    - `Known venue: <id> (<name>)`: take that venue.
-   - `ask:` with the village's venues: pick one only when it is plainly the same building by meaning (`"farní
+   - `ask:` with the municipality's venues: pick one only when it is plainly the same building by meaning (`"farní
 zahrada"` → `kurim-fara`), and propose the text as its new alias. A doubtful match is a question, never a guess.
    - `tell: … has no venues yet.`, or none of them fits: step 3.
-3. **Look it up:** `pnpm venue lookup --village "<village>" "<name of the building>"` (or `--address "<address>"` for
+3. **Look it up:** `pnpm venue lookup --municipality "<municipality>" "<name of the building>"` (or `--address "<address>"` for
    a building with a number). Each result has its address, position and pin link; judge which one is the building.
    When none is, ask the user for a Mapy.com link of it and run `--link <link>`: a link to a point ("Co je zde?") is
    exact, one to a named place is only approximate (the map's centre): then ask for the GPS line of the place's card

@@ -27,7 +27,7 @@ the Mapy.com API), the agent for what needs judgment (which venue a text means),
 
 ## Non-goals
 
-- No venue for an event in several villages, a whole village, an alternative ("…, nebo …") or online: they keep
+- No venue for an event in several municipalities, a whole municipality, an alternative ("…, nebo …") or online: they keep
   `place` alone.
 - No fuzzy text matching in scripts: a script matches exactly or lists candidates.
 - No network in the build or the tests: the Mapy.com API is called only while content is added.
@@ -58,7 +58,7 @@ the Mapy.com API), the agent for what needs judgment (which venue a text means),
   | `streetAddress` | "Křížkovského 55/5" | Street and number as one text, as Mapy.com names an address ("Jinačovice 46" without streets); never split |
   | `part`          | "Husovice"          | The part of the municipality, when the address names it                                                    |
   | `postalCode`    | "664 34"            | The delivering post office's code; the town after it is always the municipality                            |
-  | `municipality`  | "Kuřim"             | Required. The municipality as Mapy.com names it ("Brno" for Brno-Husovice); replaces `village`             |
+  | `municipality`  | "Kuřim"             | Required. The municipality as Mapy.com names it ("Brno" for Brno-Husovice); replaces step 1's `village`    |
   | `country`       | "Česko"             | Required                                                                                                   |
 
   `formatAddress()` joins the parts present: "Křížkovského 55/5, 664 34 Kuřim, Česko" ("`streetAddress`, `part`,
@@ -88,24 +88,24 @@ the Mapy.com API), the agent for what needs judgment (which venue a text means),
 
 ### Choosing a venue (hybrid)
 
-**The village is stated, never parsed.** The agent reads the source and names the municipality; scripts check it.
-Splitting `place` at a comma fails on "Brno-Husovice, fara", "Altötting, Německo" and lists of villages.
+**The municipality is stated, never parsed.** The agent reads the source and names it; scripts check it.
+Splitting `place` at a comma fails on "Brno-Husovice, fara", "Altötting, Německo" and lists of municipalities.
 
-| Who        | Does                                                                                                                                                                                                              |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Script** | Matches exactly (folded: case, accents, dots, spaces) within the stated village; lists that village's venues; looks places up on Mapy.com inside the municipality; writes the list; refuses what breaks the rules |
-| **Agent**  | Reads the source; decides whether the event has one building at all; names the village; picks a venue from the candidates by meaning, or none; builds a new venue from the lookup                                 |
-| **User**   | Confirms every new venue and every new alias; chooses when the agent is not sure                                                                                                                                  |
+| Who        | Does                                                                                                                                                                                                          |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Script** | Matches exactly (folded: case, accents, dots, spaces) within the stated municipality; lists that municipality's venues; looks places up on Mapy.com inside it; writes the list; refuses what breaks the rules |
+| **Agent**  | Reads the source; decides whether the event has one building at all; names the municipality; picks a venue from the candidates by meaning, or none; builds a new venue from the lookup                        |
+| **User**   | Confirms every new venue and every new alias; chooses when the agent is not sure                                                                                                                              |
 
 The flow in the skill, for an event at one building:
 
-1. `pnpm venue find --village "<village>" "<place>"`: an exact match of the building text with a venue's `name` or
-   `aliases` in that village prints `state: known <id>`; otherwise `ask:` with the village's venues (none listed when
-   the village has none).
+1. `pnpm venue find --municipality "<municipality>" "<place>"`: an exact match of the building text with a venue's `name` or
+   `aliases` in that municipality prints `Known venue: <id> (<name>)`; otherwise `ask:` with the municipality's venues (none listed when
+   the municipality has none).
 2. Known → the event takes the venue. Otherwise the agent reads the candidates with the source: a venue that fits by
    meaning ("farní zahrada" → `kurim-fara`) is proposed as that venue plus a new alias; a doubtful one is asked; none
    fits → step 3. Never guess (as "Finding `newsId`" in `parish-create-service-sheet`).
-3. `pnpm venue lookup --village "<village>" …` finds the **position**, from one of three sources, best first:
+3. `pnpm venue lookup --municipality "<municipality>" …` finds the **position**, from one of three sources, best first:
    - `"<query>"`: the building by name; Mapy.com results inside that municipality only, each with its name, address
      parts, position and pin link. When Mapy.com knows the building, its position is the building's. The agent judges
      which result is the building, or asks the user for a share link when none is.
@@ -122,13 +122,13 @@ The flow in the skill, for an event at one building:
 
 ### Scripts
 
-| Command                                     | Network | Rules                                                                                                                                                                                                                                                        |
-| ------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `pnpm venue find --village <v> "<place>"`   | no      | `place` must start with the village (folded); exact match only; output in the tags of `scripts/lib/output.ts`                                                                                                                                                |
-| `pnpm venue lookup --village <v> …`         | yes     | keeps only results whose municipality is `<v>`; resolves a share link's redirect first (no key needed for that part)                                                                                                                                         |
-| `pnpm venue add <file> [--check]`           | yes     | schema; unique id from municipality and name; refuses a position whose reverse lookup names another municipality than `address.municipality` (fills it when missing); warns (no refusal) when the formatted address, searched, lands > 150 m from `position` |
-| `pnpm venue alias <id> "<text>" [--check]`  | no      | refused when the text already matches another venue of the same village                                                                                                                                                                                      |
-| `add-event`, `replace-event`, `stage event` | no      | refuse an unknown venue, a venue from another village, and `mapQuery` next to `venue`                                                                                                                                                                        |
+| Command                                        | Network | Rules                                                                                                                                                                                                                                                        |
+| ---------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `pnpm venue find --municipality <m> "<place>"` | no      | `place` must start with the municipality (folded); exact match only; output in the tags of `scripts/lib/output.ts`                                                                                                                                           |
+| `pnpm venue lookup --municipality <m> …`       | yes     | keeps only results whose municipality is `<m>`; resolves a share link's redirect first (no key needed for that part)                                                                                                                                         |
+| `pnpm venue add <file> [--check]`              | yes     | schema; unique id from municipality and name; refuses a position whose reverse lookup names another municipality than `address.municipality` (fills it when missing); warns (no refusal) when the formatted address, searched, lands > 150 m from `position` |
+| `pnpm venue alias <id> "<text>" [--check]`     | no      | refused when the text already matches another venue of the same municipality                                                                                                                                                                                 |
+| `add-event`, `replace-event`, `stage event`    | no      | refuse an unknown venue, a venue from another municipality, and `mapQuery` next to `venue`                                                                                                                                                                   |
 
 - The key is `MAPY_API_KEY` in `.env.local` (README, `.env.example`), read only by `lookup` and `add`; it never reaches
   `out/` or the browser. The calls happen on the maintainer's machine or in CI, never in a visitor's browser, so the
@@ -153,7 +153,7 @@ can `lookup` and put a proposed venue (with its pin link) in the report's questi
   church and sál pod kinem, Porta Coeli, Petrov, Lidická 24, the Brno churches used twice, the Biskupské gymnázium,
   Výstaviště, the Husovice fara), each looked up and confirmed by the user, with the spellings already used as
   aliases. One-off places elsewhere get a venue only when an event there comes again.
-- Every record whose `place` matches a venue exactly (with its village) gets `venue`, past events included; its
+- Every record whose `place` matches a venue exactly (with its municipality) gets `venue`, past events included; its
   `mapQuery` goes. A one-off migration script does it in one commit, printing each change; the user reviews the list.
 - The next release brings the Události calendar in line: the location of every upcoming event with a venue changes.
 
@@ -168,8 +168,8 @@ can `lookup` and put a proposed venue (with its pin link) in the report's questi
 - **The key in CI (accepted):** the agents read untrusted mail and may read files, so an injected instruction could
   get one to print `MAPY_API_KEY` into a public PR. Accepted: it is a free-tier key for map lookups only, the PR is
   reviewed, and a leaked key is revoked in minutes (at worst a month without lookups).
-- **Alias collisions:** "kostel" means a different venue in each village; aliases are matched only within the stated
-  village, and `alias` refuses a text another venue of that village already has.
+- **Alias collisions:** "kostel" means a different venue in each municipality; aliases are matched only within the stated
+  municipality, and `alias` refuses a text another venue of that municipality already has.
 
 ## Plan
 

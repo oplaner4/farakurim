@@ -25,16 +25,16 @@ describe("foldPlace", () => {
 });
 
 describe("buildingText", () => {
-  it("gives the text after the village and a comma", () => {
+  it("gives the text after the municipality and a comma", () => {
     expect(buildingText("Kuřim, areál za farou", "Kuřim")).toBe("areál za farou");
     expect(buildingText("Brno-Husovice, fara", "Brno")).toBe("fara");
   });
 
-  it("gives an empty text for the village alone", () => {
+  it("gives an empty text for the municipality alone", () => {
     expect(buildingText("Kuřim", "Kuřim")).toBe("");
   });
 
-  it("gives null when the place does not start with the village", () => {
+  it("gives null when the place does not start with the municipality", () => {
     expect(buildingText("Česká, sokolovna", "Kuřim")).toBeNull();
     expect(buildingText("Českákov, sál", "Česká")).toBeNull();
   });
@@ -46,32 +46,32 @@ describe("findVenue", () => {
     expect(findVenue(list, "Kuřim", "Kurim, ARÉAL ZA FAROU")).toEqual({ kind: "known", venue: byId["kurim-fara"] });
   });
 
-  it("knows a venue by its name only within the village", () => {
+  it("knows a venue by its name only within the municipality", () => {
     expect(findVenue(list, "Kuřim", "Kuřim, kaple sv. Jana Nepomuckého")).toEqual({
       kind: "known",
       venue: byId["kurim-kaple-jana-nepomuckeho"],
     });
   });
 
-  it("lists the village's venues when nothing matches", () => {
+  it("lists the municipality's venues when nothing matches", () => {
     expect(findVenue(list, "Kuřim", "Kuřim, farní zahrada")).toEqual({
       kind: "candidates",
       venues: [byId["kurim-fara"], byId["kurim-kaple-jana-nepomuckeho"]],
     });
   });
 
-  it("refuses a place in another village", () => {
-    expect(findVenue(list, "Kuřim", "Česká, sokolovna")).toEqual({ kind: "wrong-village" });
+  it("refuses a place in another municipality", () => {
+    expect(findVenue(list, "Kuřim", "Česká, sokolovna")).toEqual({ kind: "wrong-municipality" });
   });
 });
 
 describe("venueProblems", () => {
-  it("accepts a venue of the place's village", () => {
+  it("accepts a venue of the place's municipality", () => {
     expect(venueProblems({ place: "Kuřim, fara", venue: "kurim-fara" }, byId)).toEqual([]);
     expect(venueProblems({ place: "Kuřim, fara" }, byId)).toEqual([]);
   });
 
-  it("refuses an unknown venue, a venue without a place, one from another village and mapQuery next to it", () => {
+  it("refuses an unknown venue, a venue without a place, one from another municipality and mapQuery next to it", () => {
     expect(venueProblems({ place: "Kuřim, fara", venue: "kurim-sokolovna" }, byId)).toEqual([
       'venue: no venue with the id "kurim-sokolovna"',
     ]);

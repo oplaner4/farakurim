@@ -34,10 +34,11 @@ export function takenIdError(taken: NewsEvent): Error {
   );
 }
 
-/** Refuses a record whose venue is unknown, of another village than its place, or next to a `mapQuery`. */
+/** Refuses a record whose venue is unknown, of another municipality than its place, or next to a `mapQuery`. */
 export function assertVenue(record: NewsEvent): void {
   const [first, ...rest] = venueProblems(record, venues);
-  if (first) throw refusal(first, ...rest.map(tell), next("pnpm venue find names the venues of the place's village"));
+  if (first)
+    throw refusal(first, ...rest.map(tell), next("pnpm venue find names the venues of the place's municipality"));
 }
 
 /** `input` checked as a new record, published `now` unless it says otherwise; a pinned one must be pinnable. */

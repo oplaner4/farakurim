@@ -18,7 +18,7 @@ const tynska: MapyItem = {
   zip: "110 00",
 };
 
-const inVillage = (name: string, municipality: string): MapyItem => ({
+const inMunicipalityItem = (name: string, municipality: string): MapyItem => ({
   ...tynska,
   name,
   regionalStructure: [
@@ -40,18 +40,22 @@ afterEach(() => {
 
 describe("geocode", () => {
   // The municipality "Česká" first (its box, the one nearest the parish), then the places inside that box.
-  const ceska = { ...inVillage("Česká", "Česká"), type: "regional.municipality", bbox: [16.55, 49.27, 16.58, 49.29] };
+  const ceska = {
+    ...inMunicipalityItem("Česká", "Česká"),
+    type: "regional.municipality",
+    bbox: [16.55, 49.27, 16.58, 49.29],
+  };
   const answers = (...bodies: unknown[]) => {
     const queue = [...bodies];
     return stubFetch(() => jsonResponse(queue.shift()));
   };
 
-  it("searches inside the village's box, in Czech, with the key in a header, and keeps its municipality's items", async () => {
+  it("searches inside the municipality's box, in Czech, with the key in a header, and keeps only its items", async () => {
     const fetchMock = answers(
-      { items: [inVillage("Česká", "Brno"), ceska] },
-      { items: [inVillage("Česká", "Brno"), inVillage("Sokolovna", "Česká")] },
+      { items: [inMunicipalityItem("Česká", "Brno"), ceska] },
+      { items: [inMunicipalityItem("Česká", "Brno"), inMunicipalityItem("Sokolovna", "Česká")] },
     );
-    const items = await geocode("sokolovna", { village: "Česká", types: ["poi", "regional.address"] }, "KEY");
+    const items = await geocode("sokolovna", { municipality: "Česká", types: ["poi", "regional.address"] }, "KEY");
     expect(items.map((i) => i.name)).toEqual(["Sokolovna"]);
     const [[first], [url, init]] = fetchMock.mock.calls;
     const box = new URL(String(first)).searchParams;
@@ -70,14 +74,14 @@ describe("geocode", () => {
     expect(new Headers(init?.headers).get("X-Mapy-Api-Key")).toBe("KEY");
   });
 
-  it("refuses a village Mapy.com does not know as a municipality", async () => {
-    answers({ items: [inVillage("Česká", "Brno")] });
-    await expect(geocode("x", { village: "Česká" }, "KEY")).rejects.toThrow(/no municipality Česká/);
+  it("refuses a name Mapy.com knows as no municipality", async () => {
+    answers({ items: [inMunicipalityItem("Česká", "Brno")] });
+    await expect(geocode("x", { municipality: "Česká" }, "KEY")).rejects.toThrow(/no municipality Česká/);
   });
 
   it("throws the status of a failed call", async () => {
     stubFetch(() => jsonResponse({ message: "bad key" }, 403));
-    await expect(geocode("x", { village: "Česká" }, "KEY")).rejects.toThrow(/Mapy\.com geocode: 403/);
+    await expect(geocode("x", { municipality: "Česká" }, "KEY")).rejects.toThrow(/Mapy\.com geocode: 403/);
   });
 });
 

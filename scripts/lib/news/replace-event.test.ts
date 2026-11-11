@@ -77,7 +77,7 @@ describe("replaceEvent", () => {
     expect(ids("2026/09.json")).toEqual(["zari-2026", "pout-2026"]);
   });
 
-  it("names a new venue and the mapQuery it replaces, and refuses one from another village", () => {
+  it("names a new venue and the mapQuery it replaces, and refuses one from another municipality", () => {
     replaceEvent(news.dir(), newsEvent({ id: "pout-2026", start: "2026-09-20", mapQuery: "fara Kuřim" }), { now });
     const atFara = newsEvent({ id: "pout-2026", start: "2026-09-20", place: "Kuřim, fara", venue: "kurim-fara" });
     const result = replaceEvent(news.dir(), atFara, { now, check: true });

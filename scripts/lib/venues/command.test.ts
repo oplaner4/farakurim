@@ -66,7 +66,7 @@ describe("pnpm venue", () => {
   const ids = () => readVenues(file).map((v) => v.id);
 
   describe("find", () => {
-    it("names a known venue, else lists the village's venues, else says it has none", () => {
+    it("names a known venue, else lists the municipality's venues, else says it has none", () => {
       expect(findLines(LIST, "Kuřim", "Kuřim, areál za farou")).toEqual(["Known venue: kurim-fara (Fara)"]);
       expect(findLines(LIST, "Kuřim", "Kuřim, farní zahrada")).toEqual([
         'ask: "Kuřim, farní zahrada" matches no venue of Kuřim. Is it one of these, or a new venue?',
@@ -76,7 +76,7 @@ describe("pnpm venue", () => {
       expect(findLines(LIST, "Lelekovice", "Lelekovice, u vodojemu")).toEqual(["tell: Lelekovice has no venues yet."]);
     });
 
-    it("refuses a place in another village", () => {
+    it("refuses a place in another municipality", () => {
       expect(() => findLines(LIST, "Kuřim", "Česká, sokolovna")).toThrow(
         /^the place "Česká, sokolovna" does not start with Kuřim/,
       );
@@ -135,7 +135,7 @@ describe("pnpm venue", () => {
   });
 
   describe("alias", () => {
-    it("refuses a text another venue of the village already has, and writes a new one sorted", () => {
+    it("refuses a text another venue of the municipality already has, and writes a new one sorted", () => {
       expect(() => addAlias(file, "kurim-fara", "Kostel", { check: false })).toThrow(
         /"Kostel" already means kurim-kostel in Kuřim/,
       );
@@ -174,15 +174,15 @@ describe("pnpm venue", () => {
 });
 
 describe("parseCommand", () => {
-  it("reads each subcommand and refuses a missing village", () => {
-    expect(parseCommand(["find", "--village", "Kuřim", "Kuřim, fara"])).toEqual({
+  it("reads each subcommand and refuses a missing municipality", () => {
+    expect(parseCommand(["find", "--municipality", "Kuřim", "Kuřim, fara"])).toEqual({
       sub: "find",
-      village: "Kuřim",
+      municipality: "Kuřim",
       place: "Kuřim, fara",
     });
-    expect(parseCommand(["lookup", "--village", "Česká", "--link", "https://mapy.com/s/x"])).toEqual({
+    expect(parseCommand(["lookup", "--municipality", "Česká", "--link", "https://mapy.com/s/x"])).toEqual({
       sub: "lookup",
-      village: "Česká",
+      municipality: "Česká",
       link: "https://mapy.com/s/x",
     });
     expect(parseCommand(["add", "v.json", "--check"])).toEqual({ sub: "add", file: "v.json", check: true });

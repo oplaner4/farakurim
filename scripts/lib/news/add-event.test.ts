@@ -112,7 +112,7 @@ describe("addEvent on a copy of news/", { timeout: 30_000 }, () => {
     );
   });
 
-  it("refuses a venue from another village and mapQuery next to a venue, and takes a fitting one", () => {
+  it("refuses a venue from another municipality and mapQuery next to a venue, and takes a fitting one", () => {
     expect(() =>
       addEvent(news, newsEvent({ id: "v-2026", place: "Česká, fara", venue: "kurim-fara" }), { now }),
     ).toThrow(/^venue: kurim-fara is in Kuřim, but the place "Česká, fara" does not start with it/);
