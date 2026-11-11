@@ -102,6 +102,8 @@ export const REPOSITORY_SETTINGS: Setting[] = [
 
 const federationRule = variable("ANTHROPIC_FEDERATION_RULE_ID", prefixed("fdrl"), { environmentOnly: true });
 const mailbox = [variable("IMAP_HOST", FORMATS.hostName), secret("IMAP_USER"), secret("IMAP_PASSWORD")];
+/** The Mapy.com key of the agents' `pnpm venue lookup`. */
+const mapyKey = secret("MAPY_API_KEY");
 
 export const ENVIRONMENTS: EnvironmentSpec[] = [
   {
@@ -120,8 +122,8 @@ export const ENVIRONMENTS: EnvironmentSpec[] = [
     ],
   },
   { name: "service-sheet-publish", noReviewers: true, deployFrom: [MAIN], settings: [...mailbox, federationRule] },
-  { name: "events-publish", noReviewers: true, deployFrom: [MAIN], settings: [...mailbox, federationRule] },
-  { name: "content-fix", noReviewers: true, deployFrom: [MAIN], settings: [federationRule] },
+  { name: "events-publish", noReviewers: true, deployFrom: [MAIN], settings: [...mailbox, mapyKey, federationRule] },
+  { name: "content-fix", noReviewers: true, deployFrom: [MAIN], settings: [mapyKey, federationRule] },
 ];
 
 /** Names that must exist nowhere: a leftover ANTHROPIC_API_KEY, even empty, wins over the federation. */

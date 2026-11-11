@@ -92,8 +92,8 @@ Only when the prompt says the run is a **comment run** on an events PR; steps 1 
   stop with `Outcome: unchanged` and say why. Use `pnpm replace-event` and `pnpm event-poster`, as in step 3. A
   question in the comment is answered in the reply.
 - **Venue:** a changed place may take a `Known venue: <id> (<name>)`, or the venue the comment names by its id; any
-  other match is answered with the `pnpm venue find` candidates in the reply. Only `pnpm venue find` runs (no Mapy.com
-  key: no `lookup`, `add` or `alias`).
+  other match is answered with the `pnpm venue find` candidates or the `pnpm venue lookup` proposal (its pin link) in
+  the reply. Never run `pnpm venue add` or `pnpm venue alias`.
 - **Fix a check:** when `check.md` shows a failure the PR's content causes, fix it the same way; a failure outside the
   content (a script, the build) is not fixed, and the reply says so.
 - **Out of bounds**, answered without a change (`Outcome: unchanged`): a new event, dropping, pinning or splitting an
