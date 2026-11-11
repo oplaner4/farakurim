@@ -62,7 +62,8 @@ zahrada"` → `kurim-fara`), and propose the text as its new alias. A doubtful m
 3. **Look it up:** `pnpm venue lookup --village "<village>" "<name of the building>"` (or `--address "<address>"` for
    a building with a number). Each result has its address, position and pin link; judge which one is the building.
    When none is, ask the user for a Mapy.com link of it and run `--link <link>`: a link to a point ("Co je zde?") is
-   exact, one to a named place is only approximate.
+   exact, one to a named place is only approximate (the map's centre): then ask for the GPS line of the place's card
+   (`49.2827397N, 16.5662197E`) and use it as the position.
 4. **Propose the new venue** in `<scratchpad>/venue.json`: `id` (`<municipality>-<building>`, as `slug()` makes it),
    `name` (the building, in Czech: `"Sokolovna"`), `address` (the result's `streetAddress`, `part` and `postalCode`,
    `country`; the municipality is filled in from the position), `position`, and `aliases` with the place's building
