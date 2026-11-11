@@ -9,7 +9,11 @@
         "municipality": "Kuřim",
         "country": "Česko"
       },
-      "position": { "lat": 49.2966286, "lon": 16.5257081 }
+      "position": {
+        "lat": 49.2966286,
+        "lon": 16.5257081
+      },
+      "aliases": ["před kostelem sv. Maří Magdalény", "u kostela sv. Maří Magdalény"]
     },
     {
       "id": "kurim-fara",
@@ -20,20 +24,38 @@
         "municipality": "Kuřim",
         "country": "Česko"
       },
-      "position": { "lat": 49.2965974, "lon": 16.526404 }
+      "position": {
+        "lat": 49.2965974,
+        "lon": 16.526404
+      },
+      "aliases": ["areál fary", "areál za farou", "farní zahrada"]
     },
     {
       "id": "kurim-kaple-panny-marie-bolestne",
       "name": "Kaple Panny Marie Bolestné",
-      "address": { "streetAddress": "Křížkovského", "municipality": "Kuřim", "country": "Česko" },
-      "position": { "lat": 49.2966181, "lon": 16.5261006 },
+      "address": {
+        "streetAddress": "Křížkovského",
+        "municipality": "Kuřim",
+        "country": "Česko"
+      },
+      "position": {
+        "lat": 49.2966181,
+        "lon": 16.5261006
+      },
       "catalogueHref": "https://katalog.biskupstvi.cz/detail/kostel/7414/Ku%C5%99im,%20kaple-Panny-Marie-Bolestne"
     },
     {
       "id": "kurim-kaple-jana-nepomuckeho",
       "name": "Kaple sv. Jana Nepomuckého",
-      "address": { "streetAddress": "Podhoří", "municipality": "Kuřim", "country": "Česko" },
-      "position": { "lat": 49.2956373, "lon": 16.5387944 },
+      "address": {
+        "streetAddress": "Podhoří",
+        "municipality": "Kuřim",
+        "country": "Česko"
+      },
+      "position": {
+        "lat": 49.2956373,
+        "lon": 16.5387944
+      },
       "catalogueHref": "https://katalog.biskupstvi.cz/detail/kostel/8128/Ku%C5%99im,%20kaple-sv-Jana-Nepomuckeho"
     },
     {
@@ -45,7 +67,10 @@
         "municipality": "Moravské Knínice",
         "country": "Česko"
       },
-      "position": { "lat": 49.2933365, "lon": 16.5012323 }
+      "position": {
+        "lat": 49.2933365,
+        "lon": 16.5012323
+      }
     },
     {
       "id": "moravske-kninice-kaple-cyrila-a-metodeje",
@@ -56,7 +81,10 @@
         "municipality": "Moravské Knínice",
         "country": "Česko"
       },
-      "position": { "lat": 49.2884917, "lon": 16.5020122 },
+      "position": {
+        "lat": 49.2884917,
+        "lon": 16.5020122
+      },
       "catalogueHref": "https://katalog.biskupstvi.cz/detail/kostel/6910/Moravsk%C3%A9%20Kn%C3%ADnice,%20kaple-sv-Cyrila-a-Metodeje"
     },
     {
@@ -68,7 +96,10 @@
         "municipality": "Moravské Knínice",
         "country": "Česko"
       },
-      "position": { "lat": 49.2922414, "lon": 16.5079609 },
+      "position": {
+        "lat": 49.2922414,
+        "lon": 16.5079609
+      },
       "catalogueHref": "https://katalog.biskupstvi.cz/detail/kostel/6937/Moravsk%C3%A9%20Kn%C3%ADnice,%20kaple-sv-Jana-Nepomuckeho"
     },
     {
@@ -80,13 +111,241 @@
         "municipality": "Jinačovice",
         "country": "Česko"
       },
-      "position": { "lat": 49.2679434, "lon": 16.5292303 }
+      "position": {
+        "lat": 49.2679434,
+        "lon": 16.5292303
+      }
     },
     {
       "id": "ceska-kaple",
       "name": "Kaple Panny Marie Růžencové",
-      "address": { "streetAddress": "Česká 20", "postalCode": "664 31", "municipality": "Česká", "country": "Česko" },
-      "position": { "lat": 49.2806179, "lon": 16.56528 }
+      "address": {
+        "streetAddress": "Česká 20",
+        "postalCode": "664 31",
+        "municipality": "Česká",
+        "country": "Česko"
+      },
+      "position": {
+        "lat": 49.2806179,
+        "lon": 16.56528
+      }
+    },
+    {
+      "id": "brno-biskupske-gymnazium",
+      "name": "Biskupské gymnázium",
+      "address": {
+        "streetAddress": "Barvičova 666/85",
+        "part": "Stránice",
+        "postalCode": "602 00",
+        "municipality": "Brno",
+        "country": "Česko"
+      },
+      "position": {
+        "lat": 49.20217,
+        "lon": 16.57345
+      }
+    },
+    {
+      "id": "brno-fara-husovice",
+      "name": "Fara Husovice",
+      "address": {
+        "streetAddress": "Vranovská 766/103",
+        "part": "Husovice",
+        "postalCode": "614 00",
+        "municipality": "Brno",
+        "country": "Česko"
+      },
+      "position": {
+        "lat": 49.21229,
+        "lon": 16.63
+      }
+    },
+    {
+      "id": "brno-katedrala-sv-petra-a-pavla",
+      "name": "Katedrála sv. Petra a Pavla",
+      "address": {
+        "streetAddress": "Petrov",
+        "municipality": "Brno",
+        "country": "Česko"
+      },
+      "position": {
+        "lat": 49.19101,
+        "lon": 16.6075
+      },
+      "aliases": ["Petrov"]
+    },
+    {
+      "id": "brno-komunita-emmanuel",
+      "name": "Komunita Emmanuel",
+      "address": {
+        "streetAddress": "Lidická 1867/24",
+        "part": "Černá Pole",
+        "postalCode": "602 00",
+        "municipality": "Brno",
+        "country": "Česko"
+      },
+      "position": {
+        "lat": 49.20207,
+        "lon": 16.60766
+      },
+      "aliases": ["Lidická 24"]
+    },
+    {
+      "id": "brno-kostel-sv-michala",
+      "name": "Kostel sv. Michala",
+      "address": {
+        "streetAddress": "Dominikánská",
+        "municipality": "Brno",
+        "country": "Česko"
+      },
+      "position": {
+        "lat": 49.19357,
+        "lon": 16.60664
+      }
+    },
+    {
+      "id": "brno-vystaviste",
+      "name": "Výstaviště",
+      "address": {
+        "streetAddress": "Výstaviště 405/1",
+        "part": "Pisárky",
+        "postalCode": "603 00",
+        "municipality": "Brno",
+        "country": "Česko"
+      },
+      "position": {
+        "lat": 49.18767,
+        "lon": 16.57908
+      },
+      "aliases": ["Výstaviště, pavilon B"]
+    },
+    {
+      "id": "ceska-sokolovna",
+      "name": "Sokolovna",
+      "address": {
+        "streetAddress": "Česká 1",
+        "postalCode": "664 31",
+        "municipality": "Česká",
+        "country": "Česko"
+      },
+      "position": {
+        "lat": 49.2827397,
+        "lon": 16.5662197
+      }
+    },
+    {
+      "id": "kurim-spolecenske-a-kulturni-centrum",
+      "name": "Společenské a kulturní centrum",
+      "address": {
+        "streetAddress": "nám. Osvobození 902/1",
+        "postalCode": "664 34",
+        "municipality": "Kuřim",
+        "country": "Česko"
+      },
+      "position": {
+        "lat": 49.30734,
+        "lon": 16.53114
+      },
+      "aliases": ["kinosál SKC", "kulturní dům", "u kulturního domu"]
+    },
+    {
+      "id": "kurim-zamek",
+      "name": "Zámek",
+      "address": {
+        "streetAddress": "Křížkovského",
+        "municipality": "Kuřim",
+        "country": "Česko"
+      },
+      "position": {
+        "lat": 49.29599,
+        "lon": 16.5253
+      },
+      "aliases": ["areál zámku"]
+    },
+    {
+      "id": "kurim-zs-komenskeho",
+      "name": "ZŠ Komenského",
+      "address": {
+        "streetAddress": "Komenského 511/40",
+        "postalCode": "664 34",
+        "municipality": "Kuřim",
+        "country": "Česko"
+      },
+      "position": {
+        "lat": 49.30515,
+        "lon": 16.53506
+      },
+      "aliases": ["areál ZŠ Komenského"]
+    },
+    {
+      "id": "lelekovice-vodojem-na-pasekach",
+      "name": "Vodojem Na Pasekách",
+      "address": {
+        "municipality": "Lelekovice",
+        "country": "Česko"
+      },
+      "position": {
+        "lat": 49.2938261,
+        "lon": 16.5831578
+      },
+      "aliases": ["u vodojemu na Pasekách"]
+    },
+    {
+      "id": "predklasteri-klaster-porta-coeli",
+      "name": "Klášter Porta coeli",
+      "address": {
+        "streetAddress": "Porta coeli 1001",
+        "postalCode": "666 02",
+        "municipality": "Předklášteří",
+        "country": "Česko"
+      },
+      "position": {
+        "lat": 49.35364,
+        "lon": 16.40086
+      },
+      "aliases": ["bazilika Porta Coeli"]
+    },
+    {
+      "id": "tisnov-fara",
+      "name": "Fara",
+      "address": {
+        "streetAddress": "Kostelní 16",
+        "postalCode": "666 01",
+        "municipality": "Tišnov",
+        "country": "Česko"
+      },
+      "position": {
+        "lat": 49.34861,
+        "lon": 16.42396
+      },
+      "aliases": ["děkanství"]
+    },
+    {
+      "id": "tisnov-kostel-sv-vaclava",
+      "name": "Kostel sv. Václava",
+      "address": {
+        "municipality": "Tišnov",
+        "country": "Česko"
+      },
+      "position": {
+        "lat": 49.34858,
+        "lon": 16.42455
+      }
+    },
+    {
+      "id": "tisnov-sal-pod-kinem-svratka",
+      "name": "Sál pod kinem Svratka",
+      "address": {
+        "streetAddress": "Mlýnská 152",
+        "postalCode": "666 01",
+        "municipality": "Tišnov",
+        "country": "Česko"
+      },
+      "position": {
+        "lat": 49.34761,
+        "lon": 16.4225
+      },
+      "aliases": ["sál pod kinem"]
     }
   ]
 }
