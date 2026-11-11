@@ -25,14 +25,14 @@ Write the text from the source, in Czech; do not invent facts. Leave out what th
 
 | Field                  | How to fill it                                                                                                                                              |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`                   | ASCII kebab-case title and start year (`hody-ceska-2026`): the URL `/aktuality/<id>/` and the files' prefix.                                                |
+| `id`                   | ASCII kebab-case title and start year (`hody-ceska-2026`): the URL `/aktuality/<id>/` and the files' prefix. **Required.**                                  |
 | `title`                | The headline, sentence case (not the poster's capitals). **Required.**                                                                                      |
-| `start`, `end`         | ISO dates. `end` only for multi-day events. A date without a year is the next such date from today.                                                         |
+| `start`, `end`         | ISO dates; `end` only for multi-day events. A date without a year is the next such date from today. `start` **Required.**                                   |
+| `place`                | What the source says, in its words: `"Kuřim, kostel sv. Maří Magdalény"`, `"Tišnov"`, or several places (`"Kuřim, Tišnov"`). **Required.**                  |
+| `text`                 | 1–2 sentences for the cards. **Required.** No URLs.                                                                                                         |
 | `startTime`            | `"18:00"` (H:MM). Omit for all-day events.                                                                                                                  |
 | `endTime`              | `"20:30"`, when the source gives an end; only with `startTime`, and after it.                                                                               |
-| `place`                | `"Kuřim, kostel sv. Maří Magdalény"`, `"Kuřim, fara"`, `"Tišnov"`: the municipality first, then the building. **Required.**                                 |
 | `venue`                | The venue's id for an event held at a building, also the main one of several (see "Finding `venue`"): the map link and the calendars' location.             |
-| `text`                 | 1–2 sentences for the cards. **Required.** No URLs.                                                                                                         |
 | `lead`                 | Optional: one inviting sentence under the detail title (also the page description). Defaults to `text`.                                                     |
 | `body`                 | Optional HTML for "O akci" (`<p>`, `<strong>`, `<ul><li>`) when the source says more than `text`: a few short paragraphs, no links (`links`).               |
 | `program`              | Rows `{ time, title, note? }` when the source has a programme.                                                                                              |
@@ -48,10 +48,9 @@ Write the text from the source, in Czech; do not invent facts. Leave out what th
 
 ### Finding `venue`
 
-An event held at a building gets a `venue` from the list (`src/content/venues.json`): its pin is the map link. An
-event in several places or with an alternative ("…, nebo …") takes the venue it is mainly held at (a pilgrimage's
-destination, the first of the alternatives); `place` still names them all. A whole municipality or an online event
-gets none, and its map link searches `place`.
+An event held at a building gets a `venue`: its pin is the map link. An event in several places or with an alternative
+("…, nebo …") takes the venue it is mainly held at (a pilgrimage's destination, the first of the alternatives);
+`place` still names them all. A whole municipality or an online event gets none, and its map link searches `place`.
 
 1. **Name the municipality:** the one the event is in, as Mapy.com names it ("Brno" for Brno-Husovice). Read it
    from the source; never split `place` at a comma to get it.
