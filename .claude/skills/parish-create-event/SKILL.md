@@ -61,16 +61,21 @@ An event held at a building gets a `venue`: its pin is the map link. An event in
    - Only when the list is long (more than about 15 venues, as in Brno), narrow it with a word or two of the
      building: `pnpm venue find --municipality "<municipality>" <keyword>…`, which lists the venues whose name or an
      alias holds one (`far` finds "Fara" and "areál za farou"), or all of them after a `tell:` when none does.
-3. **Look it up:** `pnpm venue lookup --municipality "<municipality>" "<name of the building>"` (or `--address "<address>"` for
-   a building with a number). Each result has its address, position and pin link; judge which one is the building.
-   When none is, ask the user for a Mapy.com link of it and run `--link <link>`: a link to a point ("Co je zde?") is
-   exact, one to a named place is only approximate (the map's centre): then ask for the GPS line of the place's card
-   (`49.2827397N, 16.5662197E`) and use it as the position.
-4. **Propose the new venue** in `<scratchpad>/venue.json`: `id` (`<municipality>-<building>`, as `slug()` makes it),
-   `name` (the building, in Czech: `"Sokolovna"`), `address` (the result's `streetAddress`, `part` and `postalCode`,
-   `country`; the municipality is filled in from the position), `position`, and `aliases` with the place's building
-   text when it differs from the name. Check it: `pnpm venue add <scratchpad>/venue.json --check` prints `Would add the
-venue <id>` with its fields and pin link, and a `tell:` when the address lands far from the position.
+3. **Look it up:** `pnpm venue lookup --municipality "<municipality>" "<name of the building>" --out
+<scratchpad>/venue-candidates.json` (or `--address "<address>"` for a building with a number). Each result is
+   numbered, with its address, position and pin link; judge which one is the building. The file holds the same
+   results, in the same order, as venue candidates. When none is the building, ask the user for a Mapy.com link of it
+   and run `--link <link>`: a link to a point ("Co je zde?") is exact, one to a named place is only approximate (the
+   map's centre) and gives no candidate: then ask for the GPS line of the place's card (`49.2827397N, 16.5662197E`)
+   and use it as the position.
+   - Add `--name "<building>"` (in Czech: `"Sokolovna"`) when the result's own name is not the building's plain name
+     ("Sokolovna Kuřim"), and always for an address or a point, whose candidate is otherwise left unnamed. Add
+     `--alias "<text>"` with the place's building text when it differs from the name. Both fill every candidate.
+4. **Propose the new venue:** copy the chosen candidate into `<scratchpad>/venue.json`, unchanged but for a name
+   (and its id, `<municipality>-<building>` as `slug()` makes it) or aliases not given in step 3. Write the file by
+   hand only for a position from a card's GPS line. Check it: `pnpm venue add <scratchpad>/venue.json --check` prints
+   `Would add the venue <id>` with its fields and pin link, and a `tell:` when the address lands far from the
+   position.
 5. Step 4 shows the venue, and any new venue (with its pin link, for the user to open) or alias. After the yes, write
    them first: `pnpm venue add <scratchpad>/venue.json`, `pnpm venue alias <id> "<text>"`. Then the record.
 

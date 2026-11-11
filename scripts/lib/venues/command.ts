@@ -1,49 +1,28 @@
+import { writeFileSync } from "node:fs";
 import { readMonths } from "@/content/news";
 import type { NewsEvent } from "@/content/types/news";
-import type { Position, Venue } from "@/content/types/venues";
-import { parseOrThrow, readJsonFile } from "@/lib/shared/json-file";
-import { positionMapHref } from "@/lib/shared/links";
-import { slug } from "@/lib/shared/slug";
-import { formatAddress } from "@/lib/shared/venues";
-import { findVenue, venuesOf, venuesWith } from "./match";
-import { venueFileSchema, venueSchema } from "@/lib/venues/schema";
+import type { Venue } from "@/content/types/venues";
 import { actionVerb, parseCommandLine, readJsonRecord } from "../command";
-import {
-  formatAndTest,
-  formatAndTestNews,
-  NEWS_DIR,
-  VENUES_FILE,
-  writeContentFile,
-  writeMonth,
-} from "../content-files";
-import { next, refusal, tell } from "../output";
-import {
-  addressOf,
-  distanceMetres,
-  geocode,
-  mapyKey,
-  municipalityOf,
-  rgeocode,
-  shareLinkPosition,
-  type MapyItem,
-} from "./mapy";
+import { formatAndTest, formatAndTestNews, NEWS_DIR, VENUES_FILE, writeMonth } from "../content-files";
+import { tell } from "../output";
+import { addAlias, addVenue, readVenues } from "./add";
+import { candidatesLines, lookupResults, type LookupRequest } from "./lookup";
+import { mapyKey } from "./mapy";
+import { findVenue, venuesOf, venuesWith } from "./match";
 
-// The venue list (src/content/venues.json) and the records' venues: a municipality's venues narrowed by keywords,
-// Mapy.com lookups inside one municipality, a new venue or alias written after the user's yes, and the records whose
-// place matches a venue exactly.
+// The venue commands: their arguments, a municipality's venues narrowed by keywords, the records whose place matches
+// a venue exactly, and each command run (the lookup and its candidates in lookup.ts, writing the list in add.ts).
 
 export const USAGE = `Usage: pnpm venue find --municipality "<municipality>" [<keyword>…]
        pnpm venue lookup --municipality "<municipality>" ("<query>" | --link <Mapy.com link> | --address "<address>")
+                         [--name "<building>"] [--alias "<text>"…] [--out <candidates.json>]
        pnpm venue add <venue.json | -> [--check]
        pnpm venue alias <id> "<text>" [--check]
        pnpm venue assign [--check]`;
 
-/** How far an address search may land from the position before `add` warns. */
-const ADDRESS_DISTANCE_METRES = 150;
-
 export type VenueCommand =
   | { sub: "find"; municipality: string; keywords: string[] }
-  | { sub: "lookup"; municipality: string; query?: string; link?: string; address?: string }
+  | ({ sub: "lookup"; out?: string } & LookupRequest)
   | { sub: "add"; file: string; check: boolean }
   | { sub: "alias"; id: string; text: string; check: boolean }
   | { sub: "assign"; check: boolean };
@@ -52,16 +31,29 @@ const OPTIONS = {
   municipality: { type: "string" },
   link: { type: "string" },
   address: { type: "string" },
+  name: { type: "string" },
+  alias: { type: "string", multiple: true },
+  out: { type: "string" },
   check: { type: "boolean" },
 } as const;
 
 type Parsed = ReturnType<typeof parseCommandLine<typeof OPTIONS>>;
 
 /** `lookup` takes exactly one of a query, --link and --address. */
-function parseLookup({ positionals, values: { municipality, link, address } }: Parsed): VenueCommand | undefined {
+function parseLookup({ positionals, values }: Parsed): VenueCommand | undefined {
+  const { municipality, link, address, name, alias: aliases, out } = values;
   const [query, ...extra] = positionals;
   if (!municipality || extra.length > 0 || [query, link, address].filter(Boolean).length !== 1) return undefined;
-  return { sub: "lookup", municipality, ...(query && { query }), ...(link && { link }), ...(address && { address }) };
+  return {
+    sub: "lookup",
+    municipality,
+    ...(query && { query }),
+    ...(link && { link }),
+    ...(address && { address }),
+    ...(name && { name }),
+    ...(aliases?.length && { aliases }),
+    ...(out && { out }),
+  };
 }
 
 const PARSERS: Record<string, (parsed: Parsed, check: boolean) => VenueCommand | undefined> = {
@@ -82,9 +74,6 @@ export function parseCommand(args: string[]): VenueCommand {
   return command;
 }
 
-/** The venues of the file `file`, checked. */
-export const readVenues = (file: string): Venue[] => readJsonFile(file, venueFileSchema).venues;
-
 const aliasNote = (venue: Venue) => (venue.aliases?.length ? ` (${venue.aliases.join(", ")})` : "");
 
 const venueLine = (v: Venue) => `  ${v.id}  ${v.name}${aliasNote(v)}`;
@@ -102,107 +91,6 @@ export function findLines(list: Venue[], municipality: string, keywords: string[
   if (found.length === 0)
     return [tell(`no venue of ${municipality} has ${words}; all of them:`), ...all.map(venueLine)];
   return [`Venues of ${municipality} with ${words}:`, ...found.map(venueLine)];
-}
-
-const positionText = ({ lat, lon }: Position) => `${lat}, ${lon}`;
-
-const itemBlock = (item: MapyItem) => [
-  `${item.name} (${item.label})`,
-  `  address: ${formatAddress(addressOf(item))}`,
-  `  position: ${positionText(item.position)}`,
-  `  pin: ${positionMapHref(item.position)}`,
-];
-
-/** `lookup`: Mapy.com's places for a name, an address or a shared link, inside `municipality` only. */
-export async function lookupLines(command: Extract<VenueCommand, { sub: "lookup" }>, list: Venue[], key: string) {
-  const { municipality, query, link, address } = command;
-  if (link) {
-    const { exact, ...position } = await shareLinkPosition(link);
-    const [place] = await rgeocode(position, key);
-    const nearest = list
-      .map((v) => ({ v, metres: distanceMetres(v.position, position) }))
-      .sort((a, b) => a.metres - b.metres)[0];
-    const found = place && municipalityOf(place);
-    return [
-      `position: ${positionText(position)} (${exact ? "exact" : "approximate: the shared map's centre"})`,
-      `  pin: ${positionMapHref(position)}`,
-      ...(place ? [`  address: ${formatAddress(addressOf(place))}`] : []),
-      ...(found && found !== municipality ? [tell(`the position lies in ${found}, not in ${municipality}`)] : []),
-      ...(nearest ? [`  nearest venue: ${nearest.v.id}, ${Math.round(nearest.metres)} m`] : []),
-    ];
-  }
-  const types = address ? ["regional.address", "regional.street"] : ["poi", "regional.address"];
-  const items = await geocode(address ?? query ?? "", { municipality, types }, key);
-  if (items.length === 0)
-    return [tell(`Mapy.com finds nothing like that in ${municipality}.`), next("ask the user for a Mapy.com link")];
-  return items.flatMap(itemBlock);
-}
-
-/** The municipality Mapy.com names at `position`; refuses another than `stated`. */
-async function municipalityAt(position: Position, stated: string | undefined, key: string): Promise<string> {
-  const [here] = await rgeocode(position, key);
-  const municipality = here && municipalityOf(here);
-  if (!municipality) throw refusal("Mapy.com names no municipality at the position", next("check the pin"));
-  if (stated && stated !== municipality) {
-    throw refusal(`the position lies in ${municipality}, not in ${stated}`, next("check the pin, or the municipality"));
-  }
-  return municipality;
-}
-
-/** A note when a search of the venue's address lands far from its position (a typo, or the wrong pin). */
-async function addressNote(venue: Venue, key: string): Promise<string[]> {
-  if (!venue.address.streetAddress) return [];
-  const types = ["regional.address", "regional.street"];
-  const { municipality } = venue.address;
-  const [found] = await geocode(formatAddress(venue.address), { municipality, types, limit: 1 }, key);
-  const metres = found ? distanceMetres(found.position, venue.position) : 0;
-  if (metres <= ADDRESS_DISTANCE_METRES) return [];
-  return [
-    tell(`a search of the address lands ${Math.round(metres)} m from the position: check the address, or the pin`),
-  ];
-}
-
-/**
- * `add`: the venue `input` (its municipality taken from its position), checked against the list and Mapy.com;
- * written unless `check`. Returns the printed lines.
- */
-export async function addVenue(file: string, input: unknown, { check, key }: { check: boolean; key: string }) {
-  const list = readVenues(file);
-  const raw = (input !== null && typeof input === "object" ? input : {}) as Partial<Venue>;
-  const position = parseOrThrow(venueSchema.shape.position, raw.position, "the venue's position");
-  const municipality = await municipalityAt(position, raw.address?.municipality, key);
-  const venue = parseOrThrow(venueSchema, { ...raw, address: { ...raw.address, municipality } }, "the venue");
-  const id = slug(`${municipality} ${venue.name}`);
-  if (venue.id !== id) throw refusal(`the id must be ${id} (the municipality and the name)`);
-  if (list.some((v) => v.id === venue.id)) {
-    throw refusal(`${venue.id} is already a venue`, next("pnpm venue alias adds a text to it"));
-  }
-  const venues = [...list, venue];
-  parseOrThrow(venueFileSchema, { venues }, "the venue list");
-  const lines = [
-    `${actionVerb(check, "add")} the venue ${venue.id}`,
-    `  name: ${venue.name}`,
-    `  address: ${formatAddress(venue.address)}`,
-    `  position: ${positionText(venue.position)}`,
-    ...(venue.aliases?.length ? [`  aliases: ${venue.aliases.join(", ")}`] : []),
-    `  pin: ${positionMapHref(venue.position)}`,
-    ...(await addressNote(venue, key)),
-  ];
-  if (!check) writeContentFile(file, { venues });
-  return lines;
-}
-
-/** `alias`: adds `text` to the aliases of the venue `id` (sorted), unless another venue of its municipality has it. */
-export function addAlias(file: string, id: string, text: string, { check }: { check: boolean }): string[] {
-  const list = readVenues(file);
-  const venue = list.find((v) => v.id === id);
-  if (!venue) throw refusal(`there is no venue ${id}`, next("pnpm venue find lists the municipality's venues"));
-  const aliases = [...new Set([...(venue.aliases ?? []), text.trim()])].sort((a, b) => a.localeCompare(b, "cs"));
-  const venues = list.map((v) => (v === venue ? { ...v, aliases } : v));
-  const parsed = venueFileSchema.safeParse({ venues });
-  if (!parsed.success) throw refusal(parsed.error.issues.map((i) => i.message).join("; "));
-  if (!check) writeContentFile(file, { venues });
-  return [`${actionVerb(check, "add")} the alias "${text.trim()}" to ${id}`];
 }
 
 /** The record with `venue` right after its place. */
@@ -248,7 +136,12 @@ export async function execute(command: VenueCommand) {
   if (command.sub === "find") {
     console.log(findLines(readVenues(VENUES_FILE), command.municipality, command.keywords).join("\n"));
   } else if (command.sub === "lookup") {
-    console.log((await lookupLines(command, readVenues(VENUES_FILE), mapyKey())).join("\n"));
+    const { lines, candidates } = await lookupResults(command, readVenues(VENUES_FILE), mapyKey());
+    if (command.out) {
+      if (candidates.length > 0) writeFileSync(command.out, `${JSON.stringify(candidates, null, 2)}\n`);
+      lines.push(...candidatesLines(command.out, candidates));
+    }
+    console.log(lines.join("\n"));
   } else if (command.sub === "add") {
     const lines = await addVenue(VENUES_FILE, readJsonRecord(command.file), { check: command.check, key: mapyKey() });
     console.log(lines.join("\n"));

@@ -3,7 +3,9 @@
 //   find    lists the stated municipality's venues, with keywords only those whose name or an alias holds one of them
 //           (case, accents and dots aside; all of them when none does). No network.
 //   lookup  looks a place up on Mapy.com inside the municipality: by name, by --address, or the position of a shared
-//           --link (exact for a point, approximate for a named place); prints each result's address and pin link.
+//           --link (exact for a point, approximate for a named place); prints each result's address and pin link,
+//           numbered. --out writes them as venue candidates for add (named --name, else a place's own name; an
+//           address or a point stays unnamed), with --alias texts. No candidate for an approximate position.
 //   add     adds a venue from a JSON file: its municipality taken from its position (refused when another is
 //           stated), its id <municipality>-<name> as slug() makes it; warns when the address lands > 150 m away.
 //   alias   adds a confirmed text of a place to a venue, refused when another venue of the municipality has it.
@@ -12,6 +14,7 @@
 //
 // Usage: pnpm venue find --municipality "<municipality>" [<keyword>…]
 //        pnpm venue lookup --municipality "<municipality>" ("<query>" | --link <Mapy.com link> | --address "<address>")
+//                          [--name "<building>"] [--alias "<text>"…] [--out <candidates.json>]
 //        pnpm venue add <venue.json | -> [--check]
 //        pnpm venue alias <id> "<text>" [--check]
 //        pnpm venue assign [--check]
