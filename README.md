@@ -153,6 +153,7 @@ Content lives in `src/content/` and is added with the Claude Code project skills
 | `parish-correct-event`         | A corrected event (record, poster or attachment)                                                |
 | `parish-cancel-event`          | A cancelled or postponed event, or a dropped meeting of a series                                |
 | `parish-pin-event`             | The "Doporučujeme" pin, moved to an existing event or removed                                   |
+| `parish-manage-venues`         | A venue or an alias, chosen for an event, added or changed in `venues.json`                     |
 | `parish-create-service-sheet`  | The weekly service sheet (the parish's DOCX or PDF), into `service-sheets.json`                 |
 | `parish-correct-service-sheet` | A corrected service sheet (record, DOCX or PDF)                                                 |
 | `parish-create-exception`      | A change to the mass schedule on a day no service sheet covers, into `schedule-exceptions.json` |

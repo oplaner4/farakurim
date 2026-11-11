@@ -48,37 +48,9 @@ Write the text from the source, in Czech; do not invent facts. Leave out what th
 
 ### Finding `venue`
 
-An event held at a building gets a `venue`: its pin is the map link. An event in several places or with an alternative
-("…, nebo …") takes the venue it is mainly held at (a pilgrimage's destination, the first of the alternatives);
-`place` still names them all. A whole municipality or an online event gets none, and its map link searches `place`.
-
-1. **Name the municipality:** the one the event is in, as Mapy.com names it ("Brno" for Brno-Husovice). Read it
-   from the source; never split `place` at a comma to get it.
-2. **Find it:** `pnpm venue find --municipality "<municipality>"` prints `Venues of <municipality>:`, each with its
-   name and aliases. Take the one the source plainly means (`"farní zahrada"` → `kurim-fara`), and when the source
-   names it in words not yet its name or alias, propose them as its new alias. Several that could fit, or a doubtful
-   one, is a question, never a guess. `tell: … has no venues yet.`, or none of them fits: step 3.
-   - Only when the list is long (more than about 15 venues, as in Brno), narrow it with a word or two of the
-     building: `pnpm venue find --municipality "<municipality>" <keyword>…`, which lists the venues whose name or an
-     alias holds one (`far` finds "Fara" and "areál za farou"), or all of them after a `tell:` when none does.
-3. **Look it up:** `pnpm venue lookup --municipality "<municipality>" "<name of the building>" --out
-<scratchpad>/venue-candidates.json` (or `--address "<address>"` for a building with a number). Each result is
-   numbered, with its address, position and pin link; judge which one is the building. The file holds the same
-   results, in the same order, as venue candidates. When none is the building, ask the user for a Mapy.com link of it
-   and run `--link <link>`: a link to a point ("Co je zde?") is exact, one to a named place is only approximate (the
-   map's centre) and gives no candidate: then ask for the GPS line of the place's card and run `--position
-"49.2827397N, 16.5662197E"`, exact like a point.
-4. **Propose the new venue** from the chosen candidate _n_: `pnpm venue add <scratchpad>/venue-candidates.json
---pick <n> [--name "<building>"] [--alias "<text>"…] --check`. The id is made of the municipality and the name.
-   - `--name` (in Czech: `"Sokolovna"`) when the candidate's own name is not the building's plain name ("Sokolovna
-     Kuřim"), and always for an address or a point, which have none.
-   - `--alias` with the place's building text when it differs from the name.
-
-   It prints `Would add the venue <id>` with its fields and pin link, and a `tell:` when the address lands far from
-   the position.
-
-5. Step 4 shows the venue, and any new venue (with its pin link, for the user to open) or alias. After the yes, write
-   them first: the same `pnpm venue add` without `--check`, `pnpm venue alias <id> "<text>"`. Then the record.
+Take the venue as **`parish-manage-venues`** (`.claude/skills/parish-manage-venues/SKILL.md`) section A says: a listed venue, a new alias of one, a new
+venue looked up on Mapy.com, or none. A new venue or alias is written after the yes of step 4, before step 5 stages
+the record.
 
 ## 3a. Pick the labels and the order (only with files)
 
@@ -195,17 +167,8 @@ follows them too, with these changes:
 - Write the report first, then stage, then fill in each event's `Outcome:` line from what the script did, and add any
   line it printed for the user (an unpinned event) to the report. A script refusal is `refused: <its reason>`:
   the refusal's first line; its `next:` lines say what to do, not what to publish.
-- **Venue:** follow "Finding `venue`"; the PR's review is the user's yes, so the report must show what to check.
-  - Take a listed venue when the source names it by its name or an alias (case and word endings aside), or plainly
-    means it: then add the source's building text as its alias (`pnpm venue alias <id> "<text>"`).
-  - Add a new venue only when one lookup candidate is plainly the building (its name is the source's building, or it
-    is the address the source gives): step 4's `pnpm venue add … --check`, then without `--check`.
-  - Add the venue or alias before the event is staged, which refuses a venue not in the list.
-  - Report each in the event's section, with the pin to check: `New venue <id>: <name>, <address> — pin: <pin
-link>`, `New alias "<text>" for <id>`.
-  - Anything less certain (several candidates, none, an approximate link): leave `venue` out and write a question
-    (`blocking: no`) with the candidates and their pin links.
-  - Never change or remove a venue already in the list: the PR refuses the whole change.
+- **Venue:** as **`parish-manage-venues`** (`.claude/skills/parish-manage-venues/SKILL.md`) section D says (the PR's review is the yes; a new venue or
+  alias is written before the event is staged and reported with its pin link).
 - Skip step 6: no `parish-publish-content`, no commit, no release.
 
 **The report** is English, with site content quoted in Czech, and starts with exactly these two lines:
@@ -237,8 +200,7 @@ mail without quoting it.
 - Copying the poster's capitals into `title`, or its whole text into `body`: keep `text` short and `body` brief.
 - Putting URLs or e-mails into `text`/`body` instead of `links`.
 - Guessing a year or end date silently: say it in the confirmation.
-- Guessing a venue from a similar name, or adding one without the user's yes on its pin (unattended: without a
-  candidate that is plainly the building): ask instead.
+- Guessing a venue from a similar name, or adding one without the user's yes on its pin: ask instead.
 - Going on without a file and without the warning in step 1: the user may have a poster to add.
 - Staging (without `--check`) before the user confirms: an abandoned file would go out with the next release.
 - Adding a new event by hand instead of `--record` (or `pnpm add-event`): the order and `published` are then up

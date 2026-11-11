@@ -27,9 +27,9 @@ Copy the record whole into `record.json` in the session's scratchpad (never in t
 - a correction the user describes: change those fields;
 - a cancellation, a postponement or a dropped meeting: stop and follow **`parish-cancel-event`** instead.
 
-The fields follow **`parish-create-event`** step 2. A changed `place` takes its venue again as **`parish-create-event`**
-"Finding `venue`" says (a venue `pnpm venue find` lists, a lookup or none, a new venue or alias only after the
-user's yes), and the old `venue` goes when it no longer fits. `--check` names `venue` among the
+The fields follow **`parish-create-event`** step 2. A changed `place` takes its venue again as **`parish-manage-venues`** (`.claude/skills/parish-manage-venues/SKILL.md`)
+section A says (a new venue or alias written after the yes, before the record), and the old `venue` goes when it no
+longer fits. `--check` names `venue` among the
 `Changed:` fields.
 
 ## 3. Check
@@ -91,10 +91,8 @@ Only when the prompt says the run is a **comment run** on an events PR; steps 1 
   but still run each `--check` and read its `Changed:` line: when it lists fields the comment did not ask to change,
   stop with `Outcome: unchanged` and say why. Use `pnpm replace-event` and `pnpm event-poster`, as in step 3. A
   question in the comment is answered in the reply.
-- **Venue:** a changed place takes its venue as **`parish-create-event`** "Unattended run" says, a new venue or
-  alias included (added before the record is replaced). The comment is the maintainer's yes for a venue, an alias or
-  a Mapy.com link it names. The reply shows each new venue and alias with its pin link, and answers anything less
-  certain with the candidates and their pin links. Never change or remove a venue already in the list.
+- **Venue:** a changed place takes its venue as **`parish-manage-venues`** (`.claude/skills/parish-manage-venues/SKILL.md`) section D says (a new venue
+  or alias added before the record is replaced, shown in the reply with its pin link).
 - **Fix a check:** when `check.md` shows a failure the PR's content causes, fix it the same way; a failure outside the
   content (a script, the build) is not fixed, and the reply says so.
 - **Out of bounds**, answered without a change (`Outcome: unchanged`): a new event, dropping, pinning or splitting an
