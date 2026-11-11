@@ -68,16 +68,19 @@ An event held at a building gets a `venue`: its pin is the map link. An event in
    and run `--link <link>`: a link to a point ("Co je zde?") is exact, one to a named place is only approximate (the
    map's centre) and gives no candidate: then ask for the GPS line of the place's card (`49.2827397N, 16.5662197E`)
    and use it as the position.
-   - Add `--name "<building>"` (in Czech: `"Sokolovna"`) when the result's own name is not the building's plain name
-     ("Sokolovna Kuřim"), and always for an address or a point, whose candidate is otherwise left unnamed. Add
-     `--alias "<text>"` with the place's building text when it differs from the name. Both fill every candidate.
-4. **Propose the new venue:** copy the chosen candidate into `<scratchpad>/venue.json`, unchanged but for a name
-   (and its id, `<municipality>-<building>` as `slug()` makes it) or aliases not given in step 3. Write the file by
-   hand only for a position from a card's GPS line. Check it: `pnpm venue add <scratchpad>/venue.json --check` prints
-   `Would add the venue <id>` with its fields and pin link, and a `tell:` when the address lands far from the
-   position.
+4. **Propose the new venue** from the chosen candidate _n_: `pnpm venue add <scratchpad>/venue-candidates.json
+--pick <n> [--name "<building>"] [--alias "<text>"…] --check`. The id is made of the municipality and the name.
+   - `--name` (in Czech: `"Sokolovna"`) when the candidate's own name is not the building's plain name ("Sokolovna
+     Kuřim"), and always for an address or a point, which have none.
+   - `--alias` with the place's building text when it differs from the name.
+   - For a position from a card's GPS line, write `<scratchpad>/venue.json` by hand (`name`, `address` as the lookup
+     printed it, `position`, `aliases`) and run `pnpm venue add <scratchpad>/venue.json --check`.
+
+   It prints `Would add the venue <id>` with its fields and pin link, and a `tell:` when the address lands far from
+   the position.
+
 5. Step 4 shows the venue, and any new venue (with its pin link, for the user to open) or alias. After the yes, write
-   them first: `pnpm venue add <scratchpad>/venue.json`, `pnpm venue alias <id> "<text>"`. Then the record.
+   them first: the same `pnpm venue add` without `--check`, `pnpm venue alias <id> "<text>"`. Then the record.
 
 ## 3a. Pick the labels and the order (only with files)
 
@@ -198,7 +201,7 @@ follows them too, with these changes:
   - Take a listed venue when the source names it by its name or an alias (case and word endings aside), or plainly
     means it: then add the source's building text as its alias (`pnpm venue alias <id> "<text>"`).
   - Add a new venue only when one lookup candidate is plainly the building (its name is the source's building, or it
-    is the address the source gives): `pnpm venue add <scratchpad>/venue.json --check`, then without `--check`.
+    is the address the source gives): step 4's `pnpm venue add … --check`, then without `--check`.
   - Add the venue or alias before the event is staged, which refuses a venue not in the list.
   - Report each in the event's section, with the pin to check: `New venue <id>: <name>, <address> — pin: <pin
 link>`, `New alias "<text>" for <id>`.

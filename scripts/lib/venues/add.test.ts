@@ -13,6 +13,30 @@ describe("add", () => {
     position: { lat: 49.2966, lon: 16.5264 },
   };
 
+  it("takes a candidate of a list by its number, makes its id from its name and adds aliases, sorted", async () => {
+    stubMapy("Česká");
+    const { id: _, ...candidate } = sokolovna;
+    const list = [
+      { ...candidate, name: "Kaple" },
+      { ...candidate, name: "Sokolovna Česká", aliases: ["u sokola"] },
+    ];
+    const lines = await addVenue(file(), list, { check: true, key: "KEY", pick: 2, aliases: ["v sokolovně"] });
+    expect(lines[0]).toBe("Would add the venue ceska-sokolovna-ceska");
+    expect(lines).toContain("  aliases: u sokola, v sokolovně");
+    const renamed = await addVenue(file(), list, { check: true, key: "KEY", pick: 2, name: " Sokolovna " });
+    expect(renamed.slice(0, 2)).toEqual(["Would add the venue ceska-sokolovna", "  name: Sokolovna"]);
+  });
+
+  it("refuses a list without a pick or with one past its end, a pick of one venue and no name", async () => {
+    stubMapy("Česká");
+    const options = { check: true, key: "KEY" };
+    await expect(addVenue(file(), [sokolovna], options)).rejects.toThrow(/^the file holds 1 candidate(?!s)/);
+    await expect(addVenue(file(), [sokolovna], { ...options, pick: 2 })).rejects.toThrow(/^there is no candidate 2/);
+    await expect(addVenue(file(), sokolovna, { ...options, pick: 1 })).rejects.toThrow(/^--pick takes a candidate/);
+    const unnamed = { ...sokolovna, id: undefined, name: "" };
+    await expect(addVenue(file(), unnamed, options)).rejects.toThrow(/^the venue has no name/);
+  });
+
   it("fills the municipality from the position and prints the venue with its pin, writing only without check", async () => {
     stubMapy("Česká");
     const lines = await addVenue(file(), sokolovna, { check: true, key: "KEY" });

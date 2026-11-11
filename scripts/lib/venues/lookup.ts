@@ -1,12 +1,11 @@
-import type { Position, Venue, VenueAddress } from "@/content/types/venues";
+import type { Position, Venue } from "@/content/types/venues";
 import { positionMapHref } from "@/lib/shared/links";
-import { slug } from "@/lib/shared/slug";
 import { formatAddress } from "@/lib/shared/venues";
 import { next, tell } from "../output";
 import { addressOf, distanceMetres, geocode, municipalityOf, rgeocode, shareLinkPosition, type MapyItem } from "./mapy";
 
 // Places looked up on Mapy.com inside one municipality, printed numbered for the agent to judge, and the same places
-// as venue candidates: records `add` takes once one is chosen and named.
+// as venue candidates: what Mapy.com knows of each, for `add` to take one of.
 
 export const positionText = ({ lat, lon }: Position) => `${lat}, ${lon}`;
 
@@ -17,35 +16,11 @@ const itemBlock = (item: MapyItem, i: number) => [
   `  pin: ${positionMapHref(item.position)}`,
 ];
 
-/**
- * A lookup result as a venue for `add`: named `name`, else a place's own name. An address or a point has none, so its
- * name stays empty (and it gets no id) for the agent to fill in; `add` refuses it until then.
- */
-export type VenueCandidate = Omit<Venue, "id"> & { id?: string };
+/** A lookup result as Mapy.com gives it: a place's own name (empty for an address or a point), address and position. */
+export type VenueCandidate = Pick<Venue, "name" | "address" | "position">;
 
-export function venueCandidate(
-  { name, address, position }: { name: string; address: VenueAddress; position: Position },
-  aliases: string[] = [],
-): VenueCandidate {
-  const trimmed = name.trim();
-  return {
-    ...(trimmed && { id: slug(`${address.municipality} ${trimmed}`) }),
-    name: trimmed,
-    address,
-    position,
-    ...(aliases.length > 0 && { aliases }),
-  };
-}
-
-/** What `lookup` takes: one of a query, an address and a link, and what fills the candidates. */
-export type LookupRequest = {
-  municipality: string;
-  query?: string;
-  link?: string;
-  address?: string;
-  name?: string;
-  aliases?: string[];
-};
+/** What `lookup` takes: the municipality and one of a query, an address and a link. */
+export type LookupRequest = { municipality: string; query?: string; link?: string; address?: string };
 
 export type LookupResults = { lines: string[]; candidates: VenueCandidate[] };
 
@@ -53,8 +28,7 @@ export type LookupResults = { lines: string[]; candidates: VenueCandidate[] };
  * The position of a shared link, its address and the nearest venue; a candidate only for an exact point inside
  * `municipality`.
  */
-async function linkResults(link: string, request: LookupRequest, list: Venue[], key: string): Promise<LookupResults> {
-  const { municipality, name, aliases } = request;
+async function linkResults(link: string, municipality: string, list: Venue[], key: string): Promise<LookupResults> {
   const { exact, ...position } = await shareLinkPosition(link);
   const [place] = await rgeocode(position, key);
   const nearest = list
@@ -71,13 +45,11 @@ async function linkResults(link: string, request: LookupRequest, list: Venue[], 
     ...(exact ? [] : [next("ask the user for the GPS line of the place's card and use it as the position")]),
   ];
   const usable = exact && place && !elsewhere;
-  const candidates = usable ? [venueCandidate({ name: name ?? "", address: addressOf(place), position }, aliases)] : [];
-  return { lines, candidates };
+  return { lines, candidates: usable ? [{ name: "", address: addressOf(place), position }] : [] };
 }
 
 /** The places a name or an address finds in `municipality`, numbered, each a candidate. */
-async function searchResults(request: LookupRequest, key: string): Promise<LookupResults> {
-  const { municipality, query, address, name, aliases } = request;
+async function searchResults({ municipality, query, address }: LookupRequest, key: string): Promise<LookupResults> {
   const types = address ? ["regional.address", "regional.street"] : ["poi", "regional.address"];
   const items = await geocode(address ?? query ?? "", { municipality, types }, key);
   if (items.length === 0) {
@@ -87,12 +59,11 @@ async function searchResults(request: LookupRequest, key: string): Promise<Looku
     ];
     return { lines, candidates: [] };
   }
-  const candidates = items.map((item) =>
-    venueCandidate(
-      { name: name ?? (item.type === "poi" ? item.name : ""), address: addressOf(item), position: item.position },
-      aliases,
-    ),
-  );
+  const candidates = items.map((item) => ({
+    name: item.type === "poi" ? item.name : "",
+    address: addressOf(item),
+    position: item.position,
+  }));
   return { lines: items.flatMap(itemBlock), candidates };
 }
 
@@ -101,16 +72,13 @@ async function searchResults(request: LookupRequest, key: string): Promise<Looku
  * same places as venue candidates (none for a link's approximate position, or for one outside the municipality).
  */
 export const lookupResults = (request: LookupRequest, list: Venue[], key: string): Promise<LookupResults> =>
-  request.link ? linkResults(request.link, request, list, key) : searchResults(request, key);
+  request.link ? linkResults(request.link, request.municipality, list, key) : searchResults(request, key);
 
 /** What `lookup --out` prints about the candidates it wrote to `file` (nothing is written when there are none). */
 export function candidatesLines(file: string, candidates: VenueCandidate[]): string[] {
   if (candidates.length === 0) return [tell(`no candidate written to ${file}`)];
   return [
     `Wrote ${candidates.length} candidate${candidates.length === 1 ? "" : "s"} to ${file}, numbered as above`,
-    ...(candidates.some((c) => !c.name)
-      ? [tell('a candidate without a name needs one: --name "<building>", or its name and id in venue.json')]
-      : []),
-    next("copy the chosen one into venue.json, then pnpm venue add venue.json --check"),
+    next(`pnpm venue add ${file} --pick <n> [--name "<building>"] [--alias "<text>"…] --check`),
   ];
 }

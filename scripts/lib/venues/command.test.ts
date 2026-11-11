@@ -64,30 +64,22 @@ describe("parseCommand", () => {
       municipality: "Česká",
       link: "https://mapy.com/s/x",
     });
-    expect(
-      parseCommand([
-        "lookup",
-        "--municipality",
-        "Česká",
-        "sokolovna",
-        "--name",
-        "Sokolovna",
-        "--alias",
-        "a",
-        "--alias",
-        "b",
-        "--out",
-        "c.json",
-      ]),
-    ).toEqual({
+    expect(parseCommand(["lookup", "--municipality", "Česká", "sokolovna", "--out", "c.json"])).toEqual({
       sub: "lookup",
       municipality: "Česká",
       query: "sokolovna",
-      name: "Sokolovna",
-      aliases: ["a", "b"],
       out: "c.json",
     });
     expect(parseCommand(["add", "v.json", "--check"])).toEqual({ sub: "add", file: "v.json", check: true });
+    const add = ["add", "c.json", "--pick", "2", "--name", "Sokolovna", "--alias", "a", "--alias", "b"];
+    expect(parseCommand(add)).toEqual({
+      sub: "add",
+      file: "c.json",
+      check: false,
+      pick: 2,
+      name: "Sokolovna",
+      aliases: ["a", "b"],
+    });
     expect(parseCommand(["alias", "kurim-fara", "farní zahrada"])).toEqual({
       sub: "alias",
       id: "kurim-fara",
@@ -97,5 +89,9 @@ describe("parseCommand", () => {
     expect(parseCommand(["assign", "--check"])).toEqual({ sub: "assign", check: true });
     expect(() => parseCommand(["find", "Kuřim, fara"])).toThrow(/Usage: pnpm venue/);
     expect(() => parseCommand(["move"])).toThrow(/Usage: pnpm venue/);
+    // A name or an alias is add's, and a pick is a whole number from 1.
+    expect(() => parseCommand(["lookup", "--municipality", "Česká", "x", "--name", "X"])).toThrow(/Usage/);
+    expect(() => parseCommand(["add", "c.json", "--pick", "0"])).toThrow(/Usage/);
+    expect(() => parseCommand(["add", "c.json", "--pick", "1.5"])).toThrow(/Usage/);
   });
 });

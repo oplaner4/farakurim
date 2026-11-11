@@ -43,22 +43,52 @@ async function addressNote(venue: Venue, key: string): Promise<string[]> {
   ];
 }
 
-/**
- * `add`: the venue `input` (its municipality taken from its position), checked against the list and Mapy.com;
- * written unless `check`. Returns the printed lines.
- */
-export async function addVenue(file: string, input: unknown, { check, key }: { check: boolean; key: string }) {
-  const list = readVenues(file);
-  if (Array.isArray(input)) throw refusal("the file holds a list", next("copy one candidate into its own file"));
-  const raw = (input !== null && typeof input === "object" ? input : {}) as Partial<Venue>;
-  if (typeof raw.name === "string" && !raw.name.trim()) {
-    throw refusal("the venue has no name", next('name the building ("Sokolovna"), and make its id from it'));
+/** What `add` changes on the venue it reads: the candidate `pick` (from 1) of a list, its name, aliases to add. */
+export type AddOptions = { pick?: number; name?: string; aliases?: string[] };
+
+/** The venue `input` holds, or candidate `pick` of the list it holds, named `name` and with `aliases` added. */
+function chosenVenue(input: unknown, { pick, name, aliases = [] }: AddOptions): Partial<Venue> {
+  let record = input;
+  if (Array.isArray(input)) {
+    if (pick === undefined) {
+      const count = `${input.length} candidate${input.length === 1 ? "" : "s"}`;
+      throw refusal(`the file holds ${count}`, next("--pick <n> takes one, numbered as lookup's"));
+    }
+    if (pick > input.length) throw refusal(`there is no candidate ${pick}: the file holds ${input.length}`);
+    record = input[pick - 1];
+  } else if (pick !== undefined) {
+    throw refusal("--pick takes a candidate of a list, and the file holds one venue");
   }
+  const raw = (record !== null && typeof record === "object" ? record : {}) as Partial<Venue>;
+  const named = name ?? raw.name;
+  if (typeof named !== "string" || !named.trim()) {
+    throw refusal("the venue has no name", next('--name "<building>" names it ("Sokolovna")'));
+  }
+  const all = [...new Set([...(raw.aliases ?? []), ...aliases.map((a) => a.trim())])];
+  return {
+    ...raw,
+    name: named.trim(),
+    ...(all.length > 0 && { aliases: all.sort((a, b) => a.localeCompare(b, "cs")) }),
+  };
+}
+
+/**
+ * `add`: the venue `input` holds, or a candidate of the list it holds (`options`), its municipality taken from its
+ * position and its id made of the municipality and the name, checked against the list and Mapy.com; written unless
+ * `check`. Returns the printed lines.
+ */
+export async function addVenue(
+  file: string,
+  input: unknown,
+  { check, key, ...options }: { check: boolean; key: string } & AddOptions,
+) {
+  const list = readVenues(file);
+  const raw = chosenVenue(input, options);
   const position = parseOrThrow(venueSchema.shape.position, raw.position, "the venue's position");
   const municipality = await municipalityAt(position, raw.address?.municipality, key);
-  const venue = parseOrThrow(venueSchema, { ...raw, address: { ...raw.address, municipality } }, "the venue");
-  const id = slug(`${municipality} ${venue.name}`);
-  if (venue.id !== id) throw refusal(`the id must be ${id} (the municipality and the name)`);
+  const id = slug(`${municipality} ${raw.name}`);
+  if (raw.id !== undefined && raw.id !== id) throw refusal(`the id must be ${id} (the municipality and the name)`);
+  const venue = parseOrThrow(venueSchema, { ...raw, id, address: { ...raw.address, municipality } }, "the venue");
   if (list.some((v) => v.id === venue.id)) {
     throw refusal(`${venue.id} is already a venue`, next("pnpm venue alias adds a text to it"));
   }

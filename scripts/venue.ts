@@ -4,18 +4,20 @@
 //           (case, accents and dots aside; all of them when none does). No network.
 //   lookup  looks a place up on Mapy.com inside the municipality: by name, by --address, or the position of a shared
 //           --link (exact for a point, approximate for a named place); prints each result's address and pin link,
-//           numbered. --out writes them as venue candidates for add (named --name, else a place's own name; an
-//           address or a point stays unnamed), with --alias texts. No candidate for an approximate position.
-//   add     adds a venue from a JSON file: its municipality taken from its position (refused when another is
-//           stated), its id <municipality>-<name> as slug() makes it; warns when the address lands > 150 m away.
+//           numbered. --out writes them as venue candidates for add: a place's own name (none for an address or a
+//           point), address and position; none for an approximate position.
+//   add     adds a venue from a JSON file, or candidate --pick <n> of lookup's file, named --name and with --alias
+//           texts: its municipality taken from its position (refused when another is stated), its id
+//           <municipality>-<name> as slug() makes it; warns when the address lands > 150 m away.
 //   alias   adds a confirmed text of a place to a venue, refused when another venue of the municipality has it.
 //   assign  gives every record without a venue the one its place names exactly.
 // --check prints what add, alias and assign would do without writing. lookup and add need MAPY_API_KEY (.env.local).
 //
 // Usage: pnpm venue find --municipality "<municipality>" [<keyword>…]
 //        pnpm venue lookup --municipality "<municipality>" ("<query>" | --link <Mapy.com link> | --address "<address>")
-//                          [--name "<building>"] [--alias "<text>"…] [--out <candidates.json>]
-//        pnpm venue add <venue.json | -> [--check]
+//                          [--out <candidates.json>]
+//        pnpm venue add <venue.json | candidates.json | -> [--pick <n>] [--name "<building>"] [--alias "<text>"…]
+//                       [--check]
 //        pnpm venue alias <id> "<text>" [--check]
 //        pnpm venue assign [--check]
 import { runCommand } from "./lib/command";

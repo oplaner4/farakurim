@@ -32,29 +32,27 @@ describe("lookup", () => {
     expect(lines[0]).toBe("1. Sokolovna Česká (Sportoviště)");
     expect(lines).toContain("2. Hlavní 1 (Adresa)");
     expect(candidates).toEqual([
-      { id: "ceska-sokolovna-ceska", name: "Sokolovna Česká", address, position: sokolovna.position },
+      { name: "Sokolovna Česká", address, position: sokolovna.position },
       { name: "", address, position: sokolovna.position },
     ]);
   });
 
-  it("names every candidate --name and gives it the --alias texts", async () => {
+  it("gives candidates add takes by their number, with a name and aliases", async () => {
     stubMapy("Česká", undefined, [sokolovna]);
-    const command = lookup({ query: "sokolovna", name: "Sokolovna", aliases: ["v sokolovně"] });
-    const [candidate] = (await lookupResults(command, VENUE_LIST, "KEY")).candidates;
-    expect(candidate).toMatchObject({ id: "ceska-sokolovna", name: "Sokolovna", aliases: ["v sokolovně"] });
-    expect((await addVenue(file(), candidate, { check: true, key: "KEY" }))[0]).toBe(
-      "Would add the venue ceska-sokolovna",
-    );
+    const { candidates } = await lookupResults(lookup({ query: "sokolovna" }), VENUE_LIST, "KEY");
+    const options = { check: true, key: "KEY", pick: 1, name: "Sokolovna", aliases: ["v sokolovně"] };
+    const lines = await addVenue(file(), candidates, options);
+    expect(lines[0]).toBe("Would add the venue ceska-sokolovna");
+    expect(lines).toContain("  aliases: v sokolovně");
   });
 
   it("makes a candidate of an exact link's point only, and says what to do with an approximate one", async () => {
     stubMapy("Česká");
     const point = "https://mapy.com/zakladni?source=coor&id=16.5264%2C49.2966&x=16.5264&y=49.2966&z=17";
-    const exact = await lookupResults(lookup({ link: point, name: "Sokolovna" }), VENUE_LIST, "KEY");
+    const exact = await lookupResults(lookup({ link: point }), VENUE_LIST, "KEY");
     expect(exact.candidates).toEqual([
       {
-        id: "ceska-sokolovna",
-        name: "Sokolovna",
+        name: "",
         address: { streetAddress: "Hlavní 1", municipality: "Česká", country: "Česko" },
         position: { lat: 49.2966, lon: 16.5264 },
       },
@@ -71,27 +69,17 @@ describe("lookup", () => {
   it("makes no candidate of a point in another municipality", async () => {
     stubMapy("Kuřim");
     const point = "https://mapy.com/zakladni?source=coor&id=16.5264%2C49.2966";
-    const { lines, candidates } = await lookupResults(lookup({ link: point, name: "Sokolovna" }), VENUE_LIST, "KEY");
+    const { lines, candidates } = await lookupResults(lookup({ link: point }), VENUE_LIST, "KEY");
     expect(lines).toContain("tell: the position lies in Kuřim, not in Česká");
     expect(candidates).toEqual([]);
   });
 
-  it("says what it wrote, and that an unnamed candidate needs a name", () => {
-    const named = { id: "ceska-sokolovna", name: "Sokolovna", address, position: sokolovna.position };
-    expect(candidatesLines("c.json", [named])).toEqual([
+  it("says what it wrote and how add takes one", () => {
+    const candidate = { name: "Sokolovna", address, position: sokolovna.position };
+    expect(candidatesLines("c.json", [candidate])).toEqual([
       "Wrote 1 candidate to c.json, numbered as above",
-      "next: copy the chosen one into venue.json, then pnpm venue add venue.json --check",
+      'next: pnpm venue add c.json --pick <n> [--name "<building>"] [--alias "<text>"…] --check',
     ]);
-    expect(candidatesLines("c.json", [named, { ...named, id: undefined, name: "" }])[1]).toMatch(
-      /^tell: a candidate without a name needs one/,
-    );
     expect(candidatesLines("c.json", [])).toEqual(["tell: no candidate written to c.json"]);
-  });
-
-  it("refuses to add an unnamed candidate or the whole list", async () => {
-    stubMapy("Česká");
-    const unnamed = { name: "", address, position: sokolovna.position };
-    await expect(addVenue(file(), unnamed, { check: true, key: "KEY" })).rejects.toThrow(/^the venue has no name/);
-    await expect(addVenue(file(), [unnamed], { check: true, key: "KEY" })).rejects.toThrow(/^the file holds a list/);
   });
 });
