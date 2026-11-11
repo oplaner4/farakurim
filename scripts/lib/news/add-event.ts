@@ -9,7 +9,7 @@ import { venues } from "@/content/venues";
 import { newsEventSchema } from "@/lib/news/schema";
 import { parseOrThrow } from "@/lib/shared/json-file";
 import { pragueDate } from "@/lib/shared/prague";
-import { venueProblems } from "@/lib/venues/match";
+import { venueNotes, venueProblems } from "@/lib/venues/match";
 import { actionVerb, parseRecordCommand, readJsonRecord } from "../command";
 import { formatAndTestNews, NEWS_DIR, writeMonth } from "../content-files";
 import { next, refusal, tell } from "../output";
@@ -34,12 +34,15 @@ export function takenIdError(taken: NewsEvent): Error {
   );
 }
 
-/** Refuses a record whose venue is unknown, of another municipality than its place, or next to a `mapQuery`. */
+/** Refuses a record whose venue is unknown, without a place, or next to a `mapQuery`. */
 export function assertVenue(record: NewsEvent): void {
   const [first, ...rest] = venueProblems(record, venues);
   if (first)
     throw refusal(first, ...rest.map(tell), next("pnpm venue find names the venues of the place's municipality"));
 }
+
+/** The notes on a record's venue that do not stop it (one in another municipality), as `tell:` lines. */
+export const venueLines = (record: Pick<NewsEvent, "place" | "venue">) => venueNotes(record, venues).map(tell);
 
 /** `input` checked as a new record, published `now` unless it says otherwise; a pinned one must be pinnable. */
 function parseRecord(input: unknown, now: Date): NewsEvent {
@@ -84,6 +87,8 @@ export const parseCommand = (args: string[]) => parseRecordCommand(args, USAGE);
 export async function execute({ file, check }: { file: string; check: boolean }) {
   const input = readJsonRecord(file);
   const result = addEvent(NEWS_DIR, input, { check });
-  console.log([targetLine(result, check), ...unpinnedLines(result.unpinned, check)].join("\n"));
+  console.log(
+    [targetLine(result, check), ...venueLines(result.record), ...unpinnedLines(result.unpinned, check)].join("\n"),
+  );
   if (!check) await formatAndTestNews(result.written);
 }

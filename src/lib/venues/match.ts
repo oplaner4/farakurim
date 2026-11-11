@@ -38,20 +38,27 @@ export function findVenue(list: Venue[], municipality: string, place: string): V
   return venue ? { kind: "known", venue } : { kind: "candidates", venues: local };
 }
 
-/** What is wrong with an event's venue, as sentences naming the field; [] when nothing is. */
-export function venueProblems(
-  event: { place?: string; venue?: string; mapQuery?: string },
-  venues: Record<string, Venue>,
-): string[] {
+type VenueFields = { place?: string; venue?: string; mapQuery?: string };
+
+/**
+ * What is wrong with an event's venue, as sentences naming the field; [] when nothing is. A venue in another
+ * municipality than the place starts with is allowed (an event in several villages may take the one it is held at):
+ * `venueNotes()` names it.
+ */
+export function venueProblems(event: VenueFields, venues: Record<string, Venue>): string[] {
   const { place, venue: id, mapQuery } = event;
   if (!id) return [];
-  const venue = Object.hasOwn(venues, id) ? venues[id] : undefined;
-  if (!venue) return [`venue: no venue with the id "${id}"`];
+  if (!Object.hasOwn(venues, id)) return [`venue: no venue with the id "${id}"`];
   const problems: string[] = [];
   if (!place) problems.push("venue: needs a place");
-  else if (buildingText(place, venue.address.municipality) === null) {
-    problems.push(`venue: ${id} is in ${venue.address.municipality}, but the place "${place}" does not start with it`);
-  }
   if (mapQuery) problems.push("mapQuery: must be left out next to a venue, whose position gives the map link");
   return problems;
+}
+
+/** What to check about an event's venue that is allowed: one in another municipality than the place starts with. */
+export function venueNotes({ place, venue: id }: VenueFields, venues: Record<string, Venue>): string[] {
+  if (!id || !place || !Object.hasOwn(venues, id)) return [];
+  const { municipality } = venues[id].address;
+  if (buildingText(place, municipality) !== null) return [];
+  return [`the venue ${id} is in ${municipality}, which the place "${place}" does not start with: check it is meant`];
 }

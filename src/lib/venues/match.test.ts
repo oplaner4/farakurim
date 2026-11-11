@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Venue } from "@/content/types/venues";
-import { buildingText, findVenue, foldPlace, venueProblems } from "./match";
+import { buildingText, findVenue, foldPlace, venueNotes, venueProblems } from "./match";
 
 const at = (id: string, name: string, municipality: string, aliases?: string[]): Venue => ({
   id,
@@ -71,16 +71,25 @@ describe("venueProblems", () => {
     expect(venueProblems({ place: "Kuřim, fara" }, byId)).toEqual([]);
   });
 
-  it("refuses an unknown venue, a venue without a place, one from another municipality and mapQuery next to it", () => {
+  it("refuses an unknown venue, a venue without a place and mapQuery next to it, not one from another municipality", () => {
     expect(venueProblems({ place: "Kuřim, fara", venue: "kurim-sokolovna" }, byId)).toEqual([
       'venue: no venue with the id "kurim-sokolovna"',
     ]);
     expect(venueProblems({ venue: "kurim-fara" }, byId)).toEqual(["venue: needs a place"]);
-    expect(venueProblems({ place: "Česká, fara", venue: "kurim-fara" }, byId)).toEqual([
-      'venue: kurim-fara is in Kuřim, but the place "Česká, fara" does not start with it',
-    ]);
+    expect(venueProblems({ place: "Česká, fara", venue: "kurim-fara" }, byId)).toEqual([]);
     expect(venueProblems({ place: "Kuřim, fara", venue: "kurim-fara", mapQuery: "fara Kuřim" }, byId)).toEqual([
       "mapQuery: must be left out next to a venue, whose position gives the map link",
     ]);
+  });
+});
+
+describe("venueNotes", () => {
+  it("notes a venue in another municipality than the place starts with", () => {
+    expect(venueNotes({ place: "Česká, fara", venue: "kurim-fara" }, byId)).toEqual([
+      'the venue kurim-fara is in Kuřim, which the place "Česká, fara" does not start with: check it is meant',
+    ]);
+    expect(venueNotes({ place: "Kuřim, fara", venue: "kurim-fara" }, byId)).toEqual([]);
+    expect(venueNotes({ place: "Kuřim, fara" }, byId)).toEqual([]);
+    expect(venueNotes({ place: "Kuřim, fara", venue: "kurim-sokolovna" }, byId)).toEqual([]);
   });
 });

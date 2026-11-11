@@ -10,7 +10,7 @@ import type { NewsEvent } from "@/content/types/news";
 import { newsEventSchema } from "@/lib/news/schema";
 import { parseOrThrow } from "@/lib/shared/json-file";
 import { pragueDate } from "@/lib/shared/prague";
-import { assertVenue, insertRecord } from "./add-event";
+import { assertVenue, insertRecord, venueLines } from "./add-event";
 import { actionVerb, parseRecordCommand, readJsonRecord } from "../command";
 import { formatAndTestNews, NEWS_DIR, writeMonth } from "../content-files";
 import { next, refusal } from "../output";
@@ -108,12 +108,13 @@ export function replaceEvent(newsDir: string, input: unknown, { check = false, n
 
 /** The lines saying which record replaceEvent() replaced (or would replace, with `check`) and what changed. */
 export function replaceLines(
-  { record, changed }: { record: { id: string }; changed: string[] },
+  { record, changed }: { record: Pick<NewsEvent, "id" | "place" | "venue">; changed: string[] },
   check: boolean,
 ): string[] {
   return [
     `${actionVerb(check, "replace")} the record ${record.id}`,
     changed.length > 0 ? `Changed: ${changed.join(", ")}` : "Nothing changed",
+    ...venueLines(record),
   ];
 }
 

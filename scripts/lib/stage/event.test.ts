@@ -232,9 +232,9 @@ describe("stageEvent", { timeout: 30_000 }, () => {
         source,
         id: "test-hody-2026",
         label: "Plakát",
-        record: { ...record, place: "Česká, fara", venue: "kurim-fara" },
+        record: { ...record, venue: "kurim-sokolovna" },
       }),
-    ).rejects.toThrow(/^venue: kurim-fara is in Kuřim/);
+    ).rejects.toThrow(/^venue: no venue with the id "kurim-sokolovna"/);
     expect(existsSync(uploaded())).toBe(false);
   });
 

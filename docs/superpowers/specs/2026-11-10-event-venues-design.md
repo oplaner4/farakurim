@@ -83,8 +83,9 @@ the Mapy.com API), the agent for what needs judgment (which venue a text means),
   `location.name` is `place`, its `address` the venue's address.
 - Without a venue: everything as today (`mapQuery ?? place`, `place` as the location). `mapQuery` on events is kept
   for them and is refused next to a `venue`.
-- The schema refuses a `venue` that is not in the list, and one whose `address.municipality` does not start `place`
-  (folded). The structured data's address is a `PostalAddress` built from the parts.
+- The writers and the content test refuse a `venue` that is not in the list. One whose `address.municipality` does not
+  start `place` (folded) is allowed and noted (`tell:`): an event in several villages takes the venue it is held at
+  ("Moravské Knínice, Kuřim a Česká" → the Vranov church). The structured data's address is a `PostalAddress` built from the parts.
 
 ### Choosing a venue (hybrid)
 
@@ -128,7 +129,7 @@ The flow in the skill, for an event at one building:
 | `pnpm venue lookup --municipality <m> …`       | yes     | keeps only results whose municipality is `<m>`; resolves a share link's redirect first (no key needed for that part)                                                                                                                                         |
 | `pnpm venue add <file> [--check]`              | yes     | schema; unique id from municipality and name; refuses a position whose reverse lookup names another municipality than `address.municipality` (fills it when missing); warns (no refusal) when the formatted address, searched, lands > 150 m from `position` |
 | `pnpm venue alias <id> "<text>" [--check]`     | no      | refused when the text already matches another venue of the same municipality                                                                                                                                                                                 |
-| `add-event`, `replace-event`, `stage event`    | no      | refuse an unknown venue, a venue from another municipality, and `mapQuery` next to `venue`                                                                                                                                                                   |
+| `add-event`, `replace-event`, `stage event`    | no      | refuse an unknown venue and `mapQuery` next to `venue`; note a venue from another municipality                                                                                                                                                               |
 
 - The key is `MAPY_API_KEY` in `.env.local` (README, `.env.example`), read only by `lookup` and `add`; it never reaches
   `out/` or the browser. The calls happen on the maintainer's machine or in CI, never in a visitor's browser, so the

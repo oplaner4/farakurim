@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { readEvents, readMonth } from "@/content/news";
 import type { NewsEvent } from "@/content/types/news";
 import { newsEvent } from "@/test/fixtures";
-import { addEvent, insertRecord, parseCommand, targetLine } from "./add-event";
+import { addEvent, insertRecord, parseCommand, targetLine, venueLines } from "./add-event";
 import { formatFiles, NEWS_DIR } from "../content-files";
 import { useNewsFixture, freshTempDir } from "../test-helpers";
 
@@ -112,10 +112,14 @@ describe("addEvent on a copy of news/", { timeout: 30_000 }, () => {
     );
   });
 
-  it("refuses a venue from another municipality and mapQuery next to a venue, and takes a fitting one", () => {
-    expect(() =>
-      addEvent(news, newsEvent({ id: "v-2026", place: "Česká, fara", venue: "kurim-fara" }), { now }),
-    ).toThrow(/^venue: kurim-fara is in Kuřim, but the place "Česká, fara" does not start with it/);
+  it("refuses mapQuery next to a venue, and notes but takes a venue from another municipality", () => {
+    const elsewhere = addEvent(news, newsEvent({ id: "v-2026", place: "Česká, fara", venue: "kurim-fara" }), {
+      now,
+      check: true,
+    });
+    expect(venueLines(elsewhere.record)).toEqual([
+      'tell: the venue kurim-fara is in Kuřim, which the place "Česká, fara" does not start with: check it is meant',
+    ]);
     const both = newsEvent({ id: "v-2026", place: "Kuřim, fara", venue: "kurim-fara", mapQuery: "fara Kuřim" });
     expect(() => addEvent(news, both, { now })).toThrow(/^mapQuery: must be left out next to a venue/);
     const fitting = newsEvent({ id: "v-2026", place: "Kuřim, fara", venue: "kurim-fara" });

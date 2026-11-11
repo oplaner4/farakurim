@@ -77,13 +77,14 @@ describe("replaceEvent", () => {
     expect(ids("2026/09.json")).toEqual(["zari-2026", "pout-2026"]);
   });
 
-  it("names a new venue and the mapQuery it replaces, and refuses one from another municipality", () => {
+  it("names a new venue and the mapQuery it replaces, and notes one from another municipality", () => {
     replaceEvent(news.dir(), newsEvent({ id: "pout-2026", start: "2026-09-20", mapQuery: "fara Kuřim" }), { now });
     const atFara = newsEvent({ id: "pout-2026", start: "2026-09-20", place: "Kuřim, fara", venue: "kurim-fara" });
     const result = replaceEvent(news.dir(), atFara, { now, check: true });
     expect(replaceLines(result, true)).toContain("Changed: place, mapQuery, venue");
-    expect(() => replaceEvent(news.dir(), { ...atFara, place: "Česká, fara" }, { now, check: true })).toThrow(
-      /^venue: kurim-fara is in Kuřim/,
+    const elsewhere = replaceEvent(news.dir(), { ...atFara, place: "Česká, fara" }, { now, check: true });
+    expect(replaceLines(elsewhere, true)).toContain(
+      'tell: the venue kurim-fara is in Kuřim, which the place "Česká, fara" does not start with: check it is meant',
     );
   });
 
