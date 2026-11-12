@@ -84,7 +84,7 @@ const resultQuotes: { quote: string; skills: string[]; lines: () => string[] }[]
       "parish-correct-event/SKILL.md",
       "parish-cancel-event/SKILL.md",
       "parish-correct-service-sheet/SKILL.md",
-      "parish-create-service-sheet/unattended.md",
+      "../content-pr/comment-run.md",
     ],
     lines: () => replaceLines({ record: event, changed: ["start"] }, true),
   },

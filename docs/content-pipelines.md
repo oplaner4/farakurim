@@ -224,8 +224,10 @@ commenter with write access (`OWNER`, `MEMBER` or `COLLABORATOR`, and the repo p
 1. `fix` reads the PR (closed or merged meanwhile: nothing happens), downloads its staged files from the
    `content-uploads-<sha>` artifacts of its commits, the failed `check` run's log and, for events, the known events,
    then lets the agent run `parish-correct-service-sheet` or `parish-correct-event` as a comment run ("Comment run") on
-   the PR's head, with the comment and the PR's report as its only input (never the rest of the thread). Its file
-   tools write only in the job's scratch folder, as in the mail workflows.
+   the PR's head, with the comment and the PR's report as its only input (never the rest of the thread). What both
+   kinds share (the input, the `--check` first, the report and its reply) is `.claude/content-pr/comment-run.md`;
+   each kind's "Comment run" section adds what a comment may change. Its file tools write only in the job's scratch
+   folder, as in the mail workflows.
 2. `publish` (a fresh checkout, the App key, no id-token) checks the report, applies the change only if it touches
    nothing but the kind's files, commits it as the App's bot with the report's `fix:` message, uploads the files it
    staged as `content-uploads-<sha>` and only then pushes without force (so no pushed commit lacks its files), and
