@@ -26,8 +26,10 @@ import {
   readServiceSheets,
   type SheetWeek,
 } from "../services/add-service-sheet";
+import { changedLine } from "../changes";
 import { writeContentFile } from "../content-files";
 import { docxToPdf } from "../services/docx-to-pdf";
+import { sheetChanges } from "../services/sheet-changes";
 import { docxWeeks, type DocxWeek } from "../services/sheet-docx";
 import { newestWeek, parseWeek, weekPages } from "../services/sheet-week";
 import { eventLine, notEndedBy } from "../news/upcoming-events";
@@ -203,7 +205,7 @@ const isDocx = (src: string) => extname(src).toLowerCase() === ".docx";
 
 /**
  * Replaces the record of the sheet of `validFrom` to `validTo`, keeping its PDF and rev: a correction of the record
- * alone, which stages nothing. Returns the lines to print and the files written.
+ * alone, which stages nothing. Returns the lines to print (ending with what changed) and the files written.
  */
 export function replaceSheetRecord(env: StageEnv, { validFrom, validTo, record, check = false }: ReplaceOptions) {
   const current = readServiceSheets(env.serviceSheetsFile).sheets.find(
@@ -212,7 +214,8 @@ export function replaceSheetRecord(env: StageEnv, { validFrom, validTo, record, 
   if (!current) throw new Error(`no sheet of ${period({ validFrom, validTo })} is added`);
   const sheet = { validFrom, validTo, ...(current.rev !== undefined && { rev: current.rev }) };
   const result = addServiceSheet(env, record, sheet, { check });
-  return { lines: serviceSheetLines(result, check), written: result.written };
+  const changed = changedLine(sheetChanges(current, result.sheet));
+  return { lines: [...serviceSheetLines(result, check), changed], written: result.written };
 }
 
 /**

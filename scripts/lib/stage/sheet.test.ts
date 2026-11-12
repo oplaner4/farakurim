@@ -193,10 +193,11 @@ describe("stageSheet", { timeout: 30_000 }, () => {
 
     expect(replaceSheetRecord(env, { ...week, record: fixed, check: true }).lines).toEqual([
       "Would replace the sheet 2099-10-04 – 2099-10-11 with rev 2",
+      "Changed: announcement 1",
     ]);
     expect(lastSheet().announcements[0].html).toBe("<p>Sbírka.</p>");
     const { lines, written } = replaceSheetRecord(env, { ...week, record: fixed });
-    expect(lines).toEqual(["Replaced the sheet 2099-10-04 – 2099-10-11 with rev 2"]);
+    expect(lines).toEqual(["Replaced the sheet 2099-10-04 – 2099-10-11 with rev 2", "Changed: announcement 1"]);
     expect(written).toEqual([env.serviceSheetsFile]);
     expect(lastSheet()).toMatchObject({ rev: 2, announcements: [{ html: "<p>Sbírka na opravy.</p>" }] });
     expect(readFileSync(uploaded("porady_bohosluzeb", "2099-10-04-porad-bohosluzeb-r2.pdf"), "utf8")).toBe(

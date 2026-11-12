@@ -43,7 +43,7 @@ describe("runStage", { timeout: 30_000 }, () => {
       "--record",
       sheetFile,
     ]);
-    expect(corrected.lines).toEqual(["Replaced the sheet 2099-10-04 – 2099-10-11"]);
+    expect(corrected.lines).toEqual(["Replaced the sheet 2099-10-04 – 2099-10-11", "Nothing changed"]);
     expect(corrected.format).toEqual({ files: [env.serviceSheetsFile], tests: SERVICE_SHEETS_TESTS });
 
     const recordFile = join(env.home, "record.json");

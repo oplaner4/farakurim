@@ -43,6 +43,10 @@ When only the record changes, without a source:
 pnpm stage sheet replace --from <validFrom> --to <validTo> --record <scratchpad>/record.json --check
 ```
 
+`replace` also prints what differs from the sheet (`Changed: …`): each day's changed fields and rows
+(`2026-11-10 row 2`, `added 2026-11-10 row 3`, `removed 2026-11-11 row 1`) and announcements (`announcement 2`). It
+must list only what you meant to change: anything else there means the record was not copied from the sheet.
+
 Show the user what changes (day by day, the rows and announcements that differ).
 
 Wait for the user's yes or corrections to these before staging anything.

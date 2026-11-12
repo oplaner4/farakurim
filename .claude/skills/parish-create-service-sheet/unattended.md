@@ -92,8 +92,9 @@ Steps 1 to 4 of `parish-correct-service-sheet` apply with these changes:
 - **Allowed:** correct a week the PR holds (services, intentions, announcements) in its record only, as there is no
   DOCX: write `record.json` from the sheet as step 2 says, then run
   `pnpm stage sheet replace --from <validFrom> --to <validTo> --record <scratchpad>/record.json` without the
-  confirmation. A
-  question in the comment is answered in the reply.
+  confirmation, but still run it with `--check` first and read its `Changed: …` line: when it lists days, rows or
+  announcements the comment did not ask to change, stop with `Outcome: unchanged` and say why. A question in the
+  comment is answered in the reply.
 - **Fix a check:** when `check.md` shows a failure the PR's content causes, fix it the same way; a failure outside the
   content (a script, the build) is not fixed, and the reply says so.
 - **Out of bounds**, answered without a change (`Outcome: unchanged`): a replaced sheet PDF or DOCX (a comment cannot

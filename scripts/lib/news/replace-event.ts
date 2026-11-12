@@ -4,23 +4,17 @@
 
 import { readdirSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { isDeepStrictEqual } from "node:util";
 import { monthFile, readMonths } from "@/content/news";
 import type { NewsEvent } from "@/content/types/news";
 import { newsEventSchema } from "@/lib/news/schema";
 import { parseOrThrow } from "@/lib/shared/json-file";
 import { pragueDate } from "@/lib/shared/prague";
 import { assertVenue, insertRecord, venueLines } from "./add-event";
+import { changedKeys, changedLine } from "../changes";
 import { actionVerb, parseRecordCommand, readJsonRecord } from "../command";
 import { formatAndTestNews, NEWS_DIR, writeMonth } from "../content-files";
 import { next, refusal } from "../output";
 import { assertPinnable, withoutPin } from "./pin-event";
-
-/** The fields that differ between `before` and `after`, in the order they first appear. */
-export function changedFields(before: NewsEvent, after: NewsEvent): string[] {
-  const keys = [...new Set([...Object.keys(before), ...Object.keys(after)])] as (keyof NewsEvent)[];
-  return keys.filter((key) => !isDeepStrictEqual(before[key], after[key]));
-}
 
 /** The month file holding the record with `input`'s id, its records and the record; throws for an unknown id. */
 function findRecord(months: Map<string, NewsEvent[]>, input: unknown) {
@@ -100,7 +94,7 @@ export function replaceEvent(newsDir: string, input: unknown, { check = false, n
     previous,
     from,
     target,
-    changed: changedFields(previous, record),
+    changed: changedKeys(previous, record),
     removed,
     written: check ? [] : kept,
   };
@@ -111,11 +105,7 @@ export function replaceLines(
   { record, changed }: { record: Pick<NewsEvent, "id" | "place" | "venue">; changed: string[] },
   check: boolean,
 ): string[] {
-  return [
-    `${actionVerb(check, "replace")} the record ${record.id}`,
-    changed.length > 0 ? `Changed: ${changed.join(", ")}` : "Nothing changed",
-    ...venueLines(record),
-  ];
+  return [`${actionVerb(check, "replace")} the record ${record.id}`, changedLine(changed), ...venueLines(record)];
 }
 
 const USAGE = "Usage: pnpm replace-event <record.json | -> [--check]";

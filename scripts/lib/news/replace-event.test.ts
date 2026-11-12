@@ -3,20 +3,8 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { readMonth } from "@/content/news";
 import { newsEvent } from "@/test/fixtures";
-import { changedFields, parseCommand, replaceEvent, replaceLines } from "./replace-event";
+import { parseCommand, replaceEvent, replaceLines } from "./replace-event";
 import { useNewsFixture } from "../test-helpers";
-
-describe("changedFields", () => {
-  it("names the fields that differ, whatever the key order inside them", () => {
-    const poster = { src: "/uploads/aktuality/a.webp", alt: "Plakát" };
-    expect(changedFields(newsEvent({ poster }), newsEvent({ poster: { alt: "Plakát", src: poster.src } }))).toEqual([]);
-    expect(changedFields(newsEvent({ startTime: "9:30" }), newsEvent({ title: "Hody", lead: "Zveme." }))).toEqual([
-      "title",
-      "startTime",
-      "lead",
-    ]);
-  });
-});
 
 describe("replaceEvent", () => {
   const news = useNewsFixture({
