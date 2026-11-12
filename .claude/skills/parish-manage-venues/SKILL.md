@@ -9,13 +9,12 @@ The venues are the buildings that the services, Kontakty, Betlémy and events re
 map link, and its name and address are the calendars' location. `pnpm venue` finds, looks up, adds and changes
 venues and adds aliases; never edit the list by hand. A venue is never removed, and its id never changes.
 
-| The user wants…                       | Section |
-| ------------------------------------- | ------- |
-| the venue of an event (from a skill)  | A       |
-| a new venue                           | B       |
-| a new name of a venue (an alias)      | C       |
-| a venue renamed, moved or fixed       | E       |
-| any of A–C in an events PR's run (CI) | D       |
+| The user wants…                      | Section |
+| ------------------------------------ | ------- |
+| the venue of an event (from a skill) | A       |
+| a new venue                          | B       |
+| a new name of a venue (an alias)     | C       |
+| a venue renamed, moved or fixed      | D       |
 
 Each section ends with a confirmation; after the yes the venue or alias is written **before** any record that refers
 to it (the event skills refuse a `venue` not in the list). Run on its own, finish with **`parish-publish-content`**;
@@ -80,23 +79,7 @@ An alias is a text of an event's `place` that means the venue ("areál za farou"
 municipality, case and accents aside. `pnpm venue alias <id> "<text>" --check` prints `Would add the alias …` and
 refuses a text another venue of the municipality already has. Confirm, then run it without `--check`.
 
-## D. Unattended and comment runs
-
-In an events PR's run (`parish-create-event` "Unattended run", `parish-correct-event` "Comment run") nobody answers:
-the PR's review is the user's yes, so the report (or the reply) must show what to check.
-
-- Take a listed venue when the source names it by its name or an alias (case and word endings aside), or plainly
-  means it: then add the source's building text as its alias (C).
-- Add a new venue (B) only when one candidate is plainly the building: its name is the source's building, or it is
-  the address the source gives. In a comment run, a venue, an alias or a Mapy.com link the comment names is the
-  maintainer's yes.
-- Report each, with the pin to check: `New venue <id>: <name>, <address> — pin: <pin link>`,
-  `New alias "<text>" for <id>`.
-- Anything less certain (several candidates, none, an approximate link): leave `venue` out and write a question
-  (`blocking: no`) with the candidates and their pin links.
-- Never change a venue (E): the PR refuses the whole change.
-
-## E. Change a venue
+## D. Change a venue
 
 A venue keeps its id and its municipality (the id is made of them): `pnpm venue set` changes its name, or its
 address and position.
@@ -115,8 +98,7 @@ change.
 
 ## Common mistakes
 
-- Guessing a venue from a similar name, or adding one without the user's yes on its pin (unattended: without a
-  candidate that is plainly the building): ask instead.
+- Guessing a venue from a similar name, or adding one without the user's yes on its pin: ask instead.
 - Splitting `place` at a comma to get the municipality: read it from the source.
 - Copying a candidate into a file by hand: `--pick`, `--name` and `--alias` make the venue.
 - Writing a record before its new venue: the event skills refuse a venue not in the list.
