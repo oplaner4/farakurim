@@ -7,8 +7,9 @@ in [deployment.md](deployment.md#release).
 
 All three workflows run the AI agent (Claude today) through one action, `.github/actions/agent` (used from `main`, never
 from the checked-out branch): it holds the provider, the model and the rules for what the agent may write and run, so a
-change of model or provider is made there alone. Each workflow passes only the prompt, its scratch folder and its
-commands.
+change of model or provider is made there alone. Each workflow passes only the prompt, its scratch folder, its
+commands and a tier: `full` (Claude Opus) for the mail runs, `light` (Claude Sonnet) for the `/fix` comment runs, whose
+narrow edit the maintainer reviews at once.
 
 ## Service sheet by e-mail
 

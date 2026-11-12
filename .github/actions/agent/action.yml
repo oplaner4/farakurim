@@ -1,6 +1,8 @@
 # Runs the AI agent unattended on a project skill, for the mail and comment workflows (service-sheet.yml, events.yml,
-# content-fix-run.yml). Callers say what the run needs (the prompt, the scratch folder, the commands), never the
-# provider: a change of provider or model is made here alone. The calling job needs `id-token: write` (workload identity
+# content-fix-run.yml). Callers say what the run needs (the prompt, the scratch folder, the commands, the tier), never
+# the provider or the model: a change of provider or model is made here alone. The `full` tier reads a whole mail into
+# a PR (service-sheet.yml, events.yml); the `light` tier makes the narrow edit a `/fix` comment asks for
+# (content-fix-run.yml), which the maintainer reviews at once. The calling job needs `id-token: write` (workload identity
 # federation, no API key) and sets the step's `timeout-minutes`; the step's outcome is the run's result.
 #
 # Callers use it as `oplaner4/farakurim/.github/actions/agent@main`, never `./.github/actions/agent`: GitHub fetches it
@@ -35,10 +37,10 @@ inputs:
     description: The commands it may run besides the basics, one Claude Code pattern per line (`pnpm stage sheet:*`)
     required: false
     default: ""
-  model:
-    description: The model
+  tier:
+    description: "`full` for a mail read into a PR, `light` for a comment's narrow edit; the model follows from it"
     required: false
-    default: claude-opus-5-5
+    default: full
   federation-rule-id:
     description: The environment's workload identity federation rule (ANTHROPIC_FEDERATION_RULE_ID)
     required: true
@@ -60,11 +62,21 @@ runs:
       env:
         WORKDIR: ${{ inputs.workdir }}
         COMMANDS: ${{ inputs.commands }}
+        TIER: ${{ inputs.tier }}
       run: |
         if [[ "$WORKDIR" != /* ]]; then
           echo "::error::The agent's workdir must be an absolute path."
           exit 1
         fi
+        case "$TIER" in
+          full) model=claude-opus-5-5 ;;
+          light) model=claude-sonnet-5-5 ;;
+          *)
+            echo "::error::The agent's tier must be full or light."
+            exit 1
+            ;;
+        esac
+        echo "model=$model" >> "$GITHUB_OUTPUT"
         allowed="Read,Edit(/$WORKDIR/**),Bash(pdftotext -layout * -),Bash(ls:*),Bash(cat:*)"
         while IFS= read -r command; do
           if [ -n "$command" ]; then allowed="$allowed,Bash($command)"; fi
@@ -82,7 +94,7 @@ runs:
         show_full_output: false
         display_report: false
         claude_args: |
-          --model ${{ inputs.model }}
+          --model ${{ steps.rules.outputs.model }}
           --add-dir ${{ inputs.workdir }}
           --allowedTools "${{ steps.rules.outputs.allowed }}"
           --disallowedTools "WebFetch,WebSearch,NotebookEdit,Edit(/${{ github.workspace }}/**)"
