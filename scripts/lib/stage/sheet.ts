@@ -7,8 +7,7 @@
 // newer week is named, also in a refusal), its PDF that week's page of the converted document, and its draft record is
 // read from the week's table and announcements.
 // Without a record it also lists the events an announcement can link, so the newsIds need no search of the news.
-// draftSheet() is that check on a DOCX that also writes the week's draft record; replaceSheetRecord() replaces the
-// record of a sheet already there without a source, which keeps its PDF and rev.
+// draftSheet() is that check on a DOCX that also writes the week's draft record.
 
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -26,10 +25,8 @@ import {
   readServiceSheets,
   type SheetWeek,
 } from "../services/add-service-sheet";
-import { changedLine } from "../changes";
 import { writeContentFile } from "../content-files";
 import { docxToPdf } from "../services/docx-to-pdf";
-import { sheetChanges } from "../services/sheet-changes";
 import { docxWeeks, type DocxWeek } from "../services/sheet-docx";
 import { newestWeek, parseWeek, weekPages } from "../services/sheet-week";
 import { eventLine, notEndedBy } from "../news/upcoming-events";
@@ -65,14 +62,6 @@ export type SheetOptions = {
 export type DraftOptions = Omit<SheetOptions, "record" | "check"> & {
   /** Where to write the DOCX week's draft record. */
   out: string;
-};
-
-export type ReplaceOptions = {
-  validFrom: string;
-  validTo: string;
-  /** The sheet's corrected record (days and announcements). */
-  record: Record<string, unknown>;
-  check?: boolean;
 };
 
 /** A run of stageSheet() or draftSheet(): with `draft`, it writes the draft record there and stages nothing. */
@@ -202,21 +191,6 @@ async function sourceWeek(
 }
 
 const isDocx = (src: string) => extname(src).toLowerCase() === ".docx";
-
-/**
- * Replaces the record of the sheet of `validFrom` to `validTo`, keeping its PDF and rev: a correction of the record
- * alone, which stages nothing. Returns the lines to print (ending with what changed) and the files written.
- */
-export function replaceSheetRecord(env: StageEnv, { validFrom, validTo, record, check = false }: ReplaceOptions) {
-  const current = readServiceSheets(env.serviceSheetsFile).sheets.find(
-    (sheet) => sheet.validFrom === validFrom && sheet.validTo === validTo,
-  );
-  if (!current) throw new Error(`no sheet of ${period({ validFrom, validTo })} is added`);
-  const sheet = { validFrom, validTo, ...(current.rev !== undefined && { rev: current.rev }) };
-  const result = addServiceSheet(env, record, sheet, { check });
-  const changed = changedLine(sheetChanges(current, result.sheet));
-  return { lines: [...serviceSheetLines(result, check), changed], written: result.written };
-}
 
 /**
  * Writes the draft record of the DOCX's week (its newest, or the one --from and --to name) to `out`, read from its

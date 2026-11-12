@@ -113,7 +113,7 @@ jobs:
               ;;
             sheet)
               skill=parish-correct-service-sheet label="service sheets"
-              commands="pnpm stage sheet:*"
+              commands="pnpm replace-sheet:*"
               ;;
           esac
           {

@@ -64,17 +64,16 @@ export type AddServiceSheetResult = {
   written: string[];
 };
 
+/** The files a sheet is added to (and its announcements' events read from). */
+export type SheetFiles = { serviceSheetsFile: string; exceptionsFile: string; newsDir: string };
+
 /**
  * Adds `input` (the record: days and announcements) for the staged PDF's `week` to `serviceSheetsFile`, prunes the sheets
  * before the current one and the covered changes in `exceptionsFile`, and returns what it did; `check` only
  * validates. Throws with every problem found, before anything is written.
  */
 export function addServiceSheet(
-  {
-    serviceSheetsFile,
-    exceptionsFile,
-    newsDir,
-  }: { serviceSheetsFile: string; exceptionsFile: string; newsDir: string },
+  { serviceSheetsFile, exceptionsFile, newsDir }: SheetFiles,
   input: unknown,
   week: SheetWeek,
   { check = false, now = new Date() } = {},

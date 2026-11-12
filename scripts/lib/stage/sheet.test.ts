@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { draftSheet, replaceSheetRecord, stageSheet, weekDays } from "./sheet";
+import { draftSheet, stageSheet, weekDays } from "./sheet";
 import { addEvent } from "../news/add-event";
 import { errorMessage } from "../command";
 import { extractPdfPages, pdfPageTexts } from "../images";
@@ -177,39 +177,6 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     await expect(
       stageSheet(env, { source, validFrom: "2099-10-04", validTo: "2099-10-11", corrected: true, record: record() }),
     ).rejects.toThrow("no sheet of 2099-10-04 is added\nnext: leave out --corrected for a new week");
-  });
-
-  it("replaces the record of a sheet, keeping its PDF and rev", async () => {
-    const week = { validFrom: "2099-10-04", validTo: "2099-10-11" };
-    await stageSheet(env, { ...week, source: download("porad.pdf", "%PDF first"), record: record() });
-    // Only the first PDF is on the server.
-    fetchMock.mockImplementation(async (url: string) => {
-      return new Response(null, { status: url.endsWith("/2099-10-04-porad-bohosluzeb.pdf") ? 200 : 404 });
-    });
-    const source = download("porad oprava.pdf", "%PDF fixed");
-    await stageSheet(env, { ...week, source, corrected: true, record: record() });
-    const fixed = { ...record(), announcements: [{ category: "info", html: "<p>Sbírka na opravy.</p>" }] };
-    const lastSheet = () => JSON.parse(readFileSync(env.serviceSheetsFile, "utf8")).sheets.at(-1);
-
-    expect(replaceSheetRecord(env, { ...week, record: fixed, check: true }).lines).toEqual([
-      "Would replace the sheet 2099-10-04 – 2099-10-11 with rev 2",
-      "Changed: announcement 1",
-    ]);
-    expect(lastSheet().announcements[0].html).toBe("<p>Sbírka.</p>");
-    const { lines, written } = replaceSheetRecord(env, { ...week, record: fixed });
-    expect(lines).toEqual(["Replaced the sheet 2099-10-04 – 2099-10-11 with rev 2", "Changed: announcement 1"]);
-    expect(written).toEqual([env.serviceSheetsFile]);
-    expect(lastSheet()).toMatchObject({ rev: 2, announcements: [{ html: "<p>Sbírka na opravy.</p>" }] });
-    expect(readFileSync(uploaded("porady_bohosluzeb", "2099-10-04-porad-bohosluzeb-r2.pdf"), "utf8")).toBe(
-      "%PDF fixed",
-    );
-  });
-
-  it("refuses to replace the record of a sheet that is not there", () => {
-    const week = { validFrom: "2099-10-04", validTo: "2099-10-11" };
-    expect(() => replaceSheetRecord(env, { ...week, record: record() })).toThrow(
-      "no sheet of 2099-10-04 – 2099-10-11 is added",
-    );
   });
 
   it("stages nothing for a record it refuses, and only validates with check", async () => {

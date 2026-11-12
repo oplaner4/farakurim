@@ -32,19 +32,6 @@ describe("runStage", { timeout: 30_000 }, () => {
       sheetFile,
     ]);
     expect(sheet.format).toEqual({ files: [env.serviceSheetsFile], tests: SERVICE_SHEETS_TESTS });
-    // `sheet replace`: the record of that sheet alone.
-    const corrected = await runStage(env, [
-      "sheet",
-      "replace",
-      "--from",
-      "2099-10-04",
-      "--to",
-      "2099-10-11",
-      "--record",
-      sheetFile,
-    ]);
-    expect(corrected.lines).toEqual(["Replaced the sheet 2099-10-04 – 2099-10-11", "Nothing changed"]);
-    expect(corrected.format).toEqual({ files: [env.serviceSheetsFile], tests: SERVICE_SHEETS_TESTS });
 
     const recordFile = join(env.home, "record.json");
     writeFileSync(recordFile, JSON.stringify({ id: "x-2026", title: "T", start: "2026-10-20", place: "P", text: "T" }));
@@ -97,13 +84,6 @@ describe("runStage", { timeout: 30_000 }, () => {
     await expect(runStage(env, ["sheet", "draft", "a.pdf", "--out", "d.json"])).rejects.toThrow(
       "a draft is read from the parish's DOCX",
     );
-    await expect(runStage(env, ["sheet", "replace", "a.pdf", "--record", "r.json"])).rejects.toThrow("wrong arguments");
-    await expect(runStage(env, ["sheet", "replace", "--from", "2099-10-04", "--to", "2099-10-11"])).rejects.toThrow(
-      "sheet replace needs --from, --to and --record",
-    );
-    await expect(
-      runStage(env, ["sheet", "replace", "--from", "2099-10-04", "--to", "2099-10-11", "--corrected"]),
-    ).rejects.toThrow("wrong arguments");
     await expect(runStage(env, ["petrklic", "a.pdf", "--year", "2026", "--number", "1", "--rev", "2"])).rejects.toThrow(
       "Unknown option '--rev'",
     );

@@ -30,10 +30,6 @@
 //   sheet draft <docx> --out <record.json> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected]
 //       writes the DOCX week's draft record, read from its table and announcements, to check before `sheet --record`,
 //       and prints what `sheet --check` does; stages nothing (so it takes no --check).
-//   sheet replace --from YYYY-MM-DD --to YYYY-MM-DD --record <record.json>
-//       replaces the record of the sheet --from and --to name (a correction of the record alone): the sheet keeps its
-//       PDF and rev, and nothing is staged. It prints what differs from the sheet (`Changed: …`): each day's changed
-//       fields and rows, and the announcements.
 //   petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--corrected]
 //       checks the issue, stages petrklic/<id>/petrklic-<id>.pdf with cover.webp and pages/ and adds the
 //       issue to src/content/petrklic.json (with --check it only validates). --corrected stages a corrected PDF of an

@@ -17,6 +17,7 @@
     "add-album": "tsx scripts/add-album.ts",
     "venue": "tsx scripts/venue.ts",
     "replace-event": "tsx scripts/replace-event.ts",
+    "replace-sheet": "tsx scripts/replace-sheet.ts",
     "pin-event": "tsx scripts/pin-event.ts",
     "event-poster": "tsx scripts/event-poster.ts",
     "add-exception": "tsx scripts/add-exception.ts",

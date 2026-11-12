@@ -9,12 +9,11 @@ import { formatAndTest, SERVICE_SHEETS_TESTS } from "../content-files";
 import { stageEvent } from "./event";
 import { defaultEnv, MAX_MB, type StageEnv } from "./core";
 import { stagePetrklic } from "./petrklic";
-import { draftSheet, replaceSheetRecord, stageSheet } from "./sheet";
+import { draftSheet, stageSheet } from "./sheet";
 
 const USAGE = `Usage: pnpm stage event <id> <source> <label> [<source> <label> …] [--no-poster] [--corrected] [--record <json>] [--check]
        pnpm stage sheet <pdf|docx> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected] [--record <json>] [--check]
        pnpm stage sheet draft <docx> --out <json> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected]
-       pnpm stage sheet replace --from YYYY-MM-DD --to YYYY-MM-DD --record <json> [--check]
        pnpm stage petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--corrected] [--check]
        pnpm stage petrklic --from <id> --year <year> --number <number> [--note "<note>"] [--check]
 Largest source file: ${Object.entries(MAX_MB)
@@ -31,7 +30,7 @@ const sheetWeekSchema = z
   .object({ from: z.iso.date().optional(), to: z.iso.date().optional() })
   .refine(({ from, to }) => (from === undefined) === (to === undefined));
 
-/** Each command's count of positional arguments and its options; `sheet draft` and `sheet replace` are their own. */
+/** Each command's count of positional arguments and its options; `sheet draft` is its own. */
 const COMMANDS: Record<string, { positionals: (count: number) => boolean; options: string[] }> = {
   // The id, then source and label pairs.
   event: { positionals: (n) => n >= 3 && n % 2 === 1, options: ["poster", "corrected", "record", "check"] },
@@ -39,29 +38,19 @@ const COMMANDS: Record<string, { positionals: (count: number) => boolean; option
   sheet: { positionals: (n) => n === 1, options: ["from", "to", "corrected", "record", "check"] },
   // The DOCX.
   "sheet draft": { positionals: (n) => n === 1, options: ["from", "to", "corrected", "out"] },
-  // No source: the record of the sheet --from and --to name.
-  "sheet replace": { positionals: (n) => n === 0, options: ["from", "to", "record", "check"] },
   // The PDF, or none with --from (the issue's own PDF).
   petrklic: { positionals: (n) => n <= 1, options: ["year", "number", "note", "corrected", "from", "check"] },
 };
 
-/** The arguments of `sheet replace`, which needs --from, --to and --record. */
-function sheetToReplace(validFrom?: string, validTo?: string, record?: Record<string, unknown>, check = false) {
-  if (!validFrom || !validTo || !record) {
-    throw new Error(`wrong arguments: sheet replace needs --from, --to and --record\n${USAGE}`);
-  }
-  return { validFrom, validTo, record, check };
-}
-
-/** The command a command line names (`sheet draft` and `sheet replace` take two words) and its arguments. */
+/** The command a command line names (`sheet draft` takes two words) and its arguments. */
 function commandOf([name = "", ...rest]: string[]): { command: string; args: string[] } {
-  const sub = name === "sheet" && (rest[0] === "draft" || rest[0] === "replace");
+  const sub = name === "sheet" && rest[0] === "draft";
   return sub ? { command: `${name} ${rest[0]}`, args: rest.slice(1) } : { command: name, args: rest };
 }
 
 type StageResult = { lines: string[]; format?: { files: string[]; tests: string | string[] } };
 
-/** Runs `sheet`, `sheet draft` or `sheet replace` with their checked arguments. */
+/** Runs `sheet` or `sheet draft` with their checked arguments. */
 async function runSheetCommand(
   env: StageEnv,
   command: string,
@@ -80,10 +69,7 @@ async function runSheetCommand(
     if (!values.out) throw new Error(`wrong arguments: sheet draft needs --out <json>\n${USAGE}`);
     return { lines: (await draftSheet(env, { source, validFrom, validTo, corrected, out: values.out })).lines };
   }
-  const { lines, written } =
-    command === "sheet replace"
-      ? replaceSheetRecord(env, sheetToReplace(validFrom, validTo, record, check))
-      : await stageSheet(env, { source, validFrom, validTo, corrected, record, check });
+  const { lines, written } = await stageSheet(env, { source, validFrom, validTo, corrected, record, check });
   return { lines, format: written.length > 0 ? { files: written, tests: SERVICE_SHEETS_TESTS } : undefined };
 }
 

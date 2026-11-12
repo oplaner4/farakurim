@@ -91,7 +91,7 @@ Steps 1 to 4 of `parish-correct-service-sheet` apply with these changes:
   fact, the reply says the site will then differ from the parish's document.
 - **Allowed:** correct a week the PR holds (services, intentions, announcements) in its record only, as there is no
   DOCX: write `record.json` from the sheet as step 2 says, then run
-  `pnpm stage sheet replace --from <validFrom> --to <validTo> --record <scratchpad>/record.json` without the
+  `pnpm replace-sheet <scratchpad>/record.json --from <validFrom> --to <validTo>` without the
   confirmation, but still run it with `--check` first and read its `Changed: …` line: when it lists days, rows or
   announcements the comment did not ask to change, stop with `Outcome: unchanged` and say why. A question in the
   comment is answered in the reply.
