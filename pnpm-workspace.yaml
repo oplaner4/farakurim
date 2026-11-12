@@ -1,6 +1,7 @@
-ignoredBuiltDependencies:
-  - sharp
-  - unrs-resolver
+allowBuilds:
+  esbuild: false
+  sharp: false
+  unrs-resolver: false
 # typescript-eslint pins minimatch ^10, whose denial of service advisory (Dependabot alert #27) is fixed only in 11.0.1.
 # Remove once @typescript-eslint/typescript-estree depends on minimatch ^11 itself.
 overrides:
