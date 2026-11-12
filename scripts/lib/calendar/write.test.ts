@@ -204,6 +204,14 @@ describe("calendarClient", () => {
     expect(client).toMatchObject({ targetPrincipal: ACCOUNT, targetScopes: SCOPES });
   });
 
+  it("builds the checked federated and impersonated clients without the library's validation warning", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    calendarClient(json(federated));
+    calendarClient(json(impersonated));
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
   it("reads the credentials from a file", () => {
     const file = join(tempDir(), "credentials.json");
     writeFileSync(file, json(impersonated));

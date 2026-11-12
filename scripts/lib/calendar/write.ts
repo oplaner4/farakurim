@@ -27,6 +27,23 @@ const AUDIENCE =
 
 type Json = Record<string, unknown>;
 
+/**
+ * Runs `build` without google-auth-library's warning that it does not validate a credential configuration, for a
+ * configuration checked before (the library offers no public way to turn it off). Other warnings still print.
+ */
+function withoutValidationWarning<T>(build: () => T): T {
+  const warn = console.warn;
+  console.warn = (...args: unknown[]) => {
+    if (typeof args[0] === "string" && args[0].includes("does not validate the credential configuration")) return;
+    warn(...args);
+  };
+  try {
+    return build();
+  } finally {
+    console.warn = warn;
+  }
+}
+
 const text = (json: Json, field: string) => (typeof json[field] === "string" ? json[field] : undefined);
 
 /** The service account's address in an impersonation URL, or undefined when it is not one. */
@@ -70,7 +87,9 @@ function federatedClient(json: Json): AuthClient {
     throw new Error(`${NAME} is not the workload identity federation of a GitHub Actions run`);
   }
   if (!impersonatedAccount(json)) throw new Error(`${NAME} impersonates no service account`);
-  const client = ExternalAccountClient.fromJSON({ ...json, scopes: SCOPES } as ExternalAccountClientOptions);
+  const client = withoutValidationWarning(() =>
+    ExternalAccountClient.fromJSON({ ...json, scopes: SCOPES } as ExternalAccountClientOptions),
+  );
   if (!client) throw new Error(`${NAME} is not an external account`);
   return client;
 }
@@ -83,7 +102,7 @@ function impersonatedClient(json: Json): AuthClient {
   if (source?.type !== "authorized_user") throw new Error(`${NAME} impersonates with no person's login`);
   const sourceClient = new UserRefreshClient();
   sourceClient.fromJSON(source as JWTInput);
-  return new Impersonated({ sourceClient, targetPrincipal, targetScopes: SCOPES });
+  return withoutValidationWarning(() => new Impersonated({ sourceClient, targetPrincipal, targetScopes: SCOPES }));
 }
 
 /**
