@@ -11,9 +11,9 @@ Working on it with Claude Code: `CLAUDE.md` adds the rules an agent follows on t
 
 ## Requirements
 
-- **Node.js ≥ 22**, the version CI builds the releases with (`.github/workflows/check.yml`); keep `@types/node` on
+- **Node.js ≥ 26**, the version CI builds the releases with (`.github/workflows/check.yml`); keep `@types/node` on
   the same major
-- **pnpm 10** (`corepack enable` picks up the version in `package.json`). Do not use npm or yarn.
+- **pnpm** (it runs the version pinned in `package.json`). Do not use npm or yarn.
 - **Python 3** for `pnpm mockups`
 - **poppler-utils** (`pdftoppm`, `pdfinfo`, `pdftotext`, `pdfseparate`, `pdfunite`) for the PDFs of `pnpm stage`;
   its tests skip the PDF cases without it
