@@ -15,8 +15,6 @@ import { matchingTitles } from "./titles";
 // calendar event without any page URL that day whose title matches, asks when that is not clear, or gets a new
 // calendar event. Owned and claimed events are brought in line with the record, field by field.
 
-export type { BodyField };
-
 export type Change =
   | { kind: "add"; desired: DesiredEvent; body: GoogleEventBody }
   | {

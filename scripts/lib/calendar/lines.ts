@@ -2,7 +2,8 @@ import { eventDays, type GoogleEvent } from "@/lib/calendar/google-calendar";
 import { actionVerb } from "../command";
 import { ask } from "../output";
 import type { DesiredEvent } from "./desired";
-import type { BodyField, Change, Report, SyncPlan } from "./plan";
+import type { BodyField } from "./in-line";
+import type { Change, Report, SyncPlan } from "./plan";
 
 // The lines the calendar sync prints: one per change and per report, in English, quoting Czech titles as they are.
 
