@@ -28,7 +28,7 @@
 #   report. Without a change, the report is uploaded again for the head (the newest run wins). It updates the PR's body
 #   and title from the report and turns it back into a draft on a blocking question. It neither tests nor builds:
 #   check.yml does that on the pushed commit. It has no id-token, so it cannot act as the agent. It always replies to
-#   the comment (the fix result's reply, or the failure with the run's link, never the comment's or a file's content),
+#   the comment (the fix result's reply as `apply` checked it, or the failure with the run's link, never the comment's),
 #   with the marker.
 # While unanswered comments remain and the reply was posted, `next` dispatches the workflow again, up to 10 runs per
 # start (a reply that failed would leave its comment unanswered, to be applied again by every next run). Both jobs run
@@ -301,10 +301,12 @@ jobs:
       # patch), applies the patch only if it touches nothing but the kind's files (sheets: src/content/*.json; events:
       # the news month files and the venue list, which only gains venues and aliases) and checks the report against the
       # whole PR (from its merge base with origin/main, fetched here); otherwise it fails and nothing is applied. It
-      # writes the report to $RUNNER_TEMP/publish/report.json and gives `{ changed, draft, message, fix? }`: the PR's
-      # title and the fix's commit message, both accepted by commitlint (a default otherwise). No id the change adds
-      # may be held by an open events PR (this PR's own events are on its head already). The PR body (`pnpm content-pr
-      # body`) ends with the Události lines that need a person for events, as events.yml builds them, and the footer.
+      # writes the report to $RUNNER_TEMP/publish/report.json and the checked reply (never holding a reply's marker) to
+      # $RUNNER_TEMP/publish/reply.md (the only text of the agent's the reply posts), and gives
+      # `{ changed, draft, message, fix? }`: the PR's title and the fix's commit message, both accepted by commitlint
+      # (a default otherwise). No id the change adds may be held by an open events PR (this PR's own events are on its
+      # head already). The PR body (`pnpm content-pr body`) ends with the Události lines that need a person for events,
+      # as events.yml builds them, and the footer.
       - name: Apply the change
         id: apply
         if: steps.download.outcome == 'success' && needs.fix.result == 'success'
@@ -452,8 +454,8 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      # Always, so the comment is answered once: the fix result's reply, or why it failed, never the comment's or a
-      # file's content. The marker names the comment, so no later run answers it again. The conversation is locked and
+      # Always, so the comment is answered once: the fix result's reply as `apply` checked it (reply.md: no marker), or
+      # why it failed, never the comment's content. The marker names the comment, so no later run answers it again. The conversation is locked and
       # even the App cannot comment on it, so it is unlocked for the reply and locked again (as content-release.yml
       # does).
       # `posted` lets `next` go on: a comment left unanswered would be taken, and applied, again by every next run.
@@ -482,7 +484,7 @@ jobs:
               "write the comment again. Run: $RUN_URL" > "$reply"
           elif [ "$PR_OUTCOME" = success ]; then
             outcome="answered ($([ "$CHANGED" = true ] && echo changed || echo unchanged))"
-            { jq -r .reply "$RUNNER_TEMP/run/fix.json"; echo; echo "Run: $RUN_URL"; } > "$reply"
+            { cat "$RUNNER_TEMP/publish/reply.md"; echo; echo "Run: $RUN_URL"; } > "$reply"
           elif [ "$MOVED" = true ]; then
             outcome="the PR changed or was merged meanwhile"
             echo "The PR changed or was merged meanwhile: write the comment again if it still applies." \

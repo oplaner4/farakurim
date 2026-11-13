@@ -225,7 +225,8 @@ function acceptedMessage(io: Io, what: string, candidates: (string | undefined)[
 
 /**
  * Applies the patch after checking a fix result's outcome against it, checks the final report against the whole PR
- * (undoing the patch on a mismatch), writes `<out>/report.json` and prints `{ changed, draft, message, fix? }`.
+ * (undoing the patch on a mismatch, or when it changes something and the report publishes nothing), writes
+ * `<out>/report.json` (and a fix result's reply to `<out>/reply.md`) and prints `{ changed, draft, message, fix? }`.
  */
 function applyReport(command: Extract<Command, { action: "apply" }>, io: Io): void {
   const { kind, patch } = command;
@@ -243,14 +244,20 @@ function applyReport(command: Extract<Command, { action: "apply" }>, io: Io): vo
     if (fix) fixChanges = contentChanges(io.cwd, kind, "HEAD");
   }
   const changes = contentChanges(io.cwd, kind, mergeBase(io.cwd, command.base));
-  const problem = changesProblem(final, changes);
+  const problem = changesProblem(final, changes, changed);
   if (problem) {
     if (changed) git(io.cwd, "apply", "--reverse", patch);
     throw new Error(problem);
   }
   mkdirSync(command.out, { recursive: true });
   writeFileSync(join(command.out, "report.json"), `${JSON.stringify(final, null, 2)}\n`);
-  const message = acceptedMessage(io, "commit", [commitMessage(final, changes)], DEFAULT_MESSAGES[kind]);
+  // The reply as the schema checked it (no reply's marker): the only text of the agent's that is posted.
+  if (fix) writeFileSync(join(command.out, "reply.md"), `${fix.reply.trimEnd()}\n`);
+  // Nothing to commit and no PR to title: the default, without a warning.
+  const message =
+    changed || fix
+      ? acceptedMessage(io, "commit", [commitMessage(final, changes)], DEFAULT_MESSAGES[kind])
+      : DEFAULT_MESSAGES[kind];
   const fixMessage =
     fix && fixChanges
       ? acceptedMessage(io, "fix", [fix.fixMessage, fixCommitMessage(fixChanges)], DEFAULT_FIX_MESSAGE)
@@ -263,7 +270,8 @@ function applyReport(command: Extract<Command, { action: "apply" }>, io: Io): vo
  * stored report artifact as `<runId> <name>` (nothing without one). `apply` reads the report (a sheet run's merged
  * into the previous one), checks a fix result's outcome against the patch, applies the patch (only content files of
  * the kind), checks the report's facts against the whole PR (`changesProblem` against the merge base with `base`,
- * undoing the patch on a mismatch), writes the final report to `<out>/report.json` and prints
+ * undoing the patch on a mismatch), writes the final report to `<out>/report.json` (with `fix`, the checked reply to
+ * `<out>/reply.md`) and prints
  * `{ changed, draft, message, fix? }` as JSON. `body` prints the PR body rendered from a final report (of a comment fix
  * with `fix`); `summary` prints the job summary from the step results in the environment (`runStateFromEnv`) and the
  * report, and fails when the maintainer must act without a PR.

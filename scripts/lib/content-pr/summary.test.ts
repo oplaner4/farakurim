@@ -96,7 +96,7 @@ describe("summarize", () => {
     expect(text(result)).toContain(
       "Nothing changed: no PR.\n\nWeeks not published:\n- 19.–25. 10. 2026: refused: overlaps",
     );
-    expect(text(result)).not.toContain("- 26. 10. 2026:");
+    expect(text(result)).not.toContain("26. 10.–1. 11. 2026");
     expect(result.error).toMatch(/^A week was refused/);
   });
 

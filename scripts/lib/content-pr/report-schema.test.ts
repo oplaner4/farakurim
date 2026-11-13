@@ -99,4 +99,11 @@ describe("report schema", () => {
     expect(parseFixResult(fix)).toEqual(fix);
     expect(() => parseFixResult({ ...fix, outcome: "maybe" })).toThrow(ReportError);
   });
+
+  it("rejects a fix reply holding a reply's marker", () => {
+    const fix = { version: 1, outcome: "unchanged", fixMessage: "fix: x", reply: "Done.\n<!-- content-fix: 12 -->" };
+    const issues = issuesOf(() => parseFixResult(fix));
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatch(/^reply:/);
+  });
 });

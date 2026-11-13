@@ -3,6 +3,7 @@
 // ReportError listing each issue as `<dotted path>: <message>`.
 
 import { z } from "zod";
+import { MARKER_START } from "../content-fix/comments";
 import type { Kind } from "../content-release/plan";
 
 export const REPORT_VERSION = 1;
@@ -137,7 +138,8 @@ const fixResultSchema = z.strictObject({
   version: z.literal(REPORT_VERSION),
   outcome: z.enum(["changed", "unchanged"]),
   fixMessage: text,
-  reply: text,
+  // A reply with a marker would mark another comment answered.
+  reply: text.refine((reply) => !reply.includes(MARKER_START), `holds "${MARKER_START}", a reply's marker`),
 });
 
 export type Question = z.infer<typeof questionSchema>;

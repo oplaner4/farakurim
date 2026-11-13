@@ -124,14 +124,24 @@ function eventsProblem(report: EventsReport, changes: ContentChanges): string | 
   return missing && `the change adds the event ${missing.id}, which the report does not give as created`;
 }
 
+/** Whether the report publishes anything: a `created` or `corrected` week, or a `created` event. */
+const publishesSomething = (report: Report): boolean =>
+  report.kind === "sheet"
+    ? publishedWeeks(report).length > 0
+    : report.events.some((event) => event.outcome.kind === "created");
+
 /**
  * Why the report does not match `changes` (the whole PR against the merge base), if it does not: every week the PR
  * adds or changes is a `created` or `corrected` entry with the same dates, and the reverse; the events the PR adds are
- * the `created` ones by id, each titled as its record.
+ * the `created` ones by id, each titled as its record. With `patched` (the patch changes something), the report must
+ * also publish something: a change only to other files (a venue, another content file) has no report entry of its own.
  */
-export function changesProblem(report: Report, changes: ContentChanges): string | undefined {
+export function changesProblem(report: Report, changes: ContentChanges, patched = false): string | undefined {
   const problem = report.kind === "sheet" ? sheetProblem(report, changes) : eventsProblem(report, changes);
-  return problem && `The report does not match the change (${problem}): not applied.`;
+  if (problem) return `The report does not match the change (${problem}): not applied.`;
+  if (patched && !publishesSomething(report))
+    return "The report creates nothing, but the change is not empty: not applied.";
+  return undefined;
 }
 
 const eventsSubject = (events: NewsRecord[]) =>

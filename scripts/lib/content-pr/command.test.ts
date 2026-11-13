@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import type { Artifact, GitHubReader } from "../content-release/sources";
-import { freshTempDir, testGit } from "../test-helpers";
+import { freshTempDir, testGit, VENUE_LIST, venueRecord } from "../test-helpers";
 import { commitlintAccepts, execute, parseCommand, type Command } from "./command";
 import type { Question, WeekEntry } from "./report-schema";
 
@@ -256,6 +256,58 @@ describe("execute", () => {
     expect(existsSync(join(out(), "report.json"))).toBe(false);
   });
 
+  it("undoes a change when the report creates nothing", async () => {
+    // An events PR whose patch only adds a venue, while every event is refused.
+    const venues = join(repo(), "src/content/venues.json");
+    mkdirSync(join(repo(), "src/content/news"), { recursive: true });
+    writeFileSync(venues, `${JSON.stringify({ venues: VENUE_LIST })}\n`);
+    testGit(repo(), "init", "-q", "-b", "main");
+    testGit(repo(), "config", "core.autocrlf", "false");
+    testGit(repo(), "add", "-A");
+    testGit(repo(), "commit", "-q", "-m", "main");
+    writeFileSync(
+      venues,
+      `${JSON.stringify({ venues: [...VENUE_LIST, venueRecord("ceska-sokolovna", "Sokolovna", "Česká")] })}\n`,
+    );
+    const patch = join(dir(), "content.patch");
+    writeFileSync(patch, `${testGit(repo(), "diff", "--binary", "HEAD")}\n`);
+    testGit(repo(), "checkout", "-q", "--", ".");
+    const report = json("report.json", {
+      version: 1,
+      kind: "events",
+      events: [{ title: "Koncert", outcome: { kind: "refused", reason: "past" }, venues: [], questions: [] }],
+      questions: [],
+      droppedAttachments: [],
+    });
+    const command = { action: "apply", kind: "events", base: "main", out: out(), run: false, report, patch } as const;
+    await expect(run(command)).rejects.toThrow("The report creates nothing, but the change is not empty: not applied.");
+    expect(testGit(repo(), "status", "--porcelain")).toBe("");
+    expect(existsSync(join(out(), "report.json"))).toBe(false);
+  });
+
+  it("names no commit and warns nothing when nothing changed and there is no fix", async () => {
+    const none = prRepo(sheets(), sheets());
+    const refused = week("2026-10-19", "2026-10-25", { kind: "refused", reason: "overlaps" });
+    const report = json("run.json", runReport(refused));
+    const command = {
+      action: "apply",
+      kind: "sheet",
+      base: "main",
+      out: out(),
+      run: true,
+      report,
+      patch: none,
+    } as const;
+    const { out: lines, warnings } = await run(command, { lint: () => false });
+    expect(JSON.parse(lines[0])).toEqual({
+      changed: false,
+      draft: false,
+      message: "feat(content): update the service sheets",
+    });
+    expect(warnings).toEqual([]);
+    expect(existsSync(join(out(), "reply.md"))).toBe(false);
+  });
+
   it("accepts a fix that only answers a question (no patch) and keeps the PR's facts", async () => {
     const none = prRepo(sheets(), sheets(WEEK_19));
     const answered = week("2026-10-19", "2026-10-25", { kind: "created" }, [question("q1", true, "resolved")]);
@@ -269,6 +321,7 @@ describe("execute", () => {
       message: "feat(content): publish the service sheet for 19.–25. 10. 2026",
     });
     expect(written()).toEqual(sheetReport([answered]));
+    expect(readFileSync(join(out(), "reply.md"), "utf8")).toBe("Done.\n");
     // The same fix whose report drops the PR's week fails the fact check.
     const dropped = json("dropped.json", sheetReport([]));
     await expect(run({ ...command, report: dropped } as Command)).rejects.toThrow(
