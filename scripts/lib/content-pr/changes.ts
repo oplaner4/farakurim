@@ -44,7 +44,7 @@ const eventsOf = (text: string | undefined): EventRecord[] => (text ? (JSON.pars
 /** The paths under `dir` that differ from `base` in the working tree, new files included. */
 function changedPaths(cwd: string, base: string, dir: string): string[] {
   const listed = [
-    ...git(cwd, "diff", "--name-only", base, "--", dir).split("\n"),
+    ...git(cwd, "diff", "--no-renames", "--name-only", base, "--", dir).split("\n"),
     ...git(cwd, "ls-files", "--others", "--exclude-standard", "--", dir).split("\n"),
   ];
   return [...new Set(listed.filter(Boolean))];

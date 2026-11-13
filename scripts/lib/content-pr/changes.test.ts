@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { freshTempDir, testGit } from "../test-helpers";
@@ -71,6 +71,22 @@ describe("contentChanges", () => {
         { id: "hody-2026", title: "Hody" },
         { id: "tri-kralove-2027", title: "Tři králové" },
       ],
+      changed: [{ id: "pout-2026", title: "Pouť" }],
+    });
+  });
+
+  it("lists committed events against an earlier base, an event moved to another month as changed", () => {
+    const moved = event("pout-2026", "Pouť");
+    const cwd = repo(
+      { "src/content/news/2026/12.json": [moved] },
+      { "src/content/news/2027/01.json": [{ ...moved, start: "2027-01-09" }] },
+    );
+    rmSync(join(cwd, "src/content/news/2026/12.json"));
+    testGit(cwd, "add", "-A");
+    testGit(cwd, "commit", "-q", "-m", "move");
+    expect(contentChanges(cwd, "events", "HEAD~1")).toEqual({
+      kind: "events",
+      added: [],
       changed: [{ id: "pout-2026", title: "Pouť" }],
     });
   });
