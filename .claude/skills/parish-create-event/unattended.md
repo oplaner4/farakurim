@@ -93,8 +93,8 @@ in the mail's order, with every field below (the optional ones may be left out):
 ```
 
 - `events`: one entry per event of the mail (a mail with no event in it, such as a thank-you with a logo, has none:
-  `[]`). `title` is the record's `title` as published; the workflow matches the `created` entries with the events the
-  change adds, by title, and refuses the change when they differ. `outcome.kind` is `created` (with the event's
+  `[]`). The workflow matches the `created` entries with the events the change adds by `id`, and refuses the change
+  when they differ or when a `title` is not exactly (character for character) the record's `title`. `outcome.kind` is `created` (with the event's
   `id`) or `refused` (with a `reason`: for a correction `a correction of <id>; make it with parish-correct-event`,
   for a duplicate `already in <main or PR #n> as <id>`, for a script refusal its first line).
 - `origin` (optional, for a created event): only what the PR's diff does not show: where the title came from (the
