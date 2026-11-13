@@ -135,7 +135,6 @@ const eventsReportSchema = z
   .superRefine((report, ctx) => checkUniqueQuestionIds(report, report.events, ctx));
 
 const fixResultSchema = z.strictObject({
-  version: z.literal(REPORT_VERSION),
   outcome: z.enum(["changed", "unchanged"]),
   fixMessage: text,
   // A reply with a marker would mark another comment answered.

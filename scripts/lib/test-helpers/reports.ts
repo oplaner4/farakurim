@@ -39,7 +39,6 @@ export const sheetRunReport = (entry: WeekEntry, extra: object = {}) => ({
 
 /** A comment fix's result. */
 export const fixResult = (outcome: "changed" | "unchanged", fixMessage = "fix(content): move the Monday mass") => ({
-  version: 1,
   outcome,
   fixMessage,
   reply: "Done.",

@@ -35,7 +35,6 @@ strict: an unknown field is an error).
 
   ```json
   {
-    "version": 1,
     "outcome": "changed",
     "fixMessage": "fix(content): correct the time of the concert",
     "reply": "The concert now starts at 18:00."
