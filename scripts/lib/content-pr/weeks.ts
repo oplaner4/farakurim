@@ -1,29 +1,7 @@
-// The weeks of a service sheet report: a `## ` heading read back into its dates, and the dates written as the commit
-// message names them ("19.–25. 10. 2026", "26. 10.–1. 11. 2026"). The dates are checked as the sheet's own heading's
-// are (sheet-week.ts); only the form differs, as a report heading is the week alone, always with its year.
+// The weeks of a service sheet written as the commit message names them ("19.–25. 10. 2026", "26. 10.–1. 11. 2026").
 
 import type { IsoDate } from "@/content/types/shared";
-import { isoDate, startYear, type Week } from "../services/sheet-week";
-
-/**
- * The week a heading names, in any of the forms `19.–25. 10. 2026`, `26. 10.–1. 11. 2026` or
- * `28. 12. 2026–3. 1. 2027` (with or without spaces, an en dash or a hyphen); undefined for anything else, a day that
- * does not exist or a week that ends before it starts.
- */
-export function parseWeekHeading(heading: string): Week | undefined {
-  const text = heading.replace(/\s+/g, "").replace(/[‐-―−-]/g, "–");
-  const match = /^(\d{1,2})\.(?:(\d{1,2})\.(?:(\d{4}))?)?–(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(text);
-  if (!match) return undefined;
-  const [day, month, year, endDay, endMonth, endYear] = match.slice(1).map((part) => (part ? Number(part) : undefined));
-  const fromMonth = month ?? endMonth!;
-  try {
-    const validFrom = isoDate(day!, fromMonth, year ?? startYear(fromMonth, endMonth!, endYear!));
-    const validTo = isoDate(endDay!, endMonth!, endYear!);
-    return validFrom <= validTo ? { validFrom, validTo } : undefined;
-  } catch {
-    return undefined; // isoDate throws for a day that does not exist (31. 2.)
-  }
-}
+import type { Week } from "../services/sheet-week";
 
 const parts = (date: IsoDate) => ({
   day: Number(date.slice(8, 10)),

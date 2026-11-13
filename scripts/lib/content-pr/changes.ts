@@ -1,55 +1,59 @@
-// What an applied content patch changed, read from the checkout against HEAD: the weeks a sheet run added or changed,
-// the events an events run added. Checked against the items the report gives, and named in the commit message, so
-// neither rests on the agent's word alone.
+// What a content PR changed, read from the working tree against a base commit: the weeks a sheet PR added or changed,
+// the events an events PR added or changed. Checked against the exact dates and record ids the JSON report gives, and
+// named in the commit messages, so neither rests on the agent's word alone.
 
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import type { Kind } from "../content-release/plan";
 import { git } from "../git";
-import { REPORT_RULES, type MailReport } from "./report";
+import type { Report, SheetReport, EventsReport } from "./report-schema";
 import type { Week } from "../services/sheet-week";
-import { formatWeeks, parseWeekHeading } from "./weeks";
+import { formatWeeks } from "./weeks";
 
 const SHEETS = "src/content/service-sheets.json";
 const NEWS = "src/content/news";
 const MONTH_FILE = /^src\/content\/news\/\d{4}\/\d{2}\.json$/;
 
-type NewsRecord = { id: string; title: string };
+export type NewsRecord = { id: string; title: string };
 
 export type ContentChanges =
-  { kind: "sheet"; added: Week[]; changed: Week[] } | { kind: "events"; added: NewsRecord[] };
+  { kind: "sheet"; added: Week[]; changed: Week[] } | { kind: "events"; added: NewsRecord[]; changed: NewsRecord[] };
 
-/** The text of `path` at HEAD, undefined when HEAD has no such file. */
-const atHead = (cwd: string, path: string) =>
-  git(cwd, "ls-tree", "--name-only", "HEAD", path).trim() ? git(cwd, "show", `HEAD:${path}`) : undefined;
+/** The merge base of HEAD and `ref`: where the PR's branch left it. */
+export const mergeBase = (cwd: string, ref: string): string => git(cwd, "merge-base", "HEAD", ref).trim();
 
-/** The text of `path` in the working tree (what `git apply` wrote), undefined when there is no such file. */
+/** The text of `path` at `base`, undefined when `base` has no such file. */
+const atBase = (cwd: string, base: string, path: string) =>
+  git(cwd, "ls-tree", "--name-only", base, path).trim() ? git(cwd, "show", `${base}:${path}`) : undefined;
+
+/** The text of `path` in the working tree, undefined when there is no such file. */
 function inCheckout(cwd: string, path: string): string | undefined {
   const file = join(cwd, path);
   return existsSync(file) ? readFileSync(file, "utf8") : undefined;
 }
 
 type SheetRecord = Week & Record<string, unknown>;
+type EventRecord = NewsRecord & Record<string, unknown>;
 
 const sheetsOf = (text: string | undefined): SheetRecord[] =>
   text ? ((JSON.parse(text) as { sheets?: SheetRecord[] }).sheets ?? []) : [];
 
-const eventsOf = (text: string | undefined): NewsRecord[] => (text ? (JSON.parse(text) as NewsRecord[]) : []);
+const eventsOf = (text: string | undefined): EventRecord[] => (text ? (JSON.parse(text) as EventRecord[]) : []);
 
-/** The paths under `dir` that differ from HEAD in the working tree, new files included. */
-function changedPaths(cwd: string, dir: string): string[] {
+/** The paths under `dir` that differ from `base` in the working tree, new files included. */
+function changedPaths(cwd: string, base: string, dir: string): string[] {
   const listed = [
-    ...git(cwd, "diff", "--name-only", "HEAD", "--", dir).split("\n"),
+    ...git(cwd, "diff", "--name-only", base, "--", dir).split("\n"),
     ...git(cwd, "ls-files", "--others", "--exclude-standard", "--", dir).split("\n"),
   ];
   return [...new Set(listed.filter(Boolean))];
 }
 
-/** What the content of `kind` in the checkout `cwd` adds or changes against HEAD. A removed record is not listed. */
-export function contentChanges(cwd: string, kind: Kind): ContentChanges {
+/** What the content of `kind` in the working tree adds or changes against `base`. A removed record is not listed. */
+export function contentChanges(cwd: string, kind: Kind, base: string): ContentChanges {
   if (kind === "sheet") {
-    const before = new Map(sheetsOf(atHead(cwd, SHEETS)).map((sheet) => [sheet.validFrom, sheet]));
+    const before = new Map(sheetsOf(atBase(cwd, base, SHEETS)).map((sheet) => [sheet.validFrom, sheet]));
     const added: Week[] = [];
     const changed: Week[] = [];
     for (const sheet of sheetsOf(inCheckout(cwd, SHEETS))) {
@@ -60,98 +64,102 @@ export function contentChanges(cwd: string, kind: Kind): ContentChanges {
     }
     return { kind, added, changed };
   }
-  const known = new Set<string>();
-  const after: NewsRecord[] = [];
-  for (const path of changedPaths(cwd, NEWS).filter((p) => MONTH_FILE.test(p))) {
-    for (const event of eventsOf(atHead(cwd, path))) known.add(event.id);
+  const before = new Map<string, EventRecord>();
+  const after: EventRecord[] = [];
+  for (const path of changedPaths(cwd, base, NEWS).filter((p) => MONTH_FILE.test(p))) {
+    for (const event of eventsOf(atBase(cwd, base, path))) before.set(event.id, event);
     after.push(...eventsOf(inCheckout(cwd, path)));
   }
-  return { kind, added: after.filter((event) => !known.has(event.id)).map(({ id, title }) => ({ id, title })) };
+  const added: NewsRecord[] = [];
+  const changed: NewsRecord[] = [];
+  for (const event of after) {
+    const old = before.get(event.id);
+    const record = { id: event.id, title: event.title };
+    if (!old) added.push(record);
+    else if (!isDeepStrictEqual(old, event)) changed.push(record);
+  }
+  return { kind, added, changed };
 }
 
-const sameWeek = (a: Week, b: Week | undefined) => a.validFrom === b?.validFrom && a.validTo === b.validTo;
+/** The sheet report's weeks that publish something. */
+const publishedWeeks = (report: SheetReport) =>
+  report.weeks.filter((week) => week.outcome.kind === "created" || week.outcome.kind === "corrected");
 
-/** A title as compared with a heading: without case, diacritics or extra spaces. */
-const titleKey = (title: string) =>
-  title
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toLowerCase();
+const sameWeek = (a: Week, b: Week) => a.validFrom === b.validFrom && a.validTo === b.validTo;
 
-/** The heading's outcome, when it has exactly one (`checkReport` throws otherwise). */
-const outcomeOfItem = (item: MailReport["items"][number]) => item.outcomes[0] ?? "";
-
-/** Why the sheet report does not match the weeks the change adds or changes, if it does not. */
-function sheetProblem(report: MailReport, { added, changed }: { added: Week[]; changed: Week[] }): string | undefined {
-  const items = report.items.map((item) => ({ week: parseWeekHeading(item.name), outcome: outcomeOfItem(item) }));
-  const reported = (week: Week) => items.find((item) => sameWeek(week, item.week));
-  for (const week of added) {
-    const item = reported(week);
-    if (item?.outcome !== "created") {
-      return `the change adds the week ${formatWeeks([week])}, which the report does not give as created`;
+/** Why the sheet report does not match the weeks the change holds, if it does not. */
+function sheetProblem(report: SheetReport, changes: ContentChanges): string | undefined {
+  if (changes.kind !== "sheet") return undefined;
+  const held = [...changes.added, ...changes.changed];
+  for (const week of held) {
+    const entry = report.weeks.find((candidate) => sameWeek(candidate, week));
+    const label = `the change holds the week ${formatWeeks([week])}`;
+    if (!entry) return `${label}, which the report does not give`;
+    if (entry.outcome.kind !== "created" && entry.outcome.kind !== "corrected") {
+      return `${label}, which the report gives as ${entry.outcome.kind}`;
     }
   }
-  for (const week of changed) {
-    const item = reported(week);
-    if (item?.outcome !== "created" && item?.outcome !== "corrected") {
-      return `the change corrects the week ${formatWeeks([week])}, which the report does not give as created or corrected`;
+  for (const entry of publishedWeeks(report)) {
+    if (!held.some((week) => sameWeek(week, entry))) {
+      return `the report gives the week ${formatWeeks([entry])} as ${entry.outcome.kind}, but the change does not hold it`;
     }
   }
   return undefined;
 }
 
 /** Why the events report does not match the events the change adds, if it does not. */
-function eventsProblem(report: MailReport, { added }: { added: NewsRecord[] }): string | undefined {
-  const created = report.items.filter((item) => outcomeOfItem(item) === "created").map((item) => titleKey(item.name));
-  if (created.length !== added.length) {
-    return `the report gives ${created.length} events as created, but the change adds ${added.length}`;
+function eventsProblem(report: EventsReport, changes: ContentChanges): string | undefined {
+  if (changes.kind !== "events") return undefined;
+  const created = report.events.flatMap((event) =>
+    event.outcome.kind === "created" ? [{ id: event.outcome.id, title: event.title }] : [],
+  );
+  for (const event of created) {
+    const record = changes.added.find((candidate) => candidate.id === event.id);
+    if (!record) return `the report gives the event ${event.id} as created, but the change does not add it`;
+    if (record.title !== event.title) {
+      return `the event ${event.id} is titled ${event.title} in the report, but ${record.title} in the change`;
+    }
   }
-  const missing = added.find((event) => !created.includes(titleKey(event.title)));
-  return missing && `the change adds the event ${missing.id}, which no created section of the report is titled after`;
+  const missing = changes.added.find((record) => !created.some((event) => event.id === record.id));
+  return missing && `the change adds the event ${missing.id}, which the report does not give as created`;
 }
 
 /**
- * Why the report's items do not match `changes`, if they do not: a sheet's week the change adds must be reported
- * `created`, one it changes `created` or `corrected` (a sheet report covers the whole PR, so it may give more weeks
- * than this change touches); an events report's `created` sections are the events the change adds, by title.
+ * Why the report does not match `changes` (the whole PR against the merge base), if it does not: every week the PR
+ * adds or changes is a `created` or `corrected` entry with the same dates, and the reverse; the events the PR adds are
+ * the `created` ones by id, each titled as its record.
  */
-export function changesProblem(report: MailReport, changes: ContentChanges): string | undefined {
-  const problem = changes.kind === "sheet" ? sheetProblem(report, changes) : eventsProblem(report, changes);
+export function changesProblem(report: Report, changes: ContentChanges): string | undefined {
+  const problem = report.kind === "sheet" ? sheetProblem(report, changes) : eventsProblem(report, changes);
   return problem && `The report does not match the change (${problem}): not applied.`;
 }
 
-/** The weeks of the report's created or corrected items, when every such heading names one. */
-function reportedWeeks(report: MailReport) {
-  const { changing } = REPORT_RULES.sheet;
-  const weeks: (Week & { created: boolean })[] = [];
-  for (const item of report.items) {
-    const outcome = outcomeOfItem(item);
-    if (!changing.some((re) => re.test(outcome))) continue;
-    const week = parseWeekHeading(item.name);
-    if (!week) return undefined;
-    weeks.push({ ...week, created: outcome === "created" });
-  }
-  return weeks;
-}
+const eventsSubject = (events: NewsRecord[]) =>
+  events.length === 1 ? `the ${events[0]!.title} event` : `${events.length} events`;
+
+const sheetsNoun = (weeks: Week[]) => (weeks.length === 1 ? "service sheet" : "service sheets");
 
 /**
- * The commit message of the PR, from the report's items and the change: a sheet PR names every week the report gives
- * as created or corrected (`feat` when one was created), an events PR the event it adds or their number. Undefined
- * when a heading does not name a week, or nothing is published.
+ * The commit message of the PR: a sheet PR names every week the report publishes (`feat` when the PR adds one), an
+ * events PR the event it adds or their number. Undefined when nothing is published.
  */
-export function commitMessage(report: MailReport, changes: ContentChanges): string | undefined {
+export function commitMessage(report: Report, changes: ContentChanges): string | undefined {
   if (changes.kind === "events") {
-    const [first] = changes.added;
-    if (!first) return undefined;
-    return changes.added.length === 1
-      ? `feat(content): add the ${first.title} event`
-      : `feat(content): add ${changes.added.length} events`;
+    return changes.added.length ? `feat(content): add ${eventsSubject(changes.added)}` : undefined;
   }
-  const weeks = reportedWeeks(report);
-  if (!weeks?.length) return undefined;
-  const created = weeks.some((week) => week.created);
-  const sheets = weeks.length === 1 ? "service sheet" : "service sheets";
-  return `${created ? "feat" : "fix"}(content): ${created ? "publish" : "correct"} the ${sheets} for ${formatWeeks(weeks)}`;
+  if (report.kind !== "sheet") return undefined;
+  const weeks = publishedWeeks(report);
+  if (!weeks.length) return undefined;
+  const added = changes.added.length > 0;
+  return `${added ? "feat" : "fix"}(content): ${added ? "publish" : "correct"} the ${sheetsNoun(weeks)} for ${formatWeeks(weeks)}`;
+}
+
+/** The commit message of a fix, from the changes of the fix alone (against HEAD). Undefined without changes. */
+export function fixCommitMessage(changes: ContentChanges): string | undefined {
+  if (changes.kind === "events") {
+    const events = [...changes.added, ...changes.changed];
+    return events.length ? `fix(content): correct ${eventsSubject(events)}` : undefined;
+  }
+  const weeks = [...changes.added, ...changes.changed];
+  return weeks.length ? `fix(content): correct the ${sheetsNoun(weeks)} for ${formatWeeks(weeks)}` : undefined;
 }

@@ -2,8 +2,15 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { freshTempDir, testGit } from "../test-helpers";
-import { changesProblem, commitMessage, contentChanges, type ContentChanges } from "./changes";
-import { parseMailReport } from "./report";
+import {
+  changesProblem,
+  commitMessage,
+  contentChanges,
+  fixCommitMessage,
+  mergeBase,
+  type ContentChanges,
+} from "./changes";
+import type { EventsReport, SheetReport, WeekEntry } from "./report-schema";
 
 const sheet = (validFrom: string, validTo: string, note = "") => ({ validFrom, validTo, days: [], note });
 const event = (id: string, title: string, text = "") => ({ id, title, start: "2026-12-19", text });
@@ -11,7 +18,7 @@ const event = (id: string, title: string, text = "") => ({ id, title, start: "20
 describe("contentChanges", () => {
   const dir = freshTempDir("content-pr-changes");
 
-  /** A repo whose HEAD holds `before`, with `after` written over it (a missing value removes the file). */
+  /** A repo whose HEAD holds `before`, with `after` written over it. */
   function repo(before: Record<string, unknown>, after: Record<string, unknown>): string {
     const root = join(dir(), "repo");
     const write = (files: Record<string, unknown>) => {
@@ -29,7 +36,7 @@ describe("contentChanges", () => {
     return root;
   }
 
-  it("lists the weeks a sheet change adds and changes", () => {
+  it("lists the weeks the PR adds and changes against a base commit", () => {
     const old = sheet("2026-10-11", "2026-10-18");
     const cwd = repo(
       { "src/content/service-sheets.json": { sheets: [old, sheet("2026-10-18", "2026-10-25")] } },
@@ -39,114 +46,170 @@ describe("contentChanges", () => {
         },
       },
     );
-    expect(contentChanges(cwd, "sheet")).toEqual({
+    testGit(cwd, "commit", "-q", "-am", "later");
+    const base = testGit(cwd, "rev-parse", "HEAD~1").trim();
+    expect(contentChanges(cwd, "sheet", base)).toEqual({
       kind: "sheet",
       added: [{ validFrom: "2026-10-25", validTo: "2026-11-01" }],
       changed: [{ validFrom: "2026-10-18", validTo: "2026-10-25" }],
     });
+    expect(contentChanges(cwd, "sheet", "HEAD")).toEqual({ kind: "sheet", added: [], changed: [] });
   });
 
-  it("lists the events an events change adds, in new month files too, not the ones it changes", () => {
+  it("lists events added and changed against a base, in new month files too", () => {
     const cwd = repo(
       { "src/content/news/2026/12.json": [event("pout-2026", "Pouť")] },
       {
-        "src/content/news/2026/12.json": [event("pout-2026", "Pouť", "unpinned"), event("hody-2026", "Hody")],
+        "src/content/news/2026/12.json": [event("pout-2026", "Pouť", "changed"), event("hody-2026", "Hody")],
         "src/content/news/2027/01.json": [event("tri-kralove-2027", "Tři králové")],
         "src/content/venues.json": { venues: [] },
       },
     );
-    expect(contentChanges(cwd, "events")).toEqual({
+    expect(contentChanges(cwd, "events", "HEAD")).toEqual({
       kind: "events",
       added: [
         { id: "hody-2026", title: "Hody" },
         { id: "tri-kralove-2027", title: "Tři králové" },
       ],
+      changed: [{ id: "pout-2026", title: "Pouť" }],
     });
+  });
+
+  it("finds the merge base of HEAD and a ref", () => {
+    const cwd = repo({}, {});
+    const first = testGit(cwd, "rev-parse", "HEAD").trim();
+    testGit(cwd, "branch", "side");
+    writeFileSync(join(cwd, "README.md"), "y");
+    testGit(cwd, "commit", "-q", "-am", "y");
+    expect(mergeBase(cwd, "side")).toBe(first);
   });
 });
 
+const week = (validFrom: string, validTo: string) => ({ validFrom, validTo });
+const entry = (validFrom: string, validTo: string, kind: WeekEntry["outcome"]["kind"]): WeekEntry => ({
+  validFrom,
+  validTo,
+  outcome: kind === "refused" || kind === "document-error" ? { kind, reason: "r" } : { kind },
+  summary: "s",
+  questions: [],
+});
+const sheetReport = (...weeks: WeekEntry[]): SheetReport => ({ version: 1, kind: "sheet", weeks, questions: [] });
+const eventsReport = (...events: [string, string | undefined][]): EventsReport => ({
+  version: 1,
+  kind: "events",
+  events: events.map(([title, id]) => ({
+    title,
+    outcome: id ? { kind: "created", id } : { kind: "refused", reason: "r" },
+    venues: [],
+    questions: [],
+  })),
+  questions: [],
+  droppedAttachments: [],
+});
+const sheetChanges = (added: ReturnType<typeof week>[], changed: ReturnType<typeof week>[] = []) =>
+  ({ kind: "sheet", added, changed }) satisfies ContentChanges;
+
 describe("changesProblem", () => {
-  const report = (kind: "sheet" | "events", ...sections: string[]) =>
-    parseMailReport(kind, ["blocking: no", "", ...sections].join("\n"));
-  const week = (validFrom: string, validTo: string) => ({ validFrom, validTo });
-  const sheetChanges = (added = [week("2026-10-19", "2026-10-25")], changed: ReturnType<typeof week>[] = []) =>
-    ({ kind: "sheet", added, changed }) satisfies ContentChanges;
+  const w1 = week("2026-10-19", "2026-10-25");
 
-  it("accepts a sheet report giving each added week as created and each changed one as created or corrected", () => {
-    const r = report("sheet", "## 12.–18. 10. 2026\nOutcome: corrected", "## 19.–25. 10. 2026\nOutcome: created");
-    expect(changesProblem(r, sheetChanges())).toBeUndefined();
-    expect(changesProblem(r, sheetChanges([], [week("2026-10-12", "2026-10-18")]))).toBeUndefined();
-    // A sheet report covers the whole PR: a week this change leaves alone is no problem.
-    expect(changesProblem(r, sheetChanges([], []))).toBeUndefined();
+  it("accepts a report whose created and corrected weeks are exactly the PR's", () => {
+    const r = sheetReport(entry("2026-10-12", "2026-10-18", "corrected"), entry("2026-10-19", "2026-10-25", "created"));
+    const changes = sheetChanges([w1], [week("2026-10-12", "2026-10-18")]);
+    expect(changesProblem(r, changes)).toBeUndefined();
+    const refused = sheetReport(entry("2026-11-02", "2026-11-08", "refused"));
+    expect(changesProblem(refused, sheetChanges([], []))).toBeUndefined();
   });
 
-  it("refuses a sheet report missing a week the change adds or changes, or giving it another outcome", () => {
-    expect(changesProblem(report("sheet", "## 12.–18. 10. 2026\nOutcome: created"), sheetChanges())).toMatch(
-      /^The report does not match the change \(the change adds the week 19\.–25\. 10\. 2026, .*\): not applied\.$/,
+  it("refuses a week the PR adds that the report gives as refused", () => {
+    const r = sheetReport(entry("2026-10-19", "2026-10-25", "refused"));
+    expect(changesProblem(r, sheetChanges([w1]))).toBe(
+      "The report does not match the change (the change holds the week 19.–25. 10. 2026, which the report gives as refused): not applied.",
     );
-    expect(changesProblem(report("sheet", "## 19.–25. 10. 2026\nOutcome: corrected"), sheetChanges())).toContain(
-      "does not give as created",
-    );
-    const refused = report("sheet", "## 19.–25. 10. 2026\nOutcome: refused: overlaps");
-    expect(changesProblem(refused, sheetChanges([], [week("2026-10-19", "2026-10-25")]))).toContain(
-      "the change corrects the week 19.–25. 10. 2026",
+    expect(changesProblem(sheetReport(), sheetChanges([w1]))).toContain("19.–25. 10. 2026");
+  });
+
+  it("refuses a created week the PR does not hold", () => {
+    const r = sheetReport(entry("2026-10-19", "2026-10-25", "created"));
+    expect(changesProblem(r, sheetChanges([]))).toBe(
+      "The report does not match the change (the report gives the week 19.–25. 10. 2026 as created, but the change does not hold it): not applied.",
     );
   });
 
-  it("matches an events report's created sections with the added events by title", () => {
-    const r = report(
-      "events",
-      "## Tři Králové\nOutcome: created",
-      "## Pouť\nOutcome: refused: already in main as pout",
+  it("refuses a week whose report dates differ from the PR's", () => {
+    const r = sheetReport(entry("2026-10-19", "2026-10-26", "created"));
+    expect(changesProblem(r, sheetChanges([w1]))).toContain("not applied");
+  });
+
+  it("refuses an event whose title differs from its record", () => {
+    const added = [{ id: "hody-2026", title: "Hody 2026" }];
+    const ok = eventsReport(["Hody 2026", "hody-2026"], ["Pouť", undefined]);
+    expect(changesProblem(ok, { kind: "events", added, changed: [] })).toBeUndefined();
+    expect(changesProblem(eventsReport(["Hody", "hody-2026"]), { kind: "events", added, changed: [] })).toBe(
+      "The report does not match the change (the event hody-2026 is titled Hody in the report, but Hody 2026 in the change): not applied.",
     );
-    const added = [{ id: "tri-kralove-2027", title: "Tři  králové" }];
-    expect(changesProblem(r, { kind: "events", added })).toBeUndefined();
-    expect(changesProblem(r, { kind: "events", added: [{ id: "hody-2026", title: "Hody" }] })).toContain(
-      "the change adds the event hody-2026, which no created section",
+    const none = { kind: "events", added: [], changed: [] } satisfies ContentChanges;
+    expect(changesProblem(eventsReport(["Hody 2026", "hody-2026"]), none)).toContain(
+      "the report gives the event hody-2026 as created, but the change does not add it",
     );
-    expect(changesProblem(r, { kind: "events", added: [...added, { id: "hody-2026", title: "Hody" }] })).toContain(
-      "the report gives 1 events as created, but the change adds 2",
+    expect(changesProblem(eventsReport(), { kind: "events", added, changed: [] })).toContain(
+      "the change adds the event hody-2026, which the report does not give as created",
     );
   });
 });
 
 describe("commitMessage", () => {
-  const report = (...sections: string[]) =>
-    parseMailReport("sheet", ["blocking: no", "commit: feat(content): agent's", "", ...sections].join("\n"));
-  const none = { kind: "sheet", added: [], changed: [] } satisfies ContentChanges;
-
-  it("names every week the sheet report publishes, feat when one is created", () => {
-    expect(commitMessage(report("## 19.–25. 10. 2026\nOutcome: created"), none)).toBe(
-      "feat(content): publish the service sheet for 19.–25. 10. 2026",
+  it("names a feat for an added week and a fix for corrections only", () => {
+    const r = sheetReport(
+      entry("2026-10-26", "2026-11-01", "corrected"),
+      entry("2026-10-19", "2026-10-25", "created"),
+      entry("2026-11-02", "2026-11-08", "refused"),
     );
-    expect(commitMessage(report("## 19.–25. 10. 2026\nOutcome: corrected"), none)).toBe(
-      "fix(content): correct the service sheet for 19.–25. 10. 2026",
-    );
-    const two = report(
-      "## 26. 10.–1. 11. 2026\nOutcome: corrected",
-      "## 19.–25. 10. 2026\nOutcome: created",
-      "## 2.–8. 11. 2026\nOutcome: refused: overlaps",
-    );
-    expect(commitMessage(two, none)).toBe(
+    const changes = sheetChanges([week("2026-10-19", "2026-10-25")], [week("2026-10-26", "2026-11-01")]);
+    expect(commitMessage(r, changes)).toBe(
       "feat(content): publish the service sheets for 19.–25. 10. and 26. 10.–1. 11. 2026",
     );
-  });
-
-  it("gives none when a published week's heading names no week, or nothing is published", () => {
-    expect(commitMessage(report("## A\nOutcome: created"), none)).toBeUndefined();
-    expect(commitMessage(report("## 19.–25. 10. 2026\nOutcome: document error: a date"), none)).toBeUndefined();
-  });
-
-  it("names the one event an events change adds, or their number", () => {
-    const r = parseMailReport("events", "blocking: no\n\n## Hody\nOutcome: created");
-    expect(commitMessage(r, { kind: "events", added: [{ id: "hody", title: "Hody" }] })).toBe(
-      "feat(content): add the Hody event",
+    const fix = sheetReport(entry("2026-10-19", "2026-10-25", "corrected"));
+    expect(commitMessage(fix, sheetChanges([], [week("2026-10-19", "2026-10-25")]))).toBe(
+      "fix(content): correct the service sheet for 19.–25. 10. 2026",
     );
-    const two = [
-      { id: "hody", title: "Hody" },
-      { id: "pout", title: "Pouť" },
-    ];
-    expect(commitMessage(r, { kind: "events", added: two })).toBe("feat(content): add 2 events");
-    expect(commitMessage(r, { kind: "events", added: [] })).toBeUndefined();
+    const refused = sheetReport(entry("2026-10-19", "2026-10-25", "refused"));
+    expect(commitMessage(refused, sheetChanges([]))).toBeUndefined();
+  });
+
+  it("names a week across New Year", () => {
+    const r = sheetReport(entry("2026-12-28", "2027-01-03", "created"));
+    expect(commitMessage(r, sheetChanges([week("2026-12-28", "2027-01-03")]))).toBe(
+      "feat(content): publish the service sheet for 28. 12. 2026–3. 1. 2027",
+    );
+  });
+
+  it("names the one event the PR adds, or their number", () => {
+    const one = [{ id: "hody", title: "Hody" }];
+    const r = eventsReport(["Hody", "hody"]);
+    expect(commitMessage(r, { kind: "events", added: one, changed: [] })).toBe("feat(content): add the Hody event");
+    const two = [...one, { id: "pout", title: "Pouť" }];
+    expect(commitMessage(r, { kind: "events", added: two, changed: [] })).toBe("feat(content): add 2 events");
+    expect(commitMessage(r, { kind: "events", added: [], changed: one })).toBeUndefined();
+  });
+});
+
+describe("fixCommitMessage", () => {
+  it("names a fix commit from the fix's own changes", () => {
+    const both = sheetChanges([week("2026-10-19", "2026-10-25")], [week("2026-10-12", "2026-10-18")]);
+    expect(fixCommitMessage(both)).toBe(
+      "fix(content): correct the service sheets for 12.–18. 10. and 19.–25. 10. 2026",
+    );
+    expect(fixCommitMessage(sheetChanges([], [week("2026-10-19", "2026-10-25")]))).toBe(
+      "fix(content): correct the service sheet for 19.–25. 10. 2026",
+    );
+    const one = { id: "hody", title: "Hody" };
+    expect(fixCommitMessage({ kind: "events", added: [], changed: [one] })).toBe(
+      "fix(content): correct the Hody event",
+    );
+    expect(fixCommitMessage({ kind: "events", added: [one], changed: [{ id: "p", title: "P" }] })).toBe(
+      "fix(content): correct 2 events",
+    );
+    expect(fixCommitMessage(sheetChanges([]))).toBeUndefined();
+    expect(fixCommitMessage({ kind: "events", added: [], changed: [] })).toBeUndefined();
   });
 });
