@@ -1,8 +1,7 @@
-// The body of a content PR: the agent's report, the end marker (so a comment fix can replace the report), the Události
-// lines that need a person for events, and the footer naming the workflow.
+// The body of a content PR: the rendered report, the Události lines
+// that need a person for events, and the footer naming the workflow.
 
 import type { Kind } from "../content-release/plan";
-import { REPORT_END } from "../content-fix/body";
 
 const FOOTER = {
   sheet: { workflow: "the service sheet workflow (`service-sheet.yml`)", files: "staged PDFs" },
@@ -37,8 +36,6 @@ export function pullBody({ kind, report, runUrl, calendar, fix = false }: BodyOp
     : [];
   return [
     report.trim(),
-    "",
-    REPORT_END,
     "",
     ...events,
     "---",
