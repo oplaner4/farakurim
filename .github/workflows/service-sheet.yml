@@ -238,7 +238,9 @@ jobs:
 
       # `pnpm content-pr apply` checks the report against the patch (each week exactly one `Outcome:` line; a change
       # needs a week created or corrected, no change a week corrected, refused or a document error) and applies the
-      # patch only if it touches nothing but src/content/*.json; otherwise it fails and nothing is applied or filed.
+      # patch only if it touches nothing but src/content/*.json and every week it adds or changes has its heading
+      # (created, or created or corrected); otherwise it fails and nothing is applied or filed. It names the commit
+      # after the weeks, and an open blocking question makes a draft whatever `blocking:` says.
       - name: Apply the change
         id: changes
         if: steps.download.outcome == 'success' && needs.sheet.result == 'success' && needs.sheet.outputs.docx != ''

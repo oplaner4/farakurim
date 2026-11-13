@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkReport, outcomeLines, outcomeOf, parseMailReport } from "./report";
+import { checkReport, outcomeLines, outcomeOf, parseMailReport, questionOf } from "./report";
 
 const sheet = (blocking: string, ...weeks: string[]) =>
   [blocking, "commit: feat(content): publish the service sheet for 19.–25. 10. 2026", "", ...weeks].join("\n");
@@ -25,7 +25,14 @@ describe("parseMailReport", () => {
       commit: "feat(content): publish the service sheet for 19.–25. 10. 2026",
       body: "## 19.–25. 10. 2026\nOutcome: created\n\n### Questions\n- **q1** (note) x",
       items: [{ name: "19.–25. 10. 2026", outcomes: ["created"] }],
+      questions: [{ id: "q1", blocking: false, resolved: false }],
     });
+  });
+
+  it("reads a header after blank lines or a byte order mark, and one without its commit line", () => {
+    const report = parseMailReport("sheet", "﻿\n\nblocking: no\n\n## A\nOutcome: created");
+    expect(report).toMatchObject({ blocking: false, body: "## A\nOutcome: created" });
+    expect(report.commit).toBeUndefined();
   });
 
   it("leaves out a missing header and the events report's sections that are no event", () => {
@@ -34,6 +41,19 @@ describe("parseMailReport", () => {
     expect(report.blocking).toBeUndefined();
     expect(report.commit).toBeUndefined();
     expect(report.items).toEqual([{ name: "Pouť", outcomes: ["created"] }]);
+  });
+});
+
+describe("questionOf", () => {
+  it("reads a question's id, kind and status", () => {
+    expect(questionOf("- **q1** (blocking) Po 19. 10.: which time? — proposal: 8:00")).toEqual({
+      id: "q1",
+      blocking: true,
+      resolved: false,
+    });
+    expect(questionOf("- **Q3** (blocking, resolved) x")).toEqual({ id: "q3", blocking: true, resolved: true });
+    expect(questionOf("* **q2** (note, still open) x")).toEqual({ id: "q2", blocking: false, resolved: false });
+    expect(questionOf("- q1 (blocking) x")).toBeNull();
   });
 });
 
@@ -53,8 +73,20 @@ describe("checkReport", () => {
       changed: true,
       draft: false,
       commit: "feat(content): publish the service sheet for 19.–25. 10. 2026",
+      undeclared: [],
     });
     expect(checkReport("sheet", sheet("blocking: yes", week("A", "corrected")), true).draft).toBe(true);
+  });
+
+  it("makes a draft of a report with an open blocking question, whatever its first line says", () => {
+    const withQuestion = (header: string, question: string) =>
+      sheet(header, `## A\nOutcome: created\n\n### Questions\n${question}`);
+    const open = withQuestion("blocking: no", "- **q2** (blocking, still open) x");
+    expect(checkReport("sheet", open, true)).toMatchObject({ draft: true, undeclared: ["q2"] });
+    const resolved = withQuestion("blocking: no", "- **q2** (blocking, resolved) x");
+    expect(checkReport("sheet", resolved, true)).toMatchObject({ draft: false, undeclared: [] });
+    const declared = withQuestion("blocking: yes", "- **q2** (blocking) x");
+    expect(checkReport("sheet", declared, true)).toMatchObject({ draft: true, undeclared: [] });
   });
 
   it("accepts no change for a week corrected, refused or with a document error", () => {
@@ -93,6 +125,7 @@ describe("checkReport", () => {
       changed: false,
       draft: false,
       commit: "feat(content): add events",
+      undeclared: [],
     });
     expect(() => checkReport("events", empty, true)).toThrow("each event exactly one Outcome line: the mail");
   });

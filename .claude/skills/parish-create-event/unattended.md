@@ -50,13 +50,16 @@ blocking: yes|no
 commit: <message>
 ```
 
-`blocking: yes` when any question is blocking (its answer changes what is published). `commit:` is
-`feat(content): add the <title> event` for one event created, `feat(content): add <n> events` for several.
+`blocking: yes` when any question is blocking (its answer changes what is published); an open blocking question
+makes the PR a draft even under `blocking: no`. The workflow names the commit after the events the change adds
+(`pnpm content-pr apply`), so `commit:` is only its fallback: `feat(content): add the <title> event` for one event
+created, `feat(content): add <n> events` for several.
 
 Then, per event, in the mail's order (a mail with no event in it, such as a thank-you with a logo, has no event
 section):
 
-- `## <title>` (as published);
+- `## <title>`: the record's `title` as published. The workflow matches the `created` sections with the events the
+  change adds, by title, and refuses the change when they differ;
 - one line `Outcome: created` or `Outcome: refused: <reason>` (a correction: `refused: a correction of <id>; make it
 with parish-correct-event`; a duplicate: `refused: already in <main or PR #n> as <id>`);
 - for a created event, only what the PR's diff does not show: where the title came from (the subject, the poster)

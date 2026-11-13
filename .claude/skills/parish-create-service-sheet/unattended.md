@@ -21,7 +21,7 @@ newest week: …` (also below a refusal), the week's section gives that note in 
   describes the whole PR, not only this run: copy over each previous week section whose week is in the PR
   (`created` or `corrected`) as it is, replace the section of the week this run handled, and drop previous `refused`
   or `document error` sections (those weeks are not in the PR). Keep the question ids and mark each `resolved` or
-  `still open`; number new questions after the highest id.
+  `still open` (see "The report"); number new questions after the highest id.
 - Write the report first, with each week's summary and questions, then stage (step 4, `--corrected` when the script
   prints `state: published`), then fill in each week's `Outcome:` line from what the script did, and add each `tell:` and `ask:` line it
   printed as a question (blocking when its answer changes what is published, else a note). `blocking:` is final only
@@ -60,7 +60,9 @@ blocking: yes|no
 commit: <message>
 ```
 
-`blocking: yes` when any open question of the report is blocking. `commit:` covers every week in the PR. One week:
+`blocking: yes` when any open question of the report is blocking; an open blocking question makes the PR a draft
+even under `blocking: no`. The workflow names the commit after the week headings (`pnpm content-pr apply`), so
+`commit:` is only its fallback for a heading it cannot read. It covers every week in the PR. One week:
 the message `parish-publish-content` prescribes, `feat(content): publish the service sheet for 19.–25. 10. 2026`
 for a new week, or `fix(content): correct the service sheet for …` for a correction. Several weeks:
 `<type>(content): publish the service sheets for 19.–25. 10. and 26. 10.–1. 11. 2026` (with only corrections:
@@ -68,14 +70,17 @@ for a new week, or `fix(content): correct the service sheet for …` for a corre
 
 Then, per week, oldest first:
 
-- `## <week>` (e.g. `## 19.–25. 10. 2026`);
+- `## <week>`: the record's `validFrom` to `validTo`, as `19.–25. 10. 2026`, `26. 10.–1. 11. 2026` or
+  `28. 12. 2026–3. 1. 2027` and nothing else on the line. The workflow checks each week the change adds or corrects
+  against these headings and refuses the change when one is missing or carries another outcome;
 - one line `Outcome: created`, `Outcome: corrected`, `Outcome: refused: <message>` or
   `Outcome: document error: <message>` (the refusal's first line as printed);
 - the announcements with categories and each `newsId` with its event's title and date (not the rows);
 - with a sender's note, `### Sender's note`: one line per thing it asks to check and whether the draft agrees (a
   later run replaces it with its own note, or drops it without one);
 - `### Questions`, one per line: `- **q1** (blocking|note) <where>: <question> — proposal: <proposal>`. A later run
-  on the same report keeps the existing ids and marks each question `resolved` or `still open`.
+  on the same report keeps the existing ids and marks each question in its parentheses, `(blocking, resolved)` or
+  `(note, still open)`; a question without `resolved` there counts as open.
 
 Write no `## Mirror in the calendar` section (the release keeps the calendar in line), and leave out the one a
 previous report has (an open PR created before this change can still carry one).

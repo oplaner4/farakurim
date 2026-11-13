@@ -36,7 +36,7 @@ fix: fix(content): <what this comment changed>
 changes what the PR holds). `fix:` is this commit alone, for example `fix(content): correct the time of the concert`.
 With `Outcome: unchanged`, still write the line, as `fix: fix(content): no change`. Keep the sections (events or
 weeks) the comment did not touch as they are and every question id (`q1`, `q2`, …); mark an answered question with
-its answer; set `blocking:` from the questions still open. Quote only what is published, never the comment itself.
+its answer and `resolved` in its parentheses (`(blocking, resolved)`); set `blocking:` from the questions still open. Quote only what is published, never the comment itself.
 
 Then `## Reply`, the report's last section, led by one line `Outcome: changed` or `Outcome: unchanged`, then a few
 lines for the maintainer: what changed, or why nothing did.

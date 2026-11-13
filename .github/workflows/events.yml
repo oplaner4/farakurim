@@ -233,8 +233,9 @@ jobs:
 
       # `pnpm content-pr apply` checks the report against the patch (each event exactly one `Outcome:` line, `created`
       # or `refused: …`; without a change every event refused, or no event at all, and the mail is refused) and applies
-      # the patch only if it touches nothing but the news month files; otherwise it fails and nothing is applied or
-      # filed. No id the change adds may be held by an open PR. The PR body ends with the Události lines that need a
+      # the patch only if it touches nothing but the news month files and the venue list, and its new events are the
+      # report's `created` sections, by title; otherwise it fails and nothing is applied or filed. It names the commit
+      # after the new events, and an open blocking question makes a draft whatever `blocking:` says. No id the change adds may be held by an open PR. The PR body ends with the Události lines that need a
       # person (as deploy.yml warns on them), since the merge releases.
       - name: Apply the change
         id: changes

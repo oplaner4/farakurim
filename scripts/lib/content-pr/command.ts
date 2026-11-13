@@ -7,7 +7,9 @@ import { join } from "node:path";
 import { parseCommandLine } from "../command";
 import { ROOT } from "../content-files";
 import { KINDS, type Kind } from "../content-release/plan";
+import { git } from "../git";
 import { pullBody } from "./body";
+import { changesProblem, commitMessage, contentChanges } from "./changes";
 import { applyContentPatch, hasChange } from "./patch";
 import { checkReport, parseMailReport, REPORT_RULES } from "./report";
 import { runStateFromEnv, summarize, type Env } from "./summary";
@@ -98,8 +100,9 @@ const defaultIo: Io = {
 };
 
 /**
- * Runs the command. `apply` checks the report against the patch and applies it (only content files of the kind), and
- * prints `{ changed, draft, message }` as JSON; `patch` only applies; `body` prints the PR body (of a comment fix with `fix`); `summary` prints the
+ * Runs the command. `apply` checks the report against the patch, applies it (only content files of the kind), checks
+ * the report's items against what it changed (`changesProblem`, undoing it on a mismatch), and prints
+ * `{ changed, draft, message }` as JSON, the message from the change where it can (`commitMessage`); `patch` only applies; `body` prints the PR body (of a comment fix with `fix`); `summary` prints the
  * job summary from the step results in the environment (`runStateFromEnv`) and the report, and fails when the
  * maintainer must act without a PR.
  */
@@ -107,12 +110,28 @@ export async function execute(command: Command, io: Io = defaultIo): Promise<voi
   switch (command.action) {
     case "apply": {
       const changed = hasChange(command.patch);
-      const verdict = checkReport(command.kind, readOrEmpty(command.report), changed);
-      if (changed) applyContentPatch(io.cwd, command.kind, command.patch);
-      let message = verdict.commit;
-      if (changed && (!message || !io.lint(message))) {
-        io.warn("::warning::The report has no valid commit message: using the default.");
-        message = REPORT_RULES[command.kind].defaultMessage;
+      const text = readOrEmpty(command.report);
+      const verdict = checkReport(command.kind, text, changed);
+      if (verdict.undeclared.length > 0) {
+        const ids = verdict.undeclared.join(", ");
+        io.warn(`::warning::The report says \`blocking: no\`, but ${ids} is an open blocking question: a draft.`);
+      }
+      let message: string | undefined;
+      if (changed) {
+        applyContentPatch(io.cwd, command.kind, command.patch);
+        const report = parseMailReport(command.kind, text);
+        const changes = contentChanges(io.cwd, command.kind);
+        const problem = changesProblem(report, changes);
+        if (problem) {
+          git(io.cwd, "apply", "--reverse", command.patch);
+          throw new Error(problem);
+        }
+        // The message the change names, else the report's, else the kind's default.
+        message = [commitMessage(report, changes), verdict.commit].find((m) => m !== undefined && io.lint(m));
+        if (!message) {
+          io.warn("::warning::Neither the change nor the report gives a valid commit message: using the default.");
+          message = REPORT_RULES[command.kind].defaultMessage;
+        }
       }
       io.print(JSON.stringify({ changed, draft: verdict.draft, ...(changed && { message }) }));
       return;

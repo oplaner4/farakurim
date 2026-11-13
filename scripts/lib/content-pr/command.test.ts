@@ -61,14 +61,15 @@ describe("execute", () => {
     return execute(command, io).then(() => ({ out, warnings, errors }));
   }
 
-  function repoWithPatch(): string {
+  /** A repo whose HEAD holds the sheet list `before`, and a patch changing it to `after`. */
+  function repoWithPatch(before = "{}\n", after = '{"sheets":[]}\n'): string {
     const repo = join(dir(), "repo");
     mkdirSync(join(repo, "src/content"), { recursive: true });
-    writeFileSync(join(repo, "src/content/service-sheets.json"), "{}\n");
+    writeFileSync(join(repo, "src/content/service-sheets.json"), before);
     testGit(repo, "init", "-q");
     testGit(repo, "add", "-A");
     testGit(repo, "commit", "-q", "-m", "x");
-    writeFileSync(join(repo, "src/content/service-sheets.json"), '{"sheets":[]}\n');
+    writeFileSync(join(repo, "src/content/service-sheets.json"), after);
     const patch = join(dir(), "content.patch");
     writeFileSync(patch, `${testGit(repo, "diff", "--binary", "HEAD")}\n`);
     testGit(repo, "checkout", "-q", "--", ".");
@@ -87,6 +88,44 @@ describe("execute", () => {
     expect(JSON.parse(out[0])).toEqual({ changed: true, draft: true, message: "feat(content): publish it" });
     expect(warnings).toEqual([]);
     expect(testGit(join(dir(), "repo"), "status", "--porcelain")).toBe("M src/content/service-sheets.json");
+  });
+
+  /** A patch adding the week 19.–25. 10. 2026 to an empty sheet list. */
+  function patchAddingWeek(): string {
+    const week = { validFrom: "2026-10-19", validTo: "2026-10-25", days: [] };
+    return repoWithPatch('{"sheets":[]}\n', `${JSON.stringify({ sheets: [week] })}\n`);
+  }
+
+  it("names the commit after the change, and makes a draft of an open blocking question with a warning", async () => {
+    const patch = patchAddingWeek();
+    const text = [
+      "blocking: no",
+      "commit: feat(content): publish a sheet",
+      "",
+      "## 19. – 25. 10. 2026",
+      "Outcome: created",
+      "",
+      "### Questions",
+      "- **q1** (blocking) Po 19. 10.: 8:00 or 8:30?",
+    ].join("\n");
+    const { out, warnings } = await run({ action: "apply", kind: "sheet", report: report("r.md", text), patch });
+    expect(JSON.parse(out[0])).toEqual({
+      changed: true,
+      draft: true,
+      message: "feat(content): publish the service sheet for 19.–25. 10. 2026",
+    });
+    expect(warnings).toEqual([
+      "::warning::The report says `blocking: no`, but q1 is an open blocking question: a draft.",
+    ]);
+  });
+
+  it("refuses and undoes a change the report does not give", async () => {
+    const patch = patchAddingWeek();
+    const r = report("r.md", "blocking: no\n\n## 12.–18. 10. 2026\nOutcome: corrected\n");
+    await expect(run({ action: "apply", kind: "sheet", report: r, patch })).rejects.toThrow(
+      "the change adds the week 19.–25. 10. 2026",
+    );
+    expect(testGit(join(dir(), "repo"), "status", "--porcelain")).toBe("");
   });
 
   it("falls back to the kind's default message when commitlint refuses the report's", async () => {
