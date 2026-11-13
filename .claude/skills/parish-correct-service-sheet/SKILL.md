@@ -61,9 +61,9 @@ Follow **`parish-publish-content`**. The release brings the "Bohoslužby" calend
 
 ## Unattended run and comment run
 
-Only when the prompt says the run is **unattended** or a **comment run**: read
-`.claude/skills/parish-create-service-sheet/unattended.md` ("Unattended correction" or "Comment run") and follow it
-on top of the steps above. A local run never needs it.
+Only when the prompt says the run is **unattended**: read `.claude/skills/parish-create-service-sheet/unattended.md`
+("Unattended correction"). Only when it says the run is a **comment run**: read `.claude/content-pr/comment-run.md`
+(the run, the report and "Service sheets"). Follow it on top of the steps above. A local run never needs either.
 
 ## Common mistakes
 

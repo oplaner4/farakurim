@@ -1,9 +1,9 @@
 # Service sheet runs in CI
 
-Only for a run whose prompt says it is **unattended** (`service-sheet.yml`) or a **comment run** on a service sheets
-PR (`content-fix-run.yml`). A local run never reads this file: it follows the steps of
-**`parish-create-service-sheet`** and **`parish-correct-service-sheet`** as written. Both runs follow those steps
-too, with the changes below.
+Only for a run whose prompt says it is **unattended** (`service-sheet.yml`). A local run never reads this file: it
+follows the steps of **`parish-create-service-sheet`** and **`parish-correct-service-sheet`** as written. The
+unattended run follows those steps too, with the changes below. A comment run on a service sheets PR follows
+`.claude/content-pr/comment-run.md` instead.
 
 ## Unattended run
 
@@ -124,15 +124,3 @@ pnpm content-pr check --kind sheet --run --previous <scratchpad>/previous-report
 
 (without `--previous` when the PR has no previous report). It prints `The report is valid.` or each issue as
 `<path>: <message>`; fix the report and run it again.
-
-## Comment run
-
-Follow the comment run contract (`.claude/content-pr/comment-run.md`) with steps 1 to 4 of
-`parish-correct-service-sheet`, and these for service sheets:
-
-- **Allowed:** correct a week the PR holds (services, intentions, announcements) in its record only, as there is no
-  DOCX: write `record.json` from the sheet as step 2 says, then run
-  `pnpm replace-sheet <scratchpad>/record.json --from <validFrom> --to <validTo>`.
-- **Out of bounds:** a replaced sheet PDF or DOCX (a comment cannot add a file), a week the PR does not hold, anything
-  else. The reply says what to do instead: push a commit, run `parish-correct-service-sheet` locally with the file,
-  or correct it after the merge.

@@ -233,9 +233,8 @@ commenter with write access (`OWNER`, `MEMBER` or `COLLABORATOR`, and the repo p
    then lets the agent run `parish-correct-service-sheet` or `parish-correct-event` as a comment run ("Comment run") on
    the PR's head, with the comment and the PR's JSON report (`report.json`, from its `content-report-<sha>` artifact) as its only
    input (never the rest of the thread). The agent corrects `report.json` in place and writes `fix.json` (the outcome,
-   the fix's commit message and the reply). What both kinds share (the input, the `--check` first, the two files) is
-   `.claude/content-pr/comment-run.md`;
-   each kind's "Comment run" section adds what a comment may change. Its file tools write only in the job's scratch
+   the fix's commit message and the reply). `.claude/content-pr/comment-run.md` holds what both kinds share
+   (the input, the `--check` first, the two files) and, per kind, what a comment may change. Its file tools write only in the job's scratch
    folder, as in the mail workflows.
 2. `publish` (a fresh checkout, the App key, no id-token) checks the report, applies the change only if it touches
    nothing but the kind's files, commits it as the App's bot with the fix's `fixMessage`, uploads the files it

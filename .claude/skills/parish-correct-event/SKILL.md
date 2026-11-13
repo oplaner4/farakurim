@@ -79,9 +79,8 @@ Follow **`parish-publish-content`**.
 
 ## Comment run
 
-Only when the prompt says the run is a **comment run** on an events PR: read
-`.claude/skills/parish-create-event/unattended.md` ("Comment run") and follow it on top of the steps above. A local
-run never needs it.
+Only when the prompt says the run is a **comment run** on an events PR: read `.claude/content-pr/comment-run.md`
+(the run, the report and "Events") and follow it on top of the steps above. A local run never needs it.
 
 ## Common mistakes
 

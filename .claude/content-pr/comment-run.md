@@ -1,9 +1,9 @@
 # Comment run on a content PR
 
 What every comment run shares: a maintainer's `/fix` comment on an events or service sheets PR, answered in CI
-(`content-fix-run.yml`). A local run never reads this file. The kind's "Comment run" section says which correction
-steps apply, what a comment may change and what is out of bounds; this file says how the run works and what it
-writes.
+(`content-fix-run.yml`). A local run never reads this file. "The run" and "The report" say how every comment run works
+and what it writes; "Events" and "Service sheets" say, for each kind, which correction steps apply, what a comment may
+change and what is out of bounds.
 
 ## The run
 
@@ -20,6 +20,33 @@ writes.
 - **Out of bounds:** anything the kind does not allow is answered without a change (`fix.json` outcome `unchanged`), and the
   reply says what to do instead.
 - **Skip the publish step:** no `parish-publish-content`, no commit, no release.
+
+## Events
+
+Steps 1 to 5 of `parish-correct-event` apply, and these:
+
+- **Allowed:** correct an event the PR adds (its record in `src/content/news/`): text, date, time, place, programme,
+  links, an attachment's label, and which attachment is the poster, with `pnpm replace-event` and
+  `pnpm event-poster` as in step 3.
+- **Venue:** a changed place takes its venue as `parish-manage-venues` section E says (a new venue or alias added
+  before the record is replaced, shown in the reply with its pin link).
+- **Out of bounds:** a new event, dropping, pinning or splitting an event, a file (a comment cannot add one), a date
+  change that moves the start year (step 1), an event the PR does not hold, anything else. The reply says what to do
+  instead: close the PR, push a commit, run `parish-create-event` or `parish-correct-event` locally, or
+  `parish-pin-event` after the merge.
+- **No server:** never run `pnpm pull-uploads`; when an attachment's file is missing, answer outcome `unchanged` and
+  say the file is missing.
+
+## Service sheets
+
+Steps 1 to 4 of `parish-correct-service-sheet` apply, and these:
+
+- **Allowed:** correct a week the PR holds (services, intentions, announcements) in its record only, as there is no
+  DOCX: write `record.json` from the sheet as step 2 says, then run
+  `pnpm replace-sheet <scratchpad>/record.json --from <validFrom> --to <validTo>`.
+- **Out of bounds:** a replaced sheet PDF or DOCX (a comment cannot add a file), a week the PR does not hold, anything
+  else. The reply says what to do instead: push a commit, run `parish-correct-service-sheet` locally with the file,
+  or correct it after the merge.
 
 ## The report
 

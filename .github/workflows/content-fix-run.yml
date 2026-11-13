@@ -215,8 +215,9 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends poppler-utils
 
-      # The prompt holds no content rules and never the comment: they live in the skill's "Comment run" section (with
-      # the contract it follows, .claude/content-pr/comment-run.md) and in comment.md. What the agent may do: .github/actions/agent, with the kind's stage and replace scripts.
+      # The prompt holds no content rules and never the comment: they live in .claude/content-pr/comment-run.md (the
+      # contract and the kind's section, which the correction skill's "Comment run" points to) and in comment.md. What
+      # the agent may do: .github/actions/agent, with the kind's stage and replace scripts.
       - name: Run the correction skill
         id: agent
         if: steps.next.outputs.comment != ''

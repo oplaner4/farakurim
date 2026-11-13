@@ -1,8 +1,8 @@
 # Event runs in CI
 
-Only for a run whose prompt says it is **unattended** (`events.yml`) or a **comment run** on an events PR
-(`content-fix-run.yml`). A local run never reads this file: it follows the steps of **`parish-create-event`** and
-**`parish-correct-event`** as written. Both runs follow those steps too, with the changes below.
+Only for a run whose prompt says it is **unattended** (`events.yml`). A local run never reads this file: it follows the
+steps of **`parish-create-event`** as written. The unattended run follows those steps too, with the changes below. A
+comment run on an events PR follows `.claude/content-pr/comment-run.md` instead.
 
 ## Unattended run
 
@@ -39,8 +39,8 @@ Steps 1 to 6 of `parish-create-event` apply with these changes:
 - Write the report first, then stage, then fill in each event's `outcome` from what the script did, and add any
   line it printed for the user (an unpinned event) to the report. A script refusal is an outcome `refused` with the
   refusal's first line as its `reason`; its `next:` lines say what to do, not what to publish.
-- **Venue:** as "Venues" below says (a new venue or alias is written before the event is staged and reported with
-  its pin link).
+- **Venue:** as `parish-manage-venues` section E says (a new venue or alias is written before the event is staged and
+  reported with its pin link).
 - Skip step 6: no `parish-publish-content`, no commit, no release.
 
 **The report** is the JSON file the prompt names (`report.json`), English with site content quoted in Czech, and
@@ -99,7 +99,7 @@ in the mail's order, with every field below (the optional ones may be left out):
   for a duplicate `already in <main or PR #n> as <id>`, for a script refusal its first line).
 - `origin` (optional, for a created event): only what the PR's diff does not show: where the title came from (the
   subject, the poster) and the guesses (step 4), not the fields or the files.
-- `venues`: what this event's venue work added, as "Venues" below says, each shown with what to check: `kind: "new"`
+- `venues`: what this event's venue work added, as `parish-manage-venues` section E says, each shown with what to check: `kind: "new"`
   for a new venue (`id`, `name`, `address`, `pin`: the Mapy.com link of the pin to check), `kind: "alias"` for a
   new alias (`id` of the venue, `text` the alias). `[]` for none.
 - `questions` (of an event, and the report-level ones for the mail as a whole, such as an unclear grouping): `id` is
@@ -114,37 +114,3 @@ in the mail's order, with every field below (the optional ones may be left out):
 
 Run `pnpm content-pr check --kind events <report file>` (the report file as the prompt gives it) until it passes. It
 prints `The report is valid.` or each issue as `<path>: <message>`; fix the report and run it again.
-
-## Comment run
-
-Follow the comment run contract (`.claude/content-pr/comment-run.md`) with steps 1 to 5 of `parish-correct-event`,
-and these for events:
-
-- **Allowed:** correct an event the PR adds (its record in `src/content/news/`): text, date, time, place, programme,
-  links, an attachment's label, and which attachment is the poster, with `pnpm replace-event` and
-  `pnpm event-poster` as in step 3.
-- **Venue:** a changed place takes its venue as "Venues" below says (a new venue or alias added before the record is
-  replaced, shown in the reply with its pin link).
-- **Out of bounds:** a new event, dropping, pinning or splitting an event, a file (a comment cannot add one), a date
-  change that moves the start year (step 1), an event the PR does not hold, anything else. The reply says what to do
-  instead: close the PR, push a commit, run `parish-create-event` or `parish-correct-event` locally, or
-  `parish-pin-event` after the merge.
-- **No server:** never run `pnpm pull-uploads`; when an attachment's file is missing, answer outcome `unchanged` and
-  say the file is missing.
-
-## Venues
-
-Both runs take an event's venue with **`parish-manage-venues`** (`.claude/skills/parish-manage-venues/SKILL.md`)
-sections A to C, but nobody answers: the PR's review is the user's yes, so the report (or the reply) must show what
-to check.
-
-- Take a listed venue when the source names it by its name or an alias (case and word endings aside), or plainly
-  means it: then add the source's building text as its alias (section C).
-- Add a new venue (section B) only when one candidate is plainly the building: its name is the source's building, or
-  it is the address the source gives. In a comment run, a venue, an alias or a Mapy.com link the comment names is the
-  maintainer's yes.
-- Report each, with the pin to check, in the event's `venues`: a `new` entry (`id`, `name`, `address`, `pin`: the
-  pin link) or an `alias` entry (`id`, `text`).
-- Anything less certain (several candidates, none, an approximate link): leave `venue` out and write a question
-  (`blocking: false`) with the candidates and their pin links.
-- Never change a venue (section D): the PR refuses the whole change.
