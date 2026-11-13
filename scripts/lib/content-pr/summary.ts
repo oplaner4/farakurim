@@ -4,6 +4,7 @@
 
 import type { Kind } from "../content-release/plan";
 import { outcomeLines } from "./report";
+import type { Report } from "./report-schema";
 
 /** A step's or job's result as GitHub gives it; empty for one that did not run. */
 type Result = "success" | "failure" | "cancelled" | "skipped" | "";
@@ -65,9 +66,9 @@ function outcomeLine(kind: Kind, state: RunState): { line: string; refused: bool
 }
 
 /** The sheet's notes after the outcome, and whether any needs the maintainer. */
-function sheetNotes(state: RunState, report: string): { lines: string[]; attention: boolean } {
+function sheetNotes(state: RunState, report: Report | undefined): { lines: string[]; attention: boolean } {
   const lines: string[] = [];
-  const failed = outcomeLines("sheet", report, { failed: true });
+  const failed = outcomeLines(report, { failed: true });
   if (failed.length) lines.push("", "Weeks not published:", ...failed.map((line) => `- ${line}`));
   if (state.noDocx) {
     lines.push("", `${state.noDocx} message(s) from the parish had no DOCX or several: ask the parish for the sheet.`);
@@ -120,10 +121,14 @@ const ERRORS = {
 } as const satisfies Record<Kind, string>;
 
 /**
- * The summary of a run of `kind` from its `state` and the agent's `report` (empty without one): its markdown lines, and
+ * The summary of a run of `kind` from its `state` and the agent's `report` (undefined without one): its markdown lines, and
  * the error that fails the job when the maintainer must act without a PR.
  */
-export function summarize(kind: Kind, state: RunState, report: string): { lines: string[]; error?: string } {
+export function summarize(
+  kind: Kind,
+  state: RunState,
+  report: Report | undefined,
+): { lines: string[]; error?: string } {
   const lines = [`## ${WORDS[kind].title}`, ""];
   if (!state.fetched) lines.push("The mail could not be read.");
   else if (state.mail.length === 0) lines.push("No new mail.");
@@ -135,7 +140,7 @@ export function summarize(kind: Kind, state: RunState, report: string): { lines:
     refused = outcome.refused;
     lines.push(outcome.line);
     if (kind === "events") {
-      const outcomes = outcomeLines("events", report);
+      const outcomes = outcomeLines(report);
       if (outcomes.length) lines.push("", ...outcomes.map((line) => `- ${line}`));
     }
   }
