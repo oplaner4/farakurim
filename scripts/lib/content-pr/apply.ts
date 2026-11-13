@@ -14,8 +14,10 @@ import {
   mergeBase,
   type ContentChanges,
 } from "./changes";
+import { checkFixReport } from "./fix-report";
 import { applyContentPatch, hasChange } from "./patch";
 import { isDraft } from "./report";
+import { ReportError, type Report } from "./report-schema";
 import { readFix, readReport, type ReportInput } from "./report-files";
 
 /** The commit messages when neither the change nor the agent gives one commitlint accepts. */
@@ -48,8 +50,25 @@ function acceptedMessage(io: ApplyIo, what: string, candidates: (string | undefi
 }
 
 /**
- * Applies the patch after checking a fix result's outcome against it, checks the final report against the whole PR
- * (undoing the patch on a mismatch, or when it changes something and the report publishes nothing), writes
+ * Checks a fix's report against the original one (with `original`) and the final report against the whole PR's
+ * `changes`; throws on the first that fails.
+ */
+function checkFinalReport(input: ApplyInput, cwd: string, final: Report, changes: ContentChanges, changed: boolean) {
+  if (input.original !== undefined) {
+    try {
+      checkFixReport(cwd, final, input.original);
+    } catch (error) {
+      if (!(error instanceof ReportError)) throw error;
+      throw new Error(`The fix changes the report where it may not: not applied.\n${error.message}`);
+    }
+  }
+  const problem = changesProblem(final, changes, changed);
+  if (problem) throw new Error(problem);
+}
+
+/**
+ * Applies the patch after checking a fix result's outcome against it, checks a fix's report against the original one
+ * and the final report against the whole PR (undoing the patch on a mismatch, or when it changes something and the report publishes nothing), writes
  * `<out>/report.json` (and a fix result's reply to `<out>/reply.md`) and prints `{ changed, draft, message, fix? }`.
  */
 export function applyReport(input: ApplyInput, io: ApplyIo): void {
@@ -68,10 +87,11 @@ export function applyReport(input: ApplyInput, io: ApplyIo): void {
     if (fix) fixChanges = contentChanges(io.cwd, kind, "HEAD");
   }
   const changes = contentChanges(io.cwd, kind, mergeBase(io.cwd, input.base));
-  const problem = changesProblem(final, changes, changed);
-  if (problem) {
+  try {
+    checkFinalReport(input, io.cwd, final, changes, changed);
+  } catch (error) {
     if (changed) git(io.cwd, "apply", "--reverse", patch);
-    throw new Error(problem);
+    throw error;
   }
   mkdirSync(input.out, { recursive: true });
   writeFileSync(join(input.out, "report.json"), `${JSON.stringify(final, null, 2)}\n`);

@@ -162,6 +162,26 @@ describe("applyReport", () => {
     );
   });
 
+  it("undoes a fix whose report changes what a fix may not", () => {
+    const changedWeek = { validFrom: "2026-10-19", validTo: "2026-10-25", days: [{ date: "2026-10-19" }] };
+    const patch = prRepo(sheetList(), sheetList(WEEK_19), `${JSON.stringify({ sheets: [changedWeek] })}\n`);
+    const asking = reportWeek("2026-10-19", "2026-10-25", { kind: "created" }, [reportQuestion("q1", true)]);
+    const original = json("original.json", sheetReport([asking]));
+    const fix = json("fix.json", fixResult("changed"));
+    const quieted = reportWeek("2026-10-19", "2026-10-25", { kind: "created" }, [reportQuestion("q1", false)]);
+    const report = json("report.json", sheetReport([quieted]));
+    expect(() => apply({ kind: "sheet", run: false, fix, original, report, patch })).toThrow(
+      "The fix changes the report where it may not: not applied.\nweeks.0.questions.0.blocking: may not change",
+    );
+    untouched();
+    // The same fix that leaves the question as it was is applied, still a draft.
+    const kept = json("kept.json", sheetReport([asking]));
+    expect(apply({ kind: "sheet", run: false, fix, original, report: kept, patch }).result).toMatchObject({
+      changed: true,
+      draft: true,
+    });
+  });
+
   it("refuses a fix whose outcome disagrees with the patch", () => {
     const none = prRepo(sheetList(), sheetList(WEEK_19));
     const report = json("report.json", sheetReport([WEEK_19]));

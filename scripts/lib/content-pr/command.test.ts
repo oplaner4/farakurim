@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import type { Artifact, GitHubReader } from "../content-release/sources";
 import { freshTempDir, testGit } from "../test-helpers/files";
-import { reportWeek, sheetList, sheetReport, sheetRunReport } from "../test-helpers/reports";
+import { fixResult, reportQuestion, reportWeek, sheetList, sheetReport, sheetRunReport } from "../test-helpers/reports";
 import { commitlintAccepts, execute, parseCommand, type Command } from "./command";
 
 describe("parseCommand", () => {
@@ -21,12 +21,13 @@ describe("parseCommand", () => {
       run: true,
       previous: "p.json",
     });
-    expect(parseCommand(["check", "--kind", "sheet", "--fix", "f.json", "r.json"])).toEqual({
+    expect(parseCommand(["check", "--kind", "sheet", "--fix", "f.json", "--original", "o.json", "r.json"])).toEqual({
       action: "check",
       kind: "sheet",
       report: "r.json",
       run: false,
       fix: "f.json",
+      original: "o.json",
     });
     expect(parseCommand(["stored", "--pr", "12"])).toEqual({ action: "stored", pr: 12 });
     expect(
@@ -77,6 +78,12 @@ describe("parseCommand", () => {
     expect(() => parseCommand(["check", "--kind", "sheet", "--run", "--fix", "f.json", "r.json"])).toThrow(
       "--fix does not take --run",
     );
+    expect(() => parseCommand(["check", "--kind", "sheet", "--fix", "f.json", "r.json"])).toThrow(
+      "--fix and --original go together",
+    );
+    expect(() => parseCommand(["check", "--kind", "sheet", "--original", "o.json", "r.json"])).toThrow(
+      "--fix and --original go together",
+    );
     expect(() => parseCommand(["stored"])).toThrow("stored needs --pr");
     expect(() => parseCommand(["stored", "--pr", "x"])).toThrow("--pr is not a PR number");
     expect(() => parseCommand(["body", "--kind", "sheet", "r.json"])).toThrow("body needs --run-url");
@@ -122,6 +129,22 @@ describe("execute", () => {
     expect((await run({ ...check, report: good })).out).toEqual(["The report is valid."]);
     const broken = json("broken.json", { ...sheetRunReport(WEEK_19), week: { ...WEEK_19, validTo: "2026-13-01" } });
     await expect(run({ ...check, report: broken })).rejects.toThrow("week.validTo:");
+  });
+
+  it("checks a fix's report against the original one", async () => {
+    mkdirSync(repo(), { recursive: true });
+    writeFileSync(join(repo(), "README.md"), "x");
+    testGit(repo(), "init", "-q", "-b", "main");
+    testGit(repo(), "add", "-A");
+    testGit(repo(), "commit", "-q", "-m", "main");
+    const asking = reportWeek("2026-10-19", "2026-10-25", { kind: "created" }, [reportQuestion("q1", true)]);
+    const original = json("original.json", sheetReport([asking]));
+    const fix = json("fix.json", fixResult("unchanged"));
+    const check = { action: "check", kind: "sheet", run: false, fix, original } as const;
+    expect((await run({ ...check, report: original })).out).toEqual(["The report is valid."]);
+    const quieted = reportWeek("2026-10-19", "2026-10-25", { kind: "created" }, [reportQuestion("q1", false)]);
+    const report = json("report.json", sheetReport([quieted]));
+    await expect(run({ ...check, report })).rejects.toThrow("weeks.0.questions.0.blocking: may not change");
   });
 
   it("applies a run and prints its result", async () => {

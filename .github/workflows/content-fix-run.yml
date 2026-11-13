@@ -157,6 +157,8 @@ jobs:
             exit 1
           fi
           cp "$stored/report.json" "$RUNNER_TEMP/fix/report.json"
+          # The original, outside the agent's workdir: `check` and `apply` compare the corrected report with it.
+          cp "$stored/report.json" "$RUNNER_TEMP/run/original-report.json"
 
       # From main's code, before the head is checked out: the staged files land in the staging folder, which git
       # ignores, so the checkout keeps them. `apply` checks each file lies in the kind's folder, as the release does;
@@ -236,7 +238,7 @@ jobs:
             comment run (its "Comment run" section). The input is ${{ runner.temp }}/fix (comment.md, report.json,
             check.md when present). Correct the PR's report ${{ runner.temp }}/fix/report.json in place and write the
             fix result to ${{ runner.temp }}/fix/fix.json, then run
-            `pnpm content-pr check --kind ${{ steps.next.outputs.kind }} --fix ${{ runner.temp }}/fix/fix.json ${{ runner.temp }}/fix/report.json`
+            `pnpm content-pr check --kind ${{ steps.next.outputs.kind }} --fix ${{ runner.temp }}/fix/fix.json --original ${{ runner.temp }}/run/original-report.json ${{ runner.temp }}/fix/report.json`
             until it passes. The scratchpad is ${{ runner.temp }}/fix. Don't read README.md, docs/ or design/.
 
       # What `publish` needs, never the comment: the report and the fix result, the change to src/content/ against the
@@ -299,8 +301,8 @@ jobs:
 
       # `pnpm content-pr apply` reads the corrected report and the fix result (whose outcome must agree with the
       # patch), applies the patch only if it touches nothing but the kind's files (sheets: src/content/*.json; events:
-      # the news month files and the venue list, which only gains venues and aliases) and checks the report against the
-      # whole PR (from its merge base with origin/main, fetched here); otherwise it fails and nothing is applied. It
+      # the news month files and the venue list, which only gains venues and aliases), checks that the report differs
+      # from the PR's original one only where a fix may change it and checks the report against the whole PR (from its merge base with origin/main, fetched here); otherwise it fails and nothing is applied. It
       # writes the report to $RUNNER_TEMP/publish/report.json and the checked reply (never holding a reply's marker) to
       # $RUNNER_TEMP/publish/reply.md (the only text of the agent's the reply posts), and gives
       # `{ changed, draft, message, fix? }`: the PR's title and the fix's commit message, both accepted by commitlint
@@ -319,8 +321,8 @@ jobs:
           out="$RUNNER_TEMP/publish"
           patch="$run/content.patch"
           git fetch --quiet origin +refs/heads/main:refs/remotes/origin/main
-          if ! result=$(pnpm --silent content-pr apply --kind "$KIND" --fix "$run/fix.json" --base origin/main \
-            --out "$out" "$run/report.json" "$patch"); then
+          if ! result=$(pnpm --silent content-pr apply --kind "$KIND" --fix "$run/fix.json" \
+            --original "$run/original-report.json" --base origin/main --out "$out" "$run/report.json" "$patch"); then
             echo "::error::The report or the change was not accepted (see above)."
             exit 1
           fi

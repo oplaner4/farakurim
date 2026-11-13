@@ -19,8 +19,18 @@ import {
 export const RESEND =
   "The PR's report is missing or from another version: close the PR and send the sheet or event again.";
 
-/** Where the report comes from: a full report, or (`run`) a sheet mail run's merged into `previous`; `fix` a fix result. */
-export type ReportInput = { kind: Kind; report: string; run: boolean; previous?: string; fix?: string };
+/**
+ * Where the report comes from: a full report, or (`run`) a sheet mail run's merged into `previous`; `fix` a comment
+ * fix's result, with `original` the PR's report the fix corrected.
+ */
+export type ReportInput = {
+  kind: Kind;
+  report: string;
+  run: boolean;
+  previous?: string;
+  fix?: string;
+  original?: string;
+};
 
 /** The PR's previous sheet report; one that is missing, unreadable or of another version cannot be continued. */
 function readPrevious(file: string): SheetReport {

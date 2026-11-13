@@ -11,15 +11,17 @@ import { gitHubReader, type GitHubReader } from "../content-release/sources";
 import { applyReport, type ApplyInput, type ApplyIo } from "./apply";
 import { pullBody } from "./body";
 import { renderReport } from "./render";
+import { checkFixReport } from "./fix-report";
 import { readFix, readReport, summaryReport, type ReportInput } from "./report-files";
 import { parseReport } from "./report-schema";
 import { storedReportOf } from "./stored";
 import { runStateFromEnv, summarize, type Env } from "./summary";
 
-const USAGE = `Usage: pnpm content-pr check --kind <sheet|events> [--run] [--previous <report.json>] [--fix <fix.json>] <report.json>
+const USAGE = `Usage: pnpm content-pr check --kind <sheet|events> [--run] [--previous <report.json>]
+                             [--fix <fix.json> --original <report.json>] <report.json>
        pnpm content-pr stored --pr <n>
        pnpm content-pr apply --kind <sheet|events> --base <ref> --out <dir> [--run] [--previous <report.json>]
-                             [--fix <fix.json>] <report.json> <content.patch>
+                             [--fix <fix.json> --original <report.json>] <report.json> <content.patch>
        pnpm content-pr body --kind <sheet|events> --run-url <url> [--calendar <file>] [--fix] <report.json>
        pnpm content-pr summary --kind <sheet|events> <report.json>`;
 
@@ -35,6 +37,7 @@ const REPORT_OPTIONS = {
   run: { type: "boolean" },
   previous: { type: "string" },
   fix: { type: "string" },
+  original: { type: "string" },
 } as const;
 
 export function parseCommand(args: string[]): Command {
@@ -52,17 +55,20 @@ export function parseCommand(args: string[]): Command {
     return value;
   };
   const reportInput = (
-    values: { kind?: string; run?: boolean; previous?: string; fix?: string },
+    values: { kind?: string; run?: boolean; previous?: string; fix?: string; original?: string },
     report: string,
   ): ReportInput => {
     const input: ReportInput = { kind: kind(values.kind), report, run: values.run ?? false };
     if (input.run && input.kind !== "sheet") throw new Error(`--run takes --kind sheet\n${USAGE}`);
     if (values.previous !== undefined && !input.run) throw new Error(`--previous takes --run\n${USAGE}`);
     if (values.fix !== undefined && input.run) throw new Error(`--fix does not take --run\n${USAGE}`);
+    if ((values.fix === undefined) !== (values.original === undefined)) {
+      throw new Error(`--fix and --original go together\n${USAGE}`);
+    }
     return {
       ...input,
       ...(values.previous !== undefined && { previous: values.previous }),
-      ...(values.fix !== undefined && { fix: values.fix }),
+      ...(values.fix !== undefined && { fix: values.fix, original: values.original }),
     };
   };
   switch (action) {
@@ -138,7 +144,8 @@ const defaultIo: Io = {
 };
 
 /**
- * Runs the command. `check` reads the report as `apply` does and says it is valid. `stored` prints the PR's newest
+ * Runs the command. `check` reads the report as `apply` does (with `fix`, checked against the original report and the
+ * working tree's change against HEAD) and says it is valid. `stored` prints the PR's newest
  * stored report artifact as `<runId> <name>` (nothing without one). `apply` reads the report (a sheet run's merged
  * into the previous one), checks a fix result's outcome against the patch, applies the patch (only content files of
  * the kind), checks the report's facts against the whole PR (`changesProblem` against the merge base with `base`,
@@ -150,11 +157,13 @@ const defaultIo: Io = {
  */
 export async function execute(command: Command, io: Io = defaultIo): Promise<void> {
   switch (command.action) {
-    case "check":
-      readReport(command);
+    case "check": {
+      const report = readReport(command);
       readFix(command.fix);
+      if (command.original !== undefined) checkFixReport(io.cwd, report, command.original);
       io.print("The report is valid.");
       return;
+    }
     case "stored": {
       const stored = await storedReportOf(command.pr, io.github());
       if (stored) io.print(`${stored.runId} ${stored.name}`);

@@ -26,11 +26,19 @@ writes.
 Two JSON files, both English with site content quoted in Czech, that `pnpm content-pr check` validates (below;
 strict: an unknown field is an error).
 
-- **`report.json`**: the PR's full report (the input file), corrected **in place**. Keep the sections (events or
-  weeks) the comment did not touch as they are and every question id (`q1`, `q2`, …). Update what the comment
-  changed (a changed event's `origin`, a week's `summary`). Mark a question the comment answered
-  `"status": "resolved"` and put the answer in `"answer"`. Write no `blocking`, `commit` or `fix` line: the script
-  derives the draft state from the questions still open and names the PR's commit.
+- **`report.json`**: the PR's full report (the input file), corrected **in place**. Change only what the table
+  allows; every other field, entry and question stays exactly as it is, and the check refuses any other difference:
+
+  | Where             | May change                                                                                        | Stays as it is                                                                         |
+  | ----------------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+  | a question        | an `open` one the comment answers: `"status": "resolved"` and the answer in `answer`              | `id`, `blocking`, `where`, `text`, `proposal`, a `resolved` one; none added or removed |
+  | an event (events) | only when this run changed its record: `title` (as the record's), `origin`, new `venues` appended | `outcome`, the venues already listed, the events and their order                       |
+  | a week (sheet)    | only when this run changed its sheet: `summary`                                                   | `validFrom`, `validTo`, `outcome`, `notOnTheNewest`, `senderNote`, the weeks           |
+  | the report        | nothing but its questions, as above                                                               | `version`, `kind`, `droppedAttachments`                                                |
+
+  The script derives the PR's draft state from the open blocking questions and names its commit, so a doubt the
+  comment leaves open goes in the reply, never in a new question.
+
 - **`fix.json`**: this comment's result:
 
   ```json
@@ -49,5 +57,5 @@ strict: an unknown field is an error).
 
 Quote only what is published, never the comment itself: the PR and both files are public, in **every** field.
 
-Run `pnpm content-pr check --kind <sheet|events> --fix <fix.json> <report.json>` (with the paths and the kind the
-prompt gives) until it passes. It prints `The report is valid.` or each issue as `<path>: <message>`.
+Run `pnpm content-pr check --kind <sheet|events> --fix <fix.json> --original <original report> <report.json>` (with
+the paths and the kind the prompt gives; the original report is read-only) until it passes. It prints `The report is valid.` or each issue as `<path>: <message>`.
