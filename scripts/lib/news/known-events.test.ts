@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { newsEvent } from "@/test/fixtures";
-import { freshTempDir, testGit } from "../test-helpers";
+import { freshTempDir, testGit } from "../test-helpers/files";
 import {
   eventsAt,
   knownJson,

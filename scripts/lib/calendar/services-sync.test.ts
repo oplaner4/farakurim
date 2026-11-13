@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { parishCalendars } from "@/content/site";
 import { googlePage } from "@/test/fetch";
-import { syncGuardTests } from "../test-helpers";
+import { syncGuardTests } from "../test-helpers/calendar";
 import { syncServices } from "./services-sync";
 import { accessToken, applyServicesChange } from "./write";
 

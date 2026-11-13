@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { googlePage } from "@/test/fetch";
-import { syncGuardTests } from "../test-helpers";
+import { syncGuardTests } from "../test-helpers/calendar";
 import { syncEvents } from "./events-sync";
 import { accessToken, applyChange } from "./write";
 

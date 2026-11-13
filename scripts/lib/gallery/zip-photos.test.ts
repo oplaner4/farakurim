@@ -4,7 +4,7 @@ import { zipSync } from "fflate";
 import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 import { extractPhotos } from "./zip-photos";
-import { freshTempDir } from "../test-helpers";
+import { freshTempDir } from "../test-helpers/files";
 
 const tempDir = freshTempDir("zip-photos");
 

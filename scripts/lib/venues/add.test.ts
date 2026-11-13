@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { addAlias, addVenue, readVenues } from "./add";
-import { stubMapy, freshVenueFile } from "../test-helpers";
+import { stubMapy, freshVenueFile } from "../test-helpers/venues";
 
 const file = freshVenueFile();
 const ids = () => readVenues(file()).map((v) => v.id);

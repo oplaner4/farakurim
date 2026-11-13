@@ -3,7 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 import { issueId } from "@/lib/petrklic/issues";
 import { readPetrklic } from "../petrklic/add-petrklic";
 import { stagePetrklic } from "./petrklic";
-import { hasPoppler, pdfWithText, useStageFixture } from "../test-helpers";
+import { useStageFixture } from "../test-helpers/content";
+import { hasPoppler, pdfWithText } from "../test-helpers/documents";
 
 // renderPetrklic renders for real unless a test makes it fail once.
 const render = vi.hoisted(() => ({ fail: false }));

@@ -2,7 +2,8 @@ import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { docxWeeks } from "./sheet-docx";
-import { docxWithBody, freshTempDir, wordml } from "../test-helpers";
+import { docxWithBody, wordml } from "../test-helpers/documents";
+import { freshTempDir } from "../test-helpers/files";
 
 const { p, run, table } = wordml;
 

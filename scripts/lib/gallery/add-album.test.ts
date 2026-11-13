@@ -19,7 +19,7 @@ import {
   titleAndDateFromZip,
 } from "./add-album";
 import type { LocalPhoto } from "./zip-photos";
-import { freshTempDir } from "../test-helpers";
+import { freshTempDir } from "../test-helpers/files";
 
 // An album page with Zonerama's title (eu.zonerama.com/FarnostKurim/Album/<n>); the photos come from a zip.
 const page = (title: string) => `<html><head><title>${title} | Zonerama.com</title></head><body></body></html>`;

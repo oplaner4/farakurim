@@ -5,7 +5,7 @@ import { readEvents } from "@/content/news";
 import type { NewsEvent } from "@/content/types/news";
 import { newsEvent } from "@/test/fixtures";
 import { assertPinnable, parseCommand, pinEvent, pinLines } from "./pin-event";
-import { useNewsFixture } from "../test-helpers";
+import { useNewsFixture } from "../test-helpers/content";
 
 const event = (id: string, start: string, fields: Partial<NewsEvent> = {}): NewsEvent =>
   newsEvent({ id, title: `Akce ${id}`, start, place: "Kuřim", text: "Srdečně zveme.", ...fields });

@@ -1,7 +1,8 @@
 import { existsSync, mkdirSync, readFileSync, symlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
-import { canSymlink, freshTempDir, testGit, VENUE_LIST, venueRecord } from "../test-helpers";
+import { canSymlink, freshTempDir, testGit } from "../test-helpers/files";
+import { VENUE_LIST, venueRecord } from "../test-helpers/venues";
 import { applyContentPatch, hasChange } from "./patch";
 
 describe("applyContentPatch", () => {

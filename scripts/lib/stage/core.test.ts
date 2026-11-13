@@ -1,7 +1,7 @@
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { sourceFile } from "./core";
-import { useStageFixture } from "../test-helpers";
+import { useStageFixture } from "../test-helpers/content";
 
 describe("sourceFile", () => {
   const { env, download } = useStageFixture();

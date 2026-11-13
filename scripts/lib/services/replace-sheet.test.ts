@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
 import { readServiceSheets } from "./add-service-sheet";
 import { parseCommand, replaceSheet } from "./replace-sheet";
-import { emptyWeek, useStageFixture } from "../test-helpers";
+import { emptyWeek, useStageFixture } from "../test-helpers/content";
 
 describe("replaceSheet", () => {
   const { env } = useStageFixture();

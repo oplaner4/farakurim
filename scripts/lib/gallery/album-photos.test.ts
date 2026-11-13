@@ -4,7 +4,7 @@ import sharp from "sharp";
 import { describe, expect, it, vi } from "vitest";
 import { assertFreeOnServer, stageAlbumPhotos } from "./album-photos";
 import { next } from "../output";
-import { freshTempDir } from "../test-helpers";
+import { freshTempDir } from "../test-helpers/files";
 
 const tempDir = freshTempDir("album-photos");
 

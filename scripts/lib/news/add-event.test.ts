@@ -6,7 +6,8 @@ import type { NewsEvent } from "@/content/types/news";
 import { newsEvent } from "@/test/fixtures";
 import { addEvent, insertRecord, parseCommand, targetLine, venueLines } from "./add-event";
 import { formatFiles, NEWS_DIR } from "../content-files";
-import { useNewsFixture, freshTempDir } from "../test-helpers";
+import { useNewsFixture } from "../test-helpers/content";
+import { freshTempDir } from "../test-helpers/files";
 
 // The newest year folder in news/ and the one after it, which does not exist yet: the new-year test must keep
 // passing after a real event of that year adds its folder.

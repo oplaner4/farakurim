@@ -6,7 +6,7 @@ import { UPLOADS_PATH } from "@/lib/shared/uploads";
 import { ROOT } from "./content-files";
 import { EVENTS_FOLDER } from "./stage/event";
 import { UPLOADS_PATH as SERVED_UPLOADS_PATH } from "./server-files.mjs";
-import { workflowEnv } from "./test-helpers";
+import { workflowEnv } from "./test-helpers/files";
 
 const read = (path: string) => readFileSync(join(ROOT, path), "utf8");
 

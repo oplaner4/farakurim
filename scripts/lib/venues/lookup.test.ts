@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { addVenue } from "./add";
 import { candidatesLines, lookupResults } from "./lookup";
-import { stubMapy, freshVenueFile, VENUE_LIST } from "../test-helpers";
+import { stubMapy, freshVenueFile, VENUE_LIST } from "../test-helpers/venues";
 
 const file = freshVenueFile();
 

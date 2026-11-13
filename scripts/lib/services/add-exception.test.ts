@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { ScheduleException } from "@/content/types/services";
 import { addException, exceptionLine, parseCommand } from "./add-exception";
 import { readScheduleExceptions } from "./add-service-sheet";
-import { freshTempDir } from "../test-helpers";
+import { freshTempDir } from "../test-helpers/files";
 
 /** A sheet for 4.–11. 10. 2026, every day with one mass. */
 const SHEET = {

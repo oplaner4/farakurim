@@ -2,7 +2,8 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import type { Artifact, GitHubReader } from "../content-release/sources";
-import { freshTempDir, reportWeek, sheetList, sheetReport, sheetRunReport, testGit } from "../test-helpers";
+import { freshTempDir, testGit } from "../test-helpers/files";
+import { reportWeek, sheetList, sheetReport, sheetRunReport } from "../test-helpers/reports";
 import { commitlintAccepts, execute, parseCommand, type Command } from "./command";
 
 describe("parseCommand", () => {

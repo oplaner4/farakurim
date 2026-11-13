@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { readEvents } from "@/content/news";
 import { POSTER_WIDTH } from "../images";
 import { stageEvent } from "../stage/event";
-import { useStageFixture } from "../test-helpers";
+import { useStageFixture } from "../test-helpers/content";
 import { parseCommand, setEventPoster, posterLines } from "./event-poster";
 
 describe("setEventPoster", { timeout: 30_000 }, () => {

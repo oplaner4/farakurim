@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { PetrklicRecord } from "@/content/types/petrklic";
 import { issueId } from "@/lib/petrklic/issues";
 import { addPetrklic, petrklicLines, readPetrklic } from "./add-petrklic";
-import { freshTempDir } from "../test-helpers";
+import { freshTempDir } from "../test-helpers/files";
 
 const record = (year: number, number: number, fields: Partial<PetrklicRecord> = {}): PetrklicRecord => ({
   year,

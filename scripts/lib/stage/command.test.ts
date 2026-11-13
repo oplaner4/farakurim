@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { SERVICE_SHEETS_TESTS } from "../content-files";
 import { runStage } from "./command";
-import { emptyWeek, useStageFixture } from "../test-helpers";
+import { emptyWeek, useStageFixture } from "../test-helpers/content";
 
 describe("runStage", { timeout: 30_000 }, () => {
   const { env, download, poster } = useStageFixture();

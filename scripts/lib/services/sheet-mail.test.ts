@@ -1,15 +1,9 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import {
-  dkimSigned,
-  docxWithBody,
-  fakeDkimResolver as resolver,
-  fakeMailbox,
-  freshTempDir,
-  mailMessage,
-  wordml,
-} from "../test-helpers";
+import { docxWithBody, wordml } from "../test-helpers/documents";
+import { freshTempDir } from "../test-helpers/files";
+import { dkimSigned, fakeDkimResolver as resolver, fakeMailbox, mailMessage } from "../test-helpers/mail";
 import { fetchSheet, parseCommand } from "./sheet-mail";
 
 const dir = freshTempDir("sheet-mail");

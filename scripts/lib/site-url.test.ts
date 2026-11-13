@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { SITE_URL } from "@/content/site";
 import { ROOT } from "./content-files";
 import { LIVE } from "./server-files.mjs";
-import { workflowEnv } from "./test-helpers";
+import { workflowEnv } from "./test-helpers/files";
 
 // The site's address is SITE_URL; the shell scripts, the workflows and the plain-Node servers cannot import it, so
 // they keep a copy.

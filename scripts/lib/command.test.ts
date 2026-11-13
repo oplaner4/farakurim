@@ -10,7 +10,7 @@ import {
   readJsonRecord,
   requiredEnv,
 } from "./command";
-import { freshTempDir } from "./test-helpers";
+import { freshTempDir } from "./test-helpers/files";
 
 describe("errorMessage", () => {
   it("adds the cause, as fetch() reports a network failure", () => {

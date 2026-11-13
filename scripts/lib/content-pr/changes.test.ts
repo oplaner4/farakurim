@@ -1,7 +1,7 @@
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { freshTempDir, testGit } from "../test-helpers";
+import { freshTempDir, testGit } from "../test-helpers/files";
 import {
   changesProblem,
   commitMessage,

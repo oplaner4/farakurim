@@ -1,7 +1,7 @@
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { freshTempDir, testGit } from "../test-helpers";
+import { freshTempDir, testGit } from "../test-helpers/files";
 import { gitHubReader, newUploadLinks, unreleasedCommits, type CommitPull } from "./sources";
 
 const repo = "oplaner4/farakurim";

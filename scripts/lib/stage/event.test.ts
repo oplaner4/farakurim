@@ -6,7 +6,8 @@ import { readEvents, readMonth } from "@/content/news";
 import { addEvent } from "../news/add-event";
 import { type EventFile, type EventOptions, labelSuffix, stageEvent, withAttachment } from "./event";
 import { POSTER_WIDTH } from "../images";
-import { pdfWithText, useStageFixture } from "../test-helpers";
+import { useStageFixture } from "../test-helpers/content";
+import { pdfWithText } from "../test-helpers/documents";
 
 describe("labelSuffix", () => {
   it("turns any label into an ASCII kebab-case suffix", () => {

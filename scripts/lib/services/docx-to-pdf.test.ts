@@ -2,7 +2,8 @@ import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { pdfPageTexts } from "../images";
-import { docxWithBody, hasPoppler, hasSoffice, freshTempDir, wordml } from "../test-helpers";
+import { docxWithBody, hasPoppler, hasSoffice, wordml } from "../test-helpers/documents";
+import { freshTempDir } from "../test-helpers/files";
 import { docxToPdf, sofficeCandidates } from "./docx-to-pdf";
 
 describe("sofficeCandidates", () => {

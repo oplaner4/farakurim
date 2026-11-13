@@ -1,7 +1,8 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { dkimSigned, fakeDkimResolver as resolver, fakeMailbox, freshTempDir, mailMessage } from "../test-helpers";
+import { freshTempDir } from "../test-helpers/files";
+import { dkimSigned, fakeDkimResolver as resolver, fakeMailbox, mailMessage } from "../test-helpers/mail";
 import { fetchEventMail, judgeEventMail, parseCommand } from "./event-mail";
 
 const parish = "fara.kurim@seznam.cz";

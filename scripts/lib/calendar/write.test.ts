@@ -6,7 +6,7 @@ import { places } from "@/content/masses";
 import { venues } from "@/content/venues";
 import { parishCalendars } from "@/content/site";
 import type { NewsEvent } from "@/content/types/news";
-import { freshTempDir } from "../test-helpers";
+import { freshTempDir } from "../test-helpers/files";
 import { desiredEvents, eventBody } from "./desired";
 import type { Change } from "./plan";
 import { desiredServices } from "./services-desired";

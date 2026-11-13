@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { readVenues } from "./add";
 import { setVenue, venueUse, type VenueUse } from "./set";
-import { freshTempDir, freshVenueFile, stubMapy } from "../test-helpers";
+import { freshTempDir } from "../test-helpers/files";
+import { freshVenueFile, stubMapy } from "../test-helpers/venues";
 
 const file = freshVenueFile();
 const unused: VenueUse = { services: [], office: false, nativity: false, events: [] };

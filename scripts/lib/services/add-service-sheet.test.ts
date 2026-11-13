@@ -9,7 +9,7 @@ import {
   readScheduleExceptions,
   type SheetWeek,
 } from "./add-service-sheet";
-import { freshTempDir } from "../test-helpers";
+import { freshTempDir } from "../test-helpers/files";
 
 /** Two hand-entered changes: one the 11.–18. 10. sheet covers (its last day), one after it (no reason, a note). */
 const LATER: ScheduleException[] = [

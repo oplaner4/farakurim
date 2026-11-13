@@ -2,7 +2,8 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { join } from "node:path";
 import sharp from "sharp";
 import { describe, expect, it } from "vitest";
-import { hasPoppler, pdfWithText, freshTempDir } from "./test-helpers";
+import { hasPoppler, pdfWithText } from "./test-helpers/documents";
+import { freshTempDir } from "./test-helpers/files";
 import {
   extractPdfPages,
   pdfPageCount,

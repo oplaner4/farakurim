@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { contentRestorePoint, NEWS_DIR, newsIds, withContentRestore } from "./content-files";
-import { freshTempDir } from "./test-helpers";
+import { freshTempDir } from "./test-helpers/files";
 
 describe("newsIds", () => {
   it("reads the ID of every event in the news folder", () => {

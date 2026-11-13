@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { readMonth } from "@/content/news";
 import { newsEvent } from "@/test/fixtures";
 import { parseCommand, replaceEvent, replaceLines } from "./replace-event";
-import { useNewsFixture } from "../test-helpers";
+import { useNewsFixture } from "../test-helpers/content";
 
 describe("replaceEvent", () => {
   const news = useNewsFixture({

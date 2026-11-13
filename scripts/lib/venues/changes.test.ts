@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { venueListChangeProblem } from "./changes";
-import { VENUE_LIST, venueRecord } from "../test-helpers";
+import { VENUE_LIST, venueRecord } from "../test-helpers/venues";
 
 describe("venueListChangeProblem", () => {
   const [kostel, fara, kaple] = VENUE_LIST;

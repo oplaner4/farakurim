@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fakeMailbox } from "../test-helpers";
+import { fakeMailbox } from "../test-helpers/mail";
 import { fileMessages, imapEnv, uidList } from "./imap";
 
 describe("fileMessages", () => {

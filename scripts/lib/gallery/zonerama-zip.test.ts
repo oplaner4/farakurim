@@ -2,7 +2,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { downloadAlbumZip } from "./zonerama-zip";
-import { freshTempDir } from "../test-helpers";
+import { freshTempDir } from "../test-helpers/files";
 
 const tempDir = freshTempDir("zonerama-zip");
 const ZIP = Buffer.from("PK\u0003\u0004 a zip");

@@ -4,7 +4,8 @@ import { describe, expect, it } from "vitest";
 import { readMonth } from "@/content/news";
 import { newsEvent } from "@/test/fixtures";
 import { assignVenues, findLines, parseCommand } from "./command";
-import { useNewsFixture, VENUE_LIST } from "../test-helpers";
+import { useNewsFixture } from "../test-helpers/content";
+import { VENUE_LIST } from "../test-helpers/venues";
 
 describe("find", () => {
   it("lists the municipality's venues, else says it has none", () => {

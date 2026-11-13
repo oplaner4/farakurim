@@ -51,7 +51,9 @@ the checks the content tests share in `lib/venues/`, the matching the scripts us
 - **Imports:** same folder `./x`, anything else `@/…` (no `../`).
 - **Tests** sit beside their module; what several of them share goes in `src/test/` (`fixtures.ts` with the
   `newsEvent()` and `event()` records and `at()`, `content-checks.ts` for the content tests, `fetch.ts` for stubbed
-  answers) or, for the scripts, `scripts/lib/test-helpers.ts` (`freshTempDir()`, `useStageFixture()`, `emptyWeek()`).
+  answers) or, for the scripts, `scripts/lib/test-helpers/`, one file per topic and no index file: `files.ts`
+  (`freshTempDir()`, `testGit()`), `content.ts` (`useStageFixture()`, `emptyWeek()`), `documents.ts`, `mail.ts`,
+  `calendar.ts`, `venues.ts` and `reports.ts`.
   `vitest.config.mts` stands in for `server-only` and runs `src/hooks/` in jsdom with `cleanup()` after each test, so
   the tests need neither a mock nor an environment comment.
 
@@ -60,7 +62,7 @@ the checks the content tests share in `lib/venues/`, the matching the scripts us
 `scripts/` holds only the entry points: one `<command>.ts` per `pnpm` command (plus the shell, Python and `.mjs`
 tooling), each a `runCommand()` call (`scripts/lib/command.ts`) with no logic of its own. The logic and its tests go
 in `scripts/lib/`: by the same domain groups as `src/` (`lib/news/add-event.ts`), `lib/stage/` for `pnpm stage`,
-and the helpers several scripts share at its top (`content-files.ts`, `command.ts`, `test-helpers.ts`). A module
+and the helpers several scripts share at its top (`content-files.ts`, `command.ts`, `test-helpers/`). A module
 exports `parseCommand` (wrong arguments throw, exit 2) and `execute` (a failure throws, exit 1). **Why:** what you
 can run is what you see in `scripts/`, and the tests import the logic without starting a command.
 

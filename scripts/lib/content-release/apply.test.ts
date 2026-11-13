@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, symlinkSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { canSymlink, freshTempDir } from "../test-helpers";
+import { canSymlink, freshTempDir } from "../test-helpers/files";
 import { applyArtifacts, missingLinks } from "./apply";
 import type { ContentPull, ReleasePlan } from "./plan";
 

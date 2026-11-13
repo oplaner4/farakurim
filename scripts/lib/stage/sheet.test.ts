@@ -6,7 +6,8 @@ import { addEvent } from "../news/add-event";
 import { errorMessage } from "../command";
 import { extractPdfPages, pdfPageTexts } from "../images";
 import { docxToPdf } from "../services/docx-to-pdf";
-import { docxWithBody, emptyWeek, hasPoppler, hasSoffice, pdfWithText, useStageFixture, wordml } from "../test-helpers";
+import { emptyWeek, useStageFixture } from "../test-helpers/content";
+import { docxWithBody, hasPoppler, hasSoffice, pdfWithText, wordml } from "../test-helpers/documents";
 
 // The real converter and PDF tools, wrapped so the DOCX tests below can run without LibreOffice and poppler.
 vi.mock("../services/docx-to-pdf", async (importOriginal) => {

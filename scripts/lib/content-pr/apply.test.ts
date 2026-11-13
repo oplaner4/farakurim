@@ -1,18 +1,9 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import {
-  fixResult,
-  freshTempDir,
-  reportQuestion,
-  reportWeek,
-  sheetList,
-  sheetReport,
-  sheetRunReport,
-  testGit,
-  VENUE_LIST,
-  venueRecord,
-} from "../test-helpers";
+import { freshTempDir, testGit } from "../test-helpers/files";
+import { fixResult, reportQuestion, reportWeek, sheetList, sheetReport, sheetRunReport } from "../test-helpers/reports";
+import { VENUE_LIST, venueRecord } from "../test-helpers/venues";
 import { applyReport, type ApplyInput } from "./apply";
 
 const WEEK_12 = reportWeek("2026-10-12", "2026-10-18", { kind: "created" });

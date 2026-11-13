@@ -1,7 +1,8 @@
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { fixResult, freshTempDir, reportQuestion, reportWeek, sheetReport, sheetRunReport } from "../test-helpers";
+import { freshTempDir } from "../test-helpers/files";
+import { fixResult, reportQuestion, reportWeek, sheetReport, sheetRunReport } from "../test-helpers/reports";
 import { RESEND, readFix, readReport, summaryReport } from "./report-files";
 
 const WEEK_12 = reportWeek("2026-10-12", "2026-10-18", { kind: "created" });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dkimSigned, fakeDkimResolver as resolver, mailMessage as message } from "../test-helpers";
+import { dkimSigned, fakeDkimResolver as resolver, mailMessage as message } from "../test-helpers/mail";
 import { judgeMessage, pickNewest } from "./mailbox";
 
 const parish = "fara.kurim@seznam.cz";
