@@ -10,9 +10,6 @@ export type FixPull = {
   branch: string;
   /** null when the fork is gone. */
   headRepo: string | null;
-  title: string;
-  draft: boolean;
-  body: string;
 };
 
 export type FailedStep = { step: string; log: string };
@@ -39,9 +36,6 @@ export function fixReader(repo: string, token: string, fetchImpl: typeof fetch =
     pull: async (number) => {
       const pull = await get<{
         state: string;
-        title: string;
-        draft: boolean;
-        body: string | null;
         head: { sha: string; ref: string; repo: { full_name: string } | null };
       }>(`/pulls/${number}`);
       return {
@@ -49,9 +43,6 @@ export function fixReader(repo: string, token: string, fetchImpl: typeof fetch =
         head: pull.head.sha,
         branch: pull.head.ref,
         headRepo: pull.head.repo?.full_name ?? null,
-        title: pull.title,
-        draft: pull.draft,
-        body: pull.body ?? "",
       };
     },
     comments: async (number) => {

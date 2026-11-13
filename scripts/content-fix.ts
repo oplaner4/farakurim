@@ -5,20 +5,16 @@
 // `next` prints `{ open, kind, head, branch, comment, remaining }` for the PR: `kind` is `sheet` or `events` (null for
 // another branch or a fork), `comment` the id of the oldest request no reply answers yet (null for none) and
 // `remaining` the requests after it. Only a commenter with write access asks. For a request it writes
-// `<dir>/comment.md` (the comment) and `<dir>/report.md` (the PR's state, commit message and report, for the agent to
-// correct). `artifacts` prints `<run id> <name>` for each artifact of the PR's commits, oldest first, and fails on an
+// `<dir>/comment.md` (the comment). `artifacts` prints `<run id> <name>` for each artifact of the PR's commits, oldest first, and fails on an
 // expired one. `apply` copies the downloaded artifacts (each in `<dir>/<name>/`) into uploads/, checked as
 // `content-release apply` does, in the order of `--order <file>` (the saved output of `artifacts`), so the newest file
 // of a path wins; it reads no API. `check-log` writes the failed steps of the commit's `check` run to a file and prints
-// `failed`, or prints `ok` and writes nothing. `report` reads the agent's report and writes `<dir>/body.md` (the PR
-// body's report, for `pnpm content-pr body --fix`) and `<dir>/reply.md` (the reply to the comment), and prints
-// `{ blocking, commit, fix, changed }`.
+// `failed`, or prints `ok` and writes nothing.
 //
 // Usage: pnpm content-fix next --pr <n> --out <dir>
 //        pnpm content-fix artifacts --pr <n> --kind <sheet|events>
 //        pnpm content-fix apply --pr <n> --kind <sheet|events> --order <file> <dir>
 //        pnpm content-fix check-log --sha <sha> --out <file>
-//        pnpm content-fix report <report.md> --out <dir>
 import { runCommand } from "./lib/command";
 import { execute, parseCommand } from "./lib/content-fix/command";
 

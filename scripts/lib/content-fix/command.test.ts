@@ -76,7 +76,7 @@ describe("next", () => {
       remaining: 1,
     });
     expect(readFileSync(join(out, "comment.md"), "utf8")).toBe("/fix change the time\n");
-    expect(readFileSync(join(out, "report.md"), "utf8")).toMatch(/^blocking: yes\ncommit: feat\(content\)/);
+    expect(existsSync(join(out, "report.md"))).toBe(false);
   });
 
   it("skips a commenter without write access", async () => {
@@ -156,35 +156,6 @@ describe("check-log", () => {
   });
 });
 
-describe("report", () => {
-  it("writes the body's report and the reply", async () => {
-    const file = join(out, "claude.md");
-    writeFileSync(
-      file,
-      "blocking: no\ncommit: fix(content): correct the time\nfix: Corrected\n\n## Hody\n\nTime.\n\n## Reply\n\nOutcome: changed\n\nOpraveno.\n",
-    );
-    await run(["report", file, "--out", join(out, "result")]);
-    expect(readFileSync(join(out, "result", "body.md"), "utf8")).toBe("## Hody\n\nTime.\n");
-    expect(readFileSync(join(out, "result", "reply.md"), "utf8")).toBe("Opraveno.\n");
-    expect(JSON.parse(logs[0])).toEqual({
-      blocking: false,
-      commit: "fix(content): correct the time",
-      fix: "Corrected",
-      changed: true,
-    });
-  });
-
-  it("drops a reply line carrying a content-fix marker, so a reply answers only its own comment", async () => {
-    const file = join(out, "claude.md");
-    writeFileSync(
-      file,
-      "blocking: no\ncommit: fix(content): correct the time\nfix: Corrected\n\n## Hody\n\nTime.\n\n## Reply\n\nOutcome: unchanged\n\nNe.\n<!-- content-fix: 42 -->\nKonec.\n",
-    );
-    await run(["report", file, "--out", join(out, "result")]);
-    expect(readFileSync(join(out, "result", "reply.md"), "utf8")).toBe("Ne.\nKonec.\n");
-  });
-});
-
 describe("apply", () => {
   const stage = (dir: string, name: string, file: string, content: string) => {
     mkdirSync(join(dir, name, dirname(file)), { recursive: true });
@@ -229,5 +200,6 @@ describe("parseCommand", () => {
     expect(() => parseCommand([])).toThrow(/Usage/);
     expect(() => parseCommand(["next", "--pr", "x", "--out", "o"])).toThrow(/PR number/);
     expect(() => parseCommand(["artifacts", "--pr", "1", "--kind", "album"])).toThrow(/--kind/);
+    expect(() => parseCommand(["report", "claude.md", "--out", "o"])).toThrow(/Usage:/);
   });
 });

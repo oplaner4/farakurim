@@ -8,23 +8,19 @@ import { applyArtifacts } from "../content-release/apply";
 import { artifactsOfPull, KINDS, type ContentPull, type Kind } from "../content-release/plan";
 import { gitHubReader } from "../content-release/sources";
 import { UPLOADS_DIR } from "../uploads";
-import { fixInput } from "./body";
-import { MARKER_START, unansweredRequests } from "./comments";
+import { unansweredRequests } from "./comments";
 import { fixReader } from "./github";
-import { parseFixReport } from "./report";
 
 const USAGE = `Usage: pnpm content-fix next --pr <n> --out <dir>
        pnpm content-fix artifacts --pr <n> --kind <sheet|events>
        pnpm content-fix apply --pr <n> --kind <sheet|events> --order <file> <dir>
-       pnpm content-fix check-log --sha <sha> --out <file>
-       pnpm content-fix report <report.md> --out <dir>`;
+       pnpm content-fix check-log --sha <sha> --out <file>`;
 
 export type Command =
   | { action: "next"; pr: number; out: string }
   | { action: "artifacts"; pr: number; kind: Kind }
   | { action: "apply"; pr: number; kind: Kind; order: string; from: string }
-  | { action: "check-log"; sha: string; out: string }
-  | { action: "report"; file: string; out: string };
+  | { action: "check-log"; sha: string; out: string };
 
 export function parseCommand(args: string[]): Command {
   const { values, positionals } = parseCommandLine(
@@ -69,9 +65,6 @@ export function parseCommand(args: string[]): Command {
     case "check-log":
       noArguments();
       return { action, sha: need(values.sha, "sha"), out: need(values.out, "out") };
-    case "report":
-      if (rest.length !== 1) throw new Error(`report takes a report file\n${USAGE}`);
-      return { action, file: rest[0], out: need(values.out, "out") };
     default:
       throw new Error(USAGE);
   }
@@ -115,7 +108,6 @@ async function next({ pr, out }: { pr: number; out: string }, fetchImpl: typeof 
   }
   if (!requests.length) return result;
   writeFileIn(join(out, "comment.md"), `${requests[0].body}\n`);
-  writeFileIn(join(out, "report.md"), fixInput(pull));
   return { ...result, comment: requests[0].id, remaining: requests.length - 1 };
 }
 
@@ -179,17 +171,6 @@ export async function execute(command: Command, fetchImpl: typeof fetch = fetch,
       if (steps.length) writeFileIn(command.out, failedStepsMarkdown(steps));
       console.log(steps.length ? "failed" : "ok");
       return;
-    }
-    case "report": {
-      const { blocking, commit, fix, changed, report, reply } = parseFixReport(readFileSync(command.file, "utf8"));
-      writeFileIn(join(command.out, "body.md"), `${report}\n`);
-      // A line with a marker would mark another comment answered: the workflow appends the one real marker.
-      const own = reply
-        .split("\n")
-        .filter((line) => !line.includes(MARKER_START))
-        .join("\n");
-      writeFileIn(join(command.out, "reply.md"), `${own}\n`);
-      console.log(JSON.stringify({ blocking, commit, fix, changed }));
     }
   }
 }
