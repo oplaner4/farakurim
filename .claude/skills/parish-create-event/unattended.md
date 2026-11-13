@@ -43,8 +43,8 @@ Steps 1 to 6 of `parish-create-event` apply with these changes:
   its pin link).
 - Skip step 6: no `parish-publish-content`, no commit, no release.
 
-**The report** is the JSON file the prompt names (`report.json`), English with site content quoted in Czech. Its schema
-is `scripts/lib/content-pr/report-schema.ts` (strict: an unknown field is an error). It holds every event of the mail,
+**The report** is the JSON file the prompt names (`report.json`), English with site content quoted in Czech, and
+`pnpm content-pr check` validates it (below; strict: an unknown field is an error). It holds every event of the mail,
 in the mail's order, with every field below (the optional ones may be left out):
 
 ```json

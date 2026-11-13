@@ -55,8 +55,8 @@ The run's week is already staged or published. The rules above and the report be
 
 ### The report
 
-The report is the JSON file the prompt names (`report.json`), English with site content quoted in Czech. Its schema is
-`scripts/lib/content-pr/report-schema.ts` (strict: an unknown field is an error). It holds this run's week only, with
+The report is the JSON file the prompt names (`report.json`), English with site content quoted in Czech, and
+`pnpm content-pr check` validates it (below; strict: an unknown field is an error). It holds this run's week only, with
 every field below (the optional ones may be left out):
 
 ```json

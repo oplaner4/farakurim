@@ -23,8 +23,8 @@ writes.
 
 ## The report
 
-Two JSON files, both English with site content quoted in Czech; their schemas are in
-`scripts/lib/content-pr/report-schema.ts` (strict: an unknown field is an error).
+Two JSON files, both English with site content quoted in Czech, that `pnpm content-pr check` validates (below;
+strict: an unknown field is an error).
 
 - **`report.json`**: the PR's full report (the input file), corrected **in place**. Keep the sections (events or
   weeks) the comment did not touch as they are and every question id (`q1`, `q2`, …). Update what the comment
