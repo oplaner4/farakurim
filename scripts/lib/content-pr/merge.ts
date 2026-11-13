@@ -3,11 +3,11 @@
 // refused or could not read are dropped; the run's new questions are appended and its question updates resolve
 // questions of the other weeks or of the report. The result is checked against the sheet report schema.
 
-import { REPORT_VERSION, parseSheetReport } from "./report-schema";
+import { parseSheetReport } from "./report-schema";
 import type { Question, SheetReport, SheetRunReport } from "./report-schema";
 
 export function mergeSheetReport(previous: SheetReport | undefined, run: SheetRunReport): SheetReport {
-  const base: SheetReport = previous ?? { version: REPORT_VERSION, kind: "sheet", weeks: [], questions: [] };
+  const base: SheetReport = previous ?? { kind: "sheet", weeks: [], questions: [] };
   const kept = base.weeks.filter(
     (week) =>
       week.validFrom !== run.week.validFrom &&
@@ -45,7 +45,6 @@ export function mergeSheetReport(previous: SheetReport | undefined, run: SheetRu
   const apply = (list: Question[]): Question[] => list.map((question) => updated.get(question.id) ?? question);
 
   return parseSheetReport({
-    version: REPORT_VERSION,
     kind: "sheet",
     weeks: weeks.map((week) => (week === run.week ? week : { ...week, questions: apply(week.questions) })),
     questions: apply(questions),

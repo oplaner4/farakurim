@@ -12,7 +12,6 @@ const question = (id: string, overrides: Partial<Question> = {}): Question => ({
 });
 
 const sheet = (overrides: Partial<SheetReport> = {}): SheetReport => ({
-  version: 1,
   kind: "sheet",
   weeks: [
     {
@@ -35,7 +34,6 @@ const sheet = (overrides: Partial<SheetReport> = {}): SheetReport => ({
 });
 
 const events = (): EventsReport => ({
-  version: 1,
   kind: "events",
   events: [
     { title: "Pouť", outcome: { kind: "created", id: "pout" }, venues: [], questions: [question("q2")] },

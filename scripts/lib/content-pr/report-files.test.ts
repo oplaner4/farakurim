@@ -48,17 +48,15 @@ describe("report files", () => {
       expect(() => readReport({ kind: "events", report: sheet, run: false })).toThrow("kind:");
     });
 
-    it("cannot continue a PR whose previous report is missing, unreadable or of another version", () => {
+    it("cannot continue a PR whose previous report is missing, unreadable or refused by the schema", () => {
       const report = json("run.json", sheetRunReport(WEEK_19));
-      const other = json("other.json", { ...sheetReport([WEEK_12]), version: 2 });
+      const other = json("other.json", { ...sheetReport([WEEK_12]), version: 1 });
       const garbled = join(dir(), "garbled.json");
       writeFileSync(garbled, "{");
       for (const previous of [join(dir(), "none.json"), garbled, other]) {
         expect(() => readReport({ kind: "sheet", report, run: true, previous })).toThrow(RESEND);
       }
-      expect(RESEND).toBe(
-        "The PR's report is missing or from another version: close the PR and send the sheet or event again.",
-      );
+      expect(RESEND).toBe("The PR's report is missing or unreadable: close the PR and send the sheet or event again.");
     });
   });
 
@@ -79,7 +77,7 @@ describe("report files", () => {
 
     it("gives none for a missing or invalid file, and for an events file that is no full report", () => {
       expect(summaryReport("sheet", join(dir(), "none.json"))).toBeUndefined();
-      expect(summaryReport("sheet", json("other.json", { version: 2 }))).toBeUndefined();
+      expect(summaryReport("sheet", json("other.json", { kind: "sheet" }))).toBeUndefined();
       expect(summaryReport("events", json("run.json", sheetRunReport(WEEK_19)))).toBeUndefined();
     });
   });

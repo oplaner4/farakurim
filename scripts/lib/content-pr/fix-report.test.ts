@@ -7,7 +7,6 @@ import type { EventEntry, EventsReport, Question, SheetReport } from "./report-s
 const WEEK = reportWeek("2026-10-19", "2026-10-25", { kind: "created" }, [reportQuestion("q1", true)]);
 const OTHER_WEEK = reportWeek("2026-10-26", "2026-11-01", { kind: "corrected" });
 const sheet = (weeks = [WEEK, OTHER_WEEK], questions: Question[] = []): SheetReport => ({
-  version: 1,
   kind: "sheet",
   weeks,
   questions,
@@ -22,7 +21,6 @@ const CONCERT: EventEntry = {
 };
 const TRIP: EventEntry = { title: "Zájezd", outcome: { kind: "refused", reason: "past" }, venues: [], questions: [] };
 const events = (list = [CONCERT, TRIP], dropped = ["attachment 2, a logo"]): EventsReport => ({
-  version: 1,
   kind: "events",
   events: list,
   questions: [],

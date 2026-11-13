@@ -20,7 +20,6 @@ const done = (overrides: Partial<RunState> = {}): RunState => ({
 
 /** An events report whose events (by title) have these outcomes (`created` or `refused: <reason>`). */
 const report = (...outcomes: [string, string][]): Report => ({
-  version: 1,
   kind: "events",
   events: outcomes.map(([title, outcome]) => ({
     title,
@@ -36,7 +35,6 @@ const WEEK_ENDS = { "2026-10-19": "2026-10-25", "2026-10-26": "2026-11-01" } as 
 
 /** A sheet report whose weeks (by start date) have these outcomes (`corrected` or `refused: <reason>`). */
 const sheetReport = (...outcomes: [keyof typeof WEEK_ENDS, string][]): Report => ({
-  version: 1,
   kind: "sheet",
   weeks: outcomes.map(([from, outcome]) => ({
     validFrom: from,

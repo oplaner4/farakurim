@@ -49,7 +49,6 @@ in the mail's order, with every field below (the optional ones may be left out):
 
 ```json
 {
-  "version": 1,
   "kind": "events",
   "events": [
     {

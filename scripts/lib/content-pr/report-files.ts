@@ -16,8 +16,7 @@ import {
 } from "./report-schema";
 
 /** The message of a PR whose report or previous report cannot be read: it cannot be continued. */
-export const RESEND =
-  "The PR's report is missing or from another version: close the PR and send the sheet or event again.";
+export const RESEND = "The PR's report is missing or unreadable: close the PR and send the sheet or event again.";
 
 /**
  * Where the report comes from: a full report, or (`run`) a sheet mail run's merged into `previous`; `fix` a comment
@@ -32,7 +31,7 @@ export type ReportInput = {
   original?: string;
 };
 
-/** The PR's previous sheet report; one that is missing, unreadable or of another version cannot be continued. */
+/** The PR's previous sheet report; one that is missing or that the schema refuses cannot be continued. */
 function readPrevious(file: string): SheetReport {
   try {
     return parseSheetReport(JSON.parse(readFileSync(file, "utf8")));

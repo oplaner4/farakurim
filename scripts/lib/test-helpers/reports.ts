@@ -21,7 +21,6 @@ export const reportWeek = (
 
 /** A full sheet report of `weeks`, with report-level `questions`. */
 export const sheetReport = (weeks: WeekEntry[], questions: Question[] = []) => ({
-  version: 1,
   kind: "sheet",
   weeks,
   questions,
@@ -29,7 +28,6 @@ export const sheetReport = (weeks: WeekEntry[], questions: Question[] = []) => (
 
 /** A sheet mail run's report of the one week `entry`, with `extra` fields (questions, question updates). */
 export const sheetRunReport = (entry: WeekEntry, extra: object = {}) => ({
-  version: 1,
   kind: "sheet",
   week: entry,
   questions: [],

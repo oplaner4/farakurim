@@ -31,7 +31,7 @@ provider's DKIM signature.
    artifact `content-report-<sha>` of each commit (30 days, beside `content-uploads-<sha>`). A later run gets the PR's
    report as `previous-report.json`, read-only, and writes only the week it handled; the script merges it in, keeping
    the other weeks and every question id, so the body and title describe every week in the PR, and turns the PR back
-   into a draft on a new blocking question. A PR whose report is missing (the artifact expired) or of another version
+   into a draft on a new blocking question. A PR whose report is missing (the artifact expired) or unreadable
    cannot be continued: close the PR and send the sheet again. The conversation is locked: only
    collaborators with write access can comment. Every e-mail is about one week (see below): a new week is created,
    a week already on the site is replaced from the new draft (a correction, never compared with the published sheet),
@@ -253,7 +253,7 @@ sheet mail, your own push), seen before the push or as a rejected push, gets not
 changed or was merged meanwhile: write the comment again if it still applies". A failed upload of the staged files
 pushes nothing either. A reply that could not be posted stops the chain, so the comment is not applied again run
 after run (the next `/fix` comment starts from the oldest unanswered one, which may be that comment). An expired
-artifact (after 30 days), or a report of another version, means the PR has to be recreated: close the PR and send the
+artifact (after 30 days), or a report the schema refuses (see `report-schema.ts`), means the PR has to be recreated: close the PR and send the
 sheet or event again. A refusal is a reply and a green run.
 
 The run uses the PR head's own scripts and skills, so a PR whose branch was made before this workflow existed gets

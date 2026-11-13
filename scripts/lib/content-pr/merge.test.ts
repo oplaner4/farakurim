@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { REPORT_VERSION } from "./report-schema";
 import type { Question, SheetReport, SheetRunReport, WeekEntry } from "./report-schema";
 import { mergeSheetReport } from "./merge";
 
@@ -19,11 +18,11 @@ function week(validFrom: string, overrides: Partial<WeekEntry> = {}): WeekEntry 
 }
 
 function report(weeks: WeekEntry[], questions: Question[] = []): SheetReport {
-  return { version: REPORT_VERSION, kind: "sheet", weeks, questions };
+  return { kind: "sheet", weeks, questions };
 }
 
 function run(handled: WeekEntry, overrides: Partial<SheetRunReport> = {}): SheetRunReport {
-  return { version: REPORT_VERSION, kind: "sheet", week: handled, questions: [], questionUpdates: [], ...overrides };
+  return { kind: "sheet", week: handled, questions: [], questionUpdates: [], ...overrides };
 }
 
 describe("mergeSheetReport", () => {

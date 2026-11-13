@@ -5,7 +5,7 @@
 // Every action reads the agent's JSON report (scripts/lib/content-pr/report-schema.ts). `check` reads it as `apply`
 // does and prints `The report is valid.`, or fails with each issue as `<path>: <message>`. With `--run`, the report is
 // a sheet mail run's (one week and its question updates), merged into the PR's report given by `--previous` (none on
-// the PR's first run); a previous report that is missing, unreadable or of another version fails with "close the PR
+// the PR's first run); a previous report that is missing or that the schema refuses fails with "close the PR
 // and send the sheet or event again". `--fix` adds a comment fix's result (fix.json) beside the full report, and `--original` the PR's report the fix
 // corrected in place: the corrected one may differ from it only where a fix may change it (an open question resolved
 // with its answer; the title, origin and appended venues of an event, or the summary of a week, whose record the

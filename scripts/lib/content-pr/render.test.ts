@@ -12,7 +12,6 @@ const week = (validFrom: string, validTo: string, extra: Partial<WeekEntry> = {}
 });
 
 const sheet = (weeks: WeekEntry[], questions: SheetReport["questions"] = []): SheetReport => ({
-  version: 1,
   kind: "sheet",
   weeks,
   questions,
@@ -91,7 +90,6 @@ describe("renderReport", () => {
 
   it("renders events with venues, report-level questions and dropped attachments", () => {
     const report: EventsReport = {
-      version: 1,
       kind: "events",
       events: [
         {

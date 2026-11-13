@@ -119,7 +119,6 @@ describe("applyReport", () => {
     writeFileSync(patch, `${testGit(repo(), "diff", "--binary", "HEAD")}\n`);
     testGit(repo(), "checkout", "-q", "--", ".");
     const report = json("report.json", {
-      version: 1,
       kind: "events",
       events: [{ title: "Koncert", outcome: { kind: "refused", reason: "past" }, venues: [], questions: [] }],
       questions: [],

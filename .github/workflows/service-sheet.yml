@@ -130,7 +130,7 @@ jobs:
       # Only a branch of this repo counts (a fork's PR can carry any branch name). A new branch is named after the
       # newest sheet's date (Prague time), the run's date if it has none. An open PR's report is found and checked with
       # main's code, before the branch is checked out; none (an expired artifact, a PR from before the JSON reports) or
-      # one of another version fails the run.
+      # one the schema refuses fails the run.
       - name: Check out the sheet branch
         id: branch
         if: steps.fetch.outputs.docx != ''
@@ -155,7 +155,7 @@ jobs:
             fi
             if [ ! -f "$stored/report.json" ] \
               || ! pnpm --silent content-pr check --kind sheet "$stored/report.json"; then
-              echo "::error::The PR's report is missing or from another version: close the PR and send the sheet" \
+              echo "::error::The PR's report is missing or unreadable: close the PR and send the sheet" \
                 "or event again."
               exit 1
             fi

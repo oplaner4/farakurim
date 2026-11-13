@@ -61,7 +61,6 @@ every field below (the optional ones may be left out):
 
 ```json
 {
-  "version": 1,
   "kind": "sheet",
   "week": {
     "validFrom": "2026-10-19",

@@ -109,9 +109,8 @@ const entry = (validFrom: string, validTo: string, kind: WeekEntry["outcome"]["k
   summary: "s",
   questions: [],
 });
-const sheetReport = (...weeks: WeekEntry[]): SheetReport => ({ version: 1, kind: "sheet", weeks, questions: [] });
+const sheetReport = (...weeks: WeekEntry[]): SheetReport => ({ kind: "sheet", weeks, questions: [] });
 const eventsReport = (...events: [string, string | undefined][]): EventsReport => ({
-  version: 1,
   kind: "events",
   events: events.map(([title, id]) => ({
     title,

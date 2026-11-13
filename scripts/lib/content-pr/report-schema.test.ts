@@ -16,9 +16,8 @@ const week = {
   summary: "Created.",
   questions: [],
 };
-const sheet = { version: 1, kind: "sheet", weeks: [week], questions: [] };
+const sheet = { kind: "sheet", weeks: [week], questions: [] };
 const events = {
-  version: 1,
   kind: "events",
   events: [
     {
@@ -50,10 +49,10 @@ describe("report schema", () => {
     expect(parseReport("events", events)).toEqual(events);
   });
 
-  it("rejects another version", () => {
-    const issues = issuesOf(() => parseSheetReport({ ...sheet, version: 2 }));
+  it("rejects an unknown field, such as a report from before the schema changed", () => {
+    const issues = issuesOf(() => parseSheetReport({ ...sheet, version: 1 }));
     expect(issues).toHaveLength(1);
-    expect(issues[0]).toMatch(/^version:/);
+    expect(issues[0]).toMatch(/^: Unrecognized key/);
   });
 
   it("names the path of each issue", () => {
@@ -83,7 +82,6 @@ describe("report schema", () => {
 
   it("parses a run report with question updates", () => {
     const run = {
-      version: 1,
       kind: "sheet",
       week,
       questions: [question],

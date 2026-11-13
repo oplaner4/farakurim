@@ -59,7 +59,7 @@ strict: an unknown field is an error).
   | a question        | an `open` one the comment answers: `"status": "resolved"` and the answer in `answer`              | `id`, `blocking`, `where`, `text`, `proposal`, a `resolved` one; none added or removed |
   | an event (events) | only when this run changed its record: `title` (as the record's), `origin`, new `venues` appended | `outcome`, the venues already listed, the events and their order                       |
   | a week (sheet)    | only when this run changed its sheet: `summary`                                                   | `validFrom`, `validTo`, `outcome`, `notOnTheNewest`, `senderNote`, the weeks           |
-  | the report        | nothing but its questions, as above                                                               | `version`, `kind`, `droppedAttachments`                                                |
+  | the report        | nothing but its questions, as above                                                               | `kind`, `droppedAttachments`                                                           |
 
   The script derives the PR's draft state from the open blocking questions and names its commit, so a doubt the
   comment leaves open goes in the reply, never in a new question.

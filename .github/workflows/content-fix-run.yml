@@ -7,7 +7,7 @@
 # Two jobs per comment, so that no step holding a secret runs code from a workspace the agent has touched:
 # - `fix` reads the PR (`pnpm content-fix next`: open, kind, head and the comment, from main's code before anything
 #   else) and, for a request, downloads the PR's JSON report (`pnpm content-pr stored`: the `content-report-<sha>`
-#   artifact of its newest commit that has one; none, or one of another version, and the reply says to close the PR
+#   artifact of its newest commit that has one; none, or one the schema refuses, and the reply says to close the PR
 #   and send the sheet or event again), the PR's staged files (the `content-uploads-<sha>` artifacts of its commits,
 #   applied in commit order into the staging folder), the failed `check` run's log and, for events, the known events.
 #   It then checks out the PR's head and lets the agent (workload identity federation, no API key) run
@@ -133,7 +133,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       # From main's code, before the head is checked out: the PR's report, checked with main's schema, for the agent
-      # to correct in place. None (an expired artifact, a PR from before the JSON reports) or one of another version
+      # to correct in place. None (an expired artifact, a PR from before the JSON reports) or one the schema refuses
       # fails the run, and the reply says to close the PR and send the sheet or event again.
       - name: Download the PR's report
         id: report
@@ -152,7 +152,7 @@ jobs:
           if [ ! -f "$stored/report.json" ] \
             || ! pnpm --silent content-pr check --kind "$KIND" "$stored/report.json"; then
             echo "missing=true" >> "$GITHUB_OUTPUT"
-            echo "::error::The PR's report is missing or from another version: close the PR and send the sheet or" \
+            echo "::error::The PR's report is missing or unreadable: close the PR and send the sheet or" \
               "event again."
             exit 1
           fi
@@ -502,8 +502,8 @@ jobs:
             outcome="the report could not be uploaded"
             echo "The fix failed: its report could not be uploaded, so nothing was pushed: $RUN_URL" > "$reply"
           elif [ "$REPORT_MISSING" = true ]; then
-            outcome="the PR's report is missing or from another version"
-            echo "The PR's report is missing or from another version: close the PR and send the sheet or event again." \
+            outcome="the PR's report is missing or unreadable"
+            echo "The PR's report is missing or unreadable: close the PR and send the sheet or event again." \
               "Run: $RUN_URL" > "$reply"
           elif [ "$ARTIFACTS" = failure ]; then
             outcome="the staged files could not be downloaded"

@@ -1,12 +1,14 @@
 // The schema of the JSON reports the content PR agents write: the service sheet report (a whole one and a single run's),
 // the events report and a comment fix's result. Every parse function checks a value against its schema and throws a
 // ReportError listing each issue as `<dotted path>: <message>`.
+//
+// The reports carry no version: a report is stored with its PR and read back by the PR's next run, so merge or close
+// every open content PR before changing this schema. A stored report the changed schema refuses fails that PR's next
+// run with "close the PR and send the sheet or event again".
 
 import { z } from "zod";
 import { MARKER_START } from "../content-fix/comments";
 import type { Kind } from "../content-release/plan";
-
-export const REPORT_VERSION = 1;
 
 export class ReportError extends Error {
   readonly issues: string[];
@@ -87,7 +89,6 @@ function checkUniqueQuestionIds(report: Questioned, entries: Questioned[], ctx: 
 
 const sheetReportSchema = z
   .strictObject({
-    version: z.literal(REPORT_VERSION),
     kind: z.literal("sheet"),
     weeks: z.array(weekEntrySchema),
     questions: z.array(questionSchema),
@@ -110,7 +111,6 @@ const sheetReportSchema = z
 
 const sheetRunReportSchema = z
   .strictObject({
-    version: z.literal(REPORT_VERSION),
     kind: z.literal("sheet"),
     week: weekEntrySchema,
     questions: z.array(questionSchema),
@@ -126,7 +126,6 @@ const sheetRunReportSchema = z
 
 const eventsReportSchema = z
   .strictObject({
-    version: z.literal(REPORT_VERSION),
     kind: z.literal("events"),
     events: z.array(eventEntrySchema),
     questions: z.array(questionSchema),
