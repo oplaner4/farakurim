@@ -36,39 +36,84 @@ Steps 1 to 6 of `parish-create-event` apply with these changes:
   instead. The scratchpad is the prompt's (`record.json`; write nothing in the repo); run step 5a or 5b one
   event after another. Skip the `--check` runs of steps 3a and 3b: step 5a or 5b checks everything first and stages
   nothing when it refuses, so fix `record.json` and run it again.
-- Write the report first, then stage, then fill in each event's `Outcome:` line from what the script did, and add any
-  line it printed for the user (an unpinned event) to the report. A script refusal is `refused: <its reason>`:
-  the refusal's first line; its `next:` lines say what to do, not what to publish.
+- Write the report first, then stage, then fill in each event's `outcome` from what the script did, and add any
+  line it printed for the user (an unpinned event) to the report. A script refusal is an outcome `refused` with the
+  refusal's first line as its `reason`; its `next:` lines say what to do, not what to publish.
 - **Venue:** as "Venues" below says (a new venue or alias is written before the event is staged and reported with
   its pin link).
 - Skip step 6: no `parish-publish-content`, no commit, no release.
 
-**The report** is English, with site content quoted in Czech, and starts with exactly these two lines:
+**The report** is the JSON file the prompt names (`report.json`), English with site content quoted in Czech. Its schema
+is `scripts/lib/content-pr/report-schema.ts` (strict: an unknown field is an error). It holds every event of the mail,
+in the mail's order, with every field below (the optional ones may be left out):
 
+```json
+{
+  "version": 1,
+  "kind": "events",
+  "events": [
+    {
+      "title": "Koncert scholy",
+      "outcome": { "kind": "created", "id": "2026-12-12-koncert-scholy" },
+      "origin": "The title is from the poster; the time is a guess from the body.",
+      "venues": [
+        {
+          "kind": "new",
+          "id": "kostel-sv-jana",
+          "name": "Kostel sv. Jana Křtitele",
+          "address": "Kostelní 1, Kuřim",
+          "pin": "https://mapy.com/s/example"
+        },
+        { "kind": "alias", "id": "kostel-sv-jana", "text": "v kostele" }
+      ],
+      "questions": [
+        {
+          "id": "q1",
+          "blocking": false,
+          "status": "open",
+          "where": "venue",
+          "text": "Two candidates for the venue.",
+          "proposal": "Leave it out."
+        }
+      ]
+    },
+    {
+      "title": "Zájezd",
+      "outcome": {
+        "kind": "refused",
+        "reason": "a correction of 2026-12-05-zajezd; make it with parish-correct-event"
+      },
+      "venues": [],
+      "questions": []
+    }
+  ],
+  "questions": [],
+  "droppedAttachments": ["attachment 3, an image without event information"]
+}
 ```
-blocking: yes|no
-commit: <message>
-```
 
-`blocking: yes` when any question is blocking (its answer changes what is published); an open blocking question
-makes the PR a draft even under `blocking: no`. The workflow names the commit after the events the change adds
-(`pnpm content-pr apply`), so `commit:` is only its fallback: `feat(content): add the <title> event` for one event
-created, `feat(content): add <n> events` for several.
+- `events`: one entry per event of the mail (a mail with no event in it, such as a thank-you with a logo, has none:
+  `[]`). `title` is the record's `title` as published; the workflow matches the `created` entries with the events the
+  change adds, by title, and refuses the change when they differ. `outcome.kind` is `created` (with the event's
+  `id`) or `refused` (with a `reason`: for a correction `a correction of <id>; make it with parish-correct-event`,
+  for a duplicate `already in <main or PR #n> as <id>`, for a script refusal its first line).
+- `origin` (optional, for a created event): only what the PR's diff does not show: where the title came from (the
+  subject, the poster) and the guesses (step 4), not the fields or the files.
+- `venues`: what this event's venue work added, as "Venues" below says, each shown with what to check: `kind: "new"`
+  for a new venue (`id`, `name`, `address`, `pin`: the Mapy.com link of the pin to check), `kind: "alias"` for a
+  new alias (`id` of the venue, `text` the alias). `[]` for none.
+- `questions` (of an event, and the report-level ones for the mail as a whole, such as an unclear grouping): `id` is
+  `q<number>` from `q1`, unique in the whole report. `status` is `open`; a question whose answer changes what is
+  published is `blocking: true`, else `false` (a note). `where` says what it is about; `proposal` is optional.
+- `droppedAttachments`: one line per dropped attachment, as "attachment 3, an image without event information":
+  never its file name. `[]` for none.
+- Write no `blocking`, `commit` or draft state: the script derives the PR's draft state from the open blocking
+  questions and names the commit from the events.
+- The PR is public and the report fills its body: in **every** field, quote only what is published (the fields, the
+  staged files' names and labels) and describe the rest of the mail without quoting it.
 
-Then, per event, in the mail's order (a mail with no event in it, such as a thank-you with a logo, has no event
-section):
-
-- `## <title>`: the record's `title` as published. The workflow matches the `created` sections with the events the
-  change adds, by title, and refuses the change when they differ;
-- one line `Outcome: created` or `Outcome: refused: <reason>` (a correction: `refused: a correction of <id>; make it
-with parish-correct-event`; a duplicate: `refused: already in <main or PR #n> as <id>`);
-- for a created event, only what the PR's diff does not show: where the title came from (the subject, the poster)
-  and the guesses (step 4), not the fields or the files;
-- `### Questions`, one per line: `- **q1** (blocking|note) <where>: <question> — proposal: <proposal>`.
-
-Then `## Dropped attachments` (each as "attachment 3, an image without event information": never its file name). The
-PR is public: quote only what is published (the fields, the staged files' names and labels); describe the rest of the
-mail without quoting it.
+Run `pnpm content-pr check --kind events <report file>` (the report file as the prompt gives it) until it passes. It
+prints `The report is valid.` or each issue as `<path>: <message>`; fix the report and run it again.
 
 ## Comment run
 
@@ -84,7 +129,7 @@ and these for events:
   change that moves the start year (step 1), an event the PR does not hold, anything else. The reply says what to do
   instead: close the PR, push a commit, run `parish-create-event` or `parish-correct-event` locally, or
   `parish-pin-event` after the merge.
-- **No server:** never run `pnpm pull-uploads`; when an attachment's file is missing, answer `Outcome: unchanged` and
+- **No server:** never run `pnpm pull-uploads`; when an attachment's file is missing, answer outcome `unchanged` and
   say the file is missing.
 
 ## Venues
@@ -98,8 +143,8 @@ to check.
 - Add a new venue (section B) only when one candidate is plainly the building: its name is the source's building, or
   it is the address the source gives. In a comment run, a venue, an alias or a Mapy.com link the comment names is the
   maintainer's yes.
-- Report each, with the pin to check: `New venue <id>: <name>, <address> — pin: <pin link>`,
-  `New alias "<text>" for <id>`.
+- Report each, with the pin to check, in the event's `venues`: a `new` entry (`id`, `name`, `address`, `pin`: the
+  pin link) or an `alias` entry (`id`, `text`).
 - Anything less certain (several candidates, none, an approximate link): leave `venue` out and write a question
-  (`blocking: no`) with the candidates and their pin links.
+  (`blocking: false`) with the candidates and their pin links.
 - Never change a venue (section D): the PR refuses the whole change.

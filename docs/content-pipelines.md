@@ -22,13 +22,17 @@ provider's DKIM signature.
 1. reads the unseen mail over IMAP (`pnpm sheet-mail`): only an accepted sender's DKIM-signed message with exactly
    one DOCX is a sheet, any other mail is filed in `Odmítnuto`. Of several sheets the newest is handled;
 2. lets the agent run the service sheet skills unattended on the DOCX (workload identity federation, no API key): it
-   drafts, corrects and stages the run's week, checks it against the sender's note and writes a report;
+   drafts, corrects and stages the run's week, checks it against the sender's note and writes a JSON report
+   (`report.json`: the week, its questions and the answers to the PR's earlier questions);
 3. checks the report against the change and applies it to a fresh checkout only if it touches nothing but
    `src/content/*.json` (`pnpm content-pr apply`), then commits it as the GitHub App's bot (no test or build: [`check.yml`](github-setup.md#checks-on-content-prs)
    checks the PR) and opens (or adds a commit to)
-   the one `service-sheet/*` pull request, its body the report (a later run gets the previous report, keeps its weeks
-   and question ids, so the body and title describe every week in the PR, and turns it back into a draft on a new
-   blocking question). The conversation is locked: only
+   the one `service-sheet/*` pull request, its body rendered from the report. The report is kept between runs as the
+   artifact `content-report-<sha>` of each commit (30 days, beside `content-uploads-<sha>`). A later run gets the PR's
+   report as `previous-report.json`, read-only, and writes only the week it handled; the script merges it in, keeping
+   the other weeks and every question id, so the body and title describe every week in the PR, and turns the PR back
+   into a draft on a new blocking question. A PR whose report is missing (the artifact expired) or of another version
+   cannot be continued: close the PR and send the sheet again. The conversation is locked: only
    collaborators with write access can comment. Every e-mail is about one week (see below): a new week is created,
    a week already on the site is replaced from the new draft (a correction, never compared with the published sheet),
    so a resend opens a PR you close when nothing changed;
@@ -47,7 +51,7 @@ provider's DKIM signature.
   fails, so the parish sends it again with the right dates or none. The run also fails when an older sheet mail,
   superseded by a newer one, named another week: that week was not handled, so ask for it again.
 - **The mail's new text is the sender's note** (without a quoted reply or the signature): "Oprava: sobotní mše až
-  v 18:00". The agent checks the draft against it and says in the report's `### Sender's note` what it asks to check
+  v 18:00". The agent checks the draft against it and says in the report's `senderNote` what it asks to check
   and whether the draft agrees; a disagreement is a blocking question. The note is never a source: the site shows
   what the DOCX says.
 
@@ -115,13 +119,13 @@ and check in the run:
 - the IMAP login works and both folders exist;
 - DKIM is accepted and the stranger's mail is filed in `Odmítnuto`;
 - the federation exchange succeeds (on a 401, see the Console's history);
-- the skills load and the report is written;
+- the skills load and the JSON report is written and passes `pnpm content-pr check`;
 - the agent could not write in the checkout: the log shows its Write and Edit calls only under the scratch folder
   (`…/_temp/sheet/`), and any attempt elsewhere was denied;
 - LibreOffice produces the sheet's PDF page;
 - the PR is opened and locked, and a draft when the report has a blocking question;
-- a second run while the PR is open adds a commit to it, keeps the question ids of the previous report, updates the
-  title and turns the PR back into a draft when the new report has a blocking question;
+- a second run while the PR is open adds a commit to it, merges its week into the previous report (the question ids
+  stay), updates the title and turns the PR back into a draft when the new report has a blocking question;
 - after you squash merge the PR, the release run uploads its PDF, the tag's deploy run is green, and the PR loses its
   branch, without a comment (only a release that stops or fails comments).
 
@@ -142,11 +146,13 @@ signature. `.github/workflows/events.yml`
    in the report), takes each title from the subject or its poster, fills the text from the attachments, pins only
    when the mail asks for "Doporučujeme", and refuses a **correction** (oprava, změna, posun, přesun, zrušeno, nekoná,
    …: make it with `parish-correct-event` or `parish-cancel-event`) and a **duplicate** of a known event;
-4. checks the report against the change and applies it only if it touches nothing but the news month files and the
+4. checks the JSON report against the change and applies it only if it touches nothing but the news month files and the
    venue list, which may only gain venues and aliases (`pnpm content-pr apply`), then commits the new events as the GitHub App's bot (no test or build: [`check.yml`](github-setup.md#checks-on-content-prs) checks the
    PR) and opens **one PR per mail** on a branch
-   `events/<date>`, its body the report (only what is published is quoted: the PR is public), locked, a draft when
-   the report has a blocking question. Its body ends with the [calendar sync](calendar-sync.md) preview's lines
+   `events/<date>`, its body rendered from the report (only what is published is quoted, in every field: the PR is
+   public), locked, a draft when the report has a blocking question. The report (`report.json`: the events with their
+   venues and questions, the report-level questions and the dropped attachments) is kept as the artifact
+   `content-report-<sha>` (30 days), beside `content-uploads-<sha>`. Its body ends with the [calendar sync](calendar-sync.md) preview's lines
    that need a person (its `ask:` lines, or that the calendar was not checked), so the reviewer can fix
    Události before the merge releases the site. It refuses an id an open events PR already holds (`pnpm event-mail
 check-ids`). The staged files go into the artifact `content-uploads-<sha>`;
@@ -214,7 +220,8 @@ repo would notify whoever owns that GitHub account.
 Anything else (a new, dropped, pinned or split event, a new or replaced file, a week or event the PR does not hold)
 changes nothing, and the reply says what to do instead (close the PR, push a commit, run a skill locally, or
 `parish-pin-event` after the merge). A fact no document has is made as asked, and the reply says the site will then
-differ from the parish's document. An answer to a question ("/fix q2: correct as is") is recorded in the report.
+differ from the parish's document. An answer to a question ("/fix q2: correct as is") is recorded in the report (the question is marked resolved with
+its answer).
 
 `.github/workflows/content-fix.yml` runs on every new comment (an edited one does not run again): only one from a
 commenter with write access (`OWNER`, `MEMBER` or `COLLABORATOR`, and the repo permission `write`, `maintain` or
@@ -224,13 +231,15 @@ commenter with write access (`OWNER`, `MEMBER` or `COLLABORATOR`, and the repo p
 1. `fix` reads the PR (closed or merged meanwhile: nothing happens), downloads its staged files from the
    `content-uploads-<sha>` artifacts of its commits, the failed `check` run's log and, for events, the known events,
    then lets the agent run `parish-correct-service-sheet` or `parish-correct-event` as a comment run ("Comment run") on
-   the PR's head, with the comment and the PR's report as its only input (never the rest of the thread). What both
-   kinds share (the input, the `--check` first, the report and its reply) is `.claude/content-pr/comment-run.md`;
+   the PR's head, with the comment and the PR's JSON report (`report.json`, from its `content-report-<sha>` artifact) as its only
+   input (never the rest of the thread). The agent corrects `report.json` in place and writes `fix.json` (the outcome,
+   the fix's commit message and the reply). What both kinds share (the input, the `--check` first, the two files) is
+   `.claude/content-pr/comment-run.md`;
    each kind's "Comment run" section adds what a comment may change. Its file tools write only in the job's scratch
    folder, as in the mail workflows.
 2. `publish` (a fresh checkout, the App key, no id-token) checks the report, applies the change only if it touches
-   nothing but the kind's files, commits it as the App's bot with the report's `fix:` message, uploads the files it
-   staged as `content-uploads-<sha>` and only then pushes without force (so no pushed commit lacks its files), and
+   nothing but the kind's files, commits it as the App's bot with the fix's `fixMessage`, uploads the files it
+   staged as `content-uploads-<sha>` and the report as `content-report-<sha>` and only then pushes without force (so no pushed commit lacks its files), and
    updates the PR's body (and for events its Události lines) and title; a new blocking question turns the PR back
    into a draft. Before committing it reads the PR again: merged, closed or moved since `fix` read it, nothing is
    pushed. No test or build: [`check.yml`](github-setup.md#checks-on-content-prs) checks the pushed commit.
@@ -238,14 +247,15 @@ commenter with write access (`OWNER`, `MEMBER` or `COLLABORATOR`, and the repo p
    marker naming the comment it answers (`<!-- content-fix: <comment id> -->`), so a comment is answered once and a
    later run takes the next unanswered one (up to 10 runs per start).
 
-**Failures:** on a technical failure (the agent's step, a report without its header lines, a change outside the allowed
+**Failures:** on a technical failure (the agent's step, a report or fix result the schema refuses, a change outside the allowed
 files) the run is red (GitHub tells you) and the reply says "The fix failed" with the run's link, never the comment's
 or a file's content. A failed comment is not retried: write it again. A PR merged, closed or moved meanwhile (a new
 sheet mail, your own push), seen before the push or as a rejected push, gets nothing pushed and the reply "The PR
 changed or was merged meanwhile: write the comment again if it still applies". A failed upload of the staged files
 pushes nothing either. A reply that could not be posted stops the chain, so the comment is not applied again run
 after run (the next `/fix` comment starts from the oldest unanswered one, which may be that comment). An expired
-artifact (after 30 days) means the PR has to be recreated. A refusal is a reply and a green run.
+artifact (after 30 days), or a report of another version, means the PR has to be recreated: close the PR and send the
+sheet or event again. A refusal is a reply and a green run.
 
 The run uses the PR head's own scripts and skills, so a PR whose branch was made before this workflow existed gets
 only a failure reply: correct it with a commit or locally.

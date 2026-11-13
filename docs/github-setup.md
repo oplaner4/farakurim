@@ -83,7 +83,9 @@ It does **not** check, so these stay with the setup steps and the first runs:
 
 The content workflows (`service-sheet.yml`, `events.yml`) do not test or build before they open a PR: `check.yml` runs
 on every commit the App pushes to a content PR. What stays in them are the cheap guards (the patch's allowed files, the
-ids an open events PR holds, the commit message, the report's format, a report that creates or corrects nothing
-carries no change, and each week or event the change adds or corrects is the report's own section). A mail whose change fails the check is no longer left unread for the next run: it is filed and its
+ids an open events PR holds, the commit message, the JSON report's schema, a report that creates or corrects nothing
+carries no change, and each week or event the change adds or corrects is an entry of the report). The report of each commit is kept as the artifact `content-report-<sha>` (30 days), beside the staged files'
+`content-uploads-<sha>`: the next run and a `/fix` comment read the PR's report from it. When the PR's report is
+missing or of another version, the run fails and says to close the PR and send the sheet or event again. A mail whose change fails the check is no longer left unread for the next run: it is filed and its
 PR opens red. Fix a red check with a [`/fix` comment](content-pipelines.md#fixing-content-prs-with-comments) or a commit to the PR's
 branch; a red check notifies nobody, so look at the PR before merging.
