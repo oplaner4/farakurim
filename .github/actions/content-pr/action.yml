@@ -1,12 +1,12 @@
 # Commits a mail workflow's change to the content as the GitHub App's bot and opens (or updates) its PR: the App token,
-# the commit, the staged files as the artifact `content-uploads-<sha>`, the push and the PR. Used by service-sheet.yml
-# and events.yml after `pnpm content-pr apply` applied the change; any failed step fails the action, so the workflow
-# leaves its mail unread for the next run.
+# the commit, the staged files as the artifact `content-uploads-<sha>`, the PR's final JSON report as
+# `content-report-<sha>`, the push and the PR. Used by service-sheet.yml and events.yml after `pnpm content-pr apply`
+# applied the change; any failed step fails the action, so the workflow leaves its mail unread for the next run.
 #
 # - The commit holds only `paths` (the staged files are in the staging folder, which git ignores), without hooks (the
 #   message is checked already).
-# - The artifact is uploaded before the push, so no pushed commit lacks its staged files: a failed upload pushes
-#   nothing.
+# - The artifacts are uploaded before the push, so no pushed commit lacks its staged files or its report (the next mail
+#   run and a comment fix read it back with `pnpm content-pr stored`): a failed upload pushes nothing.
 # - Never a force-push: a branch moved since the workflow read it rejects the push, and the mail is retried.
 # - With `pr`, the PR is updated: its title and body, and a draft again when `draft` is true, so a new blocking question
 #   cannot be merged (otherwise the draft state stays: the maintainer marks it ready). Without it, a new PR is opened
@@ -44,6 +44,9 @@ inputs:
     default: "true"
   body-file:
     description: The PR body
+    required: true
+  report-file:
+    description: The PR's final report (`report.json` from `pnpm content-pr apply`), uploaded as `content-report-<sha>`
     required: true
   reviewers:
     description: The logins asked for a review of a new PR, separated by commas
@@ -95,6 +98,13 @@ runs:
         name: content-uploads-${{ steps.commit.outputs.sha }}
         path: ${{ inputs.uploads }}
         if-no-files-found: warn
+        retention-days: 30
+
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+      with:
+        name: content-report-${{ steps.commit.outputs.sha }}
+        path: ${{ inputs.report-file }}
+        if-no-files-found: error
         retention-days: 30
 
     - name: Push

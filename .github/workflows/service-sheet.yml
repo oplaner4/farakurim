@@ -5,19 +5,23 @@
 # subject names none), and the mail's new text is
 # the sender's note, which the agent checks the draft against (never a source of content).
 # Two jobs, so that no step holding a secret runs code from a workspace the agent has touched:
-# - `sheet` fetches the mail and lets the agent (workload identity federation, no API key) run the
-#   service sheet skills unattended on the DOCX: it drafts, corrects and stages the weeks and writes a report. The
-#   agent's file tools may write only in $RUNNER_TEMP/sheet (the checkout is denied); only `pnpm stage sheet` writes
-#   src/content/ and the staging folder. The job hands on the report, the change to src/content/ as a patch and the staged PDFs
-#   as a one-day artifact. The year's DOCX (intentions with names) and the note never leave this job: they are not
-#   uploaded, cached or logged, and they are deleted at the end.
-# - `publish` starts from a fresh checkout, applies the patch only if it touches nothing but src/content/*.json, then
-#   commits as the GitHub App's bot and opens or updates the one service-sheet/* PR, its body the report (ended by a
-#   `<!-- report-end -->` line, so a comment fix can replace the report), a draft while the report has a blocking
-#   question (an update turns it back into one). It neither tests nor builds: check.yml does that on every commit the
-#   App pushes, and a red check is fixed with a `/fix` comment (content-fix-run.yml) or a commit. It has no
-#   id-token, so it cannot act as the agent. It uploads the staged PDFs as `content-uploads-<sha>` before it pushes the
-#   commit, so no pushed commit lacks them.
+# - `sheet` fetches the mail and, for an open sheet PR, the PR's JSON report (`pnpm content-pr stored`: the
+#   `content-report-<sha>` artifact of its newest commit that has one), then lets the agent (workload identity
+#   federation, no API key) run the service sheet skills unattended on the DOCX: it drafts, corrects and stages the
+#   week and writes the run's JSON report (`report.json`: the week and its questions, plus the answers to the PR's
+#   earlier questions), checked with `pnpm content-pr check`. The agent's file tools may write only in
+#   $RUNNER_TEMP/sheet (the checkout is denied); only `pnpm stage sheet` writes src/content/ and the staging folder. The
+#   job hands on the report, a clean copy of the PR's report (saved before the agent ran), the change to src/content/
+#   as a patch and the staged PDFs as a one-day artifact. The year's DOCX (intentions with names) and the note never
+#   leave this job: they are not uploaded, cached or logged, and they are deleted at the end.
+# - `publish` starts from a fresh checkout, merges the run's report into the PR's (`pnpm content-pr apply`), applies
+#   the patch only if it touches nothing but src/content/*.json and checks the report against the whole PR, then
+#   commits as the GitHub App's bot and opens or updates the one service-sheet/* PR, its body rendered from the report,
+#   a draft while the report has a blocking question (an update turns it back into one). It neither tests nor builds:
+#   check.yml does that on every commit the App pushes, and a red check is fixed with a `/fix` comment
+#   (content-fix-run.yml) or a commit. It has no id-token, so it cannot act as the agent. It uploads the staged PDFs as
+#   `content-uploads-<sha>` and the merged report as `content-report-<sha>` before it pushes the commit, so no pushed
+#   commit lacks them.
 # The maintainer's merge releases the site (content-release.yml), with the staged PDFs from the artifacts of the PR's
 # commits (`content-uploads-<sha>`, the PDFs under porady_bohosluzeb/ as in the staging folder). Nothing changed: no PR. The mail is filed (Zpracováno, Odmítnuto) only once its outcome is done, so
 # a run that breaks retries the sheet on the next run. Both jobs run in the environment `service-sheet-publish` (the
@@ -57,6 +61,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: read # find the open sheet PR
+      actions: read # the PR's stored report
       id-token: write # The agent's workload identity federation
     # The uids and the summary come from the fetch step, which ran before the agent's: they are not read back from files
     # the agent could have changed.
@@ -123,7 +128,9 @@ jobs:
 
       # At most one open sheet PR: a later e-mail adds a commit to its branch, so service-sheets.json never conflicts.
       # Only a branch of this repo counts (a fork's PR can carry any branch name). A new branch is named after the
-      # newest sheet's date (Prague time), the run's date if it has none.
+      # newest sheet's date (Prague time), the run's date if it has none. An open PR's report is found and checked with
+      # main's code, before the branch is checked out; none (an expired artifact, a PR from before the JSON reports) or
+      # one of another version fails the run.
       - name: Check out the sheet branch
         id: branch
         if: steps.fetch.outputs.docx != ''
@@ -138,10 +145,23 @@ jobs:
           pr="" branch=""
           if [ -n "$found" ]; then read -r pr branch <<< "$found"; fi
           if [ -n "$pr" ]; then
+            # The report of the earlier runs: a clean copy for `publish`'s merge, outside the agent's reach, and the
+            # agent's own, so it keeps the question ids.
+            stored="$RUNNER_TEMP/stored"
+            found=$(pnpm --silent content-pr stored --pr "$pr")
+            if [ -n "$found" ]; then
+              read -r id name <<< "$found"
+              gh run download "$id" --repo "$GITHUB_REPOSITORY" -n "$name" -D "$stored"
+            fi
+            if [ ! -f "$stored/report.json" ] \
+              || ! pnpm --silent content-pr check --kind sheet "$stored/report.json"; then
+              echo "::error::The PR's report is missing or from another version: close the PR and send the sheet" \
+                "or event again."
+              exit 1
+            fi
+            cp "$stored/report.json" "$RUNNER_TEMP/run/previous-report.json"
+            cp "$stored/report.json" "$RUNNER_TEMP/sheet/previous-report.json"
             git checkout -B "$branch" "origin/$branch"
-            # The report of the earlier runs, so the agent keeps its question ids. The conversation is locked: only
-            # collaborators can edit this body.
-            gh pr view "$pr" --json body --jq .body > "$RUNNER_TEMP/sheet/previous-report.md"
           else
             date="$MAIL_DATE"
             if ! [[ "$date" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then date=$(TZ=Europe/Prague date +%F); fi
@@ -167,7 +187,9 @@ jobs:
         uses: oplaner4/farakurim/.github/actions/agent@main # from main, not the checkout: see the action
         with:
           workdir: ${{ runner.temp }}/sheet
-          commands: pnpm stage sheet:*
+          commands: |
+            pnpm stage sheet:*
+            pnpm content-pr check:*
           federation-rule-id: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
           organization-id: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
           service-account-id: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
@@ -177,12 +199,12 @@ jobs:
             ${{ steps.fetch.outputs.week_from != '' && format('The week to handle: {0} to {1} (`--from {0} --to {1}`).', steps.fetch.outputs.week_from, steps.fetch.outputs.week_to) || 'The week to handle: the DOCX''s newest.' }}
             ${{ steps.fetch.outputs.note == 'true' && format('The sender''s note: {0}/sheet/mail/note.txt.', runner.temp) || 'The sender wrote no note.' }}
             Run the service sheet skills unattended (their "Unattended run" section). The report file is
-            ${{ runner.temp }}/sheet/report.md and the scratchpad is ${{ runner.temp }}/sheet.
-            The previous report of this PR, if present: ${{ runner.temp }}/sheet/previous-report.md.
+            ${{ runner.temp }}/sheet/report.json and the scratchpad is ${{ runner.temp }}/sheet.
+            ${{ steps.branch.outputs.pr != '' && format('The previous report of this PR (read-only): {0}/sheet/previous-report.json. Run `pnpm content-pr check --kind sheet --run --previous {0}/sheet/previous-report.json {0}/sheet/report.json` until it passes.', runner.temp) || format('This PR has no previous report. Run `pnpm content-pr check --kind sheet --run {0}/sheet/report.json` until it passes.', runner.temp) }}
             The skills hold all the run needs: don't read README.md, docs/ or design/.
 
-      # What `publish` needs, never the DOCX: the report, the change to src/content/ against the branch head (new
-      # files included) and the staged files that really are PDFs.
+      # What `publish` needs, never the DOCX: the run's report (the PR's clean copy is there already), the change to
+      # src/content/ against the branch head (new files included) and the staged files that really are PDFs.
       - name: Collect the outcome
         if: always() && steps.fetch.outputs.fetched == 'true'
         env:
@@ -190,7 +212,7 @@ jobs:
         run: |
           run="$RUNNER_TEMP/run"
           printf '%s\n' "$BRANCH" > "$run/branch"
-          if [ -f "$RUNNER_TEMP/sheet/report.md" ]; then cp "$RUNNER_TEMP/sheet/report.md" "$run/report.md"; fi
+          if [ -f "$RUNNER_TEMP/sheet/report.json" ]; then cp "$RUNNER_TEMP/sheet/report.json" "$run/report.json"; fi
           git add --intent-to-add -- src/content
           git diff --binary HEAD -- src/content > "$run/content.patch"
           mkdir -p "$run/uploads/$SHEETS"
@@ -232,24 +254,31 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ needs.sheet.outputs.base || 'main' }}
+          fetch-depth: 0 # origin/main and the PR's merge base with it
           persist-credentials: false # only the push step gets a token
 
       - uses: ./.github/actions/setup
 
-      # `pnpm content-pr apply` checks the report against the patch (each week exactly one `Outcome:` line; a change
-      # needs a week created or corrected, no change a week corrected, refused or a document error) and applies the
-      # patch only if it touches nothing but src/content/*.json and every week it adds or changes has its heading
-      # (created, or created or corrected); otherwise it fails and nothing is applied or filed. It names the commit
-      # after the weeks, and an open blocking question makes a draft whatever `blocking:` says.
+      # `pnpm content-pr apply` merges the run's report into the PR's (`--previous`, the clean copy; none for a new PR),
+      # applies the patch only if it touches nothing but src/content/*.json, and checks the merged report against the
+      # whole PR (from its merge base with origin/main): every week the PR adds or changes is created or corrected, and
+      # no refused week or document error is in it. Otherwise it fails and nothing is applied or filed. It writes the
+      # merged report to $RUNNER_TEMP/out/report.json, names the commit after the weeks, and an open blocking question
+      # makes a draft.
       - name: Apply the change
         id: changes
         if: steps.download.outcome == 'success' && needs.sheet.result == 'success' && needs.sheet.outputs.docx != ''
         env:
           BRANCH: ${{ needs.sheet.outputs.branch }}
+          PR: ${{ needs.sheet.outputs.pr }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           run="$RUNNER_TEMP/run"
-          if ! result=$(pnpm --silent content-pr apply --kind sheet "$run/report.md" "$run/content.patch"); then
+          out="$RUNNER_TEMP/out"
+          previous=()
+          if [ -n "$PR" ]; then previous=(--previous "$run/previous-report.json"); fi
+          if ! result=$(pnpm --silent content-pr apply --kind sheet --run --base origin/main --out "$out" \
+            "${previous[@]}" "$run/report.json" "$run/content.patch"); then
             echo "::error::The report or the change was not accepted (see above): the sheet stays unread."
             exit 1
           fi
@@ -261,9 +290,10 @@ jobs:
             echo "draft=$(jq -r .draft <<< "$result")"
             echo "message=$(jq -r .message <<< "$result")"
           } >> "$GITHUB_OUTPUT"
-          pnpm --silent content-pr body --kind sheet --run-url "$RUN_URL" "$run/report.md" > "$run/pr-body.md"
+          pnpm --silent content-pr body --kind sheet --run-url "$RUN_URL" "$out/report.json" > "$run/pr-body.md"
 
-      # Commits, uploads the staged files, pushes and opens or updates the PR (.github/actions/content-pr).
+      # Commits, uploads the staged files and the merged report, pushes and opens or updates the PR
+      # (.github/actions/content-pr).
       - name: Open or update the PR
         id: pr
         if: steps.changes.outputs.changed == 'true'
@@ -278,12 +308,14 @@ jobs:
           pr: ${{ needs.sheet.outputs.pr }}
           draft: ${{ steps.changes.outputs.draft }}
           body-file: ${{ runner.temp }}/run/pr-body.md
+          report-file: ${{ runner.temp }}/out/report.json
           reviewers: ${{ vars.CONTENT_REVIEWERS }}
 
       # `pnpm content-pr summary`: dates, kinds, weeks and the script's messages only, never the e-mail's text. Fails
       # the job when something needs the maintainer without a PR: a refused week, a document error, a parish message
       # without one DOCX, a subject naming a week the DOCX does not have, an older message naming another week than
-      # the one handled, a subject naming an older week when nothing changed.
+      # the one handled, a subject naming an older week when nothing changed. It reads the merged report, or the agent's
+      # own when `apply` wrote none.
       - name: Summary
         if: always()
         env:
@@ -302,7 +334,10 @@ jobs:
           NO_WEEK: ${{ needs.sheet.outputs.no_week }}
           UNHANDLED: ${{ needs.sheet.outputs.unhandled }}
           SKIPPED: ${{ needs.sheet.outputs.skipped }}
-        run: pnpm --silent content-pr summary --kind sheet "$RUNNER_TEMP/run/report.md" >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          report="$RUNNER_TEMP/out/report.json"
+          if [ ! -f "$report" ]; then report="$RUNNER_TEMP/run/report.json"; fi
+          pnpm --silent content-pr summary --kind sheet "$report" >> "$GITHUB_STEP_SUMMARY"
 
       # Only once the outcome is done (PR opened or updated, nothing changed, or the problem in the summary) and only
       # when `sheet` succeeded; otherwise the sheet and the superseded mail stay unseen for the next run. The rejected

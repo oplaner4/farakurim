@@ -6,18 +6,18 @@
 # - `event` fetches the mail and the known events (`pnpm event-mail known`: the upcoming events on main and those the
 #   open events/ PRs add) and lets the agent (workload identity federation, no API key) run
 #   parish-create-event unattended on the mail: it groups the attachments into events, refuses corrections and
-#   duplicates, stages the new events and writes a report. The agent's file tools may write only in $RUNNER_TEMP/event
-#   (the checkout is denied); only `pnpm stage event`, `pnpm add-event` and `pnpm venue add`/`alias` write
-#   src/content/ and the staging folder. The job hands on the report, the change to src/content/news/ and the venue
+#   duplicates, stages the new events and writes a JSON report (`report.json`), checked with `pnpm content-pr check`.
+#   The agent's file tools may write only in $RUNNER_TEMP/event (the checkout is denied); only `pnpm stage event`,
+#   `pnpm add-event` and `pnpm venue add`/`alias` write src/content/ and the staging folder. The job hands on the report, the change to src/content/news/ and the venue
 #   list as a patch, the known events (read before the agent ran) and the staged files as a one-day artifact. The mail itself never leaves this job, and is deleted at the end.
 # - `publish` starts from a fresh checkout, applies the patch only if it touches nothing but the news month files
-#   and the venue list, and the list only gains venues and aliases,
-#   refuses an id an open events PR holds (`pnpm event-mail check-ids`), then commits as the GitHub App's bot and opens
-#   a new events/ PR, its body the report (ended by a `<!-- report-end -->` line, so a comment fix can replace the
-#   report), a draft while the report has a blocking question. It neither tests nor builds: check.yml does that on
-#   every commit the App pushes, and a red check is fixed with a `/fix` comment (content-fix-run.yml) or a commit.
-#   It has no id-token, so it cannot act as the agent. It uploads the staged files as `content-uploads-<sha>` before it
-#   pushes the commit, so no pushed commit lacks them.
+#   and the venue list, and the list only gains venues and aliases, checks the report against the whole PR
+#   (`pnpm content-pr apply`), refuses an id an open events PR holds (`pnpm event-mail check-ids`), then commits as the
+#   GitHub App's bot and opens a new events/ PR, its body rendered from the report, a draft while the report has a
+#   blocking question. It neither tests nor builds: check.yml does that on every commit the App pushes, and a red check
+#   is fixed with a `/fix` comment (content-fix-run.yml) or a commit. It has no id-token, so it cannot act as the
+#   agent. It uploads the staged files as `content-uploads-<sha>` and the report as `content-report-<sha>` (which a
+#   comment fix reads back) before it pushes the commit, so no pushed commit lacks them.
 # The maintainer's squash merge releases the site (content-release.yml). One PR per mail: a later mail never changes
 # it. The run fails, so GitHub tells the maintainer, when an accepted sender's mail added nothing (every event refused,
 # or neither an attachment nor a subject and a text), when a known sender's DKIM check failed, or on a technical
@@ -163,6 +163,7 @@ jobs:
             pnpm venue lookup:*
             pnpm venue add:*
             pnpm venue alias:*
+            pnpm content-pr check:*
           federation-rule-id: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
           organization-id: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}
           service-account-id: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
@@ -170,9 +171,10 @@ jobs:
           prompt: |
             A sender mailed an event to the events mailbox: ${{ runner.temp }}/event/mail (subject.txt, body.txt,
             attachments/). Run parish-create-event unattended (its "Unattended run" section). The known events are
-            ${{ runner.temp }}/event/known.json, the report file is ${{ runner.temp }}/event/report.md and the
-            scratchpad is ${{ runner.temp }}/event. The skill holds all the run needs: don't read README.md, docs/
-            or design/.
+            ${{ runner.temp }}/event/known.json, the report file is ${{ runner.temp }}/event/report.json and the
+            scratchpad is ${{ runner.temp }}/event. Run
+            `pnpm content-pr check --kind events ${{ runner.temp }}/event/report.json` until it passes. The skill
+            holds all the run needs: don't read README.md, docs/ or design/.
 
       # What `publish` needs, never the mail: the report, the change to src/content/news/ and the venue list against
       # the branch base (new files included) and the staged event files.
@@ -183,7 +185,7 @@ jobs:
         run: |
           run="$RUNNER_TEMP/run"
           printf '%s\n' "$BRANCH" > "$run/branch"
-          if [ -f "$RUNNER_TEMP/event/report.md" ]; then cp "$RUNNER_TEMP/event/report.md" "$run/report.md"; fi
+          if [ -f "$RUNNER_TEMP/event/report.json" ]; then cp "$RUNNER_TEMP/event/report.json" "$run/report.json"; fi
           git add --intent-to-add -- src/content/news
           git diff --binary HEAD -- src/content/news src/content/venues.json > "$run/content.patch"
           mkdir -p "$run/uploads/$EVENTS"
@@ -227,15 +229,17 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ needs.event.outputs.base || 'main' }}
+          fetch-depth: 0 # origin/main and the PR's merge base with it
           persist-credentials: false # only the push step gets a token
 
       - uses: ./.github/actions/setup
 
-      # `pnpm content-pr apply` checks the report against the patch (each event exactly one `Outcome:` line, `created`
-      # or `refused: …`; without a change every event refused, or no event at all, and the mail is refused) and applies
-      # the patch only if it touches nothing but the news month files and the venue list, and its new events are the
-      # report's `created` sections, by title; otherwise it fails and nothing is applied or filed. It names the commit
-      # after the new events, and an open blocking question makes a draft whatever `blocking:` says. No id the change adds may be held by an open PR. The PR body ends with the Události lines that need a
+      # `pnpm content-pr apply` applies the patch only if it touches nothing but the news month files and the venue
+      # list, and checks the report against the whole PR (from its merge base with origin/main): the events it adds
+      # are exactly the report's `created` ones, by id and title (without a change, every event refused or no event at
+      # all, and the mail is refused); otherwise it fails and nothing is applied or filed. It writes the final report
+      # to $RUNNER_TEMP/out/report.json, names the commit after the new events, and an open blocking question makes a
+      # draft. No id the change adds may be held by an open PR. The PR body ends with the Události lines that need a
       # person (as deploy.yml warns on them), since the merge releases.
       - name: Apply the change
         id: changes
@@ -246,7 +250,9 @@ jobs:
           NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY: ${{ vars.GOOGLE_CALENDAR_API_KEY }}
         run: |
           run="$RUNNER_TEMP/run"
-          if ! result=$(pnpm --silent content-pr apply --kind events "$run/report.md" "$run/content.patch"); then
+          out="$RUNNER_TEMP/out"
+          if ! result=$(pnpm --silent content-pr apply --kind events --base origin/main --out "$out" \
+            "$run/report.json" "$run/content.patch"); then
             echo "::error::The report or the change was not accepted (see above): the mail stays unread."
             exit 1
           fi
@@ -261,9 +267,9 @@ jobs:
           } >> "$GITHUB_OUTPUT"
           pnpm --silent calendar-sync --calendar events --problems > "$run/calendar.txt" 2> /dev/null || true
           pnpm --silent content-pr body --kind events --run-url "$RUN_URL" --calendar "$run/calendar.txt" \
-            "$run/report.md" > "$run/pr-body.md"
+            "$out/report.json" > "$run/pr-body.md"
 
-      # Commits, uploads the staged files, pushes and opens the PR (.github/actions/content-pr).
+      # Commits, uploads the staged files and the report, pushes and opens the PR (.github/actions/content-pr).
       - name: Open the PR
         id: pr
         if: steps.changes.outputs.changed == 'true'
@@ -277,6 +283,7 @@ jobs:
           branch: ${{ needs.event.outputs.branch }}
           draft: ${{ steps.changes.outputs.draft }}
           body-file: ${{ runner.temp }}/run/pr-body.md
+          report-file: ${{ runner.temp }}/out/report.json
           reviewers: ${{ vars.CONTENT_REVIEWERS }}
 
       # Only once the outcome is done (PR opened, or the mail refused) and only when `event` succeeded; otherwise the
@@ -314,7 +321,7 @@ jobs:
 
       # `pnpm content-pr summary`: dates, kinds, known senders, event titles and the outcomes only, never the e-mail's
       # text. Fails the job when something needs the maintainer without a PR: a refused mail, an incomplete mail, a
-      # known sender's failed DKIM.
+      # known sender's failed DKIM. It reads the final report, or the agent's when `apply` wrote none.
       - name: Summary
         if: always()
         env:
@@ -331,7 +338,10 @@ jobs:
           PR_URL: ${{ steps.pr.outputs.url }}
           INCOMPLETE: ${{ needs.event.outputs.incomplete }}
           KNOWN_DKIM: ${{ needs.event.outputs.known_dkim }}
-        run: pnpm --silent content-pr summary --kind events "$RUNNER_TEMP/run/report.md" >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          report="$RUNNER_TEMP/out/report.json"
+          if [ ! -f "$report" ]; then report="$RUNNER_TEMP/run/report.json"; fi
+          pnpm --silent content-pr summary --kind events "$report" >> "$GITHUB_STEP_SUMMARY"
 
   # One mail per run: while accepted mail remains and the mail of this run is filed, the next run takes the next one
   # (at most 5 runs per start of the cron). GITHUB_TOKEN may dispatch a workflow.
