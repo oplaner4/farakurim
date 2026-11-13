@@ -91,23 +91,27 @@ in the mail's order, with every field below (the optional ones may be left out):
 }
 ```
 
-- `events`: one entry per event of the mail (a mail with no event in it, such as a thank-you with a logo, has none:
-  `[]`). The workflow matches the `created` entries with the events the change adds by `id`, and refuses the change
-  when they differ or when a `title` is not exactly (character for character) the record's `title`. `outcome.kind` is `created` (with the event's
-  `id`) or `refused` (with a `reason`: for a correction `a correction of <id>; make it with parish-correct-event`,
-  for a duplicate `already in <main or PR #n> as <id>`, for a script refusal its first line).
-- `origin` (optional, for a created event): only what the PR's diff does not show: where the title came from (the
-  subject, the poster) and the guesses (step 4), not the fields or the files.
-- `venues`: what this event's venue work added, as `parish-manage-venues` section E says, each shown with what to check: `kind: "new"`
-  for a new venue (`id`, `name`, `address`, `pin`: the Mapy.com link of the pin to check), `kind: "alias"` for a
-  new alias (`id` of the venue, `text` the alias). `[]` for none.
-- `questions` (of an event, and the report-level ones for the mail as a whole, such as an unclear grouping): `id` is
-  `q<number>` from `q1`, unique in the whole report. `status` is `open`; a question whose answer changes what is
-  published is `blocking: true`, else `false` (a note). `where` says what it is about; `proposal` is optional.
-- `droppedAttachments`: one line per dropped attachment, as "attachment 3, an image without event information":
-  never its file name. `[]` for none.
-- Write no `blocking`, `commit` or draft state: the script derives the PR's draft state from the open blocking
-  questions and names the commit from the events.
+| Field                | Holds                                                                                                                                                  |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `events`             | one entry per event of the mail, in its order; `[]` for a mail with none (a thank-you with a logo)                                                     |
+| `title`              | exactly (character for character) the record's `title`                                                                                                 |
+| `outcome`            | `created` with the record's `id`, or `refused` with a `reason` (below)                                                                                 |
+| `origin`             | optional, a created event only: what the diff does not show, where the title came from (the subject, the poster) and the guesses (step 4)              |
+| `venues`             | what the event's venue work added (`parish-manage-venues` section E): `new` (`id`, `name`, `address`, `pin`: the pin's link) or `alias` (`id`, `text`) |
+| `questions`          | an event's, and at the top level the mail's as a whole, such as an unclear grouping (below)                                                            |
+| `droppedAttachments` | one line per dropped attachment, as "attachment 3, an image without event information", never its file name                                            |
+
+A list with nothing in it is `[]`.
+
+- **Matching:** the workflow matches the `created` entries with the events the change adds by `id`, and refuses the
+  change when they differ or when a `title` is not the record's.
+- **`reason`:** `a correction of <id>; make it with parish-correct-event` for a correction,
+  `already in <main or PR #n> as <id>` for a duplicate, the first line of a script's refusal.
+- **A question:** `id` is `q<number>` from `q1`, unique in the whole report; `status` is `open`; `blocking` is `true`
+  when its answer changes what is published, else `false` (a note); `where` says what it is about; `proposal` is
+  optional.
+- Write no draft state or commit message: the script derives the PR's draft state from the open blocking questions
+  and names the commit from the events.
 - The PR is public and the report fills its body: in **every** field, quote only what is published (the fields, the
   staged files' names and labels) and describe the rest of the mail without quoting it.
 

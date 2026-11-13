@@ -8,8 +8,8 @@ unattended run follows those steps too, with the changes below. A comment run on
 ## Unattended run
 
 - It handles **one week**: the one the prompt names (pass its `--from` and `--to` to every `pnpm stage sheet` run
-  on the DOCX), else the DOCX's newest week; never touch other weeks. When `pnpm stage sheet` prints `tell: Not the DOCX's
-newest week: …` (also below a refusal), the week's `notOnTheNewest` gives that note in one line.
+  on the DOCX), else the DOCX's newest week; never touch other weeks. When `pnpm stage sheet` prints
+  `tell: Not the DOCX's newest week: …` (also below a refusal), the week's `notOnTheNewest` gives that note in one line.
   When `sheet draft` prints neither `state: staged` nor `state: published`: steps 1 to 4 of
   `parish-create-service-sheet` as written (outcome `created`). When it prints one of them (never open
   `service-sheets.json` to check): it is a correction, see "Unattended correction" below.
@@ -94,24 +94,28 @@ every field below (the optional ones may be left out):
 }
 ```
 
-- `week`: `validFrom` and `validTo` are the record's dates (`YYYY-MM-DD`, `validFrom` not after `validTo`).
-  `outcome.kind` is `created`, `corrected`, `refused` or `document-error`; the last two carry a `reason`, the
-  refusal's first line as printed. `summary` holds the announcements with categories and each `newsId` with its
-  event's title and date (not the rows); for a correction, what differs from the published sheet.
-  `notOnTheNewest` is the line of `tell: Not the DOCX's newest week: …`, when the script printed one.
-  `senderNote` (only with a sender's note) has one line per thing it asks to check and whether the draft agrees; the
-  PR is public, so put it in your own words and quote no name or other text the published sheet does not show.
-- `week.questions`: the new questions about this week. `id` is `q<number>`, after the highest id in
-  `previous-report.json` (else from `q1`) and unique in the report. `status` is `open` for a new question; a
-  question whose answer changes what is published is `blocking: true`, else `false` (a note). `where` says where in
-  the sheet; `proposal` is optional.
-- `questions` (report level): new questions that belong to no week (the mail, the DOCX as a whole). `[]` for none.
-- `questionUpdates`: for a question that already exists in `previous-report.json` and is not one of this week's
-  (another week's, or a report-level one): its `id`, its new `status` (`open` or `resolved`) and optionally the
-  `answer`. `[]` for none. This week's own earlier questions are not updated here: the script replaces them with
-  `week.questions`, so write each that still applies again with its id.
-- Write no `blocking`, `commit` or draft state: the script derives the PR's draft state from the open blocking
-  questions and names the commit from the weeks. Write no calendar section (the release keeps the calendar in line).
+| Field                       | Holds                                                                                                                                                                          |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `week.validFrom`, `validTo` | the record's dates (`YYYY-MM-DD`, `validFrom` not after `validTo`)                                                                                                             |
+| `week.outcome`              | `created` or `corrected`; `refused` or `document-error` with a `reason`, the refusal's first line as printed                                                                   |
+| `week.summary`              | the announcements with categories and each `newsId` with its event's title and date (not the rows); for a correction, what differs from the published sheet                    |
+| `week.notOnTheNewest`       | optional: the line of `tell: Not the DOCX's newest week: …`, when the script printed one                                                                                       |
+| `week.senderNote`           | optional, only with a sender's note: one line per thing it asks to check and whether the draft agrees (below)                                                                  |
+| `week.questions`            | the new questions about this week (below); `where` says where in the sheet                                                                                                     |
+| `questions`                 | the new questions that belong to no week (the mail, the DOCX as a whole)                                                                                                       |
+| `questionUpdates`           | per question of `previous-report.json` outside this week (another week's or a report-level one): its `id`, its new `status` (`open` or `resolved`) and optionally the `answer` |
+
+A list with nothing in it is `[]`.
+
+- **A question:** `id` is `q<number>`, after the highest id in `previous-report.json` (else from `q1`) and unique in
+  the report; `status` is `open`; `blocking` is `true` when its answer changes what is published, else `false` (a
+  note); `proposal` is optional.
+- **This week's earlier questions** are never in `questionUpdates`: the script replaces them with `week.questions`, so
+  write each that still applies again with its id.
+- **`senderNote`:** the PR is public, so put it in your own words and quote no name or other text the published sheet
+  does not show.
+- Write no draft state or commit message: the script derives the PR's draft state from the open blocking questions
+  and names the commit from the weeks. Write no calendar section (the release keeps the calendar in line).
 - The PR is public and the report fills its body: in **every** field, quote only what is published (the record's
   fields, the staged files' names and labels) and describe anything else without quoting it.
 
