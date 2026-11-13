@@ -2,35 +2,17 @@
 // fresh checkout in the working directory, all of them on the JSON report the agent writes.
 
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseCommandLine, readJsonRecord, requiredEnv } from "../command";
 import { ROOT } from "../content-files";
 import { KINDS, type Kind } from "../content-release/plan";
 import { gitHubReader, type GitHubReader } from "../content-release/sources";
-import { git } from "../git";
+import { applyReport, type ApplyInput, type ApplyIo } from "./apply";
 import { pullBody } from "./body";
-import {
-  changesProblem,
-  commitMessage,
-  contentChanges,
-  fixCommitMessage,
-  mergeBase,
-  type ContentChanges,
-} from "./changes";
-import { mergeSheetReport } from "./merge";
-import { applyContentPatch, hasChange } from "./patch";
 import { renderReport } from "./render";
-import { isDraft } from "./report";
-import {
-  parseFixResult,
-  parseReport,
-  parseSheetReport,
-  parseSheetRunReport,
-  type FixResult,
-  type Report,
-  type SheetReport,
-} from "./report-schema";
+import { readFix, readReport, summaryReport, type ReportInput } from "./report-files";
+import { parseReport } from "./report-schema";
 import { storedReportOf } from "./stored";
 import { runStateFromEnv, summarize, type Env } from "./summary";
 
@@ -41,23 +23,10 @@ const USAGE = `Usage: pnpm content-pr check --kind <sheet|events> [--run] [--pre
        pnpm content-pr body --kind <sheet|events> --run-url <url> [--calendar <file>] [--fix] <report.json>
        pnpm content-pr summary --kind <sheet|events> <report.json>`;
 
-/** The message of a PR whose report or previous report cannot be read: it cannot be continued. */
-const RESEND = "The PR's report is missing or from another version: close the PR and send the sheet or event again.";
-
-/** The commit messages when neither the change nor the agent gives one commitlint accepts. */
-const DEFAULT_MESSAGES = {
-  sheet: "feat(content): update the service sheets",
-  events: "feat(content): add events",
-} as const satisfies Record<Kind, string>;
-const DEFAULT_FIX_MESSAGE = "fix(content): apply a comment correction";
-
-/** Where the report comes from: a full report, or (`run`) a sheet mail run's merged into `previous`; `fix` a fix result. */
-type ReportInput = { kind: Kind; report: string; run: boolean; previous?: string; fix?: string };
-
 export type Command =
   | ({ action: "check" } & ReportInput)
   | { action: "stored"; pr: number }
-  | ({ action: "apply"; base: string; out: string; patch: string } & ReportInput)
+  | ({ action: "apply" } & ApplyInput)
   | { action: "body"; kind: Kind; report: string; runUrl: string; calendar?: string; fix: boolean }
   | { action: "summary"; kind: Kind; report: string };
 
@@ -147,12 +116,8 @@ export function commitlintAccepts(message: string): boolean {
   return spawnSync(bin, { cwd: ROOT, input: `${message}\n`, stdio: ["pipe", "ignore", "ignore"] }).status === 0;
 }
 
-type Io = {
-  cwd: string;
+type Io = ApplyIo & {
   env: Env;
-  print: (line: string) => void;
-  warn: (line: string) => void;
-  lint: (message: string) => boolean;
   /** Fails the command after its output, with an error annotation. */
   fail: (message: string) => void;
   /** The GitHub API of the repository the workflow runs for. */
@@ -171,99 +136,6 @@ const defaultIo: Io = {
   },
   github: () => gitHubReader(requiredEnv("GITHUB_REPOSITORY"), requiredEnv("GH_TOKEN")),
 };
-
-/** The PR's previous sheet report; one that is missing, unreadable or of another version cannot be continued. */
-function readPrevious(file: string): SheetReport {
-  try {
-    return parseSheetReport(JSON.parse(readFileSync(file, "utf8")));
-  } catch {
-    throw new Error(RESEND);
-  }
-}
-
-/** The full report the input gives: a sheet run's merged into the previous report, or the report as written. */
-function readReport({ kind, report, run, previous }: ReportInput): Report {
-  const value = readJsonRecord(report);
-  if (!run) return parseReport(kind, value);
-  const before = previous === undefined ? undefined : readPrevious(previous);
-  return mergeSheetReport(before, parseSheetRunReport(value));
-}
-
-const readFix = (file: string | undefined): FixResult | undefined =>
-  file === undefined ? undefined : parseFixResult(readJsonRecord(file));
-
-/** The report for the job summary: a full one, else a sheet run's on its own, else none. */
-function summaryReport(kind: Kind, file: string): Report | undefined {
-  let value: unknown;
-  try {
-    value = JSON.parse(readFileSync(file, "utf8"));
-  } catch {
-    return undefined;
-  }
-  try {
-    return parseReport(kind, value);
-  } catch {
-    if (kind !== "sheet") return undefined;
-  }
-  try {
-    return mergeSheetReport(undefined, parseSheetRunReport(value));
-  } catch {
-    return undefined;
-  }
-}
-
-/** The first of `candidates` commitlint accepts, else `fallback`; warns for each one given and refused, and the default. */
-function acceptedMessage(io: Io, what: string, candidates: (string | undefined)[], fallback: string): string {
-  for (const message of candidates) {
-    if (message === undefined) continue;
-    if (io.lint(message)) return message;
-    io.warn(`::warning::commitlint refuses the ${what} message "${message}".`);
-  }
-  io.warn(`::warning::No valid ${what} message: using the default "${fallback}".`);
-  return fallback;
-}
-
-/**
- * Applies the patch after checking a fix result's outcome against it, checks the final report against the whole PR
- * (undoing the patch on a mismatch, or when it changes something and the report publishes nothing), writes
- * `<out>/report.json` (and a fix result's reply to `<out>/reply.md`) and prints `{ changed, draft, message, fix? }`.
- */
-function applyReport(command: Extract<Command, { action: "apply" }>, io: Io): void {
-  const { kind, patch } = command;
-  const final = readReport(command);
-  const fix = readFix(command.fix);
-  const changed = hasChange(patch);
-  if (fix && (fix.outcome === "changed") !== changed) {
-    const what = changed ? "the patch changes the content" : "the patch changes nothing";
-    throw new Error(`The fix result says ${fix.outcome}, but ${what}: not applied.`);
-  }
-  let fixChanges: ContentChanges | undefined;
-  if (changed) {
-    applyContentPatch(io.cwd, kind, patch);
-    // What the fix alone changed: the working tree against the PR's head.
-    if (fix) fixChanges = contentChanges(io.cwd, kind, "HEAD");
-  }
-  const changes = contentChanges(io.cwd, kind, mergeBase(io.cwd, command.base));
-  const problem = changesProblem(final, changes, changed);
-  if (problem) {
-    if (changed) git(io.cwd, "apply", "--reverse", patch);
-    throw new Error(problem);
-  }
-  mkdirSync(command.out, { recursive: true });
-  writeFileSync(join(command.out, "report.json"), `${JSON.stringify(final, null, 2)}\n`);
-  // The reply as the schema checked it (no reply's marker): the only text of the agent's that is posted.
-  if (fix) writeFileSync(join(command.out, "reply.md"), `${fix.reply.trimEnd()}\n`);
-  // Nothing to commit and no PR to title: the default, without a warning.
-  const message =
-    changed || fix
-      ? acceptedMessage(io, "commit", [commitMessage(final, changes)], DEFAULT_MESSAGES[kind])
-      : DEFAULT_MESSAGES[kind];
-  const fixMessage =
-    fix && fixChanges
-      ? acceptedMessage(io, "fix", [fix.fixMessage, fixCommitMessage(fixChanges)], DEFAULT_FIX_MESSAGE)
-      : undefined;
-  io.print(JSON.stringify({ changed, draft: isDraft(final), message, ...(fixMessage && { fix: fixMessage }) }));
-}
 
 /**
  * Runs the command. `check` reads the report as `apply` does and says it is valid. `stored` prints the PR's newest
