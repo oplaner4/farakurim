@@ -52,6 +52,24 @@ Take the venue as **`parish-manage-venues`** (`.claude/skills/parish-manage-venu
 venue looked up on Mapy.com, or none. A new venue or alias is written after the yes of step 4, before step 5 stages
 the record.
 
+### Write `record.json`
+
+Write the event as JSON to `record.json` in the session's scratchpad (never in the repo): the fields above, without
+`published`, `poster` and `attachments`. Its `id` is the one every later step uses: the commands take it from the
+record. With files, a `poster.alt` you write (e.g. with the date) is kept; otherwise it is
+`"<label of the first file>: <title>"`.
+
+```json
+{
+  "id": "hody-ceska-2026",
+  "title": "Hody v České",
+  "start": "2026-10-02",
+  "end": "2026-10-04",
+  "place": "Česká",
+  "text": "Srdečně zveme na tradiční hody v České – stavění máje, průvod a koncert."
+}
+```
+
 ## 3a. Pick the labels and the order, and check (only with files)
 
 Each file is attached under a label, shown on the page as written (with its accents). Prefer one of these; another short Czech label is fine when none fits
@@ -71,9 +89,9 @@ show. Only the first file can be the poster: list the poster first. It becomes t
 PDF, unless you pass `--no-poster`: pass it when the first file has a "no" label or is another text-only document
 (an MP3 never becomes one; it refuses any file but a PDF, PNG, JPG, WebP or MP3).
 
-Write the event to `record.json` as in step 5a and check it with the files before confirming: its fields, a free
-`id` (the command takes it from the record), the `Would unpin …` line for a pinned event, and the names (it refuses
-a taken name, a label without letters or digits and two labels giving the same file name):
+Check `record.json` with the files before confirming: its fields, a free `id`, the `Would unpin …` line for a pinned
+event, and the names (it refuses a taken name, a label without letters or digits and two labels giving the same file
+name):
 
 ```sh
 pnpm stage event "<source>" "<label>" ["<source>" "<label>" …] [--no-poster] --record <scratchpad>/record.json --check
@@ -81,8 +99,7 @@ pnpm stage event "<source>" "<label>" ["<source>" "<label>" …] [--no-poster] -
 
 ## 3b. Check the record (only without a file)
 
-Write the event to `record.json` as in step 5a and check it (its fields, a free `id`, and the `Would unpin …` line
-for a pinned event):
+Check `record.json` (its fields, a free `id`, and the `Would unpin …` line for a pinned event):
 
 ```sh
 pnpm add-event <scratchpad>/record.json --check
@@ -99,22 +116,7 @@ Wait for the user's yes or corrections to these before staging or adding anythin
 
 ## 5a. Stage the files and add the record (only with files)
 
-`record.json` is the event as JSON in the session's scratchpad (never in the repo): the fields from step 2, without
-`published`, `poster` and `attachments`; update it with the confirmed event. A `poster.alt` you write (e.g. with the date) is
-kept; otherwise it is `"<label of the first file>: <title>"`.
-
-```json
-{
-  "id": "hody-ceska-2026",
-  "title": "Hody v České",
-  "start": "2026-10-02",
-  "end": "2026-10-04",
-  "place": "Česká",
-  "text": "Srdečně zveme na tradiční hody v České – stavění máje, průvod a koncert."
-}
-```
-
-Then run the step 3a command without `--check`:
+Update `record.json` with the confirmed event, then run the step 3a command without `--check`:
 
 ```sh
 pnpm stage event "<source>" "<label>" ["<source>" "<label>" …] [--no-poster] --record <scratchpad>/record.json
@@ -122,7 +124,7 @@ pnpm stage event "<source>" "<label>" ["<source>" "<label>" …] [--no-poster] -
 
 ## 5b. Add the record (only without a file)
 
-Update `record.json` from step 3b with the confirmed event, then add it:
+Update `record.json` with the confirmed event, then add it:
 
 ```sh
 pnpm add-event <scratchpad>/record.json
