@@ -11,10 +11,11 @@ import { parseOrThrow } from "@/lib/shared/json-file";
 import { pragueDate } from "@/lib/shared/prague";
 import { venueProblems } from "@/lib/venues/checks";
 import { venueNotes } from "../venues/match";
-import { actionVerb, parseRecordCommand, readJsonRecord } from "../command";
-import { formatAndTestNews, NEWS_DIR, writeMonth } from "../content-files";
+import { actionVerb } from "../command";
+import { NEWS_DIR, writeMonth } from "../content-files";
 import { next, refusal, tell } from "../output";
 import { assertPinnable, movePin, unpinnedLines, withoutPin } from "./pin-event";
+import { recordCommand } from "./record-command";
 
 /** `list` (in start-date order) with `record` after the last record that starts on or before it. */
 export function insertRecord(list: NewsEvent[], record: NewsEvent): NewsEvent[] {
@@ -79,17 +80,12 @@ export function addEvent(newsDir: string, input: unknown, { check = false, now =
 export const targetLine = ({ record }: { record: { id: string } }, check: boolean) =>
   `${actionVerb(check, "add")} the record ${record.id}`;
 
-const USAGE = "Usage: pnpm add-event <record.json | -> [--check]";
-
-/** Reads the command line `args`: the record file (`-` for stdin) and --check. */
-export const parseCommand = (args: string[]) => parseRecordCommand(args, USAGE);
-
-/** Adds the record in `file` and prints where it went; then formats and tests the news files. */
-export async function execute({ file, check }: { file: string; check: boolean }) {
-  const input = readJsonRecord(file);
-  const result = addEvent(NEWS_DIR, input, { check });
-  console.log(
-    [targetLine(result, check), ...venueLines(result.record), ...unpinnedLines(result.unpinned, check)].join("\n"),
-  );
-  if (!check) await formatAndTestNews(result.written);
-}
+/** Adds the record in the file and prints where it went; then formats and tests the news files. */
+export const { parseCommand, execute } = recordCommand(
+  "Usage: pnpm add-event <record.json | -> [--check]",
+  (input, check) => {
+    const result = addEvent(NEWS_DIR, input, { check });
+    const lines = [targetLine(result, check), ...venueLines(result.record), ...unpinnedLines(result.unpinned, check)];
+    return { lines, written: result.written };
+  },
+);

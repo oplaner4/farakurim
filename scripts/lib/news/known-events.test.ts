@@ -98,25 +98,23 @@ describe("openEventPulls", () => {
   });
 });
 
+/** Two known events: one an open PR holds, one on main. */
+const KNOWN: KnownEvent[] = [
+  { id: "koncert-2026", title: "Koncert", start: "2026-11-15", place: "Kuřim", where: 12 },
+  { id: "hody-v-ceske", title: "Hody v České", start: "2026-10-18", place: "Česká", where: "main" },
+];
+
 describe("knownJson", () => {
   it("writes valid JSON with one event per line", () => {
-    const known: KnownEvent[] = [
-      { id: "koncert-2026", title: "Koncert", start: "2026-11-15", place: "Kuřim", where: 12 },
-      { id: "hody-v-ceske", title: "Hody v České", start: "2026-10-18", place: "Česká", where: "main" },
-    ];
-    const json = knownJson(known);
-    expect(JSON.parse(json)).toEqual(known);
-    expect(json.trim().split("\n")).toHaveLength(known.length + 2);
+    const json = knownJson(KNOWN);
+    expect(JSON.parse(json)).toEqual(KNOWN);
+    expect(json.trim().split("\n")).toHaveLength(KNOWN.length + 2);
     expect(JSON.parse(knownJson([]))).toEqual([]);
   });
 });
 
 describe("takenIds", () => {
   it("names the added ids an open PR holds", () => {
-    const known: KnownEvent[] = [
-      { id: "koncert-2026", title: "Koncert", start: "2026-11-15", place: "Kuřim", where: 12 },
-      { id: "hody-v-ceske", title: "Hody v České", start: "2026-10-18", place: "Česká", where: "main" },
-    ];
-    expect(takenIds(known, ["koncert-2026", "pout-2026", "hody-v-ceske"])).toEqual(["koncert-2026"]);
+    expect(takenIds(KNOWN, ["koncert-2026", "pout-2026", "hody-v-ceske"])).toEqual(["koncert-2026"]);
   });
 });

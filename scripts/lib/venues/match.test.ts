@@ -1,21 +1,8 @@
 import { describe, expect, it } from "vitest";
-import type { Venue } from "@/content/types/venues";
+import { matchVenues } from "@/test/fixtures";
 import { buildingText, findVenue, venueNotes, venuesWith } from "./match";
 
-const at = (id: string, name: string, municipality: string, aliases?: string[]): Venue => ({
-  id,
-  name,
-  address: { municipality, country: "Česko" },
-  position: { lat: 49.29, lon: 16.52 },
-  aliases,
-});
-
-const list = [
-  at("kurim-fara", "Fara", "Kuřim", ["areál za farou"]),
-  at("kurim-kaple-jana-nepomuckeho", "Kaple sv. Jana Nepomuckého", "Kuřim"),
-  at("moravske-kninice-kaple-jana-nepomuckeho", "Kaple sv. Jana Nepomuckého", "Moravské Knínice"),
-  at("ceska-kaple", "Kaple Panny Marie Růžencové", "Česká"),
-];
+const list = matchVenues;
 const byId = Object.fromEntries(list.map((v) => [v.id, v]));
 
 describe("buildingText", () => {

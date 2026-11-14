@@ -92,8 +92,7 @@ describe("replaceEvent", () => {
 });
 
 describe("parseCommand", () => {
-  it("reads the record file and --check, with this command's usage", () => {
-    expect(parseCommand(["-", "--check"])).toEqual({ file: "-", check: true });
+  it("has this command's usage", () => {
     expect(() => parseCommand([])).toThrow(/^Usage: pnpm replace-event <record.json \| -> \[--check\]$/);
   });
 });

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { parishCalendars } from "@/content/site";
 import { googlePage } from "@/test/fetch";
-import { syncGuardTests } from "../test-helpers/calendar";
+import { emptyCalendarPreview, syncGuardTests } from "../test-helpers/calendar";
 import { syncServices } from "./services-sync";
 import { accessToken, applyServicesChange } from "./write";
 
@@ -31,10 +31,7 @@ describe("syncServices", () => {
 
   it("previews the adds of an empty calendar, and writes nothing", async () => {
     freezeAt("2026-10-24T10:00:00Z");
-    vi.stubEnv("NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY", "KEY");
-    const fetchMock = vi.fn(async () => googlePage([]));
-    vi.stubGlobal("fetch", fetchMock);
-    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    const { fetchMock, log } = emptyCalendarPreview();
     await syncServices({ apply: false, problems: false });
     const [printed] = log.mock.calls[0] as [string];
     const lines = printed.split("\n");
@@ -48,12 +45,7 @@ describe("syncServices", () => {
 
   it("with problems prints nothing when no hand-made event doubles a service", async () => {
     freezeAt("2026-10-24T10:00:00Z");
-    vi.stubEnv("NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY", "KEY");
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => googlePage([])),
-    );
-    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    const { log } = emptyCalendarPreview();
     await syncServices({ apply: false, problems: true });
     expect(log).not.toHaveBeenCalled();
   });

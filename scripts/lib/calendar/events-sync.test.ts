@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { googlePage } from "@/test/fetch";
-import { syncGuardTests } from "../test-helpers/calendar";
+import { emptyCalendarPreview, syncGuardTests } from "../test-helpers/calendar";
 import { syncEvents } from "./events-sync";
 import { accessToken, applyChange } from "./write";
 
@@ -24,12 +24,7 @@ describe("syncEvents", () => {
   syncGuardTests("Události", syncEvents);
 
   it("previews the plan of all records", async () => {
-    vi.stubEnv("NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY", "KEY");
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => googlePage([])),
-    );
-    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    const { log } = emptyCalendarPreview();
     await syncEvents({ apply: false, problems: false });
     expect(log).toHaveBeenCalledWith(
       ['Události, 2099-01-05: Would add "Alfa"', 'Události, 2099-01-06: Would add "Beta"'].join("\n"),
@@ -37,12 +32,7 @@ describe("syncEvents", () => {
   });
 
   it("with --problems prints only what needs a person, and nothing when nothing does", async () => {
-    vi.stubEnv("NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY", "KEY");
-    const log = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => googlePage([])),
-    );
+    const { log } = emptyCalendarPreview();
     await syncEvents({ apply: false, problems: true });
     expect(log).not.toHaveBeenCalled();
 

@@ -7,6 +7,9 @@ import { CLOCK } from "@/lib/shared/clock";
 
 export const isClock = (time: string) => CLOCK.test(time);
 export const isMonthDay = (date: string) => /^\d{2}-\d{2}$/.test(date) && isMatch(`2024-${date}`, "yyyy-MM-dd");
+/** The paths of the problems a content schema's `safeParse()` found, "" for the root; none when it passed. */
+export const problemPaths = (result: { success: boolean; error?: { issues: { path: PropertyKey[] }[] } }) =>
+  result.success ? [] : result.error!.issues.map((issue) => issue.path.join("."));
 export const duplicates = (values: unknown[]) => values.filter((v, i) => values.indexOf(v) !== i);
 /** Every adjacent pair is in order (`ordered(a, b)` true), so the list is sorted. */
 export const isSorted = <T>(list: T[], ordered: (a: T, b: T) => boolean) =>

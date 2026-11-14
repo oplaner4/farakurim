@@ -1,7 +1,19 @@
-// The tests every calendar sync shares.
+// The tests every calendar sync shares, and the setup of a preview against an empty calendar.
 
 import { expect, it, vi } from "vitest";
 import { googlePage } from "@/test/fetch";
+
+/**
+ * A preview against an empty calendar: the API key set, Google answering with no events and console.log captured
+ * (the caller's afterEach() restores them). Returns the fetch mock and the log spy.
+ */
+export function emptyCalendarPreview() {
+  vi.stubEnv("NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY", "KEY");
+  const fetchMock = vi.fn(async () => googlePage([]));
+  vi.stubGlobal("fetch", fetchMock);
+  const log = vi.spyOn(console, "log").mockImplementation(() => {});
+  return { fetchMock, log };
+}
 
 /**
  * The checks every calendar sync makes before it plans, as tests: --apply without the service account fails before

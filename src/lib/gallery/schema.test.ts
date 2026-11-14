@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { problemPaths } from "@/test/content-checks";
 import type { Album } from "@/content/types/gallery";
 import { albumPhoto, albumPhotoPath } from "./albums";
 import { albumNumber, albumSchema, galleryFileSchema } from "./schema";
@@ -17,10 +18,6 @@ const album = (fields: Partial<Album> = {}): Album => {
   };
 };
 const photo = (n: number) => albumPhoto("pout-vranov-2026", n);
-
-/** The paths of the problems zod found, "" for the root. */
-const problemPaths = (result: { success: boolean; error?: { issues: { path: PropertyKey[] }[] } }) =>
-  result.success ? [] : result.error!.issues.map((issue) => issue.path.join("."));
 
 describe("albumSchema", () => {
   it("accepts an album, also without photos", () => {

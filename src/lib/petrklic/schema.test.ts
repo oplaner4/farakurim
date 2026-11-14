@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { problemPaths } from "@/test/content-checks";
 import type { PetrklicRecord } from "@/content/types/petrklic";
 import { petrklicFileSchema, petrklicRecordSchema } from "./schema";
 
@@ -8,10 +9,6 @@ const record = (fields: Partial<PetrklicRecord> = {}): PetrklicRecord => ({
   pageCount: 36,
   ...fields,
 });
-
-/** The paths of the problems zod found. */
-const problemPaths = (result: { success: boolean; error?: { issues: { path: PropertyKey[] }[] } }) =>
-  result.success ? [] : result.error!.issues.map((issue) => issue.path.join("."));
 
 describe("petrklicRecordSchema", () => {
   it("accepts an issue, with and without a note and a rev", () => {

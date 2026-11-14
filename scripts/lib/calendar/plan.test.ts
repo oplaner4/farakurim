@@ -37,6 +37,15 @@ const linked = (id: string, date: string): GoogleEvent => ({
 });
 
 const snapshot = (instances: GoogleEvent[], masters: GoogleEvent[] = []): CalendarSnapshot => ({ instances, masters });
+/** The sync's own event of `newsId` on `key` (a date, or "weekly"), deleted by hand. */
+const deletedEvent = (key: string, newsId = "adoracni-den-2026"): GoogleEvent => ({
+  id: calendarEventId(newsId, key),
+  status: "cancelled",
+  start: {},
+  end: {},
+});
+/** The change that adds the event of `key`. */
+const addOf = (key: string) => expect.objectContaining({ kind: "add", desired: expect.objectContaining({ key }) });
 
 const series = testEvent({
   start: "2026-10-05",
@@ -228,12 +237,7 @@ describe("planSync", () => {
   });
 
   it("reports the sync's own event deleted by hand and does not add it again", () => {
-    const deleted: GoogleEvent = {
-      id: calendarEventId("adoracni-den-2026", "2026-10-12"),
-      status: "cancelled",
-      start: {},
-      end: {},
-    };
+    const deleted = deletedEvent("2026-10-12");
     const { changes, reports } = planSync([testEvent()], snapshot([deleted]), TODAY);
     expect(changes).toEqual([]);
     expect(reports).toEqual([
@@ -242,12 +246,7 @@ describe("planSync", () => {
   });
 
   it("reports a weekly event the sync added and someone deleted, and does not add it again", () => {
-    const deleted: GoogleEvent = {
-      id: calendarEventId(weekly.id, "weekly"),
-      status: "cancelled",
-      start: {},
-      end: {},
-    };
+    const deleted = deletedEvent("weekly", weekly.id);
     const { changes, reports } = planSync([weekly], snapshot([], [deleted]), TODAY);
     expect(changes).toEqual([]);
     expect(reports).toEqual([
@@ -259,9 +258,7 @@ describe("planSync", () => {
     const owned = [linked("a", "2026-10-05"), linked("b", "2026-10-12")];
     const { changes, reports } = planSync([series], snapshot(owned), TODAY);
     expect(reports).toEqual([]);
-    expect(changes).toEqual([
-      expect.objectContaining({ kind: "add", desired: expect.objectContaining({ key: "2026-10-19" }) }),
-    ]);
+    expect(changes).toEqual([addOf("2026-10-19")]);
   });
 
   it("reports a series whose leftover owned events cannot be paired", () => {
@@ -286,8 +283,8 @@ describe("planSync", () => {
         fields: ["start", "end"],
         desired: expect.objectContaining({ key: "2026-10-05" }),
       }),
-      expect.objectContaining({ kind: "add", desired: expect.objectContaining({ key: "2026-10-12" }) }),
-      expect.objectContaining({ kind: "add", desired: expect.objectContaining({ key: "2026-10-19" }) }),
+      addOf("2026-10-12"),
+      addOf("2026-10-19"),
     ]);
   });
 
@@ -320,7 +317,7 @@ describe("planSync", () => {
     expect(changes).toEqual([
       expect.objectContaining({ kind: "update", claim: true, target: free[0] }),
       expect.objectContaining({ kind: "update", claim: true, target: free[1] }),
-      expect.objectContaining({ kind: "add", desired: expect.objectContaining({ key: "2026-10-05" }) }),
+      addOf("2026-10-05"),
     ]);
   });
 
@@ -360,19 +357,12 @@ describe("planSync", () => {
     const record = testEvent({ start: "2026-10-19" });
     const { changes, reports } = planSync([record], snapshot([linked("a", "2026-10-05")]), "2026-10-10");
     expect(reports).toEqual([]);
-    expect(changes).toEqual([
-      expect.objectContaining({ kind: "add", desired: expect.objectContaining({ key: "2026-10-19" }) }),
-    ]);
+    expect(changes).toEqual([addOf("2026-10-19")]);
   });
 
   it("reports the sync's own event of a moved record deleted by hand and does not add it again", () => {
     const record = testEvent({ start: "2026-10-19", change: { status: "moved", previousStart: "2026-10-12" } });
-    const deleted: GoogleEvent = {
-      id: calendarEventId("adoracni-den-2026", "2026-10-12"),
-      status: "cancelled",
-      start: {},
-      end: {},
-    };
+    const deleted = deletedEvent("2026-10-12");
     const { changes, reports } = planSync([record], snapshot([deleted]), TODAY);
     expect(changes).toEqual([]);
     expect(reports).toEqual([
@@ -380,34 +370,13 @@ describe("planSync", () => {
     ]);
   });
 
-  it("does not take the deleted event of a past meeting of a series for another meeting's", () => {
-    const deleted: GoogleEvent = {
-      id: calendarEventId("adoracni-den-2026", "2026-10-05"),
-      status: "cancelled",
-      start: {},
-      end: {},
-    };
-    const { changes, reports } = planSync([series], snapshot([deleted]), "2026-10-10");
-    expect(reports).toEqual([]);
-    expect(changes).toEqual([
-      expect.objectContaining({ kind: "add", desired: expect.objectContaining({ key: "2026-10-12" }) }),
-      expect.objectContaining({ kind: "add", desired: expect.objectContaining({ key: "2026-10-19" }) }),
-    ]);
-  });
-
-  it("still adds a series' meetings when the event of a date it no longer has was deleted", () => {
-    const deleted: GoogleEvent = {
-      id: calendarEventId("adoracni-den-2026", "2026-10-26"),
-      status: "cancelled",
-      start: {},
-      end: {},
-    };
-    const { changes, reports } = planSync([series], snapshot([deleted]), "2026-10-10");
-    expect(reports).toEqual([]);
-    expect(changes).toEqual([
-      expect.objectContaining({ kind: "add", desired: expect.objectContaining({ key: "2026-10-12" }) }),
-      expect.objectContaining({ kind: "add", desired: expect.objectContaining({ key: "2026-10-19" }) }),
-    ]);
+  it("adds a series' coming meetings beside the deleted event of a past meeting or of a date it no longer has", () => {
+    // 2026-10-05: a past meeting's, not taken for another meeting's; 2026-10-26: a date the series no longer has.
+    for (const date of ["2026-10-05", "2026-10-26"]) {
+      const { changes, reports } = planSync([series], snapshot([deletedEvent(date)]), "2026-10-10");
+      expect(reports).toEqual([]);
+      expect(changes).toEqual([addOf("2026-10-12"), addOf("2026-10-19")]);
+    }
   });
 
   it("reports a second owned repeating event as an orphan although it started before today", () => {

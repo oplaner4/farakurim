@@ -12,6 +12,10 @@ describe("mailboxCommand", () => {
     expect(mailboxCommand("file", {}, "Usage")).toEqual({ action: "file", processed: [], rejected: [] });
   });
 
+  it("refuses a uid that is not a number", () => {
+    expect(() => mailboxCommand("file", { processed: "a" }, "Usage")).toThrow("not a message uid");
+  });
+
   it("leaves another action to the caller and refuses a fetch without --out", () => {
     expect(mailboxCommand("known", { out: "x" }, "Usage")).toBeUndefined();
     expect(mailboxCommand(undefined, {}, "Usage")).toBeUndefined();

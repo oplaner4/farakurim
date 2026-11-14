@@ -212,8 +212,7 @@ describe("addEvent with pinned", () => {
 });
 
 describe("parseCommand", () => {
-  it("reads the record file and --check, with this command's usage", () => {
-    expect(parseCommand(["-", "--check"])).toEqual({ file: "-", check: true });
+  it("has this command's usage", () => {
     expect(() => parseCommand([])).toThrow(/^Usage: pnpm add-event <record.json \| -> \[--check\]$/);
   });
 });

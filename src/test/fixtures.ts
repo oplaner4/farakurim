@@ -23,6 +23,23 @@ export const sokolovna: Venue = {
   position: { lat: 49.28, lon: 16.56 },
 };
 
+/** A venue of `municipality` with only a name, an address and a position, and `aliases`. */
+const venueAt = (id: string, name: string, municipality: string, aliases?: string[]): Venue => ({
+  id,
+  name,
+  address: { municipality, country: "Česko" },
+  position: { lat: 49.29, lon: 16.52 },
+  aliases,
+});
+
+/** Venues to match places against: two chapels of one name in two municipalities, and one with an alias. */
+export const matchVenues = [
+  venueAt("kurim-fara", "Fara", "Kuřim", ["areál za farou"]),
+  venueAt("kurim-kaple-jana-nepomuckeho", "Kaple sv. Jana Nepomuckého", "Kuřim"),
+  venueAt("moravske-kninice-kaple-jana-nepomuckeho", "Kaple sv. Jana Nepomuckého", "Moravské Knínice"),
+  venueAt("ceska-kaple", "Kaple Panny Marie Růžencové", "Česká"),
+];
+
 /** A bare event record: its id as the title, without a place or a text. */
 export const event = (id: string, start: string, end?: string, extra: Partial<NewsEvent> = {}): NewsEvent => ({
   id,

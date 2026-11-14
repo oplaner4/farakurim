@@ -153,20 +153,12 @@ describe("fetchSheet with the sender's subject and text", () => {
   });
 });
 
+// fetch and file are read by mailboxCommand() (scripts/lib/mail/command.test.ts); these check the wiring only.
 describe("command line", () => {
-  it("reads fetch and file", () => {
+  it("reads the mailbox's actions and nothing else", () => {
     expect(parseCommand(["fetch", "--out", "x"])).toEqual({ action: "fetch", out: "x" });
-    expect(parseCommand(["file", "--processed", "1,3", "--rejected", "2"])).toEqual({
-      action: "file",
-      processed: [1, 3],
-      rejected: [2],
-    });
-    expect(parseCommand(["file", "--processed", "4"])).toMatchObject({ rejected: [] });
-  });
-
-  it("refuses wrong arguments", () => {
-    expect(() => parseCommand([])).toThrow("Usage");
-    expect(() => parseCommand(["fetch"])).toThrow("--out");
-    expect(() => parseCommand(["file", "--processed", "a"])).toThrow("not a message uid");
+    expect(() => parseCommand([])).toThrow("Usage: pnpm sheet-mail");
+    expect(() => parseCommand(["known", "--out", "x"])).toThrow("Usage: pnpm sheet-mail");
+    expect(() => parseCommand(["fetch", "--out", "x", "y"])).toThrow("unexpected argument y");
   });
 });

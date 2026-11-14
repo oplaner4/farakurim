@@ -218,6 +218,21 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     );
   };
 
+  /**
+   * Drafts the newest week of the DOCX `source` (2099-10-04 – 2099-10-11); returns its draft's path and the lines,
+   * checked up to the page it would stage.
+   */
+  async function draftNewestWeek(source: string) {
+    const draft = join(env.home, "draft.json");
+    const { lines } = await draftSheet(env, { source, out: draft });
+    expect(lines.slice(0, 3)).toEqual([
+      `Wrote the draft record of 2099-10-04 – 2099-10-11 to ${draft}`,
+      "tell: Days without services: 2099-10-05, 2099-10-06, 2099-10-07, 2099-10-08, 2099-10-09, 2099-10-10",
+      "Would stage uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf",
+    ]);
+    return { draft, lines };
+  }
+
   it("asks a DOCX without a record for a draft first", async () => {
     await expect(stageSheet(env, { source: yearDocx() })).rejects.toThrow(
       "--record is required to stage the week's page\nnext: write the draft record with `pnpm stage sheet draft` first (or only print the week with --check)",
@@ -245,13 +260,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     { timeout: 120_000 },
     async () => {
       const source = yearDocx();
-      const draft = join(env.home, "draft.json");
-      const { lines } = await draftSheet(env, { source, out: draft });
-      expect(lines.slice(0, 3)).toEqual([
-        `Wrote the draft record of 2099-10-04 – 2099-10-11 to ${draft}`,
-        "tell: Days without services: 2099-10-05, 2099-10-06, 2099-10-07, 2099-10-08, 2099-10-09, 2099-10-10",
-        "Would stage uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf",
-      ]);
+      const { draft } = await draftNewestWeek(source);
       const drafted = JSON.parse(readFileSync(draft, "utf8"));
       expect(drafted.days[0].rows).toEqual([
         { time: "8:00", place: "kurim", title: "Mše sv.", detail: "za farníky", mass: true },
@@ -308,12 +317,8 @@ describe("stageSheet", { timeout: 30_000 }, () => {
 
     it("drafts the newest week and stages only its page", async () => {
       const source = yearDocx();
-      const draft = join(env.home, "draft.json");
-      const { lines } = await draftSheet(env, { source, out: draft });
-      expect(lines.slice(0, 6)).toEqual([
-        `Wrote the draft record of 2099-10-04 – 2099-10-11 to ${draft}`,
-        "tell: Days without services: 2099-10-05, 2099-10-06, 2099-10-07, 2099-10-08, 2099-10-09, 2099-10-10",
-        "Would stage uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf",
+      const { draft, lines } = await draftNewestWeek(source);
+      expect(lines.slice(3, 6)).toEqual([
         '  validFrom: "2099-10-04",\n  validTo: "2099-10-11",',
         `days: ${weekDays("2099-10-04", "2099-10-11").join(", ")}`,
         "Events for newsId (not ended by 2099-09-20):",

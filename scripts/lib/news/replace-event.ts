@@ -11,10 +11,11 @@ import { parseOrThrow } from "@/lib/shared/json-file";
 import { pragueDate } from "@/lib/shared/prague";
 import { assertVenue, insertRecord, venueLines } from "./add-event";
 import { changedKeys, changedLine } from "../changes";
-import { actionVerb, parseRecordCommand, readJsonRecord } from "../command";
-import { formatAndTestNews, NEWS_DIR, writeMonth } from "../content-files";
+import { actionVerb } from "../command";
+import { NEWS_DIR, writeMonth } from "../content-files";
 import { next, refusal } from "../output";
 import { assertPinnable, withoutPin } from "./pin-event";
+import { recordCommand } from "./record-command";
 
 /** The month file holding the record with `input`'s id, its records and the record; throws for an unknown id. */
 function findRecord(months: Map<string, NewsEvent[]>, input: unknown) {
@@ -108,15 +109,11 @@ export function replaceLines(
   return [`${actionVerb(check, "replace")} the record ${record.id}`, changedLine(changed), ...venueLines(record)];
 }
 
-const USAGE = "Usage: pnpm replace-event <record.json | -> [--check]";
-
-/** Reads the command line `args`: the record file (`-` for stdin) and --check. */
-export const parseCommand = (args: string[]) => parseRecordCommand(args, USAGE);
-
-/** Replaces the record in `file` and prints what changed; then formats and tests the news files. */
-export async function execute({ file, check }: { file: string; check: boolean }) {
-  const input = readJsonRecord(file);
-  const result = replaceEvent(NEWS_DIR, input, { check });
-  console.log(replaceLines(result, check).join("\n"));
-  if (!check) await formatAndTestNews(result.written);
-}
+/** Replaces the record in the file and prints what changed; then formats and tests the news files. */
+export const { parseCommand, execute } = recordCommand(
+  "Usage: pnpm replace-event <record.json | -> [--check]",
+  (input, check) => {
+    const result = replaceEvent(NEWS_DIR, input, { check });
+    return { lines: replaceLines(result, check), written: result.written };
+  },
+);
