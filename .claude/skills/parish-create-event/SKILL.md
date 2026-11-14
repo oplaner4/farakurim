@@ -89,21 +89,24 @@ show. Only the first file can be the poster: list the poster first. It becomes t
 PDF, unless you pass `--no-poster`: pass it when the first file has a "no" label or is another text-only document
 (an MP3 never becomes one; it refuses any file but a PDF, PNG, JPG, WebP or MP3).
 
-Check `record.json` with the files before confirming: its fields, a free `id`, the `Would unpin …` line for a pinned
-event, and the names (it refuses a taken name, a label without letters or digits and two labels giving the same file
-name):
+Then run the check. The script does the checking, not you: it stages nothing and prints what it would do, or
+refuses:
 
 ```sh
 pnpm stage event "<source>" "<label>" ["<source>" "<label>" …] [--no-poster] --record <scratchpad>/record.json --check
 ```
 
+Read its output: its lines go into step 4, a refusal is handled as "When a command refuses" below says.
+
 ## 3b. Check the record (only without a file)
 
-Check `record.json` (its fields, a free `id`, and the `Would unpin …` line for a pinned event):
+Run the check. The script does the checking, not you: it adds nothing and prints what it would do, or refuses:
 
 ```sh
 pnpm add-event <scratchpad>/record.json --check
 ```
+
+Read its output: its lines go into step 4, a refusal is handled as "When a command refuses" below says.
 
 ## 4. Confirm with the user
 
@@ -130,8 +133,18 @@ Update `record.json` with the confirmed event, then add it:
 pnpm add-event <scratchpad>/record.json
 ```
 
-An error from step 5a or 5b (a bad field, a taken `id`, a pin on an event that has already ended) means nothing was
-staged (5b stages nothing anyway): fix `record.json` and run the same command again.
+### When a command refuses
+
+A refusal (in step 3 or 5) changes nothing: nothing is staged or added. Its first line says why, a `next:` line
+what to do and an `ask:` line what to ask the user.
+
+- Follow the `next:` line, and ask the user the `ask:` line (a smaller file, for example).
+- Fix your own mistake in `record.json` (a field the schema rejects, a misspelt key) and run the same command again.
+- A taken `id`: the refusal names the event that holds it. When that is the same event, it is not new: tell the user
+  and correct it with **`parish-correct-event`** instead. Another event of the same title takes the date id its
+  `next:` line gives.
+- In step 5, after the user's yes: when the fix changes something the user confirmed (the `id`, so the URL, a date,
+  a file or its label, the pin), show the change and wait for the user's yes again before running the command.
 
 ## 6. Publish
 
