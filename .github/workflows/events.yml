@@ -7,7 +7,7 @@
 #   open events/ PRs add) and lets the agent (workload identity federation, no API key) run
 #   parish-create-event unattended on the mail: it groups the attachments into events, refuses corrections and
 #   duplicates, stages the new events and writes a JSON report (`report.json`), checked with `pnpm content-pr check`.
-#   The agent's file tools may write only in $RUNNER_TEMP/event (the checkout is denied); only `pnpm stage event`,
+#   The agent's file tools may write only in $RUNNER_TEMP/event (the checkout is denied); only `pnpm stage-content event`,
 #   `pnpm add-event` and `pnpm venue add`/`alias` write src/content/ and the staging folder. The job hands on the report, the change to src/content/news/ and the venue
 #   list as a patch, the known events (read before the agent ran) and the staged files as a one-day artifact. The mail itself never leaves this job, and is deleted at the end.
 # - `publish` starts from a fresh checkout, applies the patch only if it touches nothing but the news month files
@@ -167,7 +167,7 @@ jobs:
         with:
           workdir: ${{ runner.temp }}/event
           commands: |
-            pnpm stage event:*
+            pnpm stage-content event:*
             pnpm add-event:*
             pnpm venue find:*
             pnpm venue lookup:*

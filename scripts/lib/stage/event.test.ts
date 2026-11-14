@@ -146,7 +146,7 @@ describe("stageEvent", { timeout: 30_000 }, () => {
     await expect(
       stageOne({ source, id: "setkani-prvokomunikantu-2026", label: "Program", noPoster: true, check: true }),
     ).rejects.toThrow(
-      'id setkani-prvokomunikantu-2026 is already taken by "Setkání prvokomunikantů s biskupem Pavlem" (2026-10-01)\nnext: use the id setkani-prvokomunikantu-<start YYYY-MM-DD> for another event of that title\nnext: pnpm replace-event corrects that event (pnpm stage event --corrected for a file)',
+      'id setkani-prvokomunikantu-2026 is already taken by "Setkání prvokomunikantů s biskupem Pavlem" (2026-10-01)\nnext: use the id setkani-prvokomunikantu-<start YYYY-MM-DD> for another event of that title\nnext: pnpm replace-event corrects that event (pnpm stage-content event --corrected for a file)',
     );
     expect(fetchMock).not.toHaveBeenCalled();
   });

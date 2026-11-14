@@ -236,7 +236,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
 
   it("asks a DOCX without a record for a draft first", async () => {
     await expect(stageSheet(env, { source: yearDocx() })).rejects.toThrow(
-      "--record is required to stage the week's page\nnext: write the draft record with `pnpm stage sheet draft` first (or only print the week with --check)",
+      "--record is required to stage the week's page\nnext: write the draft record with `pnpm stage-content sheet draft` first (or only print the week with --check)",
     );
   });
 

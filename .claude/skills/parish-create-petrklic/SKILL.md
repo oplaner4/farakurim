@@ -5,7 +5,7 @@ description: Add a new issue of the Petrklíč parish newsletter from its PDF, t
 
 # Create a Petrklíč issue
 
-`pnpm stage petrklic` stages the issue's PDF and images for upload and adds the issue. The newest issue is the
+`pnpm stage-content petrklic` stages the issue's PDF and images for upload and adds the issue. The newest issue is the
 current one (aktuální číslo): the Petrklíč page shows its pages in the viewer and the homepage card shows its cover.
 
 ## 1. Read the PDF
@@ -19,7 +19,7 @@ The user gives at least a file name; without a folder, look in `~/Downloads/`. R
 Check the issue from step 1 and get the page count:
 
 ```sh
-pnpm stage petrklic "<source>" --year <year> --number <number> --check
+pnpm stage-content petrklic "<source>" --year <year> --number <number> --check
 ```
 
 It prints the folder it would stage (named by the id), the page count and where the issue would go, and refuses an
@@ -43,7 +43,7 @@ Wait for the user's yes or corrections to these before staging anything.
 ## 3. Stage the PDF and render the images
 
 ```sh
-pnpm stage petrklic "<source>" --year <year> --number <number> [--note "<note>"]
+pnpm stage-content petrklic "<source>" --year <year> --number <number> [--note "<note>"]
 ```
 
 It stages the PDF, renders the cover and every page, adds the issue and runs the Petrklíč test. It says whether the

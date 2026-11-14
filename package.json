@@ -12,7 +12,7 @@
     "test:scripts": "vitest run --project scripts",
     "icons": "tsx scripts/generate-icons.ts",
     "fonts": "python3 scripts/build-fonts.py",
-    "stage": "tsx scripts/stage.ts",
+    "stage-content": "tsx scripts/stage-content.ts",
     "add-event": "tsx scripts/add-event.ts",
     "add-album": "tsx scripts/add-album.ts",
     "venue": "tsx scripts/venue.ts",

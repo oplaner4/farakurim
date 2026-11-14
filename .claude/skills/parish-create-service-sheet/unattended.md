@@ -22,7 +22,7 @@ the one the prompt gives (`record.json`, `draft.json`; write nothing in the repo
 
 ### Step 1: the week
 
-- It handles **one week**: the one the prompt names (pass its `--from` and `--to` to every `pnpm stage sheet` run on
+- It handles **one week**: the one the prompt names (pass its `--from` and `--to` to every `pnpm stage-content sheet` run on
   the DOCX), else the DOCX's newest week; never touch other weeks.
 - When `sheet draft` prints neither `state: staged` nor `state: published`: steps 1 to 4 of
   `parish-create-service-sheet` as written. When it prints one of them (never open `service-sheets.json` to check):

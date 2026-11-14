@@ -6,7 +6,7 @@ description: Correct an event (an "aktualita") already on the site - fix its tex
 # Correct an event
 
 A corrected record goes in with `pnpm replace-event`, a corrected or added file with
-`pnpm stage event --corrected`, and another poster with `pnpm event-poster`.
+`pnpm stage-content event --corrected`, and another poster with `pnpm event-poster`.
 
 ## 1. Find the event
 
@@ -50,7 +50,7 @@ Corrected or added files, only those: with `--id <id>`, the record on the site; 
 instead (the id is the record's):
 
 ```sh
-pnpm stage event "<source>" "<label>" ["<source>" "<label>" …] --corrected (--record <scratchpad>/record.json | --id <id>) --check
+pnpm stage-content event "<source>" "<label>" ["<source>" "<label>" …] --corrected (--record <scratchpad>/record.json | --id <id>) --check
 ```
 
 A file replaces the attachment with the same `label`, so take the label from `attachments`; another label adds a

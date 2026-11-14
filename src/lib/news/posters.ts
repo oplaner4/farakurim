@@ -20,7 +20,7 @@ export const isPosterOf = (src: string, file: string) => posterSource(src) === w
 
 /**
  * What the detail page's poster opens full size: the poster's original (its file is named like the poster WebP, before
- * `.webp` or, since `pnpm stage event` names posters `<file>-poster.webp`, before `-poster.webp`), else the
+ * `.webp` or, since `pnpm stage-content event` names posters `<file>-poster.webp`, before `-poster.webp`), else the
  * "Plakát" attachment, else the WebP itself. Undefined without a poster or a "Plakát" attachment.
  */
 export function posterHref(event: NewsEvent): string | undefined {

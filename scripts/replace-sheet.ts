@@ -6,7 +6,7 @@
 // The record holds the corrected sheet's days and announcements as JSON (`-` reads stdin), without validFrom, validTo
 // and rev; --from and --to name the sheet, which keeps its PDF and rev, and nothing is staged. It prints what differs
 // from the sheet (`Changed: …`): each day's changed fields and rows, and the announcements. --check only validates
-// and prints, without writing. A corrected PDF or DOCX is staged with `pnpm stage sheet … --corrected` instead.
+// and prints, without writing. A corrected PDF or DOCX is staged with `pnpm stage-content sheet … --corrected` instead.
 import { runCommand } from "./lib/command";
 import { withContentRestore } from "./lib/content-files";
 import { execute, parseCommand } from "./lib/services/replace-sheet";

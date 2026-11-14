@@ -32,7 +32,7 @@ export function takenIdError(taken: NewsEvent): Error {
   return refusal(
     `id ${taken.id} is already taken by "${taken.title}" (${taken.start})`,
     next(`use the id ${dated} for another event of that title`),
-    next("pnpm replace-event corrects that event (pnpm stage event --corrected for a file)"),
+    next("pnpm replace-event corrects that event (pnpm stage-content event --corrected for a file)"),
   );
 }
 

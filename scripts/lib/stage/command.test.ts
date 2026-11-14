@@ -51,7 +51,7 @@ describe("runStage", { timeout: 30_000 }, () => {
   it("refuses missing arguments, another command's options and the old --rev", async () => {
     // An unpaired source (also the old id before the files), and --poster (the first file is the poster unless
     // --no-poster).
-    await expect(runStage(env, ["event", "a.jpg"])).rejects.toThrow("wrong arguments\nUsage: pnpm stage");
+    await expect(runStage(env, ["event", "a.jpg"])).rejects.toThrow("wrong arguments\nUsage: pnpm stage-content");
     await expect(runStage(env, ["event", "x", "a.jpg", "Plakát"])).rejects.toThrow("wrong arguments");
     await expect(runStage(env, ["event", "a.jpg", "Plakát", "--poster"])).rejects.toThrow("wrong arguments");
     await expect(runStage(env, [])).rejects.toThrow(/Largest source file: event \d+ MB, sheet \d+ MB, petrklic \d+ MB/);

@@ -1,6 +1,6 @@
 // Uploaded files, never committed: the content links each one root-relative under UPLOADS_PATH (CLAUDE.md
 // "Content and data"), and the scripts map that path to the repo's staging folder (scripts/lib/uploads.ts). The
-// content schemas, the content tests and `pnpm stage` check the links with these rules.
+// content schemas, the content tests and `pnpm stage-content` check the links with these rules.
 
 /** Where the uploaded files are served; the repo stages them in the folder of the same name (UPLOADS_DIR). */
 export const UPLOADS_PATH = "/uploads/";

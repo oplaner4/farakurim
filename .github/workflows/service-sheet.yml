@@ -10,7 +10,7 @@
 #   federation, no API key) run the service sheet skills unattended on the DOCX: it drafts, corrects and stages the
 #   week and writes the run's JSON report (`report.json`: the week's questions, plus the answers to the PR's earlier
 #   questions), checked with `pnpm content-pr check`. The agent's file tools may write only in $RUNNER_TEMP/sheet (the
-#   checkout is denied); only `pnpm stage sheet` writes src/content/, the staging folder and the stage result
+#   checkout is denied); only `pnpm stage-content sheet` writes src/content/, the staging folder and the stage result
 #   (STAGE_RESULT: what its last run did with the week, the source of the week's outcome). The job hands on the report,
 #   the stage result, a clean copy of the PR's report (saved before the agent ran), the change to src/content/ as a
 #   patch and the staged PDFs as a one-day artifact. The year's DOCX (intentions with names) and the note never
@@ -186,7 +186,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       # The prompt holds no sheet rules: they live in the skills. What the agent may do: .github/actions/agent.
-      # STAGE_RESULT: each `pnpm stage sheet` run writes what it did with the week there, in the artifact's folder,
+      # STAGE_RESULT: each `pnpm stage-content sheet` run writes what it did with the week there, in the artifact's folder,
       # outside the agent's reach, and `pnpm content-pr` takes the week's outcome from it, never from the agent.
       - name: Run the service sheet skills
         id: agent
@@ -198,7 +198,7 @@ jobs:
         with:
           workdir: ${{ runner.temp }}/sheet
           commands: |
-            pnpm stage sheet:*
+            pnpm stage-content sheet:*
             pnpm content-pr check:*
           federation-rule-id: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID }}
           organization-id: ${{ vars.ANTHROPIC_ORGANIZATION_ID }}

@@ -1,4 +1,4 @@
-// Content fixtures for the script tests: news folders, the `pnpm stage` staging folder, empty sheet weeks.
+// Content fixtures for the script tests: news folders, the `pnpm stage-content` staging folder, empty sheet weeks.
 
 import { cpSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -31,7 +31,7 @@ export function useNewsFixture(months: Record<string, NewsEvent[]>) {
 }
 
 /**
- * A temp staging folder, news/, service-sheets.json, schedule-exceptions.json, petrklic.json and home for the `pnpm stage` tests, fresh for each test: `env`
+ * A temp staging folder, news/, service-sheets.json, schedule-exceptions.json, petrklic.json and home for the `pnpm stage-content` tests, fresh for each test: `env`
  * points there and asks a fetch stub that answers 404 (the name is free) until `status()` changes it.
  */
 export function useStageFixture() {

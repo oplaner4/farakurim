@@ -1,4 +1,4 @@
-// pnpm stage: stages a content file for the server and adds its record to src/content/
+// pnpm stage-content: stages a content file for the server and adds its record to src/content/
 // (parish-create-event, parish-create-service-sheet and parish-create-petrklic skills, and their
 // parish-correct-* skills with --corrected). Every command checks the name is still free on the site (files on the
 // server are never overwritten), copies the file under its ASCII name, renders the images and adds the record, then
@@ -9,7 +9,7 @@
 // writes what it did with its week there, the last run winning: drafted, staged, refused, or a document error when the
 // parish's DOCX cannot be read, with the refusal's first line (`pnpm content-pr` takes the week's outcome from it).
 //
-// Usage: pnpm stage <command> ... [--check]
+// Usage: pnpm stage-content <command> ... [--check]
 //   event <source> <label> [<source> <label> …] [--no-poster] --record <record.json>
 //   event <source> <label> [<source> <label> …] --corrected (--record <record.json> | --id <id>)
 //       aktuality/<id>-<label in ASCII>.<ext> for each file, in that order, plus <first file's name>-poster.webp
@@ -50,4 +50,4 @@ import { runCommand } from "./lib/command";
 import { withContentRestore } from "./lib/content-files";
 import { execute } from "./lib/stage/command";
 
-runCommand("stage", import.meta.url, (args) => args, withContentRestore(execute));
+runCommand("stage-content", import.meta.url, (args) => args, withContentRestore(execute));

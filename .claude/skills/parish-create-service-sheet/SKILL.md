@@ -6,7 +6,7 @@ description: Publish the weekly service sheet (the "pořad bohoslužeb" or "ohl�
 # Create a service sheet
 
 The parish's weekly service sheet ("ROZPIS BOHOSLUŽEB V TÝDNU od … do …") becomes **structured content**: one sheet,
-added by `pnpm stage sheet`. It can be published any day before its week: the site shows each sheet from its
+added by `pnpm stage-content sheet`. It can be published any day before its week: the site shows each sheet from its
 `validFrom` (the newer one on the Sunday two sheets share), and the script removes the sheets before the current one.
 Finish with **`parish-publish-content`**.
 
@@ -29,7 +29,7 @@ Draft the record (it also refuses a week before the current sheet or overlapping
 **`parish-correct-service-sheet`**.
 
 ```sh
-pnpm stage sheet draft "<source>" --out <scratchpad>/record.json
+pnpm stage-content sheet draft "<source>" --out <scratchpad>/record.json
 ```
 
 It prints the week, its days and the events an announcement can link (for `newsId`), and writes `days` and
@@ -53,7 +53,7 @@ Read the **whole** page: the announcements are the paragraphs below the table.
 Get the week, its dates and the events for `newsId` (it refuses and names a week the same way as `sheet draft`):
 
 ```sh
-pnpm stage sheet "<source>" --check
+pnpm stage-content sheet "<source>" --check
 ```
 
 ## 2. Extract the sheet
@@ -150,7 +150,7 @@ Unfinished text in the source ("vynesl …………. Kč") goes to the user: ask
 
 ## 3. Confirm with the user
 
-Validate the record first: `pnpm stage sheet "<source>" --record <scratchpad>/record.json --check`. Then show the
+Validate the record first: `pnpm stage-content sheet "<source>" --record <scratchpad>/record.json --check`. Then show the
 week, a compact day-by-day list of rows, and the announcements with their categories and each `newsId` with its
 event's title and date. Ask about anything uncertain: unreadable rows, cancellations, an announcement with no
 matching event.
@@ -162,7 +162,7 @@ Unattended: write this into the report instead (`unattended.md`).
 ## 4. Stage the PDF and add the sheet
 
 ```sh
-pnpm stage sheet "<source>" --record <scratchpad>/record.json
+pnpm stage-content sheet "<source>" --record <scratchpad>/record.json
 ```
 
 It validates the record first (the error names each field), stages the PDF, adds the sheet, removes the outdated

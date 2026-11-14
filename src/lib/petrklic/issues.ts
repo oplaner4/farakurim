@@ -51,7 +51,7 @@ export const issueFolder = ({ id, rev }: Pick<PetrklicIssue, "id" | "rev">) => `
 /** The issue's folder of uploaded files: "petrklic/2026-2", or "petrklic/2026-2-r2" for a corrected PDF. */
 export const issuePath = (issue: Pick<PetrklicIssue, "id" | "rev">) => `petrklic/${issueFolder(issue)}`;
 
-/** The files in an issue's folder: the PDF, the cover and the viewer's pages (`pnpm stage petrklic` renders them). */
+/** The files in an issue's folder: the PDF, the cover and the viewer's pages (`pnpm stage-content petrklic` renders them). */
 export const issueFiles = {
   pdf: (id: string) => `petrklic-${id}.pdf`,
   cover: "cover.webp",

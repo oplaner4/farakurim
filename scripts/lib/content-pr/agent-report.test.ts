@@ -138,7 +138,7 @@ describe("the agent's sheet run report", () => {
       staged("the weeks 12.–18. 10. and 19.–25. 10. 2026"),
     ]);
     expect(issuesOf(() => sheet(run, { changes: sheetChanges([DATES_19]) }))).toEqual([
-      "week: no stage run: draft and stage the week with `pnpm stage sheet`",
+      "week: no stage run: draft and stage the week with `pnpm stage-content sheet`",
     ]);
     const drafted = { ...DATES_19, result: "drafted" } as const;
     expect(issuesOf(() => sheet(run, { result: drafted, changes: sheetChanges([]) }))).toEqual([

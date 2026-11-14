@@ -6,7 +6,7 @@ description: Correct a Petrklíč issue already on the site - replace its PDF, o
 # Correct a Petrklíč issue
 
 The id comes from the year, number and note (`2026-2`, `2026-3-mimoradne`). A released file is never
-replaced, so `pnpm stage petrklic --corrected` stages a corrected PDF of a released issue in a new folder.
+replaced, so `pnpm stage-content petrklic --corrected` stages a corrected PDF of a released issue in a new folder.
 
 ## 1. Find the issue
 
@@ -16,7 +16,7 @@ and note. When it fits several issues or none, list the candidates (id, year, nu
 ## 2. A corrected PDF
 
 ```sh
-pnpm stage petrklic "<source>" --year <year> --number <number> [--note "<note>"] --corrected --check
+pnpm stage-content petrklic "<source>" --year <year> --number <number> [--note "<note>"] --corrected --check
 ```
 
 It refuses an issue that is not added. Show the user the id, the folder it would stage, the rev and the page
@@ -25,7 +25,7 @@ count it prints (next to the record's old `pageCount`).
 Wait for the user's yes or corrections to these before staging anything. Then stage it without `--check`:
 
 ```sh
-pnpm stage petrklic "<source>" --year <year> --number <number> [--note "<note>"] --corrected
+pnpm stage-content petrklic "<source>" --year <year> --number <number> [--note "<note>"] --corrected
 ```
 
 It renders the cover and pages again and updates the issue.
@@ -36,7 +36,7 @@ A new year, number or note changes the id, and with it the issue's folder. Stage
 from its own PDF (`<old id>` is the id from step 1):
 
 ```sh
-pnpm stage petrklic --from <old id> --year <year> --number <number> [--note "<note>"] --check
+pnpm stage-content petrklic --from <old id> --year <year> --number <number> [--note "<note>"] --check
 ```
 
 Show the user the old and new id, the folder it would stage and the page count it prints. Wait for the user's yes or

@@ -6,7 +6,7 @@
 // The record is a NewsEvent as JSON (`-` reads stdin), upload paths root-relative ("/uploads/aktuality/x.webp").
 // --check only validates the record and the news files and prints the target file, without writing. A record with
 // `"pinned": true` takes the pin from the record pinned before, named in the output. An event with files to
-// upload is added by `pnpm stage event … --record`, one already there is corrected with `pnpm replace-event`.
+// upload is added by `pnpm stage-content event … --record`, one already there is corrected with `pnpm replace-event`.
 import { runCommand } from "./lib/command";
 import { withContentRestore } from "./lib/content-files";
 import { execute, parseCommand } from "./lib/news/add-event";

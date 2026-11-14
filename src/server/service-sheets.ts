@@ -5,7 +5,7 @@ import { serviceSheetsFileSchema } from "@/lib/services/schema";
 import { parseOrThrow } from "@/lib/shared/parse";
 import { toSheet } from "@/lib/services/service-sheet";
 
-// The service sheets (src/content/service-sheets.json, written by `pnpm stage sheet … --record`,
+// The service sheets (src/content/service-sheets.json, written by `pnpm stage-content sheet … --record`,
 // parish-create-service-sheet skill): the sheets sorted by validFrom (each PDF's URL computed from validFrom and rev),
 // consecutive ones sharing at most their boundary day (the newer wins it). The site shows the sheet whose week has
 // started last (currentSheet(), in the browser); the changes announced for later are

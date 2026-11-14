@@ -11,12 +11,12 @@ import { defaultEnv, MAX_MB, type StageEnv } from "./core";
 import { stagePetrklic } from "./petrklic";
 import { draftSheet, stageSheet } from "./sheet";
 
-const USAGE = `Usage: pnpm stage event --record <json> <source> <label> [<source> <label> …] [--no-poster] [--check]
-       pnpm stage event --corrected (--record <json> | --id <id>) <source> <label> [<source> <label> …] [--check]
-       pnpm stage sheet <pdf|docx> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected] [--record <json>] [--check]
-       pnpm stage sheet draft <docx> --out <json> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected]
-       pnpm stage petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--corrected] [--check]
-       pnpm stage petrklic --from <id> --year <year> --number <number> [--note "<note>"] [--check]
+const USAGE = `Usage: pnpm stage-content event --record <json> <source> <label> [<source> <label> …] [--no-poster] [--check]
+       pnpm stage-content event --corrected (--record <json> | --id <id>) <source> <label> [<source> <label> …] [--check]
+       pnpm stage-content sheet <pdf|docx> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected] [--record <json>] [--check]
+       pnpm stage-content sheet draft <docx> --out <json> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected]
+       pnpm stage-content petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--corrected] [--check]
+       pnpm stage-content petrklic --from <id> --year <year> --number <number> [--note "<note>"] [--check]
 Largest source file: ${Object.entries(MAX_MB)
   .map(([command, mb]) => `${command} ${mb} MB`)
   .join(", ")}`;

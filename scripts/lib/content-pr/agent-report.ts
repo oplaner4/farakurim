@@ -93,7 +93,7 @@ function stagedWeek(staged: Week, changes: ContentChanges | undefined): DatedWee
  * Throws a ReportError when they do not fit.
  */
 function weekOf(week: AgentWeek, changes: ContentChanges | undefined, result: SheetResult | undefined): DatedWeek {
-  if (!result) refuse("week: no stage run: draft and stage the week with `pnpm stage sheet`");
+  if (!result) refuse("week: no stage run: draft and stage the week with `pnpm stage-content sheet`");
   if (result.result === "drafted") refuse("week: the week was drafted, but not staged with `--record`");
   const agentDates = week.validFrom !== undefined && week.validTo !== undefined;
   const fromRun = result.validFrom !== undefined && result.validTo !== undefined;

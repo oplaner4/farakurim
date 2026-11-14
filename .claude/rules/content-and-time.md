@@ -79,7 +79,7 @@ build-time next mass.
   the title otherwise. First-Friday/Saturday variants use `rule: "first-in-month"` (and `"not-first-in-month"` for
   what they replace). Exceptions (`scheduleExceptions()`) **replace the whole day's services**, titled ones included;
   never hard-code those variants in logic.
-- Service sheets (`content/service-sheets.json`, design §14.5–14.7): one `ServiceSheet` per week (a week, or two weeks around holidays; `isOneWeek()` switches the labels), loaded and checked by `server/service-sheets.ts` (`serviceSheetsFileSchema`), added in advance by `pnpm stage sheet`. The later changes (`content/schedule-exceptions.json`, loaded and checked by `content/schedule-exceptions.ts` as `laterExceptions`, added with `pnpm add-exception`) are the changes announced for days no sheet covers: after the last sheet, or in a week the parish published no service sheet for. A sheet has `days[].rows[]` and
+- Service sheets (`content/service-sheets.json`, design §14.5–14.7): one `ServiceSheet` per week (a week, or two weeks around holidays; `isOneWeek()` switches the labels), loaded and checked by `server/service-sheets.ts` (`serviceSheetsFileSchema`), added in advance by `pnpm stage-content sheet`. The later changes (`content/schedule-exceptions.json`, loaded and checked by `content/schedule-exceptions.ts` as `laterExceptions`, added with `pnpm add-exception`) are the changes announced for days no sheet covers: after the last sheet, or in a week the parish published no service sheet for. A sheet has `days[].rows[]` and
   `announcements[]`. For every day of every sheet (the newer sheet wins the Sunday two sheets share) the `mass` and `service` rows (adoration,
   "Velikonoční obřady"; never "Pohřeb" or "Křest dětí") are the day's only services (`sheetExceptions()`), never
   combined with `regularServices`; on the days no sheet covers the regular schedule applies, except on
@@ -104,7 +104,7 @@ build-time next mass.
 
 - Petrklíč (`content/petrklic.json`, loaded and checked by `content/petrklic.ts` with `petrklicFileSchema` from
   `src/lib/petrklic/schema.ts`): one record per issue (`year`, `number`, `note`, `rev`, `pageCount`), newest
-  first, added by `pnpm stage petrklic` (`parish-create-petrklic`); the id (`issueId()`), the URLs (`toIssue()`)
+  first, added by `pnpm stage-content petrklic` (`parish-create-petrklic`); the id (`issueId()`), the URLs (`toIssue()`)
   and the volume are computed (`volumeOf()`), as is each issue's uploaded folder with its PDF, cover and viewer pages
   (`issueFolder()`, a new one per `rev`).
 - Fotogalerie (`content/gallery.json`, loaded and checked by `content/gallery.ts` with `galleryFileSchema` from

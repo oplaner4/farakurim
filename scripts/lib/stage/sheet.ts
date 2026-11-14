@@ -237,7 +237,9 @@ export async function stageSheet(env: StageEnv, options: SheetOptions) {
     throw isDocx(options.source)
       ? refusal(
           "--record is required to stage the week's page",
-          next("write the draft record with `pnpm stage sheet draft` first (or only print the week with --check)"),
+          next(
+            "write the draft record with `pnpm stage-content sheet draft` first (or only print the week with --check)",
+          ),
         )
       : refusal("--record is required to stage the PDF", next(RECORD_OR_CHECK));
   }

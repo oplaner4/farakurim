@@ -6,7 +6,7 @@ description: Add a new event (an "aktualita") from a poster, invitation or annou
 # Create an event
 
 Read the source, extract one event, confirm it with the user, add it (with its files, if it has any, staged by
-`pnpm stage event`), then finish with **`parish-publish-content`**.
+`pnpm stage-content event`), then finish with **`parish-publish-content`**.
 
 ## 1. Read the source
 
@@ -93,7 +93,7 @@ Then run the check. The script does the checking, not you: it stages nothing and
 refuses:
 
 ```sh
-pnpm stage event "<source>" "<label>" ["<source>" "<label>" …] [--no-poster] --record <scratchpad>/record.json --check
+pnpm stage-content event "<source>" "<label>" ["<source>" "<label>" …] [--no-poster] --record <scratchpad>/record.json --check
 ```
 
 Read its output: its lines go into step 4, a refusal is handled as "When a command refuses" below says.
@@ -122,7 +122,7 @@ Wait for the user's yes or corrections to these before staging or adding anythin
 Update `record.json` with the confirmed event, then run the step 3a command without `--check`:
 
 ```sh
-pnpm stage event "<source>" "<label>" ["<source>" "<label>" …] [--no-poster] --record <scratchpad>/record.json
+pnpm stage-content event "<source>" "<label>" ["<source>" "<label>" …] [--no-poster] --record <scratchpad>/record.json
 ```
 
 ## 5b. Add the record (only without a file)

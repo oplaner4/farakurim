@@ -15,10 +15,10 @@ Working on it with Claude Code: `CLAUDE.md` adds the rules an agent follows on t
   the same major
 - **pnpm** (it runs the version pinned in `package.json`). Do not use npm or yarn.
 - **Python 3** for `pnpm mockups`
-- **poppler-utils** (`pdftoppm`, `pdfinfo`, `pdftotext`, `pdfseparate`, `pdfunite`) for the PDFs of `pnpm stage`;
+- **poppler-utils** (`pdftoppm`, `pdfinfo`, `pdftotext`, `pdfseparate`, `pdfunite`) for the PDFs of `pnpm stage-content`;
   its tests skip the PDF cases without it
 - **LibreOffice** (`soffice` on the `PATH` or in its usual install folder), or **Word** on Windows, to convert the
-  parish's service sheet DOCX with `pnpm stage sheet`; its tests skip the conversion without LibreOffice
+  parish's service sheet DOCX with `pnpm stage-content sheet`; its tests skip the conversion without LibreOffice
 - **Bash, ssh and rsync**, and SSH key access to the server, to release (`pnpm release` with newly staged uploads,
   `pnpm release --local`) and for `pnpm pull-uploads`: set up once as in
   [docs/deployment.md § SSH access](docs/deployment.md#ssh-access). On Windows, Git Bash has ssh but not rsync
@@ -105,7 +105,7 @@ header of its `scripts/<command>.ts`:
 
 | Command              | What it does                                           |
 | -------------------- | ------------------------------------------------------ |
-| `pnpm stage`         | Stage the files of an event, service sheet or Petrklíč |
+| `pnpm stage-content` | Stage the files of an event, service sheet or Petrklíč |
 | `pnpm add-event`     | Add an event                                           |
 | `pnpm replace-event` | Correct an event                                       |
 | `pnpm pin-event`     | Pin or unpin the "Doporučujeme" event                  |

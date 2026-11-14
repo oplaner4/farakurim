@@ -1,5 +1,5 @@
-// The schema of a service sheet stage run's result (the file STAGE_RESULT names): what the last `pnpm stage sheet
-// draft` or `pnpm stage sheet --record` did with its week, which the CI report takes the week's outcome from.
+// The schema of a service sheet stage run's result (the file STAGE_RESULT names): what the last `pnpm stage-content sheet
+// draft` or `pnpm stage-content sheet --record` did with its week, which the CI report takes the week's outcome from.
 
 import { z } from "zod";
 import { sheetWeekSchema } from "@/lib/services/schema";

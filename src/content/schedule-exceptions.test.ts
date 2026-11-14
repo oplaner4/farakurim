@@ -8,7 +8,7 @@ import { laterExceptions } from "./schedule-exceptions";
 // schedule-exceptions.ts checks them on import, so a broken file fails here naming the field.
 describe("Later changes (schedule-exceptions.json)", () => {
   it("are on days no sheet covers, one per date, in order", () => {
-    // `pnpm stage sheet … --record` removes the entries a new sheet covers.
+    // `pnpm stage-content sheet … --record` removes the entries a new sheet covers.
     expect(laterExceptions.filter((x) => sheetCovering(serviceSheets, x.date)).map((x) => x.date)).toEqual([]);
     expect(isSorted(laterExceptions, (a, b) => a.date < b.date)).toBe(true);
   });

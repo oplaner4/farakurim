@@ -34,7 +34,7 @@ inputs:
     description: The scratch folder, an absolute path; the only place the agent's file tools may write
     required: true
   commands:
-    description: The commands it may run besides the basics, one Claude Code pattern per line (`pnpm stage sheet:*`)
+    description: The commands it may run besides the basics, one Claude Code pattern per line (`pnpm stage-content sheet:*`)
     required: false
     default: ""
   tier:

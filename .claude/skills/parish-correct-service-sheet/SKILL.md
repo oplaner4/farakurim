@@ -5,7 +5,7 @@ description: Correct a week's service sheet (the "pořad bohoslužeb" or "ohlá�
 
 # Correct a service sheet
 
-Never edit a sheet in `src/content/service-sheets.json` by hand: a correction reruns `pnpm stage sheet` with a corrected
+Never edit a sheet in `src/content/service-sheets.json` by hand: a correction reruns `pnpm stage-content sheet` with a corrected
 record, which replaces the sheet of the same week.
 
 ## 1. Find the week
@@ -21,7 +21,7 @@ only, without `validFrom`, `validTo` and `rev` (the script sets them). Change on
 
 - a corrected PDF: compare it with the sheet, the way **`parish-create-service-sheet`** step 1 reads a PDF, and
   take over every difference;
-- a corrected DOCX: draft the week (`pnpm stage sheet draft "<docx>" --from <validFrom> --to <validTo> --corrected
+- a corrected DOCX: draft the week (`pnpm stage-content sheet draft "<docx>" --from <validFrom> --to <validTo> --corrected
 --out <scratchpad>/draft.json`), compare the draft with the sheet and take over only the differences in the
   text, keeping the sheet's fixes (`<strong>`, categories, `newsId`);
 - a correction the user describes: change those rows or announcements.
@@ -34,7 +34,7 @@ A cancelled or moved service changes the week's `rows` only.
 With a corrected PDF or DOCX (with a DOCX, also `--from` and `--to` when the week is not its newest):
 
 ```sh
-pnpm stage sheet "<source>" --record <scratchpad>/record.json --corrected --check
+pnpm stage-content sheet "<source>" --record <scratchpad>/record.json --corrected --check
 ```
 
 When only the record changes, without a source:

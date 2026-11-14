@@ -115,7 +115,7 @@ jobs:
           case "$kind" in
             events)
               skill=parish-correct-event label=events
-              commands=$'pnpm replace-event:*\npnpm event-poster:*\npnpm stage event:*\npnpm venue find:*\npnpm venue lookup:*\npnpm venue add:*\npnpm venue alias:*'
+              commands=$'pnpm replace-event:*\npnpm event-poster:*\npnpm stage-content event:*\npnpm venue find:*\npnpm venue lookup:*\npnpm venue add:*\npnpm venue alias:*'
               ;;
             sheet)
               skill=parish-correct-service-sheet label="service sheets"
