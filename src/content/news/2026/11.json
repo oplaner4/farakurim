@@ -198,7 +198,7 @@
     "place": "Blansko",
     "text": "Oblastní setkání mládeže děkanátů Blansko, Boskovice, Brno, Rosice a Tišnov pro mladé od 2. stupně ZŠ po studenty VŠ – mše svatá, hra ve městě, workshopy a chvály.",
     "lead": "Buďte dobré mysli, já jsem přemohl svět! (Jan 16,33)",
-    "body": "<p>Setkání je určeno mladým <strong>od 2. stupně ZŠ po studenty VŠ</strong> z děkanátů Blansko, Boskovice, Brno, Rosice a Tišnov.</p><p>Odpoledne nabídne workshopy: virtuální realita, míčové hry, tvoření, Q&amp;A, Santiago de Compostela a radost řeholnic.</p><p>Na setkání je třeba se přihlásit (přihláška přes QR kód na plakátu).</p>",
+    "body": "<p>Setkání je určeno mladým <strong>od 2. stupně ZŠ po studenty VŠ</strong> z děkanátů Blansko, Boskovice, Brno, Rosice a Tišnov.</p><p>Odpoledne nabídne workshopy: virtuální realita, míčové hry, tvoření, Q&amp;A, Santiago de Compostela a radost řeholnic.</p><p>Na setkání je třeba se přihlásit (přihláška přes QR kód na plakátu nebo online).</p>",
     "program": [
       {
         "time": "9:30",
@@ -240,6 +240,12 @@
         "label": "Plakát",
         "file": "/uploads/aktuality/oblastni-setkani-mladeze-blansko-2026-plakat.jpg",
         "size": 188524
+      }
+    ],
+    "links": [
+      {
+        "label": "Přihláška na setkání",
+        "href": "https://mladez.biskupstvi.cz/dcm/osm/"
       }
     ]
   },
