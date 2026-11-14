@@ -17,9 +17,14 @@ const sheet = (weeks: WeekEntry[], questions: SheetReport["questions"] = []): Sh
   questions,
 });
 
-/** What the content publishes: each week's lines by its start, and the new venues. */
-const published = (weeks: Record<string, string[]>, venues: string[] = []): Published => ({
+/** What the content publishes: each week's lines by its start, the new venues and the events' titles by id. */
+const published = (
+  weeks: Record<string, string[]>,
+  venues: string[] = [],
+  titles: Record<string, string> = {},
+): Published => ({
   week: ({ validFrom }) => weeks[validFrom] ?? [],
+  eventTitle: (id) => titles[id],
   venues,
 });
 
@@ -96,23 +101,22 @@ describe("renderReport", () => {
     const report: EventsReport = {
       kind: "events",
       events: [
-        {
-          title: "Pouť",
-          outcome: { kind: "created", id: "pout" },
-          origin: "From poster.pdf",
-          questions: [],
-        },
+        { outcome: { kind: "created", id: "pout" }, origin: "From poster.pdf", questions: [] },
+        { title: "Zájezd", outcome: { kind: "correction", of: "zajezd-2026" }, questions: [] },
       ],
       questions: [{ id: "q1", blocking: true, status: "open", where: "Pouť", text: "Date?" }],
       droppedAttachments: ["a.pdf", "b.png"],
     };
     const venues = ["- New venue sal: Sál, Kuřim 1 — pin: https://mapy.cz/x", '- New alias "kostelík" for kostel'];
-    expect(renderReport(report, published({}, venues))).toBe(
+    expect(renderReport(report, published({}, venues, { pout: "Pouť" }))).toBe(
       [
         "## Pouť",
         "Outcome: created",
         "",
         "From poster.pdf",
+        "",
+        "## Zájezd",
+        "Outcome: refused: a correction of zajezd-2026; make it with parish-correct-event",
         "",
         "## New venues and aliases",
         ...venues,

@@ -57,7 +57,7 @@ strict: an unknown field is an error).
   | Where             | May change                                                                           | Stays as it is                                                                         |
   | ----------------- | ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
   | a question        | an `open` one the comment answers: `"status": "resolved"` and the answer in `answer` | `id`, `blocking`, `where`, `text`, `proposal`, a `resolved` one; none added or removed |
-  | an event (events) | only when this run changed its record: `title` (as the record's), `origin`           | `outcome`, the events and their order                                                  |
+  | an event (events) | only when this run changed its record: `origin`                                      | `outcome`, a refused event's `title`, the events and their order                       |
   | a week (sheet)    | nothing                                                                              | `validFrom`, `validTo`, `outcome`, `senderNote`, the weeks                             |
   | the report        | nothing but its questions, as above                                                  | `kind`, `droppedAttachments`                                                           |
 

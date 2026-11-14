@@ -18,14 +18,17 @@ const done = (overrides: Partial<RunState> = {}): RunState => ({
   ...overrides,
 });
 
-/** An events report whose events (by title) have these outcomes (`created` or `refused: <reason>`). */
+/**
+ * An events report whose events have these outcomes (`created`, its id the title in lower case, or a refused title and
+ * `refused: <reason>`).
+ */
 const report = (...outcomes: [string, string][]): Report => ({
   kind: "events",
-  events: outcomes.map(([title, outcome]) => ({
-    title,
-    outcome: outcome === "created" ? { kind: "created", id: "x" } : { kind: "refused", reason: outcome.slice(9) },
-    questions: [],
-  })),
+  events: outcomes.map(([title, outcome]) =>
+    outcome === "created"
+      ? { outcome: { kind: "created", id: title.toLowerCase() }, questions: [] }
+      : { title, outcome: { kind: "refused", reason: outcome.slice(9) }, questions: [] },
+  ),
   questions: [],
   droppedAttachments: [],
 });
@@ -112,14 +115,14 @@ describe("summarize", () => {
       skipped: { validFrom: "2026-11-15", validTo: "2026-11-22" },
     };
     const report = sheetReport(["2026-10-19", "corrected"]);
-    const quiet = summarize("sheet", done({ changed: false, newerWeek }), report, "2026-11-12");
+    const quiet = summarize("sheet", done({ changed: false, newerWeek }), report, { today: "2026-11-12" });
     expect(text(quiet)).toContain(
       "The mail named the week 8.–15. 11. 2026; the DOCX's newest week, 15.–22. 11. 2026, was not handled: it is " +
         "not staged yet. Nothing changed in the named week: ask the parish",
     );
     expect(quiet.error).toBeDefined();
     // Once the named week has ended, the newest is likely the one meant.
-    expect(text(summarize("sheet", done({ changed: false, newerWeek }), report, "2026-11-16"))).toContain(
+    expect(text(summarize("sheet", done({ changed: false, newerWeek }), report, { today: "2026-11-16" }))).toContain(
       "The named week has ended, so the newest one is likely the one meant.",
     );
     // Staged already, or a PR to comment on: nothing to tell here.
@@ -137,8 +140,9 @@ describe("summarize", () => {
       "",
       "- Koncert: refused: a duplicate",
     ]);
-    const failed = summarize("events", done({ pr: "failure" }), events);
-    expect(failed.lines.slice(-2)).toEqual(["- Pouť: created", "- Koncert: refused: a duplicate"]);
+    // Without a PR the created events are listed too, named by their records.
+    const failed = summarize("events", done({ pr: "failure" }), events, { eventTitle: (id) => `${id} (record)` });
+    expect(failed.lines.slice(-2)).toEqual(["- pouť (record): created", "- Koncert: refused: a duplicate"]);
     expect(opened.error).toBeUndefined();
     const refused = summarize("events", done({ changed: false }), report(["Koncert", "refused: a duplicate"]));
     expect(refused.lines[4]).toBe("Nothing new in the mail (every event refused, or no event in it): refused, no PR.");

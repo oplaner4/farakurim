@@ -54,17 +54,43 @@ const weekEntrySchema = z
     }
   });
 
+/** An event's id, as the news records have it. */
+const eventId = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+
+/**
+ * What became of an event: created (its record's id), or refused, as a correction or a duplicate of a known event (its
+ * id, and for a duplicate where it is: main or an open PR's number), or by a script (the refusal's first line).
+ */
 const eventOutcomeSchema = z.discriminatedUnion("kind", [
-  z.strictObject({ kind: z.literal("created"), id: text }),
+  z.strictObject({ kind: z.literal("created"), id: eventId }),
+  z.strictObject({ kind: z.literal("correction"), of: eventId }),
+  z.strictObject({
+    kind: z.literal("duplicate"),
+    of: eventId,
+    where: z.union([z.literal("main"), z.int().positive()]),
+  }),
   z.strictObject({ kind: z.literal("refused"), reason: text }),
 ]);
 
-const eventEntrySchema = z.strictObject({
-  title: text,
-  outcome: eventOutcomeSchema,
-  origin: text.optional(),
-  questions: z.array(questionSchema),
-});
+/**
+ * An event of the mail. A created one is named by its record (the PR body reads the title from it) and may say where
+ * its fields came from (`origin`); a refused one has no record, so it carries its own `title`.
+ */
+const eventEntrySchema = z
+  .strictObject({
+    title: text.optional(),
+    outcome: eventOutcomeSchema,
+    origin: text.optional(),
+    questions: z.array(questionSchema),
+  })
+  .superRefine((event, ctx) => {
+    const created = event.outcome.kind === "created";
+    const issue = (path: string, message: string) =>
+      ctx.addIssue({ code: "custom", message, path: [path], input: event });
+    if (created && event.title !== undefined) issue("title", "a created event takes its title from its record");
+    if (!created && event.title === undefined) issue("title", "a refused event needs its title");
+    if (!created && event.origin !== undefined) issue("origin", "only a created event has an origin");
+  });
 
 type Questioned = { questions: { id: string }[] };
 

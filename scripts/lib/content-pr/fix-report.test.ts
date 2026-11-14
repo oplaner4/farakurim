@@ -13,7 +13,6 @@ const sheet = (weeks = [WEEK, OTHER_WEEK], questions: Question[] = []): SheetRep
 });
 
 const CONCERT: EventEntry = {
-  title: "Koncert",
   outcome: { kind: "created", id: "2026-12-12-koncert" },
   origin: "The title is from the poster.",
   questions: [reportQuestion("q1", true)],
@@ -87,11 +86,10 @@ describe("fixReportIssues", () => {
     expect(fixReportIssues(sheet(), sheet([WEEK]), WEEK_CHANGED)).toEqual(["weeks: a fix may not add or drop a week"]);
   });
 
-  it("lets an event's title and origin change only with its record", () => {
-    const corrected = { ...CONCERT, title: "Koncert scholy", origin: "From the comment." };
+  it("lets an event's origin change only with its record", () => {
+    const corrected = { ...CONCERT, origin: "From the comment." };
     expect(fixReportIssues(events(), events([corrected, TRIP]), CONCERT_CHANGED)).toEqual([]);
     expect(fixReportIssues(events(), events([corrected, TRIP]), NO_EVENT)).toEqual([
-      "events.0.title: changes, but the fix did not change the event 2026-12-12-koncert",
       "events.0.origin: changes, but the fix did not change the event 2026-12-12-koncert",
     ]);
   });
@@ -101,7 +99,7 @@ describe("fixReportIssues", () => {
     expect(fixReportIssues(events(), events([CONCERT, trip], []), CONCERT_CHANGED)).toEqual([
       "droppedAttachments: may not change",
       "events.1.outcome: may not change",
-      "events.1.title: changes, but the fix did not change a record of this refused event",
+      "events.1.title: may not change",
     ]);
     expect(fixReportIssues(events(), events([CONCERT]), CONCERT_CHANGED)).toEqual([
       "events: a fix may not add or drop an event",

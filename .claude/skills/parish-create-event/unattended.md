@@ -27,11 +27,11 @@ Steps 1 to 6 of `parish-create-event` apply with these changes:
   without diacritics: `oprav-` (oprava, opraveno), `změn-`/`mění` (změna, změněno, mění se), `upřesn-`, `aktualiz-`,
   "nový termín/čas", `posun-`, `přesun-`/`přesouvá`, `odlož-`/`odkládá`, `zruš-`/`ruší` (zrušeno, zrušena), `nekoná`,
   `odpadá`. Decide which event the word refers to (with one event, a word anywhere applies to it); that event is
-  refused, the others go ahead.
+  refused (outcome `correction`), the others go ahead.
 - **Refuse duplicates.** Compare each event with the known-events file (`where`: `main` or an open PR's number): the
-  same event under any title (same date, time and place, or the same poster) is refused. An uncertain match is a
-  blocking question, not a refusal. A different event whose id is taken gets the date id the refusal's `next:` line
-  gives.
+  same event under any title (same date, time and place, or the same poster) is refused (outcome `duplicate`). An
+  uncertain match is a blocking question, not a refusal. A different event whose id is taken gets the date id the
+  refusal's `next:` line gives.
 - It never asks and never waits: every "confirm with the user" or "ask the user" step writes into the report
   instead. The scratchpad is the prompt's (`record.json`; write nothing in the repo); run step 5a or 5b one
   event after another. Skip the `--check` runs of steps 3a and 3b: step 5a or 5b checks everything first and stages
@@ -52,7 +52,6 @@ in the mail's order, with every field below (the optional ones may be left out):
   "kind": "events",
   "events": [
     {
-      "title": "Koncert scholy",
       "outcome": { "kind": "created", "id": "2026-12-12-koncert-scholy" },
       "origin": "The title is from the poster; the time is a guess from the body.",
       "questions": [
@@ -68,10 +67,12 @@ in the mail's order, with every field below (the optional ones may be left out):
     },
     {
       "title": "Zájezd",
-      "outcome": {
-        "kind": "refused",
-        "reason": "a correction of 2026-12-05-zajezd; make it with parish-correct-event"
-      },
+      "outcome": { "kind": "correction", "of": "2026-12-05-zajezd" },
+      "questions": []
+    },
+    {
+      "title": "Pouť do Lukova",
+      "outcome": { "kind": "duplicate", "of": "pout-do-lukova-2026", "where": 12 },
       "questions": []
     }
   ],
@@ -83,18 +84,26 @@ in the mail's order, with every field below (the optional ones may be left out):
 | Field                | Holds                                                                                                                                     |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | `events`             | one entry per event of the mail, in its order; `[]` for a mail with none (a thank-you with a logo)                                        |
-| `title`              | exactly (character for character) the record's `title`                                                                                    |
-| `outcome`            | `created` with the record's `id`, or `refused` with a `reason` (below)                                                                    |
+| `title`              | a refused event only (it has no record): what the mail calls it; a created event's title is its record's                                  |
+| `outcome`            | what became of it (below)                                                                                                                 |
 | `origin`             | optional, a created event only: what the diff does not show, where the title came from (the subject, the poster) and the guesses (step 4) |
 | `questions`          | an event's, and at the top level the mail's as a whole, such as an unclear grouping (below)                                               |
 | `droppedAttachments` | one line per dropped attachment, as "attachment 3, an image without event information", never its file name                               |
 
 A list with nothing in it is `[]`.
 
+- **`outcome`:** one of
+  - `{ "kind": "created", "id": "<the record's id>" }`;
+  - `{ "kind": "correction", "of": "<id>" }`: the mail corrects, cancels or moves the known event `<id>`;
+  - `{ "kind": "duplicate", "of": "<id>", "where": "main" | <PR number> }`: the event is already there as `<id>`,
+    where the known-events file says;
+  - `{ "kind": "refused", "reason": "<the first line of the script's refusal>" }`.
+
+  The PR body and the job summary write a correction and a duplicate out ("a correction of … make it with
+  parish-correct-event", "already in PR #12 as …").
+
 - **Matching:** the workflow matches the `created` entries with the events the change adds by `id`, and refuses the
-  change when they differ or when a `title` is not the record's.
-- **`reason`:** `a correction of <id>; make it with parish-correct-event` for a correction,
-  `already in <main or PR #n> as <id>` for a duplicate, the first line of a script's refusal.
+  change when they differ. The PR body names each by its record's title.
 - **A question:** `id` is `q<number>` from `q1`, unique in the whole report; `status` is `open`; `blocking` is `true`
   when its answer changes what is published, else `false` (a note); `where` says what it is about; `proposal` is
   optional.

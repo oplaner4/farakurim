@@ -20,10 +20,12 @@ const events = {
   kind: "events",
   events: [
     {
-      title: "Concert",
       outcome: { kind: "created", id: "concert" },
+      origin: "From the poster.",
       questions: [],
     },
+    { title: "Trip", outcome: { kind: "correction", of: "trip-2026" }, questions: [] },
+    { title: "Fair", outcome: { kind: "duplicate", of: "fair-2026", where: 12 }, questions: [] },
   ],
   questions: [],
   droppedAttachments: [],
@@ -57,6 +59,25 @@ describe("report schema", () => {
     );
     const withVenues = { ...events, events: [{ ...events.events[0], venues: [] }] };
     expect(issuesOf(() => parseEventsReport(withVenues))[0]).toMatch(/^events\.0: Unrecognized key/);
+  });
+
+  it("names a created event by its record and a refused one by its own title", () => {
+    const [created, correction] = events.events;
+    const issuesOfEvent = (event: object) => issuesOf(() => parseEventsReport({ ...events, events: [event] }));
+    expect(issuesOfEvent({ ...created, title: "Concert" })).toEqual([
+      "events.0.title: a created event takes its title from its record",
+    ]);
+    const { title: _, ...untitled } = correction;
+    expect(issuesOfEvent(untitled)).toEqual(["events.0.title: a refused event needs its title"]);
+    expect(issuesOfEvent({ ...correction, origin: "x" })).toEqual([
+      "events.0.origin: only a created event has an origin",
+    ]);
+    expect(issuesOfEvent({ ...created, outcome: { kind: "created", id: "Koncert 2026" } })[0]).toMatch(
+      /^events\.0\.outcome\.id:/,
+    );
+    expect(
+      issuesOfEvent({ ...correction, outcome: { kind: "duplicate", of: "fair-2026", where: "PR 12" } }),
+    ).toHaveLength(1);
   });
 
   it("names the path of each issue", () => {

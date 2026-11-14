@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { newsEvent } from "@/test/fixtures";
 import { freshTempDir, testGit } from "../test-helpers/files";
 import { VENUE_LIST, venueRecord } from "../test-helpers/venues";
-import { publishedContent } from "./published";
+import { checkoutEventTitle, publishedContent } from "./published";
 
 const WEEK = { validFrom: "2099-10-04", validTo: "2099-10-11" };
 const day = (date: string, title: string) => ({ date, rows: [{ time: "8:00", place: "kurim", title }] });
@@ -55,6 +55,15 @@ describe("publishedContent", () => {
     sheets({ ...sheet, days: [day("2099-10-04", "Mše sv. se zpěvem scholy")] });
     expect(publishedContent(dir(), commit).week(WEEK)).toEqual(["Changed: 2099-10-04 row 1 (against main)"]);
     expect(publishedContent(dir(), commit).week({ validFrom: "2099-10-11", validTo: "2099-10-18" })).toEqual([]);
+  });
+
+  it("names a created event by its record's title, and gives none without a record or a news folder", () => {
+    const commit = base([]);
+    expect(publishedContent(dir(), commit).eventTitle("pout-2099")).toBeUndefined();
+    write("src/content/news/2099/10.json", [newsEvent({ id: "pout-2099", title: "Pouť", start: "2099-10-10" })]);
+    expect(publishedContent(dir(), commit).eventTitle("pout-2099")).toBe("Pouť");
+    expect(checkoutEventTitle(dir())("pout-2099")).toBe("Pouť");
+    expect(checkoutEventTitle(dir())("jine-2099")).toBeUndefined();
   });
 
   it("lists the venues and aliases the venue list gains, a new venue with its pin", () => {

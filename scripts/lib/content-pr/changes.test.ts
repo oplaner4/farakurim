@@ -111,11 +111,11 @@ const entry = (validFrom: string, validTo: string, kind: WeekEntry["outcome"]["k
 const sheetReport = (...weeks: WeekEntry[]): SheetReport => ({ kind: "sheet", weeks, questions: [] });
 const eventsReport = (...events: [string, string | undefined][]): EventsReport => ({
   kind: "events",
-  events: events.map(([title, id]) => ({
-    title,
-    outcome: id ? { kind: "created", id } : { kind: "refused", reason: "r" },
-    questions: [],
-  })),
+  events: events.map(([title, id]) =>
+    id
+      ? { outcome: { kind: "created", id }, questions: [] }
+      : { title, outcome: { kind: "refused", reason: "r" }, questions: [] },
+  ),
   questions: [],
   droppedAttachments: [],
 });
@@ -153,13 +153,10 @@ describe("changesProblem", () => {
     expect(changesProblem(r, sheetChanges([w1]))).toContain("not applied");
   });
 
-  it("refuses an event whose title differs from its record", () => {
+  it("matches the created events with the events the change adds by id", () => {
     const added = [{ id: "hody-2026", title: "Hody 2026" }];
-    const ok = eventsReport(["Hody 2026", "hody-2026"], ["Pouť", undefined]);
+    const ok = eventsReport(["Hody", "hody-2026"], ["Pouť", undefined]);
     expect(changesProblem(ok, { kind: "events", added, changed: [] })).toBeUndefined();
-    expect(changesProblem(eventsReport(["Hody", "hody-2026"]), { kind: "events", added, changed: [] })).toBe(
-      "The report does not match the change (the event hody-2026 is titled Hody in the report, but Hody 2026 in the change): not applied.",
-    );
     const none = { kind: "events", added: [], changed: [] } satisfies ContentChanges;
     expect(changesProblem(eventsReport(["Hody 2026", "hody-2026"]), none)).toContain(
       "the report gives the event hody-2026 as created, but the change does not add it",

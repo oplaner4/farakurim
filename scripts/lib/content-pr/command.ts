@@ -12,7 +12,7 @@ import { applyReport, type ApplyInput, type ApplyIo } from "./apply";
 import { pullBody } from "./body";
 import { mergeBase } from "./changes";
 import { commentFromEnv, commentWriter, isStaged, type CommentWriter } from "./newer-week";
-import { publishedContent } from "./published";
+import { checkoutEventTitle, publishedContent } from "./published";
 import { renderReport } from "./render";
 import { checkFixReport } from "./fix-report";
 import { readFix, readReport, summaryReport, type ReportInput } from "./report-files";
@@ -202,7 +202,10 @@ export async function execute(command: Command, io: Io = defaultIo): Promise<voi
       const report = summaryReport(command.kind, command.report);
       const state = runStateFromEnv(io.env);
       const staged = state.newerWeek && isStaged(io.cwd, state.newerWeek.skipped);
-      const { lines, error } = summarize(command.kind, { ...state, newerWeekStaged: Boolean(staged) }, report);
+      const eventTitle = checkoutEventTitle(io.cwd);
+      const { lines, error } = summarize(command.kind, { ...state, newerWeekStaged: Boolean(staged) }, report, {
+        eventTitle,
+      });
       io.print(lines.join("\n"));
       if (error) io.fail(error);
       return;

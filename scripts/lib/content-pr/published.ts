@@ -15,6 +15,7 @@ import { changedLine } from "../changes";
 import { sheetChanges } from "../services/sheet-changes";
 import type { Week } from "../services/sheet-week";
 import { atBase, inCheckout } from "./changes";
+import type { EventTitle } from "./report";
 
 const SHEETS = "src/content/service-sheets.json";
 const NEWS = "src/content/news";
@@ -23,14 +24,18 @@ const VENUES = "src/content/venues.json";
 /** How many characters of an announcement's text the body shows. */
 const TEXT_LENGTH = 120;
 
-/** What the PR body shows of the content: a week's lines (none for a week the content lacks), and the new venues. */
+/**
+ * What the PR body shows of the content: a week's lines (none for a week the content lacks), a created event's title
+ * (none without its record), and the new venues.
+ */
 export type Published = {
   week: (week: Week) => string[];
+  eventTitle: EventTitle;
   venues: string[];
 };
 
 /** Nothing to show: for a body without the content. */
-export const NOTHING_PUBLISHED: Published = { week: () => [], venues: [] };
+export const NOTHING_PUBLISHED: Published = { week: () => [], eventTitle: () => undefined, venues: [] };
 
 const sheetsOf = (text: string | undefined): ServiceSheetRecord[] =>
   text ? ((JSON.parse(text) as { sheets?: ServiceSheetRecord[] }).sheets ?? []) : [];
@@ -82,17 +87,28 @@ function venueLines(before: Venue[], after: Venue[]): string[] {
   });
 }
 
-/** What the content in `cwd` publishes against the commit `base`. */
-export function publishedContent(cwd: string, base: string): Published {
-  const sheets = sheetsOf(inCheckout(cwd, SHEETS));
-  const baseSheets = sheetsOf(atBase(cwd, base, SHEETS));
+/** The events of the checkout `cwd` by id, read on the first call (none without a news folder). */
+function checkoutEvents(cwd: string): () => Map<string, NewsEvent> {
   let events: Map<string, NewsEvent> | undefined;
-  // Read only for an announcement that links an event.
-  const eventsById = () => {
+  return () => {
     const dir = join(cwd, NEWS);
     events ??= new Map((existsSync(dir) ? readEvents(dir) : []).map((event) => [event.id, event]));
     return events;
   };
+}
+
+/** The title of an event in the checkout `cwd`, by its id; the news are read only when one is asked for. */
+export function checkoutEventTitle(cwd: string): EventTitle {
+  const events = checkoutEvents(cwd);
+  return (id) => events().get(id)?.title;
+}
+
+/** What the content in `cwd` publishes against the commit `base`. */
+export function publishedContent(cwd: string, base: string): Published {
+  const sheets = sheetsOf(inCheckout(cwd, SHEETS));
+  const baseSheets = sheetsOf(atBase(cwd, base, SHEETS));
+  // Read only for an announcement that links an event, or an event's title.
+  const eventsById = checkoutEvents(cwd);
   return {
     week: (week) => {
       const sheet = sheets.find((candidate) => sameWeek(candidate, week));
@@ -103,6 +119,7 @@ export function publishedContent(cwd: string, base: string): Published {
         eventsById,
       );
     },
+    eventTitle: (id) => eventsById().get(id)?.title,
     venues: venueLines(venuesOf(atBase(cwd, base, VENUES)), venuesOf(inCheckout(cwd, VENUES))),
   };
 }

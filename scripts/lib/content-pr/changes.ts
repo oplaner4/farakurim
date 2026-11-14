@@ -110,17 +110,10 @@ function sheetProblem(report: SheetReport, changes: ContentChanges): string | un
 /** Why the events report does not match the events the change adds, if it does not. */
 function eventsProblem(report: EventsReport, changes: ContentChanges): string | undefined {
   if (changes.kind !== "events") return undefined;
-  const created = report.events.flatMap((event) =>
-    event.outcome.kind === "created" ? [{ id: event.outcome.id, title: event.title }] : [],
-  );
-  for (const event of created) {
-    const record = changes.added.find((candidate) => candidate.id === event.id);
-    if (!record) return `the report gives the event ${event.id} as created, but the change does not add it`;
-    if (record.title !== event.title) {
-      return `the event ${event.id} is titled ${event.title} in the report, but ${record.title} in the change`;
-    }
-  }
-  const missing = changes.added.find((record) => !created.some((event) => event.id === record.id));
+  const created = report.events.flatMap((event) => (event.outcome.kind === "created" ? [event.outcome.id] : []));
+  const notAdded = created.find((id) => !changes.added.some((record) => record.id === id));
+  if (notAdded) return `the report gives the event ${notAdded} as created, but the change does not add it`;
+  const missing = changes.added.find((record) => !created.includes(record.id));
   return missing && `the change adds the event ${missing.id}, which the report does not give as created`;
 }
 

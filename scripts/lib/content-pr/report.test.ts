@@ -34,8 +34,8 @@ const sheet = (overrides: Partial<SheetReport> = {}): SheetReport => ({
 const events = (): EventsReport => ({
   kind: "events",
   events: [
-    { title: "Pouť", outcome: { kind: "created", id: "pout" }, questions: [question("q2")] },
-    { title: "Koncert", outcome: { kind: "refused", reason: "a duplicate" }, questions: [] },
+    { outcome: { kind: "created", id: "pout" }, questions: [question("q2")] },
+    { title: "Koncert", outcome: { kind: "duplicate", of: "koncert-2026", where: 12 }, questions: [] },
   ],
   questions: [question("q1", { blocking: true })],
   droppedAttachments: [],
@@ -61,9 +61,11 @@ describe("isDraft", () => {
 });
 
 describe("itemLabel", () => {
-  it("labels weeks with formatWeeks and events with their title", () => {
+  it("labels weeks with formatWeeks, a created event with its record's title (else its id), a refused one with its own", () => {
     expect(itemLabel(sheet(), 0)).toBe("19.–25. 10. 2026");
     expect(itemLabel(sheet(), 1)).toBe("26. 10.–1. 11. 2026");
+    expect(itemLabel(events(), 0, (id) => (id === "pout" ? "Pouť" : undefined))).toBe("Pouť");
+    expect(itemLabel(events(), 0)).toBe("pout");
     expect(itemLabel(events(), 1)).toBe("Koncert");
   });
 });
@@ -75,6 +77,15 @@ describe("outcomeText", () => {
     expect(outcomeText({ kind: "corrected" })).toBe("corrected");
     expect(outcomeText({ kind: "refused", reason: "overlaps" })).toBe("refused: overlaps");
     expect(outcomeText({ kind: "document-error", reason: "no table" })).toBe("document error: no table");
+    expect(outcomeText({ kind: "correction", of: "zajezd-2026" })).toBe(
+      "refused: a correction of zajezd-2026; make it with parish-correct-event",
+    );
+    expect(outcomeText({ kind: "duplicate", of: "hody-2026", where: "main" })).toBe(
+      "refused: already in main as hody-2026",
+    );
+    expect(outcomeText({ kind: "duplicate", of: "hody-2026", where: 12 })).toBe(
+      "refused: already in PR #12 as hody-2026",
+    );
   });
 });
 
@@ -82,7 +93,12 @@ describe("outcomeLines", () => {
   it("lists outcome lines, or only the failed ones", () => {
     expect(outcomeLines(sheet())).toEqual(["19.–25. 10. 2026: created", "26. 10.–1. 11. 2026: refused: overlaps"]);
     expect(outcomeLines(sheet(), { failed: true })).toEqual(["26. 10.–1. 11. 2026: refused: overlaps"]);
-    expect(outcomeLines(events())).toEqual(["Pouť: created", "Koncert: refused: a duplicate"]);
+    const title = () => "Pouť";
+    expect(outcomeLines(events(), { eventTitle: title })).toEqual([
+      "Pouť: created",
+      "Koncert: refused: already in PR #12 as koncert-2026",
+    ]);
+    expect(outcomeLines(events(), { failed: true })).toEqual(["Koncert: refused: already in PR #12 as koncert-2026"]);
     expect(outcomeLines(undefined)).toEqual([]);
   });
 });

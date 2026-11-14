@@ -1,7 +1,7 @@
 // Compares a comment fix's corrected report with the PR's report the fix started from. The fix may resolve an open
-// question with an answer, and change the title and origin of an event whose record it changed; every other
-// difference is an issue, `<dotted path>: <message>`. What the content publishes (a week's announcements, new venues)
-// is not in the report: the PR body reads it from the content.
+// question with an answer, and change the origin of an event whose record it changed; every other difference is an
+// issue, `<dotted path>: <message>`. What the content publishes (a created event's title, a week's announcements, new
+// venues) is not in the report: the PR body reads it from the content.
 
 import { readFileSync } from "node:fs";
 import { isDeepStrictEqual } from "node:util";
@@ -60,12 +60,10 @@ function compareEvents(before: EventsReport, after: EventsReport, changes: Conte
   before.events.forEach((old, index) => {
     const event = after.events[index]!;
     const at = `events.${index}`;
-    sameFields(at, old, event, ["outcome"], issues);
+    sameFields(at, old, event, ["outcome", "title"], issues);
     const id = old.outcome.kind === "created" ? old.outcome.id : undefined;
-    const what = id === undefined ? "a record of this refused event" : `the event ${id}`;
-    const withRecord = id !== undefined && touched.has(id);
-    if (!withRecord) {
-      changedOnlyWithRecord(`${at}.title`, old.title !== event.title, what, issues);
+    if (!(id !== undefined && touched.has(id))) {
+      const what = id === undefined ? "a record of this refused event" : `the event ${id}`;
       changedOnlyWithRecord(`${at}.origin`, old.origin !== event.origin, what, issues);
     }
     compareQuestions(`${at}.questions`, old.questions, event.questions, issues);

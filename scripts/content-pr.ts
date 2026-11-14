@@ -8,8 +8,8 @@
 // the PR's first run); a previous report that is missing or that the schema refuses fails with "close the PR
 // and send the sheet or event again". `--fix` adds a comment fix's result (fix.json) beside the full report, and `--original` the PR's report the fix
 // corrected in place: the corrected one may differ from it only where a fix may change it (an open question resolved
-// with its answer; the title and origin of an event whose record the working tree changes against HEAD), else each
-// difference is an issue.
+// with its answer; the origin of an event whose record the working tree changes against HEAD), else each difference
+// is an issue.
 //
 // `stored` prints `<runId> <name>` of the PR's newest stored report artifact (`content-report-<sha>` of the newest
 // commit that has one, trusted and live), or nothing; it reads the GitHub API with GH_TOKEN for GITHUB_REPOSITORY.
@@ -23,11 +23,11 @@
 // question blocks, `message` the PR's commit message named from the change (the kind's default when commitlint
 // refuses it), `fix` (with `--fix` and a change) the fix's commit message: the result's `fixMessage`, else one named
 // from what the fix changed, else the default. `body` prints the PR body rendered from a final report with what the
-// checkout publishes against its merge base with `--base` (a week's announcements or what changes in it, the new venues
-// and aliases), the Události
-// lines that need a person (`--calendar`, the output of `pnpm calendar-sync --calendar events --problems`) and the
-// footer (with `--fix`, naming the run as the last correction). `summary` prints the job summary (the mail's lines,
-// what became of the sheet or mail, the weeks or events, and what the maintainer must do) from the step results the
+// checkout publishes against its merge base with `--base` (a week's announcements or what changes in it, a created
+// event's title from its record, the new venues and aliases), the Události lines that need a person (`--calendar`, the
+// output of `pnpm calendar-sync --calendar events --problems`) and the footer (with `--fix`, naming the run as the last
+// correction). `summary` prints the job summary (the mail's lines, what became of the sheet or mail, the weeks or
+// events, a created one named by its record in the checkout, and what the maintainer must do) from the step results the
 // workflow passes in the environment (FETCHED, SUMMARY, HANDLED, JOB_RESULT, AGENT, DOWNLOAD, APPLY, CHANGED,
 // PR_OUTCOME, PR_ACTION, PR_URL; sheet: NO_DOCX, NO_WEEK, UNHANDLED, and WEEK_FROM, WEEK_TO, SKIPPED_FROM,
 // SKIPPED_TO for the DOCX's newest week a dated subject left out; events: INCOMPLETE, KNOWN_DKIM) and the report (a

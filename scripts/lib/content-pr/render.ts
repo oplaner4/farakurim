@@ -43,7 +43,9 @@ export function renderReport(report: Report, published: Published = NOTHING_PUBL
       .sort((a, b) => a.week.validFrom.localeCompare(b.week.validFrom))
       .forEach(({ week, index }) => sections.push(weekSection(itemLabel(report, index), week, published)));
   } else {
-    report.events.forEach((event, index) => sections.push(eventSection(itemLabel(report, index), event)));
+    report.events.forEach((event, index) =>
+      sections.push(eventSection(itemLabel(report, index, published.eventTitle), event)),
+    );
     if (published.venues.length > 0) sections.push(["## New venues and aliases", ...published.venues].join("\n"));
   }
   if (report.questions.length > 0) sections.push(["## Questions", ...report.questions.map(questionLine)].join("\n"));

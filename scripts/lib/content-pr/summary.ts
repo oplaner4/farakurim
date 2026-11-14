@@ -5,7 +5,7 @@
 import type { Env } from "../command";
 import type { Kind } from "../content-release/plan";
 import { newerWeekFromEnv, newerWeekNote, type NewerWeek } from "./newer-week";
-import { outcomeLines } from "./report";
+import { outcomeLines, type EventTitle } from "./report";
 import type { Report } from "./report-schema";
 
 /** A step's or job's result as GitHub gives it; empty for one that did not run. */
@@ -131,13 +131,14 @@ const ERRORS = {
 
 /**
  * The summary of a run of `kind` from its `state` and the agent's `report` (undefined without one): its markdown lines, and
- * the error that fails the job when the maintainer must act without a PR. `today` (Prague) dates the newer week's note.
+ * the error that fails the job when the maintainer must act without a PR. `today` (Prague) dates the newer week's note;
+ * `eventTitle` names a created event by its record.
  */
 export function summarize(
   kind: Kind,
   state: RunState,
   report: Report | undefined,
-  today?: string,
+  { today, eventTitle }: { today?: string; eventTitle?: EventTitle } = {},
 ): { lines: string[]; error?: string } {
   const lines = [`## ${WORDS[kind].title}`, ""];
   if (!state.fetched) lines.push("The mail could not be read.");
@@ -151,7 +152,7 @@ export function summarize(
     lines.push(outcome.line);
     if (kind === "events") {
       // The PR shows the events it adds: with one, only the refused ones are left to list.
-      const outcomes = outcomeLines(report, { failed: state.pr === "success" });
+      const outcomes = outcomeLines(report, { failed: state.pr === "success", eventTitle });
       if (outcomes.length) lines.push("", ...outcomes.map((line) => `- ${line}`));
     }
   }
