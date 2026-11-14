@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { draftSheet, stageSheet, weekDays } from "./sheet";
+import { readSheetResult } from "./sheet-result";
 import { addEvent } from "../news/add-event";
 import { errorMessage } from "../command";
 import { extractPdfPages, pdfPageTexts } from "../images";
@@ -376,6 +377,58 @@ describe("stageSheet", { timeout: 30_000 }, () => {
       await expect(refusal).rejects.toThrow(
         "tell: Not the DOCX's newest week: its newest, 2000-01-09 – 2000-01-16, is left out of this run; it is not staged yet. This week ended on 2000-01-09: the newer week is likely the one meant",
       );
+    });
+
+    it("writes each draft and staging run's result, the last one winning, and none for a check", async () => {
+      const file = join(env.home, "stage-result.json");
+      const withResult = { ...env, result: file };
+      const week = { validFrom: "2099-10-04", validTo: "2099-10-11" };
+      const source = yearDocx();
+      await stageSheet(withResult, { source, check: true });
+      expect(readSheetResult(file)).toBeUndefined();
+      await draftSheet(withResult, { source, out: join(env.home, "draft.json") });
+      expect(readSheetResult(file)).toEqual({ ...week, result: "drafted" });
+      await stageSheet(withResult, { source, record: record() });
+      expect(readSheetResult(file)).toEqual({ ...week, result: "staged" });
+
+      // A week before the current sheet: refused, with the refusal's first line, not the note after it.
+      const old = download(
+        "Pořad bohoslužeb 2000.docx",
+        docxWithBody(wordml.p("ROZPIS BOHOSLUŽEB V TÝDNU od 2. 1. 2000 do 9. 1. 2000")),
+      );
+      vi.mocked(pdfPageTexts).mockImplementation(() => ["ROZPIS BOHOSLUŽEB V TÝDNU od 2. 1. 2000 do 9. 1. 2000"]);
+      await expect(stageSheet(withResult, { source: old, record: record() })).rejects.toThrow("before the current");
+      expect(readSheetResult(file)).toEqual({
+        validFrom: "2000-01-02",
+        validTo: "2000-01-09",
+        result: "refused",
+        reason: expect.stringMatching(/^the sheet 2000-01-02 – 2000-01-09 is before the current sheet \([^\n]*$/),
+      });
+    });
+
+    it("writes a document error for a DOCX it cannot read, with the week once it is known", async () => {
+      const file = join(env.home, "stage-result.json");
+      const withResult = { ...env, result: file };
+      const out = join(env.home, "draft.json");
+      const headless = download("Pořad bohoslužeb 2099.docx", docxWithBody(wordml.p("Ohlášky farnosti")));
+      await expect(draftSheet(withResult, { source: headless, out })).rejects.toThrow("no 'ROZPIS BOHOSLUŽEB");
+      expect(readSheetResult(file)).toEqual({
+        result: "document-error",
+        reason: "no 'ROZPIS BOHOSLUŽEB … od … do …' heading in the DOCX",
+      });
+      const misdated = download(
+        "Pořad bohoslužeb 2099.docx",
+        docxWithBody(
+          wordml.p("ROZPIS BOHOSLUŽEB V TÝDNU od 4. 10. 2099 do 11. 10. 2099") +
+            wordml.table([[["5. 10.", "Ne"], [], ["Kuřim"], ["8:00"], ["Mše sv."]]]),
+        ),
+      );
+      await expect(draftSheet(withResult, { source: misdated, out })).rejects.toThrow('is marked "Ne"');
+      expect(readSheetResult(file)).toMatchObject({
+        validFrom: "2099-10-04",
+        validTo: "2099-10-11",
+        result: "document-error",
+      });
     });
 
     it("writes the draft before converting, so it can be checked without a converter", async () => {

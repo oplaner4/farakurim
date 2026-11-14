@@ -23,6 +23,8 @@ export type StageEnv = UploadsEnv & {
   htaccessFile: string;
   /** The home folder whose Downloads/ holds sources given without a folder. */
   home: string;
+  /** Where a service sheet run writes its result (STAGE_RESULT, set by the CI run); none writes nothing. */
+  result?: string;
 };
 
 export const defaultEnv = (): StageEnv => ({
@@ -33,6 +35,7 @@ export const defaultEnv = (): StageEnv => ({
   petrklicFile: PETRKLIC_FILE,
   htaccessFile: join(ROOT, "public/.htaccess"),
   home: homedir(),
+  ...(process.env.STAGE_RESULT && { result: process.env.STAGE_RESULT }),
 });
 
 /** The source file: `path` (with ~ for the home folder), or a bare file name in ~/Downloads/; at most `maxMb`. */

@@ -5,6 +5,9 @@
 // formats the files and runs their tests. --check only validates and prints, without copying or rendering: use it
 // before the user confirms, so nothing unconfirmed is left staged for the next release.
 // A failure restores src/content/ and removes the files it staged.
+// With STAGE_RESULT set to a file (the CI service sheet run sets it), each `sheet draft` and `sheet --record` run
+// writes what it did with its week there, the last run winning: drafted, staged, refused, or a document error when the
+// parish's DOCX cannot be read, with the refusal's first line (`pnpm content-pr` takes the week's outcome from it).
 //
 // Usage: pnpm stage <command> ... [--check]
 //   event <source> <label> [<source> <label> …] [--no-poster] --record <record.json>
