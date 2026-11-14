@@ -230,7 +230,8 @@ its answer).
 
 `.github/workflows/content-fix.yml` runs on every new comment (an edited one does not run again): only one from a
 commenter with write access (`OWNER`, `MEMBER` or `COLLABORATOR`, and the repo permission `write`, `maintain` or
-`admin`), never from a bot. It reacts with 👀, so you see the comment was picked up, and starts
+`admin`), never from a bot. It reacts with 👀 (as the App: the PR's conversation is locked), so you see the comment
+was picked up, and starts
 `.github/workflows/content-fix-run.yml`, which runs one comment at a time per PR, the oldest unanswered first:
 
 1. `fix` reads the PR (closed or merged meanwhile: nothing happens), downloads its staged files from the
