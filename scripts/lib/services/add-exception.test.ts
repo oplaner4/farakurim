@@ -26,6 +26,17 @@ const REGULAR: RegularService[] = [
   { weekday: 5, time: "18:15", place: "kurim", rule: "first-in-month" },
 ];
 
+/** The service sheet list (with SHEET) and the later changes (with PILGRIMAGE), written in `dir`. */
+function contentFiles(dir: string) {
+  const files = {
+    serviceSheetsFile: join(dir, "service-sheets.json"),
+    exceptionsFile: join(dir, "schedule-exceptions.json"),
+  };
+  writeFileSync(files.serviceSheetsFile, JSON.stringify({ sheets: [SHEET] }));
+  writeFileSync(files.exceptionsFile, JSON.stringify({ exceptions: [PILGRIMAGE] }));
+  return files;
+}
+
 describe("addException on a temp service-sheets.json and schedule-exceptions.json", () => {
   const dir = freshTempDir("add-exception");
   let files: { serviceSheetsFile: string; exceptionsFile: string };
@@ -34,12 +45,7 @@ describe("addException on a temp service-sheets.json and schedule-exceptions.jso
   const raw = () => readFileSync(files.exceptionsFile, "utf8");
 
   beforeEach(() => {
-    files = {
-      serviceSheetsFile: join(dir(), "service-sheets.json"),
-      exceptionsFile: join(dir(), "schedule-exceptions.json"),
-    };
-    writeFileSync(files.serviceSheetsFile, JSON.stringify({ sheets: [SHEET] }));
-    writeFileSync(files.exceptionsFile, JSON.stringify({ exceptions: [PILGRIMAGE] }));
+    files = contentFiles(dir());
   });
 
   it("adds a change in date order", () => {
@@ -100,13 +106,8 @@ describe("draftException on a temp service-sheets.json and schedule-exceptions.j
   const written = () => JSON.parse(readFileSync(out, "utf8")) as unknown;
 
   beforeEach(() => {
-    files = {
-      serviceSheetsFile: join(dir(), "service-sheets.json"),
-      exceptionsFile: join(dir(), "schedule-exceptions.json"),
-    };
+    files = contentFiles(dir());
     out = join(dir(), "exception.json");
-    writeFileSync(files.serviceSheetsFile, JSON.stringify({ sheets: [SHEET] }));
-    writeFileSync(files.exceptionsFile, JSON.stringify({ exceptions: [PILGRIMAGE] }));
   });
 
   it("drafts a day with no change from its regular services, by time and with their rules", () => {
