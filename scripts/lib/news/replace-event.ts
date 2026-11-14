@@ -1,6 +1,7 @@
 // Replaces an event record in the news folder by the record with the same id, keeping its `published` and its
 // pin (only movePin() changes the pin), and moves it to the file of its new start month, in start-date order, when
 // the start changed; a month file left without records is removed. The id never changes: it is the detail page's URL.
+// A draft writes the record of an id as it stands, to edit into the corrected one.
 
 import { readdirSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -11,8 +12,8 @@ import { parseOrThrow } from "@/lib/shared/json-file";
 import { pragueDate } from "@/lib/shared/prague";
 import { assertVenue, insertRecord, venueLines } from "./add-event";
 import { changedKeys, changedLine } from "../changes";
-import { actionVerb } from "../command";
-import { NEWS_DIR, writeMonth } from "../content-files";
+import { actionVerb, parseCommandLine } from "../command";
+import { NEWS_DIR, writeContentFile, writeMonth } from "../content-files";
 import { next, refusal } from "../output";
 import { assertPinnable, withoutPin } from "./pin-event";
 import { recordCommand } from "./record-command";
@@ -109,11 +110,50 @@ export function replaceLines(
   return [`${actionVerb(check, "replace")} the record ${record.id}`, changedLine(changed), ...venueLines(record)];
 }
 
+export type DraftEventResult = { draft: NewsEvent; out: string };
+
+/**
+ * Writes the record with `id` in the news folder `newsDir` as it stands to `out`, whole (with its poster, attachments,
+ * `published` and pin), to edit into the corrected record. Throws, before writing, for an unknown id.
+ */
+export function draftEvent(newsDir: string, { id, out }: { id: string; out: string }): DraftEventResult {
+  const { previous } = findRecord(readMonths(newsDir), { id });
+  writeContentFile(out, previous);
+  return { draft: previous, out };
+}
+
+/** The line saying what draftEvent() wrote. */
+export const draftLine = ({ draft, out }: DraftEventResult) =>
+  `Wrote the draft record of ${draft.id} ("${draft.title}", ${draft.start}) to ${out}`;
+
+const USAGE = "Usage: pnpm replace-event <record.json | -> [--check] | --draft <id> --out <record.json>";
+
 /** Replaces the record in the file and prints what changed; then formats and tests the news files. */
-export const { parseCommand, execute } = recordCommand(
-  "Usage: pnpm replace-event <record.json | -> [--check]",
-  (input, check) => {
-    const result = replaceEvent(NEWS_DIR, input, { check });
-    return { lines: replaceLines(result, check), written: result.written };
-  },
-);
+const replaceCommand = recordCommand(USAGE, (input, check) => {
+  const result = replaceEvent(NEWS_DIR, input, { check });
+  return { lines: replaceLines(result, check), written: result.written };
+});
+
+export type ReplaceEventCommand = { file: string; check: boolean } | { draft: string; out: string };
+
+/**
+ * Reads the command line `args`: the record file (`-` for stdin) and --check, or --draft with its id and --out. An
+ * unknown option throws with the usage, so a typo of --check never writes.
+ */
+export function parseCommand(args: string[]): ReplaceEventCommand {
+  const options = { check: { type: "boolean" }, draft: { type: "string" }, out: { type: "string" } } as const;
+  const { positionals, values } = parseCommandLine(args, options, USAGE);
+  if (values.draft === undefined && values.out === undefined) return replaceCommand.parseCommand(args);
+  const { draft, out } = values;
+  if (positionals.length > 0 || values.check !== undefined || !draft || !out) throw new Error(USAGE);
+  return { draft, out };
+}
+
+/** Writes the draft, or replaces the record and prints what changed (then formats and tests the news files). */
+export async function execute(command: ReplaceEventCommand) {
+  if ("draft" in command) {
+    console.log(draftLine(draftEvent(NEWS_DIR, { id: command.draft, out: command.out })));
+    return;
+  }
+  await replaceCommand.execute(command);
+}

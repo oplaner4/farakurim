@@ -1,10 +1,11 @@
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { readMonth } from "@/content/news";
 import { newsEvent } from "@/test/fixtures";
-import { parseCommand, replaceEvent, replaceLines } from "./replace-event";
+import { draftEvent, draftLine, parseCommand, replaceEvent, replaceLines } from "./replace-event";
 import { useNewsFixture } from "../test-helpers/content";
+import { freshTempDir } from "../test-helpers/files";
 
 describe("replaceEvent", () => {
   const news = useNewsFixture({
@@ -91,8 +92,47 @@ describe("replaceEvent", () => {
   });
 });
 
+describe("draftEvent", () => {
+  const pinned = newsEvent({
+    id: "zari-2026",
+    start: "2026-09-12",
+    published: "2026-09-01",
+    pinned: true,
+    poster: { src: "/uploads/aktuality/zari-2026-plakat.webp", alt: "Plakát: Září" },
+    attachments: [{ label: "Plakát", file: "/uploads/aktuality/zari-2026-plakat.pdf", size: 1200 }],
+  });
+  const news = useNewsFixture({ "2026/09.json": [pinned] });
+  const dir = freshTempDir("draft-event");
+
+  it("writes the record whole, which replaces it with no change", () => {
+    const out = join(dir(), "record.json");
+    const result = draftEvent(news.dir(), { id: "zari-2026", out });
+    const draft = JSON.parse(readFileSync(out, "utf8"));
+    expect(draft).toEqual(pinned);
+    expect(draftLine(result)).toBe(`Wrote the draft record of zari-2026 ("${pinned.title}", 2026-09-12) to ${out}`);
+    const now = new Date("2026-09-10T10:00:00Z");
+    expect(replaceEvent(news.dir(), draft, { now, check: true }).changed).toEqual([]);
+  });
+
+  it("refuses an unknown id, before writing", () => {
+    const out = join(dir(), "none.json");
+    expect(() => draftEvent(news.dir(), { id: "nove-2026", out })).toThrow("there is no event nove-2026");
+    expect(existsSync(out)).toBe(false);
+  });
+});
+
 describe("parseCommand", () => {
+  it("reads a record file and --check, or --draft with --out", () => {
+    expect(parseCommand(["r.json", "--check"])).toEqual({ file: "r.json", check: true });
+    expect(parseCommand(["--draft", "hody-2026", "--out", "d.json"])).toEqual({ draft: "hody-2026", out: "d.json" });
+  });
+
   it("has this command's usage", () => {
-    expect(() => parseCommand([])).toThrow(/^Usage: pnpm replace-event <record.json \| -> \[--check\]$/);
+    const usage = /^Usage: pnpm replace-event <record.json \| -> \[--check\] \| --draft <id> --out <record.json>$/;
+    expect(() => parseCommand([])).toThrow(usage);
+    expect(() => parseCommand(["--draft", "hody-2026"])).toThrow(usage);
+    expect(() => parseCommand(["--out", "d.json"])).toThrow(usage);
+    expect(() => parseCommand(["--draft", "hody-2026", "--out", "d.json", "--check"])).toThrow(usage);
+    expect(() => parseCommand(["r.json", "--draft", "hody-2026", "--out", "d.json"])).toThrow(usage);
   });
 });

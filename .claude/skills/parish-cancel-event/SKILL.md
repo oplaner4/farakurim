@@ -23,8 +23,13 @@ there.
 
 ## 2. Write the corrected record
 
-Copy the record whole into `record.json` in the session's scratchpad (never in the repo), with its `poster`,
-`attachments`, `published` and `pinned`, and add the change. Keep its title, `text` and `tags` as they are (no
+Draft the record as it stands into the session's scratchpad (never into the repo):
+
+```sh
+pnpm replace-event --draft <id> --out <scratchpad>/record.json
+```
+
+The draft is the whole record, with its `poster`, `attachments`, `published` and `pinned`. Add the change to it. Keep its title, `text` and `tags` as they are (no
 "(zrušeno)", no "Zrušeno" tag).
 
 - **"Zrušeno"**: add `"change": { "status": "cancelled", "announced": "<today>", "note": "<reason>" }`.
@@ -51,8 +56,8 @@ It prints the fields that change (`Changed: …`).
 
 Show the user each changed field as old → new, and how the site will show it ("Zrušeno: <note>", "Přesunuto ze
 <old date> <note>", "Změna: setkání <date> odpadá, ostatní termíny platí."). The `Changed:` line must list only
-`change`, `cancelledMeetings` and, for a move, `start`, `end`, `startTime` and `endTime`: another field there means the record was not
-copied whole.
+`change`, `cancelledMeetings` and, for a move, `start`, `end`, `startTime` and `endTime`: another field there means the draft was edited
+beyond the change.
 
 Wait for the user's yes or corrections to these before replacing anything.
 
@@ -70,6 +75,6 @@ Follow **`parish-publish-content`**.
   `change`.
 - Moving an event without `previousStart`: the card cannot say where it moved from.
 - Cancelling a whole series when only one meeting is dropped: use `cancelledMeetings`.
-- Writing `record.json` from scratch or editing `src/content/news/` by hand instead of `pnpm replace-event`.
+- Writing `record.json` from scratch instead of `--draft`, or editing `src/content/news/` by hand instead of `pnpm replace-event`.
 - Deleting a cancelled event from the Události calendar, or renaming or moving it by hand, instead of letting the
   release add "Zrušeno: " or move it.

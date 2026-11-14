@@ -19,8 +19,14 @@ start year, so a start in another year cannot be corrected: tell the user so and
 
 ## 2. Write the corrected record
 
-Copy the record whole into `record.json` in the session's scratchpad (never in the repo), with its `poster`,
-`attachments`, `published` and `pinned`, and change only what is wrong:
+Draft the record as it stands into the session's scratchpad (never into the repo):
+
+```sh
+pnpm replace-event --draft <id> --out <scratchpad>/record.json
+```
+
+The draft is the whole record, with its `poster`, `attachments`, `published` and `pinned`. Edit it and change only
+what is wrong:
 
 - a corrected poster or invitation: read it as **`parish-create-event`** step 1 reads a source, compare it
   with the record and take over every difference;
@@ -65,8 +71,8 @@ command the poster it would render.
 ## 4. Confirm with the user
 
 Show the user each changed field as old → new, and each file with whether it changes the poster. The
-`Changed:` line must list only the fields you meant to change: another field there means the record was not copied
-whole.
+`Changed:` line must list only the fields you meant to change: another field there means the draft was edited
+beyond the correction.
 
 Wait for the user's yes or corrections to these before replacing or staging anything.
 
@@ -86,7 +92,8 @@ Only when the prompt says the run is a **comment run** on an events PR: read `.c
 ## Common mistakes
 
 - Editing a record in `src/content/news/` by hand instead of `pnpm replace-event`.
-- Writing `record.json` from scratch: the poster, attachments or `published` get lost (see `Changed:`).
+- Writing `record.json` from scratch or copying it from the month file instead of `--draft`: the poster,
+  attachments or `published` get lost (see `Changed:`).
 - Changing the `id`: shared links and the calendar link break.
 - Changing `pinned` in `record.json`: it is refused; pin with **`parish-pin-event`**.
 - Staging a corrected file under another label: the old attachment stays next to the new one.
