@@ -106,16 +106,8 @@ A list with nothing in it is `[]`.
   in `questionUpdates`.
 - **This week's earlier questions** are never in `questionUpdates`: the script replaces them with `week.questions`, so
   write each that still applies again with its `id` and `status`.
-- **No `outcome`:** each `pnpm stage sheet` run records what it did with the week, and the script takes the week's
-  outcome and dates from its last run and the change (staged, refused or a document error, with the refusal). Give
-  the week's dates only when the script read no week at all (no heading in the DOCX): the check says so.
-- Write no `kind`: the workflow knows it.
 - **`senderNote`:** what the sender's note asks to check and whether the draft agrees. The PR is public, so put it in
   your own words and quote no name or other text the published sheet does not show.
-- Write no summary of the week: the PR body lists its announcements (or, for a correction, what changes) from the
-  content itself.
-- Write no draft state or commit message: the script derives the PR's draft state from the open blocking questions
-  and names the commit from the weeks. Write no calendar section (the release keeps the calendar in line).
 - The PR is public and the report fills its body: in **every** field, quote only what is published (the record's
   fields, the staged files' names and labels) and describe anything else without quoting it.
 

@@ -124,9 +124,6 @@ A list with nothing in it is `[]`.
   them.
 - **Correction words:** answer an entry with the `correction` outcome of the event it corrects or, when it corrects
   none, a top-level question whose `where` is `correction words` saying why.
-- Write no `kind`: the workflow knows it.
-- Write no draft state or commit message: the script derives the PR's draft state from the open blocking questions
-  and names the commit from the events.
 - The PR is public and the report fills its body: in **every** field, quote only what is published (the fields, the
   staged files' names and labels) and describe the rest of the mail without quoting it.
 
