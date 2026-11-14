@@ -10,6 +10,7 @@ import {
   sheetRepo,
   sheetReport,
   sheetRunReport,
+  stageResultOf,
 } from "../test-helpers/reports";
 import { RESEND, readFix, readReport, summaryReport } from "./report-files";
 
@@ -32,31 +33,40 @@ describe("report files", () => {
     });
 
     it("merges a sheet run into the previous report, or into none on the PR's first run", () => {
+      const stageResult = json("stage-result.json", stageResultOf(WEEK_19));
       const previous = json("previous.json", sheetReport([WEEK_12], [reportQuestion("q1", true)]));
       const update = { questionUpdates: [{ id: "q1", status: "resolved" }] };
       const report = json("run.json", sheetRunReport(WEEK_19, update));
       const repo = join(dir(), "repo");
       sheetRepo(repo, sheetList(WEEK_12), sheetList(WEEK_12, WEEK_19));
-      expect(readReport({ kind: "sheet", report, run: true, previous })(repo)).toEqual(
+      expect(readReport({ kind: "sheet", report, run: true, previous, stageResult })(repo)).toEqual(
         sheetReport([WEEK_12, WEEK_19], [reportQuestion("q1", true, "resolved")]),
       );
       const first = json("first.json", sheetRunReport(WEEK_19));
-      expect(readReport({ kind: "sheet", report: first, run: true })(repo)).toEqual(sheetReport([WEEK_19]));
+      expect(readReport({ kind: "sheet", report: first, run: true, stageResult })(repo)).toEqual(
+        sheetReport([WEEK_19]),
+      );
     });
 
-    it("fails with the schema's issue, a merge's error or the other kind", () => {
+    it("fails with the schema's issue, a merge's error, the other kind or no stage result", () => {
       const previous = json("previous.json", sheetReport([WEEK_12]));
+      const stageResult = json("stage-result.json", stageResultOf(WEEK_19));
       const unknown = json(
         "unknown.json",
         sheetRunReport(WEEK_19, { questionUpdates: [{ id: "q7", status: "resolved" }] }),
       );
       const repo = join(dir(), "repo");
       sheetRepo(repo, sheetList(WEEK_12), sheetList(WEEK_12, WEEK_19));
-      expect(() => readReport({ kind: "sheet", report: unknown, run: true, previous })(repo)).toThrow(
+      expect(() => readReport({ kind: "sheet", report: unknown, run: true, previous, stageResult })(repo)).toThrow(
         "question q7 to update is not in the report",
       );
-      const broken = json("broken.json", sheetRunReport({ ...REFUSED_19, validTo: "2026-13-01" }));
-      expect(() => readReport({ kind: "sheet", report: broken, run: true })).toThrow("week.validTo:");
+      const broken = json("broken.json", {
+        ...sheetRunReport(WEEK_19),
+        week: { validFrom: "2026-10-19", questions: [] },
+      });
+      expect(() => readReport({ kind: "sheet", report: broken, run: true, stageResult })).toThrow("week.validTo:");
+      const report = json("run.json", sheetRunReport(WEEK_19));
+      expect(() => readReport({ kind: "sheet", report, run: true })).toThrow("STAGE_RESULT is not set");
       const sheet = json("sheet.json", sheetReport([WEEK_19]));
       expect(() => readReport({ kind: "events", report: sheet, run: false })).toThrow("kind:");
     });
@@ -82,8 +92,9 @@ describe("report files", () => {
       const other = json("other.json", { ...sheetReport([WEEK_12]), version: 1 });
       const garbled = join(dir(), "garbled.json");
       writeFileSync(garbled, "{");
+      const stageResult = json("stage-result.json", stageResultOf(WEEK_19));
       for (const previous of [join(dir(), "none.json"), garbled, other]) {
-        expect(() => readReport({ kind: "sheet", report, run: true, previous })).toThrow(RESEND);
+        expect(() => readReport({ kind: "sheet", report, run: true, previous, stageResult })).toThrow(RESEND);
       }
       expect(RESEND).toBe("The PR's report is missing or unreadable: close the PR and send the sheet or event again.");
     });
@@ -99,11 +110,14 @@ describe("report files", () => {
   });
 
   describe("summaryReport", () => {
-    it("reads a stored report, else the agent's on its own, which has no published week without the change", () => {
+    it("reads a stored report, else the agent's with its stage result, which has no published week without the change", () => {
       expect(summaryReport("sheet", json("report.json", sheetReport([WEEK_19])))).toEqual(sheetReport([WEEK_19]));
       const refused = json("refused.json", sheetRunReport(REFUSED_19));
-      expect(summaryReport("sheet", refused)).toEqual(sheetReport([REFUSED_19]));
-      expect(summaryReport("sheet", json("run.json", sheetRunReport(WEEK_19)))).toBeUndefined();
+      const stageRefused = json("stage-refused.json", stageResultOf(REFUSED_19));
+      expect(summaryReport("sheet", refused, stageRefused)).toEqual(sheetReport([REFUSED_19]));
+      expect(summaryReport("sheet", refused)).toBeUndefined();
+      const staged = json("stage-staged.json", stageResultOf(WEEK_19));
+      expect(summaryReport("sheet", json("run.json", sheetRunReport(WEEK_19)), staged)).toBeUndefined();
     });
 
     it("gives none for a missing or invalid file, and for an events file that is no full report", () => {

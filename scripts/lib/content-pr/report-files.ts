@@ -7,6 +7,7 @@ import { readJsonRecord } from "../command";
 import type { Kind } from "../content-release/plan";
 import { completeAgentReport } from "./agent-report";
 import { parseAgentReport } from "./agent-report-schema";
+import { readSheetResult } from "../stage/sheet-result";
 import { contentChanges } from "./changes";
 import { readKnownEvents } from "../news/known-events";
 import { checkRefusals } from "./refusals";
@@ -33,6 +34,8 @@ export type ReportInput = {
   run: boolean;
   previous?: string;
   known?: string;
+  /** The result file of the sheet run's stage runs (STAGE_RESULT); a sheet run needs it. */
+  stageResult?: string;
   fix?: string;
   original?: string;
 };
@@ -49,10 +52,11 @@ function readPrevious(file: string): SheetReport {
 /**
  * Reads the report the input gives and returns what makes the full report of it in the checkout `cwd`: a stored one
  * as written; the agent's (`run`) completed with what the run changed there (the working tree against HEAD), a
- * sheet's merged into the previous report, an events one's refusals checked against `known` and the site there. The files are checked at once, so one the schema refuses fails before
+ * sheet's week from its stage runs' result and merged into the previous report, an events one's refusals checked
+ * against `known` and the site there. The files are checked at once, so one the schema refuses fails before
  * anything is applied.
  */
-export function readReport({ kind, report, run, previous, known }: ReportInput): (cwd: string) => Report {
+export function readReport({ kind, report, run, previous, known, stageResult }: ReportInput): (cwd: string) => Report {
   const value = readJsonRecord(report);
   if (!run) {
     const stored = parseReport(kind, value);
@@ -61,8 +65,11 @@ export function readReport({ kind, report, run, previous, known }: ReportInput):
   const agent = parseAgentReport(kind, value);
   const before = previous === undefined ? undefined : readPrevious(previous);
   const knownEvents = known === undefined ? undefined : readKnownEvents(known);
+  if (kind === "sheet" && stageResult === undefined) throw new Error("STAGE_RESULT is not set: a sheet run needs it");
+  const result = stageResult === undefined ? undefined : readSheetResult(stageResult);
   return (cwd) => {
-    const full = completeAgentReport(agent, kind === "sheet" ? contentChanges(cwd, kind, "HEAD") : undefined, before);
+    const changes = kind === "sheet" ? contentChanges(cwd, kind, "HEAD") : undefined;
+    const full = completeAgentReport(agent, { changes, result, previous: before });
     if (full.kind === "events" && knownEvents) checkRefusals(full, knownEvents, cwd);
     return full;
   };
@@ -76,7 +83,7 @@ export const readFix = (file: string | undefined): FixResult | undefined =>
  * The report for the job summary: a stored one, else the agent's completed on its own (without the change, so a sheet
  * run's published week makes none: the summary lists only what was not published), else none. Never throws.
  */
-export function summaryReport(kind: Kind, file: string): Report | undefined {
+export function summaryReport(kind: Kind, file: string, stageResult?: string): Report | undefined {
   let value: unknown;
   try {
     value = JSON.parse(readFileSync(file, "utf8"));
@@ -89,7 +96,8 @@ export function summaryReport(kind: Kind, file: string): Report | undefined {
     // Not a stored report: the agent's, when the run stopped before `apply` wrote one.
   }
   try {
-    return completeAgentReport(parseAgentReport(kind, value));
+    const result = stageResult === undefined ? undefined : readSheetResult(stageResult);
+    return completeAgentReport(parseAgentReport(kind, value), { result });
   } catch {
     return undefined;
   }

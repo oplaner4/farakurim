@@ -47,24 +47,22 @@ describe("the agent's sheet run report", () => {
   const run = (week: object, fields: object = {}) => ({ week, questions: [], questionUpdates: [], ...fields });
   const sheetIssues = (value: object) => issuesOf(() => parseAgentReport("sheet", value));
 
-  it("takes a published week without dates or outcome, and one not published with both", () => {
-    const published = run({ questions: [newQuestion(reportQuestion("q1", true))] });
-    expect(parseAgentReport("sheet", published)).toEqual({ kind: "sheet", run: published });
-    const refused = run({ ...DATES_19, outcome: { kind: "refused", reason: "overlaps" }, questions: [] });
-    expect(parseAgentReport("sheet", refused)).toEqual({ kind: "sheet", run: refused });
+  it("takes a week without an outcome, and with dates for when the stage run read none", () => {
+    const week = run({ senderNote: ["The time agrees."], questions: [newQuestion(reportQuestion("q1", true))] });
+    expect(parseAgentReport("sheet", week)).toEqual({ kind: "sheet", run: week });
+    const dated = run({ ...DATES_19, questions: [] });
+    expect(parseAgentReport("sheet", dated)).toEqual({ kind: "sheet", run: dated });
   });
 
-  it("refuses an outcome or dates the change gives, and a week not published without its dates", () => {
-    expect(sheetIssues(run({ ...DATES_19, outcome: { kind: "created" }, questions: [] }))).toEqual([
-      "week.outcome: a published week has no outcome: the script takes it from the change",
-    ]);
-    expect(sheetIssues(run({ ...DATES_19, questions: [] }))).toEqual([
-      "week.validFrom: a published week takes its dates from the change: leave it out",
-      "week.validTo: a published week takes its dates from the change: leave it out",
-    ]);
+  it("refuses an outcome, one date without the other and dates in the wrong order", () => {
     expect(sheetIssues(run({ outcome: { kind: "refused", reason: "overlaps" }, questions: [] }))).toEqual([
-      "week.validFrom: a week that is not published needs its dates",
-      "week.validTo: a week that is not published needs its dates",
+      "week.outcome: set by the script from the stage run: leave it out",
+    ]);
+    expect(sheetIssues(run({ validFrom: DATES_19.validFrom, questions: [] }))).toEqual([
+      "week.validTo: validFrom and validTo go together",
+    ]);
+    expect(sheetIssues(run({ validFrom: DATES_19.validTo, validTo: DATES_19.validFrom, questions: [] }))).toEqual([
+      "week.validTo: validFrom is after validTo",
     ]);
   });
 

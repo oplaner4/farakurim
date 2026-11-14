@@ -4,6 +4,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { ReportError, type Question, type WeekEntry } from "../content-pr/report-schema";
+import type { SheetResult } from "../stage/sheet-result-schema";
 import { testGit } from "./files";
 
 /** A content PR report's question, open unless `status` says otherwise. */
@@ -25,7 +26,7 @@ export const reportWeek = (
 
 /** A full sheet report of `weeks`, with report-level `questions`. */
 export const sheetReport = (weeks: WeekEntry[], questions: Question[] = []) => ({
-  kind: "sheet",
+  kind: "sheet" as const,
   weeks,
   questions,
 });
@@ -34,13 +35,18 @@ export const sheetReport = (weeks: WeekEntry[], questions: Question[] = []) => (
 export const newQuestion = ({ id: _id, status: _status, ...question }: Question) => question;
 
 /**
- * A sheet mail run's report as the agent writes it, of the one week `entry`: a published week without its dates and
- * outcome (the script takes them from the change), its questions new; with `extra` fields (questions, question updates).
+ * A sheet mail run's report as the agent writes it, of the one week `entry`: without its dates and outcome (the script
+ * takes them from the stage run and the change), its questions new; with `extra` fields (questions, question updates).
  */
-export function sheetRunReport({ validFrom, validTo, outcome, questions, ...rest }: WeekEntry, extra: object = {}) {
-  const published = outcome.kind === "created" || outcome.kind === "corrected";
-  const week = { ...(!published && { validFrom, validTo, outcome }), ...rest, questions: questions.map(newQuestion) };
+export function sheetRunReport({ senderNote, questions }: WeekEntry, extra: object = {}) {
+  const week = { ...(senderNote && { senderNote }), questions: questions.map(newQuestion) };
   return { week, questions: [], questionUpdates: [], ...extra };
+}
+
+/** The result the last stage run of `entry`'s week writes: staged for a published week, else its refusal. */
+export function stageResultOf({ validFrom, validTo, outcome }: WeekEntry): SheetResult {
+  if (outcome.kind === "created" || outcome.kind === "corrected") return { validFrom, validTo, result: "staged" };
+  return { validFrom, validTo, result: outcome.kind, reason: outcome.reason };
 }
 
 /** A comment fix's result. */

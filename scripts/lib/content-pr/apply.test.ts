@@ -10,9 +10,11 @@ import {
   sheetRepo,
   sheetReport,
   sheetRunReport,
+  stageResultOf,
 } from "../test-helpers/reports";
 import { VENUE_LIST, venueRecord } from "../test-helpers/venues";
 import { applyReport, type ApplyInput } from "./apply";
+import type { WeekEntry } from "./report-schema";
 
 const WEEK_12 = reportWeek("2026-10-12", "2026-10-18", { kind: "created" });
 const WEEK_19 = reportWeek("2026-10-19", "2026-10-25", { kind: "created" });
@@ -53,6 +55,12 @@ describe("applyReport", () => {
     return join(dir(), file);
   };
 
+  /** A sheet run's files: the agent's report of `entry` and the result its last stage run wrote. */
+  const sheetRun = (entry: WeekEntry) => ({
+    report: json("run.json", sheetRunReport(entry)),
+    stageResult: json("stage-result.json", stageResultOf(entry)),
+  });
+
   const written = () => JSON.parse(readFileSync(join(out(), "report.json"), "utf8")) as unknown;
 
   /** The checkout is as it was and nothing was written. */
@@ -64,8 +72,7 @@ describe("applyReport", () => {
   it("applies a sheet run, merges it and names the commit", () => {
     const patch = prRepo(sheetList(), sheetList(WEEK_12), sheetList(WEEK_12, WEEK_19));
     const previous = json("previous.json", sheetReport([WEEK_12]));
-    const report = json("run.json", sheetRunReport(WEEK_19));
-    const { result, warnings } = apply({ kind: "sheet", run: true, previous, report, patch });
+    const { result, warnings } = apply({ kind: "sheet", run: true, previous, ...sheetRun(WEEK_19), patch });
     expect(result).toEqual({
       changed: true,
       draft: false,
@@ -79,8 +86,7 @@ describe("applyReport", () => {
   it("makes a draft of an open blocking question", () => {
     const patch = prRepo(sheetList(), sheetList(), sheetList(WEEK_19));
     const asking = reportWeek("2026-10-19", "2026-10-25", { kind: "created" }, [reportQuestion("q1", true)]);
-    const report = json("run.json", sheetRunReport(asking));
-    expect(apply({ kind: "sheet", run: true, report, patch }).result).toEqual({
+    expect(apply({ kind: "sheet", run: true, ...sheetRun(asking), patch }).result).toEqual({
       changed: true,
       draft: true,
       message: "feat(content): publish the service sheet for 19.–25. 10. 2026",
@@ -89,29 +95,26 @@ describe("applyReport", () => {
 
   it('fails with "close and resend" on a missing previous report, and applies nothing', () => {
     const patch = prRepo(sheetList(), sheetList(WEEK_12), sheetList(WEEK_12, WEEK_19));
-    const report = json("run.json", sheetRunReport(WEEK_19));
     const previous = join(dir(), "none.json");
-    expect(() => apply({ kind: "sheet", run: true, previous, report, patch })).toThrow(
+    expect(() => apply({ kind: "sheet", run: true, previous, ...sheetRun(WEEK_19), patch })).toThrow(
       "close the PR and send the sheet or event again",
     );
     untouched();
   });
 
-  it("undoes a change the report gives as not published", () => {
+  it("undoes a change when the last stage run was refused", () => {
     const patch = prRepo(sheetList(), sheetList(), sheetList(WEEK_19));
     const refused = reportWeek("2026-10-19", "2026-10-25", { kind: "refused", reason: "overlaps" });
-    const report = json("run.json", sheetRunReport(refused));
-    expect(() => apply({ kind: "sheet", run: true, report, patch })).toThrow(
-      "week.outcome: the change holds the week 19.–25. 10. 2026, so it is published: leave out the outcome and dates",
+    expect(() => apply({ kind: "sheet", run: true, ...sheetRun(refused), patch })).toThrow(
+      "week: the stage run ended refused, but the change holds 19.–25. 10. 2026",
     );
     untouched();
   });
 
-  it("refuses a published week when the change holds none", () => {
+  it("refuses a staged week when the change holds none", () => {
     const patch = prRepo(sheetList(), sheetList());
-    const report = json("run.json", sheetRunReport(WEEK_19));
-    expect(() => apply({ kind: "sheet", run: true, report, patch })).toThrow(
-      "week: a published week takes its dates from the change, which holds no week",
+    expect(() => apply({ kind: "sheet", run: true, ...sheetRun(WEEK_19), patch })).toThrow(
+      "week: the stage run staged the week 19.–25. 10. 2026, but the change holds no week",
     );
   });
 
@@ -119,8 +122,7 @@ describe("applyReport", () => {
     const changedWeek = { validFrom: "2026-10-19", validTo: "2026-10-25", days: [{ date: "2026-10-19" }] };
     const patch = prRepo(sheetList(), sheetList(WEEK_19), `${JSON.stringify({ sheets: [changedWeek] })}\n`);
     const previous = json("previous.json", sheetReport([WEEK_19]));
-    const report = json("run.json", sheetRunReport(WEEK_19));
-    apply({ kind: "sheet", run: true, previous, report, patch });
+    apply({ kind: "sheet", run: true, previous, ...sheetRun(WEEK_19), patch });
     expect(written()).toEqual(sheetReport([reportWeek("2026-10-19", "2026-10-25", { kind: "corrected" })]));
   });
 
@@ -152,8 +154,7 @@ describe("applyReport", () => {
   it("names no commit and warns nothing when nothing changed and there is no fix", () => {
     const patch = prRepo(sheetList(), sheetList());
     const refused = reportWeek("2026-10-19", "2026-10-25", { kind: "refused", reason: "overlaps" });
-    const report = json("run.json", sheetRunReport(refused));
-    const { result, warnings } = apply({ kind: "sheet", run: true, report, patch }, () => false);
+    const { result, warnings } = apply({ kind: "sheet", run: true, ...sheetRun(refused), patch }, () => false);
     expect(result).toEqual({ changed: false, draft: false, message: "feat(content): update the service sheets" });
     expect(warnings).toEqual([]);
     expect(existsSync(join(out(), "reply.md"))).toBe(false);

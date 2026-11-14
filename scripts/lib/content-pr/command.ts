@@ -142,6 +142,12 @@ export function parseCommand(args: string[]): Command {
   }
 }
 
+/** A sheet run's report input with its stage runs' result file, STAGE_RESULT in `env`. */
+function withStageResult<T extends ReportInput>(input: T, env: Env): T {
+  const file = env.STAGE_RESULT;
+  return input.run && input.kind === "sheet" && file ? { ...input, stageResult: file } : input;
+}
+
 /** Whether commitlint accepts `message`, with the repo's config. */
 export function commitlintAccepts(message: string): boolean {
   const bin = join(ROOT, "node_modules", ".bin", "commitlint");
@@ -188,7 +194,7 @@ const defaultIo: Io = {
 export async function execute(command: Command, io: Io = defaultIo): Promise<void> {
   switch (command.action) {
     case "check": {
-      const report = readReport(command)(io.cwd);
+      const report = readReport(withStageResult(command, io.env))(io.cwd);
       readFix(command.fix);
       if (command.original !== undefined) checkFixReport(io.cwd, report, command.original);
       io.print("The report is valid.");
@@ -200,7 +206,7 @@ export async function execute(command: Command, io: Io = defaultIo): Promise<voi
       return;
     }
     case "apply":
-      applyReport(command, io);
+      applyReport(withStageResult(command, io.env), io);
       return;
     case "body": {
       const published = publishedContent(io.cwd, mergeBase(io.cwd, command.base));
@@ -212,7 +218,7 @@ export async function execute(command: Command, io: Io = defaultIo): Promise<voi
       return;
     }
     case "summary": {
-      const report = summaryReport(command.kind, command.report);
+      const report = summaryReport(command.kind, command.report, io.env.STAGE_RESULT || undefined);
       const state = runStateFromEnv(io.env);
       const staged = state.newerWeek && isStaged(io.cwd, state.newerWeek.skipped);
       const eventTitle = checkoutEventTitle(io.cwd);

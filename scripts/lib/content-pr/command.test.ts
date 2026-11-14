@@ -11,6 +11,7 @@ import {
   sheetRepo,
   sheetReport,
   sheetRunReport,
+  stageResultOf,
 } from "../test-helpers/reports";
 import { commitlintAccepts, execute, parseCommand, type Command } from "./command";
 
@@ -173,9 +174,11 @@ describe("execute", () => {
     sheetRepo(repo(), sheetList(), sheetList(WEEK_19));
     const good = json("run.json", sheetRunReport(WEEK_19));
     const check = { action: "check", kind: "sheet", run: true } as const;
-    expect((await run({ ...check, report: good })).out).toEqual(["The report is valid."]);
+    const env = { STAGE_RESULT: json("stage-result.json", stageResultOf(WEEK_19)) };
+    expect((await run({ ...check, report: good }, { env })).out).toEqual(["The report is valid."]);
     const broken = json("broken.json", { ...sheetRunReport(WEEK_19), kind: "sheet" });
-    await expect(run({ ...check, report: broken })).rejects.toThrow("kind: set by the script: leave it out");
+    await expect(run({ ...check, report: broken }, { env })).rejects.toThrow("kind: set by the script: leave it out");
+    await expect(run({ ...check, report: good })).rejects.toThrow("STAGE_RESULT is not set");
   });
 
   it("checks a fix's report against the original one", async () => {
@@ -203,7 +206,8 @@ describe("execute", () => {
     const report = json("run.json", sheetRunReport(WEEK_19));
     const out = join(dir(), "out");
     const command = { action: "apply", kind: "sheet", base: "main", out, run: true, report, patch } as const;
-    expect(JSON.parse((await run(command)).out[0])).toEqual({
+    const env = { STAGE_RESULT: json("stage-result.json", stageResultOf(WEEK_19)) };
+    expect(JSON.parse((await run(command, { env })).out[0])).toEqual({
       changed: true,
       draft: false,
       message: "feat(content): publish the service sheet for 19.–25. 10. 2026",
@@ -236,7 +240,9 @@ describe("execute", () => {
     };
     const refused = reportWeek("2026-10-19", "2026-10-25", { kind: "refused", reason: "overlaps" });
     const report = json("run.json", sheetRunReport(refused));
-    const { out: lines } = await run({ action: "summary", kind: "sheet", report }, { env });
+    const stageResult = json("stage-result.json", stageResultOf(refused));
+    const summary = { action: "summary", kind: "sheet", report } as const;
+    const { out: lines } = await run(summary, { env: { ...env, STAGE_RESULT: stageResult } });
     expect(lines[0]).toContain("Weeks not published:\n- 19.–25. 10. 2026: refused: overlaps");
     const missing = await run({ action: "summary", kind: "sheet", report: join(dir(), "none.json") }, { env });
     expect(missing.out[0]).toContain("The change or the report was not accepted (see the log)");

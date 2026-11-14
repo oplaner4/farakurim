@@ -3,6 +3,7 @@
 // status of new questions.
 
 import type { Week } from "../services/sheet-week";
+import type { SheetResult } from "../stage/sheet-result-schema";
 import type {
   AgentEvent,
   AgentEvents,
@@ -65,42 +66,62 @@ function completeEvents(report: AgentEvents): EventsReport {
   });
 }
 
-/**
- * The week's dates and outcome: a week that is not published as the agent gives them; a published one from the one
- * week the run's `changes` hold (created when it adds the week, else corrected).
- */
-function weekOf(
-  week: AgentWeek,
-  changes: ContentChanges | undefined,
-): Pick<WeekEntry, "validFrom" | "validTo" | "outcome"> {
-  const held: Week[] = changes?.kind === "sheet" ? [...changes.added, ...changes.changed] : [];
-  if (week.outcome) {
-    if (held.length > 0) {
-      const message = `the change holds the week ${formatWeeks(held)}, so it is published: leave out the outcome and dates`;
-      throw new ReportError([`week.outcome: ${message}`]);
-    }
-    return { validFrom: week.validFrom!, validTo: week.validTo!, outcome: week.outcome };
-  }
-  if (changes?.kind !== "sheet" || held.length !== 1) {
+const sameWeek = (a: Week, b: Week) => a.validFrom === b.validFrom && a.validTo === b.validTo;
+
+/** Throws the ReportError of the one issue `message`. */
+function refuse(message: string): never {
+  throw new ReportError([message]);
+}
+
+type DatedWeek = Pick<WeekEntry, "validFrom" | "validTo" | "outcome">;
+
+/** A staged week: the one week the run's change holds, created when the change adds it, else corrected. */
+function stagedWeek(staged: Week, changes: ContentChanges | undefined): DatedWeek {
+  const added = changes?.kind === "sheet" ? changes.added : [];
+  const held = changes?.kind === "sheet" ? [...added, ...changes.changed] : [];
+  if (held.length !== 1 || !sameWeek(held[0]!, staged)) {
     const holds = held.length > 0 ? `the weeks ${formatWeeks(held)}` : "no week";
-    throw new ReportError([
-      `week: a published week takes its dates from the change, which holds ${holds} (a week not published needs its outcome)`,
-    ]);
+    refuse(`week: the stage run staged the week ${formatWeeks([staged])}, but the change holds ${holds}`);
   }
-  const { validFrom, validTo } = held[0]!;
-  return { validFrom, validTo, outcome: { kind: changes.added.length > 0 ? "created" : "corrected" } };
+  const { validFrom, validTo } = staged;
+  return { validFrom, validTo, outcome: { kind: added.length > 0 ? "created" : "corrected" } };
 }
 
 /**
- * The sheet run's report: the week's dates and outcome from `changes` (weekOf), the ids of its new questions after the
- * highest of `previous` and of the earlier questions of this week it writes again, which must be in `previous`.
+ * The week's dates and outcome, from the stage run's `result` and the run's `changes`: a staged week from the change
+ * (stagedWeek); a refused one or a document error the result's, with the agent's dates only when the run read no week.
+ * Throws a ReportError when they do not fit.
+ */
+function weekOf(week: AgentWeek, changes: ContentChanges | undefined, result: SheetResult | undefined): DatedWeek {
+  if (!result) refuse("week: no stage run: draft and stage the week with `pnpm stage sheet`");
+  if (result.result === "drafted") refuse("week: the week was drafted, but not staged with `--record`");
+  const agentDates = week.validFrom !== undefined && week.validTo !== undefined;
+  const fromRun = result.validFrom !== undefined && result.validTo !== undefined;
+  if (agentDates && fromRun) refuse("week.validFrom: the stage run gives the week's dates: leave them out");
+  if (result.result === "staged") return stagedWeek(result, changes);
+  const held = changes?.kind === "sheet" ? [...changes.added, ...changes.changed] : [];
+  if (held.length > 0) refuse(`week: the stage run ended ${result.result}, but the change holds ${formatWeeks(held)}`);
+  const dates = fromRun
+    ? result
+    : agentDates
+      ? week
+      : refuse("week.validFrom: the stage run read no week: give its dates");
+  const outcome = { kind: result.result, reason: result.reason };
+  return { validFrom: dates.validFrom!, validTo: dates.validTo!, outcome };
+}
+
+/**
+ * The sheet run's report: the week's dates and outcome from the stage run's `result` and `changes` (weekOf), the ids
+ * of its new questions after the highest of `previous` and of the earlier questions of this week it writes again,
+ * which must be in `previous`.
  */
 function completeSheetRun(
   run: AgentSheetRun,
   changes: ContentChanges | undefined,
+  result: SheetResult | undefined,
   previous?: SheetReport,
 ): SheetRunReport {
-  const dated = weekOf(run.week, changes);
+  const dated = weekOf(run.week, changes, result);
   const before = previous?.weeks.find((week) => week.validFrom === dated.validFrom)?.questions ?? [];
   const issues: string[] = [];
   run.week.questions.forEach(({ id }, index) => {
@@ -124,12 +145,22 @@ function completeSheetRun(
   };
 }
 
+/** What completes a sheet run's report: the run's change, the stage run's result and the PR's report. */
+export type SheetRunFacts = {
+  /** What the run changed (the working tree against HEAD); none where it is not known (the job summary). */
+  changes?: ContentChanges;
+  /** The last stage run's result (STAGE_RESULT); none when no run wrote one. */
+  result?: SheetResult;
+  /** The PR's report; none for a new PR. */
+  previous?: SheetReport;
+};
+
 /**
- * The stored report the agent's report makes: an events report on its own, a sheet run's merged into `previous` (the
- * PR's report, none for a new PR). `changes` is what the run changed (the working tree against HEAD); a sheet run's
- * published week needs it. Throws a ReportError when the report does not fit the change.
+ * The stored report the agent's report makes: an events report on its own, a sheet run's with its week from `facts`
+ * (weekOf), merged into the PR's report. Throws a ReportError when the report does not fit them.
  */
-export function completeAgentReport(agent: AgentReport, changes?: ContentChanges, previous?: SheetReport): Report {
+export function completeAgentReport(agent: AgentReport, facts: SheetRunFacts = {}): Report {
   if (agent.kind === "events") return completeEvents(agent.report);
-  return mergeSheetReport(previous, completeSheetRun(agent.run, changes, previous));
+  const { changes, result, previous } = facts;
+  return mergeSheetReport(previous, completeSheetRun(agent.run, changes, result, previous));
 }

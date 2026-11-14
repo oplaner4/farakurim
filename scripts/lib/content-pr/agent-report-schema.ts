@@ -13,7 +13,6 @@ import {
   questionSchema,
   questionUpdateSchema,
   text,
-  weekOutcomeSchema,
 } from "./report-schema";
 
 type Issue = (path: (string | number)[], message: string) => void;
@@ -36,31 +35,25 @@ const newQuestionSchema = questionSchema.extend({
   status: z.never("a new question is open: leave it out").optional(),
 });
 
-const publishedKind = (kind: string) => kind === "created" || kind === "corrected";
-
+/**
+ * The week: its outcome and dates are the stage run's (its result file) and the change's, so the agent gives the dates
+ * only when the stage run read no week (agent-report.ts checks that).
+ */
 const agentWeekSchema = z
   .strictObject({
     validFrom: isoDate.optional(),
     validTo: isoDate.optional(),
-    outcome: weekOutcomeSchema.optional(),
+    outcome: z.never("set by the script from the stage run: leave it out").optional(),
     senderNote: z.array(text).optional(),
     questions: z.array(agentQuestionSchema),
   })
   .superRefine((week, ctx) => {
     const issue = issueOn(ctx, week);
-    if (week.outcome && publishedKind(week.outcome.kind)) {
-      issue(["outcome"], "a published week has no outcome: the script takes it from the change");
-    } else if (!week.outcome) {
-      for (const field of ["validFrom", "validTo"] as const) {
-        if (week[field] !== undefined) issue([field], "a published week takes its dates from the change: leave it out");
-      }
-    } else {
-      for (const field of ["validFrom", "validTo"] as const) {
-        if (week[field] === undefined) issue([field], "a week that is not published needs its dates");
-      }
-      if (week.validFrom && week.validTo && week.validFrom > week.validTo)
-        issue(["validTo"], "validFrom is after validTo");
+    if ((week.validFrom === undefined) !== (week.validTo === undefined)) {
+      issue(["validTo"], "validFrom and validTo go together");
     }
+    if (week.validFrom && week.validTo && week.validFrom > week.validTo)
+      issue(["validTo"], "validFrom is after validTo");
     // An id names an earlier question of this week, written again; only such a one keeps its status.
     week.questions.forEach((question, index) => {
       if (question.id === undefined && question.status !== undefined) {
