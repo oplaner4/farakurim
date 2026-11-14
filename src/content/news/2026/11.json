@@ -129,6 +129,37 @@
     ]
   },
   {
+    "id": "tyden-modliteb-za-mladez-2026",
+    "title": "Týden modliteb za mládež",
+    "start": "2026-11-15",
+    "end": "2026-11-22",
+    "text": "Od 15. do 22. listopadu probíhá Týden modliteb za mládež. Modlete se s námi.",
+    "lead": "„Odvahu! Já jsem přemohl svět.“ (srov. Jan 16,33)",
+    "tags": [
+      {
+        "label": "Pro mládež"
+      }
+    ],
+    "published": "2026-11-14",
+    "poster": {
+      "src": "/uploads/aktuality/tyden-modliteb-za-mladez-2026-plakat-poster.webp",
+      "alt": "Plakát: Týden modliteb za mládež"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/tyden-modliteb-za-mladez-2026-plakat.jpg",
+        "size": 112824
+      }
+    ],
+    "links": [
+      {
+        "label": "církev.cz/mládež",
+        "href": "https://www.cirkev.cz/mladez"
+      }
+    ]
+  },
+  {
     "id": "charitativni-beh-2026",
     "title": "9. charitativní běh",
     "start": "2026-11-21",
@@ -156,6 +187,102 @@
         "label": "Plakát",
         "file": "/uploads/aktuality/charitativni-beh-2026-plakat.jpg",
         "size": 229014
+      }
+    ]
+  },
+  {
+    "id": "oblastni-setkani-mladeze-blansko-2026",
+    "title": "Oblastní setkání mládeže v Blansku",
+    "start": "2026-11-21",
+    "startTime": "9:30",
+    "place": "Blansko",
+    "text": "Oblastní setkání mládeže děkanátů Blansko, Boskovice, Brno, Rosice a Tišnov pro mladé od 2. stupně ZŠ po studenty VŠ – mše svatá, hra ve městě, workshopy a chvály.",
+    "lead": "Buďte dobré mysli, já jsem přemohl svět! (Jan 16,33)",
+    "body": "<p>Setkání je určeno mladým <strong>od 2. stupně ZŠ po studenty VŠ</strong> z děkanátů Blansko, Boskovice, Brno, Rosice a Tišnov.</p><p>Odpoledne nabídne workshopy: virtuální realita, míčové hry, tvoření, Q&amp;A, Santiago de Compostela a radost řeholnic.</p><p>Na setkání je třeba se přihlásit (přihláška přes QR kód na plakátu).</p>",
+    "program": [
+      {
+        "time": "9:30",
+        "title": "Registrace"
+      },
+      {
+        "time": "10:00",
+        "title": "Mše svatá"
+      },
+      {
+        "time": "11:15",
+        "title": "Hra ve městě"
+      },
+      {
+        "time": "13:00",
+        "title": "Oběd, chill zone"
+      },
+      {
+        "time": "14:45",
+        "title": "Workshopy"
+      },
+      {
+        "time": "17:00",
+        "title": "Chvály"
+      }
+    ],
+    "tags": [
+      {
+        "label": "Pro mládež"
+      }
+    ],
+    "published": "2026-11-14",
+    "poster": {
+      "src": "/uploads/aktuality/oblastni-setkani-mladeze-blansko-2026-plakat-poster.webp",
+      "alt": "Plakát: Oblastní setkání mládeže v Blansku"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/oblastni-setkani-mladeze-blansko-2026-plakat.jpg",
+        "size": 188524
+      }
+    ]
+  },
+  {
+    "id": "svatocecilske-setkani-2026",
+    "title": "Svatocecilské setkání",
+    "start": "2026-11-21",
+    "startTime": "9:00",
+    "place": "Brno, katedrála sv. Petra a Pavla",
+    "venue": "brno-katedrala-sv-petra-a-pavla",
+    "text": "Výroční pouť chrámových hudebníků v katedrále sv. Petra a Pavla v Brně – poděkování za dar hudby a prosba o požehnání pro službu, s pontifikální mší svatou v 10:00.",
+    "body": "<p>Svatocecilské setkání pod záštitou brněnského biskupa Mons. Pavla Konzbula pořádá Středisko pro liturgickou hudbu Biskupství brněnského.</p><p>Hlavním celebrantem pontifikální mše svaté je ostravsko-opavský biskup Mons. <strong>Martin David</strong>. Při liturgii zazní zpěvy v provedení Diecézního chrámového sboru ostravsko-opavské diecéze pod vedením Jana Strakoše.</p><p>Na programu je také prezentace nových publikací a agapé v prostorách biskupství.</p>",
+    "program": [
+      {
+        "time": "9:00",
+        "title": "Příležitost ke svátosti smíření"
+      },
+      {
+        "time": "9:20",
+        "title": "Zpívané ranní chvály ze slavnosti sv. Cecílie"
+      },
+      {
+        "time": "10:00",
+        "title": "Pontifikální mše svatá",
+        "note": "hlavní celebrant Mons. Martin David"
+      }
+    ],
+    "published": "2026-11-14",
+    "poster": {
+      "src": "/uploads/aktuality/svatocecilske-setkani-2026-plakat-poster.webp",
+      "alt": "Plakát: Svatocecilské setkání"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/svatocecilske-setkani-2026-plakat.jpg",
+        "size": 274437
+      }
+    ],
+    "links": [
+      {
+        "label": "Musica Sacra",
+        "href": "https://musicasacra.cz"
       }
     ]
   },
