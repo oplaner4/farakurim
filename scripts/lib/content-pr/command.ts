@@ -4,20 +4,21 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { parseCommandLine, readJsonRecord, requiredEnv } from "../command";
+import { parseCommandLine, readJsonRecord, requiredEnv, type Env } from "../command";
 import { ROOT } from "../content-files";
 import { KINDS, type Kind } from "../content-release/plan";
 import { gitHubReader, type GitHubReader } from "../content-release/sources";
 import { applyReport, type ApplyInput, type ApplyIo } from "./apply";
 import { pullBody } from "./body";
 import { mergeBase } from "./changes";
+import { commentFromEnv, commentWriter, isStaged, type CommentWriter } from "./newer-week";
 import { publishedContent } from "./published";
 import { renderReport } from "./render";
 import { checkFixReport } from "./fix-report";
 import { readFix, readReport, summaryReport, type ReportInput } from "./report-files";
 import { parseReport } from "./report-schema";
 import { storedReportOf } from "./stored";
-import { runStateFromEnv, summarize, type Env } from "./summary";
+import { runStateFromEnv, summarize } from "./summary";
 
 const USAGE = `Usage: pnpm content-pr check --kind <sheet|events> [--run] [--previous <report.json>]
                              [--fix <fix.json> --original <report.json>] <report.json>
@@ -25,14 +26,16 @@ const USAGE = `Usage: pnpm content-pr check --kind <sheet|events> [--run] [--pre
        pnpm content-pr apply --kind <sheet|events> --base <ref> --out <dir> [--run] [--previous <report.json>]
                              [--fix <fix.json> --original <report.json>] <report.json> <content.patch>
        pnpm content-pr body --kind <sheet|events> --base <ref> --run-url <url> [--calendar <file>] [--fix] <report.json>
-       pnpm content-pr summary --kind <sheet|events> <report.json>`;
+       pnpm content-pr summary --kind <sheet|events> <report.json>
+       pnpm content-pr newer-week`;
 
 export type Command =
   | ({ action: "check" } & ReportInput)
   | { action: "stored"; pr: number }
   | ({ action: "apply" } & ApplyInput)
   | { action: "body"; kind: Kind; base: string; report: string; runUrl: string; calendar?: string; fix: boolean }
-  | { action: "summary"; kind: Kind; report: string };
+  | { action: "summary"; kind: Kind; report: string }
+  | { action: "newer-week" };
 
 const REPORT_OPTIONS = {
   kind: { type: "string" },
@@ -78,6 +81,11 @@ export function parseCommand(args: string[]): Command {
       const { values, positionals } = parseCommandLine(rest, REPORT_OPTIONS, USAGE);
       takes(positionals, "the report");
       return { action, ...reportInput(values, positionals[0]) };
+    }
+    case "newer-week": {
+      const { positionals } = parseCommandLine(rest, {}, USAGE);
+      takes(positionals);
+      return { action };
     }
     case "stored": {
       const { values, positionals } = parseCommandLine(rest, { pr: { type: "string" } }, USAGE);
@@ -133,6 +141,8 @@ type Io = ApplyIo & {
   fail: (message: string) => void;
   /** The GitHub API of the repository the workflow runs for. */
   github: () => GitHubReader;
+  /** The PR comments of the repository the workflow runs for. */
+  comments: () => CommentWriter;
 };
 
 const defaultIo: Io = {
@@ -146,6 +156,7 @@ const defaultIo: Io = {
     process.exitCode = 1;
   },
   github: () => gitHubReader(requiredEnv("GITHUB_REPOSITORY"), requiredEnv("GH_TOKEN")),
+  comments: () => commentWriter(requiredEnv("GITHUB_REPOSITORY"), requiredEnv("GH_TOKEN")),
 };
 
 /**
@@ -158,7 +169,8 @@ const defaultIo: Io = {
  * `<out>/reply.md`) and prints
  * `{ changed, draft, message, fix? }` as JSON. `body` prints the PR body rendered from a final report (of a comment fix
  * with `fix`) and what the content in the working directory publishes against its merge base with `base`; `summary` prints the job summary from the step results in the environment (`runStateFromEnv`) and the
- * report, and fails when the maintainer must act without a PR.
+ * report, and fails when the maintainer must act without a PR. `newer-week` comments on the PR of PR_URL the DOCX's
+ * newest week a sheet mail run left out (`newerWeekFromEnv`), unless the PR has that comment already.
  */
 export async function execute(command: Command, io: Io = defaultIo): Promise<void> {
   switch (command.action) {
@@ -188,9 +200,14 @@ export async function execute(command: Command, io: Io = defaultIo): Promise<voi
     }
     case "summary": {
       const report = summaryReport(command.kind, command.report);
-      const { lines, error } = summarize(command.kind, runStateFromEnv(io.env), report);
+      const state = runStateFromEnv(io.env);
+      const staged = state.newerWeek && isStaged(io.cwd, state.newerWeek.skipped);
+      const { lines, error } = summarize(command.kind, { ...state, newerWeekStaged: Boolean(staged) }, report);
       io.print(lines.join("\n"));
       if (error) io.fail(error);
+      return;
     }
+    case "newer-week":
+      io.print(await commentFromEnv(io.comments(), io.env, io.cwd));
   }
 }

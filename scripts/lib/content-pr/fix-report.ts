@@ -80,7 +80,7 @@ function compareWeeks(before: SheetReport, after: SheetReport, issues: Issues): 
   before.weeks.forEach((old, index) => {
     const week = after.weeks[index]!;
     const at = `weeks.${index}`;
-    sameFields(at, old, week, ["validFrom", "validTo", "outcome", "notOnTheNewest", "senderNote"], issues);
+    sameFields(at, old, week, ["validFrom", "validTo", "outcome", "senderNote"], issues);
     compareQuestions(`${at}.questions`, old.questions, week.questions, issues);
   });
 }

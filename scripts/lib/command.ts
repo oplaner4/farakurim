@@ -34,6 +34,9 @@ export function parseRecordCommand(args: string[], usage: string): { file: strin
   return { file: positionals[0], check: values.check ?? false };
 }
 
+/** The environment variables a workflow step sets, one per step output. */
+export type Env = Record<string, string | undefined>;
+
 /** The environment variable `name`; throws when it is not set or empty. */
 export function requiredEnv(name: string): string {
   const value = process.env[name];

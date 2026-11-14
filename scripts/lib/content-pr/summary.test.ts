@@ -106,20 +106,27 @@ describe("summarize", () => {
     );
   });
 
-  it("fails a sheet run that named an older week and changed nothing, but not one with a PR", () => {
-    const quiet = summarize(
-      "sheet",
-      done({ changed: false, skipped: "2026-11-15 – 2026-11-22" }),
-      sheetReport(["2026-10-19", "corrected"]),
+  it("fails a sheet run that named an older week and changed nothing while the newest is not staged", () => {
+    const newerWeek = {
+      week: { validFrom: "2026-11-08", validTo: "2026-11-15" },
+      skipped: { validFrom: "2026-11-15", validTo: "2026-11-22" },
+    };
+    const report = sheetReport(["2026-10-19", "corrected"]);
+    const quiet = summarize("sheet", done({ changed: false, newerWeek }), report, "2026-11-12");
+    expect(text(quiet)).toContain(
+      "The mail named the week 8.–15. 11. 2026; the DOCX's newest week, 15.–22. 11. 2026, was not handled: it is " +
+        "not staged yet. Nothing changed in the named week: ask the parish",
     );
-    expect(text(quiet)).toContain("the DOCX's newest week (2026-11-15 – 2026-11-22) was not handled");
     expect(quiet.error).toBeDefined();
-    const withPr = summarize(
-      "sheet",
-      done({ skipped: "2026-11-15 – 2026-11-22" }),
-      sheetReport(["2026-10-19", "corrected"]),
+    // Once the named week has ended, the newest is likely the one meant.
+    expect(text(summarize("sheet", done({ changed: false, newerWeek }), report, "2026-11-16"))).toContain(
+      "The named week has ended, so the newest one is likely the one meant.",
     );
-    expect(withPr.error).toBeUndefined();
+    // Staged already, or a PR to comment on: nothing to tell here.
+    const staged = summarize("sheet", done({ changed: false, newerWeek, newerWeekStaged: true }), report);
+    expect(text(staged)).not.toContain("newest week");
+    expect(staged.error).toBeUndefined();
+    expect(summarize("sheet", done({ newerWeek }), report).error).toBeUndefined();
   });
 
   it("lists the refused events beside a PR, every event's outcome without one, and fails a mail that added nothing", () => {
@@ -160,7 +167,10 @@ describe("runStateFromEnv", () => {
         CHANGED: "false",
         PR_ACTION: "opened",
         NO_DOCX: "2",
-        SKIPPED: "2026-11-15 – 2026-11-22",
+        WEEK_FROM: "2026-11-08",
+        WEEK_TO: "2026-11-15",
+        SKIPPED_FROM: "2026-11-15",
+        SKIPPED_TO: "2026-11-22",
       }),
     ).toEqual({
       fetched: true,
@@ -176,7 +186,10 @@ describe("runStateFromEnv", () => {
       noDocx: 2,
       noWeek: 0,
       unhandled: 0,
-      skipped: "2026-11-15 – 2026-11-22",
+      newerWeek: {
+        week: { validFrom: "2026-11-08", validTo: "2026-11-15" },
+        skipped: { validFrom: "2026-11-15", validTo: "2026-11-22" },
+      },
       incomplete: 0,
     });
     const empty = runStateFromEnv({ SUMMARY: "not json", AGENT: "weird", NO_WEEK: "x" });
@@ -184,5 +197,9 @@ describe("runStateFromEnv", () => {
     expect(empty.agent).toBe("");
     expect(empty.noWeek).toBe(0);
     expect(empty.changed).toBeUndefined();
+    // A newer week needs all four dates.
+    expect(
+      runStateFromEnv({ WEEK_FROM: "2026-11-08", WEEK_TO: "2026-11-15", SKIPPED_FROM: "2026-11-15" }),
+    ).not.toHaveProperty("newerWeek");
   });
 });

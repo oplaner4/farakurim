@@ -9,8 +9,7 @@ unattended run follows those steps too, with the changes below. A comment run on
 
 - It handles **one week**: the one the prompt names (pass its `--from` and `--to` to every `pnpm stage sheet` run
   on the DOCX), else the DOCX's newest week; never touch other weeks. When `pnpm stage sheet` prints
-  `tell: Not the DOCX's newest week: …` (also below a refusal), the week's `notOnTheNewest` is that line as printed,
-  without its `tell: ` tag.
+  `tell: Not the DOCX's newest week: …` (also below a refusal), leave it out of the report: the workflow tells the PR.
   When `sheet draft` prints neither `state: staged` nor `state: published`: steps 1 to 4 of
   `parish-create-service-sheet` as written (outcome `created`). When it prints one of them (never open
   `service-sheets.json` to check): it is a correction, see "Unattended correction" below.
@@ -25,7 +24,7 @@ unattended run follows those steps too, with the changes below. A comment run on
   another week, or one outside any week, that this run answers or reopens goes in `questionUpdates` (see "The
   report").
 - Write the report first, with the week's questions, then stage (step 4, `--corrected` when the script
-  prints `state: published`), then fill in the week's `outcome` from what the script did, and add each `tell:` and
+  prints `state: published`), then fill in the week's `outcome` from what the script did, and add each other `tell:` and
   `ask:` line it printed as a question (blocking when its answer changes what is published, else a note). A week the
   script refuses (before the current sheet, overlapping another) or cannot draft (a document error) is not staged:
   its `outcome` is `refused` or `document-error`, with the refusal's first line as the `reason` (the `next:` lines
@@ -67,7 +66,6 @@ every field below (the optional ones may be left out):
     "validFrom": "2026-10-19",
     "validTo": "2026-10-25",
     "outcome": { "kind": "created" },
-    "notOnTheNewest": "Not the DOCX's newest week: its newest, 2026-10-26 – 2026-11-01, is left out of this run; it is not staged yet",
     "senderNote": ["The Saturday mass at 18:00: the DOCX agrees."],
     "questions": [
       {
@@ -98,7 +96,6 @@ every field below (the optional ones may be left out):
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `week.validFrom`, `validTo` | the record's dates (`YYYY-MM-DD`, `validFrom` not after `validTo`)                                                                                                             |
 | `week.outcome`              | `created` or `corrected`; `refused` or `document-error` with a `reason`, the refusal's first line as printed                                                                   |
-| `week.notOnTheNewest`       | optional: the line of `tell: Not the DOCX's newest week: …` as printed, without its `tell: ` tag, when the script printed one                                                  |
 | `week.senderNote`           | optional, only with a sender's note: one line per thing it asks to check and whether the draft agrees (below)                                                                  |
 | `week.questions`            | the new questions about this week (below); `where` says where in the sheet                                                                                                     |
 | `questions`                 | the new questions that belong to no week (the mail, the DOCX as a whole)                                                                                                       |

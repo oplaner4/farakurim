@@ -2,7 +2,9 @@
 // maintainer must act without a PR to look at, which fails the job so GitHub tells them. It holds dates, kinds, weeks,
 // event titles and the scripts' messages only, never a mail's text.
 
+import type { Env } from "../command";
 import type { Kind } from "../content-release/plan";
+import { newerWeekFromEnv, newerWeekNote, type NewerWeek } from "./newer-week";
 import { outcomeLines } from "./report";
 import type { Report } from "./report-schema";
 
@@ -31,8 +33,10 @@ export type RunState = {
   noDocx?: number;
   noWeek?: number;
   unhandled?: number;
-  /** Sheet only: the DOCX's newest week, when the subject named an older one. */
-  skipped?: string;
+  /** Sheet only: the week the subject named, and the DOCX's newest week it left out. */
+  newerWeek?: NewerWeek;
+  /** Sheet only: whether the checkout's service sheets hold that newest week. */
+  newerWeekStaged?: boolean;
   /** Events only: the accepted senders' mail with nothing to read, and the known senders that failed DKIM. */
   incomplete?: number;
   knownDkim?: string;
@@ -66,7 +70,11 @@ function outcomeLine(kind: Kind, state: RunState): { line: string; refused: bool
 }
 
 /** The sheet's notes after the outcome, and whether any needs the maintainer. */
-function sheetNotes(state: RunState, report: Report | undefined): { lines: string[]; attention: boolean } {
+function sheetNotes(
+  state: RunState,
+  report: Report | undefined,
+  today?: string,
+): { lines: string[]; attention: boolean } {
   const lines: string[] = [];
   const failed = outcomeLines(report, { failed: true });
   if (failed.length) lines.push("", "Weeks not published:", ...failed.map((line) => `- ${line}`));
@@ -80,14 +88,15 @@ function sheetNotes(state: RunState, report: Report | undefined): { lines: strin
         "again with the week's dates in the subject, or with none for the newest week.",
     );
   }
-  // A subject naming an older week leaves the newest one out: a PR's body names it, and a run that changed nothing
-  // fails here, so it is never missed in silence.
-  const quiet = Boolean(state.skipped) && state.changed === false;
+  // A subject naming an older week leaves the newest one out: a PR gets a comment on it (`content-pr newer-week`), and
+  // a run that changed nothing fails here while that week is not staged, so it is never missed in silence.
+  const { newerWeek } = state;
+  const quiet = newerWeek !== undefined && state.changed === false && !state.newerWeekStaged;
   if (quiet) {
     lines.push(
       "",
-      `The subject named an older week, in which nothing changed, and the DOCX's newest week (${state.skipped}) was ` +
-        "not handled: ask the parish to send the sheet again without dates in the subject (or with the newest week's).",
+      `${newerWeekNote(newerWeek, false, today)} Nothing changed in the named week: ask the parish to send the sheet ` +
+        "again without dates in the subject (or with the newest week's).",
     );
   }
   if (state.unhandled) {
@@ -122,12 +131,13 @@ const ERRORS = {
 
 /**
  * The summary of a run of `kind` from its `state` and the agent's `report` (undefined without one): its markdown lines, and
- * the error that fails the job when the maintainer must act without a PR.
+ * the error that fails the job when the maintainer must act without a PR. `today` (Prague) dates the newer week's note.
  */
 export function summarize(
   kind: Kind,
   state: RunState,
   report: Report | undefined,
+  today?: string,
 ): { lines: string[]; error?: string } {
   const lines = [`## ${WORDS[kind].title}`, ""];
   if (!state.fetched) lines.push("The mail could not be read.");
@@ -145,7 +155,7 @@ export function summarize(
       if (outcomes.length) lines.push("", ...outcomes.map((line) => `- ${line}`));
     }
   }
-  const notes = kind === "sheet" ? sheetNotes(state, report) : eventNotes(state);
+  const notes = kind === "sheet" ? sheetNotes(state, report, today) : eventNotes(state);
   lines.push(...notes.lines);
   return { lines, ...((refused || notes.attention) && { error: ERRORS[kind] }) };
 }
@@ -168,11 +178,9 @@ function mailLines(value: string | undefined): string[] {
   }
 }
 
-/** The environment variables a step sets. */
-export type Env = Record<string, string | undefined>;
-
 /** The run's state from the environment the workflow's Summary step sets (one variable per step output). */
 export function runStateFromEnv(env: Env): RunState {
+  const newerWeek = newerWeekFromEnv(env);
   return {
     fetched: env.FETCHED === "true",
     mail: mailLines(env.SUMMARY),
@@ -188,7 +196,7 @@ export function runStateFromEnv(env: Env): RunState {
     noDocx: count(env.NO_DOCX),
     noWeek: count(env.NO_WEEK),
     unhandled: count(env.UNHANDLED),
-    ...(env.SKIPPED && { skipped: env.SKIPPED }),
+    ...(newerWeek && { newerWeek }),
     incomplete: count(env.INCOMPLETE),
     ...(env.KNOWN_DKIM && { knownDkim: env.KNOWN_DKIM }),
   };

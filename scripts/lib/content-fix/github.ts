@@ -1,7 +1,7 @@
 // What the comment fix workflow reads from the GitHub REST API: a PR, its comments, a commenter's permission and the
 // failed steps of a commit's `check` run.
 
-import { gitHubGet, gitHubText } from "../github";
+import { gitHubGet, gitHubText, issueComments } from "../github";
 import type { IssueComment } from "./comments";
 
 export type FixPull = {
@@ -45,31 +45,15 @@ export function fixReader(repo: string, token: string, fetchImpl: typeof fetch =
         headRepo: pull.head.repo?.full_name ?? null,
       };
     },
-    comments: async (number) => {
-      const found: IssueComment[] = [];
-      for (let page = 1; ; page++) {
-        const batch = await get<
-          {
-            id: number;
-            body: string;
-            created_at: string;
-            user: { login: string; type: string } | null;
-            author_association: string;
-          }[]
-        >(`/issues/${number}/comments?per_page=100&page=${page}`);
-        found.push(
-          ...batch.map((comment) => ({
-            id: comment.id,
-            body: comment.body,
-            createdAt: comment.created_at,
-            author: comment.user?.login ?? "",
-            authorType: comment.user?.type ?? "",
-            association: comment.author_association,
-          })),
-        );
-        if (batch.length < 100) return found;
-      }
-    },
+    comments: async (number): Promise<IssueComment[]> =>
+      (await issueComments(get, number)).map((comment) => ({
+        id: comment.id,
+        body: comment.body,
+        createdAt: comment.created_at,
+        author: comment.user?.login ?? "",
+        authorType: comment.user?.type ?? "",
+        association: comment.author_association,
+      })),
     permission: async (user) =>
       (await get<{ permission: string }>(`/collaborators/${encodeURIComponent(user)}/permission`)).permission,
     failedCheck: async (sha) => {

@@ -58,7 +58,7 @@ strict: an unknown field is an error).
   | ----------------- | ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
   | a question        | an `open` one the comment answers: `"status": "resolved"` and the answer in `answer` | `id`, `blocking`, `where`, `text`, `proposal`, a `resolved` one; none added or removed |
   | an event (events) | only when this run changed its record: `title` (as the record's), `origin`           | `outcome`, the events and their order                                                  |
-  | a week (sheet)    | nothing                                                                              | `validFrom`, `validTo`, `outcome`, `notOnTheNewest`, `senderNote`, the weeks           |
+  | a week (sheet)    | nothing                                                                              | `validFrom`, `validTo`, `outcome`, `senderNote`, the weeks                             |
   | the report        | nothing but its questions, as above                                                  | `kind`, `droppedAttachments`                                                           |
 
   The script derives the PR's draft state from the open blocking questions and names its commit, so a doubt the

@@ -21,7 +21,8 @@
 #   check.yml does that on every commit the App pushes, and a red check is fixed with a `/fix` comment
 #   (content-fix-run.yml) or a commit. It has no id-token, so it cannot act as the agent. It uploads the staged PDFs as
 #   `content-uploads-<sha>` and the merged report as `content-report-<sha>` before it pushes the commit, so no pushed
-#   commit lacks them.
+#   commit lacks them. When a dated subject left the DOCX's newest week out, it comments that on the PR, once per week
+#   (`pnpm content-pr newer-week`).
 # The maintainer's merge releases the site (content-release.yml), with the staged PDFs from the artifacts of the PR's
 # commits (`content-uploads-<sha>`, the PDFs under porady_bohosluzeb/ as in the staging folder). Nothing changed: no PR. The mail is filed (Zpracováno, Odmítnuto) only once its outcome is done, so
 # a run that breaks retries the sheet on the next run. Both jobs run in the environment `service-sheet-publish` (the
@@ -29,7 +30,7 @@
 # CONTENT_APP_PRIVATE_KEY, shared with content-release.yml; a secret reaches only the steps that name it. The
 # job summary and the failure (refused week, document error, a parish message without exactly one DOCX, a subject
 # naming a week the DOCX does not have, a superseded mail naming another week, a subject naming an older week when
-# nothing changed) tell the maintainer; no e-mail is sent. The runner image and the actions are pinned (actions by
+# nothing changed and the newest is not staged) tell the maintainer; no e-mail is sent. The runner image and the actions are pinned (actions by
 # commit SHA).
 
 name: Service sheet
@@ -71,7 +72,10 @@ jobs:
       sheet: ${{ steps.fetch.outputs.sheet }}
       no_week: ${{ steps.fetch.outputs.no_week }}
       unhandled: ${{ steps.fetch.outputs.unhandled }}
-      skipped: ${{ steps.fetch.outputs.skipped }}
+      week_from: ${{ steps.fetch.outputs.week_from }}
+      week_to: ${{ steps.fetch.outputs.week_to }}
+      skipped_from: ${{ steps.fetch.outputs.skipped_from }}
+      skipped_to: ${{ steps.fetch.outputs.skipped_to }}
       superseded: ${{ steps.fetch.outputs.superseded }}
       rejected: ${{ steps.fetch.outputs.rejected }}
       no_docx: ${{ steps.fetch.outputs.no_docx }}
@@ -108,7 +112,8 @@ jobs:
             "sheet=\(.sheetUid // "")",
             "week_from=\(.week.validFrom // "" | select(test("^([0-9]{4}-[0-9]{2}-[0-9]{2})?$")))",
             "week_to=\(.week.validTo // "" | select(test("^([0-9]{4}-[0-9]{2}-[0-9]{2})?$")))",
-            "skipped=\(if .newest then "\(.newest.validFrom) – \(.newest.validTo)" else "" end)",
+            "skipped_from=\(.newest.validFrom // "" | select(test("^([0-9]{4}-[0-9]{2}-[0-9]{2})?$")))",
+            "skipped_to=\(.newest.validTo // "" | select(test("^([0-9]{4}-[0-9]{2}-[0-9]{2})?$")))",
             "note=\(if .note then "true" else "" end)",
             "superseded=\(.superseded | map(tostring) | join(","))",
             "rejected=\(.rejected + .noDocx + .noWeek | map(tostring) | join(","))",
@@ -311,11 +316,35 @@ jobs:
           report-file: ${{ runner.temp }}/out/report.json
           reviewers: ${{ vars.CONTENT_REVIEWERS }}
 
+      # A subject naming an older week leaves the DOCX's newest week out: `pnpm content-pr newer-week` says so in a
+      # comment on the PR (whether that week is staged, and whether it is likely the one meant), once per left-out week.
+      # Its own App token, as the conversation is locked; a failed comment fails this step only, and the mail is still
+      # filed (the PR is there).
+      - name: Create the App token for the comment
+        id: comment-app
+        if: steps.pr.outcome == 'success' && needs.sheet.outputs.skipped_from != ''
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ vars.CONTENT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.CONTENT_APP_PRIVATE_KEY }}
+          permission-pull-requests: write # the comment only
+
+      - name: Comment on the newer week
+        if: steps.comment-app.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ steps.comment-app.outputs.token }}
+          PR_URL: ${{ steps.pr.outputs.url }}
+          WEEK_FROM: ${{ needs.sheet.outputs.week_from }}
+          WEEK_TO: ${{ needs.sheet.outputs.week_to }}
+          SKIPPED_FROM: ${{ needs.sheet.outputs.skipped_from }}
+          SKIPPED_TO: ${{ needs.sheet.outputs.skipped_to }}
+        run: pnpm --silent content-pr newer-week
+
       # `pnpm content-pr summary`: dates, kinds, weeks and the script's messages only, never the e-mail's text. Fails
       # the job when something needs the maintainer without a PR: a refused week, a document error, a parish message
       # without one DOCX, a subject naming a week the DOCX does not have, an older message naming another week than
-      # the one handled, a subject naming an older week when nothing changed. It reads the merged report, or the agent's
-      # own when `apply` wrote none.
+      # the one handled, a subject naming an older week when nothing changed and the newest is not staged. It reads the
+      # merged report, or the agent's own when `apply` wrote none.
       - name: Summary
         if: always()
         env:
@@ -333,7 +362,10 @@ jobs:
           NO_DOCX: ${{ needs.sheet.outputs.no_docx }}
           NO_WEEK: ${{ needs.sheet.outputs.no_week }}
           UNHANDLED: ${{ needs.sheet.outputs.unhandled }}
-          SKIPPED: ${{ needs.sheet.outputs.skipped }}
+          WEEK_FROM: ${{ needs.sheet.outputs.week_from }}
+          WEEK_TO: ${{ needs.sheet.outputs.week_to }}
+          SKIPPED_FROM: ${{ needs.sheet.outputs.skipped_from }}
+          SKIPPED_TO: ${{ needs.sheet.outputs.skipped_to }}
         run: |
           report="$RUNNER_TEMP/out/report.json"
           if [ ! -f "$report" ]; then report="$RUNNER_TEMP/run/report.json"; fi

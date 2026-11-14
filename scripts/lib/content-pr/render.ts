@@ -24,7 +24,7 @@ function section(label: string, head: string[], body: string[], extra: string[][
 }
 
 function weekSection(label: string, week: WeekEntry, published: Published): string {
-  const head = [`Outcome: ${outcomeText(week.outcome)}`, ...(week.notOnTheNewest ? [week.notOnTheNewest] : [])];
+  const head = [`Outcome: ${outcomeText(week.outcome)}`];
   const note = week.senderNote?.length ? [["### Sender's note", ...week.senderNote.map((line) => `- ${line}`)]] : [];
   return section(label, head, published.week(week), note, week.questions);
 }

@@ -30,6 +30,7 @@ describe("parseCommand", () => {
       original: "o.json",
     });
     expect(parseCommand(["stored", "--pr", "12"])).toEqual({ action: "stored", pr: 12 });
+    expect(parseCommand(["newer-week"])).toEqual({ action: "newer-week" });
     expect(
       parseCommand(["apply", "--kind", "sheet", "--base", "origin/main", "--out", "o", "--run", "r.json", "c.patch"]),
     ).toEqual({
@@ -92,6 +93,7 @@ describe("parseCommand", () => {
     );
     expect(() => parseCommand(["stored"])).toThrow("stored needs --pr");
     expect(() => parseCommand(["stored", "--pr", "x"])).toThrow("--pr is not a PR number");
+    expect(() => parseCommand(["newer-week", "--pr", "7"])).toThrow("Unknown option '--pr'");
     expect(() => parseCommand(["body", "--kind", "sheet", "--run-url", "u", "r.json"])).toThrow("body needs --base");
     expect(() => parseCommand(["body", "--kind", "sheet", "--base", "b", "r.json"])).toThrow("body needs --run-url");
     expect(() => parseCommand(["summary", "--kind", "sheet", "--run", "r.json"])).toThrow("Usage:");
@@ -107,6 +109,9 @@ describe("execute", () => {
   const dir = freshTempDir("content-pr");
   const repo = () => join(dir(), "repo");
 
+  /** The comments posted through `run`'s writer. */
+  const posted: string[] = [];
+
   function run(command: Command, { env = {}, github }: { env?: Record<string, string>; github?: GitHubReader } = {}) {
     const lines: string[] = [];
     const errors: string[] = [];
@@ -121,6 +126,12 @@ describe("execute", () => {
         if (!github) throw new Error("no GitHub in this test");
         return github;
       },
+      comments: () => ({
+        bodies: async () => [...posted],
+        post: async (_pr: number, body: string) => {
+          posted.push(body);
+        },
+      }),
     };
     return execute(command, io).then(() => ({ out: lines, errors }));
   }
@@ -129,6 +140,17 @@ describe("execute", () => {
     writeFileSync(join(dir(), file), JSON.stringify(value));
     return join(dir(), file);
   };
+
+  /** The repo with an empty service sheet list committed on main; returns the list's path. */
+  function sheetRepo(): string {
+    const file = join(repo(), "src/content/service-sheets.json");
+    mkdirSync(join(repo(), "src/content"), { recursive: true });
+    writeFileSync(file, sheetList());
+    testGit(repo(), "init", "-q", "-b", "main");
+    testGit(repo(), "add", "-A");
+    testGit(repo(), "commit", "-q", "-m", "main");
+    return file;
+  }
 
   it("checks a report and says it is valid, or fails with its issue", async () => {
     const good = json("run.json", sheetRunReport(WEEK_19));
@@ -155,12 +177,7 @@ describe("execute", () => {
   });
 
   it("applies a run and prints its result", async () => {
-    const file = join(repo(), "src/content/service-sheets.json");
-    mkdirSync(join(repo(), "src/content"), { recursive: true });
-    writeFileSync(file, sheetList());
-    testGit(repo(), "init", "-q", "-b", "main");
-    testGit(repo(), "add", "-A");
-    testGit(repo(), "commit", "-q", "-m", "main");
+    const file = sheetRepo();
     writeFileSync(file, sheetList(WEEK_19));
     const patch = join(dir(), "content.patch");
     writeFileSync(patch, `${testGit(repo(), "diff", "--binary", "HEAD")}\n`);
@@ -176,12 +193,7 @@ describe("execute", () => {
   });
 
   it("renders the body from report.json and what the content publishes against the base", async () => {
-    const file = join(repo(), "src/content/service-sheets.json");
-    mkdirSync(join(repo(), "src/content"), { recursive: true });
-    writeFileSync(file, sheetList());
-    testGit(repo(), "init", "-q", "-b", "main");
-    testGit(repo(), "add", "-A");
-    testGit(repo(), "commit", "-q", "-m", "main");
+    const file = sheetRepo();
     const announcements = [{ category: "info", html: "<p>Sbírka je na <strong>misie</strong>.</p>" }];
     const sheet = { validFrom: WEEK_19.validFrom, validTo: WEEK_19.validTo, days: [], announcements };
     writeFileSync(file, `${JSON.stringify({ sheets: [sheet] })}\n`);
@@ -213,6 +225,25 @@ describe("execute", () => {
     const missing = await run({ action: "summary", kind: "sheet", report: join(dir(), "none.json") }, { env });
     expect(missing.out[0]).toContain("The change or the report was not accepted (see the log)");
     expect(missing.errors).toEqual([]);
+  });
+
+  it("comments the newer week on the PR once, and needs its PR and its four dates", async () => {
+    posted.length = 0;
+    const env = {
+      PR_URL: "https://github.com/o/r/pull/7",
+      WEEK_FROM: "2026-11-08",
+      WEEK_TO: "2026-11-15",
+      SKIPPED_FROM: "2026-11-15",
+      SKIPPED_TO: "2026-11-22",
+    };
+    const command = { action: "newer-week" } as const;
+    expect((await run(command, { env })).out).toEqual(["Commented on 15.–22. 11. 2026 in PR #7."]);
+    expect((await run(command, { env })).out).toEqual(["PR #7 already has the comment on 15.–22. 11. 2026."]);
+    expect(posted).toHaveLength(1);
+    await expect(run(command, { env: { ...env, SKIPPED_TO: "" } })).rejects.toThrow(
+      "newer-week needs WEEK_FROM, WEEK_TO, SKIPPED_FROM and SKIPPED_TO",
+    );
+    await expect(run(command, { env: { ...env, PR_URL: "" } })).rejects.toThrow("newer-week needs PR_URL");
   });
 
   it("prints the PR's stored report, or nothing", async () => {

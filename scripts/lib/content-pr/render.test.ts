@@ -27,7 +27,7 @@ describe("renderReport", () => {
   it("renders a sheet report oldest first, with what the content publishes of each week", () => {
     const md = renderReport(
       sheet([
-        week("2026-10-26", "2026-11-01", { notOnTheNewest: "Not on the newest PDF" }),
+        week("2026-10-26", "2026-11-01"),
         week("2026-10-19", "2026-10-25", {
           outcome: { kind: "refused", reason: "no PDF" },
           senderNote: ["Note one", "Note two"],
@@ -46,7 +46,6 @@ describe("renderReport", () => {
         "",
         "## 26. 10.–1. 11. 2026",
         "Outcome: created",
-        "Not on the newest PDF",
         "",
         "Announcements:",
         "- info: Sbírka",

@@ -29,9 +29,15 @@
 // footer (with `--fix`, naming the run as the last correction). `summary` prints the job summary (the mail's lines,
 // what became of the sheet or mail, the weeks or events, and what the maintainer must do) from the step results the
 // workflow passes in the environment (FETCHED, SUMMARY, HANDLED, JOB_RESULT, AGENT, DOWNLOAD, APPLY, CHANGED,
-// PR_OUTCOME, PR_ACTION, PR_URL; sheet: NO_DOCX, NO_WEEK, UNHANDLED, SKIPPED; events: INCOMPLETE, KNOWN_DKIM) and the
-// report (a full one, else a sheet run's on its own, else none), and fails when the maintainer must act without a PR
-// to look at.
+// PR_OUTCOME, PR_ACTION, PR_URL; sheet: NO_DOCX, NO_WEEK, UNHANDLED, and WEEK_FROM, WEEK_TO, SKIPPED_FROM,
+// SKIPPED_TO for the DOCX's newest week a dated subject left out; events: INCOMPLETE, KNOWN_DKIM) and the report (a
+// full one, else a sheet run's on its own, else none), and fails when the maintainer must act without a PR to look
+// at: the left-out week counts only when nothing changed and the checkout's service sheets lack it.
+//
+// `newer-week` comments on the PR of PR_URL that the sheet mail run left out the DOCX's newest week (WEEK_FROM, WEEK_TO,
+// SKIPPED_FROM and SKIPPED_TO; all five in the environment and required): whether the checkout's service sheets hold it, and
+// whether it is likely the week meant. Once per left-out week: a comment with its marker stays the only one. It
+// writes with GH_TOKEN for GITHUB_REPOSITORY.
 //
 // Usage: pnpm content-pr check --kind <sheet|events> [--run] [--previous <report.json>]
 //                              [--fix <fix.json> --original <report.json>] <report.json>
@@ -42,6 +48,7 @@
 //        pnpm --silent content-pr body --kind <sheet|events> --base <ref> --run-url <url> [--calendar <file>] [--fix]
 //                                      <report.json>
 //        pnpm --silent content-pr summary --kind <sheet|events> <report.json>
+//        pnpm --silent content-pr newer-week
 //
 // Options: --kind      the content of the PR: sheet (service sheets) or events
 //          --run       the report is a sheet mail run's, merged into --previous (sheet only)

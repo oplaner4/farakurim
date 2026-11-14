@@ -45,7 +45,6 @@ const weekEntrySchema = z
     validFrom: isoDate,
     validTo: isoDate,
     outcome: weekOutcomeSchema,
-    notOnTheNewest: text.optional(),
     senderNote: z.array(text).optional(),
     questions: z.array(questionSchema),
   })
