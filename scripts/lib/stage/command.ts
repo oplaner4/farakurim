@@ -11,7 +11,8 @@ import { defaultEnv, MAX_MB, type StageEnv } from "./core";
 import { stagePetrklic } from "./petrklic";
 import { draftSheet, stageSheet } from "./sheet";
 
-const USAGE = `Usage: pnpm stage event <id> <source> <label> [<source> <label> …] [--no-poster] [--corrected] [--record <json>] [--check]
+const USAGE = `Usage: pnpm stage event --record <json> <source> <label> [<source> <label> …] [--no-poster] [--check]
+       pnpm stage event --corrected (--record <json> | --id <id>) <source> <label> [<source> <label> …] [--check]
        pnpm stage sheet <pdf|docx> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected] [--record <json>] [--check]
        pnpm stage sheet draft <docx> --out <json> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected]
        pnpm stage petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--corrected] [--check]
@@ -32,8 +33,8 @@ const sheetWeekSchema = z
 
 /** Each command's count of positional arguments and its options; `sheet draft` is its own. */
 const COMMANDS: Record<string, { positionals: (count: number) => boolean; options: string[] }> = {
-  // The id, then source and label pairs.
-  event: { positionals: (n) => n >= 3 && n % 2 === 1, options: ["poster", "corrected", "record", "check"] },
+  // Source and label pairs.
+  event: { positionals: (n) => n >= 2 && n % 2 === 0, options: ["poster", "corrected", "record", "id", "check"] },
   // The PDF or DOCX.
   sheet: { positionals: (n) => n === 1, options: ["from", "to", "corrected", "record", "check"] },
   // The DOCX.
@@ -46,6 +47,24 @@ const COMMANDS: Record<string, { positionals: (count: number) => boolean; option
 function commandOf([name = "", ...rest]: string[]): { command: string; args: string[] } {
   const sub = name === "sheet" && rest[0] === "draft";
   return sub ? { command: `${name} ${rest[0]}`, args: rest.slice(1) } : { command: name, args: rest };
+}
+
+/**
+ * The id of the event to stage for: its record's, else (only with --corrected, the record on the site) --id. Throws
+ * for both, for a new event without its record and for a record without an id.
+ */
+function eventId(id: string | undefined, record: Record<string, unknown> | undefined, corrected: boolean): string {
+  if (id !== undefined && record)
+    throw new Error(`wrong arguments: --id or --record, not both: the record holds the id\n${USAGE}`);
+  if (record) {
+    if (typeof record.id !== "string") throw new Error("the record has no id");
+    return record.id;
+  }
+  if (!corrected) {
+    throw new Error(`wrong arguments: a new event needs --record (also with --check), which holds its id\n${USAGE}`);
+  }
+  if (id === undefined) throw new Error(`wrong arguments: --corrected needs --record or --id\n${USAGE}`);
+  return id;
 }
 
 type StageResult = { lines: string[]; format?: { files: string[]; tests: string | string[] } };
@@ -82,6 +101,7 @@ export async function runStage(env: StageEnv, argv: string[]): Promise<StageResu
     options: {
       poster: { type: "boolean" },
       record: { type: "string" },
+      id: { type: "string" },
       out: { type: "string" },
       from: { type: "string" },
       to: { type: "string" },
@@ -102,10 +122,9 @@ export async function runStage(env: StageEnv, argv: string[]): Promise<StageResu
   const check = values.check ?? false;
   const record = values.record ? (readJsonRecord(values.record) as Record<string, unknown>) : undefined;
   if (command === "event") {
-    const [id, ...pairs] = args;
     const result = await stageEvent(env, {
-      id,
-      files: Array.from({ length: pairs.length / 2 }, (_, i) => ({ source: pairs[2 * i], label: pairs[2 * i + 1] })),
+      id: eventId(values.id, record, values.corrected ?? false),
+      files: Array.from({ length: args.length / 2 }, (_, i) => ({ source: args[2 * i], label: args[2 * i + 1] })),
       noPoster: values.poster === false,
       corrected: values.corrected,
       record,

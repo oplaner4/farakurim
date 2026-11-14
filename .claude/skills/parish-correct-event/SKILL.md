@@ -40,10 +40,11 @@ Only the record changes:
 pnpm replace-event <scratchpad>/record.json --check
 ```
 
-Corrected or added files, only those (the record on the site is used without `--record`):
+Corrected or added files, only those: with `--id <id>`, the record on the site; with a corrected record, `--record`
+instead (the id is the record's):
 
 ```sh
-pnpm stage event <id> "<source>" "<label>" ["<source>" "<label>" …] --corrected [--record <scratchpad>/record.json] --check
+pnpm stage event "<source>" "<label>" ["<source>" "<label>" …] --corrected (--record <scratchpad>/record.json | --id <id>) --check
 ```
 
 A file replaces the attachment with the same `label`, so take the label from `attachments`; another label adds a

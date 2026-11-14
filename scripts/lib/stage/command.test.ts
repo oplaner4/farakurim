@@ -35,9 +35,9 @@ describe("runStage", { timeout: 30_000 }, () => {
 
     const recordFile = join(env.home, "record.json");
     writeFileSync(recordFile, JSON.stringify({ id: "x-2026", title: "T", start: "2026-10-20", place: "P", text: "T" }));
+    // The id is the record's.
     const staged = await runStage(env, [
       "event",
-      "x-2026",
       await poster(),
       "Leták",
       "--no-poster",
@@ -49,10 +49,11 @@ describe("runStage", { timeout: 30_000 }, () => {
   });
 
   it("refuses missing arguments, another command's options and the old --rev", async () => {
-    await expect(runStage(env, ["event", "a.jpg", "x"])).rejects.toThrow("wrong arguments\nUsage: pnpm stage");
-    // An unpaired source, and --poster (the first file is the poster unless --no-poster).
-    await expect(runStage(env, ["event", "x", "a.jpg", "Plakát", "b.pdf"])).rejects.toThrow("wrong arguments");
-    await expect(runStage(env, ["event", "x", "a.jpg", "Plakát", "--poster"])).rejects.toThrow("wrong arguments");
+    // An unpaired source (also the old id before the files), and --poster (the first file is the poster unless
+    // --no-poster).
+    await expect(runStage(env, ["event", "a.jpg"])).rejects.toThrow("wrong arguments\nUsage: pnpm stage");
+    await expect(runStage(env, ["event", "x", "a.jpg", "Plakát"])).rejects.toThrow("wrong arguments");
+    await expect(runStage(env, ["event", "a.jpg", "Plakát", "--poster"])).rejects.toThrow("wrong arguments");
     await expect(runStage(env, [])).rejects.toThrow(/Largest source file: event \d+ MB, sheet \d+ MB, petrklic \d+ MB/);
     await expect(runStage(env, ["petrklic", "a.pdf", "--year", "2026"])).rejects.toThrow("wrong arguments");
     await expect(runStage(env, ["petrklic", "a.pdf", "--year", "2026.5", "--number", "1"])).rejects.toThrow(
@@ -86,6 +87,29 @@ describe("runStage", { timeout: 30_000 }, () => {
     );
     await expect(runStage(env, ["petrklic", "a.pdf", "--year", "2026", "--number", "1", "--rev", "2"])).rejects.toThrow(
       "Unknown option '--rev'",
+    );
+  });
+
+  it("takes an event's id from its record, else from --id for --corrected only", async () => {
+    const recordFile = join(env.home, "record.json");
+    writeFileSync(recordFile, JSON.stringify({ title: "T" }));
+    const files = ["a.jpg", "Plakát"];
+    await expect(runStage(env, ["event", ...files, "--check"])).rejects.toThrow("a new event needs --record");
+    await expect(runStage(env, ["event", ...files, "--id", "x-2026", "--check"])).rejects.toThrow(
+      "a new event needs --record",
+    );
+    await expect(runStage(env, ["event", ...files, "--record", recordFile, "--check"])).rejects.toThrow(
+      "the record has no id",
+    );
+    await expect(
+      runStage(env, ["event", ...files, "--corrected", "--id", "x-2026", "--record", recordFile, "--check"]),
+    ).rejects.toThrow("--id or --record, not both");
+    await expect(runStage(env, ["event", ...files, "--corrected", "--check"])).rejects.toThrow(
+      "--corrected needs --record or --id",
+    );
+    // --corrected with --id: the record on the site, here none.
+    await expect(runStage(env, ["event", ...files, "--corrected", "--id", "nic-2026", "--check"])).rejects.toThrow(
+      "there is no event nic-2026",
     );
   });
 

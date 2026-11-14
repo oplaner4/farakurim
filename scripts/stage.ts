@@ -7,15 +7,16 @@
 // A failure restores src/content/ and removes the files it staged.
 //
 // Usage: pnpm stage <command> ... [--check]
-//   event <id> <source> <label> [<source> <label> …] [--no-poster] [--corrected] [--record <record.json>]
+//   event <source> <label> [<source> <label> …] [--no-poster] --record <record.json>
+//   event <source> <label> [<source> <label> …] --corrected (--record <record.json> | --id <id>)
 //       aktuality/<id>-<label in ASCII>.<ext> for each file, in that order, plus <first file's name>-poster.webp
 //       (page 1 / scaled image) when the first file is an image or PDF unless --no-poster, and adds the confirmed
-//       NewsEvent (--record: the event as JSON, without its files) with them to src/content/news/. --record is
-//       required, except with --check, which then only checks the files and their names (with a record, --check
-//       also validates it). A pinned record takes the pin from the record pinned before (named in the output).
-//       --corrected stages corrected or added files of an event already there and replaces its record (the
-//       --record, else the one on the site) with the files in it: each in the next -r<rev> once its file is on the
-//       server, else under its name; the poster follows its file.
+//       NewsEvent (--record: the event as JSON, without its files; <id> is its id) with them to src/content/news/.
+//       A new event needs its record, also with --check, which checks the files, their names and the record. A
+//       pinned record takes the pin from the record pinned before (named in the output). --corrected stages
+//       corrected or added files of an event already there and replaces its record (the --record, else with --id
+//       the one on the site) with the files in it: each in the next -r<rev> once its file is on the server, else
+//       under its name; the poster follows its file.
 //   sheet <pdf|docx> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected] [--record <record.json>]
 //       reads the week from the heading ("od 4. 10. 2026 do 11. 10. 2026"), stages
 //       porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-r<rev>].pdf and adds the confirmed sheet (--record:
