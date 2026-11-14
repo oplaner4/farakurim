@@ -84,35 +84,36 @@ they show the build's verse. The "Zdroj: www.vira.cz" link is vira.cz's conditio
 
 ## Commands
 
-| Command                                    | What it does                                                                                                                            |
-| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm dev`                                 | Dev server at http://localhost:3000, uploaded files from the staging folder or the live site                                            |
-| `pnpm build`                               | Static export to `out/`; clears Next's fetch cache first, so calendars and the verse are read anew                                      |
-| `pnpm preview`                             | Serve `out/` at http://localhost:4173 (run `pnpm build` first), uploads as in `pnpm dev`                                                |
-| `pnpm test`                                | Vitest unit tests: `test:site` (`src/**/*.test.ts`, hooks in jsdom) and `test:scripts` (`scripts/**/*.test.ts`)                         |
-| `pnpm lint`                                | ESLint (Next core-web-vitals, TypeScript and React hooks rules)                                                                         |
-| `pnpm exec tsc --noEmit`                   | Type check                                                                                                                              |
-| `pnpm format`                              | Prettier, including Tailwind class sorting                                                                                              |
-| `pnpm mockups`                             | Render the design mockups and serve them at http://localhost:4174/mockups/                                                              |
-| `pnpm release [--local] [--yes] [--major]` | Publish the site (see [Deployment](#deployment)); asks unless `--yes`                                                                   |
-| `pnpm pull-uploads [--dry-run]`            | Download the server's uploaded files missing in the staging folder (never overwrites or deletes)                                        |
-| `pnpm github-check`                        | Check, read-only, that the GitHub repository has the setup the workflows need ([GitHub setup](docs/github-setup.md#checking-the-setup)) |
-| `pnpm icons`                               | Regenerate `src/app/icon.png` and `apple-icon.png` from `src/app/icon.svg`                                                              |
-| `pnpm fonts`                               | Build `src/fonts/farnost-sans-*.woff2` (Oxygen with fixed `ť ď ľ Ľ`) from `fonts-source/`                                               |
+| Command                  | What it does                                                                                                                            |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm dev`               | Dev server at http://localhost:3000, uploaded files from the staging folder or the live site                                            |
+| `pnpm build`             | Static export to `out/`; clears Next's fetch cache first, so calendars and the verse are read anew                                      |
+| `pnpm preview`           | Serve `out/` at http://localhost:4173 (run `pnpm build` first), uploads as in `pnpm dev`                                                |
+| `pnpm test`              | Vitest unit tests: `test:site` (`src/**/*.test.ts`, hooks in jsdom) and `test:scripts` (`scripts/**/*.test.ts`)                         |
+| `pnpm lint`              | ESLint (Next core-web-vitals, TypeScript and React hooks rules)                                                                         |
+| `pnpm exec tsc --noEmit` | Type check                                                                                                                              |
+| `pnpm format`            | Prettier, including Tailwind class sorting                                                                                              |
+| `pnpm mockups`           | Render the design mockups and serve them at http://localhost:4174/mockups/                                                              |
+| `pnpm release`           | Publish the site (see [Deployment](#deployment))                                                                                        |
+| `pnpm pull-uploads`      | Download the server's uploaded files missing in the staging folder                                                                      |
+| `pnpm github-check`      | Check, read-only, that the GitHub repository has the setup the workflows need ([GitHub setup](docs/github-setup.md#checking-the-setup)) |
+| `pnpm icons`             | Regenerate `src/app/icon.png` and `apple-icon.png` from `src/app/icon.svg`                                                              |
+| `pnpm fonts`             | Build `src/fonts/farnost-sans-*.woff2` (Oxygen with fixed `ť ď ľ Ľ`) from `fonts-source/`                                               |
 
-Content tooling, used by the content skills (see [Content](#content)):
+Content tooling, used by the content skills (see [Content](#content)); each command's usage and options are in the
+header of its `scripts/<command>.ts`:
 
-| Command                                                                    | What it does                                                                                                                                                                                                                                                                                 |
-| -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm stage event\|sheet\|petrklic … [--check]`                            | Stage files for upload; petrklic adds the issue, the others add a `--record` (an event takes its id from it); `--corrected` for corrected files (an event without a record names it with `--id`)                                                                                             |
-| `pnpm add-event <record.json> [--check]`                                   | Add an event, checked by its schema                                                                                                                                                                                                                                                          |
-| `pnpm replace-event <record.json> [--check]`                               | Correct the event with the record's id, keeping its `published` and pin; a new start month moves it to that month's file                                                                                                                                                                     |
-| `pnpm pin-event <id> \| --none [--check]`                                  | Pin an event for "Doporučujeme" and unpin every other one (`--none`: unpin all); a pinned new record moves the pin itself                                                                                                                                                                    |
-| `pnpm event-poster <id> "<label>" \| --none [--check]`                     | Make an attachment of the event its poster (rendering `<file>-poster.webp`), or remove the poster                                                                                                                                                                                            |
-| `pnpm calendar-sync [--calendar events\|services] [--apply \| --problems]` | Preview (no flag) or apply the changes that bring the calendars in line: Události with the event records (never deletes an event), Bohoslužby with the services of the next six months (deletes only its own events). `--calendar` picks one, `--problems` previews only what needs a person |
-| `pnpm replace-sheet <record.json> --from <date> --to <date> [--check]`     | Correct the record of the service sheet of that week, keeping its PDF and rev; prints what changed                                                                                                                                                                                           |
-| `pnpm add-exception <record.json> \| --remove <date> [--check]`            | Add a change announced for a day no service sheet covers (`--remove`: take it out, `--draft <date> --out <file>`: write the day as it stands, to edit)                                                                                                                                       |
-| `pnpm add-album <album-url> [--photos <zip>] [--write \| --check …]`       | Propose a Zonerama album with photos from its zip (downloaded, or `--photos`) as JSON; `--write` stages the photos, adds the album and removes the oldest beyond 6, `--check` only says what `--write` would do                                                                              |
+| Command              | What it does                                           |
+| -------------------- | ------------------------------------------------------ |
+| `pnpm stage`         | Stage the files of an event, service sheet or Petrklíč |
+| `pnpm add-event`     | Add an event                                           |
+| `pnpm replace-event` | Correct an event                                       |
+| `pnpm pin-event`     | Pin or unpin the "Doporučujeme" event                  |
+| `pnpm event-poster`  | Choose or remove an event's poster                     |
+| `pnpm calendar-sync` | Bring the Události and Bohoslužby calendars in line    |
+| `pnpm replace-sheet` | Correct a service sheet                                |
+| `pnpm add-exception` | Add or remove a schedule exception                     |
+| `pnpm add-album`     | Add a Zonerama album to the Fotogalerie                |
 
 Before you commit, run the full check and compare the change with the mockups: see
 [docs/conventions.md](docs/conventions.md), which also holds the language, stack, static-export and commit conventions.
