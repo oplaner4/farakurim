@@ -106,7 +106,6 @@ const entry = (validFrom: string, validTo: string, kind: WeekEntry["outcome"]["k
   validFrom,
   validTo,
   outcome: kind === "refused" || kind === "document-error" ? { kind, reason: "r" } : { kind },
-  summary: "s",
   questions: [],
 });
 const sheetReport = (...weeks: WeekEntry[]): SheetReport => ({ kind: "sheet", weeks, questions: [] });
@@ -115,7 +114,6 @@ const eventsReport = (...events: [string, string | undefined][]): EventsReport =
   events: events.map(([title, id]) => ({
     title,
     outcome: id ? { kind: "created", id } : { kind: "refused", reason: "r" },
-    venues: [],
     questions: [],
   })),
   questions: [],

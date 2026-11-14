@@ -100,16 +100,15 @@ change.
 ## E. Runs nobody answers
 
 An unattended events run (`events.yml`) and a comment run on an events PR (`content-fix-run.yml`) take an event's
-venue with sections A to C, but nobody answers: the PR's review is the user's yes, so the report (or the comment
-run's reply) must show what to check.
+venue with sections A to C, but nobody answers: the PR's review is the user's yes. The PR body lists each venue and
+alias the change adds, with its pin link, from the venue list itself; a question (or the comment run's reply) shows
+the rest.
 
 - Take a listed venue when the source names it by its name or an alias (case and word endings aside), or plainly
   means it: then add the source's building text as its alias (section C).
 - Add a new venue (section B) only when one candidate is plainly the building: its name is the source's building, or
   it is the address the source gives. In a comment run, a venue, an alias or a Mapy.com link the comment names is the
   maintainer's yes.
-- Report each, with the pin to check, in the event's `venues`: a `new` entry (`id`, `name`, `address`, `pin`: the
-  pin link) or an `alias` entry (`id`, `text`).
 - Anything less certain (several candidates, none, an approximate link): leave `venue` out and write a question
   (`blocking: false`) with the candidates and their pin links.
 - Never change a venue (section D): the PR refuses the whole change.

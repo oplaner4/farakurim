@@ -290,7 +290,7 @@ jobs:
             echo "draft=$(jq -r .draft <<< "$result")"
             echo "message=$(jq -r .message <<< "$result")"
           } >> "$GITHUB_OUTPUT"
-          pnpm --silent content-pr body --kind sheet --run-url "$RUN_URL" "$out/report.json" > "$run/pr-body.md"
+          pnpm --silent content-pr body --kind sheet --base origin/main --run-url "$RUN_URL" "$out/report.json" > "$run/pr-body.md"
 
       # Commits, uploads the staged files and the merged report, pushes and opens or updates the PR
       # (.github/actions/content-pr).

@@ -16,10 +16,9 @@ const CONCERT: EventEntry = {
   title: "Koncert",
   outcome: { kind: "created", id: "2026-12-12-koncert" },
   origin: "The title is from the poster.",
-  venues: [{ kind: "alias", id: "kostel", text: "v kostele" }],
   questions: [reportQuestion("q1", true)],
 };
-const TRIP: EventEntry = { title: "Zájezd", outcome: { kind: "refused", reason: "past" }, venues: [], questions: [] };
+const TRIP: EventEntry = { title: "Zájezd", outcome: { kind: "refused", reason: "past" }, questions: [] };
 const events = (list = [CONCERT, TRIP], dropped = ["attachment 2, a logo"]): EventsReport => ({
   kind: "events",
   events: list,
@@ -79,12 +78,7 @@ describe("fixReportIssues", () => {
     ]);
   });
 
-  it("lets a week's summary change only with its sheet, and nothing else of it", () => {
-    const summarized = sheet([{ ...WEEK, summary: "Mše v pondělí v 8:00." }, OTHER_WEEK]);
-    expect(fixReportIssues(sheet(), summarized, WEEK_CHANGED)).toEqual([]);
-    expect(fixReportIssues(sheet(), summarized, NOTHING)).toEqual([
-      "weeks.0.summary: changes, but the fix did not change the week from 2026-10-19",
-    ]);
+  it("changes nothing of a week but its questions, even with its sheet", () => {
     const other = sheet([WEEK, { ...OTHER_WEEK, outcome: { kind: "refused", reason: "x" }, senderNote: ["y"] }]);
     expect(fixReportIssues(sheet(), other, WEEK_CHANGED)).toEqual([
       "weeks.1.outcome: may not change",
@@ -93,23 +87,12 @@ describe("fixReportIssues", () => {
     expect(fixReportIssues(sheet(), sheet([WEEK]), WEEK_CHANGED)).toEqual(["weeks: a fix may not add or drop a week"]);
   });
 
-  it("lets an event's title, origin and appended venues change only with its record", () => {
-    const venue = { kind: "new", id: "sokolovna", name: "Sokolovna", address: "Kuřim", pin: "https://mapy.com/s/x" };
-    const corrected = {
-      ...CONCERT,
-      title: "Koncert scholy",
-      origin: "From the comment.",
-      venues: [...CONCERT.venues, venue],
-    };
-    expect(fixReportIssues(events(), events([corrected as EventEntry, TRIP]), CONCERT_CHANGED)).toEqual([]);
-    expect(fixReportIssues(events(), events([corrected as EventEntry, TRIP]), NO_EVENT)).toEqual([
+  it("lets an event's title and origin change only with its record", () => {
+    const corrected = { ...CONCERT, title: "Koncert scholy", origin: "From the comment." };
+    expect(fixReportIssues(events(), events([corrected, TRIP]), CONCERT_CHANGED)).toEqual([]);
+    expect(fixReportIssues(events(), events([corrected, TRIP]), NO_EVENT)).toEqual([
       "events.0.title: changes, but the fix did not change the event 2026-12-12-koncert",
       "events.0.origin: changes, but the fix did not change the event 2026-12-12-koncert",
-      "events.0.venues: changes, but the fix did not change the event 2026-12-12-koncert",
-    ]);
-    const replaced = { ...CONCERT, venues: [venue as EventEntry["venues"][number]] };
-    expect(fixReportIssues(events(), events([replaced, TRIP]), CONCERT_CHANGED)).toEqual([
-      "events.0.venues: a fix may only append venues",
     ]);
   });
 

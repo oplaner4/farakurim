@@ -17,7 +17,7 @@ export const reportWeek = (
   validTo: string,
   outcome: WeekEntry["outcome"],
   questions: Question[] = [],
-): WeekEntry => ({ validFrom, validTo, outcome, summary: "Pořad bohoslužeb.", questions });
+): WeekEntry => ({ validFrom, validTo, outcome, questions });
 
 /** A full sheet report of `weeks`, with report-level `questions`. */
 export const sheetReport = (weeks: WeekEntry[], questions: Question[] = []) => ({

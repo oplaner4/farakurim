@@ -120,7 +120,7 @@ describe("applyReport", () => {
     testGit(repo(), "checkout", "-q", "--", ".");
     const report = json("report.json", {
       kind: "events",
-      events: [{ title: "Koncert", outcome: { kind: "refused", reason: "past" }, venues: [], questions: [] }],
+      events: [{ title: "Koncert", outcome: { kind: "refused", reason: "past" }, questions: [] }],
       questions: [],
       droppedAttachments: [],
     });

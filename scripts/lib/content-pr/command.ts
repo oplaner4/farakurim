@@ -10,6 +10,8 @@ import { KINDS, type Kind } from "../content-release/plan";
 import { gitHubReader, type GitHubReader } from "../content-release/sources";
 import { applyReport, type ApplyInput, type ApplyIo } from "./apply";
 import { pullBody } from "./body";
+import { mergeBase } from "./changes";
+import { publishedContent } from "./published";
 import { renderReport } from "./render";
 import { checkFixReport } from "./fix-report";
 import { readFix, readReport, summaryReport, type ReportInput } from "./report-files";
@@ -22,14 +24,14 @@ const USAGE = `Usage: pnpm content-pr check --kind <sheet|events> [--run] [--pre
        pnpm content-pr stored --pr <n>
        pnpm content-pr apply --kind <sheet|events> --base <ref> --out <dir> [--run] [--previous <report.json>]
                              [--fix <fix.json> --original <report.json>] <report.json> <content.patch>
-       pnpm content-pr body --kind <sheet|events> --run-url <url> [--calendar <file>] [--fix] <report.json>
+       pnpm content-pr body --kind <sheet|events> --base <ref> --run-url <url> [--calendar <file>] [--fix] <report.json>
        pnpm content-pr summary --kind <sheet|events> <report.json>`;
 
 export type Command =
   | ({ action: "check" } & ReportInput)
   | { action: "stored"; pr: number }
   | ({ action: "apply" } & ApplyInput)
-  | { action: "body"; kind: Kind; report: string; runUrl: string; calendar?: string; fix: boolean }
+  | { action: "body"; kind: Kind; base: string; report: string; runUrl: string; calendar?: string; fix: boolean }
   | { action: "summary"; kind: Kind; report: string };
 
 const REPORT_OPTIONS = {
@@ -96,15 +98,18 @@ export function parseCommand(args: string[]): Command {
     case "body": {
       const options = {
         kind: { type: "string" },
+        base: { type: "string" },
         "run-url": { type: "string" },
         calendar: { type: "string" },
         fix: { type: "boolean" },
       } as const;
       const { values, positionals } = parseCommandLine(rest, options, USAGE);
       takes(positionals, "the report");
+      const base = needs(values.base, "base");
       const runUrl = needs(values["run-url"], "run-url");
       const calendar = values.calendar ? { calendar: values.calendar } : {};
-      return { action, kind: kind(values.kind), report: positionals[0], runUrl, ...calendar, fix: values.fix ?? false };
+      const report = positionals[0];
+      return { action, kind: kind(values.kind), base, report, runUrl, ...calendar, fix: values.fix ?? false };
     }
     case "summary": {
       const { values, positionals } = parseCommandLine(rest, { kind: { type: "string" } }, USAGE);
@@ -152,7 +157,7 @@ const defaultIo: Io = {
  * undoing the patch on a mismatch), writes the final report to `<out>/report.json` (with `fix`, the checked reply to
  * `<out>/reply.md`) and prints
  * `{ changed, draft, message, fix? }` as JSON. `body` prints the PR body rendered from a final report (of a comment fix
- * with `fix`); `summary` prints the job summary from the step results in the environment (`runStateFromEnv`) and the
+ * with `fix`) and what the content in the working directory publishes against its merge base with `base`; `summary` prints the job summary from the step results in the environment (`runStateFromEnv`) and the
  * report, and fails when the maintainer must act without a PR.
  */
 export async function execute(command: Command, io: Io = defaultIo): Promise<void> {
@@ -173,7 +178,8 @@ export async function execute(command: Command, io: Io = defaultIo): Promise<voi
       applyReport(command, io);
       return;
     case "body": {
-      const report = renderReport(parseReport(command.kind, readJsonRecord(command.report)));
+      const published = publishedContent(io.cwd, mergeBase(io.cwd, command.base));
+      const report = renderReport(parseReport(command.kind, readJsonRecord(command.report)), published);
       const calendar =
         command.calendar && existsSync(command.calendar) ? readFileSync(command.calendar, "utf8") : undefined;
       const { kind, runUrl, fix } = command;

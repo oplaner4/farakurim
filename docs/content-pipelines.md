@@ -152,7 +152,8 @@ signature. `.github/workflows/events.yml`
    PR) and opens **one PR per mail** on a branch
    `events/<date>`, its body rendered from the report (only what is published is quoted, in every field: the PR is
    public), locked, a draft when the report has a blocking question. The report (`report.json`: the events with their
-   venues and questions, the report-level questions and the dropped attachments) is kept as the artifact
+   origin and questions, the report-level questions and the dropped attachments; the body lists the new venues and
+   aliases from the venue list itself) is kept as the artifact
    `content-report-<sha>` (30 days), beside `content-uploads-<sha>`. Its body ends with the [calendar sync](calendar-sync.md) preview's lines
    that need a person (its `ask:` lines, or that the calendar was not checked), so the reviewer can fix
    Události before the merge releases the site. It refuses an id an open events PR already holds (`pnpm event-mail

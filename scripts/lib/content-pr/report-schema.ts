@@ -45,7 +45,6 @@ const weekEntrySchema = z
     validFrom: isoDate,
     validTo: isoDate,
     outcome: weekOutcomeSchema,
-    summary: text,
     notOnTheNewest: text.optional(),
     senderNote: z.array(text).optional(),
     questions: z.array(questionSchema),
@@ -56,11 +55,6 @@ const weekEntrySchema = z
     }
   });
 
-const venueSchema = z.discriminatedUnion("kind", [
-  z.strictObject({ kind: z.literal("new"), id: text, name: text, address: text, pin: text }),
-  z.strictObject({ kind: z.literal("alias"), id: text, text }),
-]);
-
 const eventOutcomeSchema = z.discriminatedUnion("kind", [
   z.strictObject({ kind: z.literal("created"), id: text }),
   z.strictObject({ kind: z.literal("refused"), reason: text }),
@@ -70,7 +64,6 @@ const eventEntrySchema = z.strictObject({
   title: text,
   outcome: eventOutcomeSchema,
   origin: text.optional(),
-  venues: z.array(venueSchema),
   questions: z.array(questionSchema),
 });
 

@@ -344,7 +344,7 @@ jobs:
           if [ "$KIND" = events ]; then
             pnpm --silent calendar-sync --calendar events --problems > "$out/calendar.txt" 2> /dev/null || true
           fi
-          pnpm --silent content-pr body --kind "$KIND" --fix --run-url "$RUN_URL" --calendar "$out/calendar.txt" \
+          pnpm --silent content-pr body --kind "$KIND" --base origin/main --fix --run-url "$RUN_URL" --calendar "$out/calendar.txt" \
             "$out/report.json" > "$out/pr-body.md"
 
       # Also for the reply when anything before failed.

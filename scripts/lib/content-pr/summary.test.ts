@@ -24,7 +24,6 @@ const report = (...outcomes: [string, string][]): Report => ({
   events: outcomes.map(([title, outcome]) => ({
     title,
     outcome: outcome === "created" ? { kind: "created", id: "x" } : { kind: "refused", reason: outcome.slice(9) },
-    venues: [],
     questions: [],
   })),
   questions: [],

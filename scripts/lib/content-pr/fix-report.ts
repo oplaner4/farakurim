@@ -1,6 +1,7 @@
 // Compares a comment fix's corrected report with the PR's report the fix started from. The fix may resolve an open
-// question with an answer, append venues to and change the title and origin of an event whose record it changed, and
-// change the summary of a week it changed; every other difference is an issue, `<dotted path>: <message>`.
+// question with an answer, and change the title and origin of an event whose record it changed; every other
+// difference is an issue, `<dotted path>: <message>`. What the content publishes (a week's announcements, new venues)
+// is not in the report: the PR body reads it from the content.
 
 import { readFileSync } from "node:fs";
 import { isDeepStrictEqual } from "node:util";
@@ -67,30 +68,19 @@ function compareEvents(before: EventsReport, after: EventsReport, changes: Conte
       changedOnlyWithRecord(`${at}.title`, old.title !== event.title, what, issues);
       changedOnlyWithRecord(`${at}.origin`, old.origin !== event.origin, what, issues);
     }
-    if (!isDeepStrictEqual(event.venues.slice(0, old.venues.length), old.venues)) {
-      issues.push(`${at}.venues: a fix may only append venues`);
-    } else if (!withRecord) {
-      changedOnlyWithRecord(`${at}.venues`, event.venues.length > old.venues.length, what, issues);
-    }
     compareQuestions(`${at}.questions`, old.questions, event.questions, issues);
   });
 }
 
-function compareWeeks(before: SheetReport, after: SheetReport, changes: ContentChanges, issues: Issues): void {
+function compareWeeks(before: SheetReport, after: SheetReport, issues: Issues): void {
   if (before.weeks.length !== after.weeks.length) {
     issues.push("weeks: a fix may not add or drop a week");
     return;
   }
-  const touched = changes.kind === "sheet" ? changes.changed : [];
   before.weeks.forEach((old, index) => {
     const week = after.weeks[index]!;
     const at = `weeks.${index}`;
     sameFields(at, old, week, ["validFrom", "validTo", "outcome", "notOnTheNewest", "senderNote"], issues);
-    const withRecord = touched.some((t) => t.validFrom === old.validFrom && t.validTo === old.validTo);
-    if (!withRecord) {
-      const what = `the week from ${old.validFrom}`;
-      changedOnlyWithRecord(`${at}.summary`, old.summary !== week.summary, what, issues);
-    }
     compareQuestions(`${at}.questions`, old.questions, week.questions, issues);
   });
 }
@@ -103,7 +93,7 @@ export function fixReportIssues(before: Report, after: Report, changes: ContentC
   const issues: Issues = [];
   compareQuestions("questions", before.questions, after.questions, issues);
   if (before.kind === "events" && after.kind === "events") compareEvents(before, after, changes, issues);
-  if (before.kind === "sheet" && after.kind === "sheet") compareWeeks(before, after, changes, issues);
+  if (before.kind === "sheet" && after.kind === "sheet") compareWeeks(before, after, issues);
   return issues;
 }
 

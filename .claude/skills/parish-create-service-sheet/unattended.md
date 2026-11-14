@@ -24,7 +24,7 @@ unattended run follows those steps too, with the changes below. A comment run on
   question gets an id after the highest id in the previous report (all weeks and the report level). A question of
   another week, or one outside any week, that this run answers or reopens goes in `questionUpdates` (see "The
   report").
-- Write the report first, with the week's summary and questions, then stage (step 4, `--corrected` when the script
+- Write the report first, with the week's questions, then stage (step 4, `--corrected` when the script
   prints `state: published`), then fill in the week's `outcome` from what the script did, and add each `tell:` and
   `ask:` line it printed as a question (blocking when its answer changes what is published, else a note). A week the
   script refuses (before the current sheet, overlapping another) or cannot draft (a document error) is not staged:
@@ -52,7 +52,7 @@ The run's week is already staged or published. The rules above and the report be
 - It is a correction, always, even when nothing seems to differ: build the record from the draft as
   `parish-create-service-sheet` step 2a says (not from the sheet), and stage it (with the prompt's `--from` and
   `--to` when it names the week), with `--corrected` when the script prints `state: published`.
-- The week's outcome is `corrected`, and its summary is what differs from the published sheet.
+- The week's outcome is `corrected`.
 
 ### The report
 
@@ -67,7 +67,6 @@ every field below (the optional ones may be left out):
     "validFrom": "2026-10-19",
     "validTo": "2026-10-25",
     "outcome": { "kind": "created" },
-    "summary": "Announcements: Pouť (category Farnost); the \"Poutní mše\" event on 25. 10. 2026 was added.",
     "notOnTheNewest": "Not the DOCX's newest week: its newest, 2026-10-26 – 2026-11-01, is left out of this run; it is not staged yet",
     "senderNote": ["The Saturday mass at 18:00: the DOCX agrees."],
     "questions": [
@@ -99,7 +98,6 @@ every field below (the optional ones may be left out):
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `week.validFrom`, `validTo` | the record's dates (`YYYY-MM-DD`, `validFrom` not after `validTo`)                                                                                                             |
 | `week.outcome`              | `created` or `corrected`; `refused` or `document-error` with a `reason`, the refusal's first line as printed                                                                   |
-| `week.summary`              | the announcements with categories and each `newsId` with its event's title and date (not the rows); for a correction, what differs from the published sheet                    |
 | `week.notOnTheNewest`       | optional: the line of `tell: Not the DOCX's newest week: …` as printed, without its `tell: ` tag, when the script printed one                                                  |
 | `week.senderNote`           | optional, only with a sender's note: one line per thing it asks to check and whether the draft agrees (below)                                                                  |
 | `week.questions`            | the new questions about this week (below); `where` says where in the sheet                                                                                                     |
@@ -115,6 +113,8 @@ A list with nothing in it is `[]`.
   write each that still applies again with its id.
 - **`senderNote`:** the PR is public, so put it in your own words and quote no name or other text the published sheet
   does not show.
+- Write no summary of the week: the PR body lists its announcements (or, for a correction, what changes) from the
+  content itself.
 - Write no draft state or commit message: the script derives the PR's draft state from the open blocking questions
   and names the commit from the weeks. Write no calendar section (the release keeps the calendar in line).
 - The PR is public and the report fills its body: in **every** field, quote only what is published (the record's

@@ -39,8 +39,8 @@ Steps 1 to 6 of `parish-create-event` apply with these changes:
 - Write the report first, then stage, then fill in each event's `outcome` from what the script did, and add any
   line it printed for the user (an unpinned event) to the report. A script refusal is an outcome `refused` with the
   refusal's first line as its `reason`; its `next:` lines say what to do, not what to publish.
-- **Venue:** as `parish-manage-venues` section E says (a new venue or alias is written before the event is staged and
-  reported with its pin link).
+- **Venue:** as `parish-manage-venues` section E says (a new venue or alias is written before the event is staged; the
+  PR body lists it with its pin link).
 - Skip step 6: no `parish-publish-content`, no commit, no release.
 
 **The report** is the JSON file the prompt names (`report.json`), English with site content quoted in Czech, and
@@ -55,16 +55,6 @@ in the mail's order, with every field below (the optional ones may be left out):
       "title": "Koncert scholy",
       "outcome": { "kind": "created", "id": "2026-12-12-koncert-scholy" },
       "origin": "The title is from the poster; the time is a guess from the body.",
-      "venues": [
-        {
-          "kind": "new",
-          "id": "kostel-sv-jana",
-          "name": "Kostel sv. Jana Křtitele",
-          "address": "Kostelní 1, Kuřim",
-          "pin": "https://mapy.com/s/example"
-        },
-        { "kind": "alias", "id": "kostel-sv-jana", "text": "v kostele" }
-      ],
       "questions": [
         {
           "id": "q1",
@@ -82,7 +72,6 @@ in the mail's order, with every field below (the optional ones may be left out):
         "kind": "refused",
         "reason": "a correction of 2026-12-05-zajezd; make it with parish-correct-event"
       },
-      "venues": [],
       "questions": []
     }
   ],
@@ -91,15 +80,14 @@ in the mail's order, with every field below (the optional ones may be left out):
 }
 ```
 
-| Field                | Holds                                                                                                                                                  |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `events`             | one entry per event of the mail, in its order; `[]` for a mail with none (a thank-you with a logo)                                                     |
-| `title`              | exactly (character for character) the record's `title`                                                                                                 |
-| `outcome`            | `created` with the record's `id`, or `refused` with a `reason` (below)                                                                                 |
-| `origin`             | optional, a created event only: what the diff does not show, where the title came from (the subject, the poster) and the guesses (step 4)              |
-| `venues`             | what the event's venue work added (`parish-manage-venues` section E): `new` (`id`, `name`, `address`, `pin`: the pin's link) or `alias` (`id`, `text`) |
-| `questions`          | an event's, and at the top level the mail's as a whole, such as an unclear grouping (below)                                                            |
-| `droppedAttachments` | one line per dropped attachment, as "attachment 3, an image without event information", never its file name                                            |
+| Field                | Holds                                                                                                                                     |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `events`             | one entry per event of the mail, in its order; `[]` for a mail with none (a thank-you with a logo)                                        |
+| `title`              | exactly (character for character) the record's `title`                                                                                    |
+| `outcome`            | `created` with the record's `id`, or `refused` with a `reason` (below)                                                                    |
+| `origin`             | optional, a created event only: what the diff does not show, where the title came from (the subject, the poster) and the guesses (step 4) |
+| `questions`          | an event's, and at the top level the mail's as a whole, such as an unclear grouping (below)                                               |
+| `droppedAttachments` | one line per dropped attachment, as "attachment 3, an image without event information", never its file name                               |
 
 A list with nothing in it is `[]`.
 

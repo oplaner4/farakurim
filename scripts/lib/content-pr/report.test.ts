@@ -18,14 +18,12 @@ const sheet = (overrides: Partial<SheetReport> = {}): SheetReport => ({
       validFrom: "2026-10-19",
       validTo: "2026-10-25",
       outcome: { kind: "created" },
-      summary: "s",
       questions: [question("q2", { blocking: true })],
     },
     {
       validFrom: "2026-10-26",
       validTo: "2026-11-01",
       outcome: { kind: "refused", reason: "overlaps" },
-      summary: "s",
       questions: [question("q3")],
     },
   ],
@@ -36,8 +34,8 @@ const sheet = (overrides: Partial<SheetReport> = {}): SheetReport => ({
 const events = (): EventsReport => ({
   kind: "events",
   events: [
-    { title: "Pouť", outcome: { kind: "created", id: "pout" }, venues: [], questions: [question("q2")] },
-    { title: "Koncert", outcome: { kind: "refused", reason: "a duplicate" }, venues: [], questions: [] },
+    { title: "Pouť", outcome: { kind: "created", id: "pout" }, questions: [question("q2")] },
+    { title: "Koncert", outcome: { kind: "refused", reason: "a duplicate" }, questions: [] },
   ],
   questions: [question("q1", { blocking: true })],
   droppedAttachments: [],

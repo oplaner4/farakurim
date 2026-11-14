@@ -266,7 +266,7 @@ jobs:
             echo "message=$(jq -r .message <<< "$result")"
           } >> "$GITHUB_OUTPUT"
           pnpm --silent calendar-sync --calendar events --problems > "$run/calendar.txt" 2> /dev/null || true
-          pnpm --silent content-pr body --kind events --run-url "$RUN_URL" --calendar "$run/calendar.txt" \
+          pnpm --silent content-pr body --kind events --base origin/main --run-url "$RUN_URL" --calendar "$run/calendar.txt" \
             "$out/report.json" > "$run/pr-body.md"
 
       # Commits, uploads the staged files and the report, pushes and opens the PR (.github/actions/content-pr).

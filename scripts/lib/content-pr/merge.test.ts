@@ -11,7 +11,6 @@ function week(validFrom: string, overrides: Partial<WeekEntry> = {}): WeekEntry 
     validFrom,
     validTo: validFrom,
     outcome: { kind: "created" },
-    summary: `Týden ${validFrom}`,
     questions: [],
     ...overrides,
   };
@@ -34,11 +33,11 @@ describe("mergeSheetReport", () => {
 
   it("replaces the handled week and keeps the others in date order", () => {
     const previous = report([
-      week("2026-11-02", { summary: "old" }),
+      week("2026-11-02", { senderNote: ["old"] }),
       week("2026-11-16", { questions: [question("q1")] }),
     ]);
     const handled = week("2026-11-09");
-    const replaced = week("2026-11-16", { summary: "new", questions: [question("q1", { text: "Přepsáno" })] });
+    const replaced = week("2026-11-16", { senderNote: ["new"], questions: [question("q1", { text: "Přepsáno" })] });
     const merged = mergeSheetReport(previous, run(handled));
     expect(merged.weeks.map((entry) => entry.validFrom)).toEqual(["2026-11-02", "2026-11-09", "2026-11-16"]);
 

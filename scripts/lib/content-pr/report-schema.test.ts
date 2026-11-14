@@ -13,7 +13,6 @@ const week = {
   validFrom: "2026-11-09",
   validTo: "2026-11-15",
   outcome: { kind: "created" },
-  summary: "Created.",
   questions: [],
 };
 const sheet = { kind: "sheet", weeks: [week], questions: [] };
@@ -23,7 +22,6 @@ const events = {
     {
       title: "Concert",
       outcome: { kind: "created", id: "concert" },
-      venues: [{ kind: "alias", id: "kostel", text: "Kostel" }],
       questions: [],
     },
   ],
@@ -53,6 +51,12 @@ describe("report schema", () => {
     const issues = issuesOf(() => parseSheetReport({ ...sheet, version: 1 }));
     expect(issues).toHaveLength(1);
     expect(issues[0]).toMatch(/^: Unrecognized key/);
+    // The content's part of the body is no longer in the report.
+    expect(issuesOf(() => parseSheetReport({ ...sheet, weeks: [{ ...week, summary: "s" }] }))[0]).toMatch(
+      /^weeks\.0: Unrecognized key/,
+    );
+    const withVenues = { ...events, events: [{ ...events.events[0], venues: [] }] };
+    expect(issuesOf(() => parseEventsReport(withVenues))[0]).toMatch(/^events\.0: Unrecognized key/);
   });
 
   it("names the path of each issue", () => {

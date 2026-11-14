@@ -24,11 +24,11 @@ export type ContentChanges =
 export const mergeBase = (cwd: string, ref: string): string => git(cwd, "merge-base", "HEAD", ref).trim();
 
 /** The text of `path` at `base`, undefined when `base` has no such file. */
-const atBase = (cwd: string, base: string, path: string) =>
+export const atBase = (cwd: string, base: string, path: string) =>
   git(cwd, "ls-tree", "--name-only", base, path).trim() ? git(cwd, "show", `${base}:${path}`) : undefined;
 
 /** The text of `path` in the working tree, undefined when there is no such file. */
-function inCheckout(cwd: string, path: string): string | undefined {
+export function inCheckout(cwd: string, path: string): string | undefined {
   const file = join(cwd, path);
   return existsSync(file) ? readFileSync(file, "utf8") : undefined;
 }

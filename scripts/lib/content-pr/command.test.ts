@@ -41,15 +41,21 @@ describe("parseCommand", () => {
       patch: "c.patch",
       run: true,
     });
-    expect(parseCommand(["body", "--kind", "events", "--run-url", "u", "--calendar", "cal.txt", "r.json"])).toEqual({
+    const body = ["body", "--kind", "events", "--base", "origin/main", "--run-url", "u", "--calendar", "cal.txt"];
+    expect(parseCommand([...body, "r.json"])).toEqual({
       action: "body",
       kind: "events",
+      base: "origin/main",
       report: "r.json",
       runUrl: "u",
       calendar: "cal.txt",
       fix: false,
     });
-    expect(parseCommand(["body", "--kind", "sheet", "--fix", "--run-url", "u", "r.json"])).toMatchObject({ fix: true });
+    expect(parseCommand(["body", "--kind", "sheet", "--base", "b", "--fix", "--run-url", "u", "r.json"])).toMatchObject(
+      {
+        fix: true,
+      },
+    );
     expect(parseCommand(["summary", "--kind", "sheet", "r.json"])).toEqual({
       action: "summary",
       kind: "sheet",
@@ -86,7 +92,8 @@ describe("parseCommand", () => {
     );
     expect(() => parseCommand(["stored"])).toThrow("stored needs --pr");
     expect(() => parseCommand(["stored", "--pr", "x"])).toThrow("--pr is not a PR number");
-    expect(() => parseCommand(["body", "--kind", "sheet", "r.json"])).toThrow("body needs --run-url");
+    expect(() => parseCommand(["body", "--kind", "sheet", "--run-url", "u", "r.json"])).toThrow("body needs --base");
+    expect(() => parseCommand(["body", "--kind", "sheet", "--base", "b", "r.json"])).toThrow("body needs --run-url");
     expect(() => parseCommand(["summary", "--kind", "sheet", "--run", "r.json"])).toThrow("Usage:");
     expect(() => parseCommand(["patch", "--kind", "sheet", "c.patch"])).toThrow("Usage:");
   });
@@ -168,12 +175,24 @@ describe("execute", () => {
     });
   });
 
-  it("renders the body from report.json", async () => {
+  it("renders the body from report.json and what the content publishes against the base", async () => {
+    const file = join(repo(), "src/content/service-sheets.json");
+    mkdirSync(join(repo(), "src/content"), { recursive: true });
+    writeFileSync(file, sheetList());
+    testGit(repo(), "init", "-q", "-b", "main");
+    testGit(repo(), "add", "-A");
+    testGit(repo(), "commit", "-q", "-m", "main");
+    const announcements = [{ category: "info", html: "<p>Sbírka je na <strong>misie</strong>.</p>" }];
+    const sheet = { validFrom: WEEK_19.validFrom, validTo: WEEK_19.validTo, days: [], announcements };
+    writeFileSync(file, `${JSON.stringify({ sheets: [sheet] })}\n`);
     const report = json("report.json", sheetReport([WEEK_19]));
-    const { out: lines } = await run({ action: "body", kind: "sheet", report, runUrl: "u", fix: false });
-    expect(lines[0]).toMatch(/^## 19\.–25\. 10\. 2026\nOutcome: created\n\nPořad bohoslužeb\.\n\n---\n/);
+    const body = { action: "body", kind: "sheet", base: "main", report, runUrl: "u" } as const;
+    const { out: lines } = await run({ ...body, fix: false });
+    expect(lines[0]).toMatch(
+      /^## 19\.–25\. 10\. 2026\nOutcome: created\n\nAnnouncements:\n- info: Sbírka je na misie\.\n\n---\n/,
+    );
     expect(lines[0]).toMatch(/this run: u$/);
-    const fixed = (await run({ action: "body", kind: "sheet", report, runUrl: "u", fix: true })).out[0];
+    const fixed = (await run({ ...body, fix: true })).out[0];
     expect(fixed).toMatch(/last correction: u$/);
   });
 

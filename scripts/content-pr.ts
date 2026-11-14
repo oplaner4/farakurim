@@ -8,8 +8,8 @@
 // the PR's first run); a previous report that is missing or that the schema refuses fails with "close the PR
 // and send the sheet or event again". `--fix` adds a comment fix's result (fix.json) beside the full report, and `--original` the PR's report the fix
 // corrected in place: the corrected one may differ from it only where a fix may change it (an open question resolved
-// with its answer; the title, origin and appended venues of an event, or the summary of a week, whose record the
-// working tree changes against HEAD), else each difference is an issue.
+// with its answer; the title and origin of an event whose record the working tree changes against HEAD), else each
+// difference is an issue.
 //
 // `stored` prints `<runId> <name>` of the PR's newest stored report artifact (`content-report-<sha>` of the newest
 // commit that has one, trusted and live), or nothing; it reads the GitHub API with GH_TOKEN for GITHUB_REPOSITORY.
@@ -22,7 +22,9 @@
 // the final report to `<out>/report.json` and prints `{ changed, draft, message, fix? }`: `draft` when an open
 // question blocks, `message` the PR's commit message named from the change (the kind's default when commitlint
 // refuses it), `fix` (with `--fix` and a change) the fix's commit message: the result's `fixMessage`, else one named
-// from what the fix changed, else the default. `body` prints the PR body rendered from a final report, the Události
+// from what the fix changed, else the default. `body` prints the PR body rendered from a final report with what the
+// checkout publishes against its merge base with `--base` (a week's announcements or what changes in it, the new venues
+// and aliases), the Události
 // lines that need a person (`--calendar`, the output of `pnpm calendar-sync --calendar events --problems`) and the
 // footer (with `--fix`, naming the run as the last correction). `summary` prints the job summary (the mail's lines,
 // what became of the sheet or mail, the weeks or events, and what the maintainer must do) from the step results the
@@ -37,7 +39,8 @@
 //        pnpm --silent content-pr apply --kind <sheet|events> --base <ref> --out <dir> [--run]
 //                                       [--previous <report.json>] [--fix <fix.json> --original <report.json>]
 //                                       <report.json> <content.patch>
-//        pnpm --silent content-pr body --kind <sheet|events> --run-url <url> [--calendar <file>] [--fix] <report.json>
+//        pnpm --silent content-pr body --kind <sheet|events> --base <ref> --run-url <url> [--calendar <file>] [--fix]
+//                                      <report.json>
 //        pnpm --silent content-pr summary --kind <sheet|events> <report.json>
 //
 // Options: --kind      the content of the PR: sheet (service sheets) or events
@@ -45,7 +48,8 @@
 //          --previous  the PR's stored report, as `stored` finds it (with --run)
 //          --fix       check, apply: a comment fix's result file; body: the body of a comment fix
 //          --original  check, apply: the PR's report the comment fix corrected (with --fix)
-//          --base      the ref whose merge base with HEAD the PR's facts are checked against (origin/main)
+//          --base      the ref whose merge base with HEAD the PR's facts are checked against, and the body's content
+//                      compared with (origin/main)
 //          --out       the folder `apply` writes the final report.json to
 //          --pr        the PR number
 //          --run-url   this run's URL, named in the body's footer
