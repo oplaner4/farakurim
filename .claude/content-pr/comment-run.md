@@ -82,6 +82,5 @@ strict: an unknown field is an error).
 
 Quote only what is published, never the comment itself: the PR and both files are public, in **every** field.
 
-Run `pnpm content-pr check --kind <sheet|events> --fix <fix.json> --original <original report> <report.json>` (with
-the paths and the kind the prompt gives; the original report is read-only) until it passes. It prints
+Run the check the prompt gives until it passes (the original report it names is read-only). It prints
 `The report is valid.` or each issue as `<path>: <message>`.

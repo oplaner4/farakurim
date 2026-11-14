@@ -108,11 +108,5 @@ A list with nothing in it is `[]`.
 - The PR is public and the report fills its body: in **every** field, quote only what is published (the record's
   fields, the staged files' names and labels) and describe anything else without quoting it.
 
-Run the check until it passes, with the line the prompt gives:
-
-```sh
-pnpm content-pr check --kind sheet --run --previous <scratchpad>/previous-report.json <report file>
-```
-
-(without `--previous` when the PR has no previous report). It prints `The report is valid.` or each issue as
-`<path>: <message>`; fix the report and run it again.
+Run the check the prompt gives until it passes. It prints `The report is valid.` or each issue as `<path>: <message>`;
+fix the report and run it again.
