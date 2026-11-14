@@ -117,9 +117,9 @@ async function handleNewest(
     outcome.week = own.week;
     const docxNewest = newestWeek(weeks);
     const other = docxNewest && period(docxNewest) !== period(own.week) ? docxNewest : undefined;
+    // The newest week left out is named by the PR's body, or by the job summary when nothing changed.
     outcome.newest = other;
-    const skipped = other ? ` (not the DOCX's newest, ${period(other)}, which is not handled)` : "";
-    lines.set(uid, `${when}: sheet (newest), the week ${period(own.week)}${skipped}`);
+    lines.set(uid, `${when}: sheet (newest), the week ${period(own.week)}`);
   }
   for (const other of namingAnotherWeek(superseded, weeks, outcome.week ?? newestWeek(weeks))) {
     outcome.unhandled.push(other.uid);

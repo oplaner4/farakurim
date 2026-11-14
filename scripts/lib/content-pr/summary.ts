@@ -80,8 +80,8 @@ function sheetNotes(state: RunState, report: Report | undefined): { lines: strin
         "again with the week's dates in the subject, or with none for the newest week.",
     );
   }
-  // A subject naming an older week leaves the newest one out: the mail's summary line names it, a PR's report says
-  // whether it is staged (`pnpm stage sheet`), and a run that changed nothing fails, so it is never missed in silence.
+  // A subject naming an older week leaves the newest one out: a PR's body names it, and a run that changed nothing
+  // fails here, so it is never missed in silence.
   const quiet = Boolean(state.skipped) && state.changed === false;
   if (quiet) {
     lines.push(
@@ -140,7 +140,8 @@ export function summarize(
     refused = outcome.refused;
     lines.push(outcome.line);
     if (kind === "events") {
-      const outcomes = outcomeLines(report);
+      // The PR shows the events it adds: with one, only the refused ones are left to list.
+      const outcomes = outcomeLines(report, { failed: state.pr === "success" });
       if (outcomes.length) lines.push("", ...outcomes.map((line) => `- ${line}`));
     }
   }

@@ -97,10 +97,7 @@ describe("fetchSheet with the sender's subject and text", () => {
       week: { validFrom: "2026-11-08", validTo: "2026-11-15" },
       newest: { validFrom: "2026-11-15", validTo: "2026-11-22" },
     });
-    expect(outcome.summary).toEqual([
-      "2026-11-12 09:00: sheet (newest), the week 2026-11-08 – 2026-11-15 " +
-        "(not the DOCX's newest, 2026-11-15 – 2026-11-22, which is not handled)",
-    ]);
+    expect(outcome.summary).toEqual(["2026-11-12 09:00: sheet (newest), the week 2026-11-08 – 2026-11-15"]);
   });
 
   it("names no other newest week when the subject names the newest", async () => {

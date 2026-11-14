@@ -123,14 +123,16 @@ describe("summarize", () => {
     expect(withPr.error).toBeUndefined();
   });
 
-  it("lists every event's outcome and fails a mail that added nothing", () => {
-    const opened = summarize("events", done(), report(["Pouť", "created"], ["Koncert", "refused: a duplicate"]));
+  it("lists the refused events beside a PR, every event's outcome without one, and fails a mail that added nothing", () => {
+    const events = report(["Pouť", "created"], ["Koncert", "refused: a duplicate"]);
+    const opened = summarize("events", done(), events);
     expect(opened.lines.slice(4)).toEqual([
       "PR opened: https://github.com/o/r/pull/7",
       "",
-      "- Pouť: created",
       "- Koncert: refused: a duplicate",
     ]);
+    const failed = summarize("events", done({ pr: "failure" }), events);
+    expect(failed.lines.slice(-2)).toEqual(["- Pouť: created", "- Koncert: refused: a duplicate"]);
     expect(opened.error).toBeUndefined();
     const refused = summarize("events", done({ changed: false }), report(["Koncert", "refused: a duplicate"]));
     expect(refused.lines[4]).toBe("Nothing new in the mail (every event refused, or no event in it): refused, no PR.");

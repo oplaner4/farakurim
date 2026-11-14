@@ -45,8 +45,9 @@ provider's DKIM signature.
   DOCX's week that holds the date or the whole range, the newer one on the Sunday two weeks share. Without a date
   the week is the DOCX's newest, and so it is for a reply or a forward (a subject starting with `Re:`, `Odp:`,
   `Fwd:`, `Fw:`, `TR:` or `VS:`), as it keeps the subject of an earlier mail. This is how the parish corrects an
-  older week that is still on the site; the newest week is then not handled, which the summary and the PR's report
-  say, and a run that changed nothing in the named week fails so the newest week is never missed in silence. A date no
+  older week that is still on the site; the newest week is then not handled, which the PR's body says, and a run
+  that changed nothing in the named week fails with it in the job summary, so the newest week is never missed in
+  silence. A date no
   week of the DOCX holds (or one that does not exist) handles nothing: the mail goes to `Odmítnuto` and the run
   fails, so the parish sends it again with the right dates or none. The run also fails when an older sheet mail,
   superseded by a newer one, named another week: that week was not handled, so ask for it again.
