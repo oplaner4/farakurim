@@ -22,11 +22,12 @@ describe("parseCommand", () => {
       report: "r.json",
       run: false,
     });
-    expect(parseCommand(["check", "--kind", "events", "--run", "r.json"])).toEqual({
+    expect(parseCommand(["check", "--kind", "events", "--run", "--known", "k.json", "r.json"])).toEqual({
       action: "check",
       kind: "events",
       report: "r.json",
       run: true,
+      known: "k.json",
     });
     expect(parseCommand(["check", "--kind", "sheet", "--run", "--previous", "p.json", "r.json"])).toEqual({
       action: "check",
@@ -95,6 +96,17 @@ describe("parseCommand", () => {
     expect(() => parseCommand(["check", "--kind", "events", "--run", "--previous", "p.json", "r.json"])).toThrow(
       "--previous takes --run and --kind sheet",
     );
+    expect(() => parseCommand(["check", "--kind", "events", "--run", "r.json"])).toThrow(
+      "--run with --kind events needs --known",
+    );
+    for (const args of [
+      ["--kind", "events"],
+      ["--kind", "sheet", "--run"],
+    ]) {
+      expect(() => parseCommand(["check", ...args, "--known", "k.json", "r.json"])).toThrow(
+        "--known takes --run and --kind events",
+      );
+    }
     expect(() => parseCommand(["check", "--kind", "sheet", "--previous", "p.json", "r.json"])).toThrow(
       "--previous takes --run and --kind sheet",
     );

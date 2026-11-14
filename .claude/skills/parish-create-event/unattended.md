@@ -111,6 +111,7 @@ A list with nothing in it is `[]`.
 - The PR is public and the report fills its body: in **every** field, quote only what is published (the fields, the
   staged files' names and labels) and describe the rest of the mail without quoting it.
 
-Run `pnpm content-pr check --kind events --run <report file>` (the report file as the prompt gives it) until it
-passes. It
+Run `pnpm content-pr check --kind events --run --known <known-events file> <report file>` (both files as the prompt
+gives them) until it passes. It also checks each refusal's event: a `duplicate` must be in the known-events file where
+`where` says, a `correction` of an event in it or on the site. It
 prints `The report is valid.` or each issue as `<path>: <message>`; fix the report and run it again.

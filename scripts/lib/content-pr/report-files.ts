@@ -8,6 +8,7 @@ import type { Kind } from "../content-release/plan";
 import { completeAgentReport } from "./agent-report";
 import { parseAgentReport } from "./agent-report-schema";
 import { contentChanges } from "./changes";
+import { checkRefusals, readKnown } from "./refusals";
 import {
   parseFixResult,
   parseReport,
@@ -22,13 +23,15 @@ export const RESEND = "The PR's report is missing or unreadable: close the PR an
 
 /**
  * Where the report comes from: a stored report, or (`run`) the agent's of a mail run, a sheet's merged into
- * `previous`; `fix` a comment fix's result, with `original` the PR's report the fix corrected.
+ * `previous`, an events one's refusals checked against the known events in `known`; `fix` a comment fix's result, with
+ * `original` the PR's report the fix corrected.
  */
 export type ReportInput = {
   kind: Kind;
   report: string;
   run: boolean;
   previous?: string;
+  known?: string;
   fix?: string;
   original?: string;
 };
@@ -45,10 +48,10 @@ function readPrevious(file: string): SheetReport {
 /**
  * Reads the report the input gives and returns what makes the full report of it in the checkout `cwd`: a stored one
  * as written; the agent's (`run`) completed with what the run changed there (the working tree against HEAD), a
- * sheet's merged into the previous report. The files are checked at once, so one the schema refuses fails before
+ * sheet's merged into the previous report, an events one's refusals checked against `known` and the site there. The files are checked at once, so one the schema refuses fails before
  * anything is applied.
  */
-export function readReport({ kind, report, run, previous }: ReportInput): (cwd: string) => Report {
+export function readReport({ kind, report, run, previous, known }: ReportInput): (cwd: string) => Report {
   const value = readJsonRecord(report);
   if (!run) {
     const stored = parseReport(kind, value);
@@ -56,7 +59,12 @@ export function readReport({ kind, report, run, previous }: ReportInput): (cwd: 
   }
   const agent = parseAgentReport(kind, value);
   const before = previous === undefined ? undefined : readPrevious(previous);
-  return (cwd) => completeAgentReport(agent, kind === "sheet" ? contentChanges(cwd, kind, "HEAD") : undefined, before);
+  const knownEvents = known === undefined ? undefined : readKnown(known);
+  return (cwd) => {
+    const full = completeAgentReport(agent, kind === "sheet" ? contentChanges(cwd, kind, "HEAD") : undefined, before);
+    if (full.kind === "events" && knownEvents) checkRefusals(full, knownEvents, cwd);
+    return full;
+  };
 }
 
 /** The fix result in `file`, none without one. */

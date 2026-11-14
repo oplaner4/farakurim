@@ -61,6 +61,21 @@ describe("report files", () => {
       expect(() => readReport({ kind: "events", report: sheet, run: false })).toThrow("kind:");
     });
 
+    it("checks an events run's refusals against the known events", () => {
+      const duplicate = { kind: "duplicate", of: "pout-2026", where: 12 };
+      const report = json("events.json", {
+        events: [{ title: "Pouť", outcome: duplicate, questions: [] }],
+        questions: [],
+        droppedAttachments: [],
+      });
+      const known = json("known.json", [{ id: "pout-2026", where: 12 }]);
+      expect(readReport({ kind: "events", report, run: true, known })(dir())).toMatchObject({ kind: "events" });
+      const elsewhere = json("elsewhere.json", [{ id: "pout-2026", where: "main" }]);
+      expect(() => readReport({ kind: "events", report, run: true, known: elsewhere })(dir())).toThrow(
+        "events.0.outcome.of: pout-2026 is no known event in PR #12, it is in main",
+      );
+    });
+
     it("cannot continue a PR whose previous report is missing, unreadable or refused by the schema", () => {
       const report = json("run.json", sheetRunReport(WEEK_19));
       const other = json("other.json", { ...sheetReport([WEEK_12]), version: 1 });

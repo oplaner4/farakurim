@@ -20,10 +20,11 @@ import { parseReport } from "./report-schema";
 import { storedReportOf } from "./stored";
 import { runStateFromEnv, summarize } from "./summary";
 
-const USAGE = `Usage: pnpm content-pr check --kind <sheet|events> [--run [--previous <report.json>]]
+const USAGE = `Usage: pnpm content-pr check --kind <sheet|events> [--run [--previous <report.json> | --known <known.json>]]
                              [--fix <fix.json> --original <report.json>] <report.json>
        pnpm content-pr stored --pr <n>
-       pnpm content-pr apply --kind <sheet|events> --base <ref> --out <dir> [--run [--previous <report.json>]]
+       pnpm content-pr apply --kind <sheet|events> --base <ref> --out <dir>
+                             [--run [--previous <report.json> | --known <known.json>]]
                              [--fix <fix.json> --original <report.json>] <report.json> <content.patch>
        pnpm content-pr body --kind <sheet|events> --base <ref> --run-url <url> [--calendar <file>] [--fix] <report.json>
        pnpm content-pr summary --kind <sheet|events> <report.json>
@@ -41,9 +42,24 @@ const REPORT_OPTIONS = {
   kind: { type: "string" },
   run: { type: "boolean" },
   previous: { type: "string" },
+  known: { type: "string" },
   fix: { type: "string" },
   original: { type: "string" },
 } as const;
+
+/** What is wrong with the options of a report `input`, if anything: each run option belongs to one kind of run. */
+function reportOptionsProblem(
+  { kind, run }: Pick<ReportInput, "kind" | "run">,
+  values: { previous?: string; known?: string; fix?: string; original?: string },
+): string | undefined {
+  if (values.previous !== undefined && !(run && kind === "sheet")) return "--previous takes --run and --kind sheet";
+  const eventsRun = run && kind === "events";
+  if (eventsRun && values.known === undefined) return "--run with --kind events needs --known";
+  if (!eventsRun && values.known !== undefined) return "--known takes --run and --kind events";
+  if (values.fix !== undefined && run) return "--fix does not take --run";
+  if ((values.fix === undefined) !== (values.original === undefined)) return "--fix and --original go together";
+  return undefined;
+}
 
 export function parseCommand(args: string[]): Command {
   const [action, ...rest] = args;
@@ -60,20 +76,16 @@ export function parseCommand(args: string[]): Command {
     return value;
   };
   const reportInput = (
-    values: { kind?: string; run?: boolean; previous?: string; fix?: string; original?: string },
+    values: { kind?: string; run?: boolean; previous?: string; known?: string; fix?: string; original?: string },
     report: string,
   ): ReportInput => {
     const input: ReportInput = { kind: kind(values.kind), report, run: values.run ?? false };
-    if (values.previous !== undefined && !(input.run && input.kind === "sheet")) {
-      throw new Error(`--previous takes --run and --kind sheet\n${USAGE}`);
-    }
-    if (values.fix !== undefined && input.run) throw new Error(`--fix does not take --run\n${USAGE}`);
-    if ((values.fix === undefined) !== (values.original === undefined)) {
-      throw new Error(`--fix and --original go together\n${USAGE}`);
-    }
+    const problem = reportOptionsProblem(input, values);
+    if (problem) throw new Error(`${problem}\n${USAGE}`);
     return {
       ...input,
       ...(values.previous !== undefined && { previous: values.previous }),
+      ...(values.known !== undefined && { known: values.known }),
       ...(values.fix !== undefined && { fix: values.fix, original: values.original }),
     };
   };
