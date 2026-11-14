@@ -41,11 +41,13 @@ const announcementSchema = z.strictObject({
   newsId: text.optional(),
 });
 
+/** The week a service sheet covers: its first and last day. */
+export const sheetWeekSchema = z.object({ validFrom: date, validTo: date });
+
 /** A ServiceSheetRecord (src/content/types/services.ts); its fields in the order the generated files write them. */
 export const serviceSheetSchema = z
   .strictObject({
-    validFrom: date,
-    validTo: date,
+    ...sheetWeekSchema.shape,
     rev: revSchema,
     days: z.array(daySchema),
     announcements: z.array(announcementSchema),

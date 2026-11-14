@@ -4,22 +4,12 @@
 
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { z } from "zod";
-import { readJsonRecord } from "../command";
 import { newsIds } from "../content-files";
+import type { KnownEvent } from "../news/known-events-schema";
 import { ReportError, type EventsReport } from "./report-schema";
 
-const knownSchema = z.array(z.object({ id: z.string(), where: z.union([z.literal("main"), z.int().positive()]) }));
-
 /** A known event as the check needs it: its id and where it is, main or an open PR's number. */
-export type KnownId = z.infer<typeof knownSchema>[number];
-
-/** The known events in `file`; one that is not such a list throws. */
-export function readKnown(file: string): KnownId[] {
-  const parsed = knownSchema.safeParse(readJsonRecord(file));
-  if (!parsed.success) throw new Error(`${file} is not a list of known events`);
-  return parsed.data;
-}
+type KnownId = Pick<KnownEvent, "id" | "where">;
 
 const whereText = (where: KnownId["where"]) => (where === "main" ? "main" : `PR #${where}`);
 

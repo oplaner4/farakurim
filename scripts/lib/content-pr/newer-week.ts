@@ -3,7 +3,7 @@
 // A PR gets the note as a comment, once per left-out week (its marker); a run without a PR shows it in the job
 // summary when that week is not staged yet.
 
-import * as z from "zod";
+import { sheetWeekSchema } from "@/lib/services/schema";
 import { pragueDate } from "@/lib/shared/prague";
 import type { Env } from "../command";
 import { gitHubGet, gitHubPost, issueComments } from "../github";
@@ -16,11 +16,9 @@ const SHEETS = "src/content/service-sheets.json";
 /** The week the mail named and handled, and the DOCX's newest week it left out. */
 export type NewerWeek = { week: Week; skipped: Week };
 
-const weekSchema = z.object({ validFrom: z.iso.date(), validTo: z.iso.date() });
-
 /** The week `from` to `to` in `env`, none unless both are dates. */
 function weekFromEnv(env: Env, from: string, to: string): Week | undefined {
-  const parsed = weekSchema.safeParse({ validFrom: env[from], validTo: env[to] });
+  const parsed = sheetWeekSchema.safeParse({ validFrom: env[from], validTo: env[to] });
   return parsed.success ? parsed.data : undefined;
 }
 

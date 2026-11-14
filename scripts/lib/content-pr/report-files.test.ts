@@ -68,9 +68,10 @@ describe("report files", () => {
         questions: [],
         droppedAttachments: [],
       });
-      const known = json("known.json", [{ id: "pout-2026", where: 12 }]);
+      const pout = { id: "pout-2026", title: "Pouť", start: "2026-11-20", place: "Kuřim" };
+      const known = json("known.json", [{ ...pout, where: 12 }]);
       expect(readReport({ kind: "events", report, run: true, known })(dir())).toMatchObject({ kind: "events" });
-      const elsewhere = json("elsewhere.json", [{ id: "pout-2026", where: "main" }]);
+      const elsewhere = json("elsewhere.json", [{ ...pout, where: "main" }]);
       expect(() => readReport({ kind: "events", report, run: true, known: elsewhere })(dir())).toThrow(
         "events.0.outcome.of: pout-2026 is no known event in PR #12, it is in main",
       );

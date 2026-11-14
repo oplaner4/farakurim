@@ -13,14 +13,14 @@ import { simpleParser } from "mailparser";
 import { readEvents } from "@/content/news";
 import { inPrague, pragueDate } from "@/lib/shared/prague";
 import { slug } from "@/lib/shared/slug";
-import { parseCommandLine, readJsonRecord, requiredEnv } from "../command";
+import { parseCommandLine, requiredEnv } from "../command";
 import { NEWS_DIR } from "../content-files";
 import { MAILBOX_OPTIONS, mailboxCommand, runMailboxCommand, type MailboxCommand } from "../mail/command";
 import type { Mailbox } from "../mail/imap";
 import { EVENT_SENDERS, judgeSender, type SenderVerdict } from "../mail/senders";
 import { mailStamp as stamp } from "../mail/stamp";
 import { mailText } from "../mail/text";
-import { addedIds, knownJson, loadKnownEvents, takenIds, type KnownEvent } from "./known-events";
+import { addedIds, knownJson, loadKnownEvents, readKnownEvents, takenIds } from "./known-events";
 
 /** The attachment types handed on, each with the extension it is written under. */
 const ATTACHMENT_TYPES: Readonly<Record<string, string>> = {
@@ -160,7 +160,7 @@ async function runKnownEvents(command: Extract<EventMailCommand, { action: "know
     console.error(`Wrote ${found.length} known event(s)`);
     return;
   }
-  const taken = takenIds(readJsonRecord(command.known) as KnownEvent[], addedIds(readEvents(NEWS_DIR)));
+  const taken = takenIds(readKnownEvents(command.known), addedIds(readEvents(NEWS_DIR)));
   if (taken.length) throw new Error(`an open events PR already holds ${taken.join(", ")}: not added`);
 }
 

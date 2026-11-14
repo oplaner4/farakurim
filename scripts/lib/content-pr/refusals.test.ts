@@ -4,13 +4,13 @@ import { describe, expect, it } from "vitest";
 import { newsEvent } from "@/test/fixtures";
 import { freshTempDir } from "../test-helpers/files";
 import { issuesOf } from "../test-helpers/reports";
-import { checkRefusals, readKnown, refusalIssues, type KnownId } from "./refusals";
+import { checkRefusals, refusalIssues } from "./refusals";
 import type { EventOutcome, EventsReport } from "./report-schema";
 
-const KNOWN: KnownId[] = [
+const KNOWN = [
   { id: "pout-2026", where: "main" },
   { id: "koncert-2026", where: 12 },
-];
+] as const satisfies { id: string; where: "main" | number }[];
 
 const refusing = (...outcomes: EventOutcome[]): EventsReport => ({
   kind: "events",
@@ -45,16 +45,10 @@ describe("refusalIssues", () => {
   });
 });
 
-describe("readKnown and checkRefusals", () => {
+describe("checkRefusals", () => {
   const dir = freshTempDir("content-pr-refusals");
 
-  it("reads the known events and checks against them and the site's records", () => {
-    const file = join(dir(), "known.json");
-    writeFileSync(file, JSON.stringify([{ ...KNOWN[0], title: "Pouť", start: "2026-11-20", place: "Kuřim" }]));
-    expect(readKnown(file)).toEqual([KNOWN[0]]);
-    writeFileSync(file, JSON.stringify([{ id: "pout-2026" }]));
-    expect(() => readKnown(file)).toThrow(`${file} is not a list of known events`);
-
+  it("checks against the known events and the site's records", () => {
     const correction = refusing({ kind: "correction", of: "hody-2025" });
     expect(issuesOf(() => checkRefusals(correction, KNOWN, dir()))).toHaveLength(1);
     mkdirSync(join(dir(), "src/content/news/2025"), { recursive: true });

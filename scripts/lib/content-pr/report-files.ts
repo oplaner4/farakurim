@@ -8,7 +8,8 @@ import type { Kind } from "../content-release/plan";
 import { completeAgentReport } from "./agent-report";
 import { parseAgentReport } from "./agent-report-schema";
 import { contentChanges } from "./changes";
-import { checkRefusals, readKnown } from "./refusals";
+import { readKnownEvents } from "../news/known-events";
+import { checkRefusals } from "./refusals";
 import {
   parseFixResult,
   parseReport,
@@ -59,7 +60,7 @@ export function readReport({ kind, report, run, previous, known }: ReportInput):
   }
   const agent = parseAgentReport(kind, value);
   const before = previous === undefined ? undefined : readPrevious(previous);
-  const knownEvents = known === undefined ? undefined : readKnown(known);
+  const knownEvents = known === undefined ? undefined : readKnownEvents(known);
   return (cwd) => {
     const full = completeAgentReport(agent, kind === "sheet" ? contentChanges(cwd, kind, "HEAD") : undefined, before);
     if (full.kind === "events" && knownEvents) checkRefusals(full, knownEvents, cwd);

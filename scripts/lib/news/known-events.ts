@@ -3,20 +3,12 @@
 // duplicate, and takenIds() refuses an id an open PR already holds (add-event refuses one main holds).
 
 import type { NewsEvent } from "@/content/types/news";
+import { parseOrThrow } from "@/lib/shared/parse";
+import { readJsonRecord } from "../command";
 import { git } from "../git";
 import { gitHubGet } from "../github";
+import { knownEventsSchema, type KnownEvent } from "./known-events-schema";
 import { notEndedBy } from "./upcoming-events";
-
-/** An event as the duplicate check needs it; `where` is main or the number of the open PR that adds it. */
-export type KnownEvent = {
-  id: string;
-  title: string;
-  start: string;
-  end?: string;
-  startTime?: string;
-  place: string;
-  where: "main" | number;
-};
 
 /** The branch prefix of the events PRs (KINDS.events.prefix of the content release). */
 const EVENTS_BRANCH = "events/";
@@ -39,6 +31,10 @@ export function pullEvents(base: NewsEvent[], branch: NewsEvent[], number: numbe
   const before = new Map(base.map((event) => [event.id, JSON.stringify(event)]));
   return branch.filter((event) => before.get(event.id) !== JSON.stringify(event)).map((event) => known(event, number));
 }
+
+/** The known events in `file` (knownJson()); one that is not JSON or breaks the schema throws, naming it. */
+export const readKnownEvents = (file: string): KnownEvent[] =>
+  parseOrThrow(knownEventsSchema, readJsonRecord(file), file);
 
 /** `events` as a JSON array with one event per line: compact for the unattended run, which reads it all. */
 export const knownJson = (events: KnownEvent[]) =>

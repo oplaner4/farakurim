@@ -8,10 +8,11 @@ import {
   knownJson,
   openEventPulls,
   pullEvents,
+  readKnownEvents,
   takenIds,
   upcomingEvents,
-  type KnownEvent,
 } from "./known-events";
+import type { KnownEvent } from "./known-events-schema";
 
 const repo = "oplaner4/farakurim";
 
@@ -104,10 +105,17 @@ const KNOWN: KnownEvent[] = [
   { id: "hody-v-ceske", title: "Hody v České", start: "2026-10-18", place: "Česká", where: "main" },
 ];
 
-describe("knownJson", () => {
-  it("writes valid JSON with one event per line", () => {
+describe("knownJson and readKnownEvents", () => {
+  const dir = freshTempDir("known-events-file");
+
+  it("writes valid JSON with one event per line, which reads back, and refuses a broken file", () => {
     const json = knownJson(KNOWN);
     expect(JSON.parse(json)).toEqual(KNOWN);
+    const file = join(dir(), "known.json");
+    writeFileSync(file, json);
+    expect(readKnownEvents(file)).toEqual(KNOWN);
+    writeFileSync(file, JSON.stringify([{ id: "koncert-2026", where: 12 }]));
+    expect(() => readKnownEvents(file)).toThrow(`${file} is not valid:`);
     expect(json.trim().split("\n")).toHaveLength(KNOWN.length + 2);
     expect(JSON.parse(knownJson([]))).toEqual([]);
   });
