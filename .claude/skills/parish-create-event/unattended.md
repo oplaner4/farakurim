@@ -36,9 +36,10 @@ Steps 1 to 6 of `parish-create-event` apply with these changes:
   instead. The scratchpad is the prompt's (`record.json`; write nothing in the repo); run step 5a or 5b one
   event after another. Skip the `--check` runs of steps 3a and 3b: step 5a or 5b checks everything first and stages
   nothing when it refuses, so fix `record.json` and run it again.
-- Write the report first, then stage, then fill in each event's `outcome` from what the script did, and add any
-  line it printed for the user (an unpinned event) to the report. A script refusal is an outcome `refused` with the
-  refusal's first line as its `reason`; its `next:` lines say what to do, not what to publish.
+- Write the report first, then stage, then give each staged event its record's `id` and each refused one its
+  `outcome`, and add any line the script printed for the user (an unpinned event) to the report. A script refusal is an
+  outcome `refused` with the refusal's first line as its `reason`; its `next:` lines say what to do, not what to
+  publish.
 - **Venue:** as `parish-manage-venues` section E says (a new venue or alias is written before the event is staged; the
   PR body lists it with its pin link).
 - Skip step 6: no `parish-publish-content`, no commit, no release.
@@ -49,16 +50,13 @@ in the mail's order, with every field below (the optional ones may be left out):
 
 ```json
 {
-  "kind": "events",
   "events": [
     {
-      "outcome": { "kind": "created", "id": "2026-12-12-koncert-scholy" },
+      "id": "2026-12-12-koncert-scholy",
       "origin": "The title is from the poster; the time is a guess from the body.",
       "questions": [
         {
-          "id": "q1",
           "blocking": false,
-          "status": "open",
           "where": "venue",
           "text": "Two candidates for the venue.",
           "proposal": "Leave it out."
@@ -81,19 +79,19 @@ in the mail's order, with every field below (the optional ones may be left out):
 }
 ```
 
-| Field                | Holds                                                                                                                                     |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `events`             | one entry per event of the mail, in its order; `[]` for a mail with none (a thank-you with a logo)                                        |
-| `title`              | a refused event only (it has no record): what the mail calls it; a created event's title is its record's                                  |
-| `outcome`            | what became of it (below)                                                                                                                 |
-| `origin`             | optional, a created event only: what the diff does not show, where the title came from (the subject, the poster) and the guesses (step 4) |
-| `questions`          | an event's, and at the top level the mail's as a whole, such as an unclear grouping (below)                                               |
-| `droppedAttachments` | one line per dropped attachment, as "attachment 3, an image without event information", never its file name                               |
+| Field                | Holds                                                                                                                                    |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `events`             | one entry per event of the mail, in its order; `[]` for a mail with none (a thank-you with a logo)                                       |
+| `id`                 | a staged event only: its record's `id`; the script records it as created                                                                 |
+| `title`              | a refused event only (it has no record): what the mail calls it; a staged event's title is its record's                                  |
+| `outcome`            | a refused event only: why it is not published (below)                                                                                    |
+| `origin`             | optional, a staged event only: what the diff does not show, where the title came from (the subject, the poster) and the guesses (step 4) |
+| `questions`          | an event's, and at the top level the mail's as a whole, such as an unclear grouping (below)                                              |
+| `droppedAttachments` | one line per dropped attachment, as "attachment 3, an image without event information", never its file name                              |
 
 A list with nothing in it is `[]`.
 
 - **`outcome`:** one of
-  - `{ "kind": "created", "id": "<the record's id>" }`;
   - `{ "kind": "correction", "of": "<id>" }`: the mail corrects, cancels or moves the known event `<id>`;
   - `{ "kind": "duplicate", "of": "<id>", "where": "main" | <PR number> }`: the event is already there as `<id>`,
     where the known-events file says;
@@ -102,15 +100,17 @@ A list with nothing in it is `[]`.
   The PR body and the job summary write a correction and a duplicate out ("a correction of … make it with
   parish-correct-event", "already in PR #12 as …").
 
-- **Matching:** the workflow matches the `created` entries with the events the change adds by `id`, and refuses the
+- **Matching:** the workflow matches the entries with an `id` with the events the change adds, and refuses the
   change when they differ. The PR body names each by its record's title.
-- **A question:** `id` is `q<number>` from `q1`, unique in the whole report; `status` is `open`; `blocking` is `true`
-  when its answer changes what is published, else `false` (a note); `where` says what it is about; `proposal` is
-  optional.
+- **A question:** `blocking` is `true` when its answer changes what is published, else `false` (a note); `where`
+  says what it is about; `proposal` is optional. Write no `id` or `status`: the script numbers the questions and opens
+  them.
+- Write no `kind`: the workflow knows it.
 - Write no draft state or commit message: the script derives the PR's draft state from the open blocking questions
   and names the commit from the events.
 - The PR is public and the report fills its body: in **every** field, quote only what is published (the fields, the
   staged files' names and labels) and describe the rest of the mail without quoting it.
 
-Run `pnpm content-pr check --kind events <report file>` (the report file as the prompt gives it) until it passes. It
+Run `pnpm content-pr check --kind events --run <report file>` (the report file as the prompt gives it) until it
+passes. It
 prints `The report is valid.` or each issue as `<path>: <message>`; fix the report and run it again.

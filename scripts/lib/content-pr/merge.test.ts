@@ -21,7 +21,7 @@ function report(weeks: WeekEntry[], questions: Question[] = []): SheetReport {
 }
 
 function run(handled: WeekEntry, overrides: Partial<SheetRunReport> = {}): SheetRunReport {
-  return { kind: "sheet", week: handled, questions: [], questionUpdates: [], ...overrides };
+  return { week: handled, questions: [], questionUpdates: [], ...overrides };
 }
 
 describe("mergeSheetReport", () => {

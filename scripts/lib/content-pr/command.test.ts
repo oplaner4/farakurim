@@ -3,7 +3,15 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import type { Artifact, GitHubReader } from "../content-release/sources";
 import { freshTempDir, testGit } from "../test-helpers/files";
-import { fixResult, reportQuestion, reportWeek, sheetList, sheetReport, sheetRunReport } from "../test-helpers/reports";
+import {
+  fixResult,
+  reportQuestion,
+  reportWeek,
+  sheetList,
+  sheetRepo,
+  sheetReport,
+  sheetRunReport,
+} from "../test-helpers/reports";
 import { commitlintAccepts, execute, parseCommand, type Command } from "./command";
 
 describe("parseCommand", () => {
@@ -13,6 +21,12 @@ describe("parseCommand", () => {
       kind: "events",
       report: "r.json",
       run: false,
+    });
+    expect(parseCommand(["check", "--kind", "events", "--run", "r.json"])).toEqual({
+      action: "check",
+      kind: "events",
+      report: "r.json",
+      run: true,
     });
     expect(parseCommand(["check", "--kind", "sheet", "--run", "--previous", "p.json", "r.json"])).toEqual({
       action: "check",
@@ -78,9 +92,11 @@ describe("parseCommand", () => {
     expect(() => parseCommand(["apply", "--kind", "sheet", "--base", "b", "r.json", "c.patch"])).toThrow(
       "apply needs --out",
     );
-    expect(() => parseCommand(["check", "--kind", "events", "--run", "r.json"])).toThrow("--run takes --kind sheet");
+    expect(() => parseCommand(["check", "--kind", "events", "--run", "--previous", "p.json", "r.json"])).toThrow(
+      "--previous takes --run and --kind sheet",
+    );
     expect(() => parseCommand(["check", "--kind", "sheet", "--previous", "p.json", "r.json"])).toThrow(
-      "--previous takes --run",
+      "--previous takes --run and --kind sheet",
     );
     expect(() => parseCommand(["check", "--kind", "sheet", "--run", "--fix", "f.json", "r.json"])).toThrow(
       "--fix does not take --run",
@@ -141,23 +157,13 @@ describe("execute", () => {
     return join(dir(), file);
   };
 
-  /** The repo with an empty service sheet list committed on main; returns the list's path. */
-  function sheetRepo(): string {
-    const file = join(repo(), "src/content/service-sheets.json");
-    mkdirSync(join(repo(), "src/content"), { recursive: true });
-    writeFileSync(file, sheetList());
-    testGit(repo(), "init", "-q", "-b", "main");
-    testGit(repo(), "add", "-A");
-    testGit(repo(), "commit", "-q", "-m", "main");
-    return file;
-  }
-
-  it("checks a report and says it is valid, or fails with its issue", async () => {
+  it("checks a run's report with the change in the working tree, and says it is valid or fails with its issue", async () => {
+    sheetRepo(repo(), sheetList(), sheetList(WEEK_19));
     const good = json("run.json", sheetRunReport(WEEK_19));
     const check = { action: "check", kind: "sheet", run: true } as const;
     expect((await run({ ...check, report: good })).out).toEqual(["The report is valid."]);
-    const broken = json("broken.json", { ...sheetRunReport(WEEK_19), week: { ...WEEK_19, validTo: "2026-13-01" } });
-    await expect(run({ ...check, report: broken })).rejects.toThrow("week.validTo:");
+    const broken = json("broken.json", { ...sheetRunReport(WEEK_19), kind: "sheet" });
+    await expect(run({ ...check, report: broken })).rejects.toThrow("kind: set by the script: leave it out");
   });
 
   it("checks a fix's report against the original one", async () => {
@@ -177,7 +183,7 @@ describe("execute", () => {
   });
 
   it("applies a run and prints its result", async () => {
-    const file = sheetRepo();
+    const file = sheetRepo(repo(), sheetList());
     writeFileSync(file, sheetList(WEEK_19));
     const patch = join(dir(), "content.patch");
     writeFileSync(patch, `${testGit(repo(), "diff", "--binary", "HEAD")}\n`);
@@ -193,16 +199,14 @@ describe("execute", () => {
   });
 
   it("renders the body from report.json and what the content publishes against the base", async () => {
-    const file = sheetRepo();
+    const file = sheetRepo(repo(), sheetList());
     const announcements = [{ category: "info", html: "<p>Sbírka je na <strong>misie</strong>.</p>" }];
     const sheet = { validFrom: WEEK_19.validFrom, validTo: WEEK_19.validTo, days: [], announcements };
     writeFileSync(file, `${JSON.stringify({ sheets: [sheet] })}\n`);
     const report = json("report.json", sheetReport([WEEK_19]));
     const body = { action: "body", kind: "sheet", base: "main", report, runUrl: "u" } as const;
     const { out: lines } = await run({ ...body, fix: false });
-    expect(lines[0]).toMatch(
-      /^## 19\.–25\. 10\. 2026\nOutcome: created\n\nAnnouncements:\n- info: Sbírka je na misie\.\n\n---\n/,
-    );
+    expect(lines[0]).toMatch(/^## 19\.–25\. 10\. 2026\n\nAnnouncements:\n- info: Sbírka je na misie\.\n\n---\n/);
     expect(lines[0]).toMatch(/this run: u$/);
     const fixed = (await run({ ...body, fix: true })).out[0];
     expect(fixed).toMatch(/last correction: u$/);

@@ -1,10 +1,11 @@
-// Renders the JSON report of a content PR agent as the Markdown the PR body shows, with what the content publishes
-// (published.ts): one section per week (oldest first) or event, then, for events, the new venues and aliases, the
-// report-level questions and, for events, the dropped attachments.
+// Renders the JSON report of a content PR as the Markdown the PR body shows, with what the content publishes
+// (published.ts): one section per published week (oldest first, a correction marked in its heading) or event, then,
+// for events, the new venues and aliases, the items not published with why, the report-level questions and, for
+// events, the dropped attachments.
 
 import { NOTHING_PUBLISHED, type Published } from "./published";
-import { itemLabel, outcomeText } from "./report";
-import type { EventEntry, Question, Report, WeekEntry } from "./report-schema";
+import { isPublished, itemLabel, outcomeText } from "./report";
+import type { EventEntry, EventOutcome, Question, Report, WeekEntry, WeekOutcome } from "./report-schema";
 
 function questionLine({ id, blocking, status, where, text, proposal, answer }: Question): string {
   const parts = [`- **${id}** (${blocking ? "blocking" : "non-blocking"}, ${status}) ${where}: ${text}`];
@@ -24,30 +25,48 @@ function section(label: string, head: string[], body: string[], extra: string[][
 }
 
 function weekSection(label: string, week: WeekEntry, published: Published): string {
-  const head = [`Outcome: ${outcomeText(week.outcome)}`];
+  const heading = week.outcome.kind === "corrected" ? `${label} (correction)` : label;
   const note = week.senderNote?.length ? [["### Sender's note", ...week.senderNote.map((line) => `- ${line}`)]] : [];
-  return section(label, head, published.week(week), note, week.questions);
+  return section(heading, [], published.week(week), note, week.questions);
 }
 
 function eventSection(label: string, event: EventEntry): string {
-  const body = event.origin ? [event.origin] : [];
-  return section(label, [`Outcome: ${outcomeText(event.outcome)}`], body, [], event.questions);
+  return section(label, [], event.origin ? [event.origin] : [], [], event.questions);
 }
+
+type Unpublished = { label: string; outcome: WeekOutcome | EventOutcome; questions: Question[] };
+
+/** The items not published, one line each with why, and their questions below it. */
+const unpublishedSection = (items: Unpublished[]): string =>
+  [
+    "## Not published",
+    ...items.flatMap(({ label, outcome, questions }) => [
+      `- ${label}: ${outcomeText(outcome)}`,
+      ...questions.map((question) => `  ${questionLine(question)}`),
+    ]),
+  ].join("\n");
 
 /** The report as Markdown, with what the content publishes (`published`: nothing for a body without the content). */
 export function renderReport(report: Report, published: Published = NOTHING_PUBLISHED): string {
   const sections: string[] = [];
+  const unpublished: Unpublished[] = [];
   if (report.kind === "sheet") {
     report.weeks
-      .map((week, index) => ({ week, index }))
+      .map((week, index) => ({ week, label: itemLabel(report, index) }))
       .sort((a, b) => a.week.validFrom.localeCompare(b.week.validFrom))
-      .forEach(({ week, index }) => sections.push(weekSection(itemLabel(report, index), week, published)));
+      .forEach(({ week, label }) => {
+        if (isPublished(week.outcome)) sections.push(weekSection(label, week, published));
+        else unpublished.push({ label, ...week });
+      });
   } else {
-    report.events.forEach((event, index) =>
-      sections.push(eventSection(itemLabel(report, index, published.eventTitle), event)),
-    );
+    report.events.forEach((event, index) => {
+      const label = itemLabel(report, index, published.eventTitle);
+      if (isPublished(event.outcome)) sections.push(eventSection(label, event));
+      else unpublished.push({ label, ...event });
+    });
     if (published.venues.length > 0) sections.push(["## New venues and aliases", ...published.venues].join("\n"));
   }
+  if (unpublished.length > 0) sections.push(unpublishedSection(unpublished));
   if (report.questions.length > 0) sections.push(["## Questions", ...report.questions.map(questionLine)].join("\n"));
   if (report.kind === "events" && report.droppedAttachments.length > 0) {
     sections.push(["## Dropped attachments", ...report.droppedAttachments.map((line) => `- ${line}`)].join("\n"));

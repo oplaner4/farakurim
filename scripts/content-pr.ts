@@ -2,11 +2,13 @@
 // (service sheet, events) and the comment fix on a fresh checkout. The agent runs `check` on its own report (the
 // "Unattended run" and "Comment run" sections of the content skills); no skill uses the other actions.
 //
-// Every action reads the agent's JSON report (scripts/lib/content-pr/report-schema.ts). `check` reads it as `apply`
-// does and prints `The report is valid.`, or fails with each issue as `<path>: <message>`. With `--run`, the report is
-// a sheet mail run's (one week and its question updates), merged into the PR's report given by `--previous` (none on
-// the PR's first run); a previous report that is missing or that the schema refuses fails with "close the PR
-// and send the sheet or event again". `--fix` adds a comment fix's result (fix.json) beside the full report, and `--original` the PR's report the fix
+// Every action reads a JSON report: a stored one (scripts/lib/content-pr/report-schema.ts), or with `--run` the agent's
+// of a mail run (agent-report-schema.ts), which the script completes with what the change shows: the report's kind, a
+// published item's outcome, a published week's dates (from the working tree against HEAD) and the new questions' ids.
+// `check` reads it as `apply` does and prints `The report is valid.`, or fails with each issue as `<path>: <message>`.
+// A sheet run's report (one week and its question updates) is merged into the PR's report given by `--previous` (none
+// on the PR's first run); a previous report that is missing or that the schema refuses fails with "close the PR and
+// send the sheet or event again". `--fix` adds a comment fix's result (fix.json) beside the full report, and `--original` the PR's report the fix
 // corrected in place: the corrected one may differ from it only where a fix may change it (an open question resolved
 // with its answer; the origin of an event whose record the working tree changes against HEAD), else each difference
 // is an issue.
@@ -31,7 +33,7 @@
 // workflow passes in the environment (FETCHED, SUMMARY, HANDLED, JOB_RESULT, AGENT, DOWNLOAD, APPLY, CHANGED,
 // PR_OUTCOME, PR_ACTION, PR_URL; sheet: NO_DOCX, NO_WEEK, UNHANDLED, and WEEK_FROM, WEEK_TO, SKIPPED_FROM,
 // SKIPPED_TO for the DOCX's newest week a dated subject left out; events: INCOMPLETE, KNOWN_DKIM) and the report (a
-// full one, else a sheet run's on its own, else none), and fails when the maintainer must act without a PR to look
+// stored one, else the agent's on its own, else none), and fails when the maintainer must act without a PR to look
 // at: the left-out week counts only when nothing changed and the checkout's service sheets lack it.
 //
 // `newer-week` comments on the PR of PR_URL that the sheet mail run left out the DOCX's newest week (WEEK_FROM, WEEK_TO,
@@ -39,11 +41,11 @@
 // whether it is likely the week meant. Once per left-out week: a comment with its marker stays the only one. It
 // writes with GH_TOKEN for GITHUB_REPOSITORY.
 //
-// Usage: pnpm content-pr check --kind <sheet|events> [--run] [--previous <report.json>]
+// Usage: pnpm content-pr check --kind <sheet|events> [--run [--previous <report.json>]]
 //                              [--fix <fix.json> --original <report.json>] <report.json>
 //        pnpm --silent content-pr stored --pr <n>
-//        pnpm --silent content-pr apply --kind <sheet|events> --base <ref> --out <dir> [--run]
-//                                       [--previous <report.json>] [--fix <fix.json> --original <report.json>]
+//        pnpm --silent content-pr apply --kind <sheet|events> --base <ref> --out <dir> [--run [--previous <report.json>]]
+//                                       [--fix <fix.json> --original <report.json>]
 //                                       <report.json> <content.patch>
 //        pnpm --silent content-pr body --kind <sheet|events> --base <ref> --run-url <url> [--calendar <file>] [--fix]
 //                                      <report.json>
@@ -51,8 +53,8 @@
 //        pnpm --silent content-pr newer-week
 //
 // Options: --kind      the content of the PR: sheet (service sheets) or events
-//          --run       the report is a sheet mail run's, merged into --previous (sheet only)
-//          --previous  the PR's stored report, as `stored` finds it (with --run)
+//          --run       the report is the agent's of a mail run, a sheet's merged into --previous
+//          --previous  the PR's stored report, as `stored` finds it (with --run, sheet only)
 //          --fix       check, apply: a comment fix's result file; body: the body of a comment fix
 //          --original  check, apply: the PR's report the comment fix corrected (with --fix)
 //          --base      the ref whose merge base with HEAD the PR's facts are checked against, and the body's content

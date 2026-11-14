@@ -20,10 +20,10 @@ import { parseReport } from "./report-schema";
 import { storedReportOf } from "./stored";
 import { runStateFromEnv, summarize } from "./summary";
 
-const USAGE = `Usage: pnpm content-pr check --kind <sheet|events> [--run] [--previous <report.json>]
+const USAGE = `Usage: pnpm content-pr check --kind <sheet|events> [--run [--previous <report.json>]]
                              [--fix <fix.json> --original <report.json>] <report.json>
        pnpm content-pr stored --pr <n>
-       pnpm content-pr apply --kind <sheet|events> --base <ref> --out <dir> [--run] [--previous <report.json>]
+       pnpm content-pr apply --kind <sheet|events> --base <ref> --out <dir> [--run [--previous <report.json>]]
                              [--fix <fix.json> --original <report.json>] <report.json> <content.patch>
        pnpm content-pr body --kind <sheet|events> --base <ref> --run-url <url> [--calendar <file>] [--fix] <report.json>
        pnpm content-pr summary --kind <sheet|events> <report.json>
@@ -64,8 +64,9 @@ export function parseCommand(args: string[]): Command {
     report: string,
   ): ReportInput => {
     const input: ReportInput = { kind: kind(values.kind), report, run: values.run ?? false };
-    if (input.run && input.kind !== "sheet") throw new Error(`--run takes --kind sheet\n${USAGE}`);
-    if (values.previous !== undefined && !input.run) throw new Error(`--previous takes --run\n${USAGE}`);
+    if (values.previous !== undefined && !(input.run && input.kind === "sheet")) {
+      throw new Error(`--previous takes --run and --kind sheet\n${USAGE}`);
+    }
     if (values.fix !== undefined && input.run) throw new Error(`--fix does not take --run\n${USAGE}`);
     if ((values.fix === undefined) !== (values.original === undefined)) {
       throw new Error(`--fix and --original go together\n${USAGE}`);
@@ -175,7 +176,7 @@ const defaultIo: Io = {
 export async function execute(command: Command, io: Io = defaultIo): Promise<void> {
   switch (command.action) {
     case "check": {
-      const report = readReport(command);
+      const report = readReport(command)(io.cwd);
       readFix(command.fix);
       if (command.original !== undefined) checkFixReport(io.cwd, report, command.original);
       io.print("The report is valid.");

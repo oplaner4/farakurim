@@ -1,12 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  ReportError,
-  parseEventsReport,
-  parseFixResult,
-  parseReport,
-  parseSheetReport,
-  parseSheetRunReport,
-} from "./report-schema";
+import { issuesOf } from "../test-helpers/reports";
+import { ReportError, parseEventsReport, parseFixResult, parseReport, parseSheetReport } from "./report-schema";
 
 const question = { id: "q1", blocking: false, status: "open", where: "week 1", text: "Why?" };
 const week = {
@@ -30,16 +24,6 @@ const events = {
   questions: [],
   droppedAttachments: [],
 };
-
-function issuesOf(fn: () => unknown): string[] {
-  try {
-    fn();
-  } catch (error) {
-    if (error instanceof ReportError) return error.issues;
-    throw error;
-  }
-  throw new Error("did not throw");
-}
 
 describe("report schema", () => {
   it("parses a sheet report and an events report", () => {
@@ -103,18 +87,6 @@ describe("report schema", () => {
   it("rejects unknown keys", () => {
     const issues = issuesOf(() => parseSheetReport({ ...sheet, weeks: [{ ...week, Outcome: "created" }] }));
     expect(issues.join("\n")).toContain("Outcome");
-  });
-
-  it("parses a run report with question updates", () => {
-    const run = {
-      kind: "sheet",
-      week,
-      questions: [question],
-      questionUpdates: [{ id: "q2", status: "resolved", answer: "Yes" }],
-    };
-    expect(parseSheetRunReport(run)).toEqual(run);
-    const issues = issuesOf(() => parseSheetRunReport({ ...run, questionUpdates: [{ id: "q2", status: "done" }] }));
-    expect(issues[0]).toMatch(/^questionUpdates\.0\.status:/);
   });
 
   it("parses a fix result", () => {

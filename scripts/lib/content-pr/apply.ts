@@ -73,7 +73,7 @@ function checkFinalReport(input: ApplyInput, cwd: string, final: Report, changes
  */
 export function applyReport(input: ApplyInput, io: ApplyIo): void {
   const { kind, patch } = input;
-  const final = readReport(input);
+  const toReport = readReport(input);
   const fix = readFix(input.fix);
   const changed = hasChange(patch);
   if (fix && (fix.outcome === "changed") !== changed) {
@@ -87,7 +87,10 @@ export function applyReport(input: ApplyInput, io: ApplyIo): void {
     if (fix) fixChanges = contentChanges(io.cwd, kind, "HEAD");
   }
   const changes = contentChanges(io.cwd, kind, mergeBase(io.cwd, input.base));
+  let final: Report;
   try {
+    // A mail run's report is completed with what the patch changed, so only once it is applied.
+    final = toReport(io.cwd);
     checkFinalReport(input, io.cwd, final, changes, changed);
   } catch (error) {
     if (changed) git(io.cwd, "apply", "--reverse", patch);

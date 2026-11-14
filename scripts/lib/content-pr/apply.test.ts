@@ -2,7 +2,15 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { freshTempDir, testGit } from "../test-helpers/files";
-import { fixResult, reportQuestion, reportWeek, sheetList, sheetReport, sheetRunReport } from "../test-helpers/reports";
+import {
+  fixResult,
+  reportQuestion,
+  reportWeek,
+  sheetList,
+  sheetRepo,
+  sheetReport,
+  sheetRunReport,
+} from "../test-helpers/reports";
 import { VENUE_LIST, venueRecord } from "../test-helpers/venues";
 import { applyReport, type ApplyInput } from "./apply";
 
@@ -28,14 +36,8 @@ describe("applyReport", () => {
    * the PR branch's list to `patched` (no patch file without it).
    */
   function prRepo(main: string, pr: string, patched?: string): string {
-    const file = join(repo(), "src/content/service-sheets.json");
-    mkdirSync(join(repo(), "src/content"), { recursive: true });
-    writeFileSync(file, main);
-    testGit(repo(), "init", "-q", "-b", "main");
-    testGit(repo(), "add", "-A");
-    testGit(repo(), "commit", "-q", "-m", "main");
+    const file = sheetRepo(repo(), main, pr);
     testGit(repo(), "checkout", "-q", "-b", "pr");
-    writeFileSync(file, pr);
     testGit(repo(), "commit", "-q", "--allow-empty", "-am", "pr");
     const patch = join(dir(), "content.patch");
     if (patched !== undefined) {
@@ -95,13 +97,31 @@ describe("applyReport", () => {
     untouched();
   });
 
-  it("undoes a change the report does not give", () => {
+  it("undoes a change the report gives as not published", () => {
     const patch = prRepo(sheetList(), sheetList(), sheetList(WEEK_19));
-    const report = json("run.json", sheetRunReport(reportWeek("2026-10-12", "2026-10-18", { kind: "corrected" })));
+    const refused = reportWeek("2026-10-19", "2026-10-25", { kind: "refused", reason: "overlaps" });
+    const report = json("run.json", sheetRunReport(refused));
     expect(() => apply({ kind: "sheet", run: true, report, patch })).toThrow(
-      "the change holds the week 19.–25. 10. 2026, which the report does not give",
+      "week.outcome: the change holds the week 19.–25. 10. 2026, so it is published: leave out the outcome and dates",
     );
     untouched();
+  });
+
+  it("refuses a published week when the change holds none", () => {
+    const patch = prRepo(sheetList(), sheetList());
+    const report = json("run.json", sheetRunReport(WEEK_19));
+    expect(() => apply({ kind: "sheet", run: true, report, patch })).toThrow(
+      "week: a published week takes its dates from the change, which holds no week",
+    );
+  });
+
+  it("takes a published week's outcome from the change: corrected for a week the PR or main holds", () => {
+    const changedWeek = { validFrom: "2026-10-19", validTo: "2026-10-25", days: [{ date: "2026-10-19" }] };
+    const patch = prRepo(sheetList(), sheetList(WEEK_19), `${JSON.stringify({ sheets: [changedWeek] })}\n`);
+    const previous = json("previous.json", sheetReport([WEEK_19]));
+    const report = json("run.json", sheetRunReport(WEEK_19));
+    apply({ kind: "sheet", run: true, previous, report, patch });
+    expect(written()).toEqual(sheetReport([reportWeek("2026-10-19", "2026-10-25", { kind: "corrected" })]));
   });
 
   it("undoes a change when the report creates nothing", () => {
@@ -119,12 +139,11 @@ describe("applyReport", () => {
     writeFileSync(patch, `${testGit(repo(), "diff", "--binary", "HEAD")}\n`);
     testGit(repo(), "checkout", "-q", "--", ".");
     const report = json("report.json", {
-      kind: "events",
       events: [{ title: "Koncert", outcome: { kind: "refused", reason: "past" }, questions: [] }],
       questions: [],
       droppedAttachments: [],
     });
-    expect(() => apply({ kind: "events", run: false, report, patch })).toThrow(
+    expect(() => apply({ kind: "events", run: true, report, patch })).toThrow(
       "The report creates nothing, but the change is not empty: not applied.",
     );
     untouched();

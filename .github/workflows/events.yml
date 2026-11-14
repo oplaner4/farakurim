@@ -173,7 +173,7 @@ jobs:
             attachments/). Run parish-create-event unattended (its "Unattended run" section). The known events are
             ${{ runner.temp }}/event/known.json, the report file is ${{ runner.temp }}/event/report.json and the
             scratchpad is ${{ runner.temp }}/event. Run
-            `pnpm content-pr check --kind events ${{ runner.temp }}/event/report.json` until it passes. The skill
+            `pnpm content-pr check --kind events --run ${{ runner.temp }}/event/report.json` until it passes. The skill
             holds all the run needs: don't read README.md, docs/ or design/.
 
       # What `publish` needs, never the mail: the report, the change to src/content/news/ and the venue list against
@@ -251,7 +251,7 @@ jobs:
         run: |
           run="$RUNNER_TEMP/run"
           out="$RUNNER_TEMP/out"
-          if ! result=$(pnpm --silent content-pr apply --kind events --base origin/main --out "$out" \
+          if ! result=$(pnpm --silent content-pr apply --kind events --run --base origin/main --out "$out" \
             "$run/report.json" "$run/content.patch"); then
             echo "::error::The report or the change was not accepted (see above): the mail stays unread."
             exit 1

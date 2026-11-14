@@ -1,6 +1,7 @@
-// The schema of the JSON reports the content PR agents write: the service sheet report (a whole one and a single run's),
-// the events report and a comment fix's result. Every parse function checks a value against its schema and throws a
-// ReportError listing each issue as `<dotted path>: <message>`.
+// The schema of the stored JSON reports of the content PRs: the service sheet report and the events report (what
+// the agent of a mail run writes is agent-report-schema.ts's, completed into these by agent-report.ts), and a comment
+// fix's result. Every parse function checks a value against its schema and throws a ReportError listing each issue as
+// `<dotted path>: <message>`.
 //
 // The reports carry no version: a report is stored with its PR and read back by the PR's next run, so merge or close
 // every open content PR before changing this schema. A stored report the changed schema refuses fails that PR's next
@@ -20,10 +21,10 @@ export class ReportError extends Error {
   }
 }
 
-const isoDate = z.iso.date();
-const text = z.string();
+export const isoDate = z.iso.date();
+export const text = z.string();
 
-const questionSchema = z.strictObject({
+export const questionSchema = z.strictObject({
   id: z.string().regex(/^q[1-9]\d*$/),
   blocking: z.boolean(),
   status: z.enum(["open", "resolved"]),
@@ -33,7 +34,7 @@ const questionSchema = z.strictObject({
   answer: text.optional(),
 });
 
-const weekOutcomeSchema = z.discriminatedUnion("kind", [
+export const weekOutcomeSchema = z.discriminatedUnion("kind", [
   z.strictObject({ kind: z.literal("created") }),
   z.strictObject({ kind: z.literal("corrected") }),
   z.strictObject({ kind: z.literal("refused"), reason: text }),
@@ -55,13 +56,13 @@ const weekEntrySchema = z
   });
 
 /** An event's id, as the news records have it. */
-const eventId = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+export const eventId = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 
 /**
  * What became of an event: created (its record's id), or refused, as a correction or a duplicate of a known event (its
  * id, and for a duplicate where it is: main or an open PR's number), or by a script (the refusal's first line).
  */
-const eventOutcomeSchema = z.discriminatedUnion("kind", [
+export const eventOutcomeSchema = z.discriminatedUnion("kind", [
   z.strictObject({ kind: z.literal("created"), id: eventId }),
   z.strictObject({ kind: z.literal("correction"), of: eventId }),
   z.strictObject({
@@ -127,20 +128,11 @@ const sheetReportSchema = z
     checkUniqueQuestionIds(report, report.weeks, ctx);
   });
 
-const sheetRunReportSchema = z
-  .strictObject({
-    kind: z.literal("sheet"),
-    week: weekEntrySchema,
-    questions: z.array(questionSchema),
-    questionUpdates: z.array(
-      z.strictObject({
-        id: z.string().regex(/^q[1-9]\d*$/),
-        status: z.enum(["open", "resolved"]),
-        answer: text.optional(),
-      }),
-    ),
-  })
-  .superRefine((report, ctx) => checkUniqueQuestionIds(report, [report.week], ctx));
+export const questionUpdateSchema = z.strictObject({
+  id: z.string().regex(/^q[1-9]\d*$/),
+  status: z.enum(["open", "resolved"]),
+  answer: text.optional(),
+});
 
 const eventsReportSchema = z
   .strictObject({
@@ -162,21 +154,22 @@ export type Question = z.infer<typeof questionSchema>;
 export type WeekOutcome = z.infer<typeof weekOutcomeSchema>;
 export type WeekEntry = z.infer<typeof weekEntrySchema>;
 export type SheetReport = z.infer<typeof sheetReportSchema>;
-export type SheetRunReport = z.infer<typeof sheetRunReportSchema>;
+export type QuestionUpdate = z.infer<typeof questionUpdateSchema>;
+/** One sheet mail run's week and questions, complete (agent-report.ts), to merge into the PR's report. */
+export type SheetRunReport = { week: WeekEntry; questions: Question[]; questionUpdates: QuestionUpdate[] };
 export type EventOutcome = z.infer<typeof eventOutcomeSchema>;
 export type EventEntry = z.infer<typeof eventEntrySchema>;
 export type EventsReport = z.infer<typeof eventsReportSchema>;
 export type Report = SheetReport | EventsReport;
 export type FixResult = z.infer<typeof fixResultSchema>;
 
-function parseWith<T>(schema: z.ZodType<T>, value: unknown): T {
+export function parseWith<T>(schema: z.ZodType<T>, value: unknown): T {
   const result = schema.safeParse(value);
   if (result.success) return result.data;
   throw new ReportError(result.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`));
 }
 
 export const parseSheetReport = (value: unknown): SheetReport => parseWith(sheetReportSchema, value);
-export const parseSheetRunReport = (value: unknown): SheetRunReport => parseWith(sheetRunReportSchema, value);
 export const parseEventsReport = (value: unknown): EventsReport => parseWith(eventsReportSchema, value);
 export const parseFixResult = (value: unknown): FixResult => parseWith(fixResultSchema, value);
 
