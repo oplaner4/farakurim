@@ -145,8 +145,11 @@ signature. `.github/workflows/events.yml`
 3. lets the agent run `parish-create-event` unattended ("Unattended run"): it groups the attachments into events (one
    attachment is one event; related ones are one event with its poster and attachments; others it drops, described
    in the report), takes each title from the subject or its poster, fills the text from the attachments, pins only
-   when the mail asks for "Doporučujeme", and refuses a **correction** (oprava, změna, posun, přesun, zrušeno, nekoná,
-   …: make it with `parish-correct-event` or `parish-cancel-event`) and a **duplicate** of a known event;
+   when the mail asks for "Doporučujeme", and refuses a **correction** (make it with `parish-correct-event` or
+   `parish-cancel-event`) and a **duplicate** of a known event. Before it runs, `pnpm event-mail corrections` finds the
+   words that mark a correction (oprava, změna, přesun, zrušeno, nekoná, …) in the subject, the text and the PDF
+   attachments; the check then needs the report to answer them: an event refused as a correction, or a question
+   saying why the mail corrects none;
 4. checks the JSON report against the change and applies it only if it touches nothing but the news month files and the
    venue list, which may only gain venues and aliases (`pnpm content-pr apply`), then commits the new events as the GitHub App's bot (no test or build: [`check.yml`](github-setup.md#checks-on-content-prs) checks the
    PR) and opens **one PR per mail** on a branch

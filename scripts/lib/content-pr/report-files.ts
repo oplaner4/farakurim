@@ -9,6 +9,7 @@ import { completeAgentReport } from "./agent-report";
 import { parseAgentReport } from "./agent-report-schema";
 import { readSheetResult } from "../stage/sheet-result";
 import { contentChanges } from "./changes";
+import { readCorrectionWords } from "../news/correction-words";
 import { readKnownEvents } from "../news/known-events";
 import { checkRefusals } from "./refusals";
 import {
@@ -34,6 +35,8 @@ export type ReportInput = {
   run: boolean;
   previous?: string;
   known?: string;
+  /** The correction words of an events run's mail (pnpm event-mail corrections); an events run needs it. */
+  corrections?: string;
   /** The result file of the sheet run's stage runs (STAGE_RESULT); a sheet run needs it. */
   stageResult?: string;
   fix?: string;
@@ -53,10 +56,11 @@ function readPrevious(file: string): SheetReport {
  * Reads the report the input gives and returns what makes the full report of it in the checkout `cwd`: a stored one
  * as written; the agent's (`run`) completed with what the run changed there (the working tree against HEAD), a
  * sheet's week from its stage runs' result and merged into the previous report, an events one's refusals checked
- * against `known` and the site there. The files are checked at once, so one the schema refuses fails before
+ * against `known` and the site there, and answering the mail's correction words in `corrections`. The files are checked at once, so one the schema refuses fails before
  * anything is applied.
  */
-export function readReport({ kind, report, run, previous, known, stageResult }: ReportInput): (cwd: string) => Report {
+export function readReport(input: ReportInput): (cwd: string) => Report {
+  const { kind, report, run, previous, known, corrections, stageResult } = input;
   const value = readJsonRecord(report);
   if (!run) {
     const stored = parseReport(kind, value);
@@ -64,13 +68,16 @@ export function readReport({ kind, report, run, previous, known, stageResult }: 
   }
   const agent = parseAgentReport(kind, value);
   const before = previous === undefined ? undefined : readPrevious(previous);
-  const knownEvents = known === undefined ? undefined : readKnownEvents(known);
+  const refusals =
+    known === undefined || corrections === undefined
+      ? undefined
+      : { known: readKnownEvents(known), words: readCorrectionWords(corrections) };
   if (kind === "sheet" && stageResult === undefined) throw new Error("STAGE_RESULT is not set: a sheet run needs it");
   const result = stageResult === undefined ? undefined : readSheetResult(stageResult);
   return (cwd) => {
     const changes = kind === "sheet" ? contentChanges(cwd, kind, "HEAD") : undefined;
     const full = completeAgentReport(agent, { changes, result, previous: before });
-    if (full.kind === "events" && knownEvents) checkRefusals(full, knownEvents, cwd);
+    if (full.kind === "events" && refusals) checkRefusals(full, refusals, cwd);
     return full;
   };
 }

@@ -4,8 +4,9 @@ import { describe, expect, it } from "vitest";
 import { newsEvent } from "@/test/fixtures";
 import { freshTempDir } from "../test-helpers/files";
 import { issuesOf } from "../test-helpers/reports";
-import { checkRefusals, refusalIssues } from "./refusals";
-import type { EventOutcome, EventsReport } from "./report-schema";
+import { checkRefusals, CORRECTION_WORDS, correctionIssues, refusalIssues } from "./refusals";
+import type { CorrectionWord } from "../news/correction-words-schema";
+import type { EventOutcome, EventsReport, Question } from "./report-schema";
 
 const KNOWN = [
   { id: "pout-2026", where: "main" },
@@ -45,17 +46,36 @@ describe("refusalIssues", () => {
   });
 });
 
+describe("correctionIssues", () => {
+  const words: CorrectionWord[] = [
+    { where: "subject", kind: "move" },
+    { where: "attachment 2", kind: "cancellation" },
+  ];
+  const created = refusing({ kind: "created", id: "koncert-2026" });
+  const question: Question = { id: "q1", blocking: false, status: "open", where: CORRECTION_WORDS, text: "A repair." };
+
+  it("asks for an answer to the mail's correction words: an event refused as a correction, or a question", () => {
+    expect(correctionIssues(created, words)).toEqual([
+      "events: the mail has a word for a move in the subject, a word for a cancellation in attachment 2: refuse the " +
+        'event it corrects (outcome correction), or say why it corrects none in a report-level question whose where is "correction words"',
+    ]);
+    expect(correctionIssues(refusing({ kind: "correction", of: "koncert-2026" }), words)).toEqual([]);
+    expect(correctionIssues({ ...created, questions: [question] }, words)).toEqual([]);
+    expect(correctionIssues(created, [])).toEqual([]);
+  });
+});
+
 describe("checkRefusals", () => {
   const dir = freshTempDir("content-pr-refusals");
 
   it("checks against the known events and the site's records", () => {
     const correction = refusing({ kind: "correction", of: "hody-2025" });
-    expect(issuesOf(() => checkRefusals(correction, KNOWN, dir()))).toHaveLength(1);
+    expect(issuesOf(() => checkRefusals(correction, { known: KNOWN, words: [] }, dir()))).toHaveLength(1);
     mkdirSync(join(dir(), "src/content/news/2025"), { recursive: true });
     writeFileSync(
       join(dir(), "src/content/news/2025/10.json"),
       JSON.stringify([newsEvent({ id: "hody-2025", start: "2025-10-18" })]),
     );
-    expect(() => checkRefusals(correction, KNOWN, dir())).not.toThrow();
+    expect(() => checkRefusals(correction, { known: KNOWN, words: [] }, dir())).not.toThrow();
   });
 });

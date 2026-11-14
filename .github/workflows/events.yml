@@ -124,6 +124,16 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends poppler-utils
 
+      # Before the agent's step, into the artifact's folder (outside the agent's reach): where the mail (its subject,
+      # text and PDF attachments) holds a word that marks a correction of an event, never its text. The agent reads its
+      # own copy before it stages anything; `pnpm content-pr` checks this one: the report must answer each word, with
+      # an event refused as a correction or a question saying why the mail corrects none.
+      - name: Find the correction words
+        if: steps.fetch.outputs.mail != ''
+        run: |
+          pnpm --silent event-mail corrections "$RUNNER_TEMP/event/mail" --out "$RUNNER_TEMP/run/corrections.json"
+          cp "$RUNNER_TEMP/run/corrections.json" "$RUNNER_TEMP/event/corrections.json"
+
       # A new branch from main for each mail, named after its date (Prague time); a branch of the same name (an open or
       # closed PR's) gets a suffix.
       - name: Name the branch
@@ -171,9 +181,9 @@ jobs:
           prompt: |
             A sender mailed an event to the events mailbox: ${{ runner.temp }}/event/mail (subject.txt, body.txt,
             attachments/). Run parish-create-event unattended (its "Unattended run" section). The known events are
-            ${{ runner.temp }}/event/known.json, the report file is ${{ runner.temp }}/event/report.json and the
-            scratchpad is ${{ runner.temp }}/event. Run
-            `pnpm content-pr check --kind events --run --known ${{ runner.temp }}/event/known.json ${{ runner.temp }}/event/report.json`
+            ${{ runner.temp }}/event/known.json, the correction words ${{ runner.temp }}/event/corrections.json, the
+            report file is ${{ runner.temp }}/event/report.json and the scratchpad is ${{ runner.temp }}/event. Run
+            `pnpm content-pr check --kind events --run --known ${{ runner.temp }}/event/known.json --corrections ${{ runner.temp }}/run/corrections.json ${{ runner.temp }}/event/report.json`
             until it passes. The skill holds all the run needs: don't read README.md, docs/ or design/.
 
       # What `publish` needs, never the mail: the report, the change to src/content/news/ and the venue list against
@@ -251,8 +261,9 @@ jobs:
         run: |
           run="$RUNNER_TEMP/run"
           out="$RUNNER_TEMP/out"
-          if ! result=$(pnpm --silent content-pr apply --kind events --run --known "$run/known.json" --base origin/main \
-            --out "$out" "$run/report.json" "$run/content.patch"); then
+          if ! result=$(pnpm --silent content-pr apply --kind events --run --known "$run/known.json" \
+            --corrections "$run/corrections.json" --base origin/main --out "$out" "$run/report.json" \
+            "$run/content.patch"); then
             echo "::error::The report or the change was not accepted (see above): the mail stays unread."
             exit 1
           fi

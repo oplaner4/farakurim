@@ -10,8 +10,9 @@
 // on the PR's first run); a previous report that is missing or that the schema refuses fails with "close the PR and
 // send the sheet or event again". An events run's refused events are checked against the known events given by
 // `--known` (pnpm event-mail known): a duplicate must be of a known event where it says, a correction of a known event
-// or one on the site. `--fix` adds a comment fix's result (fix.json) beside the full report, and `--original` the PR's report the fix
-// corrected in place: the corrected one may differ from it only where a fix may change it (an open question resolved
+// or one on the site; and a mail with correction words (`--corrections`, pnpm event-mail corrections) needs an event
+// refused as a correction or a report-level question "correction words" saying why it corrects none. `--fix` adds a
+// comment fix's result (fix.json) beside the full report, and `--original` the PR's report the fix corrected in place: the corrected one may differ from it only where a fix may change it (an open question resolved
 // with its answer; the origin of an event whose record the working tree changes against HEAD), else each difference
 // is an issue.
 //
@@ -43,11 +44,13 @@
 // whether it is likely the week meant. Once per left-out week: a comment with its marker stays the only one. It
 // writes with GH_TOKEN for GITHUB_REPOSITORY.
 //
-// Usage: pnpm content-pr check --kind <sheet|events> [--run [--previous <report.json> | --known <known.json>]]
+// Usage: pnpm content-pr check --kind <sheet|events>
+//                              [--run [--previous <report.json> | --known <known.json> --corrections <words.json>]]
 //                              [--fix <fix.json> --original <report.json>] <report.json>
 //        pnpm --silent content-pr stored --pr <n>
 //        pnpm --silent content-pr apply --kind <sheet|events> --base <ref> --out <dir>
-//                                       [--run [--previous <report.json> | --known <known.json>]]
+//                                       [--run [--previous <report.json> | --known <known.json>
+//                                       --corrections <words.json>]]
 //                                       [--fix <fix.json> --original <report.json>]
 //                                       <report.json> <content.patch>
 //        pnpm --silent content-pr body --kind <sheet|events> --base <ref> --run-url <url> [--calendar <file>] [--fix]
@@ -59,6 +62,8 @@
 //          --run       the report is the agent's of a mail run, a sheet's merged into --previous
 //          --previous  the PR's stored report, as `stored` finds it (with --run, sheet only)
 //          --known     the known events, as `pnpm event-mail known` writes them (with --run, events only; required)
+//          --corrections  the mail's correction words, as `pnpm event-mail corrections` writes them (with --run,
+//                      events only; required)
 //          --fix       check, apply: a comment fix's result file; body: the body of a comment fix
 //          --original  check, apply: the PR's report the comment fix corrected (with --fix)
 //          --base      the ref whose merge base with HEAD the PR's facts are checked against, and the body's content

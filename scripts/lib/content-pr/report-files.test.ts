@@ -71,7 +71,7 @@ describe("report files", () => {
       expect(() => readReport({ kind: "events", report: sheet, run: false })).toThrow("kind:");
     });
 
-    it("checks an events run's refusals against the known events", () => {
+    it("checks an events run's refusals against the known events and its correction words", () => {
       const duplicate = { kind: "duplicate", of: "pout-2026", where: 12 };
       const report = json("events.json", {
         events: [{ title: "Pouť", outcome: duplicate, questions: [] }],
@@ -80,10 +80,17 @@ describe("report files", () => {
       });
       const pout = { id: "pout-2026", title: "Pouť", start: "2026-11-20", place: "Kuřim" };
       const known = json("known.json", [{ ...pout, where: 12 }]);
-      expect(readReport({ kind: "events", report, run: true, known })(dir())).toMatchObject({ kind: "events" });
+      const corrections = json("corrections.json", []);
+      expect(readReport({ kind: "events", report, run: true, known, corrections })(dir())).toMatchObject({
+        kind: "events",
+      });
       const elsewhere = json("elsewhere.json", [{ ...pout, where: "main" }]);
-      expect(() => readReport({ kind: "events", report, run: true, known: elsewhere })(dir())).toThrow(
+      expect(() => readReport({ kind: "events", report, run: true, known: elsewhere, corrections })(dir())).toThrow(
         "events.0.outcome.of: pout-2026 is no known event in PR #12, it is in main",
+      );
+      const moved = json("moved.json", [{ where: "subject", kind: "move" }]);
+      expect(() => readReport({ kind: "events", report, run: true, known, corrections: moved })(dir())).toThrow(
+        "events: the mail has a word for a move in the subject",
       );
     });
 

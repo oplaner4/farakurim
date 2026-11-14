@@ -23,12 +23,14 @@ describe("parseCommand", () => {
       report: "r.json",
       run: false,
     });
-    expect(parseCommand(["check", "--kind", "events", "--run", "--known", "k.json", "r.json"])).toEqual({
+    const events = ["check", "--kind", "events", "--run", "--known", "k.json", "--corrections", "c.json", "r.json"];
+    expect(parseCommand(events)).toEqual({
       action: "check",
       kind: "events",
       report: "r.json",
       run: true,
       known: "k.json",
+      corrections: "c.json",
     });
     expect(parseCommand(["check", "--kind", "sheet", "--run", "--previous", "p.json", "r.json"])).toEqual({
       action: "check",
@@ -99,6 +101,9 @@ describe("parseCommand", () => {
     );
     expect(() => parseCommand(["check", "--kind", "events", "--run", "r.json"])).toThrow(
       "--run with --kind events needs --known",
+    );
+    expect(() => parseCommand(["check", "--kind", "events", "--run", "--known", "k.json", "r.json"])).toThrow(
+      "--run with --kind events needs --corrections",
     );
     for (const args of [
       ["--kind", "events"],

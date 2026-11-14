@@ -23,11 +23,14 @@ Steps 1 to 6 of `parish-create-event` apply with these changes:
   and filled in from the attachments; never invent a fact. Without attachments, the event is the subject (its title)
   and the body (its text), with no poster and no warning (step 1's question is not asked).
 - **Pin:** `pinned` only when the mail asks for "Doporučujeme" in so many words.
-- **Refuse corrections.** A subject or body saying an event changes is a correction, whatever the form, with or
-  without diacritics: `oprav-` (oprava, opraveno), `změn-`/`mění` (změna, změněno, mění se), `upřesn-`, `aktualiz-`,
-  "nový termín/čas", `posun-`, `přesun-`/`přesouvá`, `odlož-`/`odkládá`, `zruš-`/`ruší` (zrušeno, zrušena), `nekoná`,
-  `odpadá`. Decide which event the word refers to (with one event, a word anywhere applies to it); that event is
-  refused (outcome `correction`), the others go ahead.
+- **Refuse corrections.** A mail (its subject, text or an attachment) saying an event already on the site changes,
+  moves, is cancelled or drops a meeting is a correction, whatever the form. Decide which event it refers to (with one
+  event, it applies to that one); that event is refused (outcome `correction`), the others go ahead. **Before you
+  stage anything**, read the correction words file the prompt names: each entry is a word that marks a correction,
+  its kind and where it is (`subject`, `text`, `attachment <n>`). Answer every entry: refuse the event it corrects,
+  or, when it corrects none ("oprava kostela", the repair a concert supports), say why in a report-level question
+  whose `where` is `correction words`. A staged event cannot be unstaged, so decide first; the check fails while an
+  entry is unanswered. The file finds words in text only: read image attachments yourself.
 - **Refuse duplicates.** Compare each event with the known-events file (`where`: `main` or an open PR's number): the
   same event under any title (same date, time and place, or the same poster) is refused (outcome `duplicate`). An
   uncertain match is a blocking question, not a refusal. A different event whose id is taken gets the date id the
