@@ -6,8 +6,11 @@
 // A failure restores src/content/ and removes the files it staged.
 //
 // Usage: pnpm add-exception <record.json | -> | --remove <YYYY-MM-DD> [--check]
-// --remove takes the change on that date out (an announcement withdrawn). --check only validates and prints what
-// would change, without writing.
+//        pnpm add-exception --draft <YYYY-MM-DD> --out <record.json>
+// --remove takes the change on that date out (an announcement withdrawn) and prints the regular services the day gets
+// back. --check only validates and prints what would change, without writing. --draft writes the record of that date
+// as it stands to edit: its change, or else its regular services (refused like an added record for a covered or past
+// date).
 import { runCommand } from "./lib/command";
 import { withContentRestore } from "./lib/content-files";
 import { execute, parseCommand } from "./lib/services/add-exception";
