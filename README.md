@@ -148,20 +148,19 @@ links, hooks, checking against the design) are in `.claude/rules/`.
 
 Content lives in `src/content/` and is added with the Claude Code project skills in `.claude/skills/`:
 
-| Skill                          | Adds                                                             |
-| ------------------------------ | ---------------------------------------------------------------- |
-| `parish-create-event`          | An event from a poster or PDF                                    |
-| `parish-correct-event`         | A corrected event (record, poster or attachment)                 |
-| `parish-cancel-event`          | A cancelled or postponed event, or a dropped meeting of a series |
-| `parish-pin-event`             | The "Doporučujeme" pin, moved to an existing event or removed    |
-| `parish-manage-venues`         | A venue or an alias, chosen for an event, added or changed       |
-| `parish-create-service-sheet`  | The weekly service sheet (the parish's DOCX or PDF)              |
-| `parish-correct-service-sheet` | A corrected service sheet (record, DOCX or PDF)                  |
-| `parish-create-exception`      | A change to the mass schedule on a day no service sheet covers   |
-| `parish-remove-exception`      | A withdrawn change to the mass schedule                          |
-| `parish-create-album`          | A Zonerama album (its zip downloaded or given)                   |
-| `parish-create-petrklic`       | A Petrklíč newsletter PDF                                        |
-| `parish-correct-petrklic`      | A corrected Petrklíč PDF or issue record                         |
+| Skill                          | Adds                                                                                          |
+| ------------------------------ | --------------------------------------------------------------------------------------------- |
+| `parish-create-event`          | An event from a poster or PDF                                                                 |
+| `parish-correct-event`         | A corrected event (record, poster or attachment)                                              |
+| `parish-cancel-event`          | A cancelled or postponed event, or a dropped meeting of a series                              |
+| `parish-pin-event`             | The "Doporučujeme" pin, moved to an existing event or removed                                 |
+| `parish-manage-venues`         | A venue or an alias, chosen for an event, added or changed                                    |
+| `parish-create-service-sheet`  | The weekly service sheet (the parish's DOCX or PDF)                                           |
+| `parish-correct-service-sheet` | A corrected service sheet (record, DOCX or PDF)                                               |
+| `parish-manage-exceptions`     | A change to the mass schedule on a day no service sheet covers, added, corrected or withdrawn |
+| `parish-create-album`          | A Zonerama album (its zip downloaded or given)                                                |
+| `parish-create-petrklic`       | A Petrklíč newsletter PDF                                                                     |
+| `parish-correct-petrklic`      | A corrected Petrklíč PDF or issue record                                                      |
 
 Each finishes with `parish-publish-content`, which commits and releases with `parish-release`.
 
