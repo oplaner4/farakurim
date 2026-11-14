@@ -1,6 +1,6 @@
-import * as z from "zod";
 import type { Album } from "@/content/types/gallery";
 import { galleryFileSchema } from "@/lib/gallery/schema";
+import { parseOrThrow } from "@/lib/shared/parse";
 import data from "./gallery.json";
 
 // The Fotogalerie albums (src/content/gallery.json, written by `pnpm add-album`, parish-create-album skill):
@@ -10,8 +10,7 @@ import data from "./gallery.json";
 /** The parish's profile on Zonerama, with the older albums. */
 export const GALLERY_URL = "https://www.zonerama.com/FarnostKurim/425053";
 
-const parsed = galleryFileSchema.safeParse(data);
-if (!parsed.success) throw new Error(`src/content/gallery.json is not valid:\n${z.prettifyError(parsed.error)}`);
+const parsed = parseOrThrow(galleryFileSchema, data, "src/content/gallery.json");
 
 /** Newest first. */
-export const albums: Album[] = parsed.data.albums;
+export const albums: Album[] = parsed.albums;

@@ -1,7 +1,7 @@
-import * as z from "zod";
 import type { PetrklicIssue } from "@/content/types/petrklic";
 import { pageImages, toIssue } from "@/lib/petrklic/issues";
 import { petrklicFileSchema } from "@/lib/petrklic/schema";
+import { parseOrThrow } from "@/lib/shared/parse";
 import data from "./petrklic.json";
 
 // The Petrklíč issues (src/content/petrklic.json, added by `pnpm stage petrklic`, parish-create-petrklic skill):
@@ -10,11 +10,10 @@ import data from "./petrklic.json";
 // issue, pages/<n>.webp, rendered from the PDF; the id and the URLs are computed (toIssue()). Checked on import, so a broken file fails the build naming
 // the field.
 
-const parsed = petrklicFileSchema.safeParse(data);
-if (!parsed.success) throw new Error(`src/content/petrklic.json is not valid:\n${z.prettifyError(parsed.error)}`);
+const parsed = parseOrThrow(petrklicFileSchema, data, "src/content/petrklic.json");
 
 /** Newest first; the first one is the current issue (aktuální číslo), with its pages for the viewer. */
-export const petrklicIssues: PetrklicIssue[] = parsed.data.issues.map((record, i) => {
+export const petrklicIssues: PetrklicIssue[] = parsed.issues.map((record, i) => {
   const issue = toIssue(record);
   return i === 0 ? { ...issue, pageImages: pageImages(issue) } : issue;
 });

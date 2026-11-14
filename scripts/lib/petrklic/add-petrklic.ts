@@ -6,7 +6,8 @@
 import type { PetrklicFile, PetrklicRecord } from "@/content/types/petrklic";
 import { isNewerIssue, issueId, issueLabel } from "@/lib/petrklic/issues";
 import { petrklicFileSchema, petrklicRecordSchema } from "@/lib/petrklic/schema";
-import { parseOrThrow, readJsonFile } from "@/lib/shared/json-file";
+import { readJsonFile } from "@/lib/shared/json-file";
+import { parseOrThrow } from "@/lib/shared/parse";
 import { actionVerb } from "../command";
 import { writeContentFile } from "../content-files";
 import { next, refusal } from "../output";

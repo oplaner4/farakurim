@@ -10,7 +10,7 @@ import type { IsoDate } from "@/content/types/shared";
 import { servicesOnDate } from "@/lib/services/masses";
 import { scheduleExceptionSchema } from "@/lib/services/schema";
 import { period, sheetCovering } from "@/lib/services/service-sheet";
-import { parseOrThrow } from "@/lib/shared/json-file";
+import { parseOrThrow } from "@/lib/shared/parse";
 import { pragueDate } from "@/lib/shared/prague";
 import { actionVerb, parseCommandLine, readJsonRecord } from "../command";
 import {

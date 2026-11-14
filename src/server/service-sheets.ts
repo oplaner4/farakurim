@@ -1,8 +1,8 @@
 import "server-only";
-import * as z from "zod";
 import data from "@/content/service-sheets.json";
 import type { ServiceSheet } from "@/content/types/services";
 import { serviceSheetsFileSchema } from "@/lib/services/schema";
+import { parseOrThrow } from "@/lib/shared/parse";
 import { toSheet } from "@/lib/services/service-sheet";
 
 // The service sheets (src/content/service-sheets.json, written by `pnpm stage sheet … --record`,
@@ -13,8 +13,7 @@ import { toSheet } from "@/lib/services/service-sheet";
 // Server-only: the whole file must not reach a client bundle, so client components get what they need as props, never
 // this module.
 
-const parsed = serviceSheetsFileSchema.safeParse(data);
-if (!parsed.success) throw new Error(`src/content/service-sheets.json is not valid:\n${z.prettifyError(parsed.error)}`);
+const parsed = parseOrThrow(serviceSheetsFileSchema, data, "src/content/service-sheets.json");
 
 /** The sheets, with the URLs of their PDFs (toSheet()). */
-export const serviceSheets: ServiceSheet[] = parsed.data.sheets.map(toSheet);
+export const serviceSheets: ServiceSheet[] = parsed.sheets.map(toSheet);

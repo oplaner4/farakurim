@@ -7,7 +7,7 @@ import { monthFile, readMonths } from "@/content/news";
 import type { NewsEvent } from "@/content/types/news";
 import { venues } from "@/content/venues";
 import { newsEventSchema } from "@/lib/news/schema";
-import { parseOrThrow } from "@/lib/shared/json-file";
+import { parseOrThrow } from "@/lib/shared/parse";
 import { pragueDate } from "@/lib/shared/prague";
 import { venueProblems } from "@/lib/venues/checks";
 import { venueNotes } from "../venues/match";

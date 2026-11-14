@@ -8,7 +8,7 @@ import { dirname, join } from "node:path";
 import { monthFile, readMonths } from "@/content/news";
 import type { NewsEvent } from "@/content/types/news";
 import { newsEventSchema } from "@/lib/news/schema";
-import { parseOrThrow } from "@/lib/shared/json-file";
+import { parseOrThrow } from "@/lib/shared/parse";
 import { pragueDate } from "@/lib/shared/prague";
 import { assertVenue, insertRecord, venueLines } from "./add-event";
 import { changedKeys, changedLine } from "../changes";

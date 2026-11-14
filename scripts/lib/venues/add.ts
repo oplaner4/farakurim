@@ -1,5 +1,6 @@
 import type { Position, Venue } from "@/content/types/venues";
-import { parseOrThrow, readJsonFile } from "@/lib/shared/json-file";
+import { readJsonFile } from "@/lib/shared/json-file";
+import { parseOrThrow } from "@/lib/shared/parse";
 import { positionMapHref } from "@/lib/shared/links";
 import { slug } from "@/lib/shared/slug";
 import { formatAddress } from "@/lib/shared/venues";

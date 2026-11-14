@@ -4,7 +4,7 @@ import { readEvents } from "@/content/news";
 import { nativitySeasons } from "@/content/nativity";
 import { contacts } from "@/content/site";
 import type { Venue, VenueId } from "@/content/types/venues";
-import { parseOrThrow } from "@/lib/shared/json-file";
+import { parseOrThrow } from "@/lib/shared/parse";
 import { positionMapHref } from "@/lib/shared/links";
 import { formatAddress } from "@/lib/shared/venues";
 import { venueFileSchema, venueSchema } from "@/lib/venues/schema";
