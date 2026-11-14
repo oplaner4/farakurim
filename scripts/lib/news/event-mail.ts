@@ -20,6 +20,7 @@ import type { Mailbox } from "../mail/imap";
 import { EVENT_SENDERS, judgeSender, type SenderVerdict } from "../mail/senders";
 import { mailStamp as stamp } from "../mail/stamp";
 import { mailText } from "../mail/text";
+import { mailCorrectionWords } from "./correction-words";
 import { addedIds, knownJson, loadKnownEvents, readKnownEvents, takenIds } from "./known-events";
 
 /** The attachment types handed on, each with the extension it is written under. */
@@ -125,10 +126,14 @@ export async function fetchEventMail(
 }
 
 export type EventMailCommand =
-  MailboxCommand | { action: "known"; out: string } | { action: "check-ids"; known: string };
+  | MailboxCommand
+  | { action: "known"; out: string }
+  | { action: "check-ids"; known: string }
+  | { action: "corrections"; mail: string; out: string };
 
 const USAGE = `Usage: pnpm event-mail fetch --out <dir> | file --processed <uid,…> --rejected <uid,…>
-       pnpm event-mail known --out <known.json> | check-ids <known.json>`;
+       pnpm event-mail known --out <known.json> | check-ids <known.json>
+       pnpm event-mail corrections <mail dir> --out <corrections.json>`;
 
 export function parseCommand(args: string[]): EventMailCommand {
   const { values, positionals } = parseCommandLine(args, MAILBOX_OPTIONS, USAGE);
@@ -136,6 +141,10 @@ export function parseCommand(args: string[]): EventMailCommand {
   if (action === "check-ids") {
     if (rest.length !== 1) throw new Error(`check-ids <known.json> takes one file\n${USAGE}`);
     return { action, known: rest[0] };
+  }
+  if (action === "corrections") {
+    if (rest.length !== 1 || !values.out) throw new Error(`corrections takes the mail's folder and --out\n${USAGE}`);
+    return { action, mail: rest[0], out: values.out };
   }
   if (rest.length) throw new Error(`unexpected argument ${rest[0]}\n${USAGE}`);
   if (action === "known") {
@@ -164,8 +173,14 @@ async function runKnownEvents(command: Extract<EventMailCommand, { action: "know
   if (taken.length) throw new Error(`an open events PR already holds ${taken.join(", ")}: not added`);
 }
 
-/** Runs `fetch` (the outcome as one JSON document on stdout), `file`, `known` or `check-ids`. */
+/** Runs `fetch` (the outcome as one JSON document on stdout), `file`, `known`, `check-ids` or `corrections`. */
 export async function execute(command: EventMailCommand): Promise<void> {
   if (command.action === "known" || command.action === "check-ids") return runKnownEvents(command);
+  if (command.action === "corrections") {
+    const words = mailCorrectionWords(command.mail);
+    writeFileSync(command.out, `${JSON.stringify(words, null, 2)}\n`);
+    console.error(`Wrote ${words.length} correction word(s)`);
+    return;
+  }
   return runMailboxCommand(command, (mailbox, out) => fetchEventMail(mailbox, out));
 }

@@ -90,7 +90,13 @@ describe("fetchEventMail", () => {
 
 // fetch and file are read by mailboxCommand() (scripts/lib/mail/command.test.ts); these check this command's own.
 describe("command line", () => {
-  it("reads known and check-ids beside the mailbox's actions", () => {
+  it("reads known, check-ids and corrections beside the mailbox's actions", () => {
+    expect(parseCommand(["corrections", "mail", "--out", "c.json"])).toEqual({
+      action: "corrections",
+      mail: "mail",
+      out: "c.json",
+    });
+    expect(() => parseCommand(["corrections", "mail"])).toThrow("corrections takes the mail's folder and --out");
     expect(parseCommand(["fetch", "--out", "x"])).toEqual({ action: "fetch", out: "x" });
     expect(parseCommand(["known", "--out", "k.json"])).toEqual({ action: "known", out: "k.json" });
     expect(parseCommand(["check-ids", "k.json"])).toEqual({ action: "check-ids", known: "k.json" });
