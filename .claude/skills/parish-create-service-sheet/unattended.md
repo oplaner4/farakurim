@@ -55,7 +55,7 @@ The run's week is already staged or published. The rules above and the report be
 `parish-correct-service-sheet` change:
 
 - It is a correction, always, even when nothing seems to differ: build the record from the draft as
-  `parish-create-service-sheet` step 2a says (not from the sheet), and stage it (with the prompt's `--from` and
+  `parish-create-service-sheet` step 2 says (not from the sheet), and stage it (with the prompt's `--from` and
   `--to` when it names the week), with `--corrected` when the script prints `state: published`. The script records
   the week as corrected.
 

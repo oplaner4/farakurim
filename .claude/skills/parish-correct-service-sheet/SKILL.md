@@ -19,12 +19,12 @@ cannot be corrected.
 Write `record.json` in the session's scratchpad (never in the repo) from the sheet: its `days` and `announcements`
 only, without `validFrom`, `validTo` and `rev` (the script sets them). Change only what is wrong:
 
-- a corrected PDF: compare it with the sheet, the way **`parish-create-service-sheet`** step 1 reads a PDF, and
+- a corrected PDF: compare it with the sheet, the way **`parish-create-service-sheet`**'s `pdf.md` reads a PDF, and
   take over every difference;
 - a corrected DOCX: draft the week (`pnpm stage-content sheet draft "<docx>" --from <validFrom> --to <validTo> --corrected
 --out <scratchpad>/draft.json`), compare the draft with the sheet and take over only the differences in the
   text, keeping the sheet's fixes (`<strong>`, categories, `newsId`); the draft is the only reading of the DOCX, as
-  **`parish-create-service-sheet`** step 1a says;
+  **`parish-create-service-sheet`** step 1 says;
 - a correction the user describes: change those rows or announcements.
 
 The fields follow **`parish-create-service-sheet`** step 2 (rows, `mass` and `service`, privacy, announcements).

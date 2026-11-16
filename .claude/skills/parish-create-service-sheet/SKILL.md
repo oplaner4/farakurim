@@ -12,17 +12,13 @@ Finish with **`parish-publish-content`**.
 
 ## 1. Read the source
 
-The user gives at least a file name; without a folder, look in `~/Downloads/`. The source is one of:
+The user gives at least a file name; without a folder, look in `~/Downloads/`. The source is **the DOCX** ("Pořad
+bohoslužeb 2026.docx"): the parish's Word file with every week of the year, the newest first. The script takes its
+newest week (`--from` and `--to` pick another), drafts the record from the week's table and announcements, and
+stages that week's page converted to PDF (Word on Windows, else LibreOffice).
 
-- **The DOCX** ("Pořad bohoslužeb 2026.docx", preferred): the parish's Word file with every week of the year, the
-  newest first. The script takes its newest week (`--from` and `--to` pick another), drafts the record from the
-  week's table and announcements, and stages that week's page converted to PDF (Word on Windows, else LibreOffice).
-  The DOCX holds a year of intentions with names: it never goes to `uploads/` or the repo, only the week's page does.
-- **A PDF of the week** (page 1 exported by the user), when there is no DOCX or no converter.
-
-Follow 1a or 1b.
-
-### 1a. From the DOCX
+With only a **PDF of the week** (no DOCX or no converter), read `pdf.md` beside this file
+(`.claude/skills/parish-create-service-sheet/pdf.md`): it replaces steps 1 and 2 up to "The fields".
 
 Draft the record (it also refuses a week before the current sheet or overlapping another). When it prints
 `state: staged` (the week was staged before) or refuses with `state: published` (the week is released), take it to
@@ -38,39 +34,24 @@ It prints the week, its days and the events an announcement can link (for `newsI
 the date, times that do not pair with the services, a table that does not start and end on the heading's dates)
 stops it with the week and day: ask the user what the document should say (its `ask:` line when it prints one), as
 the error is in their document. The draft
-is a starting point: step 2a says what to check in it.
+is a starting point: step 2 says what to check in it.
 
-The draft is your only reading of the DOCX: never open the DOCX yourself (no unzip, no conversion), as it holds the
-whole year's intentions with names. The draft keeps Word's bold and italic; what it cannot settle, ask the user.
-
-### 1b. From a PDF
-
-Read it with both:
-
-- the `Read` tool, to see the table (which rows belong to which day and place), and
-- `pdftotext -layout <file> -`, for exact wording. In the layout text a day's date and feast sit in the middle of
-  its rows and long intentions wrap onto the next line: use the rendered page to assign them.
-
-Read the **whole** page: the announcements are the paragraphs below the table.
-
-Get the week, its dates and the events for `newsId` (it refuses and names a week the same way as `sheet draft`):
-
-```sh
-pnpm stage-content sheet "<source>" --check
-```
+The DOCX holds the whole year's intentions with names: the draft is your only reading of it (never open it yourself:
+no unzip, no conversion), and only the week's page is staged, never the DOCX. The draft keeps Word's bold and italic;
+what it cannot settle, ask the user.
 
 ## 2. Extract the sheet
 
 The sheet is `record.json` in the session's scratchpad (never in the repo) with `days` and `announcements` only:
 `validFrom` and `validTo` come from the heading, and the script sets `rev` (the PDF's version, with `--corrected`).
-Follow 2a or 2b, then check the record against the fields below.
+Fix the draft, then check the record against the fields below.
 
-**Week**: the week `sheet draft` or `--check` printed from the heading (not part of the record): enter every date of it
+**Week**: the week `sheet draft` printed from the heading (not part of the record): enter every date of it
 in `days`. A heading can cover **two weeks** (around Christmas, Easter or a holiday): it is still **one**
 `ServiceSheet` with every day of both weeks, never split into two. Everything below that says "the week" means the
 sheet's whole period.
 
-### 2a. From the DOCX: fix the draft
+### Fix the draft
 
 `sheet draft` already wrote `record.json`. What it gets right: every date of the week (the days the table leaves out
 without rows), the rows in time order, `time` as `"8:00"`, `place` as the parish church's id, the `title` / `detail`
@@ -96,17 +77,6 @@ guesses or leaves out, so check each against the fields below and fix `record.js
 - `solemnity`: set for Sundays, a bold feast and "slavnost…". Add a solemnity the document did not make bold.
 - `<strong>`: only where the parish made the text bold. Add it to key dates and times that are not.
 - `newsId`: never set. Add it where an event matches (see "Finding `newsId`" below).
-
-### 2b. From a PDF: write the record
-
-Write `record.json` from scratch with the fields below, from the rendered page and the `pdftotext` wording:
-
-- Assign each row to its day and place from the rendered page: in the layout text the date and feast sit in the
-  middle of the day's rows.
-- Join the wrapped lines of a long intention into one `detail`.
-- Enter every day of the week, a day without services with `"rows": []`.
-- Copy the announcements below the table word for word, one per notice (grouped and listed as 2a's `html` says), and
-  add their `<strong>`, links and `newsId` yourself.
 
 ### The fields
 
@@ -184,8 +154,7 @@ never needs it.
 ## Common mistakes
 
 - Missing the announcements below the table, or summarising them: they are published word for word.
-- Assigning a row to the wrong day: the date sits in the middle of the day's rows in the layout text.
-- Leaving a wrapped intention cut in half, or splitting "Mše sv. – za …" into the wrong `title` / `detail`.
+- Splitting "Mše sv. – za …" into the wrong `title` / `detail`.
 - Leaving out a day or a mass of the week: during the sheet's week, what is not in `rows` does not take place.
 - Setting `changed` by hand on a mass outside the regular schedule (it is computed), or to express a cancellation:
   leaving the mass out is enough.
@@ -195,4 +164,3 @@ never needs it.
 - Putting `validFrom`, `validTo` or `rev` into `record.json`: the script reads the dates from the heading and sets
   `rev`.
 - Taking the DOCX draft as final: check every flag and category, and add the `<strong>` and `newsId` it cannot know.
-- Staging the DOCX itself, or copying it anywhere in the repo: only the week's PDF page is published.
