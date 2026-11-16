@@ -10,6 +10,10 @@ Steps 1 to 6 of `parish-create-event` apply with the changes below, in their ord
 waits: where a step asks or confirms with the user, it decides and writes a question into the report instead.
 **The report** below says how each decision is written.
 
+Run each command exactly as the skills and the prompt write it (`pnpm venue find …`, never `pnpm -s …` or another
+added flag): the run may run only those forms. A refused command means it was run in another form: run it as written,
+and never stop the run for it.
+
 ### Step 1: the source
 
 - **The source** is the prompt's mail folder: `subject.txt`, `body.txt` (the mail's new text) and `attachments/`. One

@@ -23,7 +23,8 @@ only, without `validFrom`, `validTo` and `rev` (the script sets them). Change on
   take over every difference;
 - a corrected DOCX: draft the week (`pnpm stage-content sheet draft "<docx>" --from <validFrom> --to <validTo> --corrected
 --out <scratchpad>/draft.json`), compare the draft with the sheet and take over only the differences in the
-  text, keeping the sheet's fixes (`<strong>`, categories, `newsId`);
+  text, keeping the sheet's fixes (`<strong>`, categories, `newsId`); the draft is the only reading of the DOCX, as
+  **`parish-create-service-sheet`** step 1a says;
 - a correction the user describes: change those rows or announcements.
 
 The fields follow **`parish-create-service-sheet`** step 2 (rows, `mass` and `service`, privacy, announcements).

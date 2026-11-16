@@ -13,6 +13,10 @@ confirms with the user (step 3, a document error, the placeholder dots, a `tell:
 writes a question into the report instead. **The report** below says how each decision is written. The scratchpad is
 the one the prompt gives (`record.json`, `draft.json`; write nothing in the repo).
 
+Run each command exactly as the skills and the prompt write it (`pnpm stage-content sheet …`, never `pnpm -s …` or
+another added flag): the run may run only those forms. A refused command means it was run in another form: run it as
+written, and never stop the run for it.
+
 ### The prompt's inputs
 
 - The prompt may give the **previous report** of the open PR as `previous-report.json`; the run then works on that

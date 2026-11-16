@@ -40,6 +40,9 @@ stops it with the week and day: ask the user what the document should say (its `
 the error is in their document. The draft
 is a starting point: step 2a says what to check in it.
 
+The draft is your only reading of the DOCX: never open the DOCX yourself (no unzip, no conversion), as it holds the
+whole year's intentions with names. The draft keeps Word's bold and italic; what it cannot settle, ask the user.
+
 ### 1b. From a PDF
 
 Read it with both:

@@ -10,6 +10,9 @@ change and what is out of bounds.
 - **Input:** the prompt's folder holds `comment.md` (the maintainer's instruction, the only request), `report.json` (the
   PR's full JSON report) and maybe `check.md` (a failed check). The scratchpad and the report file are the prompt's;
   write nothing in the repo besides what the scripts stage. It never asks and never waits.
+- **Commands:** run each exactly as the skills and the prompt write it (`pnpm replace-event …`, never `pnpm -s …` or
+  another added flag): the run may run only those forms. A refused command means it was run in another form: run it as
+  written, and never stop the run for it.
 - **Facts:** the comment is the maintainer's instruction, so a fact in it is made as asked; when no document has the
   fact, the reply says the site will then differ from the parish's document.
 - **Check first:** run each correction command with `--check` before it writes, without asking for confirmation, and
