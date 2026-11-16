@@ -58,22 +58,14 @@ without rows), the rows in time order, `time` as `"8:00"`, `place` as the parish
 split at " – ", the announcements word for word with Word's bold and italic kept and addresses linked. What it
 guesses or leaves out, so check each against the fields below and fix `record.json` in place:
 
-- `html`: one announcement per empty paragraph in the document, so the parish's formatting
-  can split or clutter one. Fix each to read as one notice:
-  - Merge what belongs together: a lead-in ending with a colon ("Svatební ohlášky:", "Zpovídá se:") with its items
-    and closing line, and a letter (greeting, paragraphs, signature) into one announcement.
-  - Turn lines that list items ("▪ 1. a 2. třída: …", "– ve čtvrtek 3. 6. …", one confession time per line) into
-    `<ul><li>…</li></ul>` after the lead-in's `<p>`, without the bullet characters.
-  - Drop paragraphs without words ("%") and editorial markers ("[V Kuřimi:]"), keeping the wording otherwise.
+- `html`: one announcement per empty paragraph in the document, so the parish's formatting can split or clutter one:
+  regroup them as "One notice per announcement" below says.
 - `category`: guessed from keywords, `info` when none fits. Check every announcement.
-- `mass`: set for "mše" or "vigilie" in the title, in any place ("Mše sv. – pohřeb …" too). Check a mass named
-  otherwise.
-- `service`: set for "adorace", "modlit…", "novéna" or "obřady" anywhere in the title, and for any row with
-  "bohoslužba" or "pobožnost", in any place. Add it to any other mass-like public service.
-- `feast`: lowercased from capitals, keeping the first word, saints' names after "sv." and names such as Páně, Boží,
-  Panny Marie. A cell's names are joined by " – " ("Uvedení Páně do chrámu – Hromnice"), and so are a day's feasts
-  from its later rows ("Slavnost posvěcení kostela – 28. neděle v mezidobí"); a wrapped name is guessed from the
-  lines' case. Fix an unusual feast's case or split.
+- `mass`: set for "mše" or "vigilie" in the title ("Mše sv. – pohřeb …" too). Check a mass named otherwise.
+- `service`: set for "adorace", "modlit…", "novéna", "obřady", "bohoslužba" or "pobožnost" in the title. Check it
+  against the mass-like services below.
+- `feast`: lowercased by the script; a wrapped name's case and the split of a day's several names are guessed. Fix an
+  unusual one.
 - `solemnity`: set for Sundays, a bold feast and "slavnost…". Add a solemnity the document did not make bold.
 - `<strong>`: only where the parish made the text bold. Add it to key dates and times that are not.
 - `newsId`: never set. Add it where an event matches (see "Finding `newsId`" below).
@@ -86,8 +78,12 @@ guesses or leaves out, so check each against the fields below and fix `record.js
 | ----------- | ------------------------------------------------------------------------------------------------------ |
 | `date`      | ISO date of the row's "30. 11."                                                                        |
 | `feast`     | The feast in sentence case: "1. NEDĚLE ADVENTNÍ" → `"1. neděle adventní"`, `"sv. František Xaverský"`. |
-| `solemnity` | `true` for Sundays and solemnities ("Slavnost …").                                                     |
+| `solemnity` | `true` for Sundays, solemnities ("Slavnost …") and a feast the parish makes bold.                      |
 | `rows`      | The day's services in time order.                                                                      |
+
+**Feast names** keep the capitals of saints' names after "sv." and of names such as Páně, Boží, Panny Marie. A day's
+several names are joined by " – ": a cell's ("Uvedení Páně do chrámu – Hromnice") and the feasts of its later rows
+("Slavnost posvěcení kostela – 28. neděle v mezidobí").
 
 **Rows** (`SheetRow`):
 
@@ -112,6 +108,14 @@ guesses or leaves out, so check each against the fields below and fix `record.js
 | `category` | `change` ("nebude", "přesouvá"), `confession` ("zpovídá", "svátost smíření"), `invitation` ("zveme", "pouť", "koncert"), `thanks` ("děkujeme"), `info` (anything else: "sbírka"). |
 | `html`     | `<p>…</p>`, a list as `<ul><li>`; key dates and times in `<strong>`; e-mails as `<a href="mailto:…">`, web addresses as links.                                                    |
 | `newsId`   | The `id` of the matching event, if there is one (adds "Více v aktualitách"; finding it: below).                                                                                   |
+
+**One notice per announcement:**
+
+- Merge what belongs together: a lead-in ending with a colon ("Svatební ohlášky:", "Zpovídá se:") with its items and
+  closing line, and a letter (greeting, paragraphs, signature) into one announcement.
+- Turn lines that list items ("▪ 1. a 2. třída: …", "– ve čtvrtek 3. 6. …", one confession time per line) into
+  `<ul><li>…</li></ul>` after the lead-in's `<p>`, without the bullet characters.
+- Drop paragraphs without words ("%") and editorial markers ("[V Kuřimi:]"), keeping the wording otherwise.
 
 **Finding `newsId`**: take it from the `Events for newsId` list step 1 printed (the events not ended two weeks
 before the week, in start order): match an announcement of an event by its title, place or date (a pilgrimage on 19. 12. → `pout-lukov-trebic-2026`). With no clear match, leave `newsId` out: never guess, never search

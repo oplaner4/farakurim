@@ -32,8 +32,7 @@ step 2 of `parish-create-service-sheet` says (a heading over two weeks is still 
   middle of the day's rows.
 - Join the wrapped lines of a long intention into one `detail`.
 - Enter every day of the week, a day without services with `"rows": []`.
-- Copy the announcements below the table word for word, one per notice (grouped and listed as "Fix the draft" says
-  for `html`), and add their `<strong>`, links and `newsId` yourself.
+- Copy the announcements below the table word for word, one per notice (as "One notice per announcement" says), and add their `<strong>`, links and `newsId` yourself.
 
 Then check the record against "The fields" and continue with step 3 of `parish-create-service-sheet`.
 
