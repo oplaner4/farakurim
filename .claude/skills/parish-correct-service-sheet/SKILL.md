@@ -17,13 +17,21 @@ cannot be corrected.
 ## 2. Write the corrected record
 
 Write `record.json` in the session's scratchpad (never in the repo) from the sheet: its `days` and `announcements`
-only, without `validFrom`, `validTo` and `rev` (the script sets them). Change only what is wrong:
+only, without `validFrom`, `validTo` and `rev` (the script sets them). Change only what is wrong.
 
-- a corrected PDF: compare it with the sheet, the way **`parish-create-service-sheet`**'s `pdf.md` reads a PDF, and
-  take over every difference;
-- a corrected DOCX: draft the week (`pnpm stage-content sheet draft "<docx>" --from <validFrom> --to <validTo> --corrected
---out <scratchpad>/draft.json`), compare the draft with the sheet and take over only the differences in the
-  text, keeping the sheet's fixes (`<strong>`, categories, `newsId`); the draft is the only reading of the DOCX, as
+With a corrected PDF or DOCX, draft its week first (with a DOCX, also `--from` and `--to` when the week is not its
+newest). The draft goes to `draft.json`, never to `record.json`, which holds the sheet. It also lists the events a new
+announcement can link (for `newsId`).
+
+```sh
+pnpm stage-content sheet draft "<source>" --corrected --out <scratchpad>/draft.json
+```
+
+- a corrected PDF: the draft holds only the week's days, as the script does not read the PDF's table. Read the PDF
+  as **`parish-create-service-sheet`**'s `pdf.md` step 1 says (the rendered page and `pdftotext -layout`, without
+  its draft command), compare it with the sheet and take over every difference;
+- a corrected DOCX: compare the draft with the sheet and take over only the differences in the text, keeping the
+  sheet's fixes (`<strong>`, categories, `newsId`); the draft is the only reading of the DOCX, as
   **`parish-create-service-sheet`** step 1 says;
 - a correction the user describes: change those rows or announcements.
 
@@ -71,6 +79,8 @@ Only when the prompt says the run is **unattended**: read `.claude/skills/parish
 - Editing a sheet in `service-sheets.json` by hand instead of rerunning the command with a corrected record.
 - Rewriting the whole record from the PDF and losing earlier fixes (a category, a `newsId`): start
   from the sheet.
+- Drafting to `record.json` (as `pdf.md` step 1 does for a new week): the draft overwrites the record built from the
+  sheet. Draft to `draft.json`.
 - Leaving out `--corrected` with a corrected PDF or DOCX.
 - Putting `validFrom`, `validTo` or `rev` into `record.json`: the script reads the dates from the heading and sets
   `rev`.
