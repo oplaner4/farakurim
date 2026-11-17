@@ -10,8 +10,10 @@ describe("runStage", { timeout: 30_000 }, () => {
 
   it("parses each command's arguments", async () => {
     const source = download("porad.pdf", "%PDF");
-    const { lines } = await runStage(env, ["sheet", source, "--from", "2099-10-04", "--to", "2099-10-11", "--check"]);
-    expect(lines[0]).toBe("Would stage uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf");
+    const out = join(env.home, "draft.json");
+    const week = ["--from", "2099-10-04", "--to", "2099-10-11"];
+    const { lines } = await runStage(env, ["sheet", "draft", source, ...week, "--out", out]);
+    expect(lines[0]).toBe(`Wrote the draft record of 2099-10-04 – 2099-10-11 to ${out}`);
 
     const sheetFile = join(env.home, "sheet.json");
     writeFileSync(
@@ -82,9 +84,6 @@ describe("runStage", { timeout: 30_000 }, () => {
     );
     await expect(runStage(env, ["sheet", "draft", "a.docx", "--record", "r.json"])).rejects.toThrow("wrong arguments");
     await expect(runStage(env, ["sheet", "draft", "a.docx"])).rejects.toThrow("sheet draft needs --out");
-    await expect(runStage(env, ["sheet", "draft", "a.pdf", "--out", "d.json"])).rejects.toThrow(
-      "a draft is read from the parish's DOCX",
-    );
     await expect(runStage(env, ["petrklic", "a.pdf", "--year", "2026", "--number", "1", "--rev", "2"])).rejects.toThrow(
       "Unknown option '--rev'",
     );

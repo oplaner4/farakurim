@@ -1,12 +1,16 @@
 // The week of a service sheet, read from its heading ("ROZPIS BOHOSLUŽEB V TÝDNU od 4. 10. 2026 do 11. 10. 2026")
-// in the PDF or the DOCX.
+// in the PDF or the DOCX, and its days.
 
+import type { SheetDay } from "@/content/types/services";
 import type { IsoDate } from "@/content/types/shared";
 import { period } from "@/lib/services/service-sheet";
-import { isIsoDate } from "@/lib/shared/prague";
+import { isIsoDate, pragueWeekday } from "@/lib/shared/prague";
 
 /** The days a service sheet covers, from its heading. */
 export type Week = { validFrom: IsoDate; validTo: IsoDate };
+
+/** The day `date` without services, as a draft starts it: a Sunday is a solemnity. */
+export const emptyDay = (date: IsoDate): SheetDay => ({ date, solemnity: pragueWeekday(date) === 0, rows: [] });
 
 /** The newest of `weeks` (the latest start): the DOCX's week when none is named. */
 export const newestWeek = <W extends Week>(weeks: W[]): W | undefined =>

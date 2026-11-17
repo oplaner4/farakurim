@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { draftSheet, stageSheet, weekDays } from "./sheet";
+import { draftSheet, stageSheet, type DraftOptions } from "./sheet";
 import { readSheetResult } from "./sheet-result";
 import { addEvent } from "../news/add-event";
 import { errorMessage } from "../command";
@@ -20,31 +20,32 @@ vi.mock("../images", async (importOriginal) => {
   return { ...actual, pdfPageTexts: vi.fn(actual.pdfPageTexts), extractPdfPages: vi.fn(actual.extractPdfPages) };
 });
 
-describe("weekDays", () => {
-  it("lists every day with its Czech weekday", () => {
-    const days = weekDays("2026-10-04", "2026-10-11");
-    expect(days).toHaveLength(8);
-    expect(days.slice(0, 2)).toEqual(["ne 2026-10-04", "po 2026-10-05"]);
-    expect(days.at(-1)).toBe("ne 2026-10-11");
-  });
-});
-
 describe("stageSheet", { timeout: 30_000 }, () => {
   const { env, status, download, uploaded, fetchMock } = useStageFixture();
+  const draftPath = () => join(env.home, "draft.json");
+  /** Drafts the week of `options` to draft.json. */
+  const draft = (options: Omit<DraftOptions, "out">) => draftSheet(env, { ...options, out: draftPath() });
+  const recordRequired =
+    "--record is required, also with --check\nnext: write the draft record with `pnpm stage-content sheet draft` first";
 
-  it("lists the week's days with check and refuses to stage without a record", async () => {
+  it("drafts a PDF's week with its days only, and refuses to stage or check without a record", async () => {
     const source = download("porad.pdf", "%PDF");
     const week = { source, validFrom: "2099-10-04", validTo: "2099-10-11" };
     // The real news copied into the temp folder add the events after the header: assert up to it.
-    expect((await stageSheet(env, { ...week, check: true })).lines.slice(0, 4)).toEqual([
-      "Would stage uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf",
-      '  validFrom: "2099-10-04",\n  validTo: "2099-10-11",',
-      `days: ${weekDays("2099-10-04", "2099-10-11").join(", ")}`,
+    expect((await draft(week)).lines.slice(0, 3)).toEqual([
+      `Wrote the draft record of 2099-10-04 – 2099-10-11 to ${draftPath()}`,
+      "next: fill each day's feast and rows, and the announcements, from the PDF",
       "Events for newsId (not ended by 2099-09-20):",
     ]);
-    await expect(stageSheet(env, week)).rejects.toThrow(
-      "--record is required to stage the PDF\nnext: pass --record, or --check to check without staging",
-    );
+    const drafted = JSON.parse(readFileSync(draftPath(), "utf8"));
+    expect(drafted.days).toHaveLength(8);
+    expect(drafted.days.slice(0, 2)).toEqual([
+      { date: "2099-10-04", solemnity: true, rows: [] },
+      { date: "2099-10-05", solemnity: false, rows: [] },
+    ]);
+    expect(drafted.announcements).toEqual([]);
+    await expect(stageSheet(env, week)).rejects.toThrow(recordRequired);
+    await expect(stageSheet(env, { ...week, check: true })).rejects.toThrow(recordRequired);
     expect(existsSync(uploaded("porady_bohosluzeb"))).toBe(false);
   });
 
@@ -55,7 +56,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     addEvent(env.newsDir, { ...event, id: "dozinky-2099", title: "Dožínky", start: "2099-09-19" });
     const week = { source: download("porad.pdf", "%PDF"), validFrom: "2099-10-04", validTo: "2099-10-11" };
     // In start order, after the real long-term events without an end; Dožínky ended before 2099-09-20.
-    expect((await stageSheet(env, { ...week, check: true })).lines.slice(-2)).toEqual([
+    expect((await draft(week)).lines.slice(-2)).toEqual([
       "  hody-2099: Hody, 2099-09-20–2099-09-21, Lukov",
       "  pout-2099: Pouť do Lukova, 2099-10-10, Lukov",
     ]);
@@ -64,26 +65,24 @@ describe("stageSheet", { timeout: 30_000 }, () => {
   it("hints at --corrected when the week is published", async () => {
     const source = download("porad.pdf", "%PDF");
     status(200);
-    await expect(
-      stageSheet(env, { source, validFrom: "2099-10-04", validTo: "2099-10-11", check: true }),
-    ).rejects.toThrow("already exists on the server\nstate: published\nnext: pass --corrected for a corrected PDF");
+    await expect(draft({ source, validFrom: "2099-10-04", validTo: "2099-10-11" })).rejects.toThrow(
+      "already exists on the server\nstate: published\nnext: pass --corrected for a corrected PDF",
+    );
   });
 
   it("refuses a period that is not one or two weeks, and a file that is not a PDF or a DOCX", async () => {
     const source = download("porad.pdf", "%PDF");
-    await expect(
-      stageSheet(env, { source, validFrom: "2026-10-04", validTo: "2026-11-04", check: true }),
-    ).rejects.toThrow("the period 2026-10-04 – 2026-11-04 looks wrong\nnext: pass --from and --to");
-    await expect(stageSheet(env, { source: download("porad.txt", "x"), check: true })).rejects.toThrow(
-      "is a PDF or a DOCX",
+    await expect(draft({ source, validFrom: "2026-10-04", validTo: "2026-11-04" })).rejects.toThrow(
+      "the period 2026-10-04 – 2026-11-04 looks wrong\nnext: pass --from and --to",
     );
+    await expect(draft({ source: download("porad.txt", "x") })).rejects.toThrow("is a PDF or a DOCX");
   });
 
   it.skipIf(!hasPoppler)("reads the week from the PDF heading", async () => {
     const source = download("porad.pdf", pdfWithText(["Porad bohosluzeb od 4. 10. do 11. 10. 2099"]));
-    expect((await stageSheet(env, { source, check: true })).lines[1]).toContain('validFrom: "2099-10-04"');
+    expect((await draft({ source })).lines[0]).toContain("draft record of 2099-10-04 – 2099-10-11");
     const blank = download("prazdny.pdf", pdfWithText(["Farnost Kurim"]));
-    await expect(stageSheet(env, { source: blank, check: true })).rejects.toThrow("no 'od … do …' week");
+    await expect(draft({ source: blank })).rejects.toThrow("no 'od … do …' week");
   });
   /** A record covering 2099-10-04 – 2099-10-11, after every real sheet, so the tests keep passing. */
   const record = () => ({
@@ -117,9 +116,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     const fixed = download("porad oprava.pdf", "%PDF fixed");
     await expect(
       stageSheet(env, { source: fixed, validFrom: "2099-10-04", validTo: "2099-10-11", corrected: true }),
-    ).rejects.toThrow(
-      "--record is required to stage the PDF\nnext: pass --record, or --check to check without staging",
-    );
+    ).rejects.toThrow(recordRequired);
     const { lines } = await stageSheet(env, { ...week, source: fixed, corrected: true });
     expect(lines[0]).toBe("Staged uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb-r2.pdf");
     expect(lines[1]).toBe("Replaced the sheet 2099-10-04 – 2099-10-11 with rev 2");
@@ -134,19 +131,19 @@ describe("stageSheet", { timeout: 30_000 }, () => {
     );
   });
 
-  it("refuses a week before the current sheet, even without a record and once published", async () => {
+  it("refuses a week before the current sheet, also for a draft and once published", async () => {
     const source = download("porad.pdf", "%PDF");
     const week = { source, validFrom: "2000-01-02", validTo: "2000-01-09" };
     const before = "the sheet 2000-01-02 – 2000-01-09 is before the current sheet";
-    await expect(stageSheet(env, { ...week, check: true })).rejects.toThrow(before);
+    await expect(draft(week)).rejects.toThrow(before);
     await expect(stageSheet(env, { ...week, record: record() })).rejects.toThrow(before);
     // Not the --corrected hint for its PDF on the server, nor "no sheet" with --corrected.
     status(200);
-    await expect(stageSheet(env, { ...week, check: true })).rejects.toThrow(before);
-    await expect(stageSheet(env, { ...week, corrected: true, check: true })).rejects.toThrow(before);
+    await expect(draft(week)).rejects.toThrow(before);
+    await expect(draft({ ...week, corrected: true })).rejects.toThrow(before);
   });
 
-  it("refuses a week overlapping a sheet, even without a record", async () => {
+  it("refuses a week overlapping a sheet, also for a draft", async () => {
     await stageSheet(env, {
       source: download("porad.pdf", "%PDF"),
       validFrom: "2099-10-04",
@@ -154,24 +151,23 @@ describe("stageSheet", { timeout: 30_000 }, () => {
       record: record(),
     });
     const source = download("porad 2.pdf", "%PDF other");
-    await expect(
-      stageSheet(env, { source, validFrom: "2099-10-07", validTo: "2099-10-14", check: true }),
-    ).rejects.toThrow("2099-10-07 – 2099-10-14 starts before 2099-10-04 – 2099-10-11 ends");
+    await expect(draft({ source, validFrom: "2099-10-07", validTo: "2099-10-14" })).rejects.toThrow(
+      "2099-10-07 – 2099-10-14 starts before 2099-10-04 – 2099-10-11 ends",
+    );
     // Sharing the boundary Sunday is fine.
-    await expect(
-      stageSheet(env, { source, validFrom: "2099-10-11", validTo: "2099-10-18", check: true }),
-    ).resolves.toBeDefined();
+    await expect(draft({ source, validFrom: "2099-10-11", validTo: "2099-10-18" })).resolves.toBeDefined();
   });
 
   it("says a week already there is replaced by its record, unless --corrected", async () => {
     const week = { source: download("porad.pdf", "%PDF"), validFrom: "2099-10-04", validTo: "2099-10-11" };
-    expect((await stageSheet(env, { ...week, check: true })).lines).toHaveLength(5);
+    const plain = (await draft(week)).lines;
     await stageSheet(env, { ...week, record: record() });
-    expect((await stageSheet(env, { ...week, check: true })).lines.slice(-2)).toEqual([
+    expect((await draft(week)).lines).toEqual([
+      ...plain,
       "state: staged",
       "next: start the record from the staged sheet to keep its fixes; --record replaces it",
     ]);
-    expect((await stageSheet(env, { ...week, corrected: true, check: true })).lines).toHaveLength(5);
+    expect((await draft({ ...week, corrected: true })).lines).toEqual(plain);
   });
 
   it("refuses --corrected for a week not in service-sheets.json", async () => {
@@ -220,40 +216,32 @@ describe("stageSheet", { timeout: 30_000 }, () => {
   };
 
   /**
-   * Drafts the newest week of the DOCX `source` (2099-10-04 – 2099-10-11); returns its draft's path and the lines,
-   * checked up to the page it would stage.
+   * Drafts the newest week of the DOCX `source` (2099-10-04 – 2099-10-11); returns its draft's path, checked up to
+   * the events it lists.
    */
   async function draftNewestWeek(source: string) {
-    const draft = join(env.home, "draft.json");
-    const { lines } = await draftSheet(env, { source, out: draft });
+    const { lines } = await draft({ source });
     expect(lines.slice(0, 3)).toEqual([
-      `Wrote the draft record of 2099-10-04 – 2099-10-11 to ${draft}`,
+      `Wrote the draft record of 2099-10-04 – 2099-10-11 to ${draftPath()}`,
       "tell: Days without services: 2099-10-05, 2099-10-06, 2099-10-07, 2099-10-08, 2099-10-09, 2099-10-10",
-      "Would stage uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf",
+      "Events for newsId (not ended by 2099-09-20):",
     ]);
-    return { draft, lines };
+    return { draft: draftPath() };
   }
 
   it("asks a DOCX without a record for a draft first", async () => {
-    await expect(stageSheet(env, { source: yearDocx() })).rejects.toThrow(
-      "--record is required to stage the week's page\nnext: write the draft record with `pnpm stage-content sheet draft` first (or only print the week with --check)",
-    );
+    await expect(stageSheet(env, { source: yearDocx() })).rejects.toThrow(recordRequired);
   });
 
   it("refuses a DOCX without a week's heading", async () => {
     const source = download("Pořad bohoslužeb 2099.docx", docxWithBody(wordml.p("Ohlášky farnosti")));
-    await expect(stageSheet(env, { source, check: true })).rejects.toThrow(
-      "no 'ROZPIS BOHOSLUŽEB … od … do …' heading in the DOCX",
-    );
+    await expect(draft({ source })).rejects.toThrow("no 'ROZPIS BOHOSLUŽEB … od … do …' heading in the DOCX");
   });
 
-  it("refuses a draft of a PDF, and a DOCX week it does not have", async () => {
-    const pdf = download("porad.pdf", "%PDF");
-    const out = join(env.home, "draft.json");
-    await expect(draftSheet(env, { source: pdf, out })).rejects.toThrow("a draft is read from the parish's DOCX");
-    await expect(
-      stageSheet(env, { source: yearDocx(), validFrom: "2099-10-18", validTo: "2099-10-25", check: true }),
-    ).rejects.toThrow("no week 2099-10-18 – 2099-10-25 in the DOCX; it has 2099-10-04 – 2099-10-11, 2099-09-27");
+  it("refuses a DOCX week it does not have", async () => {
+    await expect(draft({ source: yearDocx(), validFrom: "2099-10-18", validTo: "2099-10-25" })).rejects.toThrow(
+      "no week 2099-10-18 – 2099-10-25 in the DOCX; it has 2099-10-04 – 2099-10-11, 2099-09-27",
+    );
   });
 
   it.skipIf(!hasSoffice || !hasPoppler)(
@@ -318,12 +306,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
 
     it("drafts the newest week and stages only its page", async () => {
       const source = yearDocx();
-      const { draft, lines } = await draftNewestWeek(source);
-      expect(lines.slice(3, 6)).toEqual([
-        '  validFrom: "2099-10-04",\n  validTo: "2099-10-11",',
-        `days: ${weekDays("2099-10-04", "2099-10-11").join(", ")}`,
-        "Events for newsId (not ended by 2099-09-20):",
-      ]);
+      const { draft } = await draftNewestWeek(source);
       expect(JSON.parse(readFileSync(draft, "utf8")).days[0].rows).toEqual([
         { time: "8:00", place: "kurim", title: "Mše sv.", detail: "za farníky", mass: true },
       ]);
@@ -342,17 +325,15 @@ describe("stageSheet", { timeout: 30_000 }, () => {
 
     it("names the DOCX's newest week when --from and --to name an older one, and only then", async () => {
       const source = yearDocx();
-      const older = { source, validFrom: "2099-09-27", validTo: "2099-10-04", check: true };
+      const older = { source, validFrom: "2099-09-27", validTo: "2099-10-04" };
       const note = "tell: Not the DOCX's newest week: its newest, 2099-10-04 – 2099-10-11, is left out of this run;";
-      expect((await stageSheet(env, older)).lines[0]).toBe(`${note} it is not staged yet`);
-      const newest = { source, validFrom: "2099-10-04", validTo: "2099-10-11", check: true };
-      expect((await stageSheet(env, newest)).lines[0]).toBe(
-        "Would stage uploads/porady_bohosluzeb/2099-10-04-porad-bohosluzeb.pdf",
-      );
+      expect((await draft(older)).lines[0]).toBe(`${note} it is not staged yet`);
+      const newest = { source, validFrom: "2099-10-04", validTo: "2099-10-11" };
+      expect((await draft(newest)).lines[0]).toMatch(/^Wrote the draft record/);
 
       // Once the newest week is there, the note says so.
       await stageSheet(env, { source, record: record() });
-      expect((await stageSheet(env, older)).lines[0]).toBe(
+      expect((await draft(older)).lines[0]).toBe(
         `${note} it is already staged, and this DOCX's version of it is not checked`,
       );
     });
@@ -369,7 +350,8 @@ describe("stageSheet", { timeout: 30_000 }, () => {
         "ROZPIS BOHOSLUŽEB V TÝDNU od 9. 1. 2000 do 16. 1. 2000",
         "ROZPIS BOHOSLUŽEB V TÝDNU od 2. 1. 2000 do 9. 1. 2000",
       ]);
-      const refusal = stageSheet(env, { source, validFrom: "2000-01-02", validTo: "2000-01-09", check: true });
+      const week = { source, validFrom: "2000-01-02", validTo: "2000-01-09" };
+      const refusal = stageSheet(env, { ...week, record: record(), check: true });
       // Printed once: the note's tell: line ends the message, with nothing of the refusal repeated after it.
       const error = await refusal.catch((e: unknown) => e);
       expect(errorMessage(error)).toBe((error as Error).message);
@@ -384,7 +366,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
       const withResult = { ...env, result: file };
       const week = { validFrom: "2099-10-04", validTo: "2099-10-11" };
       const source = yearDocx();
-      await stageSheet(withResult, { source, check: true });
+      await stageSheet(withResult, { source, record: record(), check: true });
       expect(readSheetResult(file)).toBeUndefined();
       await draftSheet(withResult, { source, out: join(env.home, "draft.json") });
       expect(readSheetResult(file)).toEqual({ ...week, result: "drafted" });
@@ -442,7 +424,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
 
     it("refuses a converted document whose pages lack the week's heading", async () => {
       vi.mocked(pdfPageTexts).mockImplementation(() => ["Mše sv. – za farníky"]);
-      await expect(stageSheet(env, { source: yearDocx(), check: true })).rejects.toThrow(
+      await expect(draft({ source: yearDocx() })).rejects.toThrow(
         "no page of the converted DOCX has the heading of 2099-10-04 – 2099-10-11",
       );
     });

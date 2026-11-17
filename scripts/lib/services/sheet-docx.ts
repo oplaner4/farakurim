@@ -18,7 +18,7 @@ import { period, periodDates } from "@/lib/services/service-sheet";
 import { ask, refusal } from "../output";
 import { feastCase } from "./sheet-feast";
 import { guessCategory, serviceFlags } from "./sheet-guess";
-import { weekHeading, type Week } from "./sheet-week";
+import { emptyDay, weekHeading, type Week } from "./sheet-week";
 
 /** A sheet record without its week: the days and announcements. */
 export type DraftRecord = {
@@ -133,7 +133,7 @@ function tableDay(dateCell: string[], dates: IsoDate[], where: string): SheetDay
   if (dateCell[1] && dateCell[1].toLocaleLowerCase("cs") !== weekday.toLocaleLowerCase("cs")) {
     throw new Error(`${where}: ${dateCell[0]} is marked "${dateCell[1]}", but ${date} is "${weekday}"`);
   }
-  return { date, solemnity: pragueWeekday(date) === 0, rows: [] };
+  return emptyDay(date);
 }
 
 /**
@@ -210,9 +210,7 @@ function tableDays(rows: Cell[][], week: Week): SheetDay[] {
   }
   for (const day of days) day.rows.sort((a, b) => clockMinutes(a.time) - clockMinutes(b.time));
   // A two-week sheet leaves out the days without services; the sheet lists every day, those with no rows.
-  return dates.map(
-    (date) => days.find((d) => d.date === date) ?? { date, solemnity: pragueWeekday(date) === 0, rows: [] },
-  );
+  return dates.map((date) => days.find((d) => d.date === date) ?? emptyDay(date));
 }
 
 /** A week's heading, its table and its announcements, each the paragraphs up to an empty one. */

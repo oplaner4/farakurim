@@ -1,15 +1,15 @@
 // Stages a service sheet PDF as porady_bohosluzeb/<validFrom>-porad-bohosluzeb[-r<rev>].pdf, with the
-// week read from its heading ("od 4. 10. 2026 do 11. 10. 2026"), and adds the sheet to src/content/service-sheets.json
-// (addServiceSheet()); without a record it only checks and prints the week. The week is checked against the sheets
-// first, with or without a record: one before the current sheet or overlapping another is refused, and one already
-// there is named. The sheet stores the rev, so a rerun keeps it and a corrected PDF gets the next one. The source can
-// also be the parish's DOCX of the whole year: then the week is its newest one (or the one --from names, and the DOCX's
-// newer week is named, also in a refusal), its PDF that week's page of the converted document, and its draft record is
-// read from the week's table and announcements.
-// Without a record it also lists the events an announcement can link, so the newsIds need no search of the news.
-// draftSheet() is that check on a DOCX that also writes the week's draft record. With a result file (StageEnv.result), a
-// draft or staging run writes what it did with its week (sheet-result.ts): drafted, staged, refused, or a document
-// error when the parish's DOCX cannot be read.
+// week read from its heading ("od 4. 10. 2026 do 11. 10. 2026"), and adds the sheet (the record) to
+// src/content/service-sheets.json (addServiceSheet()). The week is checked against the sheets first: one before the
+// current sheet or overlapping another is refused. The sheet stores the rev, so a rerun keeps it and a corrected PDF
+// gets the next one. The source can also be the parish's DOCX of the whole year: then the week is its newest one (or
+// the one --from names, and the DOCX's newer week is named, also in a refusal) and its PDF that week's page of the
+// converted document.
+// draftSheet() runs the same checks without a record and stages nothing: it writes the week's draft record (read from
+// the DOCX's table and announcements; for a PDF every day of the week without services, to fill from the PDF), names
+// a week already there and lists the events an announcement can link, so the newsIds need no search of the news.
+// With a result file (StageEnv.result), a draft or staging run writes what it did with its week (sheet-result.ts):
+// drafted, staged, refused, or a document error when the parish's DOCX cannot be read.
 
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -17,8 +17,7 @@ import { extname, join } from "node:path";
 import { addDays } from "date-fns";
 import { readEvents } from "@/content/news";
 import type { IsoDate } from "@/content/types/shared";
-import { WEEKDAY_SHORT } from "@/lib/shared/czech";
-import { inPrague, pragueDate, pragueDateTime, pragueWeekday } from "@/lib/shared/prague";
+import { inPrague, pragueDate, pragueDateTime } from "@/lib/shared/prague";
 import { period, periodDates, periodLength, sheetPdfFile } from "@/lib/services/service-sheet";
 import {
   addServiceSheet,
@@ -31,25 +30,12 @@ import { writeContentFile } from "../content-files";
 import { writeSheetResult } from "./sheet-result";
 import type { SheetResult } from "./sheet-result-schema";
 import { docxToPdf } from "../services/docx-to-pdf";
-import { docxWeeks, type DocxWeek } from "../services/sheet-docx";
-import { newestWeek, parseWeek, weekPages } from "../services/sheet-week";
+import { docxWeeks, type DocxWeek, type DraftRecord } from "../services/sheet-docx";
+import { emptyDay, newestWeek, parseWeek, weekPages } from "../services/sheet-week";
 import { eventLine, notEndedBy } from "../news/upcoming-events";
 import { next, refusal, refusalReason, state, tell } from "../output";
-import {
-  correctedHint,
-  correctedRev,
-  MAX_MB,
-  RECORD_OR_CHECK,
-  sourceFile,
-  stage,
-  stagedLine,
-  type StageEnv,
-} from "./core";
+import { correctedHint, correctedRev, MAX_MB, sourceFile, stage, stagedLine, type StageEnv } from "./core";
 import { extractPdfPages, pdfFirstPageText, pdfPageTexts } from "../images";
-
-/** Every date from `validFrom` to `validTo` with its Czech weekday: "so 2026-10-03". */
-export const weekDays = (validFrom: IsoDate, validTo: IsoDate) =>
-  periodDates(validFrom, validTo).map((date) => `${WEEKDAY_SHORT[pragueWeekday(date)].toLowerCase()} ${date}`);
 
 export type SheetOptions = {
   /** The PDF or DOCX. */
@@ -64,7 +50,7 @@ export type SheetOptions = {
 };
 
 export type DraftOptions = Omit<SheetOptions, "record" | "check"> & {
-  /** Where to write the DOCX week's draft record. */
+  /** Where to write the week's draft record. */
   out: string;
 };
 
@@ -160,11 +146,17 @@ async function sheetRev(env: StageEnv, validFrom: string, corrected: boolean): P
   return correctedRev(env, current.rev, (r) => sheetPdfFile({ validFrom, rev: r }));
 }
 
-/** The lines printing the week and its days, for a check without a record. */
-const weekLines = ({ validFrom, validTo, rev }: { validFrom: string; validTo: string; rev?: number }) => [
-  `  validFrom: "${validFrom}",\n  validTo: "${validTo}",${rev ? `\n  rev: ${rev},` : ""}`,
-  `days: ${weekDays(validFrom, validTo).join(", ")}`,
-];
+/** A PDF week's draft record: every day of the week without services, and no announcements. */
+const pdfDraft = (week: Week): DraftRecord => ({
+  days: periodDates(week.validFrom, week.validTo).map(emptyDay),
+  announcements: [],
+});
+
+/** Writes `draft`, the draft record of `week`, to `out`; returns the line saying so. */
+function writeDraft(out: string, week: Week, draft: DraftRecord) {
+  writeContentFile(out, draft);
+  return `Wrote the draft record of ${period(week)} to ${out}`;
+}
 
 /** How long before the week an event may have ended and still be announced (a thanks for it). */
 const NEWS_DAYS_BEFORE = 14;
@@ -195,8 +187,17 @@ async function sourceWeek(
 ): Promise<{ pdf: string; week: Week; lines: string[] }> {
   if (!isDocx(src)) {
     if (extname(src).toLowerCase() !== ".pdf") throw new Error("the service sheet is a PDF or a DOCX");
-    known.week = pdfWeek(src, options);
-    return { pdf: src, week: known.week, lines: [] };
+    const week = pdfWeek(src, options);
+    known.week = week;
+    // The script cannot read the PDF's table: the draft holds only the week's days.
+    const lines =
+      options.draft === undefined
+        ? []
+        : [
+            writeDraft(options.draft, week, pdfDraft(week)),
+            next("fill each day's feast and rows, and the announcements, from the PDF"),
+          ];
+    return { pdf: src, week, lines };
   }
   const { week: docxSheet, newer } = await docxWeek(src, options);
   const week = { validFrom: docxSheet.validFrom, validTo: docxSheet.validTo };
@@ -207,8 +208,7 @@ async function sourceWeek(
   // Written before the conversion, so the draft is there to check even without a converter.
   if (options.draft !== undefined) {
     const draft = await fromDocument(() => docxSheet.draft());
-    writeContentFile(options.draft, draft);
-    lines.push(`Wrote the draft record of ${period(week)} to ${options.draft}`);
+    lines.push(writeDraft(options.draft, week, draft));
     const empty = draft.days.filter((day) => day.rows.length === 0).map((day) => day.date);
     if (empty.length > 0) lines.push(tell(`Days without services: ${empty.join(", ")}`));
   }
@@ -216,32 +216,26 @@ async function sourceWeek(
 }
 
 const isDocx = (src: string) => extname(src).toLowerCase() === ".docx";
-
 /**
- * Writes the draft record of the DOCX's week (its newest, or the one --from and --to name) to `out`, read from its
- * table and announcements, and prints what a check prints; stages nothing. Returns the lines to print.
+ * Writes the week's draft record to `out`: the DOCX's week (its newest, or the one --from and --to name) read from its
+ * table and announcements, or the PDF's week without services. Checks the week as staging does, stages nothing and
+ * prints the events its announcements can link. Returns the lines to print.
  */
 export async function draftSheet(env: StageEnv, { out, ...options }: DraftOptions) {
-  if (!isDocx(options.source)) throw new Error("a draft is read from the parish's DOCX, not a PDF");
   return runSheet(env, { ...options, draft: out, check: true });
 }
 
 /**
- * Stages the weekly PDF (or the week's page of the DOCX) and adds its sheet (the record); without a record, `check`
- * only prints the week, its days and the events its announcements can link. Returns the lines to print and the files
- * written.
+ * Stages the weekly PDF (or the week's page of the DOCX) and adds its sheet (the record); with `check` it only
+ * validates the record. Returns the lines to print and the files written.
  */
 export async function stageSheet(env: StageEnv, options: SheetOptions) {
   // A PDF staged without its sheet would go to the server with nothing linking it, and take the week's name there.
-  if (!options.record && !options.check) {
-    throw isDocx(options.source)
-      ? refusal(
-          "--record is required to stage the week's page",
-          next(
-            "write the draft record with `pnpm stage-content sheet draft` first (or only print the week with --check)",
-          ),
-        )
-      : refusal("--record is required to stage the PDF", next(RECORD_OR_CHECK));
+  if (!options.record) {
+    throw refusal(
+      "--record is required, also with --check",
+      next("write the draft record with `pnpm stage-content sheet draft` first"),
+    );
   }
   return runSheet(env, options);
 }
@@ -282,7 +276,7 @@ async function runSheetWeek(env: StageEnv, options: RunOptions, known: Known) {
   try {
     const { pdf, week, lines } = await sourceWeek(env, src, options, dir, known);
     const { validFrom, validTo } = week;
-    // Refuses a week before the current sheet or overlapping another before anything else, even without a record.
+    // Refuses a week before the current sheet or overlapping another before anything else, also for a draft.
     const there = placeSheet<SheetWeek>(readServiceSheets(env.serviceSheetsFile).sheets, week).replaced;
     const rev = await sheetRev(env, validFrom, corrected);
     const rel = sheetPdfFile({ validFrom, rev });
@@ -294,15 +288,15 @@ async function runSheetWeek(env: StageEnv, options: RunOptions, known: Known) {
     }
     // Each conversion writes a new file, so a DOCX's page replaces the one staged before (never one on the server).
     await stage(env, pdf, rel, check, correctedHint(), corrected || pdf !== src);
-    lines.push(stagedLine(check, rel));
-    if (!options.record) {
+    if (options.draft !== undefined) {
       // Past the server check, so the week is not released: a record replaces its sheet, as a correction does.
       const note =
         there && !corrected
           ? [state("staged"), next("start the record from the staged sheet to keep its fixes; --record replaces it")]
           : [];
-      return { lines: [...lines, ...weekLines(sheet), ...newsLines(env.newsDir, validFrom), ...note], written: [] };
+      return { lines: [...lines, ...newsLines(env.newsDir, validFrom), ...note], written: [] };
     }
+    lines.push(stagedLine(check, rel));
     if (check) return { lines, written: [] };
     const result = addServiceSheet(env, options.record, sheet);
     lines.push(...serviceSheetLines(result, false));

@@ -13,8 +13,8 @@ import { draftSheet, stageSheet } from "./sheet";
 
 const USAGE = `Usage: pnpm stage-content event --record <json> <source> <label> [<source> <label> …] [--no-poster] [--check]
        pnpm stage-content event --corrected (--record <json> | --id <id>) <source> <label> [<source> <label> …] [--check]
-       pnpm stage-content sheet <pdf|docx> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected] [--record <json>] [--check]
-       pnpm stage-content sheet draft <docx> --out <json> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected]
+       pnpm stage-content sheet <pdf|docx> --record <json> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected] [--check]
+       pnpm stage-content sheet draft <pdf|docx> --out <json> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected]
        pnpm stage-content petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--corrected] [--check]
        pnpm stage-content petrklic --from <id> --year <year> --number <number> [--note "<note>"] [--check]
 Largest source file: ${Object.entries(MAX_MB)
@@ -37,7 +37,7 @@ const COMMANDS: Record<string, { positionals: (count: number) => boolean; option
   event: { positionals: (n) => n >= 2 && n % 2 === 0, options: ["poster", "corrected", "record", "id", "check"] },
   // The PDF or DOCX.
   sheet: { positionals: (n) => n === 1, options: ["from", "to", "corrected", "record", "check"] },
-  // The DOCX.
+  // The PDF or DOCX.
   "sheet draft": { positionals: (n) => n === 1, options: ["from", "to", "corrected", "out"] },
   // The PDF, or none with --from (the issue's own PDF).
   petrklic: { positionals: (n) => n <= 1, options: ["year", "number", "note", "corrected", "from", "check"] },

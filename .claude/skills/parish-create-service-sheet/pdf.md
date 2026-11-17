@@ -14,24 +14,28 @@ Read it with both:
 
 Read the **whole** page: the announcements are the paragraphs below the table.
 
-Get the week, its dates and the events for `newsId` (it refuses a week before the current sheet or overlapping
-another). When it prints `state: staged` (the week was staged before) or refuses with `state: published` (the week is
-released), take it to **`parish-correct-service-sheet`**.
+Draft the record (it refuses a week before the current sheet or overlapping another). When it prints
+`state: staged` (the week was staged before) or refuses with `state: published` (the week is released), take it to
+**`parish-correct-service-sheet`**.
 
 ```sh
-pnpm stage-content sheet "<source>" --check
+pnpm stage-content sheet draft "<source>" --out <scratchpad>/record.json
 ```
 
-## 2. Write the record
+It reads only the week from the PDF's heading: `record.json` holds every date of the week with no rows (Sundays
+marked `solemnity`) and no announcements. It also prints the events an announcement can link (for `newsId`).
 
-Write `record.json` in the session's scratchpad (never in the repo) from scratch, with `days` and `announcements`
-only, from the rendered page and the `pdftotext` wording. The week is the one `--check` printed from the heading, as
-step 2 of `parish-create-service-sheet` says (a heading over two weeks is still one sheet).
+## 2. Fill the record
+
+Fill `record.json` in the session's scratchpad (never in the repo) from the rendered page and the `pdftotext`
+wording, keeping `days` and `announcements` only. The week is the one the draft printed from the heading, as step 2
+of `parish-create-service-sheet` says (a heading over two weeks is still one sheet).
 
 - Assign each row to its day and place from the rendered page: in the layout text the date and feast sit in the
   middle of the day's rows.
 - Join the wrapped lines of a long intention into one `detail`.
-- Enter every day of the week, a day without services with `"rows": []`.
+- Keep every day of the draft, a day without services with `"rows": []`; add each day's `feast`, and `solemnity`
+  where the PDF marks a solemnity.
 - Copy the announcements below the table word for word, one per notice (as "One notice per announcement" says), and add their `<strong>`, links and `newsId` yourself.
 
 Then check the record against "The fields" and continue with step 3 of `parish-create-service-sheet`.

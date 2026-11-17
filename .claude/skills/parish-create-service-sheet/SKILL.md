@@ -28,7 +28,7 @@ Draft the record (it also refuses a week before the current sheet or overlapping
 pnpm stage-content sheet draft "<source>" --out <scratchpad>/record.json
 ```
 
-It prints the week, its days and the events an announcement can link (for `newsId`), and writes `days` and
+It prints the week and the events an announcement can link (for `newsId`), and writes `days` and
 `announcements` to `record.json`. The days a two-week table leaves out become days without services, printed in a
 `tell: Days without services: …` line. A table it cannot read (a date outside the week, a weekday that does not fit
 the date, times that do not pair with the services, a table that does not start and end on the heading's dates)
