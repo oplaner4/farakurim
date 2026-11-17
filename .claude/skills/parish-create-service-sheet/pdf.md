@@ -4,15 +4,7 @@ Only when the user gives a **PDF of the week** (page 1 exported by the user) bec
 It replaces steps 1 and 2 of **`parish-create-service-sheet`** up to "The fields"; everything from "The fields" on
 (the fields, "Finding `newsId`", the placeholder dots, steps 3 to 5) applies as written there.
 
-## 1. Read the PDF
-
-Read it with both:
-
-- the `Read` tool, to see the table (which rows belong to which day and place), and
-- `pdftotext -layout <file> -`, for exact wording. In the layout text a day's date and feast sit in the middle of
-  its rows and long intentions wrap onto the next line: use the rendered page to assign them.
-
-Read the **whole** page: the announcements are the paragraphs below the table.
+## 1. Draft the week
 
 Draft the record (it refuses a week before the current sheet or overlapping another). When it prints
 `state: staged` (the week was staged before) or refuses with `state: published` (the week is released), take it to
@@ -25,7 +17,17 @@ pnpm stage-content sheet draft "<source>" --out <scratchpad>/record.json
 It reads only the week from the PDF's heading: `record.json` holds every date of the week with no rows (Sundays
 marked `solemnity`) and no announcements. It also prints the events an announcement can link (for `newsId`).
 
-## 2. Fill the record
+## 2. Read the PDF
+
+Read it with both:
+
+- the `Read` tool, to see the table (which rows belong to which day and place), and
+- `pdftotext -layout <file> -`, for exact wording. In the layout text a day's date and feast sit in the middle of
+  its rows and long intentions wrap onto the next line: use the rendered page to assign them.
+
+Read the **whole** page: the announcements are the paragraphs below the table.
+
+## 3. Fill the record
 
 Fill `record.json` in the session's scratchpad (never in the repo) from the rendered page and the `pdftotext`
 wording, keeping `days` and `announcements` only. The week is the one the draft printed from the heading, as step 2

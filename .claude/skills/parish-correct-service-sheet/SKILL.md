@@ -19,20 +19,18 @@ cannot be corrected.
 Write `record.json` in the session's scratchpad (never in the repo) from the sheet: its `days` and `announcements`
 only, without `validFrom`, `validTo` and `rev` (the script sets them). Change only what is wrong.
 
-With a corrected PDF or DOCX, draft its week first (with a DOCX, also `--from` and `--to` when the week is not its
-newest). The draft goes to `draft.json`, never to `record.json`, which holds the sheet. It also lists the events a new
-announcement can link (for `newsId`).
+- a corrected DOCX: draft its week (also `--from` and `--to` when the week is not the DOCX's newest) to `draft.json`,
+  never to `record.json`, which holds the sheet. The draft also lists the events a new announcement can link (for
+  `newsId`). Compare the draft with the sheet and take over only the differences in the text, keeping the sheet's
+  fixes (`<strong>`, categories, `newsId`); the draft is the only reading of the DOCX, as
+  **`parish-create-service-sheet`** step 1 says.
 
-```sh
-pnpm stage-content sheet draft "<source>" --corrected --out <scratchpad>/draft.json
-```
+  ```sh
+  pnpm stage-content sheet draft "<docx>" --corrected --out <scratchpad>/draft.json
+  ```
 
-- a corrected PDF: the draft holds only the week's days, as the script does not read the PDF's table. Read the PDF
-  as **`parish-create-service-sheet`**'s `pdf.md` step 1 says (the rendered page and `pdftotext -layout`, without
-  its draft command), compare it with the sheet and take over every difference;
-- a corrected DOCX: compare the draft with the sheet and take over only the differences in the text, keeping the
-  sheet's fixes (`<strong>`, categories, `newsId`); the draft is the only reading of the DOCX, as
-  **`parish-create-service-sheet`** step 1 says;
+- a corrected PDF of the week (no DOCX): read `pdf.md` beside this file
+  (`.claude/skills/parish-correct-service-sheet/pdf.md`) instead of the DOCX bullet;
 - a correction the user describes: change those rows or announcements.
 
 The fields follow **`parish-create-service-sheet`** step 2 (rows, `mass` and `service`, privacy, announcements).
@@ -77,10 +75,9 @@ Only when the prompt says the run is **unattended**: read `.claude/skills/parish
 ## Common mistakes
 
 - Editing a sheet in `service-sheets.json` by hand instead of rerunning the command with a corrected record.
-- Rewriting the whole record from the PDF and losing earlier fixes (a category, a `newsId`): start
+- Rewriting the whole record from the draft or the PDF and losing earlier fixes (a category, a `newsId`): start
   from the sheet.
-- Drafting to `record.json` (as `pdf.md` step 1 does for a new week): the draft overwrites the record built from the
-  sheet. Draft to `draft.json`.
+- Drafting to `record.json`: the draft overwrites the record built from the sheet. Draft to `draft.json`.
 - Leaving out `--corrected` with a corrected PDF or DOCX.
 - Putting `validFrom`, `validTo` or `rev` into `record.json`: the script reads the dates from the heading and sets
   `rev`.
