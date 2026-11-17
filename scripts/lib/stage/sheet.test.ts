@@ -336,14 +336,22 @@ describe("stageSheet", { timeout: 30_000 }, () => {
       expect((await draft(older)).lines[0]).toBe(
         `${note} it is already staged, and this DOCX's version of it is not checked`,
       );
+      // Staging the older week does not repeat what its draft told.
+      const olderRecord = { ...record(), days: emptyWeek("2099-09-27", "2099-10-04") };
+      const staged = await stageSheet(env, { ...older, record: olderRecord, check: true });
+      expect(staged.lines.join("\n")).not.toContain("Not the DOCX's newest week");
     });
 
-    it("names the newer week in a refusal too, and that it is likely the one meant", async () => {
+    it("names the newer week in a draft's refusal too, and that it is likely the one meant", async () => {
       const source = download(
         "Pořad bohoslužeb 2000.docx",
         docxWithBody(
           wordml.p("ROZPIS BOHOSLUŽEB V TÝDNU od 9. 1. 2000 do 16. 1. 2000") +
-            wordml.p("ROZPIS BOHOSLUŽEB V TÝDNU od 2. 1. 2000 do 9. 1. 2000"),
+            wordml.p("ROZPIS BOHOSLUŽEB V TÝDNU od 2. 1. 2000 do 9. 1. 2000") +
+            wordml.table([
+              [["2. 1.", "Ne"], [], ["Kuřim"], ["8:00"], ["Mše sv."]],
+              [["9. 1.", "Ne"], [], ["Kuřim"], ["8:00"], ["Mše sv."]],
+            ]),
         ),
       );
       vi.mocked(pdfPageTexts).mockImplementation(() => [
@@ -351,7 +359,7 @@ describe("stageSheet", { timeout: 30_000 }, () => {
         "ROZPIS BOHOSLUŽEB V TÝDNU od 2. 1. 2000 do 9. 1. 2000",
       ]);
       const week = { source, validFrom: "2000-01-02", validTo: "2000-01-09" };
-      const refusal = stageSheet(env, { ...week, record: record(), check: true });
+      const refusal = draft(week);
       // Printed once: the note's tell: line ends the message, with nothing of the refusal repeated after it.
       const error = await refusal.catch((e: unknown) => e);
       expect(errorMessage(error)).toBe((error as Error).message);
@@ -359,6 +367,10 @@ describe("stageSheet", { timeout: 30_000 }, () => {
       await expect(refusal).rejects.toThrow(
         "tell: Not the DOCX's newest week: its newest, 2000-01-09 – 2000-01-16, is left out of this run; it is not staged yet. This week ended on 2000-01-09: the newer week is likely the one meant",
       );
+      // A staging run's refusal leaves it out.
+      const staging = stageSheet(env, { ...week, record: record(), check: true });
+      await expect(staging).rejects.toThrow("is before the current sheet");
+      await expect(staging).rejects.not.toThrow("Not the DOCX's newest week");
     });
 
     it("writes each draft and staging run's result, the last one winning, and none for a check", async () => {

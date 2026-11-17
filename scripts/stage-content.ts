@@ -32,8 +32,8 @@
 //   sheet draft <pdf|docx> --out <record.json> [--from YYYY-MM-DD --to YYYY-MM-DD] [--corrected]
 //       writes the week's draft record, to fix or fill before `sheet --record`: a DOCX week's read from its table and
 //       announcements, a PDF week's with every day of the week and no services or announcements yet. Checks the week
-//       as `sheet` does, says when its sheet is already there (--record replaces it) and prints the events its
-//       announcements can link as newsId; stages nothing (so it takes no --check).
+//       as `sheet` does, says when its sheet is already there (--record replaces it) or when the DOCX has a newer
+//       week, and prints the events its announcements can link as newsId; stages nothing (so it takes no --check).
 //   petrklic <pdf> --year <year> --number <number> [--note "<note>"] [--corrected]
 //       checks the issue, stages petrklic/<id>/petrklic-<id>.pdf with cover.webp and pages/ and adds the
 //       issue to src/content/petrklic.json (with --check it only validates). --corrected stages a corrected PDF of an

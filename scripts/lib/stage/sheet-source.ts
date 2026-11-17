@@ -1,8 +1,8 @@
 // Reads a service sheet's source, the parish's weekly PDF or its DOCX of the whole year, for staging: the week (from
 // the heading, or the one --from and --to name), the PDF to stage (the PDF itself, or the week's page of the converted
 // DOCX) and, when asked, the week's draft record (read from the DOCX's table and announcements; for a PDF, whose table
-// is not read, every day of the week without services). A DOCX's newer week is named in a note, and an error in the
-// parish's document is a DocumentError.
+// is not read, every day of the week without services). A draft of a DOCX's older week names its newer week in a note,
+// and an error in the parish's document is a DocumentError.
 
 import { extname, join } from "node:path";
 import { pragueDate } from "@/lib/shared/prague";
@@ -143,8 +143,9 @@ export async function sourceWeek(
   const { week: docxSheet, newer } = await docxWeek(src, options);
   const week = { validFrom: docxSheet.validFrom, validTo: docxSheet.validTo };
   known.week = week;
-  // Kept in `notes` before anything can throw, so a refusal names the newer week too.
-  if (newer) known.notes.push(newerWeekNote(env, week, newer));
+  // Told once, by the draft that starts the week; kept in `notes` before anything can throw, so its refusal names the
+  // newer week too.
+  if (newer && options.draft !== undefined) known.notes.push(newerWeekNote(env, week, newer));
   const lines = [...known.notes];
   // Written before the conversion, so the draft is there to check even without a converter.
   if (options.draft !== undefined) {
