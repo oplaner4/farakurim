@@ -17,8 +17,8 @@ bohoslužeb 2026.docx"): the parish's Word file with every week of the year, the
 newest week (`--from` and `--to` pick another), drafts the record from the week's table and announcements, and
 stages that week's page converted to PDF (Word on Windows, else LibreOffice).
 
-With only a **PDF of the week** (no DOCX or no converter), read `pdf.md` beside this file
-(`.claude/skills/parish-create-service-sheet/pdf.md`): it replaces steps 1 and 2 up to "The fields".
+With only a **PDF of the week** (no DOCX or no converter), read [`pdf.md`](pdf.md) beside this file: it
+replaces steps 1 and 2 up to "The fields".
 
 Draft the record (it also refuses a week before the current sheet or overlapping another). When it prints
 `state: staged` (the week was staged before) or refuses with `state: published` (the week is released), take it to
@@ -151,9 +151,8 @@ Follow **`parish-publish-content`**. The release brings the "Bohoslužby" calend
 
 ## Unattended run
 
-Only when the prompt says the run is **unattended**: read `unattended.md` beside this file
-(`.claude/skills/parish-create-service-sheet/unattended.md`) and follow it on top of the steps above. A local run
-never needs it.
+Only when the prompt says the run is **unattended**: read [`unattended.md`](unattended.md) beside this file and follow
+it on top of the steps above. A local run never needs it.
 
 ## Common mistakes
 

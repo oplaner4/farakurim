@@ -29,8 +29,7 @@ only, without `validFrom`, `validTo` and `rev` (the script sets them). Change on
   pnpm stage-content sheet draft "<docx>" --corrected --out <scratchpad>/draft.json
   ```
 
-- a corrected PDF of the week (no DOCX): read `pdf.md` beside this file
-  (`.claude/skills/parish-correct-service-sheet/pdf.md`) instead of the DOCX bullet;
+- a corrected PDF of the week (no DOCX): read [`pdf.md`](pdf.md) beside this file instead of the DOCX bullet;
 - a correction the user describes: change those rows or announcements.
 
 The fields follow **`parish-create-service-sheet`** step 2 (rows, `mass` and `service`, privacy, announcements).
@@ -68,9 +67,10 @@ Follow **`parish-publish-content`**. The release brings the "Bohoslužby" calend
 
 ## Unattended run and comment run
 
-Only when the prompt says the run is **unattended**: read `.claude/skills/parish-create-service-sheet/unattended.md`
-("Unattended correction"). Only when it says the run is a **comment run**: read `.claude/content-pr/comment-run.md`
-(the run, the report and "Service sheets"). Follow it on top of the steps above. A local run never needs either.
+Only when the prompt says the run is **unattended**: read
+[`parish-create-service-sheet/unattended.md`](../parish-create-service-sheet/unattended.md) ("Unattended correction").
+Only when it says the run is a **comment run**: read [`comment-run.md`](../../content-pr/comment-run.md) (the run, the
+report and "Service sheets"). Follow it on top of the steps above. A local run never needs either.
 
 ## Common mistakes
 

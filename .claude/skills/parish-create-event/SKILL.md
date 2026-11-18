@@ -48,9 +48,9 @@ Write the text from the source, in Czech; do not invent facts. Leave out what th
 
 ### Finding `venue`
 
-Take the venue as **`parish-manage-venues`** (`.claude/skills/parish-manage-venues/SKILL.md`) section A says: a listed venue, a new alias of one, a new
-venue looked up on Mapy.com, or none. A new venue or alias is written after the yes of step 4, before step 5 stages
-the record.
+Take the venue as **[`parish-manage-venues`](../parish-manage-venues/SKILL.md)** section A says: a listed venue, a
+new alias of one, a new venue looked up on Mapy.com, or none. A new venue or alias is written after the yes of step 4,
+before step 5 stages the record.
 
 ### Write `record.json`
 
@@ -152,9 +152,8 @@ Follow **`parish-publish-content`** (commit, upload and push). The release bring
 
 ## Unattended run
 
-Only when the prompt says the run is **unattended**: read `unattended.md` beside this file
-(`.claude/skills/parish-create-event/unattended.md`) and follow it on top of the steps above. A local run never needs
-it.
+Only when the prompt says the run is **unattended**: read [`unattended.md`](unattended.md) beside this file and follow
+it on top of the steps above. A local run never needs it.
 
 ## Common mistakes
 

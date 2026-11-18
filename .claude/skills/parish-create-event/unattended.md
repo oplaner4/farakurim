@@ -2,7 +2,7 @@
 
 Only for a run whose prompt says it is **unattended** (`events.yml`). A local run never reads this file: it follows the
 steps of **`parish-create-event`** as written. The unattended run follows those steps too, with the changes below. A
-comment run on an events PR follows `.claude/content-pr/comment-run.md` instead.
+comment run on an events PR follows [`comment-run.md`](../../content-pr/comment-run.md) instead.
 
 ## Unattended run
 

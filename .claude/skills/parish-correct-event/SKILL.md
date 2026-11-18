@@ -33,10 +33,10 @@ what is wrong:
 - a correction the user describes: change those fields;
 - a cancellation, a postponement or a dropped meeting: stop and follow **`parish-cancel-event`** instead.
 
-The fields follow **`parish-create-event`** step 2. A changed `place` takes its venue again as **`parish-manage-venues`** (`.claude/skills/parish-manage-venues/SKILL.md`)
-section A says (a new venue or alias written after the yes, before the record), and the old `venue` goes when it no
-longer fits. `--check` names `venue` among the
-`Changed:` fields.
+The fields follow **`parish-create-event`** step 2. A changed `place` takes its venue again as
+**[`parish-manage-venues`](../parish-manage-venues/SKILL.md)** section A says (a new venue or alias written after the
+yes, before the record), and the old `venue` goes when it no longer fits. `--check` names `venue` among the `Changed:`
+fields.
 
 ## 3. Check
 
@@ -86,8 +86,9 @@ Follow **`parish-publish-content`**.
 
 ## Comment run
 
-Only when the prompt says the run is a **comment run** on an events PR: read `.claude/content-pr/comment-run.md`
-(the run, the report and "Events") and follow it on top of the steps above. A local run never needs it.
+Only when the prompt says the run is a **comment run** on an events PR: read
+[`comment-run.md`](../../content-pr/comment-run.md) (the run, the report and "Events") and follow it on top of the steps
+above. A local run never needs it.
 
 ## Common mistakes
 
