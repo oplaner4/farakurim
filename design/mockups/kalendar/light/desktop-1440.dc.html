@@ -126,8 +126,9 @@ a{color:#165A93}a:hover{color:#0F3F69}summary::-webkit-details-marker{display:no
       </li>
     </sc-for>
   </ul>
-</section>
-<section aria-labelledby="odber-d" style="position: relative; display: flex; flex-direction: column; gap: 12px; padding: 24px; border-radius: 24px; background: #EAF3FB; overflow: hidden">
+</section></div>
+</div>
+<section data-wide="1" aria-labelledby="odber-d" style="position: relative; display: flex; flex-direction: column; gap: 12px; padding: 24px; border-radius: 24px; background: #EAF3FB; overflow: hidden">
   <span aria-hidden="true" style="position: absolute; top: 0; right: 0; width: 56px; height: 56px; background: #1D71B7; clip-path: polygon(0 0, 100% 0, 100% 100%)"></span>
   <h2 id="odber-d" style="margin: 0; padding-right: 48px; font-size: 22px; font-weight: 700">Kalendář v telefonu</h2>
   <p style="margin: 0; color: #3A4656">Přidejte si naše kalendáře do telefonu nebo počítače. Aktualizují se samy.</p>
@@ -138,14 +139,13 @@ a{color:#165A93}a:hover{color:#0F3F69}summary::-webkit-details-marker{display:no
     </ul>
   </div>
   <sc-if value="{{appLinks}}" hint-placeholder-val="{{ true }}">
-  <div style="display: flex; flex-wrap: wrap; gap: 8px">
-    <a href="{{hrefB}}" target="{{target}}" rel="noopener" style="flex: 1 1 180px; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 14px; border-radius: 14px; background: #1D71B7; color: #FFFFFF; font-weight: 700; text-decoration: none">+ Bohoslužby</a>
-    <a href="{{hrefU}}" target="{{target}}" rel="noopener" style="flex: 1 1 180px; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 14px; border-radius: 14px; background: #D60B51; color: #FFFFFF; font-weight: 700; text-decoration: none">+ Události</a>
-  </div>
-  <p style="margin: 0; font-size: 14px; color: #556070">{{appHint}}</p>
+  <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px"><div style="display: flex; flex-wrap: wrap; gap: 8px">
+    <a href="{{hrefB}}" target="{{target}}" rel="noopener" style="flex: 0 0 auto; min-width: 190px; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 14px; border-radius: 14px; background: #1D71B7; color: #FFFFFF; font-weight: 700; text-decoration: none">+ Bohoslužby</a>
+    <a href="{{hrefU}}" target="{{target}}" rel="noopener" style="flex: 0 0 auto; min-width: 190px; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 14px; border-radius: 14px; background: #D60B51; color: #FFFFFF; font-weight: 700; text-decoration: none">+ Události</a>
+  </div><p style="flex: 1 1 260px; margin: 0; font-size: 14px; color: #556070">{{appHint}}</p></div>
   </sc-if>
   <sc-if value="{{appOther}}" hint-placeholder-val="{{ false }}">
-  <div style="display: flex; flex-direction: column; gap: 8px">
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
     <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 14px; background: #FFFFFF">
       <label for="feed-b-d" style="display: flex; align-items: center; gap: 8px; font-weight: 700"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 50%; background: #1D71B7"></span>Bohoslužby</label>
       <input id="feed-b-d" type="text" readonly value="{{feedB}}" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1.5px solid #7D8A9B; background: #FFFFFF; color: #1B2533; font-family: inherit; font-size: 13px">
@@ -156,13 +156,12 @@ a{color:#165A93}a:hover{color:#0F3F69}summary::-webkit-details-marker{display:no
       <input id="feed-u-d" type="text" readonly value="{{feedU}}" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1.5px solid #7D8A9B; background: #FFFFFF; color: #1B2533; font-family: inherit; font-size: 13px">
       <button type="button" onClick="{{copyU}}" aria-live="polite" style="align-self: flex-start; display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 190px; min-height: 40px; padding: 0 12px; border-radius: 10px; border: 2px solid #1D71B7; background: transparent; color: #165A93; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"></path></svg>{{copyLblU}}</button>
     </div>
-    <p style="margin: 0; font-size: 14px; color: #3A4656">V aplikaci zvolte <strong>Přidat kalendář z adresy URL</strong> (nebo „Odebírat kalendář“) a vložte odkaz.</p>
+    <p style="grid-column: 1 / -1; margin: 0; font-size: 14px; color: #3A4656">V aplikaci zvolte <strong>Přidat kalendář z adresy URL</strong> (nebo „Odebírat kalendář“) a vložte odkaz.</p>
   </div>
   </sc-if>
   <p style="margin: 0; font-size: 14px; color: #556070">Změny se v aplikaci mohou projevit až za několik hodin.</p>
   <a href="/porad_bohosluzeb" style="display: flex; align-items: center; min-height: 44px; font-weight: 700">Pravidelný pořad bohoslužeb →</a>
-</section></div>
-</div>
+</section>
 </main>
   <footer style="margin-top: auto; display: flex; flex-direction: column; background: #F4F6F9">
     <div aria-hidden="true" style="display: flex; height: 6px">
@@ -199,7 +198,7 @@ a{color:#165A93}a:hover{color:#0F3F69}summary::-webkit-details-marker{display:no
   </footer>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2120}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2200}}'>
 class Component extends DCLogic {
   calItems(d) {
     const y = d.getFullYear(), m = d.getMonth(), day = d.getDate(), wd = d.getDay();

@@ -912,7 +912,7 @@ the Bohoslužby page and other in-page links. Section colour: **blue**, with
 
 | | Mobile | Tablet | Desktop |
 |---|---|---|---|
-| Layout | toolbar, grid, day detail, subscribe (stacked) | toolbar, grid full width, then day detail + subscribe side by side | toolbar; grid (`flex: 999 1 640px`) beside a right column (`flex: 1 1 340px`) with day detail + subscribe |
+| Layout | toolbar, grid, day detail, subscribe (stacked) | toolbar, grid full width, day detail full width, then **subscribe as a full-width strip** | toolbar; grid (`flex: 999 1 640px`) beside the day detail (`flex: 1 1 340px`); **subscribe as a full-width strip under both** |
 
 ### 16.3 Behaviour
 
@@ -956,6 +956,7 @@ The same block wherever a subscribe offer appears (Kalendář page; reuse it els
 
    The `webcal://` link also suits classic Outlook on Windows. **Test the Google `cid` link** with both calendars before launch (it is the common pattern, but not documented by Google).
 4. **Jiná aplikace:** instead of the buttons, one white box per calendar: a colour dot + name as the `<label>`, a read-only `<input>` with the feed URL (`https://…/public/basic.ics`, 13 px), and the copy button "Zkopírovat odkaz" → "Zkopírováno" on its own line (min-width 190 px; the rule in 22.2). Under them: "V aplikaci zvolte **Přidat kalendář z adresy URL** (nebo „Odebírat kalendář") a vložte odkaz."
+- **Layout:** on tablet and desktop the block is a full-width strip under the calendar (see 16.2): the pills on one line, the two buttons (natural width, at least 190 px, not stretched) with the hint beside them, and for "Jiná aplikace" the two feed boxes side by side. On mobile everything stacks and the buttons share the width.
 5. A muted note at the end: "Změny se v aplikaci mohou projevit až za několik hodin." (subscribed calendars refresh on the app's schedule: Google up to about a day, Outlook a few hours).
 6. **Without JS:** render the pills as a plain list inside `<details>` "Všechny možnosti" with all links of both calendars.
 
