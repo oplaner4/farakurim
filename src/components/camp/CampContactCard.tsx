@@ -65,7 +65,7 @@ export function CampContactCard({ person, tone }: { person: ContactPerson; tone:
               </a>
             </dd>
             <dd className="mt-1.5">
-              <CopyButton text={person.email} label="Zkopírovat e-mail" tone={tone} size="small" width="email" />
+              <CopyButton text={person.email} label="Zkopírovat e-mail" tone={tone} size="small" width="label" />
             </dd>
           </div>
         )}

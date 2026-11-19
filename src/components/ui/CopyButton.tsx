@@ -25,8 +25,8 @@ export const copyButton = cva("flex cursor-pointer items-center justify-center b
       default: "min-w-42",
       account: "min-w-57.5",
       vs: "min-w-40",
-      /* "Zkopírovat e-mail" (§29.4). */
-      email: "min-w-47.5",
+      /* A longer label: "Zkopírovat e-mail" (§29.4), "Zkopírovat odkaz" (§16.6). */
+      label: "min-w-47.5",
     },
   },
   defaultVariants: { tone: "orange", size: "default", width: "default" },

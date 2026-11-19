@@ -122,22 +122,12 @@ export const navGroups = [
 export type NavGroup = (typeof navGroups)[number];
 
 /**
- * The parish's public Google Calendars (design/DESIGN.md §16.1). `subscribeUrl` adds the calendar to the visitor's
- * Google Calendar; it is the same link the old site used, so existing subscribers keep their calendars.
+ * The parish's public Google Calendars (design/DESIGN.md §16.1). "Kalendář v telefonu" builds every subscribe link
+ * from the ID and the name (§16.6, `src/lib/calendar/subscribe.ts`).
  */
-export const parishCalendars: Record<CalendarId, { name: string; googleId: string; subscribeUrl: string }> = {
-  services: {
-    name: "Bohoslužby",
-    googleId: "hho1ik2s8pu7742kv6eojt0tno@group.calendar.google.com",
-    subscribeUrl:
-      "https://calendar.google.com/calendar/u/0?cid=aGhvMWlrMnM4cHU3NzQya3Y2ZW9qdDB0bm9AZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ",
-  },
-  events: {
-    name: "Události",
-    googleId: "04gtmq4vqvu2jg624uiu2o0d18@group.calendar.google.com",
-    subscribeUrl:
-      "https://calendar.google.com/calendar/u/0?cid=MDRndG1xNHZxdnUyamc2MjR1aXUybzBkMThAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ",
-  },
+export const parishCalendars: Record<CalendarId, { name: string; googleId: string }> = {
+  services: { name: "Bohoslužby", googleId: "hho1ik2s8pu7742kv6eojt0tno@group.calendar.google.com" },
+  events: { name: "Události", googleId: "04gtmq4vqvu2jg624uiu2o0d18@group.calendar.google.com" },
 };
 
 /**

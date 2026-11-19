@@ -30,9 +30,9 @@ the site cannot act as the account.
 - **Calendars**, in Google Calendar of the parish's account: create two new calendars (**Settings → Add calendar →
   Create new calendar**), "Události" and "Bohoslužby", time zone Europe/Prague, and make each public (**Access
   permissions for events → Make available to public**, "See all event details"). Put each one's **Calendar ID**
-  (**Integrate calendar**) into `googleId` of `parishCalendars` in `src/content/site.ts`, and its subscribe link
-  (`https://calendar.google.com/calendar/u/0?cid=` and the ID in base64, without the `=` padding) into `subscribeUrl`.
-  Add no events by hand: the sync writes them all.
+  (**Integrate calendar**) into `googleId` of `parishCalendars` in `src/content/site.ts`; the Kalendář page builds
+  every subscribe link (Google, Apple, Outlook and the public iCal feed) from it. Add no events by hand: the sync
+  writes them all.
 - **Service account**, by the maintainer: create it in the Google Cloud project that holds the browser key, with no
   roles in the project and no key. Share Události and Bohoslužby with the service account's e-mail address with the
   permission "Make changes to events". Enable the **IAM Service Account Credentials API** and the **Security Token

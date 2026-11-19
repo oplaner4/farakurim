@@ -44,8 +44,8 @@ export default function PrivacyPage() {
       <section aria-labelledby="prohlizec" className="flex max-w-170 flex-col gap-4">
         <SectionHeading id="prohlizec" title="Co se ukládá ve vašem prohlížeči" color="blue" small />
         <p className="text-15 text-ink-2">
-          Tento web sám ukládá jen zvolený barevný režim (světlý nebo tmavý), aby zůstal stejný i při další návštěvě.
-          Nikam se neodesílá.
+          Tento web sám ukládá jen zvolený barevný režim (světlý nebo tmavý) a aplikaci, kterou jste zvolili u přidání
+          kalendáře do telefonu, aby zůstaly stejné i při další návštěvě. Nikam se neodesílají.
         </p>
       </section>
 
