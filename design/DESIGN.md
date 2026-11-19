@@ -908,7 +908,7 @@ the Bohoslužby page and other in-page links. Section colour: **blue**, with
    - Days outside the month use `--surface` and muted text. **Today** has a 2 px blue border. The **selected day** is filled blue with white text; its event labels turn white with `#8F0634` text.
    - Each cell is a `<button>` with a full `aria-label` ("18. října, 2 bohoslužby, 1 akce") and `aria-pressed` for the selected day.
 4. **Day detail** (surface panel): the heading "Dnes · Sobota 3. října" / "Zítra · …" / "Neděle 18. října". One row per item: colour bar, time ("celý den" first), title (a link when there is a detail page), "place · Bohoslužba/Akce". Empty: "V tento den není v kalendáři nic."
-5. **"Kalendář v telefonu"** (blue tint): subscribe buttons "+ Bohoslužby" (blue) and "+ Události" (magenta), plus a link to the regular schedule. **The Google Calendar subscription URLs are still to be filled in.**
+5. **"Kalendář v telefonu"** (blue tint): a two-step subscribe picker – choose the calendar app, then "+ Bohoslužby" (blue) and "+ Události" (magenta) – plus a link to the regular schedule. See 16.6.
 
 | | Mobile | Tablet | Desktop |
 |---|---|---|---|
@@ -937,6 +937,36 @@ the Bohoslužby page and other in-page links. Section colour: **blue**, with
 
 Same mapping as section 10. Cell background `--raised` (`#1F2B3D`), days outside the
 month `--surface`, selected day stays blue.
+
+### 16.6 "Kalendář v telefonu" (subscribing in any calendar app)
+
+The same block wherever a subscribe offer appears (Kalendář page; reuse it elsewhere if needed).
+
+1. Lead: "Přidejte si naše kalendáře do telefonu nebo počítače. Aktualizují se samy."
+2. **"Kde máte kalendář?"** – a `role="group"` of five 44 px pills (`aria-pressed`, one selected): **Google Kalendář · iPhone / Mac · Outlook.com · Outlook (práce, škola) · Jiná aplikace**. Selected: blue fill, white text; others white (`--raised` in dark) with a `#D3E4F3` (dark `#24405E`) border. Mobile: one horizontal scrolling row bleeding to the panel edges; tablet/desktop: wrapping.
+   - **Pre-selection** by device: Android and ChromeOS → Google; iOS and macOS → iPhone / Mac; Windows → Outlook.com; otherwise Google. The visitor's choice is remembered in `localStorage` and wins over the guess. (The mockups preselect Google on mobile, iPhone / Mac on tablet and Outlook.com on desktop, to show the states.)
+3. For the first four apps: the two buttons **"+ Bohoslužby"** / **"+ Události"** with the app's links, and a one-line hint under them (14 px, muted):
+
+| App | Link | Hint | Opens |
+|---|---|---|---|
+| Google Kalendář | `https://calendar.google.com/calendar/r?cid=<calendar ID, URL-encoded>` | "Otevře Google Kalendář v prohlížeči – přidání jen potvrďte. Do telefonu se kalendář dostane sám." | new tab |
+| iPhone / Mac | `webcal://calendar.google.com/calendar/ical/<ID>/public/basic.ics` | "Otevře aplikaci Kalendář a zeptá se, zda kalendář odebírat." | same tab (hands over to the app) |
+| Outlook.com | `https://outlook.live.com/calendar/0/addfromweb?url=<encoded feed>&name=<encoded name>` | "Otevře Outlook.com s předvyplněným kalendářem (osobní účty)." | new tab |
+| Outlook (práce, škola) | `https://outlook.office.com/calendar/0/addfromweb?url=<encoded feed>&name=<encoded name>` | "Pro pracovní a školní účty Microsoft 365." | new tab |
+
+   The `webcal://` link also suits classic Outlook on Windows. **Test the Google `cid` link** with both calendars before launch (it is the common pattern, but not documented by Google).
+4. **Jiná aplikace:** instead of the buttons, one white box per calendar: a colour dot + name as the `<label>`, a read-only `<input>` with the feed URL (`https://…/public/basic.ics`, 13 px), and the copy button "Zkopírovat odkaz" → "Zkopírováno" on its own line (min-width 190 px; the rule in 22.2). Under them: "V aplikaci zvolte **Přidat kalendář z adresy URL** (nebo „Odebírat kalendář") a vložte odkaz."
+5. A muted note at the end: "Změny se v aplikaci mohou projevit až za několik hodin." (subscribed calendars refresh on the app's schedule: Google up to about a day, Outlook a few hours).
+6. **Without JS:** render the pills as a plain list inside `<details>` "Všechny možnosti" with all links of both calendars.
+
+**Data:** keep one config entry per calendar – Google calendar ID and display name:
+
+| Calendar | ID | Name in links |
+|---|---|---|
+| Bohoslužby | `hho1ik2s8pu7742kv6eojt0tno@group.calendar.google.com` | Bohoslužby |
+| Události | `04gtmq4vqvu2jg624uiu2o0d18@group.calendar.google.com` | Události |
+
+Build every link from it (feed = `https://calendar.google.com/calendar/ical/` + encoded ID + `/public/basic.ics`; the Outlook `url` parameter is the encoded feed, so `%40` becomes `%2540`). The mockups' script block builds them the same way.
 
 ## 17. Petrklíč – aktuální číslo (`/petrklic/aktualni`)
 

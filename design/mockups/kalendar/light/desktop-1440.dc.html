@@ -130,11 +130,36 @@ a{color:#165A93}a:hover{color:#0F3F69}summary::-webkit-details-marker{display:no
 <section aria-labelledby="odber-d" style="position: relative; display: flex; flex-direction: column; gap: 12px; padding: 24px; border-radius: 24px; background: #EAF3FB; overflow: hidden">
   <span aria-hidden="true" style="position: absolute; top: 0; right: 0; width: 56px; height: 56px; background: #1D71B7; clip-path: polygon(0 0, 100% 0, 100% 100%)"></span>
   <h2 id="odber-d" style="margin: 0; padding-right: 48px; font-size: 22px; font-weight: 700">Kalendář v telefonu</h2>
-  <p style="margin: 0; color: #3A4656">Přidejte si naše kalendáře do svého telefonu nebo počítače. Změny se vám pak zobrazí samy.</p>
-  <div style="display: flex; flex-wrap: wrap; gap: 8px">
-    <a href="#" style="flex: 1 1 180px; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 14px; border-radius: 14px; background: #1D71B7; color: #FFFFFF; font-weight: 700; text-decoration: none">+ Bohoslužby</a>
-    <a href="#" style="flex: 1 1 180px; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 14px; border-radius: 14px; background: #D60B51; color: #FFFFFF; font-weight: 700; text-decoration: none">+ Události</a>
+  <p style="margin: 0; color: #3A4656">Přidejte si naše kalendáře do telefonu nebo počítače. Aktualizují se samy.</p>
+  <div role="group" aria-labelledby="app-d" style="display: flex; flex-direction: column; gap: 8px">
+    <span id="app-d" style="font-size: 14px; font-weight: 700">Kde máte kalendář?</span>
+    <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px">
+      <sc-for list="{{apps}}" as="ap" hint-placeholder-count="5"><li style="flex: none"><button type="button" aria-pressed="{{ap.pressed}}" onClick="{{ap.pick}}" style="display: flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1.5px solid {{ap.bd}}; background: {{ap.bg}}; color: {{ap.fg}}; font-family: inherit; font-size: 15px; font-weight: 700; white-space: nowrap; cursor: pointer">{{ap.label}}</button></li></sc-for>
+    </ul>
   </div>
+  <sc-if value="{{appLinks}}" hint-placeholder-val="{{ true }}">
+  <div style="display: flex; flex-wrap: wrap; gap: 8px">
+    <a href="{{hrefB}}" target="{{target}}" rel="noopener" style="flex: 1 1 180px; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 14px; border-radius: 14px; background: #1D71B7; color: #FFFFFF; font-weight: 700; text-decoration: none">+ Bohoslužby</a>
+    <a href="{{hrefU}}" target="{{target}}" rel="noopener" style="flex: 1 1 180px; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 14px; border-radius: 14px; background: #D60B51; color: #FFFFFF; font-weight: 700; text-decoration: none">+ Události</a>
+  </div>
+  <p style="margin: 0; font-size: 14px; color: #556070">{{appHint}}</p>
+  </sc-if>
+  <sc-if value="{{appOther}}" hint-placeholder-val="{{ false }}">
+  <div style="display: flex; flex-direction: column; gap: 8px">
+    <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 14px; background: #FFFFFF">
+      <label for="feed-b-d" style="display: flex; align-items: center; gap: 8px; font-weight: 700"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 50%; background: #1D71B7"></span>Bohoslužby</label>
+      <input id="feed-b-d" type="text" readonly value="{{feedB}}" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1.5px solid #7D8A9B; background: #FFFFFF; color: #1B2533; font-family: inherit; font-size: 13px">
+      <button type="button" onClick="{{copyB}}" aria-live="polite" style="align-self: flex-start; display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 190px; min-height: 40px; padding: 0 12px; border-radius: 10px; border: 2px solid #1D71B7; background: transparent; color: #165A93; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"></path></svg>{{copyLblB}}</button>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 14px; background: #FFFFFF">
+      <label for="feed-u-d" style="display: flex; align-items: center; gap: 8px; font-weight: 700"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 50%; background: #D60B51"></span>Události</label>
+      <input id="feed-u-d" type="text" readonly value="{{feedU}}" style="width: 100%; box-sizing: border-box; min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1.5px solid #7D8A9B; background: #FFFFFF; color: #1B2533; font-family: inherit; font-size: 13px">
+      <button type="button" onClick="{{copyU}}" aria-live="polite" style="align-self: flex-start; display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 190px; min-height: 40px; padding: 0 12px; border-radius: 10px; border: 2px solid #1D71B7; background: transparent; color: #165A93; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"></path></svg>{{copyLblU}}</button>
+    </div>
+    <p style="margin: 0; font-size: 14px; color: #3A4656">V aplikaci zvolte <strong>Přidat kalendář z adresy URL</strong> (nebo „Odebírat kalendář“) a vložte odkaz.</p>
+  </div>
+  </sc-if>
+  <p style="margin: 0; font-size: 14px; color: #556070">Změny se v aplikaci mohou projevit až za několik hodin.</p>
   <a href="/porad_bohosluzeb" style="display: flex; align-items: center; min-height: 44px; font-weight: 700">Pravidelný pořad bohoslužeb →</a>
 </section></div>
 </div>
@@ -174,7 +199,7 @@ a{color:#165A93}a:hover{color:#0F3F69}summary::-webkit-details-marker{display:no
   </footer>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1860}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2120}}'>
 class Component extends DCLogic {
   calItems(d) {
     const y = d.getFullYear(), m = d.getMonth(), day = d.getDate(), wd = d.getDay();
@@ -268,7 +293,26 @@ class Component extends DCLogic {
     const dayItems = filt(this.calItems(sel));
     const go = (dm) => { const n = new Date(vy, vm + dm, 1); this.setState({ vy: n.getFullYear(), vm: n.getMonth() }); };
     const rel = same(sel, today) ? 'Dnes · ' : (same(sel, new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1)) ? 'Zítra · ' : '');
+    const APP = st.app || 'outlook';
+    const CALS = { b: ['hho1ik2s8pu7742kv6eojt0tno@group.calendar.google.com', 'Bohoslužby'], u: ['04gtmq4vqvu2jg624uiu2o0d18@group.calendar.google.com', 'Události'] };
+    const ics = (k) => 'https://calendar.google.com/calendar/ical/' + encodeURIComponent(CALS[k][0]) + '/public/basic.ics';
+    const link = (k) => {
+      const feed = ics(k);
+      if (APP === 'google') return 'https://calendar.google.com/calendar/r?cid=' + encodeURIComponent(CALS[k][0]);
+      if (APP === 'apple') return feed.replace('https://', 'webcal://');
+      const host = APP === 'outlook' ? 'outlook.live.com' : 'outlook.office.com';
+      return 'https://' + host + '/calendar/0/addfromweb?url=' + encodeURIComponent(feed) + '&name=' + encodeURIComponent(CALS[k][1]);
+    };
+    const APPS = [['google', 'Google Kalendář', 'Otevře Google Kalendář v prohlížeči – přidání jen potvrďte. Do telefonu se kalendář dostane sám.'], ['apple', 'iPhone / Mac', 'Otevře aplikaci Kalendář a zeptá se, zda kalendář odebírat.'], ['outlook', 'Outlook.com', 'Otevře Outlook.com s předvyplněným kalendářem (osobní účty).'], ['office', 'Outlook (práce, škola)', 'Pro pracovní a školní účty Microsoft 365.'], ['other', 'Jiná aplikace', '']];
+    const apps = APPS.map((a) => { const on = a[0] === APP; return { label: a[1], pressed: on ? 'true' : 'false', pick: () => this.setState({ app: a[0], copied: '' }),
+      bg: on ? '#1D71B7' : '#FFFFFF', fg: on ? '#FFFFFF' : '#1B2533', bd: on ? '#1D71B7' : '#D3E4F3' }; });
     return {
+      apps: apps, appLinks: APP !== 'other', appOther: APP === 'other',
+      hrefB: APP === 'other' ? '#' : link('b'), hrefU: APP === 'other' ? '#' : link('u'), target: APP === 'apple' ? '_self' : '_blank',
+      appHint: (APPS.find((a) => a[0] === APP) || APPS[0])[2],
+      feedB: ics('b'), feedU: ics('u'),
+      copyB: () => this.setState({ copied: 'b' }), copyU: () => this.setState({ copied: 'u' }),
+      copyLblB: st.copied === 'b' ? 'Zkopírováno' : 'Zkopírovat odkaz', copyLblU: st.copied === 'u' ? 'Zkopírováno' : 'Zkopírovat odkaz',
       menuOpen: !!st.menuOpen,
       toggleMenu: () => this.setState({ menuOpen: !st.menuOpen }),
       menuExp: st.menuOpen ? 'true' : 'false', menuBtnBg: st.menuOpen ? '#EAF3FB' : 'transparent',
