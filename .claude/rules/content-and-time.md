@@ -97,8 +97,8 @@ build-time next mass.
   until Google answers. "Bohoslužby" is generated from the content by `pnpm calendar-sync` (run by the release) through `servicesOnDate()`, so a change to how services combine changes that calendar too. A title "Změna: " (the Pořad bohoslužeb page's "změna" tag, `markChanges()`) sets `CalendarEntry.changed`, as "Zrušeno: " sets `cancelled`. A regular service can pause every year with `closed: { from, to }` (summer break), on the whole site. Without `NEXT_PUBLIC_GOOGLE_CALENDAR_API_KEY` the entries are a fallback generated from
   `regularServices` and the event records, nothing is fetched, and paging stops at the prerendered months; a release build (`RELEASE_BUILD=1`) fails without the key instead (`src/lib/shared/build-env.ts`). An Události event links to its event record when its description holds the detail page's URL (`eventPaths()`; only pages the build has, `linkablePages` in `server/calendar.ts`). The weekly table and the
   next-mass countdown still use `regularServices` / `scheduleExceptions()`.
-- "Kalendář v telefonu" (design §16.6) builds every subscribe link (Google, `webcal://`, Outlook.com, Outlook for
-  Microsoft 365, the public iCal feed) from `googleId` and `name` of `parishCalendars` (`src/lib/calendar/subscribe.ts`);
+- "Kalendář v telefonu" (design §16.6) builds every subscribe link (Google, `webcal://` for iPhone / Mac and Outlook for
+  work or school, Outlook.com, the public iCal feed) from `googleId` and `name` of `parishCalendars` (`src/lib/calendar/subscribe.ts`);
   the visitor's app is guessed from the device and remembered in `localStorage` (`useCalendarApp()`, named on the
   privacy page).
 - Office hours (`content/site.ts`): weekly slots with an optional yearly `closed` break; the live status is

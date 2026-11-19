@@ -30,8 +30,6 @@ type Calendar = { googleId: string; name: string };
 export const calendarFeedUrl = ({ googleId }: Pick<Calendar, "googleId">) =>
   `https://calendar.google.com/calendar/ical/${encodeURIComponent(googleId)}/public/basic.ics`;
 
-const OUTLOOK_HOSTS = { outlook: "outlook.live.com", office: "outlook.office.com" } as const;
-
 /** The link that adds `calendar` to `app`. */
 export function subscribeHref(app: LinkedCalendarApp, calendar: Calendar): string {
   const feed = calendarFeedUrl(calendar);
@@ -39,11 +37,11 @@ export function subscribeHref(app: LinkedCalendarApp, calendar: Calendar): strin
     case "google":
       return `https://calendar.google.com/calendar/r?cid=${encodeURIComponent(calendar.googleId)}`;
     case "apple":
-      // Hands the feed over to the device's calendar app (Apple Calendar, classic Outlook on Windows).
+    case "office":
+      // Hands the feed over to the device's calendar app (Apple Calendar, Outlook installed for work or school).
       return feed.replace(/^https:/, "webcal:");
     case "outlook":
-    case "office":
-      return `https://${OUTLOOK_HOSTS[app]}/calendar/0/addfromweb?url=${encodeURIComponent(feed)}&name=${encodeURIComponent(calendar.name)}`;
+      return `https://outlook.live.com/calendar/0/addfromweb?url=${encodeURIComponent(feed)}&name=${encodeURIComponent(calendar.name)}`;
   }
 }
 

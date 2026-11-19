@@ -18,15 +18,14 @@ describe("subscribeHref", () => {
     );
   });
 
-  it("hands the feed to the device's calendar app over webcal", () => {
-    expect(subscribeHref("apple", calendar)).toBe(FEED.replace("https://", "webcal://"));
+  it.each(["apple", "office"] as const)("hands the feed to the device's calendar app over webcal (%s)", (app) => {
+    expect(subscribeHref(app, calendar)).toBe(FEED.replace("https://", "webcal://"));
   });
 
-  it("passes the encoded feed and the name to Outlook, personal and work", () => {
-    const query =
-      "url=https%3A%2F%2Fcalendar.google.com%2Fcalendar%2Fical%2F04gtmq4vqvu2jg624uiu2o0d18%2540group.calendar.google.com%2Fpublic%2Fbasic.ics&name=Ud%C3%A1losti";
-    expect(subscribeHref("outlook", calendar)).toBe(`https://outlook.live.com/calendar/0/addfromweb?${query}`);
-    expect(subscribeHref("office", calendar)).toBe(`https://outlook.office.com/calendar/0/addfromweb?${query}`);
+  it("passes the encoded feed and the name to Outlook.com", () => {
+    expect(subscribeHref("outlook", calendar)).toBe(
+      "https://outlook.live.com/calendar/0/addfromweb?url=https%3A%2F%2Fcalendar.google.com%2Fcalendar%2Fical%2F04gtmq4vqvu2jg624uiu2o0d18%2540group.calendar.google.com%2Fpublic%2Fbasic.ics&name=Ud%C3%A1losti",
+    );
   });
 });
 
