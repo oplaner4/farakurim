@@ -36,9 +36,8 @@ export default async function CalendarPage() {
           size="standard"
           intro="Bohoslužby i farní akce na jednom místě. Klepněte na den a uvidíte program."
         />
-        <MonthCalendar entries={entries} months={months} linkablePages={linkablePages} renderedAt={BUILD_TIME}>
-          <SubscribePanel />
-        </MonthCalendar>
+        <MonthCalendar entries={entries} months={months} linkablePages={linkablePages} renderedAt={BUILD_TIME} />
+        <SubscribePanel />
       </main>
     </>
   );

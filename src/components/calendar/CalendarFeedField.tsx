@@ -19,7 +19,7 @@ export function CalendarFeedField({ id, name, feed, dot }: Props) {
         onFocus={(event) => event.currentTarget.select()}
         className="min-h-11 w-full rounded-10 border-thin border-field-line bg-bg px-3 text-13 text-ink"
       />
-      <CopyButton text={feed} label="Zkopírovat odkaz" tone="blue" size="small" width="label" className="self-start" />
+      <CopyButton text={feed} label="Zkopírovat odkaz" tone="blue" size="small" width="feed" className="self-start" />
     </div>
   );
 }

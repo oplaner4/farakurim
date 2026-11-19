@@ -25,8 +25,10 @@ export const copyButton = cva("flex cursor-pointer items-center justify-center b
       default: "min-w-42",
       account: "min-w-57.5",
       vs: "min-w-40",
-      /* A longer label: "Zkopírovat e-mail" (§29.4), "Zkopírovat odkaz" (§16.6). */
+      /* A longer label: "Zkopírovat e-mail" (§29.4). */
       label: "min-w-47.5",
+      /* "Zkopírovat odkaz" of the calendar feeds (§16.6): the mockup's 190px content + padding and border. */
+      feed: "min-w-54.5",
     },
   },
   defaultVariants: { tone: "orange", size: "default", width: "default" },
