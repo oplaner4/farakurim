@@ -296,6 +296,7 @@ jobs:
           body-file: ${{ runner.temp }}/run/pr-body.md
           report-file: ${{ runner.temp }}/out/report.json
           reviewers: ${{ vars.CONTENT_REVIEWERS }}
+          labels: events
 
       # Only once the outcome is done (PR opened, or the mail refused) and only when `event` succeeded; otherwise the
       # event mail stays unseen for the next run. The rejected mail is filed whenever `event` handed on its outcome.

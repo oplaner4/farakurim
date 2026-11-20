@@ -1,8 +1,8 @@
 # GitHub setup
 
 What the repository on GitHub needs for the [release](deployment.md#release) and the
-[content pipelines](content-pipelines.md): its name, the `Production` environment, the variables, the ruleset on
-`main` and the check.
+[content pipelines](content-pipelines.md): its name, the `Production` environment, the variables, the content PR
+labels, the ruleset on `main` and the check.
 
 - **Repository**: the workflows and scripts read the repository from GitHub (`GITHUB_REPOSITORY`), so the setup
   works in any repository. Three places name it and must match the repository the site runs from: `GITHUB_REPOSITORY`
@@ -21,6 +21,17 @@ What the repository on GitHub needs for the [release](deployment.md#release) and
   content PR when it is opened (`service-sheet.yml` and `events.yml`), so GitHub notifies them. A repository variable,
   not one of an environment: both workflows read it. Each login needs write access to the repository. An update of an
   open PR asks no one again. A review request is only a notification: the ruleset on `main` requires no approval.
+- **The labels `events` and `service sheet`**: `events.yml` and `service-sheet.yml` put them on each content PR they
+  open or update (the `labels` input of `.github/actions/content-pr`). The action sets a label by name only, and fails
+  if the label does not exist, so create both once. A label's colour belongs to the label, not to the PR: change it
+  with `gh label edit`, and every PR shows the new one. Their colours are the site's magenta and orange
+  (`--color-magenta`, `--color-orange` in `src/styles/globals.css`):
+
+  ```sh
+  gh label create "events" --color d60b51 --description "Events (aktuality) PR from the events workflow"
+  gh label create "service sheet" --color f39200 --description "Service sheet (ohlášky) PR from the service-sheet workflow"
+  ```
+
 - **A ruleset on `main`** requiring the status check `check` (the job of `check.yml`), with the content GitHub App and
   the **Repository admin** role as bypass actors, so a red content PR cannot be merged while the content release's
   commit and tag still push. The admin role keeps `pnpm release` and your own pushes to `main` working: a required
@@ -70,6 +81,7 @@ It does **not** check, so these stay with the setup steps and the first runs:
   SSH key or an expired App key passes too.
 - **The GitHub App**: that the bypass actor is the content App, that it is installed on this repository with
   `contents: write` and `pull-requests: write`, and that `CONTENT_APP_CLIENT_ID` is its Client ID.
+- **The labels** `events` and `service sheet`: a missing one fails the next content PR's "Open the PR" step.
 - **The `pull_request_target` Actions policy** scoped to `content-release.yml` (no API reads it).
 - **The other rulesets** ("Protect main", the `releases` tag ruleset), the other repository settings (Actions
   enabled, the default branch, the workflow permissions) and the environments' wait timers.

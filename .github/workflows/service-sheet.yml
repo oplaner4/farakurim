@@ -321,6 +321,7 @@ jobs:
           body-file: ${{ runner.temp }}/run/pr-body.md
           report-file: ${{ runner.temp }}/out/report.json
           reviewers: ${{ vars.CONTENT_REVIEWERS }}
+          labels: service sheet
 
       # A subject naming an older week leaves the DOCX's newest week out: `pnpm content-pr newer-week` says so in a
       # comment on the PR (whether that week is staged, and whether it is likely the one meant), once per left-out week.
