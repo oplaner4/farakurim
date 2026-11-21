@@ -1,172 +1,6 @@
 {
   "sheets": [
     {
-      "validFrom": "2026-11-08",
-      "validTo": "2026-11-15",
-      "days": [
-        {
-          "date": "2026-11-08",
-          "feast": "32. neděle v mezidobí",
-          "solemnity": true,
-          "rows": [
-            {
-              "time": "8:00",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za Ivetu Plevovu, Zoru Hečkovu, Naďu Hemzovu, Oldřišku Oltovu, manžele Pustějovských a bratra Pavla",
-              "mass": true
-            },
-            {
-              "time": "9:30",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za † tatínka a živou a † rodinu Pospíšilovu",
-              "mass": true
-            },
-            {
-              "time": "11:00",
-              "place": "moravske-kninice",
-              "title": "Mše sv.",
-              "detail": "za Helenu Večeřovou, přízeň a DO",
-              "mass": true
-            }
-          ]
-        },
-        {
-          "date": "2026-11-09",
-          "feast": "svátek Posvěcení lateránské baziliky",
-          "solemnity": false,
-          "rows": [
-            {
-              "time": "8:00",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za † Františka Novotného a manželku Zdeňku",
-              "mass": true
-            }
-          ]
-        },
-        {
-          "date": "2026-11-10",
-          "solemnity": false,
-          "rows": [
-            {
-              "time": "17:00",
-              "place": "Tišnov",
-              "title": "Mše sv.",
-              "detail": "na úmysl dárce",
-              "mass": true
-            }
-          ]
-        },
-        {
-          "date": "2026-11-11",
-          "feast": "sv. Martin",
-          "solemnity": false,
-          "rows": [
-            {
-              "time": "8:00",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za † manžela Jaroslava Chatrného, bratra a rodiče",
-              "mass": true
-            }
-          ]
-        },
-        {
-          "date": "2026-11-12",
-          "solemnity": false,
-          "rows": [
-            {
-              "time": "15:00",
-              "place": "kurim",
-              "title": "Pohřeb paní Ludmily Markové"
-            },
-            {
-              "time": "18:00",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za živé a † farníky a dobrodince naší farnosti",
-              "mass": true
-            }
-          ]
-        },
-        {
-          "date": "2026-11-13",
-          "feast": "sv. Anežka Česká",
-          "solemnity": false,
-          "rows": [
-            {
-              "time": "16:45",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za rodinu Nechvátalovu a † manžela",
-              "mass": true
-            },
-            {
-              "time": "18:00",
-              "place": "moravske-kninice",
-              "title": "Mše sv.",
-              "detail": "za 3. a 4. růži Živého růžence",
-              "mass": true
-            }
-          ]
-        },
-        {
-          "date": "2026-11-14",
-          "solemnity": false,
-          "rows": [
-            {
-              "time": "16:30",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za Komunitu Emmanuel",
-              "mass": true
-            }
-          ]
-        },
-        {
-          "date": "2026-11-15",
-          "feast": "33. neděle v mezidobí",
-          "solemnity": true,
-          "rows": [
-            {
-              "time": "8:00",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za 1. růži Živého růžence",
-              "mass": true
-            },
-            {
-              "time": "9:30",
-              "place": "kurim",
-              "title": "Mše sv.",
-              "detail": "za Jitku Poláškovu a spolupracovníky",
-              "mass": true
-            },
-            {
-              "time": "11:00",
-              "place": "moravske-kninice",
-              "title": "Hodová mše sv.",
-              "detail": "za obec, občany a rodáky Moravských Knínic",
-              "mass": true
-            }
-          ]
-        }
-      ],
-      "announcements": [
-        {
-          "category": "invitation",
-          "html": "<p><strong>Dnes (8. 11.)</strong> na faře <strong>v 11 hod.</strong> je přednáška MUDr. Pavla Vaška „Vědomí a smrt z pohledu současné vědy“. Téma zapadá do dušičkového týdne. Srdečně zveme.</p>",
-          "newsId": "vedomi-a-smrt-2026"
-        },
-        {
-          "category": "info",
-          "html": "<p>Sbírka příští neděle je na pronásledované křesťany.</p>"
-        }
-      ]
-    },
-    {
       "validFrom": "2026-11-15",
       "validTo": "2026-11-22",
       "days": [
@@ -335,6 +169,180 @@
           "category": "invitation",
           "html": "<p>V sobotu <strong>21. 11.</strong> se v Blansku <strong>od 9.30 do 17.30</strong> uskuteční setkání mládeže od 2. stupně základních škol po vysokoškoláky. Přihlašování je přes QR kód na plakátech nebo v elektronických zdrojích.</p>",
           "newsId": "oblastni-setkani-mladeze-blansko-2026"
+        }
+      ]
+    },
+    {
+      "validFrom": "2026-11-22",
+      "validTo": "2026-11-29",
+      "days": [
+        {
+          "date": "2026-11-22",
+          "feast": "Ježíše Krista Krále",
+          "solemnity": true,
+          "rows": [
+            {
+              "time": "8:00",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za rodiče Vetrovy, jejich sourozence, syna Ladislava a dceru Cecílii",
+              "mass": true
+            },
+            {
+              "time": "9:30",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za Rostislava Vermouzka, živou a † rodinu",
+              "mass": true
+            },
+            {
+              "time": "11:00",
+              "place": "moravske-kninice",
+              "title": "Mše sv.",
+              "detail": "za rodiče Kšicovy, jejich sourozence a syna",
+              "mass": true
+            }
+          ]
+        },
+        {
+          "date": "2026-11-23",
+          "solemnity": false,
+          "rows": [
+            {
+              "time": "8:00",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za vztahy na pracovišti",
+              "mass": true
+            }
+          ]
+        },
+        {
+          "date": "2026-11-24",
+          "solemnity": false,
+          "rows": [
+            {
+              "time": "8:00",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za rodinu Ondrušovu",
+              "mass": true
+            }
+          ]
+        },
+        {
+          "date": "2026-11-25",
+          "feast": "sv. Kateřina Alexandrijská",
+          "solemnity": false,
+          "rows": [
+            {
+              "time": "18:00",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za lidi pronásledované pro víru",
+              "mass": true
+            }
+          ]
+        },
+        {
+          "date": "2026-11-26",
+          "solemnity": false,
+          "rows": [
+            {
+              "time": "17:30",
+              "place": "kurim",
+              "title": "Adorace",
+              "service": true
+            },
+            {
+              "time": "18:00",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za posilu v náročné službě",
+              "mass": true
+            }
+          ]
+        },
+        {
+          "date": "2026-11-27",
+          "solemnity": false,
+          "rows": [
+            {
+              "time": "16:45",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za živé a † farníky a dobrodince naší farnosti",
+              "mass": true
+            },
+            {
+              "time": "18:00",
+              "place": "moravske-kninice",
+              "title": "Mše sv.",
+              "detail": "na úmysl dárce",
+              "mass": true
+            }
+          ]
+        },
+        {
+          "date": "2026-11-28",
+          "solemnity": false,
+          "rows": [
+            {
+              "time": "8:00",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za Boží požehnání a očištění srdce",
+              "mass": true
+            }
+          ]
+        },
+        {
+          "date": "2026-11-29",
+          "feast": "1. neděle adventní",
+          "solemnity": true,
+          "rows": [
+            {
+              "time": "8:00",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za Františka Vidláka, Jaromíra Grejpla, Pavla Šoloniho, Rudolfa Olta, Petra Toncra, Josefa Václavce a bratra Pavla",
+              "mass": true
+            },
+            {
+              "time": "9:30",
+              "place": "kurim",
+              "title": "Mše sv.",
+              "detail": "za ty, kdo se připravují na křest",
+              "mass": true
+            },
+            {
+              "time": "11:00",
+              "place": "moravske-kninice",
+              "title": "Mše sv.",
+              "detail": "za Marii a Jana Krčmovy, jejich rodiče a † syny",
+              "mass": true
+            }
+          ]
+        }
+      ],
+      "announcements": [
+        {
+          "category": "invitation",
+          "html": "<p><strong>Dnes (22. 11.)</strong> je v sokolovně v České <strong>od 14 do 18 hod</strong> charitativní jarmark. Výtěžek je určen na humanitární pomoc Člověka v tísni SOS Ukrajina.</p>",
+          "newsId": "charitativni-jarmark-2026"
+        },
+        {
+          "category": "invitation",
+          "html": "<p><strong>Ve středu (25. 11.)</strong> je tzv. Červená středa. Pamatujeme na lidi pronásledované pro víru. Kuřimský kostel bude nasvícen červeně <strong>od 17 do 20 hodin</strong> a otevřen k modlitbě a adoraci.</p>",
+          "newsId": "cervena-streda-2026"
+        },
+        {
+          "category": "info",
+          "html": "<p><strong>Příští neděli (29. 11.)</strong> se při všech bohoslužbách žehnají adventní věnce. <strong>Kolem 17 hodiny</strong> se na horním náměstí rozžíhá adventní strom.</p>"
+        },
+        {
+          "category": "invitation",
+          "html": "<p><strong>Příští neděli (29. 11.)</strong> vás také zveme po mši svaté na faru na prodejní výstavu knih z nakladatelství DORON. Přijďte se podívat na pestrou nabídku knih pro děti i dospělé, vyberte knihu, která potěší vás nebo někoho blízkého. Na výstavě knihy objednáte a <strong>v neděli 6. 12.</strong> bude vaše objednávka po mši svaté připravena k vyzvednutí.</p>"
         }
       ]
     }
