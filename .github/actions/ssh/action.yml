@@ -1,0 +1,36 @@
+# Sets up the SSH key and the server's host key for the deploy (deploy.yml, content-release.yml): checks both are
+# given, then writes them to ~/.ssh with the modes ssh requires. The caller passes them in from the Production
+# environment, as a composite action cannot read secrets itself: the key is the secret DEPLOY_SSH_KEY, the host key
+# DEPLOY_KNOWN_HOSTS (public, so a secret or a variable).
+#
+# Callers use it as `oplaner4/farakurim/.github/actions/ssh@main`, never `./.github/actions/ssh`: deploy.yml checks out
+# a release tag (sparsely: only the deploy and cron scripts), so a local action would be missing there, and would be
+# missing in every tag made before it existed. A change here reaches both workflows once it is on main.
+
+name: SSH
+description: Write the deploy SSH key and the server's host key to ~/.ssh.
+
+inputs:
+  key:
+    description: The private key (the secret DEPLOY_SSH_KEY)
+    required: true
+  known-hosts:
+    description: The server's known_hosts lines (DEPLOY_KNOWN_HOSTS)
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        DEPLOY_SSH_KEY: ${{ inputs.key }}
+        DEPLOY_KNOWN_HOSTS: ${{ inputs.known-hosts }}
+      run: |
+        if [ -z "$DEPLOY_SSH_KEY" ] || [ -z "$DEPLOY_KNOWN_HOSTS" ]; then
+          echo "::error::Set DEPLOY_SSH_KEY (secret) and DEPLOY_KNOWN_HOSTS in the Production environment."
+          exit 1
+        fi
+        install -d -m 700 ~/.ssh
+        printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts

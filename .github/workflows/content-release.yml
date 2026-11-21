@@ -197,19 +197,11 @@ jobs:
 
       - name: Set up SSH
         if: steps.plan.outputs.action == 'release'
-        env:
-          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        uses: oplaner4/farakurim/.github/actions/ssh@main
+        with:
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
           # The host key is public, so it may be a variable; the private key must be a secret.
-          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS || vars.DEPLOY_KNOWN_HOSTS }}
-        run: |
-          if [ -z "$DEPLOY_SSH_KEY" ] || [ -z "$DEPLOY_KNOWN_HOSTS" ]; then
-            echo "::error::Set DEPLOY_SSH_KEY (secret) and DEPLOY_KNOWN_HOSTS in the Production environment."
-            exit 1
-          fi
-          install -d -m 700 ~/.ssh
-          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          known-hosts: ${{ secrets.DEPLOY_KNOWN_HOSTS || vars.DEPLOY_KNOWN_HOSTS }}
 
       # `apply` checks every file first and copies them in the plan's order, so a later file of the same path (a
       # correction) overwrites an earlier one.
