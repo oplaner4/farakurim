@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import type { Artifact, GitHubReader } from "../content-release/sources";
@@ -75,6 +75,27 @@ describe("parseCommand", () => {
         fix: true,
       },
     );
+    const apply = [
+      "apply",
+      "--kind",
+      "events",
+      "--base",
+      "b",
+      "--out",
+      "o",
+      "--outputs",
+      "gh.out",
+      "r.json",
+      "c.patch",
+    ];
+    expect(parseCommand(apply)).toMatchObject({ action: "apply", outputs: "gh.out" });
+    expect(parseCommand(["branch", "--kind", "sheet", "--date", "2026-11-20", "--outputs", "gh.out"])).toEqual({
+      action: "branch",
+      kind: "sheet",
+      date: "2026-11-20",
+      outputs: "gh.out",
+    });
+    expect(parseCommand(["branch", "--kind", "events", "--outputs", "gh.out"])).toMatchObject({ date: "" });
     expect(parseCommand(["summary", "--kind", "sheet", "r.json"])).toEqual({
       action: "summary",
       kind: "sheet",
@@ -128,6 +149,12 @@ describe("parseCommand", () => {
     expect(() => parseCommand(["stored"])).toThrow("stored needs --pr");
     expect(() => parseCommand(["stored", "--pr", "x"])).toThrow("--pr is not a PR number");
     expect(() => parseCommand(["newer-week", "--pr", "7"])).toThrow("Unknown option '--pr'");
+    expect(() => parseCommand(["branch", "--kind", "sheet"])).toThrow("branch needs --outputs");
+    expect(() => parseCommand(["branch", "--outputs", "o"])).toThrow("branch needs --kind");
+    expect(() => parseCommand(["branch", "--kind", "sheet", "--outputs", "o", "x"])).toThrow("branch takes");
+    expect(() =>
+      parseCommand(["apply", "--kind", "sheet", "--base", "b", "--out", "o", "--outputs", "", "r.json", "c.patch"]),
+    ).toThrow("apply needs --outputs");
     expect(() => parseCommand(["body", "--kind", "sheet", "--run-url", "u", "r.json"])).toThrow("body needs --base");
     expect(() => parseCommand(["body", "--kind", "sheet", "--base", "b", "r.json"])).toThrow("body needs --run-url");
     expect(() => parseCommand(["summary", "--kind", "sheet", "--run", "r.json"])).toThrow("Usage:");
@@ -166,6 +193,7 @@ describe("execute", () => {
           posted.push(body);
         },
       }),
+      today: () => "2026-11-21",
     };
     return execute(command, io).then(() => ({ out: lines, errors }));
   }
@@ -202,21 +230,37 @@ describe("execute", () => {
     await expect(run({ ...check, report })).rejects.toThrow("weeks.0.questions.0.blocking: may not change");
   });
 
-  it("applies a run and prints its result", async () => {
+  it("applies a run, prints its result and writes it to the step outputs file", async () => {
     const file = sheetRepo(repo(), sheetList());
     writeFileSync(file, sheetList(WEEK_19));
     const patch = join(dir(), "content.patch");
     writeFileSync(patch, `${testGit(repo(), "diff", "--binary", "HEAD")}\n`);
     testGit(repo(), "checkout", "-q", "--", ".");
     const report = json("run.json", sheetRunReport(WEEK_19));
+    const outputs = join(dir(), "github-output");
     const out = join(dir(), "out");
-    const command = { action: "apply", kind: "sheet", base: "main", out, run: true, report, patch } as const;
+    const command = { action: "apply", kind: "sheet", base: "main", out, outputs, run: true, report, patch } as const;
     const env = { STAGE_RESULT: json("stage-result.json", stageResultOf(WEEK_19)) };
-    expect(JSON.parse((await run(command, { env })).out[0])).toEqual({
-      changed: true,
-      draft: false,
-      message: "feat(content): publish the service sheet for 19.–25. 10. 2026",
-    });
+    const message = "feat(content): publish the service sheet for 19.–25. 10. 2026";
+    expect(JSON.parse((await run(command, { env })).out[0])).toEqual({ changed: true, draft: false, message });
+    expect(readFileSync(outputs, "utf8").replace(/ghadelimiter_[\w-]+/g, "EOF")).toBe(
+      `changed<<EOF\ntrue\nEOF\ndraft<<EOF\nfalse\nEOF\nmessage<<EOF\n${message}\nEOF\nfix<<EOF\n\nEOF\n`,
+    );
+  });
+
+  it("writes the chosen branch to the step outputs file and prints it", async () => {
+    mkdirSync(repo(), { recursive: true });
+    testGit(repo(), "init", "-q", "-b", "main");
+    testGit(repo(), "commit", "-q", "--allow-empty", "-m", "main");
+    const head = testGit(repo(), "rev-parse", "HEAD");
+    const outputs = join(dir(), "github-output");
+    const command = { action: "branch", kind: "events", date: "not a date", outputs } as const;
+    expect((await run(command)).out).toEqual(["events/2026-11-21 (new)"]);
+    const written = readFileSync(outputs, "utf8").replace(/ghadelimiter_[\w-]+/g, "EOF");
+    expect(written).toBe(
+      `branch<<EOF\nevents/2026-11-21\nEOF\nbase<<EOF\n${head}\nEOF\n` +
+        "pr<<EOF\n\nEOF\nreport_run<<EOF\n\nEOF\nreport_name<<EOF\n\nEOF\n",
+    );
   });
 
   it("renders the body from report.json and what the content publishes against the base", async () => {
@@ -282,6 +326,7 @@ describe("execute", () => {
         { sha: "b2", bot: true },
       ],
       artifactsNamed: async (name) => artifacts.filter((a) => a.name === name),
+      openPulls: async () => [],
     };
     expect((await run({ action: "stored", pr: 7 }, { github })).out).toEqual(["20 content-report-b2"]);
     artifacts.length = 0;

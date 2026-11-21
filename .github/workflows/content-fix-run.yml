@@ -305,9 +305,9 @@ jobs:
       # the news month files and the venue list, which only gains venues and aliases), checks that the report differs
       # from the PR's original one only where a fix may change it and checks the report against the whole PR (from its merge base with origin/main, fetched here); otherwise it fails and nothing is applied. It
       # writes the report to $RUNNER_TEMP/publish/report.json and the checked reply (never holding a reply's marker) to
-      # $RUNNER_TEMP/publish/reply.md (the only text of the agent's the reply posts), and gives
-      # `{ changed, draft, message, fix? }`: the PR's title and the fix's commit message, both accepted by commitlint
-      # (a default otherwise). No id the change adds may be held by an open events PR (this PR's own events are on its
+      # $RUNNER_TEMP/publish/reply.md (the only text of the agent's the reply posts), and writes changed, draft,
+      # message and fix to the step's outputs: `message` the PR's title and `fix` the fix's commit message, both
+      # accepted by commitlint (a default otherwise). No id the change adds may be held by an open events PR (this PR's own events are on its
       # head already). The PR body (`pnpm content-pr body`) ends with the Události lines that need a person for events,
       # as events.yml builds them, and the footer.
       - name: Apply the change
@@ -323,7 +323,8 @@ jobs:
           patch="$run/content.patch"
           git fetch --quiet origin +refs/heads/main:refs/remotes/origin/main
           if ! result=$(pnpm --silent content-pr apply --kind "$KIND" --fix "$run/fix.json" \
-            --original "$run/original-report.json" --base origin/main --out "$out" "$run/report.json" "$patch"); then
+            --original "$run/original-report.json" --base origin/main --out "$out" --outputs "$GITHUB_OUTPUT" \
+            "$run/report.json" "$patch"); then
             echo "::error::The report or the change was not accepted (see above)."
             exit 1
           fi
@@ -333,13 +334,7 @@ jobs:
           fi
           uploads=false
           if [ "$changed" = true ] && [ -n "$(find "$run/$UPLOADS" -type f 2> /dev/null)" ]; then uploads=true; fi
-          {
-            echo "changed=$changed"
-            echo "blocking=$(jq -r .draft <<< "$result")"
-            echo "fix=$(jq -r '.fix // ""' <<< "$result")"
-            echo "title=$(jq -r .message <<< "$result")"
-            echo "uploads=$uploads"
-          } >> "$GITHUB_OUTPUT"
+          echo "uploads=$uploads" >> "$GITHUB_OUTPUT"
           : > "$out/calendar.txt"
           if [ "$KIND" = events ]; then
             pnpm --silent calendar-sync --calendar events --problems > "$out/calendar.txt" 2> /dev/null || true
@@ -434,8 +429,8 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
           PR: ${{ inputs.pr }}
-          TITLE: ${{ steps.apply.outputs.title }}
-          BLOCKING: ${{ steps.apply.outputs.blocking }}
+          TITLE: ${{ steps.apply.outputs.message }}
+          BLOCKING: ${{ steps.apply.outputs.draft }}
         run: |
           body="$RUNNER_TEMP/publish/pr-body.md"
           pull=$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json title,body,isDraft)

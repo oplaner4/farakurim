@@ -1,10 +1,21 @@
-// pnpm content-pr: the checks between the agent's run and the commit of a content PR, run by the mail workflows
-// (service sheet, events) and the comment fix on a fresh checkout. The agent runs `check` on its own report (the
-// "Unattended run" and "Comment run" sections of the content skills); no skill uses the other actions.
+// pnpm content-pr: the branch a content mail run commits to, and the checks between the agent's run and the commit of
+// a content PR, run by the mail workflows (service sheet, events) and the comment fix on a fresh checkout. The agent
+// runs `check` on its own report (the "Unattended run" and "Comment run" sections of the content skills); no skill uses
+// the other actions.
 //
-// Every action reads a JSON report: a stored one (scripts/lib/content-pr/report-schema.ts), or with `--run` the agent's
-// of a mail run (agent-report-schema.ts), which the script completes with what the change shows: the report's kind, a
-// published item's outcome, a published week's dates (from the working tree against HEAD) and the new questions' ids.
+// `branch` chooses the branch of a mail run before the agent's step and writes it to the step outputs file
+// `--outputs` (GITHUB_OUTPUT) as `branch`, `base` (the commit the change is based on), `pr`, `report_run` and
+// `report_name`, and prints it. A sheet run continues the newest open PR of this repo on a `service-sheet/` branch:
+// `base` is that branch's head on origin, `report_*` its stored report as `stored` finds it, and a PR without one fails
+// with "close the PR and send the sheet or event again" (a second PR would conflict with it); it reads the GitHub API
+// with GH_TOKEN for GITHUB_REPOSITORY. Otherwise (and always for events) it names a new branch `<prefix><date>` after
+// `--date` (today in Prague when that is not a date), adding `-2`, `-3`, … while origin has the name; `base` is HEAD,
+// the other three are "".
+//
+// Every action but `branch` and `stored` reads a JSON report: a stored one (scripts/lib/content-pr/report-schema.ts),
+// or with `--run` the agent's of a mail run (agent-report-schema.ts), which the script completes with what the change
+// shows: the report's kind, a published item's outcome, a published week's dates (from the working tree against HEAD)
+// and the new questions' ids.
 // `check` reads it as `apply` does and prints `The report is valid.`, or fails with each issue as `<path>: <message>`.
 // A sheet run's report (one week and its question updates) is merged into the PR's report given by `--previous` (none
 // on the PR's first run); a previous report that is missing or that the schema refuses fails with "close the PR and
@@ -24,7 +35,8 @@
 // src/content/*.json; events: the news month files and the venue list), then checks the report against the whole PR
 // (the checkout against its merge base with `--base`): every week the PR adds or changes is `created` or `corrected`
 // and the reverse, the events it adds are exactly the `created` ones. A mismatch undoes the patch and fails. It writes
-// the final report to `<out>/report.json` and prints `{ changed, draft, message, fix? }`: `draft` when an open
+// the final report to `<out>/report.json` and prints `{ changed, draft, message, fix? }` (with `--outputs`, also written
+// to that step outputs file, `fix` "" without one): `draft` when an open
 // question blocks, `message` the PR's commit message named from the change (the kind's default when commitlint
 // refuses it), `fix` (with `--fix` and a change) the fix's commit message: the result's `fixMessage`, else one named
 // from what the fix changed, else the default. `body` prints the PR body rendered from a final report with what the
@@ -48,7 +60,8 @@
 //                              [--run [--previous <report.json> | --known <known.json> --corrections <words.json>]]
 //                              [--fix <fix.json> --original <report.json>] <report.json>
 //        pnpm --silent content-pr stored --pr <n>
-//        pnpm --silent content-pr apply --kind <sheet|events> --base <ref> --out <dir>
+//        pnpm --silent content-pr branch --kind <sheet|events> [--date <date>] --outputs <file>
+//        pnpm --silent content-pr apply --kind <sheet|events> --base <ref> --out <dir> [--outputs <file>]
 //                                       [--run [--previous <report.json> | --known <known.json>
 //                                       --corrections <words.json>]]
 //                                       [--fix <fix.json> --original <report.json>]
@@ -69,6 +82,8 @@
 //          --base      the ref whose merge base with HEAD the PR's facts are checked against, and the body's content
 //                      compared with (origin/main)
 //          --out       the folder `apply` writes the final report.json to
+//          --outputs   the step outputs file (GITHUB_OUTPUT) `branch` and `apply` write their result to
+//          --date      the mail's date, which a new branch is named after
 //          --pr        the PR number
 //          --run-url   this run's URL, named in the body's footer
 //          --calendar  the events that need a person in Události, shown in the body

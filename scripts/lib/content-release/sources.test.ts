@@ -67,6 +67,21 @@ describe("gitHubReader", () => {
     expect(commits.calls[0].url).toBe(`https://api.github.com/repos/${repo}/pulls/7/commits?per_page=100`);
   });
 
+  it("reads the open PRs, a fork's or a deleted fork's as a fork", async () => {
+    const head = (ref: string, fullName: string | null) => ({ ref, repo: fullName && { full_name: fullName } });
+    const { calls, fetchImpl } = stubFetch([
+      { number: 9, merged_at: null, merge_commit_sha: null, head: head("service-sheet/2026-11-20", repo) },
+      { number: 8, merged_at: null, merge_commit_sha: null, head: head("service-sheet/x", "someone/farakurim") },
+      { number: 7, merged_at: null, merge_commit_sha: null, head: head("service-sheet/y", null) },
+    ]);
+    expect(await gitHubReader(repo, "t0k", fetchImpl).openPulls()).toEqual([
+      { number: 9, branch: "service-sheet/2026-11-20", fork: false },
+      { number: 8, branch: "service-sheet/x", fork: true },
+      { number: 7, branch: "service-sheet/y", fork: true },
+    ]);
+    expect(calls[0].url).toBe(`https://api.github.com/repos/${repo}/pulls?state=open&per_page=100`);
+  });
+
   it("maps a deleted fork to a null head repository", async () => {
     const { fetchImpl } = stubFetch([
       { number: 7, merged_at: null, merge_commit_sha: null, head: { ref: "service-sheet/x", repo: null } },

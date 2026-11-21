@@ -30,6 +30,9 @@ const DEFAULT_FIX_MESSAGE = "fix(content): apply a comment correction";
 /** What to apply: the report's input, the ref whose merge base the facts are checked against, the output folder. */
 export type ApplyInput = ReportInput & { base: string; out: string; patch: string };
 
+/** What `applyReport` decided: whether the patch changed anything, a draft PR, its commit message, a fix's message. */
+export type ApplyResult = { changed: boolean; draft: boolean; message: string; fix?: string };
+
 /** Where `applyReport` works and reports: the checkout, the printed result, the warnings and commitlint. */
 export type ApplyIo = {
   cwd: string;
@@ -69,9 +72,10 @@ function checkFinalReport(input: ApplyInput, cwd: string, final: Report, changes
 /**
  * Applies the patch after checking a fix result's outcome against it, checks a fix's report against the original one
  * and the final report against the whole PR (undoing the patch on a mismatch, or when it changes something and the report publishes nothing), writes
- * `<out>/report.json` (and a fix result's reply to `<out>/reply.md`) and prints `{ changed, draft, message, fix? }`.
+ * `<out>/report.json` (and a fix result's reply to `<out>/reply.md`), prints `{ changed, draft, message, fix? }` and
+ * returns it.
  */
-export function applyReport(input: ApplyInput, io: ApplyIo): void {
+export function applyReport(input: ApplyInput, io: ApplyIo): ApplyResult {
   const { kind, patch } = input;
   const toReport = readReport(input);
   const fix = readFix(input.fix);
@@ -109,5 +113,7 @@ export function applyReport(input: ApplyInput, io: ApplyIo): void {
     fix && fixChanges
       ? acceptedMessage(io, "fix", [fix.fixMessage, fixCommitMessage(fixChanges)], DEFAULT_FIX_MESSAGE)
       : undefined;
-  io.print(JSON.stringify({ changed, draft: isDraft(final), message, ...(fixMessage && { fix: fixMessage }) }));
+  const result: ApplyResult = { changed, draft: isDraft(final), message, ...(fixMessage && { fix: fixMessage }) };
+  io.print(JSON.stringify(result));
+  return result;
 }

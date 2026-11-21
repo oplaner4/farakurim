@@ -15,6 +15,7 @@ function fakeGitHub(commits: string[], artifacts: Artifact[]): GitHubReader {
     pullsOfCommit: async () => [],
     commitsOfPull: async () => commits.map((sha) => ({ sha, bot: true })),
     artifactsNamed: async (name) => artifacts.filter((a) => a.name === name),
+    openPulls: async () => [],
   };
 }
 

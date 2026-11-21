@@ -135,25 +135,13 @@ jobs:
           cp "$RUNNER_TEMP/run/corrections.json" "$RUNNER_TEMP/event/corrections.json"
 
       # A new branch from main for each mail, named after its date (Prague time); a branch of the same name (an open or
-      # closed PR's) gets a suffix.
+      # closed PR's) gets a suffix. `pnpm content-pr branch` writes branch and base to the step's outputs.
       - name: Name the branch
         id: branch
         if: steps.fetch.outputs.mail != ''
         env:
           MAIL_DATE: ${{ steps.fetch.outputs.date }}
-        run: |
-          date="$MAIL_DATE"
-          if ! [[ "$date" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then date=$(TZ=Europe/Prague date +%F); fi
-          branch="events/$date"
-          n=2
-          while git show-ref --quiet --verify "refs/remotes/origin/$branch"; do
-            branch="events/$date-$n"
-            n=$((n + 1))
-          done
-          {
-            echo "branch=$branch"
-            echo "base=$(git rev-parse HEAD)"
-          } >> "$GITHUB_OUTPUT"
+        run: pnpm --silent content-pr branch --kind events --date "$MAIL_DATE" --outputs "$GITHUB_OUTPUT"
 
       # The prompt holds no event rules: they live in the skill. What the agent may do: .github/actions/agent.
       - name: Run parish-create-event
@@ -249,7 +237,8 @@ jobs:
       # are exactly the report's `created` ones, by id and title (without a change, every event refused or no event at
       # all, and the mail is refused); otherwise it fails and nothing is applied or filed. It writes the final report
       # to $RUNNER_TEMP/out/report.json, names the commit after the new events, and an open blocking question makes a
-      # draft. No id the change adds may be held by an open PR. The PR body ends with the Události lines that need a
+      # draft; it writes changed, draft, message and fix to the step's outputs. No id the change adds may be held by an
+      # open PR. The PR body ends with the Události lines that need a
       # person (as deploy.yml warns on them), since the merge releases.
       - name: Apply the change
         id: changes
@@ -262,20 +251,14 @@ jobs:
           run="$RUNNER_TEMP/run"
           out="$RUNNER_TEMP/out"
           if ! result=$(pnpm --silent content-pr apply --kind events --run --known "$run/known.json" \
-            --corrections "$run/corrections.json" --base origin/main --out "$out" "$run/report.json" \
-            "$run/content.patch"); then
+            --corrections "$run/corrections.json" --base origin/main --out "$out" --outputs "$GITHUB_OUTPUT" \
+            "$run/report.json" "$run/content.patch"); then
             echo "::error::The report or the change was not accepted (see above): the mail stays unread."
             exit 1
           fi
-          changed=$(jq -r .changed <<< "$result")
-          echo "changed=$changed" >> "$GITHUB_OUTPUT"
-          if [ "$changed" != true ]; then exit 0; fi
+          if [ "$(jq -r .changed <<< "$result")" != true ]; then exit 0; fi
           pnpm --silent event-mail check-ids "$run/known.json"
           git checkout -B "$BRANCH"
-          {
-            echo "draft=$(jq -r .draft <<< "$result")"
-            echo "message=$(jq -r .message <<< "$result")"
-          } >> "$GITHUB_OUTPUT"
           pnpm --silent calendar-sync --calendar events --problems > "$run/calendar.txt" 2> /dev/null || true
           pnpm --silent content-pr body --kind events --base origin/main --run-url "$RUN_URL" --calendar "$run/calendar.txt" \
             "$out/report.json" > "$run/pr-body.md"

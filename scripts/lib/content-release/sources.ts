@@ -1,6 +1,6 @@
 // What a content release is planned from: the commits since the last release tag and the uploaded-file links a commit
 // adds to the content (git) and, from the GitHub REST API, the PRs of a commit, the commits of a PR and the artifacts
-// of a name.
+// of a name; also the open PRs.
 
 import { UPLOAD_EXTENSIONS, UPLOADS_PATH } from "@/lib/shared/uploads";
 import { git } from "../git";
@@ -27,6 +27,9 @@ export type Artifact = {
   trusted: boolean;
 };
 
+/** An open PR; `fork` when its branch is not in this repo (a fork's PR may carry any branch name, or its fork is gone). */
+export type OpenPull = { number: number; branch: string; fork: boolean };
+
 /** A commit of a PR; `bot` when a GitHub App's bot authored it (a content workflow), not a person. */
 export type PullCommit = { sha: string; bot: boolean };
 
@@ -35,6 +38,8 @@ export type GitHubReader = {
   /** The PR's commits, oldest first. */
   commitsOfPull(number: number): Promise<PullCommit[]>;
   artifactsNamed(name: string): Promise<Artifact[]>;
+  /** The open PRs, newest first. */
+  openPulls(): Promise<OpenPull[]>;
 };
 
 type ApiPull = {
@@ -49,7 +54,7 @@ type ApiArtifact = {
   workflow_run: { id: number; repository_id: number; head_repository_id: number; head_branch: string };
 };
 
-/** Reads the GitHub REST API of `repo` with `token`. A PR's commits and the artifacts of a name fit one page. */
+/** Reads the GitHub REST API of `repo` with `token`. A PR's commits, the artifacts of a name and the open PRs fit one page. */
 export function gitHubReader(repo: string, token: string, fetchImpl: typeof fetch = fetch): GitHubReader {
   const get = gitHubGet(repo, token, fetchImpl);
   return {
@@ -73,6 +78,12 @@ export function gitHubReader(repo: string, token: string, fetchImpl: typeof fetc
         runId: run.id,
         expired,
         trusted: run.head_repository_id === run.repository_id && run.head_branch === "main",
+      })),
+    openPulls: async () =>
+      (await get<ApiPull[]>("/pulls?state=open&per_page=100")).map((pull) => ({
+        number: pull.number,
+        branch: pull.head.ref,
+        fork: pull.head.repo?.full_name !== repo,
       })),
   };
 }

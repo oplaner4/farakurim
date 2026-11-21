@@ -1,15 +1,19 @@
-// Reads a content-pr command line and runs it: the checks between the agent's run and the commit of a content PR, on a
-// fresh checkout in the working directory, all of them on the JSON report the agent writes.
+// Reads a content-pr command line and runs it: the branch a content mail run commits to, and the checks between the
+// agent's run and the commit of a content PR, on a fresh checkout in the working directory, all of them on the JSON
+// report the agent writes.
 
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { pragueDate } from "@/lib/shared/prague";
 import { parseCommandLine, readJsonRecord, requiredEnv, type Env } from "../command";
 import { ROOT } from "../content-files";
 import { KINDS, type Kind } from "../content-release/plan";
 import { gitHubReader, type GitHubReader } from "../content-release/sources";
+import { appendStepOutputs } from "../step-outputs";
 import { applyReport, type ApplyInput, type ApplyIo } from "./apply";
 import { pullBody } from "./body";
+import { branchOutputs, chooseBranch } from "./branch";
 import { mergeBase } from "./changes";
 import { commentFromEnv, commentWriter, isStaged, type CommentWriter } from "./newer-week";
 import { checkoutEventTitle, publishedContent } from "./published";
@@ -24,7 +28,8 @@ const USAGE = `Usage: pnpm content-pr check --kind <sheet|events>
                              [--run [--previous <report.json> | --known <known.json> --corrections <words.json>]]
                              [--fix <fix.json> --original <report.json>] <report.json>
        pnpm content-pr stored --pr <n>
-       pnpm content-pr apply --kind <sheet|events> --base <ref> --out <dir>
+       pnpm content-pr branch --kind <sheet|events> [--date <date>] --outputs <file>
+       pnpm content-pr apply --kind <sheet|events> --base <ref> --out <dir> [--outputs <file>]
                              [--run [--previous <report.json> | --known <known.json> --corrections <words.json>]]
                              [--fix <fix.json> --original <report.json>] <report.json> <content.patch>
        pnpm content-pr body --kind <sheet|events> --base <ref> --run-url <url> [--calendar <file>] [--fix] <report.json>
@@ -34,7 +39,8 @@ const USAGE = `Usage: pnpm content-pr check --kind <sheet|events>
 export type Command =
   | ({ action: "check" } & ReportInput)
   | { action: "stored"; pr: number }
-  | ({ action: "apply" } & ApplyInput)
+  | { action: "branch"; kind: Kind; date: string; outputs: string }
+  | ({ action: "apply"; outputs?: string } & ApplyInput)
   | { action: "body"; kind: Kind; base: string; report: string; runUrl: string; calendar?: string; fix: boolean }
   | { action: "summary"; kind: Kind; report: string }
   | { action: "newer-week" };
@@ -120,14 +126,26 @@ export function parseCommand(args: string[]): Command {
       if (!/^[1-9]\d*$/.test(pr)) throw new Error(`--pr is not a PR number\n${USAGE}`);
       return { action, pr: Number(pr) };
     }
+    case "branch": {
+      const options = { kind: { type: "string" }, date: { type: "string" }, outputs: { type: "string" } } as const;
+      const { values, positionals } = parseCommandLine(rest, options, USAGE);
+      takes(positionals);
+      return { action, kind: kind(values.kind), date: values.date ?? "", outputs: needs(values.outputs, "outputs") };
+    }
     case "apply": {
-      const options = { ...REPORT_OPTIONS, base: { type: "string" }, out: { type: "string" } } as const;
+      const options = {
+        ...REPORT_OPTIONS,
+        base: { type: "string" },
+        out: { type: "string" },
+        outputs: { type: "string" },
+      } as const;
       const { values, positionals } = parseCommandLine(rest, options, USAGE);
       const input = reportInput(values, positionals[0]);
       takes(positionals, "the report", "the patch");
       const base = needs(values.base, "base");
       const out = needs(values.out, "out");
-      return { action, base, out, ...input, patch: positionals[1] };
+      const outputs = values.outputs === undefined ? {} : { outputs: needs(values.outputs, "outputs") };
+      return { action, base, out, ...outputs, ...input, patch: positionals[1] };
     }
     case "body": {
       const options = {
@@ -175,6 +193,8 @@ type Io = ApplyIo & {
   github: () => GitHubReader;
   /** The PR comments of the repository the workflow runs for. */
   comments: () => CommentWriter;
+  /** Today's date in Prague. */
+  today: () => string;
 };
 
 const defaultIo: Io = {
@@ -189,17 +209,43 @@ const defaultIo: Io = {
   },
   github: () => gitHubReader(requiredEnv("GITHUB_REPOSITORY"), requiredEnv("GH_TOKEN")),
   comments: () => commentWriter(requiredEnv("GITHUB_REPOSITORY"), requiredEnv("GH_TOKEN")),
+  today: () => pragueDate(new Date()),
 };
+
+/** Chooses the branch of a mail run, writes it to the step outputs file and prints it. */
+async function branch({ kind, date, outputs }: Extract<Command, { action: "branch" }>, io: Io): Promise<void> {
+  const choice = await chooseBranch(kind, { cwd: io.cwd, date, today: io.today(), github: io.github });
+  appendStepOutputs(outputs, branchOutputs(choice));
+  io.print(choice.pr === undefined ? `${choice.branch} (new)` : `${choice.branch} (PR #${choice.pr})`);
+}
+
+/** Applies a run's change and, with `outputs`, writes its result to that step outputs file (`fix` "" without one). */
+function apply({ outputs, ...input }: Extract<Command, { action: "apply" }>, io: Io): void {
+  const { changed, draft, message, fix = "" } = applyReport(withStageResult(input, io.env), io);
+  if (outputs) appendStepOutputs(outputs, { changed: String(changed), draft: String(draft), message, fix });
+}
+
+/** Prints the PR body rendered from a final report and what the checkout publishes against its merge base with `base`. */
+function body(command: Extract<Command, { action: "body" }>, io: Io): void {
+  const published = publishedContent(io.cwd, mergeBase(io.cwd, command.base));
+  const report = renderReport(parseReport(command.kind, readJsonRecord(command.report)), published);
+  const calendar =
+    command.calendar && existsSync(command.calendar) ? readFileSync(command.calendar, "utf8") : undefined;
+  const { kind, runUrl, fix } = command;
+  io.print(pullBody({ kind, report, runUrl, calendar, fix }).trimEnd());
+}
 
 /**
  * Runs the command. `check` reads the report as `apply` does (with `fix`, checked against the original report and the
  * working tree's change against HEAD) and says it is valid. `stored` prints the PR's newest
- * stored report artifact as `<runId> <name>` (nothing without one). `apply` reads the report (a sheet run's merged
+ * stored report artifact as `<runId> <name>` (nothing without one). `branch` chooses the branch of a mail run
+ * (`chooseBranch`), writes it to the step outputs file `outputs` and prints it. `apply` reads the report (a sheet run's merged
  * into the previous one), checks a fix result's outcome against the patch, applies the patch (only content files of
  * the kind), checks the report's facts against the whole PR (`changesProblem` against the merge base with `base`,
  * undoing the patch on a mismatch), writes the final report to `<out>/report.json` (with `fix`, the checked reply to
- * `<out>/reply.md`) and prints
- * `{ changed, draft, message, fix? }` as JSON. `body` prints the PR body rendered from a final report (of a comment fix
+ * `<out>/reply.md`), prints
+ * `{ changed, draft, message, fix? }` as JSON and, with `outputs`, writes them to that step outputs file (`fix` ""
+ * without one). `body` prints the PR body rendered from a final report (of a comment fix
  * with `fix`) and what the content in the working directory publishes against its merge base with `base`; `summary` prints the job summary from the step results in the environment (`runStateFromEnv`) and the
  * report, and fails when the maintainer must act without a PR. `newer-week` comments on the PR of PR_URL the DOCX's
  * newest week a sheet mail run left out (`newerWeekFromEnv`), unless the PR has that comment already.
@@ -218,18 +264,12 @@ export async function execute(command: Command, io: Io = defaultIo): Promise<voi
       if (stored) io.print(`${stored.runId} ${stored.name}`);
       return;
     }
+    case "branch":
+      return branch(command, io);
     case "apply":
-      applyReport(withStageResult(command, io.env), io);
-      return;
-    case "body": {
-      const published = publishedContent(io.cwd, mergeBase(io.cwd, command.base));
-      const report = renderReport(parseReport(command.kind, readJsonRecord(command.report)), published);
-      const calendar =
-        command.calendar && existsSync(command.calendar) ? readFileSync(command.calendar, "utf8") : undefined;
-      const { kind, runUrl, fix } = command;
-      io.print(pullBody({ kind, report, runUrl, calendar, fix }).trimEnd());
-      return;
-    }
+      return apply(command, io);
+    case "body":
+      return body(command, io);
     case "summary": {
       const report = summaryReport(command.kind, command.report, io.env.STAGE_RESULT || undefined);
       const state = runStateFromEnv(io.env);

@@ -28,6 +28,7 @@ function fakeGitHub(
     pullsOfCommit: async (sha) => pulls[sha] ?? [],
     commitsOfPull: async (number) => (commits[number] ?? []).map((sha) => ({ sha, bot: !sha.startsWith("m") })),
     artifactsNamed: async (name) => artifacts.filter((a) => a.name === name),
+    openPulls: async () => [],
   };
 }
 
