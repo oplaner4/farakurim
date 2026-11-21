@@ -271,7 +271,9 @@ describe("execute", () => {
     const report = json("report.json", sheetReport([WEEK_19]));
     const body = { action: "body", kind: "sheet", base: "main", report, runUrl: "u" } as const;
     const { out: lines } = await run({ ...body, fix: false });
-    expect(lines[0]).toMatch(/^## 19\.–25\. 10\. 2026\n\nAnnouncements:\n- info: Sbírka je na misie\.\n\n---\n/);
+    expect(lines[0]).toMatch(
+      /^## 19\.–25\. 10\. 2026\n\nAnnouncements:\n- \*\*info\*\*: Sbírka je na misie\.\n\n---\n/,
+    );
     expect(lines[0]).toMatch(/this run: u$/);
     const fixed = (await run({ ...body, fix: true })).out[0];
     expect(fixed).toMatch(/last correction: u$/);

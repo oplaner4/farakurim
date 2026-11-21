@@ -57,7 +57,7 @@ function plainText(html: string): string {
 function announcementLine({ category, html, newsId }: Announcement, events: () => Map<string, NewsEvent>): string {
   const event = newsId === undefined ? undefined : events().get(newsId);
   const linked = newsId === undefined ? "" : ` (event ${newsId}${event ? `: ${event.title}, ${event.start}` : ""})`;
-  return `- ${category}: ${plainText(html)}${linked}`;
+  return `- **${category}**: ${plainText(html)}${linked}`;
 }
 
 /** The lines of `sheet`: its announcements when `before` lacks it, else what differs from `before`. */

@@ -36,7 +36,7 @@ describe("renderReport", () => {
         week("2026-10-26", "2026-11-01", { outcome: { kind: "corrected" } }),
         week("2026-10-19", "2026-10-25", { senderNote: ["Note one", "Note two"] }),
       ]),
-      published({ "2026-10-26": ["Announcements:", "- info: Sbírka"] }),
+      published({ "2026-10-26": ["Announcements:", "- **info**: Sbírka"] }),
     );
     expect(md).toBe(
       [
@@ -49,7 +49,7 @@ describe("renderReport", () => {
         "## 26. 10.–1. 11. 2026 (correction)",
         "",
         "Announcements:",
-        "- info: Sbírka",
+        "- **info**: Sbírka",
         "",
         "## Not published",
         "- 2.–8. 11. 2026: refused: no PDF",

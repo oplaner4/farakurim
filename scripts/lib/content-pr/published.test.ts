@@ -40,12 +40,12 @@ describe("publishedContent", () => {
     const lines = publishedContent(dir(), commit).week(WEEK);
     expect(lines.slice(0, 3)).toEqual([
       "Announcements:",
-      "- invitation: Zveme na pouť do Lukova. (event pout-2099: Pouť, 2099-10-10)",
-      "- info: První Druhá (event zadna)",
+      "- **invitation**: Zveme na pouť do Lukova. (event pout-2099: Pouť, 2099-10-10)",
+      "- **info**: První Druhá (event zadna)",
     ]);
     // Cut at 120 characters, the space before the cut left out.
-    expect(lines[3]).toMatch(/^- thanks: Zveme vás\. .*\S…$/);
-    expect(lines[3]!.length).toBeLessThanOrEqual("- thanks: ".length + 121);
+    expect(lines[3]).toMatch(/^- \*\*thanks\*\*: Zveme vás\. .*\S…$/);
+    expect(lines[3]!.length).toBeLessThanOrEqual("- **thanks**: ".length + 121);
   });
 
   it("names what changes in a week already on the base, and nothing for a week the content lacks", () => {
