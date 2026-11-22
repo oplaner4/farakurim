@@ -71,7 +71,7 @@ function weekLines(
     return [changed.length ? `${changedLine(changed)} (against main)` : "No change against main."];
   }
   const lines = sheet.announcements.map((announcement) => announcementLine(announcement, events));
-  return lines.length ? ["Announcements:", ...lines] : ["No announcements."];
+  return lines.length ? ["### Announcements", ...lines] : ["No announcements."];
 }
 
 /** The lines of the venues `after` adds to `before`: each new venue with its pin, and each new alias. */

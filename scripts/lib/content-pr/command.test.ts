@@ -272,7 +272,7 @@ describe("execute", () => {
     const body = { action: "body", kind: "sheet", base: "main", report, runUrl: "u" } as const;
     const { out: lines } = await run({ ...body, fix: false });
     expect(lines[0]).toMatch(
-      /^## 19\.–25\. 10\. 2026\n\nAnnouncements:\n- \*\*info\*\*: Sbírka je na misie\.\n\n---\n/,
+      /^## 19\.–25\. 10\. 2026\n\n### Announcements\n- \*\*info\*\*: Sbírka je na misie\.\n\n---\n/,
     );
     expect(lines[0]).toMatch(/this run: u$/);
     const fixed = (await run({ ...body, fix: true })).out[0];

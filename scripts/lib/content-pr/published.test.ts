@@ -39,7 +39,7 @@ describe("publishedContent", () => {
     sheets({ ...WEEK, days: [], announcements });
     const lines = publishedContent(dir(), commit).week(WEEK);
     expect(lines.slice(0, 3)).toEqual([
-      "Announcements:",
+      "### Announcements",
       "- **invitation**: Zveme na pouť do Lukova. (event pout-2099: Pouť, 2099-10-10)",
       "- **info**: První Druhá (event zadna)",
     ]);
