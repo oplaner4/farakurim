@@ -95,7 +95,7 @@ only, with every field below (the optional ones may be left out):
 | Field                       | Holds                                                                                                                                                                          |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `week.validFrom`, `validTo` | only when the check asks for them (the stage run read no week): the dates (`YYYY-MM-DD`, `validFrom` not after `validTo`)                                                      |
-| `week.senderNote`           | optional, only with a sender's note: one line per thing it asks to check and whether the draft agrees (below)                                                                  |
+| `week.senderNote`           | optional, only when the sender's note asks to check something: one line per thing it asks to check and whether the draft agrees (below)                                        |
 | `week.questions`            | the new questions about this week (below); `where` says where in the sheet                                                                                                     |
 | `questions`                 | the new questions that belong to no week (the mail, the DOCX as a whole)                                                                                                       |
 | `questionUpdates`           | per question of `previous-report.json` outside this week (another week's or a report-level one): its `id`, its new `status` (`open` or `resolved`) and optionally the `answer` |
@@ -111,7 +111,8 @@ A list with nothing in it is `[]`.
 - **This week's earlier questions** are never in `questionUpdates`: the script replaces them with `week.questions`, so
   write each that still applies again with its `id` and `status`.
 - **`senderNote`:** what the sender's note asks to check and whether the draft agrees. The PR is public, so put it in
-  your own words and quote no name or other text the published sheet does not show.
+  your own words and quote no name or other text the published sheet does not show. Leave it out when the note asks
+  nothing to check (a greeting, a signature, stray characters): never write a line only to say there was nothing.
 - The PR is public and the report fills its body: in **every** field, quote only what is published (the record's
   fields, the staged files' names and labels) and describe anything else without quoting it.
 
