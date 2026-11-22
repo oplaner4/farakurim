@@ -83,9 +83,9 @@ only, with every field below (the optional ones may be left out):
   "questions": [
     {
       "blocking": false,
-      "where": "the DOCX",
-      "text": "The mail says nothing about the Advent weeks.",
-      "proposal": "Handle them when their mail comes."
+      "where": "the sender's note",
+      "text": "The note asks about the Advent weeks, which the DOCX does not hold yet.",
+      "proposal": "Handle them when a DOCX with them comes."
     }
   ],
   "questionUpdates": [{ "id": "q1", "status": "resolved", "answer": "The new DOCX shows the time." }]
@@ -97,7 +97,7 @@ only, with every field below (the optional ones may be left out):
 | `week.validFrom`, `validTo` | only when the check asks for them (the stage run read no week): the dates (`YYYY-MM-DD`, `validFrom` not after `validTo`)                                                      |
 | `week.senderNote`           | optional, only when the sender's note asks to check something: one line per thing it asks to check and whether the draft agrees (below)                                        |
 | `week.questions`            | the new questions about this week (below); `where` says where in the sheet                                                                                                     |
-| `questions`                 | the new questions that belong to no week (the mail, the DOCX as a whole)                                                                                                       |
+| `questions`                 | the new questions that belong to no week (the sender's note, the DOCX as a whole)                                                                                              |
 | `questionUpdates`           | per question of `previous-report.json` outside this week (another week's or a report-level one): its `id`, its new `status` (`open` or `resolved`) and optionally the `answer` |
 
 A list with nothing in it is `[]`.
