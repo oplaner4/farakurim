@@ -167,10 +167,11 @@ jobs:
           service-account-id: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID }}
           workspace-id: ${{ vars.ANTHROPIC_WORKSPACE_ID }}
           prompt: |
-            A sender mailed an event to the events mailbox: ${{ runner.temp }}/event/mail (subject.txt, body.txt,
-            attachments/). Run parish-create-event unattended (its "Unattended run" section). The known events are
-            ${{ runner.temp }}/event/known.json, the correction words ${{ runner.temp }}/event/corrections.json, the
-            report file is ${{ runner.temp }}/event/report.json and the scratchpad is ${{ runner.temp }}/event. Run
+            A sender mailed an event to the events mailbox. The message: ${{ runner.temp }}/event/mail (subject.txt,
+            body.txt as its text, attachments/). Run parish-create-event unattended (its "Unattended run" section).
+            The known events are ${{ runner.temp }}/event/known.json, the correction words
+            ${{ runner.temp }}/event/corrections.json, the report file is ${{ runner.temp }}/event/report.json and the
+            scratchpad is ${{ runner.temp }}/event. Run
             `pnpm content-pr check --kind events --run --known ${{ runner.temp }}/event/known.json --corrections ${{ runner.temp }}/run/corrections.json ${{ runner.temp }}/event/report.json`
             until it passes. The skill holds all the run needs: don't read README.md, docs/ or design/.
 
