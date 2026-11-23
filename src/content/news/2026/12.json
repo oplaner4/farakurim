@@ -1,5 +1,35 @@
 [
   {
+    "id": "farni-kalendar-ve-vasem-telefonu-2026",
+    "title": "Farní kalendář ve vašem telefonu",
+    "start": "2026-12-13",
+    "startTime": "10:30",
+    "endTime": "11:00",
+    "place": "Kuřim, fara",
+    "venue": "kurim-fara",
+    "text": "Po mši svaté v 9:30 vám na faře pomůžeme přidat si bohoslužby a farní akce do kalendáře v mobilu – v Googlu, iPhonu i Outlooku. Stačí přinést telefon.",
+    "lead": "Přidejte si bohoslužby a farní akce do kalendáře v mobilu – pomůžeme vám s tím na faře.",
+    "body": "<p>V neděli 13. 12. 2026 (3. neděle adventní) po mši svaté v 9:30, přibližně od 10:30 do 11:00, vám na faře pomůžeme přidat si <strong>bohoslužby a farní akce</strong> do kalendáře v mobilu – v Googlu, iPhonu i Outlooku. Stačí přinést telefon.</p><p>Kdo si kalendář přidá, uvidí v něm hned i vánoční pořad bohoslužeb a termíny Výstavy betlémů. Kalendář se pak sám aktualizuje.</p><p>Návod pro každý telefon najdete také na stránce Kalendář.</p>",
+    "published": "2026-11-23",
+    "poster": {
+      "src": "/uploads/aktuality/farni-kalendar-ve-vasem-telefonu-2026-plakat-poster.webp",
+      "alt": "Plakát: Farní kalendář ve vašem telefonu, 13. 12. 2026 na faře v Kuřimi"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/farni-kalendar-ve-vasem-telefonu-2026-plakat.png",
+        "size": 436692
+      }
+    ],
+    "links": [
+      {
+        "label": "Návod na stránce Kalendář",
+        "href": "https://farakurim.cz/kalendar/"
+      }
+    ]
+  },
+  {
     "id": "pout-lukov-trebic-2026",
     "title": "Farní pouť do Lukova a adventní Třebíče",
     "start": "2026-12-19",
