@@ -2,12 +2,9 @@
 // agent's run and the commit of a content PR, on a fresh checkout in the working directory, all of them on the JSON
 // report the agent writes.
 
-import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
 import { pragueDate } from "@/lib/shared/prague";
 import { parseCommandLine, readJsonRecord, requiredEnv, type Env } from "../command";
-import { ROOT } from "../content-files";
 import { KINDS, type Kind } from "../content-release/plan";
 import { gitHubReader, type GitHubReader } from "../content-release/sources";
 import { appendStepOutputs } from "../step-outputs";
@@ -15,12 +12,13 @@ import { applyReport, type ApplyInput, type ApplyIo } from "./apply";
 import { pullBody } from "./body";
 import { branchOutputs, chooseBranch } from "./branch";
 import { mergeBase } from "./changes";
+import { commitlintIssues, fixMessageIssues } from "./commit-messages";
 import { commentFromEnv, commentWriter, isStaged, type CommentWriter } from "./newer-week";
 import { checkoutEventTitle, publishedContent } from "./published";
 import { renderReport } from "./render";
 import { checkFixReport } from "./fix-report";
 import { readFix, readReport, summaryReport, type ReportInput } from "./report-files";
-import { parseReport } from "./report-schema";
+import { parseReport, ReportError } from "./report-schema";
 import { storedReportOf } from "./stored";
 import { runStateFromEnv, summarize } from "./summary";
 
@@ -179,12 +177,6 @@ function withStageResult<T extends ReportInput>(input: T, env: Env): T {
   return input.run && input.kind === "sheet" && file ? { ...input, stageResult: file } : input;
 }
 
-/** Whether commitlint accepts `message`, with the repo's config. */
-export function commitlintAccepts(message: string): boolean {
-  const bin = join(ROOT, "node_modules", ".bin", "commitlint");
-  return spawnSync(bin, { cwd: ROOT, input: `${message}\n`, stdio: ["pipe", "ignore", "ignore"] }).status === 0;
-}
-
 type Io = ApplyIo & {
   env: Env;
   /** Fails the command after its output, with an error annotation. */
@@ -202,7 +194,7 @@ const defaultIo: Io = {
   env: process.env,
   print: (line) => console.log(line),
   warn: (line) => console.error(line),
-  lint: commitlintAccepts,
+  lint: commitlintIssues,
   fail: (message) => {
     console.error(`::error::${message}`);
     process.exitCode = 1;
@@ -219,9 +211,22 @@ async function branch({ kind, date, outputs }: Extract<Command, { action: "branc
   io.print(choice.pr === undefined ? `${choice.branch} (new)` : `${choice.branch} (PR #${choice.pr})`);
 }
 
+/**
+ * Reads the report as `apply` does and says it is valid; with a fix result, checks the report against the original
+ * one and the agent's fix message (`fixMessageIssues`), so the agent corrects a refused message in its own run.
+ */
+async function check(command: Extract<Command, { action: "check" }>, io: Io): Promise<void> {
+  const report = readReport(withStageResult(command, io.env))(io.cwd);
+  const fix = readFix(command.fix);
+  if (command.original !== undefined) checkFixReport(io.cwd, report, command.original);
+  const issues = fix ? await fixMessageIssues(fix.fixMessage, io.lint) : [];
+  if (issues.length) throw new ReportError(issues.map((issue) => `fixMessage: ${issue}`));
+  io.print("The report is valid.");
+}
+
 /** Applies a run's change and, with `outputs`, writes its result to that step outputs file (`fix` "" without one). */
-function apply({ outputs, ...input }: Extract<Command, { action: "apply" }>, io: Io): void {
-  const { changed, draft, message, fix = "" } = applyReport(withStageResult(input, io.env), io);
+async function apply({ outputs, ...input }: Extract<Command, { action: "apply" }>, io: Io): Promise<void> {
+  const { changed, draft, message, fix = "" } = await applyReport(withStageResult(input, io.env), io);
   if (outputs) appendStepOutputs(outputs, { changed: String(changed), draft: String(draft), message, fix });
 }
 
@@ -237,7 +242,7 @@ function body(command: Extract<Command, { action: "body" }>, io: Io): void {
 
 /**
  * Runs the command. `check` reads the report as `apply` does (with `fix`, checked against the original report and the
- * working tree's change against HEAD) and says it is valid. `stored` prints the PR's newest
+ * working tree's change against HEAD, and the fix message checked) and says it is valid. `stored` prints the PR's newest
  * stored report artifact as `<runId> <name>` (nothing without one). `branch` chooses the branch of a mail run
  * (`chooseBranch`), writes it to the step outputs file `outputs` and prints it. `apply` reads the report (a sheet run's merged
  * into the previous one), checks a fix result's outcome against the patch, applies the patch (only content files of
@@ -252,13 +257,8 @@ function body(command: Extract<Command, { action: "body" }>, io: Io): void {
  */
 export async function execute(command: Command, io: Io = defaultIo): Promise<void> {
   switch (command.action) {
-    case "check": {
-      const report = readReport(withStageResult(command, io.env))(io.cwd);
-      readFix(command.fix);
-      if (command.original !== undefined) checkFixReport(io.cwd, report, command.original);
-      io.print("The report is valid.");
-      return;
-    }
+    case "check":
+      return check(command, io);
     case "stored": {
       const stored = await storedReportOf(command.pr, io.github());
       if (stored) io.print(`${stored.runId} ${stored.name}`);

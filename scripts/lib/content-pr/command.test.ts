@@ -13,7 +13,7 @@ import {
   sheetRunReport,
   stageResultOf,
 } from "../test-helpers/reports";
-import { commitlintAccepts, execute, parseCommand, type Command } from "./command";
+import { execute, parseCommand, type Command } from "./command";
 
 describe("parseCommand", () => {
   it("parses each action", () => {
@@ -181,7 +181,7 @@ describe("execute", () => {
       env,
       print: (l: string) => lines.push(l),
       warn: () => {},
-      lint: () => true,
+      lint: async (message: string) => (message.endsWith(".") ? ["subject-full-stop: no full stop"] : []),
       fail: (m: string) => errors.push(m),
       github: () => {
         if (!github) throw new Error("no GitHub in this test");
@@ -228,6 +228,15 @@ describe("execute", () => {
     const quieted = reportWeek("2026-10-19", "2026-10-25", { kind: "created" }, [reportQuestion("q1", false)]);
     const report = json("report.json", sheetReport([quieted]));
     await expect(run({ ...check, report })).rejects.toThrow("weeks.0.questions.0.blocking: may not change");
+    // The agent's fix message must be one fix(content) line the check accepts, so the agent corrects it in its run.
+    const refused = json("refused-fix.json", fixResult("unchanged", "Fixed the mass.\n\nThe body."));
+    await expect(run({ ...check, fix: refused, report: original })).rejects.toThrow(
+      [
+        'fixMessage: must start with "fix(content): "',
+        "fixMessage: must be one line",
+        "fixMessage: subject-full-stop: no full stop",
+      ].join("\n"),
+    );
   });
 
   it("applies a run, prints its result and writes it to the step outputs file", async () => {
@@ -334,11 +343,4 @@ describe("execute", () => {
     artifacts.length = 0;
     expect((await run({ action: "stored", pr: 7 }, { github })).out).toEqual([]);
   });
-});
-
-describe("commitlintAccepts", () => {
-  it("checks a message with the repo's commitlint config", () => {
-    expect(commitlintAccepts("feat(content): publish the service sheet for 19.–25. 10. 2026")).toBe(true);
-    expect(commitlintAccepts("Published the sheet")).toBe(false);
-  }, 30_000);
 });

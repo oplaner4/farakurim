@@ -25,7 +25,8 @@
 // refused as a correction or a report-level question "correction words" saying why it corrects none. `--fix` adds a
 // comment fix's result (fix.json) beside the full report, and `--original` the PR's report the fix corrected in place: the corrected one may differ from it only where a fix may change it (an open question resolved
 // with its answer; the origin of an event whose record the working tree changes against HEAD), else each difference
-// is an issue.
+// is an issue. The fix result's `fixMessage` must be one line starting with `fix(content): ` that commitlint accepts
+// (each refused rule is an issue), so the agent corrects it in its run.
 //
 // `stored` prints `<runId> <name>` of the PR's newest stored report artifact (`content-report-<sha>` of the newest
 // commit that has one, trusted and live), or nothing; it reads the GitHub API with GH_TOKEN for GITHUB_REPOSITORY.
@@ -38,8 +39,9 @@
 // the final report to `<out>/report.json` and prints `{ changed, draft, message, fix? }` (with `--outputs`, also written
 // to that step outputs file, `fix` "" without one): `draft` when an open
 // question blocks, `message` the PR's commit message named from the change (the kind's default when commitlint
-// refuses it), `fix` (with `--fix` and a change) the fix's commit message: the result's `fixMessage`, else one named
-// from what the fix changed, else the default. `body` prints the PR body rendered from a final report with what the
+// refuses it), `fix` (with `--fix` and a change) the fix's commit message: the result's `fixMessage` when it passes
+// `check`'s rules, else one named from what the fix changed, else the default. Each refused message is a warning
+// naming the rules it breaks. `body` prints the PR body rendered from a final report with what the
 // checkout publishes against its merge base with `--base` (a week's announcements or what changes in it, a created
 // event's title from its record, the new venues and aliases), the Události lines that need a person (`--calendar`, the
 // output of `pnpm calendar-sync --calendar events --problems`) and the footer (with `--fix`, naming the run as the last

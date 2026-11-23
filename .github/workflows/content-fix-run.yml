@@ -307,7 +307,7 @@ jobs:
       # writes the report to $RUNNER_TEMP/publish/report.json and the checked reply (never holding a reply's marker) to
       # $RUNNER_TEMP/publish/reply.md (the only text of the agent's the reply posts), and writes changed, draft,
       # message and fix to the step's outputs: `message` the PR's title and `fix` the fix's commit message, both
-      # accepted by commitlint (a default otherwise). No id the change adds may be held by an open events PR (this PR's own events are on its
+      # accepted by commitlint (`fix` also one `fix(content): ` line; a default otherwise, with a warning naming why). No id the change adds may be held by an open events PR (this PR's own events are on its
       # head already). The PR body (`pnpm content-pr body`) ends with the Události lines that need a person for events,
       # as events.yml builds them, and the footer.
       - name: Apply the change

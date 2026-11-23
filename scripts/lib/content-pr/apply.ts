@@ -1,6 +1,7 @@
 // Applies a content PR run's change: checks a comment fix's outcome against the patch, applies the patch (only the
 // kind's content files), checks the final report's facts against the whole PR, writes the final report (and a fix's
-// checked reply) and names the commit messages, each falling back to a default commitlint accepts.
+// checked reply) and names the commit messages, each falling back to a default commitlint accepts (the agent's fix
+// message must also be one `fix(content): ` line, as `check` asks).
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -15,6 +16,7 @@ import {
   type ContentChanges,
 } from "./changes";
 import { checkFixReport } from "./fix-report";
+import { fixMessageIssues, type MessageCheck } from "./commit-messages";
 import { applyContentPatch, hasChange } from "./patch";
 import { isDraft } from "./report";
 import { ReportError, type Report } from "./report-schema";
@@ -38,15 +40,22 @@ export type ApplyIo = {
   cwd: string;
   print: (line: string) => void;
   warn: (line: string) => void;
-  lint: (message: string) => boolean;
+  lint: MessageCheck;
 };
 
-/** The first of `candidates` commitlint accepts, else `fallback`; warns for each one given and refused, and the default. */
-function acceptedMessage(io: ApplyIo, what: string, candidates: (string | undefined)[], fallback: string): string {
-  for (const message of candidates) {
+/** A message to try and the check it must pass. */
+type Candidate = { message: string | undefined; check: MessageCheck };
+
+/**
+ * The first of `candidates` its check accepts, else `fallback`; warns for each one given and refused (with the
+ * reasons), and the default.
+ */
+async function acceptedMessage(io: ApplyIo, what: string, candidates: Candidate[], fallback: string): Promise<string> {
+  for (const { message, check } of candidates) {
     if (message === undefined) continue;
-    if (io.lint(message)) return message;
-    io.warn(`::warning::commitlint refuses the ${what} message "${message}".`);
+    const issues = await check(message);
+    if (!issues.length) return message;
+    io.warn(`::warning::The ${what} message "${message}" is refused: ${issues.join("; ")}.`);
   }
   io.warn(`::warning::No valid ${what} message: using the default "${fallback}".`);
   return fallback;
@@ -70,12 +79,24 @@ function checkFinalReport(input: ApplyInput, cwd: string, final: Report, changes
 }
 
 /**
+ * The fix's commit message: the agent's when it passes what `check` asks of it, else the one named from what the fix
+ * changed when commitlint accepts it, else the default.
+ */
+function acceptedFixMessage(io: ApplyIo, agents: string, fixChanges: ContentChanges): Promise<string> {
+  const candidates: Candidate[] = [
+    { message: agents, check: (message) => fixMessageIssues(message, io.lint) },
+    { message: fixCommitMessage(fixChanges), check: io.lint },
+  ];
+  return acceptedMessage(io, "fix", candidates, DEFAULT_FIX_MESSAGE);
+}
+
+/**
  * Applies the patch after checking a fix result's outcome against it, checks a fix's report against the original one
  * and the final report against the whole PR (undoing the patch on a mismatch, or when it changes something and the report publishes nothing), writes
  * `<out>/report.json` (and a fix result's reply to `<out>/reply.md`), prints `{ changed, draft, message, fix? }` and
  * returns it.
  */
-export function applyReport(input: ApplyInput, io: ApplyIo): ApplyResult {
+export async function applyReport(input: ApplyInput, io: ApplyIo): Promise<ApplyResult> {
   const { kind, patch } = input;
   const toReport = readReport(input);
   const fix = readFix(input.fix);
@@ -107,12 +128,14 @@ export function applyReport(input: ApplyInput, io: ApplyIo): ApplyResult {
   // Nothing to commit and no PR to title: the default, without a warning.
   const message =
     changed || fix
-      ? acceptedMessage(io, "commit", [commitMessage(final, changes)], DEFAULT_MESSAGES[kind])
+      ? await acceptedMessage(
+          io,
+          "commit",
+          [{ message: commitMessage(final, changes), check: io.lint }],
+          DEFAULT_MESSAGES[kind],
+        )
       : DEFAULT_MESSAGES[kind];
-  const fixMessage =
-    fix && fixChanges
-      ? acceptedMessage(io, "fix", [fix.fixMessage, fixCommitMessage(fixChanges)], DEFAULT_FIX_MESSAGE)
-      : undefined;
+  const fixMessage = fix && fixChanges ? await acceptedFixMessage(io, fix.fixMessage, fixChanges) : undefined;
   const result: ApplyResult = { changed, draft: isDraft(final), message, ...(fixMessage && { fix: fixMessage }) };
   io.print(JSON.stringify(result));
   return result;

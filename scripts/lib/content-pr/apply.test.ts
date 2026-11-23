@@ -14,6 +14,7 @@ import {
 } from "../test-helpers/reports";
 import { VENUE_LIST, venueRecord } from "../test-helpers/venues";
 import { applyReport, type ApplyInput } from "./apply";
+import type { MessageCheck } from "./commit-messages";
 import type { WeekEntry } from "./report-schema";
 
 const WEEK_12 = reportWeek("2026-10-12", "2026-10-18", { kind: "created" });
@@ -25,11 +26,11 @@ describe("applyReport", () => {
   const out = () => join(dir(), "out");
 
   /** Applies `input` in the test repo; resolves with the printed lines and the warnings. */
-  function apply(input: Omit<ApplyInput, "base" | "out">, lint: (message: string) => boolean = () => true) {
+  async function apply(input: Omit<ApplyInput, "base" | "out">, lint: MessageCheck = async () => []) {
     const lines: string[] = [];
     const warnings: string[] = [];
     const io = { cwd: repo(), print: (l: string) => lines.push(l), warn: (l: string) => warnings.push(l), lint };
-    applyReport({ base: "main", out: out(), ...input }, io);
+    await applyReport({ base: "main", out: out(), ...input }, io);
     return { lines, warnings, result: JSON.parse(lines[0]) as unknown };
   }
 
@@ -69,10 +70,10 @@ describe("applyReport", () => {
     expect(existsSync(join(out(), "report.json"))).toBe(false);
   };
 
-  it("applies a sheet run, merges it and names the commit", () => {
+  it("applies a sheet run, merges it and names the commit", async () => {
     const patch = prRepo(sheetList(), sheetList(WEEK_12), sheetList(WEEK_12, WEEK_19));
     const previous = json("previous.json", sheetReport([WEEK_12]));
-    const { result, warnings } = apply({ kind: "sheet", run: true, previous, ...sheetRun(WEEK_19), patch });
+    const { result, warnings } = await apply({ kind: "sheet", run: true, previous, ...sheetRun(WEEK_19), patch });
     expect(result).toEqual({
       changed: true,
       draft: false,
@@ -83,50 +84,50 @@ describe("applyReport", () => {
     expect(testGit(repo(), "status", "--porcelain")).toBe("M src/content/service-sheets.json");
   });
 
-  it("makes a draft of an open blocking question", () => {
+  it("makes a draft of an open blocking question", async () => {
     const patch = prRepo(sheetList(), sheetList(), sheetList(WEEK_19));
     const asking = reportWeek("2026-10-19", "2026-10-25", { kind: "created" }, [reportQuestion("q1", true)]);
-    expect(apply({ kind: "sheet", run: true, ...sheetRun(asking), patch }).result).toEqual({
+    expect((await apply({ kind: "sheet", run: true, ...sheetRun(asking), patch })).result).toEqual({
       changed: true,
       draft: true,
       message: "feat(content): publish the service sheet for 19.–25. 10. 2026",
     });
   });
 
-  it('fails with "close and resend" on a missing previous report, and applies nothing', () => {
+  it('fails with "close and resend" on a missing previous report, and applies nothing', async () => {
     const patch = prRepo(sheetList(), sheetList(WEEK_12), sheetList(WEEK_12, WEEK_19));
     const previous = join(dir(), "none.json");
-    expect(() => apply({ kind: "sheet", run: true, previous, ...sheetRun(WEEK_19), patch })).toThrow(
+    await expect(apply({ kind: "sheet", run: true, previous, ...sheetRun(WEEK_19), patch })).rejects.toThrow(
       "close the PR and send the sheet or event again",
     );
     untouched();
   });
 
-  it("undoes a change when the last stage run was refused", () => {
+  it("undoes a change when the last stage run was refused", async () => {
     const patch = prRepo(sheetList(), sheetList(), sheetList(WEEK_19));
     const refused = reportWeek("2026-10-19", "2026-10-25", { kind: "refused", reason: "overlaps" });
-    expect(() => apply({ kind: "sheet", run: true, ...sheetRun(refused), patch })).toThrow(
+    await expect(apply({ kind: "sheet", run: true, ...sheetRun(refused), patch })).rejects.toThrow(
       "week: the stage run ended refused, but the change holds 19.–25. 10. 2026",
     );
     untouched();
   });
 
-  it("refuses a staged week when the change holds none", () => {
+  it("refuses a staged week when the change holds none", async () => {
     const patch = prRepo(sheetList(), sheetList());
-    expect(() => apply({ kind: "sheet", run: true, ...sheetRun(WEEK_19), patch })).toThrow(
+    await expect(apply({ kind: "sheet", run: true, ...sheetRun(WEEK_19), patch })).rejects.toThrow(
       "week: the stage run staged the week 19.–25. 10. 2026, but the change holds no week",
     );
   });
 
-  it("takes a published week's outcome from the change: corrected for a week the PR or main holds", () => {
+  it("takes a published week's outcome from the change: corrected for a week the PR or main holds", async () => {
     const changedWeek = { validFrom: "2026-10-19", validTo: "2026-10-25", days: [{ date: "2026-10-19" }] };
     const patch = prRepo(sheetList(), sheetList(WEEK_19), `${JSON.stringify({ sheets: [changedWeek] })}\n`);
     const previous = json("previous.json", sheetReport([WEEK_19]));
-    apply({ kind: "sheet", run: true, previous, ...sheetRun(WEEK_19), patch });
+    await apply({ kind: "sheet", run: true, previous, ...sheetRun(WEEK_19), patch });
     expect(written()).toEqual(sheetReport([reportWeek("2026-10-19", "2026-10-25", { kind: "corrected" })]));
   });
 
-  it("undoes a change when the report creates nothing", () => {
+  it("undoes a change when the report creates nothing", async () => {
     // An events PR whose patch only adds a venue, while every event is refused.
     const venues = join(repo(), "src/content/venues.json");
     mkdirSync(join(repo(), "src/content/news"), { recursive: true });
@@ -145,29 +146,31 @@ describe("applyReport", () => {
       questions: [],
       droppedAttachments: [],
     });
-    expect(() => apply({ kind: "events", run: true, report, patch })).toThrow(
+    await expect(apply({ kind: "events", run: true, report, patch })).rejects.toThrow(
       "The report creates nothing, but the change is not empty: not applied.",
     );
     untouched();
   });
 
-  it("names no commit and warns nothing when nothing changed and there is no fix", () => {
+  it("names no commit and warns nothing when nothing changed and there is no fix", async () => {
     const patch = prRepo(sheetList(), sheetList());
     const refused = reportWeek("2026-10-19", "2026-10-25", { kind: "refused", reason: "overlaps" });
-    const { result, warnings } = apply({ kind: "sheet", run: true, ...sheetRun(refused), patch }, () => false);
+    const { result, warnings } = await apply({ kind: "sheet", run: true, ...sheetRun(refused), patch }, async () => [
+      "refused",
+    ]);
     expect(result).toEqual({ changed: false, draft: false, message: "feat(content): update the service sheets" });
     expect(warnings).toEqual([]);
     expect(existsSync(join(out(), "reply.md"))).toBe(false);
   });
 
-  it("accepts a fix that only answers a question (no patch) and keeps the PR's facts", () => {
+  it("accepts a fix that only answers a question (no patch) and keeps the PR's facts", async () => {
     const patch = prRepo(sheetList(), sheetList(WEEK_19));
     const answered = reportWeek("2026-10-19", "2026-10-25", { kind: "created" }, [
       reportQuestion("q1", true, "resolved"),
     ]);
     const report = json("report.json", sheetReport([answered]));
     const fix = json("fix.json", fixResult("unchanged"));
-    expect(apply({ kind: "sheet", run: false, fix, report, patch }).result).toEqual({
+    expect((await apply({ kind: "sheet", run: false, fix, report, patch })).result).toEqual({
       changed: false,
       draft: false,
       message: "feat(content): publish the service sheet for 19.–25. 10. 2026",
@@ -176,12 +179,12 @@ describe("applyReport", () => {
     expect(readFileSync(join(out(), "reply.md"), "utf8")).toBe("Done.\n");
     // The same fix whose report drops the PR's week fails the fact check.
     const dropped = json("dropped.json", sheetReport([]));
-    expect(() => apply({ kind: "sheet", run: false, fix, report: dropped, patch })).toThrow(
+    await expect(apply({ kind: "sheet", run: false, fix, report: dropped, patch })).rejects.toThrow(
       "the change holds the week 19.–25. 10. 2026, which the report does not give",
     );
   });
 
-  it("undoes a fix whose report changes what a fix may not", () => {
+  it("undoes a fix whose report changes what a fix may not", async () => {
     const changedWeek = { validFrom: "2026-10-19", validTo: "2026-10-25", days: [{ date: "2026-10-19" }] };
     const patch = prRepo(sheetList(), sheetList(WEEK_19), `${JSON.stringify({ sheets: [changedWeek] })}\n`);
     const asking = reportWeek("2026-10-19", "2026-10-25", { kind: "created" }, [reportQuestion("q1", true)]);
@@ -189,39 +192,39 @@ describe("applyReport", () => {
     const fix = json("fix.json", fixResult("changed"));
     const quieted = reportWeek("2026-10-19", "2026-10-25", { kind: "created" }, [reportQuestion("q1", false)]);
     const report = json("report.json", sheetReport([quieted]));
-    expect(() => apply({ kind: "sheet", run: false, fix, original, report, patch })).toThrow(
+    await expect(apply({ kind: "sheet", run: false, fix, original, report, patch })).rejects.toThrow(
       "The fix changes the report where it may not: not applied.\nweeks.0.questions.0.blocking: may not change",
     );
     untouched();
     // The same fix that leaves the question as it was is applied, still a draft.
     const kept = json("kept.json", sheetReport([asking]));
-    expect(apply({ kind: "sheet", run: false, fix, original, report: kept, patch }).result).toMatchObject({
+    expect((await apply({ kind: "sheet", run: false, fix, original, report: kept, patch })).result).toMatchObject({
       changed: true,
       draft: true,
     });
   });
 
-  it("refuses a fix whose outcome disagrees with the patch", () => {
+  it("refuses a fix whose outcome disagrees with the patch", async () => {
     const none = prRepo(sheetList(), sheetList(WEEK_19));
     const report = json("report.json", sheetReport([WEEK_19]));
     const changed = json("fix.json", fixResult("changed"));
-    expect(() => apply({ kind: "sheet", run: false, fix: changed, report, patch: none })).toThrow(
+    await expect(apply({ kind: "sheet", run: false, fix: changed, report, patch: none })).rejects.toThrow(
       "The fix result says changed, but the patch changes nothing",
     );
     const patch = join(dir(), "some.patch");
     writeFileSync(patch, "diff\n");
     const unchanged = json("unchanged.json", fixResult("unchanged"));
-    expect(() => apply({ kind: "sheet", run: false, fix: unchanged, report, patch })).toThrow(
+    await expect(apply({ kind: "sheet", run: false, fix: unchanged, report, patch })).rejects.toThrow(
       "The fix result says unchanged, but the patch changes the content",
     );
   });
 
-  it("falls back to the default messages when commitlint refuses, warning for each", () => {
+  it("falls back to the default messages when commitlint refuses, warning for each", async () => {
     const changedWeek = { validFrom: "2026-10-19", validTo: "2026-10-25", days: [{ date: "2026-10-19" }] };
     const patch = prRepo(sheetList(), sheetList(WEEK_19), `${JSON.stringify({ sheets: [changedWeek] })}\n`);
     const report = json("report.json", sheetReport([WEEK_19]));
     const fix = json("fix.json", fixResult("changed", "fixed it"));
-    const refused = apply({ kind: "sheet", run: false, fix, report, patch }, () => false);
+    const refused = await apply({ kind: "sheet", run: false, fix, report, patch }, async () => ["rule: why"]);
     expect(refused.result).toEqual({
       changed: true,
       draft: false,
@@ -229,21 +232,26 @@ describe("applyReport", () => {
       fix: "fix(content): apply a comment correction",
     });
     expect(refused.warnings).toEqual([
-      '::warning::commitlint refuses the commit message "feat(content): publish the service sheet for 19.–25. 10. 2026".',
+      '::warning::The commit message "feat(content): publish the service sheet for 19.–25. 10. 2026" is refused: rule: why.',
       '::warning::No valid commit message: using the default "feat(content): update the service sheets".',
-      '::warning::commitlint refuses the fix message "fixed it".',
-      '::warning::commitlint refuses the fix message "fix(content): correct the service sheet for 19.–25. 10. 2026".',
+      '::warning::The fix message "fixed it" is refused: must start with "fix(content): "; rule: why.',
+      '::warning::The fix message "fix(content): correct the service sheet for 19.–25. 10. 2026" is refused: rule: why.',
       '::warning::No valid fix message: using the default "fix(content): apply a comment correction".',
     ]);
-    // A refused fix message falls back to the one the fix's change names.
-    testGit(repo(), "checkout", "-q", "--", ".");
-    const named = apply({ kind: "sheet", run: false, fix, report, patch }, (m) => m !== "fixed it");
-    expect(named.result).toEqual({
-      changed: true,
-      draft: false,
-      message: "feat(content): publish the service sheet for 19.–25. 10. 2026",
-      fix: "fix(content): correct the service sheet for 19.–25. 10. 2026",
-    });
-    expect(named.warnings).toEqual(['::warning::commitlint refuses the fix message "fixed it".']);
+  });
+
+  it("refuses an agent's fix message that commitlint accepts but is not one fix(content) line", async () => {
+    const changedWeek = { validFrom: "2026-10-19", validTo: "2026-10-25", days: [{ date: "2026-10-19" }] };
+    const patch = prRepo(sheetList(), sheetList(WEEK_19), `${JSON.stringify({ sheets: [changedWeek] })}\n`);
+    const report = json("report.json", sheetReport([WEEK_19]));
+    for (const message of ["feat(news): move the Monday mass", "fix(content): move it\n\nThe body."]) {
+      testGit(repo(), "checkout", "-q", "--", ".");
+      const fix = json("fix.json", fixResult("changed", message));
+      // The fallback is the message the fix's change names.
+      const { result, warnings } = await apply({ kind: "sheet", run: false, fix, report, patch });
+      expect(result).toMatchObject({ fix: "fix(content): correct the service sheet for 19.–25. 10. 2026" });
+      expect(warnings).toHaveLength(1);
+      expect(warnings[0]).toMatch(/^::warning::The fix message "[\s\S]*" is refused: must (start with|be one line)/);
+    }
   });
 });

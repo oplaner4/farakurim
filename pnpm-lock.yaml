@@ -75,6 +75,12 @@ importers:
       '@commitlint/config-conventional':
         specifier: ^21.2.4
         version: 21.2.4
+      '@commitlint/lint':
+        specifier: ^21.2.4
+        version: 21.2.4
+      '@commitlint/load':
+        specifier: ^21.2.4
+        version: 21.2.4(typescript@6.0.3)
       '@tailwindcss/postcss':
         specifier: ^4.3.5
         version: 4.3.5

@@ -79,7 +79,9 @@ strict: an unknown field is an error).
 
   `outcome` is `changed` or `unchanged` and must agree with whether the run changed any content file (`unchanged`:
   nothing was staged or replaced). `fixMessage` is the Conventional Commits message of this commit alone, for example
-  `fix(content): correct the time of the concert`; with `unchanged`, write `fix(content): no change`. `reply` is a
+  `fix(content): correct the time of the concert`; with `unchanged`, write `fix(content): no change`. It is one line
+  that starts with `fix(content): ` and that commitlint accepts (a lower-case start, no full stop, at most 100
+  characters): the check refuses any other, naming the rule it breaks. `reply` is a
   few lines for the maintainer: what changed, or why nothing did; it never holds `<!-- content-fix:` (the marker the
   workflow adds itself), which the check refuses.
 
