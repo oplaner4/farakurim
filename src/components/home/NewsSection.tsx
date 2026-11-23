@@ -37,7 +37,13 @@ export function NewsSection({ events, renderedAt }: Props) {
         color="magenta"
         link={{ href: links.news, label: "Všechny aktuality", shortLabel: "Všechny" }}
       />
-      <ul className="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4 lg:grid-fit-250 lg:gap-5">
+      {/* Desktop: a single event is at most half the row wide, so its poster isn't a thin strip. */}
+      <ul
+        className={clsx(
+          "flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4 lg:gap-5",
+          visible.length === 1 ? "lg:grid-cols-2" : "lg:grid-fit-250",
+        )}
+      >
         {visible.map((item, i) => {
           // A series of meetings is listed by its first date.
           const date = formatEventDate(item.start, item.sessions ? undefined : item.end);
