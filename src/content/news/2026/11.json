@@ -344,5 +344,30 @@
         "href": "https://www.cervenastreda.cz"
       }
     ]
+  },
+  {
+    "id": "pleteni-adventnich-vencu-2026",
+    "title": "Pletení adventních věnců",
+    "start": "2026-11-28",
+    "startTime": "16:30",
+    "endTime": "19:00",
+    "place": "Kuřim, fara",
+    "venue": "kurim-fara",
+    "text": "Srdečně vás zveme na pletení adventních věnců v předvečer adventu. Chvojí, vázací drát a drobné občerstvení budou k dispozici.",
+    "lead": "Ještě nemáte adventní věnec? Možná jej nebudete mít ani v sobotu? Nezoufejte! Nic není ztraceno :-)",
+    "body": "<p><strong>S sebou si přineste:</strong></p><ul><li>vlastní korpus</li><li>ozdoby dle vlastního vkusu</li></ul><p><strong>K dispozici bude:</strong></p><ul><li>chvojí</li><li>vázací drát</li><li>drobné občerstvení</li></ul><p>Zájem předběžně potvrďte na tel. 776 615 901.</p>",
+    "price": "dobrovolný příspěvek",
+    "published": "2026-11-24",
+    "poster": {
+      "src": "/uploads/aktuality/pleteni-adventnich-vencu-2026-plakat-poster.webp",
+      "alt": "Plakát: Pletení adventních věnců"
+    },
+    "attachments": [
+      {
+        "label": "Plakát",
+        "file": "/uploads/aktuality/pleteni-adventnich-vencu-2026-plakat.jpg",
+        "size": 348471
+      }
+    ]
   }
 ]
