@@ -33,7 +33,8 @@ what is wrong:
 - a correction the user describes: change those fields;
 - a cancellation, a postponement or a dropped meeting: stop and follow **`parish-cancel-event`** instead.
 
-The fields follow **`parish-create-event`** step 2. A changed `place` takes its venue again as
+The fields follow **`parish-create-event`** step 2, and a programme, links, a registration or a series are filled as
+[its examples](../parish-create-event/examples.md) show. A changed `place` takes its venue again as
 **[`parish-manage-venues`](../parish-manage-venues/SKILL.md)** section A says (a new venue or alias written after the
 yes, before the record), and the old `venue` goes when it no longer fits. `--check` names `venue` among the `Changed:`
 fields.
