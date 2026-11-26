@@ -1,7 +1,8 @@
 // pnpm add-album: adds a Zonerama album of the parish to the Fotogalerie (parish-create-album skill), its photos taken
 // from the album's zip: downloaded from Zonerama (without videos, kept in the temp folder until --write adds the
-// album), or the zip the parish gives with --photos when the download fails (Zonerama serves scripts a bot image
-// instead of a single photo, so photos are never downloaded one by one).
+// album), or the zip the parish gives with --photos when the download fails (Zonerama's Cloudflare bot check refuses
+// scripts at times, and Zonerama serves scripts a bot image instead of a single photo, so photos are never downloaded
+// one by one).
 // Without --write it prints the proposal as JSON to confirm with the user: the title, the date, the id, the chosen
 // aspect ratio and the photo counts. --write stages the chosen photos in fotogalerie/<id>/ (four widths each,
 // refused when the folder is already on the server), adds the album to src/content/gallery.json, removes the oldest

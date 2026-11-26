@@ -352,9 +352,14 @@ describe("runAlbum on a temp gallery.json, uploads/ and zip", () => {
   const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
     if (init?.method === "HEAD") return new Response(null, { status: answers.head });
     // Zonerama's zip of the album (the "Stáhnout" dialog), ready at once.
-    if (url.includes("/Zip/Album/")) return Response.json({ Id: "z1" });
-    if (url.includes("/Zip/IsReady/")) return Response.json({ IsReady: true, Url: "/Zip/Download/z1", Error: null });
-    if (url.includes("/Zip/Download/")) {
+    if (url.includes("/web/download/zip/Album?")) return Response.json({ Id: "z1" });
+    if (url.includes("/web/download/zip/IsReady?"))
+      return Response.json({
+        IsReady: true,
+        Url: "https://media.zonerama.com/web/download/zip/Download?id=z1&sig=s",
+        Error: null,
+      });
+    if (url.includes("/web/download/zip/Download?")) {
       return new Response(readFileSync(zip), {
         headers: {
           "content-type": "application/zip",
@@ -411,7 +416,7 @@ describe("runAlbum on a temp gallery.json, uploads/ and zip", () => {
     const proposal = await runAlbum({ url: URL, write: false, check: false }, env(), galleryFile, cacheDir());
     expect(proposal.output).toMatch(/^Downloaded the album's zip from Zonerama/);
     expect(JSON.parse(proposal.output.split("\n").slice(1).join("\n"))).toMatchObject({ total: 3 });
-    const starts = () => fetchMock.mock.calls.filter(([url]) => url.includes("/Zip/Album/")).length;
+    const starts = () => fetchMock.mock.calls.filter(([url]) => url.includes("/web/download/zip/Album?")).length;
     expect(starts()).toBe(1);
     await runAlbum({ url: URL, write: true, check: false }, env(), galleryFile, cacheDir());
     expect(starts()).toBe(1);

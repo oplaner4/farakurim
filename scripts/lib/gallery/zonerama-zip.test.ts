@@ -14,17 +14,19 @@ const zipResponse = () =>
     },
   });
 
+const DOWNLOAD = "https://media.zonerama.com/web/download/zip/Download?id=z1&sig=1795910400.abc";
+
 /** A fetch stub answering Zonerama's three steps: start the zip, report it ready after `polls` answers, send it. */
 function zonerama({ polls = 1, ready = {}, download = zipResponse } = {}) {
   let asked = 0;
   return vi.fn(async (url: string) => {
-    if (url.includes("/Zip/Album/")) return Response.json({ Id: "z1" });
-    if (url.includes("/Zip/IsReady/z1")) {
+    if (url.startsWith("https://eu.zonerama.com/web/download/zip/Album?")) return Response.json({ Id: "z1" });
+    if (url === "https://eu.zonerama.com/web/download/zip/IsReady?id=z1") {
       return ++asked < polls
-        ? Response.json({ IsReady: false, Progress: 0.5, Error: null })
-        : Response.json({ IsReady: true, Progress: 1, Url: "/Zip/Download/z1", Error: null, ...ready });
+        ? Response.json({ IsReady: false, Progress: 0.5, Url: DOWNLOAD, Error: null })
+        : Response.json({ IsReady: true, Progress: 1, Url: DOWNLOAD, Error: null, ...ready });
     }
-    if (url.endsWith("/Zip/Download/z1")) return download();
+    if (url === DOWNLOAD) return download();
     return new Response("not found", { status: 404 });
   });
 }
@@ -40,7 +42,8 @@ describe("downloadAlbumZip", () => {
     expect(basename(zip)).toBe("2026_09_27 pesi pout na Vranov.zip");
     expect(readFileSync(zip)).toEqual(ZIP);
     const start = new URL(fetch.mock.calls[0][0]);
-    expect(start.pathname).toBe("/Zip/Album/16583642");
+    expect(start.pathname).toBe("/web/download/zip/Album");
+    expect(start.searchParams.get("id")).toBe("16583642");
     expect(start.searchParams.get("includeVideos")).toBe("false");
     expect(start.searchParams.get("original")).toBe("false");
     expect(fetch.mock.calls.filter(([url]) => url.includes("IsReady"))).toHaveLength(3);
@@ -90,6 +93,17 @@ describe("downloadAlbumZip", () => {
       }),
     ).rejects.toThrow(/not ready[^]*--photos <zip>/);
     expect(fetch.mock.calls.filter(([url]) => url.includes("IsReady"))).toHaveLength(5);
+  });
+
+  it("names Cloudflare's bot check when it refuses the script", async () => {
+    const fetch = vi.fn(
+      async () =>
+        new Response("<title>Just a moment...</title>", { status: 403, headers: { "cf-mitigated": "challenge" } }),
+    );
+    await expect(
+      downloadAlbumZip("16583642", tempDir(), { fetch: fetch as unknown as typeof globalThis.fetch, wait: noWait }),
+    ).rejects.toThrow(/Cloudflare bot check refused the script[^\n]*\)\nnext: download the album's zip/);
+    expect(existsSync(join(tempDir(), "zonerama-16583642"))).toBe(false);
   });
 
   it("refuses a start Zonerama does not answer", async () => {

@@ -24,7 +24,12 @@ pnpm add-album "https://eu.zonerama.com/FarnostKurim/Album/<albumId>"
 
 If the download fails ("could not download album …"), ask the user for the album's zip (they download it from the
 album on Zonerama with "Stáhnout", usually to `~/Downloads/<YYYY_MM_DD> <title>.zip`) and run it again with
-`--photos "<zip>"`. A large album takes a while to prepare and download (about 500 MB for 140 photos).
+`--photos "<zip>"`. Look in `~/Downloads` first: the zip may be there already. A large album takes a while to prepare
+and download (about 500 MB for 140 photos).
+
+When the reason is "Zonerama's Cloudflare bot check refused the script", Zonerama blocks scripts: the album page does
+not answer either, so the title comes from the zip's name. Never try to get past the check (other headers, a
+browser, cookies): ask for the zip. While the block lasts, ask for the zip of each further album right away.
 
 It prints JSON with the proposed `id` (ASCII kebab-case from the title with the year, usually at the end: `medovy-den-2026`,
 so next year's album never takes over this one's links and photo folder; the site refuses an id without it), the title (sentence case, without
@@ -32,7 +37,9 @@ Zonerama's `YYYY_MM_DD` prefix), the date from that prefix, and the photo counts
 how many photos the zip has, how many fit the album's ratio and how many it takes (up to 15).
 
 The title and the date come from the album page. When Zonerama does not answer, the command says so and takes them
-from the zip's name, which has no diacritics: fix the title with the user. If there is no date prefix, `date` is
+from the zip's name, which has no diacritics: propose the title with them restored (`Cervena streda - 800let
+Kurimi` → `Červená středa – 800 let Kuřimi`), pass it with `--title` and the id with `--id` when the wording changed
+it, and confirm both with the user. If there is no date prefix, `date` is
 empty: ask the user for the date of the event.
 
 ## 3. Confirm with the user
