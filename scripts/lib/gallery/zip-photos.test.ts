@@ -47,6 +47,14 @@ describe("extractPhotos", () => {
     expect(await extractPhotos(file, dir)).toMatchObject([{ width: 1500, height: 2000 }]);
   });
 
+  it("replaces the characters Windows forbids in a file name, as Zonerama's ? for a háček", async () => {
+    const { file, dir } = zip({ "C?ERVENA'_STR?EDA_2026.jpg": await jpeg(30, 20), 'a<b>:"|*.jpg': await jpeg(30, 20) });
+    expect((await extractPhotos(file, dir)).map((p) => basename(p.file))).toEqual([
+      "a_b_____.jpg",
+      "C_ERVENA'_STR_EDA_2026.jpg",
+    ]);
+  });
+
   it("refuses two photos with one name", async () => {
     const photo = await jpeg(10, 10);
     const { file, dir } = zip({ "a/x.jpg": photo, "b/x.jpg": photo });

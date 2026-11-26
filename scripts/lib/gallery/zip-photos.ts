@@ -18,6 +18,9 @@ const isPhoto = (entry: string, name: string) =>
   !name.startsWith("._") &&
   PHOTO_EXTENSIONS.has(extname(name).toLowerCase());
 
+/** `name` with the characters Windows forbids in a file name as `_` (Zonerama writes `C?ERVENA` for ČERVENA). */
+const safeName = (name: string) => name.replace(/[<>:"|?*\u0000-\u001f]/g, "_");
+
 /**
  * Unpacks the images of `zip` into the folder `dir` by file name (its folders and other files ignored). A damaged zip
  * throws "the zip cannot be read: …" once, after its open files are closed, never as an unhandled rejection.
@@ -31,7 +34,7 @@ async function unpack(zip: string, dir: string): Promise<string[]> {
     failure ??= error instanceof Error ? error : new Error(String(error));
   };
   const unzip = new Unzip((entry) => {
-    const name = basename(entry.name.replaceAll("\\", "/"));
+    const name = safeName(basename(entry.name.replaceAll("\\", "/")));
     if (failure || !isPhoto(entry.name, name)) return;
     if (names.includes(name)) return fail(new Error(`the zip has two photos named ${name}`));
     names.push(name);
