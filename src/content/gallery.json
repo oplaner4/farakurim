@@ -1,6 +1,96 @@
 {
   "albums": [
     {
+      "id": "cervena-streda-800-let-kurimi-2026",
+      "title": "Červená středa – 800 let Kuřimi",
+      "date": "2026-11-25",
+      "href": "https://www.zonerama.com/FarnostKurim/Album/17381607",
+      "photoCount": 15,
+      "photos": [
+        {
+          "small": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-1-800.webp",
+          "large": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-1-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-2-800.webp",
+          "large": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-2-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-3-800.webp",
+          "large": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-3-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-4-800.webp",
+          "large": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-4-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-5-800.webp",
+          "large": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-5-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-6-800.webp",
+          "large": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-6-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-7-800.webp",
+          "large": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-7-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-8-800.webp",
+          "large": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-8-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-9-800.webp",
+          "large": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-9-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-10-800.webp",
+          "large": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-10-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-11-800.webp",
+          "large": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-11-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-12-800.webp",
+          "large": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-12-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-13-800.webp",
+          "large": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-13-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-14-800.webp",
+          "large": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-14-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-15-800.webp",
+          "large": "/uploads/fotogalerie/cervena-streda-800-let-kurimi-2026/foto-15-1600.webp"
+        }
+      ]
+    },
+    {
+      "id": "prednaska-vedomi-a-smrt-2026",
+      "title": "Přednáška – Vědomí a smrt",
+      "date": "2026-11-08",
+      "href": "https://www.zonerama.com/FarnostKurim/Album/17381503",
+      "photoCount": 3,
+      "photos": [
+        {
+          "small": "/uploads/fotogalerie/prednaska-vedomi-a-smrt-2026/foto-1-800.webp",
+          "large": "/uploads/fotogalerie/prednaska-vedomi-a-smrt-2026/foto-1-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/prednaska-vedomi-a-smrt-2026/foto-2-800.webp",
+          "large": "/uploads/fotogalerie/prednaska-vedomi-a-smrt-2026/foto-2-1600.webp"
+        },
+        {
+          "small": "/uploads/fotogalerie/prednaska-vedomi-a-smrt-2026/foto-3-800.webp",
+          "large": "/uploads/fotogalerie/prednaska-vedomi-a-smrt-2026/foto-3-1600.webp"
+        }
+      ]
+    },
+    {
       "id": "hubertska-mse-2026",
       "title": "Hubertská mše",
       "date": "2026-10-25",
@@ -213,136 +303,6 @@
         {
           "small": "/uploads/fotogalerie/pesi-pout-vranov-2026/foto-15-800.webp",
           "large": "/uploads/fotogalerie/pesi-pout-vranov-2026/foto-15-1600.webp"
-        }
-      ]
-    },
-    {
-      "id": "medovy-den-2026",
-      "title": "Stánek farnosti na Medovém dni",
-      "date": "2026-09-20",
-      "href": "https://www.zonerama.com/FarnostKurim/Album/16472585",
-      "photoCount": 13,
-      "photos": [
-        {
-          "small": "/uploads/fotogalerie/medovy-den-2026/foto-1-800.webp",
-          "large": "/uploads/fotogalerie/medovy-den-2026/foto-1-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/medovy-den-2026/foto-2-800.webp",
-          "large": "/uploads/fotogalerie/medovy-den-2026/foto-2-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/medovy-den-2026/foto-3-800.webp",
-          "large": "/uploads/fotogalerie/medovy-den-2026/foto-3-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/medovy-den-2026/foto-4-800.webp",
-          "large": "/uploads/fotogalerie/medovy-den-2026/foto-4-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/medovy-den-2026/foto-5-800.webp",
-          "large": "/uploads/fotogalerie/medovy-den-2026/foto-5-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/medovy-den-2026/foto-6-800.webp",
-          "large": "/uploads/fotogalerie/medovy-den-2026/foto-6-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/medovy-den-2026/foto-7-800.webp",
-          "large": "/uploads/fotogalerie/medovy-den-2026/foto-7-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/medovy-den-2026/foto-8-800.webp",
-          "large": "/uploads/fotogalerie/medovy-den-2026/foto-8-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/medovy-den-2026/foto-9-800.webp",
-          "large": "/uploads/fotogalerie/medovy-den-2026/foto-9-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/medovy-den-2026/foto-10-800.webp",
-          "large": "/uploads/fotogalerie/medovy-den-2026/foto-10-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/medovy-den-2026/foto-11-800.webp",
-          "large": "/uploads/fotogalerie/medovy-den-2026/foto-11-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/medovy-den-2026/foto-12-800.webp",
-          "large": "/uploads/fotogalerie/medovy-den-2026/foto-12-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/medovy-den-2026/foto-13-800.webp",
-          "large": "/uploads/fotogalerie/medovy-den-2026/foto-13-1600.webp"
-        }
-      ]
-    },
-    {
-      "id": "pozehnani-namesti-2026",
-      "title": "Mše s požehnáním náměstí Osvobození",
-      "date": "2026-09-20",
-      "href": "https://www.zonerama.com/FarnostKurim/Album/16472577",
-      "photoCount": 15,
-      "photos": [
-        {
-          "small": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-1-800.webp",
-          "large": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-1-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-2-800.webp",
-          "large": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-2-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-3-800.webp",
-          "large": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-3-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-4-800.webp",
-          "large": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-4-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-5-800.webp",
-          "large": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-5-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-6-800.webp",
-          "large": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-6-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-7-800.webp",
-          "large": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-7-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-8-800.webp",
-          "large": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-8-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-9-800.webp",
-          "large": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-9-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-10-800.webp",
-          "large": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-10-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-11-800.webp",
-          "large": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-11-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-12-800.webp",
-          "large": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-12-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-13-800.webp",
-          "large": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-13-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-14-800.webp",
-          "large": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-14-1600.webp"
-        },
-        {
-          "small": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-15-800.webp",
-          "large": "/uploads/fotogalerie/pozehnani-namesti-2026/foto-15-1600.webp"
         }
       ]
     }
